@@ -36,7 +36,7 @@ class _CarSilhouettePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final outlinePaint = Paint()
-      ..color = Colors.white.withOpacity(0.3)
+      ..color = Colors.white.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 

@@ -56,7 +56,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 children: [
                   CircleAvatar(
                     radius: 26,
-                    backgroundColor: AppColors.primaryAmber.withOpacity(0.2),
+                    backgroundColor: AppColors.primaryAmber.withValues(alpha: 0.2),
                     child: const Icon(Icons.directions_car_rounded, color: AppColors.primaryAmber, size: 28),
                   ),
                   const SizedBox(width: 14),
@@ -81,7 +81,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.warningOrange.withOpacity(0.5)),
+                  border: Border.all(color: AppColors.warningOrange.withValues(alpha: 0.5)),
                 ),
                 child: Column(
                   children: [
@@ -192,9 +192,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: color.withOpacity(0.15),
+                              color: color.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: color.withOpacity(0.6)),
+                              border: Border.all(color: color.withValues(alpha: 0.6)),
                             ),
                             child: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12)),
                           ),
@@ -210,9 +210,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryAmber.withOpacity(0.15),
+                  color: AppColors.primaryAmber.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primaryAmber.withOpacity(0.4)),
+                  border: Border.all(color: AppColors.primaryAmber.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -257,7 +257,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
             value: value / 100.0,
-            backgroundColor: color.withOpacity(0.2),
+            backgroundColor: color.withValues(alpha: 0.2),
             valueColor: AlwaysStoppedAnimation<Color>(color),
             minHeight: 8,
           ),
@@ -272,7 +272,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -65,7 +65,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             margin: const EdgeInsets.only(right: 12),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.primaryAmber.withOpacity(0.2) : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
+                              color: isSelected ? AppColors.primaryAmber.withValues(alpha: 0.2) : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected ? AppColors.primaryAmber : AppColors.surfaceBorderDark,
@@ -199,7 +199,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
   }) {
     return Row(
       children: [
-        CircleAvatar(backgroundColor: AppColors.primaryAmber.withOpacity(0.15), child: Icon(icon, color: AppColors.primaryAmber)),
+        CircleAvatar(backgroundColor: AppColors.primaryAmber.withValues(alpha: 0.15), child: Icon(icon, color: AppColors.primaryAmber)),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

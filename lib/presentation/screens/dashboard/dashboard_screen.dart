@@ -39,9 +39,9 @@ class DashboardScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.secondarySage.withOpacity(0.15),
+                color: AppColors.secondarySage.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.secondarySage.withOpacity(0.4)),
+                border: Border.all(color: AppColors.secondarySage.withValues(alpha: 0.4)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,14 +86,14 @@ class DashboardScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primaryAmber.withOpacity(0.25),
+                    AppColors.primaryAmber.withValues(alpha: 0.25),
                     AppColors.surfaceDark,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.primaryAmber.withOpacity(0.4), width: 1.5),
+                border: Border.all(color: AppColors.primaryAmber.withValues(alpha: 0.4), width: 1.5),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +215,7 @@ class DashboardScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: ach.isUnlocked
-                          ? AppColors.primaryAmber.withOpacity(0.15)
+                          ? AppColors.primaryAmber.withValues(alpha: 0.15)
                           : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
@@ -364,7 +364,7 @@ class DashboardScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3), width: 1),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +374,7 @@ class DashboardScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CircleAvatar(
-                  backgroundColor: color.withOpacity(0.15),
+                  backgroundColor: color.withValues(alpha: 0.15),
                   child: Icon(icon, color: color),
                 ),
                 if (badge != null)
