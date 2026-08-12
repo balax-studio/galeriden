@@ -87,6 +87,7 @@ class ShowroomScreen extends ConsumerWidget {
                                 ],
                               ),
                               const SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -101,75 +102,90 @@ class ShowroomScreen extends ConsumerWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text('Piyasa Değeri', style: AppTypography.labelSmall(p.isDark)),
-                                      Text(CurrencyFormatter.format(car.estimatedRealValue), style: AppTypography.moneyMedium(p.isDark)),
+                                      Text(CurrencyFormatter.format(car.estimatedRealValue), style: AppTypography.labelSmall(p.isDark)),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text('İlan Satış Fiyatı', style: AppTypography.labelSmall(p.isDark)),
+                                      Text(CurrencyFormatter.format(car.listingPrice), style: AppTypography.moneyMedium(p.isDark).copyWith(color: p.primaryColor)),
                                     ],
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 8),
                               Container(
-                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                                 decoration: BoxDecoration(
-                                   color: p.surfaceColor,
-                                   borderRadius: BorderRadius.circular(10),
-                                   border: Border.all(color: p.surfaceBorderColor),
-                                 ),
-                                 child: Row(
-                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                   children: [
-                                     Text('İlan Beyanı:', style: AppTypography.labelSmall(p.isDark)),
-                                     DropdownButton<ListingDeclarationType>(
-                                       value: car.declarationType,
-                                       underline: const SizedBox(),
-                                       dropdownColor: p.surfaceColor,
-                                       items: const [
-                                         DropdownMenuItem(
-                                           value: ListingDeclarationType.honest,
-                                           child: Text('Dürüst İlan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                         ),
-                                         DropdownMenuItem(
-                                           value: ListingDeclarationType.flawlessClaim,
-                                           child: Text('Hatasız Boyasız Hilesi', style: TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.bold)),
-                                         ),
-                                         DropdownMenuItem(
-                                           value: ListingDeclarationType.tamperedMileageClaim,
-                                           child: Text('Sayaç Düşürme Hilesi', style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
-                                         ),
-                                       ],
-                                       onChanged: (val) {
-                                         if (val != null) {
-                                           ref.read(gameProvider.notifier).updateCarListingDeclaration(car.id, val);
-                                         }
-                                       },
-                                     ),
-                                   ],
-                                 ),
-                               ),
-                               const SizedBox(height: 8),
-                               SizedBox(
-                                 width: double.infinity,
-                                 child: ElevatedButton.icon(
-                                   icon: VectorIconWidget(type: 'flash', color: Colors.black, size: 16),
-                                   label: const Text('İlanı Öne Çıkar / Doping (₺2.500)'),
-                                   style: ElevatedButton.styleFrom(
-                                     backgroundColor: p.warningColor,
-                                     foregroundColor: Colors.black,
-                                     padding: const EdgeInsets.symmetric(vertical: 10),
-                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                   ),
-                                   onPressed: () {
-                                     final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
-                                     if (success) {
-                                       ScaffoldMessenger.of(context).showSnackBar(
-                                         SnackBar(content: Text('${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!')),
-                                       );
-                                     } else {
-                                       ScaffoldMessenger.of(context).showSnackBar(
-                                         const SnackBar(content: Text('Doping için bakiyeniz yetersiz (₺2.500 gereklidir).')),
-                                       );
-                                     }
-                                   },
-                                 ),
-                               ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: p.surfaceColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: p.surfaceBorderColor),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('İlan Beyanı:', style: AppTypography.labelSmall(p.isDark)),
+                                    Text(
+                                      car.declarationType == ListingDeclarationType.honest
+                                          ? 'Dürüst İlan'
+                                          : (car.declarationType == ListingDeclarationType.flawlessClaim
+                                              ? 'Hatasız Boyasız Hilesi'
+                                              : 'Sayaç Düşürme Hilesi'),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: car.declarationType == ListingDeclarationType.honest
+                                            ? p.secondaryColor
+                                            : (car.declarationType == ListingDeclarationType.flawlessClaim ? Colors.orange : Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      icon: const Icon(Icons.edit_note_rounded, size: 18),
+                                      label: const Text('Fiyat & İlanı Düzenle'),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: p.textPrimaryColor,
+                                        side: BorderSide(color: p.surfaceBorderColor),
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      ),
+                                      onPressed: () => _showListingEditSheet(context, ref, car),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      icon: VectorIconWidget(type: 'flash', color: Colors.black, size: 16),
+                                      label: const Text('İlanı Öne Çıkar (₺2.500)'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: p.warningColor,
+                                        foregroundColor: Colors.black,
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      ),
+                                      onPressed: () {
+                                        final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
+                                        if (success) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!')),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Doping için bakiyeniz yetersiz (₺2.500 gereklidir).')),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -385,6 +401,226 @@ class ShowroomScreen extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+
+  void _showListingEditSheet(BuildContext context, WidgetRef ref, CarModel car) {
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
+
+    double selectedPrice = car.listingPrice;
+    ListingDeclarationType selectedDeclaration = car.declarationType;
+
+    final double minPrice = (car.currentPurchasePrice * 0.8).clamp(10000.0, car.estimatedRealValue);
+    final double maxPrice = (car.estimatedRealValue * 1.6).roundToDouble();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: p.backgroundColor,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('İLAN AYARLARI', style: AppTypography.titleLarge(p.isDark)),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    Text('${car.brand} ${car.modelName} (${car.modelYear})', style: AppTypography.labelSmall(p.isDark)),
+                    const SizedBox(height: 16),
+
+                    // Price Setting Section
+                    Text('BELİRLENEN İLAN FİYATI', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text('Müşterilerin vereceği tüm teklifler belirlediğiniz bu ilan fiyatının altında kalacaktır.', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    const SizedBox(height: 12),
+
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: p.surfaceColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: p.surfaceBorderColor),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('İlan Satış Fiyatı:', style: AppTypography.labelSmall(p.isDark)),
+                              Text(CurrencyFormatter.format(selectedPrice), style: AppTypography.moneyMedium(p.isDark).copyWith(color: p.primaryColor)),
+                            ],
+                          ),
+                          Slider(
+                            value: selectedPrice.clamp(minPrice, maxPrice),
+                            min: minPrice,
+                            max: maxPrice,
+                            divisions: 100,
+                            activeColor: p.primaryColor,
+                            onChanged: (val) {
+                              setState(() {
+                                selectedPrice = (val / 1000).round() * 1000.0;
+                              });
+                            },
+                          ),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              ActionChip(
+                                label: const Text('Piyasa Değeri', style: TextStyle(fontSize: 11)),
+                                backgroundColor: p.backgroundColor,
+                                onPressed: () {
+                                  setState(() => selectedPrice = car.estimatedRealValue.roundToDouble());
+                                },
+                              ),
+                              ActionChip(
+                                label: const Text('+%10 Kâr', style: TextStyle(fontSize: 11)),
+                                backgroundColor: p.backgroundColor,
+                                onPressed: () {
+                                  setState(() => selectedPrice = (car.estimatedRealValue * 1.10).roundToDouble());
+                                },
+                              ),
+                              ActionChip(
+                                label: const Text('+%20 Tok Satıcı', style: TextStyle(fontSize: 11)),
+                                backgroundColor: p.backgroundColor,
+                                onPressed: () {
+                                  setState(() => selectedPrice = (car.estimatedRealValue * 1.20).roundToDouble());
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Declaration Selector Section
+                    Text('İLAN BEYANI (SÜRTÜNMESİZ SEÇİM)', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.secondaryColor, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+
+                    _buildDeclarationCard(
+                      title: 'Dürüst İlan',
+                      subtitle: 'Araç durumu olduğu gibi beyan edilir. Risk yok.',
+                      color: p.secondaryColor,
+                      isSelected: selectedDeclaration == ListingDeclarationType.honest,
+                      onTap: () => setState(() => selectedDeclaration = ListingDeclarationType.honest),
+                      p: p,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildDeclarationCard(
+                      title: 'Hatasız Boyasız Hilesi',
+                      subtitle: 'Hasarlar gizlenir. Müşteri ekspertiz yaptırırsa ₺10k ceza kesilir.',
+                      color: Colors.orange,
+                      isSelected: selectedDeclaration == ListingDeclarationType.flawlessClaim,
+                      onTap: () => setState(() => selectedDeclaration = ListingDeclarationType.flawlessClaim),
+                      p: p,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildDeclarationCard(
+                      title: 'Sayaç Düşürme Hilesi',
+                      subtitle: 'KM düşürülmüş gösterilir. Beyin taramasında yakalanırsa ₺10k ceza kesilir.',
+                      color: Colors.red,
+                      isSelected: selectedDeclaration == ListingDeclarationType.tamperedMileageClaim,
+                      onTap: () => setState(() => selectedDeclaration = ListingDeclarationType.tamperedMileageClaim),
+                      p: p,
+                    ),
+
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: p.primaryColor,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: () {
+                          ref.read(gameProvider.notifier).updateCarListingDetails(
+                                car.id,
+                                customPrice: selectedPrice,
+                                declaration: selectedDeclaration,
+                              );
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${car.brand} ${car.modelName} ilanı güncellendi!')),
+                          );
+                        },
+                        child: const Text('İlanı Güncelle & Kaydet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDeclarationCard({
+    required String title,
+    required String subtitle,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required dynamic p,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.15) : p.surfaceColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? color : p.surfaceBorderColor,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+              color: isSelected ? color : Colors.grey,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isSelected ? color : p.textPrimaryColor)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

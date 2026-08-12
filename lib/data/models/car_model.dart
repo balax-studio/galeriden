@@ -19,6 +19,7 @@ class CarModel {
   final bool isRare;
   final ExpertiseReport expertise;
   final ListingDeclarationType declarationType;
+  final double? customListingPrice;
 
   CarModel({
     required this.id,
@@ -33,7 +34,11 @@ class CarModel {
     this.isRare = false,
     required this.expertise,
     this.declarationType = ListingDeclarationType.honest,
+    this.customListingPrice,
   });
+
+  /// Effective listing price (custom if set by player, otherwise estimated real value)
+  double get listingPrice => customListingPrice ?? estimatedRealValue;
 
   /// Calculates estimated overall value after repair & cleaning & rarity
   double get estimatedRealValue {
@@ -71,6 +76,7 @@ class CarModel {
       'isRare': isRare,
       'expertise': expertise.toJson(),
       'declarationType': declarationType.name,
+      'customListingPrice': customListingPrice,
     };
   }
 
@@ -93,6 +99,7 @@ class CarModel {
               orElse: () => ListingDeclarationType.honest,
             )
           : ListingDeclarationType.honest,
+      customListingPrice: json['customListingPrice'] != null ? (json['customListingPrice'] as num).toDouble() : null,
     );
   }
 
@@ -103,6 +110,7 @@ class CarModel {
     bool? isRare,
     ExpertiseReport? expertise,
     ListingDeclarationType? declarationType,
+    double? customListingPrice,
   }) {
     return CarModel(
       id: id,
@@ -117,6 +125,7 @@ class CarModel {
       isRare: isRare ?? this.isRare,
       expertise: expertise ?? this.expertise,
       declarationType: declarationType ?? this.declarationType,
+      customListingPrice: customListingPrice ?? this.customListingPrice,
     );
   }
 }

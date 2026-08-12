@@ -334,10 +334,19 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
   /// Updates car's listing declaration status (honest, flawless claim, tampered mileage)
   void updateCarListingDeclaration(String carId, ListingDeclarationType declaration) {
+    updateCarListingDetails(carId, declaration: declaration);
+  }
+
+  /// Updates car's custom listing price and/or declaration status
+  void updateCarListingDetails(String carId, {double? customPrice, ListingDeclarationType? declaration}) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return;
 
-    final updatedCar = state.ownedCars[carIndex].copyWith(declarationType: declaration);
+    final existing = state.ownedCars[carIndex];
+    final updatedCar = existing.copyWith(
+      customListingPrice: customPrice,
+      declarationType: declaration ?? existing.declarationType,
+    );
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
 

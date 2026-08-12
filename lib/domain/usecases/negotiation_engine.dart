@@ -167,23 +167,29 @@ class NegotiationEngine {
     'Kardeşim acil nakit lazımsa hemen geleyim, üstüne bir kuruş çıkamam.',
   ];
 
-  /// Generates a realistic buyer offer (including 25% chance of lowball "ölücü" offers)
+  /// Generates a realistic buyer offer (strictly capped at seller's custom listing price)
   static OfferModel generateBuyerOffer(CarModel car, double listingPrice) {
     final realVal = car.estimatedRealValue;
+    final askingPrice = car.listingPrice;
     final isLowball = _random.nextDouble() < 0.25;
 
     double baseOffer;
     String message;
 
     if (isLowball) {
-      // Ölücü Teklif (%50 - %72 piyasa değeri)
-      baseOffer = (realVal * (0.50 + (_random.nextDouble() * 0.22))).roundToDouble();
+      // Ölücü Teklif (%50 - %72 piyasa değeri, kesinlikle isteğin üstüne çıkamaz)
+      baseOffer = (min(realVal, askingPrice) * (0.50 + (_random.nextDouble() * 0.22))).roundToDouble();
+      if (baseOffer >= askingPrice) {
+        baseOffer = (askingPrice * 0.70).roundToDouble();
+      }
       message = lowballMessages[_random.nextInt(lowballMessages.length)];
     } else {
-      // Normal Teklif (%88 - %108 piyasa değeri)
-      baseOffer = (realVal * (0.88 + (_random.nextDouble() * 0.20))).roundToDouble();
-      if (baseOffer > listingPrice * 1.05) {
-        baseOffer = listingPrice * 0.98;
+      // Normal Teklif (%88 - %99 isteğin üstüne çıkamaz)
+      final maxAllowed = min(realVal * 1.05, askingPrice);
+      final minAllowed = min(realVal * 0.85, askingPrice * 0.82);
+      baseOffer = (minAllowed + (_random.nextDouble() * (maxAllowed - minAllowed))).roundToDouble();
+      if (baseOffer > askingPrice) {
+        baseOffer = askingPrice;
       }
       message = buyerMessages[_random.nextInt(buyerMessages.length)];
     }
