@@ -97,22 +97,40 @@ class NegotiationEngine {
     'Kemal T.',
   ];
 
-  /// Generates a realistic buyer offer for a car listed in Showroom
+  static const List<String> lowballMessages = [
+    'Usta öldürmüş gibi olmasın ama nakit bu kadar çalışır, işine gelirse noter hazır.',
+    'Aracın piyasası ölü usta, bu fiyata veren çıkarsa şükret derim.',
+    'Selamın aleykum, aracın masrafı çok duruyor. Hurda niyetine bu fiyata kapatırım.',
+    'Kardeşim acil nakit lazımsa hemen geleyim, üstüne bir kuruş çıkamam.',
+  ];
+
+  /// Generates a realistic buyer offer (including 25% chance of lowball "ölücü" offers)
   static OfferModel generateBuyerOffer(CarModel car, double listingPrice) {
     final realVal = car.estimatedRealValue;
-    double baseOffer = (realVal * (0.90 + (_random.nextDouble() * 0.20))).roundToDouble();
+    final isLowball = _random.nextDouble() < 0.25;
 
-    if (baseOffer > listingPrice * 1.1) {
-      baseOffer = listingPrice * 0.98;
+    double baseOffer;
+    String message;
+
+    if (isLowball) {
+      // Ölücü Teklif (%50 - %72 piyasa değeri)
+      baseOffer = (realVal * (0.50 + (_random.nextDouble() * 0.22))).roundToDouble();
+      message = lowballMessages[_random.nextInt(lowballMessages.length)];
+    } else {
+      // Normal Teklif (%88 - %108 piyasa değeri)
+      baseOffer = (realVal * (0.88 + (_random.nextDouble() * 0.20))).roundToDouble();
+      if (baseOffer > listingPrice * 1.05) {
+        baseOffer = listingPrice * 0.98;
+      }
+      message = buyerMessages[_random.nextInt(buyerMessages.length)];
     }
 
     final buyerName = buyerNames[_random.nextInt(buyerNames.length)];
-    final message = buyerMessages[_random.nextInt(buyerMessages.length)];
 
     return OfferModel(
       id: 'offer_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}',
       carId: car.id,
-      buyerName: buyerName,
+      buyerName: isLowball ? 'Ölücü $buyerName' : buyerName,
       offeredAmount: baseOffer,
       buyerMessage: message,
       status: OfferStatus.pending,

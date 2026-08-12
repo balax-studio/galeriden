@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,8 +21,26 @@ final gameProvider = StateNotifierProvider<GameNotifier, DealershipModel>((ref) 
 });
 
 class GameNotifier extends StateNotifier<DealershipModel> {
+  final Random _random = Random();
+  Timer? _organicOfferTimer;
+
   GameNotifier() : super(DealershipModel.initial()) {
     _loadState();
+    _startPeriodicOrganicOfferTimer();
+  }
+
+  void _startPeriodicOrganicOfferTimer() {
+    _organicOfferTimer = Timer.periodic(const Duration(seconds: 25), (timer) {
+      if (state.ownedCars.isNotEmpty && _random.nextDouble() < 0.60) {
+        triggerOrganicOffers();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _organicOfferTimer?.cancel();
+    super.dispose();
   }
 
   static const String _storageKey = 'dealership_state_v2';
@@ -153,25 +173,43 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     return true;
   }
 
-  /// Boost Listing Doping (₺2.500) to instantly bring 2 buyer offers
+  /// Boost Listing Doping (₺2.500): Increases listing visibility with randomized delay
   bool boostListingDoping(String carId) {
     const cost = 2500.0;
     if (state.balance < cost) return false;
 
     final car = state.ownedCars.firstWhere((c) => c.id == carId, orElse: () => throw Exception('Car not found'));
     
-    // Generate 2 immediate high-value offers
-    final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.1);
-    final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.1);
-
-    state = state.copyWith(
-      balance: state.balance - cost,
-      incomingOffers: [...state.incomingOffers, newOffer1, newOffer2],
-    );
-
+    state = state.copyWith(balance: state.balance - cost);
     addXP(15);
     _saveState();
+
+    final delay1 = 3 + _random.nextInt(3);
+    final delay2 = 6 + _random.nextInt(4);
+
+    // Doping brings 2 offers after realistic randomized delays (3-8 sec)
+    Future.delayed(Duration(seconds: delay1), () {
+      final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
+      state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
+      _saveState();
+    });
+
+    Future.delayed(Duration(seconds: delay2), () {
+      final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
+      state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
+      _saveState();
+    });
+
     return true;
+  }
+
+  /// Organic buyer offers trigger over time even WITHOUT paid doping
+  void triggerOrganicOffers() {
+    if (state.ownedCars.isEmpty) return;
+    final randomCar = state.ownedCars[_random.nextInt(state.ownedCars.length)];
+    final offer = NegotiationEngine.generateBuyerOffer(randomCar, randomCar.estimatedRealValue);
+    state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
+    _saveState();
   }
 
   /// Perform detailing & pasta cila (+8% value boost & shine badge)
