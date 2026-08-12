@@ -5,6 +5,23 @@ import '../../domain/usecases/market_engine.dart';
 class AuctionEngine {
   static final Random _random = Random();
 
+  /// Checks if an auction is currently live (Active for 2 minutes every 5 minutes window)
+  static bool isAuctionActiveNow() {
+    final minute = DateTime.now().minute;
+    return (minute % 5) < 2;
+  }
+
+  /// Calculates remaining seconds until next auction window opens
+  static int getSecondsUntilNextAuction() {
+    final now = DateTime.now();
+    final minute = now.minute;
+    final second = now.second;
+
+    int minutesUntil = 5 - (minute % 5);
+    int totalSeconds = (minutesUntil * 60) - second;
+    return totalSeconds > 0 ? totalSeconds : 60;
+  }
+
   static AuctionModel createLiveAuction({int playerLevel = 1}) {
     final listings = MarketEngine.generateRandomListings(count: 1, playerLevel: playerLevel);
     final car = listings.first.car;

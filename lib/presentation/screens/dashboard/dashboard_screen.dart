@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/theme_palette_model.dart';
+import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 
@@ -202,14 +203,34 @@ class DashboardScreen extends ConsumerWidget {
                   badge: game.incomingOffers.isNotEmpty ? '${game.incomingOffers.length}' : null,
                   onTap: () => context.push('/showroom'),
                 ),
-                _buildActionCard(
-                  context,
-                  title: '🔨 Canlı İhale',
-                  subtitle: 'Gümrük İcraları',
-                  vectorType: 'flash',
-                  color: p.errorColor,
-                  badge: 'CANLI',
-                  onTap: () => context.push('/auction'),
+                Builder(
+                  builder: (context) {
+                    final isAuctionLive = AuctionEngine.isAuctionActiveNow();
+                    final remainingSec = AuctionEngine.getSecondsUntilNextAuction();
+                    final mins = remainingSec ~/ 60;
+                    final secs = remainingSec % 60;
+                    final timeStr = '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+
+                    return _buildActionCard(
+                      context,
+                      title: '🔨 Canlı İhale',
+                      subtitle: isAuctionLive ? 'Gümrük İcraları Açık!' : 'Sonraki: $timeStr',
+                      vectorType: 'flash',
+                      color: isAuctionLive ? p.errorColor : Colors.grey,
+                      badge: isAuctionLive ? 'CANLI 🔥' : 'KAPALI 🔒',
+                      onTap: () {
+                        if (isAuctionLive) {
+                          context.push('/auction');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('🔒 İhale şu an kapalı! Sonraki gümrük ihalesi $timeStr dakika sonra açılacak.'),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
                 ),
                 _buildActionCard(
                   context,
