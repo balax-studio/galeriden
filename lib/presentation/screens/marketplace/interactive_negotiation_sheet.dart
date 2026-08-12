@@ -298,7 +298,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.gavel_rounded, size: 16),
-                          label: Text('🚨 Gizli Kusuru Koz Kullan (-%${(disc.extraDiscountPercent * 100).toInt()} İndirim)'),
+                          label: Text('Gizli Kusuru Koz Kullan (-%${(disc.extraDiscountPercent * 100).toInt()} İndirim)'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: p.secondaryColor,
                             foregroundColor: Colors.white,

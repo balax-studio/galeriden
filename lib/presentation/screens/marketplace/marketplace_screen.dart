@@ -102,11 +102,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               children: [
                 _buildFilterChip('all', 'Tüm Araçlar', Icons.directions_car_rounded, p),
                 const SizedBox(width: 8),
-                _buildFilterChip('bargain', '🔥 Kelepir Fırsatlar', Icons.local_fire_department_rounded, p),
+                _buildFilterChip('bargain', 'Kelepir Fırsatlar', Icons.local_fire_department_rounded, p),
                 const SizedBox(width: 8),
-                _buildFilterChip('clean', '🛡️ Hasarsız', Icons.verified_user_rounded, p),
+                _buildFilterChip('clean', 'Hasarsız', Icons.verified_user_rounded, p),
                 const SizedBox(width: 8),
-                _buildFilterChip('affordable', '💰 Bütçeme Uygun', Icons.account_balance_wallet_rounded, p),
+                _buildFilterChip('affordable', 'Bütçeme Uygun', Icons.account_balance_wallet_rounded, p),
               ],
             ),
           ),
@@ -277,7 +277,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                   ),
                                   if (exp.isMileageTampered && item.isExpertiseCompleted)
                                     _buildColorBadge(
-                                      label: '⚠️ ŞÜPHELİ KM!',
+                                      label: 'ŞÜPHELİ KM!',
                                       color: p.errorColor,
                                       tooltip: 'KM Düşürülmüş Olabilir!',
                                     ),

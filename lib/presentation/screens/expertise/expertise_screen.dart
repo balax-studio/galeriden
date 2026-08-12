@@ -149,7 +149,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                     child: _buildInfoCard(
                       'Kilometre',
                       '${CurrencyFormatter.formatShort(exp.mileage.toDouble())} KM',
-                      exp.isMileageTampered ? '⚠️ Şüpheli KM' : '✓ Orijinal',
+                      exp.isMileageTampered ? 'Şüpheli KM' : 'Orijinal',
                       StatColors.getMileageColor(exp.mileage),
                       isDark,
                     ),

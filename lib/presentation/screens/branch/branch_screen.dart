@@ -11,11 +11,11 @@ class BranchScreen extends ConsumerWidget {
   const BranchScreen({super.key});
 
   String _getCharacterTitle(int level) {
-    if (level < 3) return 'Stajyer Galerici';
-    if (level < 6) return 'Çırak Al-Satçı';
-    if (level < 10) return 'Usta Galerici';
-    if (level < 15) return 'Oto Galeri Patronu';
-    return '👑 Galerici Kralı';
+    if (level >= 15) return 'Galerici Kralı';
+    if (level >= 10) return 'Oto Galeri Patronu';
+    if (level >= 6) return 'Usta Galerici';
+    if (level >= 3) return 'Çırak Al-Satçı';
+    return 'Stajyer Galerici';
   }
 
   @override
@@ -35,7 +35,7 @@ class BranchScreen extends ConsumerWidget {
         backgroundColor: p.backgroundColor,
         appBar: AppBar(
           backgroundColor: p.surfaceColor,
-          title: const Text('🏢 ŞUBE İMPARATORLUĞU & GELİŞİM'),
+          title: const Text('ŞUBE İMPARATORLUĞU & GELİŞİM'),
           bottom: TabBar(
             labelColor: p.primaryColor,
             unselectedLabelColor: Colors.grey,

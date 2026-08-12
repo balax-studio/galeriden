@@ -15,7 +15,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
     if (level < 6) return 'Çırak Al-Satçı';
     if (level < 10) return 'Usta Galerici';
     if (level < 15) return 'Oto Galeri Patronu';
-    return '👑 Galerici Kralı';
+    return 'Galerici Kralı';
   }
 
   @override
@@ -326,7 +326,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              '🎯 Perk: $perk',
+              'Perk: $perk',
               style: TextStyle(color: p.secondaryColor, fontSize: 11, fontWeight: FontWeight.w600),
             ),
           ),

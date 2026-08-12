@@ -124,15 +124,15 @@ class ShowroomScreen extends ConsumerWidget {
                                        items: const [
                                          DropdownMenuItem(
                                            value: ListingDeclarationType.honest,
-                                           child: Text('🟢 Dürüst İlan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                           child: Text('Dürüst İlan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                          ),
                                          DropdownMenuItem(
                                            value: ListingDeclarationType.flawlessClaim,
-                                           child: Text('⚠️ Hatasız Boyasız Hilesi', style: TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.bold)),
+                                           child: Text('Hatasız Boyasız Hilesi', style: TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.bold)),
                                          ),
                                          DropdownMenuItem(
                                            value: ListingDeclarationType.tamperedMileageClaim,
-                                           child: Text('🚨 Sayaç Düşürme Hilesi', style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
+                                           child: Text('Sayaç Düşürme Hilesi', style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
                                          ),
                                        ],
                                        onChanged: (val) {
@@ -282,8 +282,8 @@ class ShowroomScreen extends ConsumerWidget {
                                                 ),
                                                 content: Text(
                                                   '${fraudResult.description}\n\n'
-                                                  '💸 Tazminat Cezası: ₺${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
-                                                  '⭐ İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
+                                                  'Tazminat Cezası: ₺${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
+                                                  'İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
                                                   style: AppTypography.bodyMedium(p.isDark),
                                                 ),
                                                 actions: [

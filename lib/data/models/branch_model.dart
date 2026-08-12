@@ -53,7 +53,7 @@ class BranchModel {
       ),
       BranchModel(
         id: 'branch_4',
-        name: '👑 Etiler & Bodrum Showroom',
+        name: 'Etiler & Bodrum Showroom',
         locationName: 'Etiler Lüks Motor World',
         requiredBalance: 15000000,
         maxGarageSlots: 15,

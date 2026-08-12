@@ -27,7 +27,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
     super.initState();
     final game = ref.read(gameProvider);
     _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-    _bidLogs.add('🏁 Gümrük ve İcra Araç İhalesi Başladı!');
+    _bidLogs.add('Gümrük ve İcra Araç İhalesi Başladı!');
     _bidLogs.add('Başlangıç Teklifi: ₺${CurrencyFormatter.formatShort(_auction.startingPrice)}');
     _startAuctionTimer();
   }
@@ -54,7 +54,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
       if (updated != null) {
         setState(() {
           _auction = updated;
-          _bidLogs.insert(0, '🔥 ${updated.highestBidderName} teklifi artırdı: ₺${CurrencyFormatter.formatShort(updated.currentBid)}');
+          _bidLogs.insert(0, '${updated.highestBidderName} teklifi artırdı: ₺${CurrencyFormatter.formatShort(updated.currentBid)}');
         });
       }
     });
@@ -78,7 +78,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
         isPlayerHighestBidder: true,
         secondsRemaining: (_auction.secondsRemaining < 8) ? 8 : _auction.secondsRemaining,
       );
-      _bidLogs.insert(0, '⚡ SEN TEKLİF VERDİN: ₺${CurrencyFormatter.formatShort(nextBid)}');
+      _bidLogs.insert(0, 'SEN TEKLİF VERDİN: ₺${CurrencyFormatter.formatShort(nextBid)}');
     });
   }
 
@@ -91,7 +91,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          title: const Text('🎉 İHALEYİ KAZANDIN!'),
+          title: const Text('İHALEYİ KAZANDIN!'),
           content: Text(
             'Tebrikler! ${_auction.car.brand} ${_auction.car.modelName} aracını ₺${CurrencyFormatter.formatShort(_auction.currentBid)} fiyata ihaleden kaptın!\n\nPiyasa Değeri: ₺${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
           ),
@@ -111,7 +111,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          title: const Text('❌ İHALE SONLANDI'),
+          title: const Text('İHALE SONLANDI'),
           content: Text('İhaleyi ${_auction.highestBidderName} ₺${CurrencyFormatter.formatShort(_auction.currentBid)} teklifle kazandı.'),
           actions: [
             ElevatedButton(
@@ -142,7 +142,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
       backgroundColor: p.backgroundColor,
       appBar: AppBar(
         backgroundColor: p.surfaceColor,
-        title: const Text('🔨 CANLI GÜMRÜK İHALESİ'),
+        title: const Text('CANLI GÜMRÜK İHALESİ'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

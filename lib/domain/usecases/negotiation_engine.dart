@@ -82,7 +82,7 @@ class NegotiationEngine {
       );
     }
 
-    String title = '🚨 YAKALANDINIZ!';
+    String title = 'YAKALANDINIZ!';
     String description = car.declarationType == ListingDeclarationType.flawlessClaim
         ? '${customer.name} aracı ekspertize soktu! İlanda "Hatasız" yazılan araçta ağır kusur tespit edildi!'
         : '${customer.name} beyin taraması yaptırdı! Kilometrenin düşürüldüğü tespit edildi!';

@@ -75,7 +75,7 @@ class DashboardScreen extends ConsumerWidget {
               onClaim: () {
                 final reward = ref.read(gameProvider.notifier).claimDailyStreak();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('🎉 ₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!')),
+                  SnackBar(content: Text('₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!')),
                 );
               },
             ),
@@ -105,7 +105,7 @@ class DashboardScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('MEVCUT SERMAYE (Karakter Detayı ➔)', style: AppTypography.labelSmall(p.isDark)),
+                        Text('MEVCUT SERMAYE (Karakter Detayı)', style: AppTypography.labelSmall(p.isDark)),
                         Row(
                           children: [
                             Container(
@@ -218,18 +218,18 @@ class DashboardScreen extends ConsumerWidget {
 
                     return _buildActionCard(
                       context,
-                      title: '🔨 Canlı İhale',
+                      title: 'Canlı İhale',
                       subtitle: isAuctionLive ? 'Gümrük İcraları Açık!' : 'Sonraki: $timeStr',
                       vectorType: 'flash',
                       color: isAuctionLive ? p.errorColor : Colors.grey,
-                      badge: isAuctionLive ? 'CANLI 🔥' : 'KAPALI 🔒',
+                      badge: isAuctionLive ? 'CANLI' : 'KAPALI',
                       onTap: () {
                         if (isAuctionLive) {
                           context.push('/auction');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('🔒 İhale şu an kapalı! Sonraki gümrük ihalesi $timeStr dakika sonra açılacak.'),
+                              content: Text('İhale şu an kapalı! Sonraki gümrük ihalesi $timeStr dakika sonra açılacak.'),
                             ),
                           );
                         }
@@ -239,7 +239,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 _buildActionCard(
                   context,
-                  title: '🏢 Şube İmparatorluğu',
+                  title: 'Şube İmparatorluğu',
                   subtitle: 'Kapasite Genişlet',
                   vectorType: 'rare',
                   color: p.secondaryColor,
@@ -447,7 +447,7 @@ class DashboardScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              '🎯 Perk (Lv $level): $perkInfo',
+              'Perk (Lv $level): $perkInfo',
               style: TextStyle(color: p.secondaryColor, fontSize: 11, fontWeight: FontWeight.w600),
             ),
           ),
@@ -551,7 +551,7 @@ class DashboardScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    activeLoans.isNotEmpty ? '🏦 Banka Kredileri (${activeLoans.length})' : '🏦 Banka Kredisi Kullan',
+                    activeLoans.isNotEmpty ? 'Banka Kredileri (${activeLoans.length})' : 'Banka Kredisi Kullan',
                     style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
                   ),
                   const SizedBox(height: 2),
@@ -788,7 +788,7 @@ class _AnimatedMissionCardState extends State<_AnimatedMissionCard> {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                       onPressed: (progressRatio >= 1.0 && !_isClaiming) ? _handleClaim : null,
-                      child: const Text('🎁 Topla', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      child: const Text('Topla', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -890,7 +890,7 @@ class _AnimatedDailyBonusCardState extends State<_AnimatedDailyBonusCard> with S
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('✨ ${game.loginStreak} Günlük Seri!', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                        Text('${game.loginStreak} Günlük Seri!', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
                         Text('Günlük giriş bonusunu al', style: AppTypography.labelSmall(p.isDark)),
                       ],
                     ),
@@ -904,7 +904,7 @@ class _AnimatedDailyBonusCardState extends State<_AnimatedDailyBonusCard> with S
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: _handleClaim,
-                  child: const Text('🎁 Topla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  child: const Text('Topla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                 ),
               ],
             ),

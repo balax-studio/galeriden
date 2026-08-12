@@ -144,7 +144,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                       final updated = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
                                       setState(() => _selectedCar = updated);
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('✨ Pasta-Cila & Detaylı Temizlik Tamamlandı! Araç Parıl Parıl Parlıyor (+%8 Değer Boost).')),
+                                        const SnackBar(content: Text('Pasta-Cila & Detaylı Temizlik Tamamlandı! Araç Parıl Parıl Parlıyor (+%8 Değer Boost).')),
                                       );
                                     } else {
                                       ScaffoldMessenger.of(context).showSnackBar(
@@ -191,7 +191,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     const SizedBox(height: 24),
 
                     // Detailing & Tuning Section
-                    Text('✨ MODİFİYE & DETAILING ATÖLYESİ', style: AppTypography.labelSmall(p.isDark)),
+                    Text('MODİFİYE & DETAILING ATÖLYESİ', style: AppTypography.labelSmall(p.isDark)),
                     const SizedBox(height: 12),
                     Column(
                       children: DetailingOption.getAvailableOptions().map((opt) {

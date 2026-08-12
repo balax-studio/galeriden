@@ -113,7 +113,7 @@ class ExpertiseReportSheet extends StatelessWidget {
                     '${CurrencyFormatter.formatShort(car.expertise.mileage.toDouble())} km',
                     car.expertise.isMileageTampered ? p.errorColor : p.textPrimaryColor,
                     p,
-                    subtitle: car.expertise.isMileageTampered ? '🚨 Düşürülmüş KM' : 'Orijinal KM',
+                    subtitle: car.expertise.isMileageTampered ? 'Düşürülmüş KM' : 'Orijinal KM',
                   ),
                 ),
               ],
