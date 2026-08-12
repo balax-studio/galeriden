@@ -7,7 +7,7 @@ import '../../data/models/listing_model.dart';
 class MarketEngine {
   static final Random _random = Random();
 
-  static List<ListingModel> generateRandomListings({int count = 6, int playerLevel = 1}) {
+  static List<ListingModel> generateRandomListings({int count = 7, int playerLevel = 1}) {
     List<ListingModel> listings = [];
     for (int i = 0; i < count; i++) {
       listings.add(_generateSingleListing(playerLevel));
@@ -16,7 +16,9 @@ class MarketEngine {
   }
 
   static ListingModel _generateSingleListing(int playerLevel) {
-    final brand = GameConstants.carBrands[_random.nextInt(GameConstants.carBrands.length)];
+    // Weighted random selection for car brand
+    final brandData = _selectWeightedBrand();
+    final modelName = brandData.models[_random.nextInt(brandData.models.length)];
     final bodyType = GameConstants.bodyTypes[_random.nextInt(GameConstants.bodyTypes.length)];
     final year = 2014 + _random.nextInt(12);
     final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
@@ -60,12 +62,18 @@ class MarketEngine {
     double discount = _random.nextDouble() * 0.15; // 0-15% below market
     if (sellerProfile['urgency'] == 'high') discount += 0.10;
 
+    // 10% Chance of Flash Deal (%30 discount!)
+    final isFlashDeal = _random.nextDouble() < 0.10;
+    if (isFlashDeal) {
+      discount += 0.25;
+    }
+
     double askingPrice = (baseValue * (1.0 - discount)).roundToDouble();
 
     final car = CarModel(
       id: id,
-      brand: brand,
-      modelName: '$bodyType X${year % 100}',
+      brand: brandData.name,
+      modelName: modelName,
       modelYear: year,
       bodyType: bodyType,
       colorHex: _getRandomColorHex(),
@@ -81,14 +89,28 @@ class MarketEngine {
       id: 'listing_$id',
       car: car,
       sellerName: '${sellerProfile['name']} (${_getRandomSellerName()})',
-      sellerTrait: sellerProfile['trait']!,
+      sellerTrait: isFlashDeal ? '⚡ Fırsat İlanı! Çok Acele' : sellerProfile['trait']!,
       sellerCity: sellerCity,
-      title: '$year $brand $bodyType - ${sellerProfile['name']}',
-      description: 'Temiz kullanılmıştır, bakımları zamanında yapılmıştır. Nakit satılık.',
+      title: '$year ${brandData.name} $modelName',
+      description: isFlashDeal
+          ? '⚡ ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır.'
+          : 'Temiz kullanılmıştır, bakımları zamanında yapılmıştır. Nakit satılık.',
       askingPrice: askingPrice,
       isExpertiseCompleted: false,
       createdAt: DateTime.now(),
     );
+  }
+
+  static CarBrandData _selectWeightedBrand() {
+    int totalWeight = GameConstants.carBrands.fold(0, (sum, item) => sum + item.popularityWeight);
+    int roll = _random.nextInt(totalWeight);
+    int currentSum = 0;
+
+    for (var brand in GameConstants.carBrands) {
+      currentSum += brand.popularityWeight;
+      if (roll < currentSum) return brand;
+    }
+    return GameConstants.carBrands.first;
   }
 
   static PartStatus _getRandomPartStatus({bool tavanMultiplier = false, bool shasiMultiplier = false}) {

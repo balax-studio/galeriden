@@ -1,5 +1,7 @@
 import 'car_model.dart';
 import 'offer_model.dart';
+import 'player_skills.dart';
+import 'player_achievements.dart';
 
 class DealershipModel {
   final double balance;
@@ -10,6 +12,10 @@ class DealershipModel {
   final double totalProfit;
   final int carsSold;
   final DateTime lastActiveTime;
+  final PlayerSkills skills;
+  final List<AchievementItem> achievements;
+  final int loginStreak;
+  final DateTime lastLoginDate;
 
   DealershipModel({
     required this.balance,
@@ -20,9 +26,14 @@ class DealershipModel {
     required this.totalProfit,
     required this.carsSold,
     required this.lastActiveTime,
+    required this.skills,
+    required this.achievements,
+    required this.loginStreak,
+    required this.lastLoginDate,
   });
 
   factory DealershipModel.initial() {
+    final now = DateTime.now();
     return DealershipModel(
       balance: 50000.0,
       level: 1,
@@ -31,7 +42,11 @@ class DealershipModel {
       incomingOffers: [],
       totalProfit: 0.0,
       carsSold: 0,
-      lastActiveTime: DateTime.now(),
+      lastActiveTime: now,
+      skills: PlayerSkills(),
+      achievements: PlayerAchievements.initialList,
+      loginStreak: 1,
+      lastLoginDate: now,
     );
   }
 
@@ -45,10 +60,15 @@ class DealershipModel {
       'totalProfit': totalProfit,
       'carsSold': carsSold,
       'lastActiveTime': lastActiveTime.toIso8601String(),
+      'skills': skills.toJson(),
+      'achievements': achievements.map((a) => a.toJson()).toList(),
+      'loginStreak': loginStreak,
+      'lastLoginDate': lastLoginDate.toIso8601String(),
     };
   }
 
   factory DealershipModel.fromJson(Map<String, dynamic> json) {
+    final now = DateTime.now();
     return DealershipModel(
       balance: (json['balance'] as num).toDouble(),
       level: json['level'] as int,
@@ -63,7 +83,13 @@ class DealershipModel {
           [],
       totalProfit: (json['totalProfit'] as num).toDouble(),
       carsSold: json['carsSold'] as int,
-      lastActiveTime: DateTime.parse(json['lastActiveTime'] as String),
+      lastActiveTime: DateTime.tryParse(json['lastActiveTime'] as String? ?? '') ?? now,
+      skills: json['skills'] != null ? PlayerSkills.fromJson(json['skills'] as Map<String, dynamic>) : PlayerSkills(),
+      achievements: json['achievements'] != null
+          ? (json['achievements'] as List<dynamic>).map((a) => AchievementItem.fromJson(a as Map<String, dynamic>)).toList()
+          : PlayerAchievements.initialList,
+      loginStreak: json['loginStreak'] as int? ?? 1,
+      lastLoginDate: DateTime.tryParse(json['lastLoginDate'] as String? ?? '') ?? now,
     );
   }
 
@@ -76,6 +102,10 @@ class DealershipModel {
     double? totalProfit,
     int? carsSold,
     DateTime? lastActiveTime,
+    PlayerSkills? skills,
+    List<AchievementItem>? achievements,
+    int? loginStreak,
+    DateTime? lastLoginDate,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -86,6 +116,10 @@ class DealershipModel {
       totalProfit: totalProfit ?? this.totalProfit,
       carsSold: carsSold ?? this.carsSold,
       lastActiveTime: lastActiveTime ?? this.lastActiveTime,
+      skills: skills ?? this.skills,
+      achievements: achievements ?? this.achievements,
+      loginStreak: loginStreak ?? this.loginStreak,
+      lastLoginDate: lastLoginDate ?? this.lastLoginDate,
     );
   }
 }
