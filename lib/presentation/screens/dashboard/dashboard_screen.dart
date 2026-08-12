@@ -67,48 +67,17 @@ class DashboardScreen extends ConsumerWidget {
             ),
 
             // Daily Streak & Reward Card
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: p.secondaryColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: p.secondaryColor.withValues(alpha: 0.4)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      VectorIconWidget(type: 'streak', color: p.primaryColor, size: 24),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${game.loginStreak} Günlük Seri!', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                          Text('Günlük giriş bonusunu almak için tıkla', style: AppTypography.labelSmall(p.isDark)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: p.secondaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () {
-                      final reward = ref.read(gameProvider.notifier).claimDailyStreak();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü ve 50 XP Kazanıldı!')),
-                      );
-                    },
-                    child: const Text('Topla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  ),
-                ],
-              ),
+            // Daily Login Streak Bonus Card with Premium Dismissal Animation
+            _AnimatedDailyBonusCard(
+              game: game,
+              p: p,
+              onClaim: () {
+                final reward = ref.read(gameProvider.notifier).claimDailyStreak();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('🎉 ₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!')),
+                );
+              },
             ),
-            const SizedBox(height: 16),
 
             // Main Dealership Status Card (Click to open /character-growth)
             InkWell(
@@ -559,15 +528,20 @@ class _AnimatedMissionCardState extends State<_AnimatedMissionCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.mission.isCompleted && !_isClaiming) {
+      // Completed missions shrink completely so they don't take screen height
+      return const SizedBox.shrink();
+    }
+
     final double progressRatio = (widget.mission.currentProgress / widget.mission.targetGoal).clamp(0.0, 1.0);
     final p = widget.p;
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 350),
-      opacity: _isClaiming ? 0.0 : (widget.mission.isCompleted ? 0.5 : 1.0),
+      opacity: _isClaiming ? 0.0 : 1.0,
       child: AnimatedSize(
         duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
+        curve: Curves.fastOutSlowIn,
         child: _isClaiming
             ? const SizedBox(width: double.infinity, height: 0)
             : Container(
@@ -576,9 +550,7 @@ class _AnimatedMissionCardState extends State<_AnimatedMissionCard> {
                 decoration: BoxDecoration(
                   color: p.surfaceColor,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: widget.mission.isCompleted ? p.primaryColor : p.surfaceBorderColor,
-                  ),
+                  border: Border.all(color: p.primaryColor),
                 ),
                 child: Row(
                   children: [
@@ -614,18 +586,133 @@ class _AnimatedMissionCardState extends State<_AnimatedMissionCard> {
                     const SizedBox(width: 12),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.mission.isCompleted ? Colors.grey : p.primaryColor,
+                        backgroundColor: p.primaryColor,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
-                      onPressed: (!widget.mission.isCompleted && progressRatio >= 1.0 && !_isClaiming)
-                          ? _handleClaim
-                          : null,
-                      child: Text(widget.mission.isCompleted ? 'Alındı' : 'Topla', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      onPressed: (progressRatio >= 1.0 && !_isClaiming) ? _handleClaim : null,
+                      child: const Text('🎁 Topla', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
               ),
+      ),
+    );
+  }
+}
+
+class _AnimatedDailyBonusCard extends StatefulWidget {
+  final dynamic game;
+  final dynamic p;
+  final VoidCallback onClaim;
+
+  const _AnimatedDailyBonusCard({
+    required this.game,
+    required this.p,
+    required this.onClaim,
+  });
+
+  @override
+  State<_AnimatedDailyBonusCard> createState() => _AnimatedDailyBonusCardState();
+}
+
+class _AnimatedDailyBonusCardState extends State<_AnimatedDailyBonusCard> with SingleTickerProviderStateMixin {
+  bool _isClaimed = false;
+  late AnimationController _animController;
+  late Animation<double> _scaleAnim;
+  late Animation<double> _fadeAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 1.12).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOutBack),
+    );
+    _fadeAnim = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeIn),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  void _handleClaim() {
+    _animController.forward().then((_) {
+      setState(() => _isClaimed = true);
+      widget.onClaim();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isClaimed) return const SizedBox.shrink();
+
+    final p = widget.p;
+    final game = widget.game;
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.fastOutSlowIn,
+      child: FadeTransition(
+        opacity: _fadeAnim,
+        child: ScaleTransition(
+          scale: _scaleAnim,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [p.secondaryColor.withValues(alpha: 0.25), p.surfaceColor],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: p.secondaryColor, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: p.secondaryColor.withValues(alpha: 0.2),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    VectorIconWidget(type: 'streak', color: p.primaryColor, size: 24),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('✨ ${game.loginStreak} Günlük Seri!', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                        Text('Günlük giriş bonusunu al', style: AppTypography.labelSmall(p.isDark)),
+                      ],
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: p.secondaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: _handleClaim,
+                  child: const Text('🎁 Topla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
