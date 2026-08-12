@@ -4,6 +4,7 @@ import 'player_skills.dart';
 import 'player_achievements.dart';
 import 'mission_model.dart';
 import 'market_trend_model.dart';
+import 'loan_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -21,6 +22,7 @@ class DealershipModel {
   final List<MissionModel> activeMissions;
   final MarketTrendModel marketTrend;
   final int reputationScore;
+  final List<LoanModel> activeLoans;
 
   DealershipModel({
     required this.balance,
@@ -38,6 +40,7 @@ class DealershipModel {
     required this.activeMissions,
     required this.marketTrend,
     this.reputationScore = 100,
+    this.activeLoans = const [],
   });
 
   factory DealershipModel.initial() {
@@ -88,6 +91,7 @@ class DealershipModel {
         ),
       ],
       marketTrend: MarketTrendModel.defaultTrend(),
+      activeLoans: const [],
     );
   }
 
@@ -108,6 +112,7 @@ class DealershipModel {
       'activeMissions': activeMissions.map((m) => m.toJson()).toList(),
       'marketTrend': marketTrend.toJson(),
       'reputationScore': reputationScore,
+      'activeLoans': activeLoans.map((l) => l.toJson()).toList(),
     };
   }
 
@@ -141,6 +146,9 @@ class DealershipModel {
           ? MarketTrendModel.fromJson(json['marketTrend'] as Map<String, dynamic>)
           : MarketTrendModel.defaultTrend(),
       reputationScore: json['reputationScore'] as int? ?? 100,
+      activeLoans: json['activeLoans'] != null
+          ? (json['activeLoans'] as List<dynamic>).map((l) => LoanModel.fromJson(l as Map<String, dynamic>)).toList()
+          : const [],
     );
   }
 
@@ -160,6 +168,7 @@ class DealershipModel {
     List<MissionModel>? activeMissions,
     MarketTrendModel? marketTrend,
     int? reputationScore,
+    List<LoanModel>? activeLoans,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -177,6 +186,7 @@ class DealershipModel {
       activeMissions: activeMissions ?? this.activeMissions,
       marketTrend: marketTrend ?? this.marketTrend,
       reputationScore: reputationScore ?? this.reputationScore,
+      activeLoans: activeLoans ?? this.activeLoans,
     );
   }
 }

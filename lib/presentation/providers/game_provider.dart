@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/customer_model.dart';
 import '../../data/models/dealership_model.dart';
+import '../../data/models/loan_model.dart';
 import '../../data/models/mission_model.dart';
 import '../../data/models/offer_model.dart';
 import '../../data/models/player_skills.dart';
@@ -499,6 +500,63 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   void addXP(int amount) {
     final updatedSkills = state.skills.copyWith(xp: state.skills.xp + amount);
     state = state.copyWith(skills: updatedSkills);
+  }
+
+  /// Take bank loan (e.g. ₺100.000, ₺250.000, ₺500.000)
+  bool takeBankLoan({required String bankName, required double amount, required int months}) {
+    if (state.activeLoans.length >= 3) return false; // Max 3 active loans guard!
+
+    final interestRate = months == 3 ? 0.10 : (months == 6 ? 0.18 : 0.28);
+    final totalRepayment = amount * (1.0 + interestRate);
+    final monthlyPayment = totalRepayment / months;
+
+    final loan = LoanModel(
+      id: 'loan_${DateTime.now().millisecondsSinceEpoch}',
+      bankName: bankName,
+      principalAmount: amount,
+      interestRate: interestRate,
+      totalRepayment: totalRepayment,
+      remainingAmount: totalRepayment,
+      totalInstallments: months,
+      remainingInstallments: months,
+      monthlyPayment: monthlyPayment,
+    );
+
+    state = state.copyWith(
+      balance: state.balance + amount,
+      activeLoans: [...state.activeLoans, loan],
+    );
+    _saveState();
+    return true;
+  }
+
+  /// Pay installment for bank loan
+  bool payLoanInstallment(String loanId) {
+    final index = state.activeLoans.indexWhere((l) => l.id == loanId);
+    if (index == -1) return false;
+
+    final loan = state.activeLoans[index];
+    if (state.balance < loan.monthlyPayment) return false;
+
+    final newRemaining = loan.remainingAmount - loan.monthlyPayment;
+    final newInstallments = loan.remainingInstallments - 1;
+
+    List<LoanModel> updatedLoans = List<LoanModel>.from(state.activeLoans);
+    if (newInstallments <= 0 || newRemaining <= 0) {
+      updatedLoans.removeAt(index);
+    } else {
+      updatedLoans[index] = loan.copyWith(
+        remainingAmount: newRemaining,
+        remainingInstallments: newInstallments,
+      );
+    }
+
+    state = state.copyWith(
+      balance: state.balance - loan.monthlyPayment,
+      activeLoans: updatedLoans,
+    );
+    _saveState();
+    return true;
   }
 
   /// Check & unlock achievement

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:galerisinden/domain/usecases/market_engine.dart';
 import 'package:galerisinden/domain/usecases/expertise_engine.dart';
 import 'package:galerisinden/domain/usecases/repair_engine.dart';
@@ -10,6 +11,7 @@ import 'package:galerisinden/data/models/customer_model.dart';
 import 'package:galerisinden/data/models/branch_model.dart';
 import 'package:galerisinden/data/models/detailing_model.dart';
 import 'package:galerisinden/data/models/expertise_model.dart';
+import 'package:galerisinden/presentation/providers/game_provider.dart';
 
 void main() {
   group('Galerisinden Tycoon Engine Tests', () {
@@ -162,6 +164,31 @@ void main() {
         expect(result.fineAmount, equals(10000.0));
         expect(result.reputationPenalty, equals(15));
       }
+    });
+
+    test('GameNotifier processes bank loan and repayment correctly', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(gameProvider.notifier);
+      final initialBalance = container.read(gameProvider).balance;
+
+      final loanSuccess = notifier.takeBankLoan(
+        bankName: 'Ziraat Finans',
+        amount: 100000.0,
+        months: 6,
+      );
+
+      expect(loanSuccess, isTrue);
+      expect(container.read(gameProvider).balance, equals(initialBalance + 100000.0));
+      expect(container.read(gameProvider).activeLoans.length, equals(1));
+
+      final loan = container.read(gameProvider).activeLoans.first;
+      final paySuccess = notifier.payLoanInstallment(loan.id);
+
+      expect(paySuccess, isTrue);
+      expect(container.read(gameProvider).activeLoans.first.remainingInstallments, equals(5));
     });
   });
 }
