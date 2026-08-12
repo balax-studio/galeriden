@@ -125,6 +125,34 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     return outcome;
   }
 
+  /// Directly purchase a car (e.g. won from Live Auction)
+  bool buyCarDirectly(CarModel car, double price) {
+    if (state.balance < price) return false;
+    final finalCar = car.copyWith(currentPurchasePrice: price);
+    state = state.copyWith(
+      balance: state.balance - price,
+      ownedCars: [...state.ownedCars, finalCar],
+    );
+    addXP(30);
+    _checkAchievement('first_buy');
+    _updateMissionProgress(MissionType.buyCars, 1);
+    _saveState();
+    return true;
+  }
+
+  /// Expand Garage Slots / Buy Branch
+  bool expandGarageSlot(int newMaxSlots, double cost) {
+    if (state.balance < cost) return false;
+    state = state.copyWith(
+      balance: state.balance - cost,
+      maxGarageSlots: newMaxSlots,
+    );
+    addXP(100);
+    _checkAchievement('garage_expand');
+    _saveState();
+    return true;
+  }
+
   /// Boost Listing Doping (₺2.500) to instantly bring 2 buyer offers
   bool boostListingDoping(String carId) {
     const cost = 2500.0;

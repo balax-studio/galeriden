@@ -235,6 +235,23 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 _buildActionCard(
                   context,
+                  title: '🔨 Canlı İhale',
+                  subtitle: 'Gümrük İcraları',
+                  vectorType: 'flash',
+                  color: p.errorColor,
+                  badge: 'CANLI',
+                  onTap: () => context.push('/auction'),
+                ),
+                _buildActionCard(
+                  context,
+                  title: '🏢 Şube İmparatorluğu',
+                  subtitle: 'Kapasite Genişlet',
+                  vectorType: 'rare',
+                  color: p.secondaryColor,
+                  onTap: () => context.push('/branches'),
+                ),
+                _buildActionCard(
+                  context,
                   title: 'Tamir Atölyesi',
                   subtitle: 'Araç Değerini Artır',
                   vectorType: 'workshop',

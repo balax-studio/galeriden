@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/customer_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
+import '../../widgets/app_vector_icons.dart';
 
 class InteractiveNegotiationSheet extends ConsumerStatefulWidget {
   final ListingModel listing;
@@ -25,12 +27,13 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
   late double _offeredPrice;
   String? _sellerResponse;
   bool _isAccepted = false;
+  late CustomerModel _customer;
 
   @override
   void initState() {
     super.initState();
-    // Default offer: 7% discount
-    _offeredPrice = (widget.listing.askingPrice * 0.93).roundToDouble();
+    _offeredPrice = (widget.listing.askingPrice * 0.90).roundToDouble();
+    _customer = CustomerModel.generateRandomCustomer();
   }
 
   /// Calculates success probability based on player negotiation skill and discount percentage requested
@@ -93,6 +96,50 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
           Text(
             '${widget.listing.sellerName} ile teklifleşiyorsun.',
             style: AppTypography.bodyMedium(p.isDark),
+          ),
+          const SizedBox(height: 8),
+
+          // Customer Archetype Badge
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: p.primaryColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: p.primaryColor.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: p.primaryColor.withValues(alpha: 0.2),
+                  child: VectorIconWidget(type: _customer.avatarType, color: p.primaryColor, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(_customer.name, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: p.secondaryColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(_customer.archetypeTitle, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(_customer.personalityDescription, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
 

@@ -2,8 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:galerisinden/domain/usecases/market_engine.dart';
 import 'package:galerisinden/domain/usecases/expertise_engine.dart';
 import 'package:galerisinden/domain/usecases/repair_engine.dart';
+import 'package:galerisinden/domain/usecases/auction_engine.dart';
 import 'package:galerisinden/domain/usecases/negotiation_engine.dart';
 import 'package:galerisinden/domain/usecases/risk_engine.dart';
+import 'package:galerisinden/data/models/customer_model.dart';
+import 'package:galerisinden/data/models/branch_model.dart';
+import 'package:galerisinden/data/models/detailing_model.dart';
 import 'package:galerisinden/data/models/expertise_model.dart';
 
 void main() {
@@ -114,6 +118,32 @@ void main() {
       final disc = NegotiationEngine.detectExpertiseDiscrepancy(tamperedCar);
       expect(disc.hasDiscrepancy, isTrue);
       expect(disc.extraDiscountPercent, equals(0.25));
+    });
+
+    test('AuctionEngine generates live auctions with 3 rival bidders', () {
+      final auction = AuctionEngine.createLiveAuction(playerLevel: 1);
+      expect(auction.car.brand.isNotEmpty, isTrue);
+      expect(auction.rivals.length, equals(3));
+      expect(auction.startingPrice, lessThan(auction.estimatedMarketValue));
+    });
+
+    test('CustomerModel generates valid buyer archetypes', () {
+      final customer = CustomerModel.generateRandomCustomer();
+      expect(customer.name.isNotEmpty, isTrue);
+      expect(customer.archetypeTitle.isNotEmpty, isTrue);
+    });
+
+    test('BranchModel defines 4 tiers of dealership expansion', () {
+      final branches = BranchModel.getAllBranches(3);
+      expect(branches.length, equals(4));
+      expect(branches.first.maxGarageSlots, equals(3));
+      expect(branches.last.maxGarageSlots, equals(15));
+    });
+
+    test('DetailingOption returns 4 detailing & tuning options', () {
+      final options = DetailingOption.getAvailableOptions();
+      expect(options.length, equals(4));
+      expect(options.any((o) => o.isRisky), isTrue);
     });
   });
 }

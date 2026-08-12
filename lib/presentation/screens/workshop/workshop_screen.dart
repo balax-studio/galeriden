@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/detailing_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../../domain/usecases/repair_engine.dart';
@@ -186,6 +187,67 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           ),
                         );
                       },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Detailing & Tuning Section
+                    Text('✨ MODİFİYE & DETAILING ATÖLYESİ', style: AppTypography.labelSmall(p.isDark)),
+                    const SizedBox(height: 12),
+                    Column(
+                      children: DetailingOption.getAvailableOptions().map((opt) {
+                        final canAfford = game.balance >= opt.cost;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: p.surfaceColor,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: opt.isRisky ? p.secondaryColor : p.surfaceBorderColor),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: opt.isRisky ? p.secondaryColor.withValues(alpha: 0.15) : p.primaryColor.withValues(alpha: 0.15),
+                                child: VectorIconWidget(type: opt.vectorIcon, color: opt.isRisky ? p.secondaryColor : p.primaryColor, size: 20),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                                    const SizedBox(height: 2),
+                                    Text(opt.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: opt.isRisky ? p.secondaryColor : p.primaryColor,
+                                  foregroundColor: opt.isRisky ? Colors.white : Colors.black,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                ),
+                                onPressed: canAfford
+                                    ? () {
+                                        final success = ref.read(gameProvider.notifier).detailCleanCar(_selectedCar!.id);
+                                        if (success) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('${opt.badgeText} Yapıldı! Aracın İlan Çekiciliği Artırıldı.')),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Yetersiz Sermaye!')),
+                                          );
+                                        }
+                                      }
+                                    : null,
+                                child: Text('₺${CurrencyFormatter.formatShort(opt.cost)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ],
                 ],

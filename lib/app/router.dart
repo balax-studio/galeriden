@@ -9,6 +9,8 @@ import '../presentation/screens/settings/settings_screen.dart';
 import '../presentation/screens/showroom/showroom_screen.dart';
 import '../presentation/screens/workshop/workshop_screen.dart';
 
+import '../presentation/screens/auction/auction_screen.dart';
+import '../presentation/screens/branch/branch_screen.dart';
 import '../presentation/screens/character/character_growth_screen.dart';
 
 final appRouter = GoRouter(
@@ -21,6 +23,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/character-growth',
       builder: (context, state) => const CharacterGrowthScreen(),
+    ),
+    GoRoute(
+      path: '/auction',
+      builder: (context, state) => const AuctionScreen(),
+    ),
+    GoRoute(
+      path: '/branches',
+      builder: (context, state) => const BranchScreen(),
     ),
     GoRoute(
       path: '/dashboard',
