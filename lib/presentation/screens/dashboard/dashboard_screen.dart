@@ -389,18 +389,38 @@ class DashboardScreen extends ConsumerWidget {
                   Text('Kullanılabilir Beceri Puanı: ${skills.availableSkillPoints}', style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 15)),
                   const SizedBox(height: 20),
 
-                  _buildSkillRow('Pazarlık Gücü', 'Alıcılardan daha yüksek teklif almanı sağlar.', skills.negotiationLevel, () {
-                    ref.read(gameProvider.notifier).upgradeSkill('negotiation');
-                  }, p),
-                  _buildSkillRow('Ekspertiz Sezgisi', 'Rapor almadan kusurları sezme şansı.', skills.eyeForDetail, () {
-                    ref.read(gameProvider.notifier).upgradeSkill('eyeForDetail');
-                  }, p),
-                  _buildSkillRow('Piyasa Tahmini', 'Aracın gerçek piyasa değer aralığını görme.', skills.marketSense, () {
-                    ref.read(gameProvider.notifier).upgradeSkill('marketSense');
-                  }, p),
-                  _buildSkillRow('Galerici İtibarı', 'Daha zengin ve hızlı alıcıların gelmesi.', skills.reputation, () {
-                    ref.read(gameProvider.notifier).upgradeSkill('reputation');
-                  }, p),
+                  _buildSkillRow(
+                    'Pazarlık Gücü',
+                    'Alıcılardan daha yüksek ikna oranıyla teklif almanı sağlar.',
+                    skills.negotiationLevel >= 5 ? 'İkna Şansı +%25 Artırıldı' : 'Lv 5: İkna Şansı +%25 Artacak',
+                    skills.negotiationLevel,
+                    () => ref.read(gameProvider.notifier).upgradeSkill('negotiation'),
+                    p,
+                  ),
+                  _buildSkillRow(
+                    'Ekspertiz Sezgisi',
+                    'Rapor almadan araçlardaki gizli ayıpları sezme yeteneği.',
+                    skills.eyeForDetail >= 5 ? 'Ekspertizsiz Risk Sezgisi %50' : 'Lv 5: Gizli Ayıp Sezgisi %50 Açılır',
+                    skills.eyeForDetail,
+                    () => ref.read(gameProvider.notifier).upgradeSkill('eyeForDetail'),
+                    p,
+                  ),
+                  _buildSkillRow(
+                    'Piyasa Tahmini',
+                    'Aracın gerçek piyasa değerini ve trend kâr çarpanlarını görme.',
+                    skills.marketSense >= 3 ? 'SUV & Spor Kâr Çarpanları Açık' : 'Lv 3: Segment Kâr Çarpanları Açılır',
+                    skills.marketSense,
+                    () => ref.read(gameProvider.notifier).upgradeSkill('marketSense'),
+                    p,
+                  ),
+                  _buildSkillRow(
+                    'Galerici İtibarı',
+                    'Daha prestijli koleksiyonluk araçların ve zengin alıcıların gelmesi.',
+                    skills.reputation >= 5 ? 'Nadir Araç Düşme Şansı +%15' : 'Lv 5: Nadir Koleksiyon Düşüşü %15 Artar',
+                    skills.reputation,
+                    () => ref.read(gameProvider.notifier).upgradeSkill('reputation'),
+                    p,
+                  ),
                 ],
               ),
             );
@@ -410,25 +430,61 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSkillRow(String title, String desc, int level, VoidCallback onUpgrade, ThemePaletteModel p) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildSkillRow(String title, String desc, String perkInfo, int level, VoidCallback onUpgrade, ThemePaletteModel p) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14.0),
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: p.surfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: p.surfaceBorderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('$title (Seviye $level/10)', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                Text(desc, style: AppTypography.labelSmall(p.isDark)),
-              ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('$title (Lv $level/10)', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: p.primaryColor,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: level >= 10 ? null : onUpgrade,
+                child: Text(level >= 10 ? 'MAX' : 'Yükselt (1 SP)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(desc, style: AppTypography.labelSmall(p.isDark)),
+          const SizedBox(height: 8),
+
+          // Visual Progress Bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: level / 10.0,
+              minHeight: 6,
+              backgroundColor: p.surfaceBorderColor,
+              valueColor: AlwaysStoppedAnimation<Color>(p.primaryColor),
             ),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: p.primaryColor, foregroundColor: Colors.black),
-            onPressed: level >= 10 ? null : onUpgrade,
-            child: const Text('Yükselt'),
+          const SizedBox(height: 6),
+
+          // Unlock Perk Badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: p.secondaryColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '🎯 Perk (Lv $level): $perkInfo',
+              style: TextStyle(color: p.secondaryColor, fontSize: 11, fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),

@@ -146,6 +146,34 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     return true;
   }
 
+  /// Perform detailing & pasta cila (+8% value boost & shine badge)
+  bool detailCleanCar(String carId) {
+    const cost = RepairEngine.detailedCleanCost; // 2500 TL
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.isDetailedCleaned) return false; // Already cleaned guard!
+
+    final updatedCar = RepairEngine.performDetailing(car);
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(20);
+    if (updatedCar.expertise.engineCondition == 100.0 && updatedCar.isDetailedCleaned) {
+      _checkAchievement('restoration_king');
+    }
+    _saveState();
+    return true;
+  }
+
   /// Update owned car after repair or detailing
   void updateOwnedCar(CarModel updatedCar, double cost) {
     if (state.balance < cost) return;

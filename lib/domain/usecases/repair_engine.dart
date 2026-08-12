@@ -50,7 +50,17 @@ class RepairEngine {
 
   /// Restores a body part with craftsman tier
   static RepairResult repairBodyPart(CarModel car, String partName, RepairTier tier) {
-    double baseCost = car.expertise.bodyParts[partName] == PartStatus.painted ? basePaintCost : baseBodyChangeCost;
+    final currentStatus = car.expertise.bodyParts[partName];
+    if (currentStatus == PartStatus.original || currentStatus == null) {
+      return RepairResult(
+        updatedCar: car,
+        isSuccess: false,
+        message: '$partName zaten orijinal kondisyonda, tamir gerekmiyor!',
+        costPaid: 0.0,
+      );
+    }
+
+    double baseCost = currentStatus == PartStatus.painted ? basePaintCost : baseBodyChangeCost;
     double actualCost = (baseCost * getCostMultiplier(tier)).roundToDouble();
 
     bool success = _random.nextDouble() < getSuccessRate(tier);
@@ -86,6 +96,15 @@ class RepairEngine {
 
   /// Restores engine & transmission to 100% with craftsman tier
   static RepairResult repairEngine(CarModel car, RepairTier tier) {
+    if (car.expertise.engineCondition >= 100.0) {
+      return RepairResult(
+        updatedCar: car,
+        isSuccess: false,
+        message: 'Motor ve Şanzıman zaten %100 kusursuz, tamir gerekmiyor!',
+        costPaid: 0.0,
+      );
+    }
+
     double needed = 100.0 - car.expertise.engineCondition;
     double baseCost = needed * baseEngineCostPerPercent;
     double actualCost = (baseCost * getCostMultiplier(tier)).roundToDouble();

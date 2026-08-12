@@ -12,6 +12,7 @@ import '../../providers/market_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/car_icons.dart';
+import 'expertise_report_sheet.dart';
 import 'interactive_negotiation_sheet.dart';
 
 class ListingDetailScreen extends ConsumerWidget {
@@ -125,7 +126,26 @@ class ListingDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // Sahibinden Görsel Kaporta Hasar Şeması (CustomPaint)
+            // Sahibinden Görsel Kaporta Hasar Şeması & Ekspertiz Raporu Butonu
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('KAPORTA & EKSPERTİZ RAPORU', style: AppTypography.labelSmall(p.isDark)),
+                TextButton.icon(
+                  icon: VectorIconWidget(type: 'expertise', color: p.primaryColor, size: 16),
+                  label: Text('Detaylı Rapor', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (ctx) => ExpertiseReportSheet(car: car),
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
             CarDamageSchemaWidget(bodyParts: exp.bodyParts),
             const SizedBox(height: 24),
 

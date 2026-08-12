@@ -27,9 +27,26 @@ void main() {
       final listings = MarketEngine.generateRandomListings(count: 1, playerLevel: 1);
       final car = listings.first.car;
 
-      final result = RepairEngine.repairBodyPart(car, 'Kaput', RepairTier.master);
+      // Find a part that is not original, or force one to painted
+      final targetPart = car.expertise.bodyParts.keys.firstWhere(
+        (k) => car.expertise.bodyParts[k] != PartStatus.original,
+        orElse: () => 'Kaput',
+      );
+
+      final damagedCar = car.copyWith(
+        expertise: ExpertiseReport(
+          engineCondition: car.expertise.engineCondition,
+          transmissionCondition: car.expertise.transmissionCondition,
+          tramerAmount: car.expertise.tramerAmount,
+          mileage: car.expertise.mileage,
+          isMileageTampered: car.expertise.isMileageTampered,
+          bodyParts: {...car.expertise.bodyParts, targetPart: PartStatus.painted},
+        ),
+      );
+
+      final result = RepairEngine.repairBodyPart(damagedCar, targetPart, RepairTier.master);
       expect(result.isSuccess, isTrue);
-      expect(result.updatedCar.expertise.bodyParts['Kaput'], equals(PartStatus.original));
+      expect(result.updatedCar.expertise.bodyParts[targetPart], equals(PartStatus.original));
     });
 
     test('Risk Engine evaluates uninspected purchases correctly', () {
@@ -42,6 +59,40 @@ void main() {
         expect(outcome.title.isNotEmpty, isTrue);
         expect(outcome.description.isNotEmpty, isTrue);
       }
+    });
+
+    test('Repair Engine prevents repairing already original parts and 100% engines', () {
+      final listings = MarketEngine.generateRandomListings(count: 1, playerLevel: 1);
+      final car = listings.first.car;
+
+      final damagedCar = car.copyWith(
+        expertise: ExpertiseReport(
+          engineCondition: 80.0,
+          transmissionCondition: 80.0,
+          tramerAmount: car.expertise.tramerAmount,
+          mileage: car.expertise.mileage,
+          isMileageTampered: car.expertise.isMileageTampered,
+          bodyParts: {...car.expertise.bodyParts, 'Kaput': PartStatus.painted},
+        ),
+      );
+
+      // 1. Repair part to original first
+      final res1 = RepairEngine.repairBodyPart(damagedCar, 'Kaput', RepairTier.master);
+      expect(res1.isSuccess, isTrue);
+
+      // 2. Try to repair already original part
+      final res2 = RepairEngine.repairBodyPart(res1.updatedCar, 'Kaput', RepairTier.master);
+      expect(res2.isSuccess, isFalse);
+      expect(res2.costPaid, equals(0.0));
+
+      // 3. Repair engine to 100%
+      final engRes1 = RepairEngine.repairEngine(damagedCar, RepairTier.master);
+      expect(engRes1.isSuccess, isTrue);
+
+      // 4. Try to repair already 100% engine
+      final engRes2 = RepairEngine.repairEngine(engRes1.updatedCar, RepairTier.master);
+      expect(engRes2.isSuccess, isFalse);
+      expect(engRes2.costPaid, equals(0.0));
     });
   });
 }

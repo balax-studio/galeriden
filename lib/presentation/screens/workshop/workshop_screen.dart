@@ -138,9 +138,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             onPressed: _selectedCar!.isDetailedCleaned
                                 ? null
                                 : () {
-                                    final cleaned = RepairEngine.performDetailing(_selectedCar!);
-                                    ref.read(gameProvider.notifier).updateOwnedCar(cleaned, RepairEngine.detailedCleanCost);
-                                    setState(() => _selectedCar = cleaned);
+                                    final success = ref.read(gameProvider.notifier).detailCleanCar(_selectedCar!.id);
+                                    if (success) {
+                                      final updated = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
+                                      setState(() => _selectedCar = updated);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('✨ Pasta-Cila & Detaylı Temizlik Tamamlandı! Araç Parıl Parıl Parlıyor (+%8 Değer Boost).')),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Yetersiz bakiye! Pasta-Cila için ₺2.500 gereklidir.')),
+                                      );
+                                    }
                                   },
                           ),
                         ],
