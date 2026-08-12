@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/theme/app_theme.dart';
-import '../presentation/providers/settings_provider.dart';
+import '../presentation/providers/theme_provider.dart';
 import 'router.dart';
 
 class GalerisindenApp extends ConsumerWidget {
@@ -9,14 +8,12 @@ class GalerisindenApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
+    final themeState = ref.watch(themeProvider);
 
     return MaterialApp.router(
-      title: 'Galerisinden Tycoon',
+      title: 'Galerisinden',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: settings.themeMode,
+      theme: themeState.buildThemeData(),
       routerConfig: appRouter,
     );
   }

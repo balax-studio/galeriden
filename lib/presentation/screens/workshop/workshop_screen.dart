@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/app_vector_icons.dart';
 
 class WorkshopScreen extends ConsumerStatefulWidget {
   const WorkshopScreen({super.key});
@@ -21,7 +23,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
 
     if (game.ownedCars.isNotEmpty && _selectedCar == null) {
       _selectedCar = game.ownedCars.first;
@@ -38,7 +41,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 child: Text(
                   'Garajında henüz araç yok. İkinci el pazarından araç satın alarak tamir ve restorasyon yapabilirsin.',
                   textAlign: TextAlign.center,
-                  style: AppTypography.bodyMedium(isDark),
+                  style: AppTypography.bodyMedium(p.isDark),
                 ),
               ),
             )
@@ -47,7 +50,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('İŞLEM YAPILACAK ARACI SEÇ', style: AppTypography.labelSmall(isDark)),
+                  Text('İŞLEM YAPILACAK ARACI SEÇ', style: AppTypography.labelSmall(p.isDark)),
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 90,
@@ -65,10 +68,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             margin: const EdgeInsets.only(right: 12),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.primaryAmber.withValues(alpha: 0.2) : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
+                              color: isSelected ? p.primaryColor.withValues(alpha: 0.2) : p.surfaceColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? AppColors.primaryAmber : AppColors.surfaceBorderDark,
+                                color: isSelected ? p.primaryColor : p.surfaceBorderColor,
                                 width: isSelected ? 2 : 1,
                               ),
                             ),
@@ -76,9 +79,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(isDark).copyWith(fontSize: 13), overflow: TextOverflow.ellipsis),
+                                Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 13), overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 4),
-                                Text(CurrencyFormatter.formatShort(car.currentPurchasePrice), style: AppTypography.moneyMedium(isDark).copyWith(fontSize: 12)),
+                                Text(CurrencyFormatter.formatShort(car.currentPurchasePrice), style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 12)),
                               ],
                             ),
                           ),
@@ -93,9 +96,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                        color: p.surfaceColor,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.surfaceBorderDark),
+                        border: Border.all(color: p.surfaceBorderColor),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,8 +106,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: AppTypography.titleLarge(isDark)),
-                              Text('Tahmini Değer: ${CurrencyFormatter.formatShort(_selectedCar!.estimatedRealValue)}', style: AppTypography.moneyMedium(isDark)),
+                              Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: AppTypography.titleLarge(p.isDark)),
+                              Text('Tahmini Değer: ${CurrencyFormatter.formatShort(_selectedCar!.estimatedRealValue)}', style: AppTypography.moneyMedium(p.isDark)),
                             ],
                           ),
                           const Divider(height: 24),
@@ -114,8 +117,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             title: 'Motor & Şanzıman Rektifiye',
                             subtitle: 'Mevcut Kondisyon: %${_selectedCar!.expertise.engineCondition.toInt()}',
                             cost: 8500.0,
-                            icon: Icons.settings_suggest_rounded,
-                            isDark: isDark,
+                            vectorType: 'workshop',
+                            p: p,
                             onPressed: _selectedCar!.expertise.engineCondition >= 100
                                 ? null
                                 : () {
@@ -131,8 +134,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             title: 'Pasta-Cila & Detaylı Temizlik',
                             subtitle: _selectedCar!.isDetailedCleaned ? 'Detaylı Temizlik Yapıldı (+%8 Değer)' : 'Değere +%8 Katkı Sağlar',
                             cost: RepairEngine.detailedCleanCost,
-                            icon: Icons.cleaning_services_rounded,
-                            isDark: isDark,
+                            vectorType: 'workshop',
+                            p: p,
                             onPressed: _selectedCar!.isDetailedCleaned
                                 ? null
                                 : () {
@@ -146,7 +149,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     ),
 
                     const SizedBox(height: 20),
-                    Text('KAPORTA RESTORASYONU', style: AppTypography.labelSmall(isDark)),
+                    Text('KAPORTA RESTORASYONU', style: AppTypography.labelSmall(p.isDark)),
                     const SizedBox(height: 8),
 
                     ListView.builder(
@@ -164,11 +167,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
-                            title: Text('$partName Restorasyonu', style: AppTypography.titleLarge(isDark).copyWith(fontSize: 14)),
+                            title: Text('$partName Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
                             subtitle: Text(status == PartStatus.painted ? 'Lokal Boya Yapılacak' : 'Orijinal Parça ile Değişecek'),
                             trailing: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.secondarySage,
+                                backgroundColor: p.secondaryColor,
                                 foregroundColor: Colors.white,
                               ),
                               onPressed: () {
@@ -193,27 +196,27 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     required String title,
     required String subtitle,
     required double cost,
-    required IconData icon,
-    required bool isDark,
+    required String vectorType,
+    required ThemePaletteModel p,
     required VoidCallback? onPressed,
   }) {
     return Row(
       children: [
-        CircleAvatar(backgroundColor: AppColors.primaryAmber.withValues(alpha: 0.15), child: Icon(icon, color: AppColors.primaryAmber)),
+        CircleAvatar(backgroundColor: p.primaryColor.withValues(alpha: 0.15), child: VectorIconWidget(type: vectorType, color: p.primaryColor, size: 20)),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: AppTypography.titleLarge(isDark).copyWith(fontSize: 14)),
-              Text(subtitle, style: AppTypography.labelSmall(isDark)),
+              Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+              Text(subtitle, style: AppTypography.labelSmall(p.isDark)),
             ],
           ),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryAmber,
-            foregroundColor: AppColors.backgroundDark,
+            backgroundColor: p.primaryColor,
+            foregroundColor: Colors.black,
           ),
           onPressed: onPressed,
           child: Text(onPressed == null ? 'Tamamlandı' : CurrencyFormatter.formatShort(cost)),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
@@ -14,7 +14,8 @@ class ShowroomScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
 
     return DefaultTabController(
       length: 2,
@@ -38,7 +39,7 @@ class ShowroomScreen extends ConsumerWidget {
                       child: Text(
                         'Galerinizde şu an araç bulunmuyor. İkinci el pazarından araç alarak satışa çıkarabilirsiniz.',
                         textAlign: TextAlign.center,
-                        style: AppTypography.bodyMedium(isDark),
+                        style: AppTypography.bodyMedium(p.isDark),
                       ),
                     ),
                   )
@@ -57,8 +58,8 @@ class ShowroomScreen extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(isDark).copyWith(fontSize: 16)),
-                                  Text(car.bodyType, style: AppTypography.labelSmall(isDark)),
+                                  Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
+                                  Text(car.bodyType, style: AppTypography.labelSmall(p.isDark)),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -68,15 +69,15 @@ class ShowroomScreen extends ConsumerWidget {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Maliyet Fiyatı', style: AppTypography.labelSmall(isDark)),
-                                      Text(CurrencyFormatter.format(car.currentPurchasePrice), style: AppTypography.monoSpec(isDark)),
+                                      Text('Maliyet Fiyatı', style: AppTypography.labelSmall(p.isDark)),
+                                      Text(CurrencyFormatter.format(car.currentPurchasePrice), style: AppTypography.monoSpec(p.isDark)),
                                     ],
                                   ),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Piyasa Değeri', style: AppTypography.labelSmall(isDark)),
-                                      Text(CurrencyFormatter.format(car.estimatedRealValue), style: AppTypography.moneyMedium(isDark)),
+                                      Text('Piyasa Değeri', style: AppTypography.labelSmall(p.isDark)),
+                                      Text(CurrencyFormatter.format(car.estimatedRealValue), style: AppTypography.moneyMedium(p.isDark)),
                                     ],
                                   ),
                                 ],
@@ -88,8 +89,8 @@ class ShowroomScreen extends ConsumerWidget {
                                   icon: const Icon(Icons.campaign_rounded),
                                   label: const Text('Müşteri Çek / İlanı Öne Çıkar'),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primaryAmber,
-                                    foregroundColor: AppColors.backgroundDark,
+                                    backgroundColor: p.primaryColor,
+                                    foregroundColor: Colors.black,
                                   ),
                                   onPressed: () {
                                     final offer = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.1);
@@ -115,7 +116,7 @@ class ShowroomScreen extends ConsumerWidget {
                       child: Text(
                         'Henüz gelen pazarlık teklifi bulunmuyor.',
                         textAlign: TextAlign.center,
-                        style: AppTypography.bodyMedium(isDark),
+                        style: AppTypography.bodyMedium(p.isDark),
                       ),
                     ),
                   )
@@ -149,20 +150,20 @@ class ShowroomScreen extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(offer.buyerName, style: AppTypography.titleLarge(isDark).copyWith(fontSize: 16)),
-                                  Text(CurrencyFormatter.format(offer.offeredAmount), style: AppTypography.moneyMedium(isDark).copyWith(fontSize: 18)),
+                                  Text(offer.buyerName, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
+                                  Text(CurrencyFormatter.format(offer.offeredAmount), style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 18)),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text('İlgilendiği Araç: ${car.brand} ${car.modelName}', style: AppTypography.labelSmall(isDark).copyWith(color: AppColors.primaryAmber)),
+                              Text('İlgilendiği Araç: ${car.brand} ${car.modelName}', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor)),
                               const SizedBox(height: 8),
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                                  color: p.backgroundColor,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Text('"${offer.buyerMessage}"', style: AppTypography.bodyMedium(isDark).copyWith(fontStyle: FontStyle.italic)),
+                                child: Text('"${offer.buyerMessage}"', style: AppTypography.bodyMedium(p.isDark).copyWith(fontStyle: FontStyle.italic)),
                               ),
                               const SizedBox(height: 12),
                               Row(
@@ -170,8 +171,8 @@ class ShowroomScreen extends ConsumerWidget {
                                 children: [
                                   OutlinedButton(
                                     style: OutlinedButton.styleFrom(
-                                      foregroundColor: AppColors.errorRed,
-                                      side: const BorderSide(color: AppColors.errorRed),
+                                      foregroundColor: p.errorColor,
+                                      side: BorderSide(color: p.errorColor),
                                     ),
                                     onPressed: () {
                                       ref.read(gameProvider.notifier).rejectOffer(offer.id);
@@ -181,7 +182,7 @@ class ShowroomScreen extends ConsumerWidget {
                                   const SizedBox(width: 10),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.successGreen,
+                                      backgroundColor: p.successColor,
                                       foregroundColor: Colors.white,
                                     ),
                                     onPressed: () {

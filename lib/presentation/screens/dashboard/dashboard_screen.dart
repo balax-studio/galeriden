@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/app_vector_icons.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -12,20 +14,21 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
     final skills = game.skills;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('GALERİSİNDEN', style: AppTypography.titleLarge(isDark).copyWith(letterSpacing: 2)),
+        title: Text('GALERİSİNDEN', style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 2)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.stars_rounded, color: AppColors.primaryAmber),
+            icon: VectorIconWidget(type: 'streak', color: p.primaryColor, size: 22),
             tooltip: 'Karakter Gelişimi & Yetenekler',
             onPressed: () => _showSkillTreeSheet(context, ref),
           ),
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: Icon(Icons.settings, color: p.textPrimaryColor),
             onPressed: () => context.push('/settings'),
           ),
         ],
@@ -39,29 +42,29 @@ class DashboardScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.secondarySage.withValues(alpha: 0.15),
+                color: p.secondaryColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.secondarySage.withValues(alpha: 0.4)),
+                border: Border.all(color: p.secondaryColor.withValues(alpha: 0.4)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      const Text('🔥', style: TextStyle(fontSize: 22)),
+                      VectorIconWidget(type: 'streak', color: p.primaryColor, size: 24),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${game.loginStreak} Günlük Seri!', style: AppTypography.titleLarge(isDark).copyWith(fontSize: 15)),
-                          Text('Günlük giriş bonusunu almak için tıkla', style: AppTypography.labelSmall(isDark)),
+                          Text('${game.loginStreak} Günlük Seri!', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                          Text('Günlük giriş bonusunu almak için tıkla', style: AppTypography.labelSmall(p.isDark)),
                         ],
                       ),
                     ],
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondarySage,
+                      backgroundColor: p.secondaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -86,14 +89,14 @@ class DashboardScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primaryAmber.withValues(alpha: 0.25),
-                    AppColors.surfaceDark,
+                    p.primaryColor.withValues(alpha: 0.25),
+                    p.surfaceColor,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.primaryAmber.withValues(alpha: 0.4), width: 1.5),
+                border: Border.all(color: p.primaryColor.withValues(alpha: 0.4), width: 1.5),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,25 +104,25 @@ class DashboardScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('MEVCUT SERMAYE', style: AppTypography.labelSmall(isDark)),
+                      Text('MEVCUT SERMAYE', style: AppTypography.labelSmall(p.isDark)),
                       Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryAmber,
+                              color: p.primaryColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               'Seviye ${game.level}',
-                              style: AppTypography.labelSmall(false).copyWith(fontWeight: FontWeight.bold),
+                              style: AppTypography.labelSmall(false).copyWith(fontWeight: FontWeight.bold, color: Colors.black),
                             ),
                           ),
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.infoBlue,
+                              color: p.secondaryColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -134,15 +137,15 @@ class DashboardScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     CurrencyFormatter.format(game.balance),
-                    style: AppTypography.moneyLarge(isDark).copyWith(fontSize: 32),
+                    style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 32, color: p.textPrimaryColor),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStat('Toplam Kâr', CurrencyFormatter.formatShort(game.totalProfit), isDark),
-                      _buildStat('Satılan Araç', '${game.carsSold} Adet', isDark),
-                      _buildStat('Galeri Kapasitesi', '${game.ownedCars.length}/${game.maxGarageSlots}', isDark),
+                      _buildStat('Toplam Kâr', CurrencyFormatter.formatShort(game.totalProfit), p.isDark),
+                      _buildStat('Satılan Araç', '${game.carsSold} Adet', p.isDark),
+                      _buildStat('Galeri Kapasitesi', '${game.ownedCars.length}/${game.maxGarageSlots}', p.isDark),
                     ],
                   ),
                 ],
@@ -151,7 +154,7 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Quick Menu Hub Grid
-            Text('HIZLI MENÜ', style: AppTypography.labelSmall(isDark)),
+            Text('HIZLI MENÜ', style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 12),
 
             GridView.count(
@@ -165,16 +168,16 @@ class DashboardScreen extends ConsumerWidget {
                   context,
                   title: 'İkinci El Pazarı',
                   subtitle: 'Araç İlanlarını İncele',
-                  icon: Icons.storefront_rounded,
-                  color: AppColors.primaryAmber,
+                  vectorType: 'car',
+                  color: p.primaryColor,
                   onTap: () => context.push('/marketplace'),
                 ),
                 _buildActionCard(
                   context,
                   title: 'Showroom / İlanlarım',
                   subtitle: 'Gelen Teklifler (${game.incomingOffers.length})',
-                  icon: Icons.garage_rounded,
-                  color: AppColors.secondarySage,
+                  vectorType: 'negotiation',
+                  color: p.secondaryColor,
                   badge: game.incomingOffers.isNotEmpty ? '${game.incomingOffers.length}' : null,
                   onTap: () => context.push('/showroom'),
                 ),
@@ -182,24 +185,24 @@ class DashboardScreen extends ConsumerWidget {
                   context,
                   title: 'Tamir Atölyesi',
                   subtitle: 'Araç Değerini Artır',
-                  icon: Icons.build_rounded,
-                  color: AppColors.infoBlue,
+                  vectorType: 'workshop',
+                  color: p.primaryColor,
                   onTap: () => context.push('/workshop'),
                 ),
                 _buildActionCard(
                   context,
                   title: 'Ekspertiz Merkezi',
                   subtitle: 'Kusurları Tespiti Et',
-                  icon: Icons.verified_user_rounded,
-                  color: AppColors.warningOrange,
+                  vectorType: 'expertise',
+                  color: p.warningColor,
                   onTap: () => context.push('/marketplace'),
                 ),
               ],
             ),
             const SizedBox(height: 24),
 
-            // Achievements & Badges List
-            Text('BAŞARIMLAR & ROLLER', style: AppTypography.labelSmall(isDark)),
+            // Achievements List
+            Text('BAŞARIMLAR & ROLLER', style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 10),
 
             SizedBox(
@@ -214,12 +217,10 @@ class DashboardScreen extends ConsumerWidget {
                     margin: const EdgeInsets.only(right: 12),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: ach.isUnlocked
-                          ? AppColors.primaryAmber.withValues(alpha: 0.15)
-                          : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
+                      color: ach.isUnlocked ? p.primaryColor.withValues(alpha: 0.15) : p.surfaceColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: ach.isUnlocked ? AppColors.primaryAmber : (isDark ? AppColors.surfaceBorderDark : AppColors.surfaceBorderLight),
+                        color: ach.isUnlocked ? p.primaryColor : p.surfaceBorderColor,
                       ),
                     ),
                     child: Column(
@@ -230,14 +231,14 @@ class DashboardScreen extends ConsumerWidget {
                           children: [
                             Icon(
                               ach.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
-                              color: ach.isUnlocked ? AppColors.primaryAmber : AppColors.textMutedDark,
+                              color: ach.isUnlocked ? p.primaryColor : p.textSecondaryColor,
                               size: 18,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 ach.title,
-                                style: AppTypography.titleLarge(isDark).copyWith(fontSize: 13),
+                                style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 13),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -245,7 +246,7 @@ class DashboardScreen extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Text(ach.description, style: AppTypography.labelSmall(isDark).copyWith(fontSize: 10), maxLines: 2),
+                        Text(ach.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10), maxLines: 2),
                       ],
                     ),
                   );
@@ -259,11 +260,12 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   void _showSkillTreeSheet(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: p.backgroundColor,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
@@ -281,25 +283,25 @@ class DashboardScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('KARAKTER YETENEK AĞACI', style: AppTypography.titleLarge(isDark)),
-                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                      Text('KARAKTER YETENEK AĞACI', style: AppTypography.titleLarge(p.isDark)),
+                      IconButton(icon: Icon(Icons.close, color: p.textPrimaryColor), onPressed: () => Navigator.pop(context)),
                     ],
                   ),
-                  Text('Kullanılabilir Beceri Puanı: ${skills.availableSkillPoints}', style: AppTypography.moneyMedium(isDark).copyWith(fontSize: 15)),
+                  Text('Kullanılabilir Beceri Puanı: ${skills.availableSkillPoints}', style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 15)),
                   const SizedBox(height: 20),
 
                   _buildSkillRow('Pazarlık Gücü', 'Alıcılardan daha yüksek teklif almanı sağlar.', skills.negotiationLevel, () {
                     ref.read(gameProvider.notifier).upgradeSkill('negotiation');
-                  }, isDark),
+                  }, p),
                   _buildSkillRow('Ekspertiz Sezgisi', 'Rapor almadan kusurları sezme şansı.', skills.eyeForDetail, () {
                     ref.read(gameProvider.notifier).upgradeSkill('eyeForDetail');
-                  }, isDark),
+                  }, p),
                   _buildSkillRow('Piyasa Tahmini', 'Aracın gerçek piyasa değer aralığını görme.', skills.marketSense, () {
                     ref.read(gameProvider.notifier).upgradeSkill('marketSense');
-                  }, isDark),
+                  }, p),
                   _buildSkillRow('Galerici İtibarı', 'Daha zengin ve hızlı alıcıların gelmesi.', skills.reputation, () {
                     ref.read(gameProvider.notifier).upgradeSkill('reputation');
-                  }, isDark),
+                  }, p),
                 ],
               ),
             );
@@ -309,7 +311,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSkillRow(String title, String desc, int level, VoidCallback onUpgrade, bool isDark) {
+  Widget _buildSkillRow(String title, String desc, int level, VoidCallback onUpgrade, ThemePaletteModel p) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -319,13 +321,13 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$title (Seviye $level/10)', style: AppTypography.titleLarge(isDark).copyWith(fontSize: 15)),
-                Text(desc, style: AppTypography.labelSmall(isDark)),
+                Text('$title (Seviye $level/10)', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                Text(desc, style: AppTypography.labelSmall(p.isDark)),
               ],
             ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryAmber, foregroundColor: AppColors.backgroundDark),
+            style: ElevatedButton.styleFrom(backgroundColor: p.primaryColor, foregroundColor: Colors.black),
             onPressed: level >= 10 ? null : onUpgrade,
             child: const Text('Yükselt'),
           ),
@@ -349,12 +351,13 @@ class DashboardScreen extends ConsumerWidget {
     BuildContext context, {
     required String title,
     required String subtitle,
-    required IconData icon,
+    required String vectorType,
     required Color color,
     required VoidCallback onTap,
     String? badge,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
 
     return InkWell(
       onTap: onTap,
@@ -362,7 +365,7 @@ class DashboardScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          color: p.surfaceColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
         ),
@@ -375,13 +378,13 @@ class DashboardScreen extends ConsumerWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: color.withValues(alpha: 0.15),
-                  child: Icon(icon, color: color),
+                  child: VectorIconWidget(type: vectorType, color: color, size: 20),
                 ),
                 if (badge != null)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.errorRed,
+                      color: p.errorColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
@@ -391,9 +394,9 @@ class DashboardScreen extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTypography.titleLarge(isDark).copyWith(fontSize: 15)),
+                Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: AppTypography.labelSmall(isDark)),
+                Text(subtitle, style: AppTypography.labelSmall(p.isDark)),
               ],
             ),
           ],

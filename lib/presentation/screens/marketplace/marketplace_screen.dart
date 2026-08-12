@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
+import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_icons.dart';
 
 class MarketplaceScreen extends ConsumerWidget {
@@ -17,7 +18,8 @@ class MarketplaceScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final listings = ref.watch(marketProvider);
     final game = ref.watch(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
 
     return Scaffold(
       appBar: AppBar(
@@ -37,25 +39,25 @@ class MarketplaceScreen extends ConsumerWidget {
           // Filter & Status Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+            color: p.surfaceColor,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.storefront_rounded, size: 18, color: AppColors.primaryAmber),
-                    const SizedBox(width: 6),
-                    Text('Satılık Araçlar (${listings.length})', style: AppTypography.titleLarge(isDark).copyWith(fontSize: 15)),
+                    VectorIconWidget(type: 'car', color: p.primaryColor, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Satılık Araçlar (${listings.length})', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
                   ],
                 ),
-                Text('Sermaye: ${CurrencyFormatter.formatShort(game.balance)}', style: AppTypography.moneyMedium(isDark)),
+                Text('Sermaye: ${CurrencyFormatter.formatShort(game.balance)}', style: AppTypography.moneyMedium(p.isDark)),
               ],
             ),
           ),
           Expanded(
             child: listings.isEmpty
                 ? Center(
-                    child: Text('Şu an pazarda araç kalmadı. Yenile butonuna bas.', style: AppTypography.bodyMedium(isDark)),
+                    child: Text('Şu an pazarda araç kalmadı. Yenile butonuna bas.', style: AppTypography.bodyMedium(p.isDark)),
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
@@ -72,7 +74,7 @@ class MarketplaceScreen extends ConsumerWidget {
                       try {
                         carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xFF')));
                       } catch (e) {
-                        carColor = AppColors.primaryAmber;
+                        carColor = p.primaryColor;
                       }
 
                       return Card(
@@ -80,7 +82,7 @@ class MarketplaceScreen extends ConsumerWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                           side: BorderSide(
-                            color: isFlash ? AppColors.warningOrange : (isDark ? AppColors.surfaceBorderDark : AppColors.surfaceBorderLight),
+                            color: isFlash ? p.warningColor : p.surfaceBorderColor,
                             width: isFlash ? 2.0 : 1.0,
                           ),
                         ),
@@ -98,17 +100,17 @@ class MarketplaceScreen extends ConsumerWidget {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: AppColors.secondarySage.withValues(alpha: 0.2),
+                                          color: p.secondaryColor.withValues(alpha: 0.2),
                                           borderRadius: BorderRadius.circular(6),
                                         ),
-                                        child: Text(car.bodyType, style: AppTypography.labelSmall(isDark).copyWith(color: AppColors.secondarySage)),
+                                        child: Text(car.bodyType, style: AppTypography.labelSmall(p.isDark).copyWith(color: p.secondaryColor)),
                                       ),
                                       if (isFlash) ...[
                                         const SizedBox(width: 6),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: AppColors.warningOrange,
+                                            color: p.warningColor,
                                             borderRadius: BorderRadius.circular(6),
                                           ),
                                           child: const Text('⚡ FIRSAT %30 İNDİRİM', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -118,9 +120,9 @@ class MarketplaceScreen extends ConsumerWidget {
                                   ),
                                   Row(
                                     children: [
-                                      const Icon(Icons.remove_red_eye_rounded, size: 14, color: AppColors.textSecondaryDark),
+                                      Icon(Icons.remove_red_eye_rounded, size: 14, color: p.textSecondaryColor),
                                       const SizedBox(width: 4),
-                                      Text('$viewerCount kişi bakıyor', style: AppTypography.labelSmall(isDark).copyWith(fontSize: 11)),
+                                      Text('$viewerCount kişi bakıyor', style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
                                     ],
                                   ),
                                 ],
@@ -141,8 +143,8 @@ class MarketplaceScreen extends ConsumerWidget {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(isDark).copyWith(fontSize: 17)),
-                                        Text('${item.sellerCity} • ${car.modelYear} Model', style: AppTypography.labelSmall(isDark)),
+                                        Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 17)),
+                                        Text('${item.sellerCity} • ${car.modelYear} Model', style: AppTypography.labelSmall(p.isDark)),
                                       ],
                                     ),
                                   ),
@@ -173,7 +175,7 @@ class MarketplaceScreen extends ConsumerWidget {
                                   if (exp.isMileageTampered && item.isExpertiseCompleted)
                                     _buildColorBadge(
                                       label: '⚠️ ŞÜPHELİ KM!',
-                                      color: AppColors.errorRed,
+                                      color: p.errorColor,
                                       tooltip: 'KM Düşürülmüş Olabilir!',
                                     ),
                                 ],
@@ -187,15 +189,15 @@ class MarketplaceScreen extends ConsumerWidget {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('İlan Fiyatı', style: AppTypography.labelSmall(isDark)),
-                                      Text(CurrencyFormatter.format(item.askingPrice), style: AppTypography.moneyMedium(isDark)),
+                                      Text('İlan Fiyatı', style: AppTypography.labelSmall(p.isDark)),
+                                      Text(CurrencyFormatter.format(item.askingPrice), style: AppTypography.moneyMedium(p.isDark)),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       OutlinedButton(
                                         style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(color: AppColors.primaryAmber),
+                                          side: BorderSide(color: p.primaryColor),
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                         ),
                                         onPressed: () {
@@ -203,14 +205,14 @@ class MarketplaceScreen extends ConsumerWidget {
                                         },
                                         child: Text(
                                           item.isExpertiseCompleted ? 'Rapor' : 'Ekspertiz (₺1.500)',
-                                          style: const TextStyle(fontSize: 12),
+                                          style: TextStyle(fontSize: 12, color: p.textPrimaryColor),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.primaryAmber,
-                                          foregroundColor: AppColors.backgroundDark,
+                                          backgroundColor: p.primaryColor,
+                                          foregroundColor: Colors.black,
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                         ),
                                         onPressed: game.balance < item.askingPrice

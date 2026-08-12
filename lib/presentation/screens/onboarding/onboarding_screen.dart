@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../widgets/app_vector_icons.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -18,23 +19,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Galerisinden Tycoon\'a Hoş Geldin',
       'subtitle': 'Kendi araba galeri imparatorluğunu kur. İkinci el araç pazarını takip et, kelepir araçları bul ve kâr et.',
-      'icon': '🚘',
+      'vectorType': 'car',
     },
     {
       'title': 'Detaylı Ekspertiz İncelemesi',
       'subtitle': 'Aracı satın almadan önce ekspertize sok. Kaporta hasarlarını, motor durumunu ve Tramer kaydını ortaya çıkar.',
-      'icon': '🔍',
+      'vectorType': 'expertise',
     },
     {
       'title': 'Tamir Et, Temizle & İlana Koy',
       'subtitle': 'Atölyede aracı restore et, pasta-cila yap. İlana koyarak gelen pazarlık tekliflerini değerlendir ve galerin seviye atlasın.',
-      'icon': '💼',
+      'vectorType': 'workshop',
     },
   ];
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
 
     return Scaffold(
       body: SafeArea(
@@ -46,7 +48,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 alignment: Alignment.topRight,
                 child: TextButton(
                   onPressed: () => context.go('/dashboard'),
-                  child: Text('Atla', style: AppTypography.bodyMedium(isDark)),
+                  child: Text('Atla', style: AppTypography.bodyMedium(p.isDark)),
                 ),
               ),
               Expanded(
@@ -63,27 +65,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: 120,
                           height: 120,
                           decoration: BoxDecoration(
-                            color: AppColors.primaryAmber.withValues(alpha: 0.15),
+                            color: p.primaryColor.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.primaryAmber, width: 2),
+                            border: Border.all(color: p.primaryColor, width: 2),
                           ),
                           alignment: Alignment.center,
-                          child: Text(
-                            item['icon']!,
-                            style: const TextStyle(fontSize: 54),
+                          child: VectorIconWidget(
+                            type: item['vectorType']!,
+                            color: p.primaryColor,
+                            size: 54,
                           ),
                         ),
                         const SizedBox(height: 36),
                         Text(
                           item['title']!,
                           textAlign: TextAlign.center,
-                          style: AppTypography.headlineMedium(isDark),
+                          style: AppTypography.headlineMedium(p.isDark),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           item['subtitle']!,
                           textAlign: TextAlign.center,
-                          style: AppTypography.bodyMedium(isDark),
+                          style: AppTypography.bodyMedium(p.isDark),
                         ),
                       ],
                     );
@@ -99,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     width: _currentPage == index ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: _currentPage == index ? AppColors.primaryAmber : AppColors.surfaceBorderDark,
+                      color: _currentPage == index ? p.primaryColor : p.surfaceBorderColor,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -111,8 +114,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 height: 54,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryAmber,
-                    foregroundColor: AppColors.backgroundDark,
+                    backgroundColor: p.primaryColor,
+                    foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   onPressed: () {
@@ -127,7 +130,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                   child: Text(
                     _currentPage == _pages.length - 1 ? 'Galeriyi Aç' : 'Devam Et',
-                    style: AppTypography.titleLarge(false).copyWith(fontSize: 16),
+                    style: AppTypography.titleLarge(false).copyWith(fontSize: 16, color: Colors.black),
                   ),
                 ),
               ),
