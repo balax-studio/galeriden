@@ -1,7 +1,17 @@
+import 'dart:math';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
 
 class ExpertiseEngine {
+  static final Random _random = Random();
+
+  /// Check if player's eyeForDetail skill detects hidden defects without full expertise
+  static bool detectHiddenTampering(CarModel car, int eyeForDetailLevel) {
+    if (!car.expertise.isMileageTampered) return false;
+    double chance = eyeForDetailLevel * 0.10; // Level 1 = 10%, Level 10 = 100%
+    return _random.nextDouble() < chance;
+  }
+
   /// Evaluates true market value after detailed inspection
   static Map<String, dynamic> evaluateVehicle(CarModel car) {
     final exp = car.expertise;

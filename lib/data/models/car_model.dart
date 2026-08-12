@@ -10,6 +10,7 @@ class CarModel {
   final double baseMarketValue;
   final double currentPurchasePrice;
   final bool isDetailedCleaned;
+  final bool isRare;
   final ExpertiseReport expertise;
 
   CarModel({
@@ -22,10 +23,11 @@ class CarModel {
     required this.baseMarketValue,
     required this.currentPurchasePrice,
     this.isDetailedCleaned = false,
+    this.isRare = false,
     required this.expertise,
   });
 
-  /// Calculates estimated overall value after repair & cleaning
+  /// Calculates estimated overall value after repair & cleaning & rarity
   double get estimatedRealValue {
     double factor = (expertise.engineCondition / 100.0) * 0.4 +
         (expertise.transmissionCondition / 100.0) * 0.3;
@@ -40,7 +42,11 @@ class CarModel {
       factor += 0.08;
     }
 
-    return (baseMarketValue * factor).clamp(baseMarketValue * 0.4, baseMarketValue * 1.5);
+    if (isRare) {
+      factor += 0.15;
+    }
+
+    return (baseMarketValue * factor).clamp(baseMarketValue * 0.4, baseMarketValue * 1.8);
   }
 
   Map<String, dynamic> toJson() {
@@ -54,6 +60,7 @@ class CarModel {
       'baseMarketValue': baseMarketValue,
       'currentPurchasePrice': currentPurchasePrice,
       'isDetailedCleaned': isDetailedCleaned,
+      'isRare': isRare,
       'expertise': expertise.toJson(),
     };
   }
@@ -69,12 +76,14 @@ class CarModel {
       baseMarketValue: (json['baseMarketValue'] as num).toDouble(),
       currentPurchasePrice: (json['currentPurchasePrice'] as num).toDouble(),
       isDetailedCleaned: json['isDetailedCleaned'] as bool? ?? false,
+      isRare: json['isRare'] as bool? ?? false,
       expertise: ExpertiseReport.fromJson(json['expertise'] as Map<String, dynamic>),
     );
   }
 
   CarModel copyWith({
     bool? isDetailedCleaned,
+    bool? isRare,
     ExpertiseReport? expertise,
   }) {
     return CarModel(
@@ -87,6 +96,7 @@ class CarModel {
       baseMarketValue: baseMarketValue,
       currentPurchasePrice: currentPurchasePrice,
       isDetailedCleaned: isDetailedCleaned ?? this.isDetailedCleaned,
+      isRare: isRare ?? this.isRare,
       expertise: expertise ?? this.expertise,
     );
   }

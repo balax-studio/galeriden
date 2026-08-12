@@ -28,6 +28,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
     if (game.ownedCars.isNotEmpty && _selectedCar == null) {
       _selectedCar = game.ownedCars.first;
+    } else if (game.ownedCars.isNotEmpty && _selectedCar != null) {
+      // Refresh reference
+      _selectedCar = game.ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => game.ownedCars.first);
     }
 
     return Scaffold(
@@ -116,16 +119,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           _buildRepairOption(
                             title: 'Motor & Şanzıman Rektifiye',
                             subtitle: 'Mevcut Kondisyon: %${_selectedCar!.expertise.engineCondition.toInt()}',
-                            cost: 8500.0,
+                            costLabel: 'Usta Seç',
                             vectorType: 'workshop',
                             p: p,
                             onPressed: _selectedCar!.expertise.engineCondition >= 100
                                 ? null
-                                : () {
-                                    final restored = RepairEngine.repairEngine(_selectedCar!);
-                                    ref.read(gameProvider.notifier).updateOwnedCar(restored, 8500.0);
-                                    setState(() => _selectedCar = restored);
-                                  },
+                                : () => _showCraftsmanSelectionSheet(context, isEngine: true),
                           ),
                           const SizedBox(height: 12),
 
@@ -133,7 +132,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           _buildRepairOption(
                             title: 'Pasta-Cila & Detaylı Temizlik',
                             subtitle: _selectedCar!.isDetailedCleaned ? 'Detaylı Temizlik Yapıldı (+%8 Değer)' : 'Değere +%8 Katkı Sağlar',
-                            cost: RepairEngine.detailedCleanCost,
+                            costLabel: CurrencyFormatter.formatShort(RepairEngine.detailedCleanCost),
                             vectorType: 'workshop',
                             p: p,
                             onPressed: _selectedCar!.isDetailedCleaned
@@ -162,8 +161,6 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
                         if (status == PartStatus.original) return const SizedBox.shrink();
 
-                        double repairCost = status == PartStatus.painted ? RepairEngine.paintRepairCost : RepairEngine.bodyChangeCost;
-
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
@@ -174,12 +171,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 backgroundColor: p.secondaryColor,
                                 foregroundColor: Colors.white,
                               ),
-                              onPressed: () {
-                                final repairedCar = RepairEngine.repairBodyPart(_selectedCar!, partName);
-                                ref.read(gameProvider.notifier).updateOwnedCar(repairedCar, repairCost);
-                                setState(() => _selectedCar = repairedCar);
-                              },
-                              child: Text('₺${repairCost.toInt()} Onar'),
+                              onPressed: () => _showCraftsmanSelectionSheet(context, isEngine: false, partName: partName),
+                              child: const Text('Usta Seç & Onar'),
                             ),
                           ),
                         );
@@ -192,10 +185,111 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     );
   }
 
+  void _showCraftsmanSelectionSheet(BuildContext context, {required bool isEngine, String? partName}) {
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: p.backgroundColor,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('USTA VE KAPORTACI SEÇİMİ', style: AppTypography.titleLarge(p.isDark)),
+              const SizedBox(height: 4),
+              Text('Ustaların maliyetleri ve işçilik başarı şansı değişkenlik gösterir:', style: AppTypography.labelSmall(p.isDark)),
+              const SizedBox(height: 16),
+
+              _buildCraftsmanTile(
+                context,
+                title: '🔨 Çırak Usta',
+                subtitle: 'Maliyet: Ucuz (%55) | Başarı: %68 (Riskli)',
+                tier: RepairTier.apprentice,
+                isEngine: isEngine,
+                partName: partName,
+                p: p,
+              ),
+              _buildCraftsmanTile(
+                context,
+                title: '🛠️ Kalfa Usta',
+                subtitle: 'Maliyet: Standart (%100) | Başarı: %88 (Güvenilir)',
+                tier: RepairTier.journeyman,
+                isEngine: isEngine,
+                partName: partName,
+                p: p,
+              ),
+              _buildCraftsmanTile(
+                context,
+                title: '👨‍🔧 Master Kaportacı',
+                subtitle: 'Maliyet: Premium (%175) | Başarı: %100 (Orijinal Garantili)',
+                tier: RepairTier.master,
+                isEngine: isEngine,
+                partName: partName,
+                p: p,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCraftsmanTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required RepairTier tier,
+    required bool isEngine,
+    String? partName,
+    required ThemePaletteModel p,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: p.surfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: p.surfaceBorderColor),
+      ),
+      child: ListTile(
+        title: Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+        subtitle: Text(subtitle, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+        onTap: () {
+          Navigator.pop(context);
+          if (_selectedCar == null) return;
+
+          RepairResult res;
+          if (isEngine) {
+            res = ref.read(gameProvider.notifier).repairEngineWithTier(_selectedCar!, tier);
+          } else {
+            res = ref.read(gameProvider.notifier).repairBodyPartWithTier(_selectedCar!, partName!, tier);
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: res.isSuccess ? p.successColor : p.errorColor,
+              content: Text(res.message),
+            ),
+          );
+
+          if (res.isSuccess) {
+            setState(() {
+              _selectedCar = res.updatedCar;
+            });
+          }
+        },
+      ),
+    );
+  }
+
   Widget _buildRepairOption({
     required String title,
     required String subtitle,
-    required double cost,
+    required String costLabel,
     required String vectorType,
     required ThemePaletteModel p,
     required VoidCallback? onPressed,
@@ -219,7 +313,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
             foregroundColor: Colors.black,
           ),
           onPressed: onPressed,
-          child: Text(onPressed == null ? 'Tamamlandı' : CurrencyFormatter.formatShort(cost)),
+          child: Text(onPressed == null ? 'Tamamlandı' : costLabel),
         ),
       ],
     );

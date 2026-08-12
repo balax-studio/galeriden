@@ -17,15 +17,20 @@ class OfflineProgression {
       };
     }
 
-    // Every 15 offline minutes can spawn up to 1 offer if space permits
-    int potentialOffers = (elapsedMinutes / 15).floor().clamp(1, 4);
+    // Reputation level increases offer rate and limit
+    int repLevel = dealership.skills.reputation;
+    int maxOffersLimit = 8 + repLevel;
+    int minutesPerOffer = (15 - (repLevel * 0.8).round()).clamp(5, 15);
+
+    int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(1, 5);
     var updatedOffers = List<OfferModel>.from(dealership.incomingOffers);
     int newOffersGenerated = 0;
 
     for (int i = 0; i < potentialOffers; i++) {
-      if (dealership.ownedCars.isNotEmpty && updatedOffers.length < 8) {
+      if (dealership.ownedCars.isNotEmpty && updatedOffers.length < maxOffersLimit) {
         final car = dealership.ownedCars[i % dealership.ownedCars.length];
-        final offer = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.15);
+        double repOfferBonus = 1.0 + (repLevel * 0.02);
+        final offer = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.15 * repOfferBonus);
         updatedOffers.add(offer);
         newOffersGenerated++;
       }

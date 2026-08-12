@@ -3,36 +3,97 @@ import '../../core/constants/game_constants.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/listing_model.dart';
+import '../../data/models/market_trend_model.dart';
 
 class MarketEngine {
   static final Random _random = Random();
 
-  static List<ListingModel> generateRandomListings({int count = 7, int playerLevel = 1}) {
+  /// Generate dynamic random market trends
+  static MarketTrendModel generateMarketTrend() {
+    final trends = [
+      {
+        'headline': '🔥 Bahar Ayı Yaza Doğru SUV & Spor Araç Fiyatları %15 Yükselişte!',
+        'Sedan': 1.0,
+        'Hatchback': 0.95,
+        'SUV': 1.15,
+        'Spor': 1.20,
+        'Klasik': 1.05,
+      },
+      {
+        'headline': '⛽ Yakıt Zamları Sonrası Ekonomi & Hatchback Araçlara Talep Patladı!',
+        'Sedan': 0.98,
+        'Hatchback': 1.18,
+        'SUV': 0.88,
+        'Spor': 0.85,
+        'Klasik': 1.0,
+      },
+      {
+        'headline': '👑 Lüks & Klasik Araç Koleksiyonerleri Piyasayı Hareketlendirdi!',
+        'Sedan': 1.05,
+        'Hatchback': 1.0,
+        'SUV': 1.05,
+        'Spor': 1.15,
+        'Klasik': 1.30,
+      },
+      {
+        'headline': '📊 İkinci El Piyasasında Durgunluk — Kelepir Araç Fırsatları Artıyor.',
+        'Sedan': 0.92,
+        'Hatchback': 0.90,
+        'SUV': 0.93,
+        'Spor': 0.90,
+        'Klasik': 0.95,
+      },
+    ];
+
+    final chosen = trends[_random.nextInt(trends.length)];
+    final headline = chosen['headline'] as String;
+    final multipliers = <String, double>{
+      'Sedan': chosen['Sedan'] as double,
+      'Hatchback': chosen['Hatchback'] as double,
+      'SUV': chosen['SUV'] as double,
+      'Spor': chosen['Spor'] as double,
+      'Klasik': chosen['Klasik'] as double,
+    };
+
+    return MarketTrendModel(
+      headline: headline,
+      bodyTypeMultipliers: multipliers,
+      generatedAt: DateTime.now(),
+    );
+  }
+
+  static List<ListingModel> generateRandomListings({
+    int count = 7,
+    int playerLevel = 1,
+    MarketTrendModel? trend,
+  }) {
+    final activeTrend = trend ?? generateMarketTrend();
     List<ListingModel> listings = [];
     for (int i = 0; i < count; i++) {
-      listings.add(_generateSingleListing(playerLevel));
+      listings.add(_generateSingleListing(playerLevel, activeTrend));
     }
     return listings;
   }
 
-  static ListingModel _generateSingleListing(int playerLevel) {
-    // Weighted random selection for car brand
+  static ListingModel _generateSingleListing(int playerLevel, MarketTrendModel trend) {
     final brandData = _selectWeightedBrand();
     final modelName = brandData.models[_random.nextInt(brandData.models.length)];
     final bodyType = GameConstants.bodyTypes[_random.nextInt(GameConstants.bodyTypes.length)];
     final year = 2007 + _random.nextInt(17); // 2007 - 2023
     final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
 
-    // Mileage & Tramer
-    final mileage = 25000 + _random.nextInt(260000);
-    final hasTramer = _random.nextDouble() > 0.4;
-    final tramerAmount = hasTramer ? (3500 + _random.nextInt(85000)) : 0;
-    final isTampered = _random.nextDouble() < 0.15; // 15% risk of tampered KM
+    // 5% chance of Rare vehicle drop!
+    final isRare = _random.nextDouble() < 0.05;
 
-    // Body parts status
+    // Mileage & Tramer
+    final mileage = isRare ? (15000 + _random.nextInt(45000)) : (25000 + _random.nextInt(260000));
+    final hasTramer = isRare ? false : (_random.nextDouble() > 0.4);
+    final tramerAmount = hasTramer ? (3500 + _random.nextInt(85000)) : 0;
+    final isTampered = isRare ? false : (_random.nextDouble() < 0.15);
+
     final bodyParts = <String, PartStatus>{
-      'Kaput': _getRandomPartStatus(),
-      'Tavan': _getRandomPartStatus(tavanMultiplier: true),
+      'Kaput': isRare ? PartStatus.original : _getRandomPartStatus(),
+      'Tavan': isRare ? PartStatus.original : _getRandomPartStatus(tavanMultiplier: true),
       'Sol Ön Çamurluk': _getRandomPartStatus(),
       'Sağ Ön Çamurluk': _getRandomPartStatus(),
       'Sol Arka Çamurluk': _getRandomPartStatus(),
@@ -42,15 +103,15 @@ class MarketEngine {
       'Sol Arka Kapı': _getRandomPartStatus(),
       'Sağ Arka Kapı': _getRandomPartStatus(),
       'Bagaj': _getRandomPartStatus(),
-      'Şasi/Podye': _getRandomPartStatus(shasiMultiplier: true),
+      'Şasi/Podye': isRare ? PartStatus.original : _getRandomPartStatus(shasiMultiplier: true),
     };
 
-    final engineCondition = (60.0 + _random.nextInt(38)).clamp(40.0, 100.0);
-    final transCondition = (65.0 + _random.nextInt(33)).clamp(50.0, 100.0);
+    final engineCondition = isRare ? (85.0 + _random.nextInt(15)) : (60.0 + _random.nextInt(38)).clamp(40.0, 100.0);
+    final transCondition = isRare ? (88.0 + _random.nextInt(12)) : (65.0 + _random.nextInt(33)).clamp(50.0, 100.0);
 
     final expertise = ExpertiseReport(
-      engineCondition: engineCondition,
-      transmissionCondition: transCondition,
+      engineCondition: engineCondition.toDouble(),
+      transmissionCondition: transCondition.toDouble(),
       tramerAmount: tramerAmount,
       mileage: mileage,
       isMileageTampered: isTampered,
@@ -65,12 +126,20 @@ class MarketEngine {
     if (bodyType == 'Spor') baseValue *= 1.35;
     if (bodyType == 'SUV') baseValue *= 1.25;
 
+    // Apply market trend multiplier!
+    final trendMult = trend.bodyTypeMultipliers[bodyType] ?? 1.0;
+    baseValue *= trendMult;
+
+    // Rare bonus
+    if (isRare) {
+      baseValue *= 1.25;
+    }
+
     // Seller traits
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
-    double discount = _random.nextDouble() * 0.12; // 0-12% below market
+    double discount = _random.nextDouble() * 0.12;
     if (sellerProfile['urgency'] == 'high') discount += 0.08;
 
-    // 10% Chance of Flash Deal (%25 discount!)
     final isFlashDeal = _random.nextDouble() < 0.10;
     if (isFlashDeal) {
       discount += 0.20;
@@ -87,22 +156,30 @@ class MarketEngine {
       colorHex: _getRandomColorHex(),
       baseMarketValue: baseValue,
       currentPurchasePrice: askingPrice,
+      isRare: isRare,
       expertise: expertise,
     );
 
     final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana'];
     final sellerCity = cities[_random.nextInt(cities.length)];
 
+    String title = '$year ${brandData.name} $modelName';
+    if (isRare) title = '💎 [NADİR KOLEKSİYON] $title';
+
+    String description = isFlashDeal
+        ? '⚡ ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır.'
+        : (isRare
+            ? '💎 Garaj arabası, düşük km, hatasız boyasız koleksiyonluk fırsat!'
+            : 'Temiz kullanılmıştır, bakımları zamanında yapılmıştır. Nakit satılık.');
+
     return ListingModel(
       id: 'listing_$id',
       car: car,
       sellerName: '${sellerProfile['name']} (${_getRandomSellerName()})',
-      sellerTrait: isFlashDeal ? '⚡ Fırsat İlanı! Çok Acele' : sellerProfile['trait']!,
+      sellerTrait: isRare ? '💎 Koleksiyonluk Nadir Araç' : (isFlashDeal ? '⚡ Fırsat İlanı! Çok Acele' : sellerProfile['trait']!),
       sellerCity: sellerCity,
-      title: '$year ${brandData.name} $modelName',
-      description: isFlashDeal
-          ? '⚡ ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır.'
-          : 'Temiz kullanılmıştır, bakımları zamanında yapılmıştır. Nakit satılık.',
+      title: title,
+      description: description,
       askingPrice: askingPrice,
       isExpertiseCompleted: false,
       createdAt: DateTime.now(),

@@ -22,12 +22,13 @@ void main() {
       expect(eval['damagePercentage'], greaterThanOrEqualTo(0));
     });
 
-    test('Repair Engine restores body part to original', () {
+    test('Repair Engine restores body part to original with Master Tier', () {
       final listings = MarketEngine.generateRandomListings(count: 1, playerLevel: 1);
       final car = listings.first.car;
 
-      final restored = RepairEngine.repairBodyPart(car, 'Kaput');
-      expect(restored.expertise.bodyParts['Kaput'], equals(PartStatus.original));
+      final result = RepairEngine.repairBodyPart(car, 'Kaput', RepairTier.master);
+      expect(result.isSuccess, isTrue);
+      expect(result.updatedCar.expertise.bodyParts['Kaput'], equals(PartStatus.original));
     });
   });
 }

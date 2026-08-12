@@ -1,4 +1,4 @@
-enum OfferStatus { pending, accepted, rejected, countered }
+enum OfferStatus { pending, accepted, rejected, countered, expired }
 
 class OfferModel {
   final String id;
@@ -8,6 +8,9 @@ class OfferModel {
   final String buyerMessage;
   final OfferStatus status;
   final DateTime createdAt;
+  final int counterCount;
+  final int maxCounters;
+  final DateTime expiresAt;
 
   OfferModel({
     required this.id,
@@ -17,7 +20,12 @@ class OfferModel {
     required this.buyerMessage,
     this.status = OfferStatus.pending,
     required this.createdAt,
-  });
+    this.counterCount = 0,
+    this.maxCounters = 3,
+    DateTime? expiresAt,
+  }) : expiresAt = expiresAt ?? createdAt.add(const Duration(hours: 12));
+
+  bool get isExpired => DateTime.now().isAfter(expiresAt);
 
   Map<String, dynamic> toJson() {
     return {
@@ -28,10 +36,14 @@ class OfferModel {
       'buyerMessage': buyerMessage,
       'status': status.name,
       'createdAt': createdAt.toIso8601String(),
+      'counterCount': counterCount,
+      'maxCounters': maxCounters,
+      'expiresAt': expiresAt.toIso8601String(),
     };
   }
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
+    final created = DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now();
     return OfferModel(
       id: json['id'] as String,
       carId: json['carId'] as String,
@@ -42,19 +54,31 @@ class OfferModel {
         (e) => e.name == json['status'],
         orElse: () => OfferStatus.pending,
       ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: created,
+      counterCount: json['counterCount'] as int? ?? 0,
+      maxCounters: json['maxCounters'] as int? ?? 3,
+      expiresAt: DateTime.tryParse(json['expiresAt'] as String? ?? '') ?? created.add(const Duration(hours: 12)),
     );
   }
 
-  OfferModel copyWith({OfferStatus? status, double? offeredAmount}) {
+  OfferModel copyWith({
+    OfferStatus? status,
+    double? offeredAmount,
+    String? buyerMessage,
+    int? counterCount,
+    DateTime? expiresAt,
+  }) {
     return OfferModel(
       id: id,
       carId: carId,
       buyerName: buyerName,
       offeredAmount: offeredAmount ?? this.offeredAmount,
-      buyerMessage: buyerMessage,
+      buyerMessage: buyerMessage ?? this.buyerMessage,
       status: status ?? this.status,
       createdAt: createdAt,
+      counterCount: counterCount ?? this.counterCount,
+      maxCounters: maxCounters,
+      expiresAt: expiresAt ?? this.expiresAt,
     );
   }
 }

@@ -4,10 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/models/car_model.dart';
 import '../../data/models/dealership_model.dart';
+import '../../data/models/mission_model.dart';
 import '../../data/models/offer_model.dart';
 import '../../data/models/player_skills.dart';
+import '../../domain/usecases/market_engine.dart';
+import '../../domain/usecases/negotiation_engine.dart';
 import '../../domain/usecases/offline_progression.dart';
 import '../../domain/usecases/psychology_engine.dart';
+import '../../domain/usecases/repair_engine.dart';
 
 final gameProvider = StateNotifierProvider<GameNotifier, DealershipModel>((ref) {
   return GameNotifier();
@@ -36,11 +40,14 @@ class GameNotifier extends StateNotifier<DealershipModel> {
         if (diffDays == 1) {
           streak += 1;
         } else if (diffDays > 1) {
-          streak = 1; // reset streak if missed a day
+          streak = 1;
         }
 
+        // Filter expired offers
+        final activeOffers = loaded.incomingOffers.where((o) => !o.isExpired).toList();
+
         // Process offline time progression
-        final offlineResult = OfflineProgression.processOfflineTime(loaded);
+        final offlineResult = OfflineProgression.processOfflineTime(loaded.copyWith(incomingOffers: activeOffers));
         DealershipModel updated = offlineResult['updatedDealership'] as DealershipModel;
         updated = updated.copyWith(loginStreak: streak, lastLoginDate: now);
 
@@ -74,6 +81,13 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     return reward;
   }
 
+  /// Refresh Market Trends
+  void refreshMarketTrends() {
+    final newTrend = MarketEngine.generateMarketTrend();
+    state = state.copyWith(marketTrend: newTrend);
+    _saveState();
+  }
+
   /// Purchase a car from market
   bool buyCar(CarModel car, double purchasePrice) {
     if (state.balance < purchasePrice) return false;
@@ -89,6 +103,7 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       colorHex: car.colorHex,
       baseMarketValue: car.baseMarketValue,
       currentPurchasePrice: purchasePrice,
+      isRare: car.isRare,
       expertise: car.expertise,
     );
 
@@ -99,6 +114,7 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
     addXP(25);
     _checkAchievement('first_buy');
+    _updateMissionProgress(MissionType.buyCars, 1);
     _saveState();
     return true;
   }
@@ -117,10 +133,80 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     );
 
     addXP(15);
+    _updateMissionProgress(MissionType.repairParts, 1);
     if (updatedCar.expertise.engineCondition == 100.0 && updatedCar.isDetailedCleaned) {
       _checkAchievement('restoration_king');
     }
     _saveState();
+  }
+
+  /// Repair body part with Craftsman Tier
+  RepairResult repairBodyPartWithTier(CarModel car, String partName, RepairTier tier) {
+    final result = RepairEngine.repairBodyPart(car, partName, tier);
+    if (state.balance >= result.costPaid) {
+      final updatedCars = state.ownedCars.map((c) => c.id == car.id ? result.updatedCar : c).toList();
+      state = state.copyWith(
+        balance: state.balance - result.costPaid,
+        ownedCars: updatedCars,
+      );
+      if (result.isSuccess) {
+        addXP(20);
+        _updateMissionProgress(MissionType.repairParts, 1);
+      }
+      _saveState();
+    }
+    return result;
+  }
+
+  /// Repair Engine with Craftsman Tier
+  RepairResult repairEngineWithTier(CarModel car, RepairTier tier) {
+    final result = RepairEngine.repairEngine(car, tier);
+    if (state.balance >= result.costPaid) {
+      final updatedCars = state.ownedCars.map((c) => c.id == car.id ? result.updatedCar : c).toList();
+      state = state.copyWith(
+        balance: state.balance - result.costPaid,
+        ownedCars: updatedCars,
+      );
+      if (result.isSuccess) {
+        addXP(30);
+        _updateMissionProgress(MissionType.repairParts, 1);
+      }
+      _saveState();
+    }
+    return result;
+  }
+
+  /// Submit counter-offer to buyer
+  NegotiationOutcome counterOffer(String offerId, double playerTargetPrice) {
+    final offerIndex = state.incomingOffers.indexWhere((o) => o.id == offerId);
+    if (offerIndex == -1) {
+      throw Exception('Teklif bulunamadı');
+    }
+
+    final offer = state.incomingOffers[offerIndex];
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);
+    if (carIndex == -1) {
+      throw Exception('Araç bulunamadı');
+    }
+
+    final car = state.ownedCars[carIndex];
+    final outcome = NegotiationEngine.evaluateCounterOffer(
+      currentOffer: offer,
+      playerTargetPrice: playerTargetPrice,
+      car: car,
+      negotiationSkillLevel: state.skills.negotiationLevel,
+    );
+
+    List<OfferModel> updatedOffers = List.from(state.incomingOffers);
+    if (outcome.isWalkaway) {
+      updatedOffers.removeAt(offerIndex);
+    } else {
+      updatedOffers[offerIndex] = outcome.updatedOffer;
+    }
+
+    state = state.copyWith(incomingOffers: updatedOffers);
+    _saveState();
+    return outcome;
   }
 
   /// Accept an offer and sell car
@@ -155,6 +241,10 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
     addXP(100 + (profit > 0 ? (profit / 1000).round() : 0));
     _checkAchievement('first_sale');
+    _updateMissionProgress(MissionType.sellCars, 1);
+    if (profit > 0) {
+      _updateMissionProgress(MissionType.earnProfit, profit.round());
+    }
     if (state.totalProfit >= 250000) _checkAchievement('dealer_baron');
 
     _saveState();
@@ -171,6 +261,43 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   void addOffer(OfferModel offer) {
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     _saveState();
+  }
+
+  /// Complete & Claim Mission Reward
+  bool claimMissionReward(String missionId) {
+    final missionIndex = state.activeMissions.indexWhere((m) => m.id == missionId);
+    if (missionIndex == -1) return false;
+
+    final mission = state.activeMissions[missionIndex];
+    if (mission.currentProgress < mission.targetGoal || mission.isCompleted) return false;
+
+    final updatedMission = mission.copyWith(isCompleted: true);
+    final updatedMissions = List<MissionModel>.from(state.activeMissions);
+    updatedMissions[missionIndex] = updatedMission;
+
+    state = state.copyWith(
+      balance: state.balance + mission.rewardMoney,
+      activeMissions: updatedMissions,
+    );
+
+    addXP(mission.rewardXP);
+    _saveState();
+    return true;
+  }
+
+  void _updateMissionProgress(MissionType type, int amount) {
+    final updatedMissions = state.activeMissions.map((m) {
+      if (m.type == type && !m.isCompleted) {
+        final newProgress = (m.currentProgress + amount).clamp(0, m.targetGoal);
+        return m.copyWith(
+          currentProgress: newProgress,
+          isCompleted: newProgress >= m.targetGoal,
+        );
+      }
+      return m;
+    }).toList();
+
+    state = state.copyWith(activeMissions: updatedMissions);
   }
 
   /// Upgrade player skill

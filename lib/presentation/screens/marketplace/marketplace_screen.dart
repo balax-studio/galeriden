@@ -21,6 +21,9 @@ class MarketplaceScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
 
+    final marketSenseLevel = game.skills.marketSense;
+    final trend = game.marketTrend;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('İKİNCİ EL PAZARI'),
@@ -29,6 +32,7 @@ class MarketplaceScreen extends ConsumerWidget {
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Pazarı Yenile',
             onPressed: () {
+              ref.read(gameProvider.notifier).refreshMarketTrends();
               ref.read(marketProvider.notifier).refreshMarket();
             },
           ),
@@ -36,6 +40,40 @@ class MarketplaceScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
+          // Market Trend & Skill Intel Banner
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            color: p.primaryColor.withValues(alpha: 0.12),
+            child: Row(
+              children: [
+                Icon(Icons.insights_rounded, color: p.primaryColor, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        trend.headline,
+                        style: AppTypography.labelSmall(p.isDark).copyWith(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      if (marketSenseLevel >= 3)
+                        Text(
+                          '💡 Piyasa Sezgisi (Lv $marketSenseLevel): SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
+                          style: TextStyle(color: p.primaryColor, fontSize: 10, fontWeight: FontWeight.bold),
+                        )
+                      else
+                        Text(
+                          '🔒 Piyasa Sezgisi Lv 3 yükseltilirse segment kâr oranları açılır.',
+                          style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // Filter & Status Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -82,8 +120,8 @@ class MarketplaceScreen extends ConsumerWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                           side: BorderSide(
-                            color: isFlash ? p.warningColor : p.surfaceBorderColor,
-                            width: isFlash ? 2.0 : 1.0,
+                            color: car.isRare ? p.secondaryColor : (isFlash ? p.warningColor : p.surfaceBorderColor),
+                            width: (car.isRare || isFlash) ? 2.0 : 1.0,
                           ),
                         ),
                         child: InkWell(
@@ -108,6 +146,17 @@ class MarketplaceScreen extends ConsumerWidget {
                                         ),
                                         child: Text(car.bodyType, style: AppTypography.labelSmall(p.isDark).copyWith(color: p.secondaryColor)),
                                       ),
+                                      if (car.isRare) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: p.secondaryColor,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: const Text('💎 NADİR KOLEKSİYON', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                        ),
+                                      ],
                                       if (isFlash) ...[
                                         const SizedBox(width: 6),
                                         Container(

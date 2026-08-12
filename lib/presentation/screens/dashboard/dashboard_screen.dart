@@ -17,6 +17,7 @@ class DashboardScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final skills = game.skills;
+    final trend = game.marketTrend;
 
     return Scaffold(
       appBar: AppBar(
@@ -38,6 +39,33 @@ class DashboardScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Market Trend Banner
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: p.primaryColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: p.primaryColor.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 22),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('GÜNCEL PİYASA TRENDİ', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 2),
+                        Text(trend.headline, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             // Daily Streak & Reward Card
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -150,6 +178,77 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 24),
+
+            // Daily Missions Section
+            Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
+            const SizedBox(height: 12),
+            Column(
+              children: game.activeMissions.map((mission) {
+                final double progressRatio = (mission.currentProgress / mission.targetGoal).clamp(0.0, 1.0);
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: p.surfaceColor,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: mission.isCompleted ? p.primaryColor : p.surfaceBorderColor,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(mission.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '+₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} / +${mission.rewardXP}XP',
+                                  style: TextStyle(color: p.primaryColor, fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(mission.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: progressRatio,
+                                minHeight: 6,
+                                backgroundColor: p.surfaceBorderColor,
+                                valueColor: AlwaysStoppedAnimation<Color>(p.primaryColor),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: mission.isCompleted ? Colors.grey : p.primaryColor,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        onPressed: (!mission.isCompleted && progressRatio >= 1.0)
+                            ? () {
+                                ref.read(gameProvider.notifier).claimMissionReward(mission.id);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('🎁 ${mission.title} Tamamlandı! Ödüller Hesaba Eklendi.')),
+                                );
+                              }
+                            : null,
+                        child: Text(mission.isCompleted ? 'Alındı' : 'Topla', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 24),
 

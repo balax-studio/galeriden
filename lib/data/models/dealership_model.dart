@@ -2,6 +2,8 @@ import 'car_model.dart';
 import 'offer_model.dart';
 import 'player_skills.dart';
 import 'player_achievements.dart';
+import 'mission_model.dart';
+import 'market_trend_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -16,6 +18,8 @@ class DealershipModel {
   final List<AchievementItem> achievements;
   final int loginStreak;
   final DateTime lastLoginDate;
+  final List<MissionModel> activeMissions;
+  final MarketTrendModel marketTrend;
 
   DealershipModel({
     required this.balance,
@@ -30,6 +34,8 @@ class DealershipModel {
     required this.achievements,
     required this.loginStreak,
     required this.lastLoginDate,
+    required this.activeMissions,
+    required this.marketTrend,
   });
 
   factory DealershipModel.initial() {
@@ -47,6 +53,39 @@ class DealershipModel {
       achievements: PlayerAchievements.initialList,
       loginStreak: 1,
       lastLoginDate: now,
+      activeMissions: [
+        MissionModel(
+          id: 'm_buy_1',
+          title: 'İlk Alım',
+          description: 'Pazardan 1 araç satın al',
+          type: MissionType.buyCars,
+          currentProgress: 0,
+          targetGoal: 1,
+          rewardMoney: 15000,
+          rewardXP: 100,
+        ),
+        MissionModel(
+          id: 'm_sell_1',
+          title: 'Ticaret Adamı',
+          description: '1 aracı başarıyla sat',
+          type: MissionType.sellCars,
+          currentProgress: 0,
+          targetGoal: 1,
+          rewardMoney: 25000,
+          rewardXP: 150,
+        ),
+        MissionModel(
+          id: 'm_exp_1',
+          title: 'Titiz İnceleme',
+          description: '1 araca ekspertiz yaptır',
+          type: MissionType.doExpertise,
+          currentProgress: 0,
+          targetGoal: 1,
+          rewardMoney: 10000,
+          rewardXP: 80,
+        ),
+      ],
+      marketTrend: MarketTrendModel.defaultTrend(),
     );
   }
 
@@ -64,6 +103,8 @@ class DealershipModel {
       'achievements': achievements.map((a) => a.toJson()).toList(),
       'loginStreak': loginStreak,
       'lastLoginDate': lastLoginDate.toIso8601String(),
+      'activeMissions': activeMissions.map((m) => m.toJson()).toList(),
+      'marketTrend': marketTrend.toJson(),
     };
   }
 
@@ -90,6 +131,12 @@ class DealershipModel {
           : PlayerAchievements.initialList,
       loginStreak: json['loginStreak'] as int? ?? 1,
       lastLoginDate: DateTime.tryParse(json['lastLoginDate'] as String? ?? '') ?? now,
+      activeMissions: json['activeMissions'] != null
+          ? (json['activeMissions'] as List<dynamic>).map((m) => MissionModel.fromJson(m as Map<String, dynamic>)).toList()
+          : DealershipModel.initial().activeMissions,
+      marketTrend: json['marketTrend'] != null
+          ? MarketTrendModel.fromJson(json['marketTrend'] as Map<String, dynamic>)
+          : MarketTrendModel.defaultTrend(),
     );
   }
 
@@ -106,6 +153,8 @@ class DealershipModel {
     List<AchievementItem>? achievements,
     int? loginStreak,
     DateTime? lastLoginDate,
+    List<MissionModel>? activeMissions,
+    MarketTrendModel? marketTrend,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -120,6 +169,8 @@ class DealershipModel {
       achievements: achievements ?? this.achievements,
       loginStreak: loginStreak ?? this.loginStreak,
       lastLoginDate: lastLoginDate ?? this.lastLoginDate,
+      activeMissions: activeMissions ?? this.activeMissions,
+      marketTrend: marketTrend ?? this.marketTrend,
     );
   }
 }
