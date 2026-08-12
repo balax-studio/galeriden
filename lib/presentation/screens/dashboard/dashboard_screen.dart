@@ -9,6 +9,9 @@ import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 
+import '../../widgets/app_glass_container.dart';
+import '../../widgets/app_animated_counter.dart';
+
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -81,76 +84,60 @@ class DashboardScreen extends ConsumerWidget {
             ),
 
             // Main Dealership Status Card (Click to open /character-growth)
-            InkWell(
+            AppGlassContainer(
               onTap: () => context.push('/character-growth'),
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      p.primaryColor.withValues(alpha: 0.25),
-                      p.surfaceColor,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('MEVCUT SERMAYE (Karakter Detayı)', style: AppTypography.labelSmall(p.isDark)),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: p.primaryColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'Seviye ${game.level}',
+                              style: AppTypography.labelSmall(false).copyWith(fontWeight: FontWeight.bold, color: Colors.black),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: p.secondaryColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${skills.xp} XP',
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: p.primaryColor.withValues(alpha: 0.4), width: 1.5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('MEVCUT SERMAYE (Karakter Detayı)', style: AppTypography.labelSmall(p.isDark)),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: p.primaryColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Seviye ${game.level}',
-                                style: AppTypography.labelSmall(false).copyWith(fontWeight: FontWeight.bold, color: Colors.black),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: p.secondaryColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                '${skills.xp} XP',
-                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      CurrencyFormatter.format(game.balance),
-                      style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 32, color: p.textPrimaryColor),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildStat('Toplam Kâr', CurrencyFormatter.formatShort(game.totalProfit), p.isDark),
-                        _buildStat('Satılan Araç', '${game.carsSold} Adet', p.isDark),
-                        _buildStat('Galeri Kapasitesi', '${game.ownedCars.length}/${game.maxGarageSlots}', p.isDark),
-                      ],
-                    ),
-                  ],
-                ),
+                  const SizedBox(height: 8),
+                  AppAnimatedCounter(
+                    value: game.balance,
+                    style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 32, color: p.textPrimaryColor),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildStat('Toplam Kâr', CurrencyFormatter.formatShort(game.totalProfit), p.isDark),
+                      _buildStat('Satılan Araç', '${game.carsSold} Adet', p.isDark),
+                      _buildStat('Galeri Kapasitesi', '${game.ownedCars.length}/${game.maxGarageSlots}', p.isDark),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
