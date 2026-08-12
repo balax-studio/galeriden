@@ -10,19 +10,39 @@ import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_icons.dart';
+import '../../../data/models/expertise_model.dart';
 
-class MarketplaceScreen extends ConsumerWidget {
+class MarketplaceScreen extends ConsumerStatefulWidget {
   const MarketplaceScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final listings = ref.watch(marketProvider);
+  ConsumerState<MarketplaceScreen> createState() => _MarketplaceScreenState();
+}
+
+class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
+  String _selectedFilter = 'all'; // 'all', 'bargain', 'clean', 'affordable'
+
+  @override
+  Widget build(BuildContext context) {
+    final allListings = ref.watch(marketProvider);
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
 
     final marketSenseLevel = game.skills.marketSense;
     final trend = game.marketTrend;
+
+    // Filter listings based on active chip filter
+    final listings = allListings.where((item) {
+      if (_selectedFilter == 'bargain') {
+        return item.sellerTrait.contains('Fırsat') || item.askingPrice < item.car.estimatedRealValue * 0.88;
+      } else if (_selectedFilter == 'clean') {
+        return item.car.expertise.bodyParts.values.every((v) => v == PartStatus.original) && !item.car.expertise.isMileageTampered;
+      } else if (_selectedFilter == 'affordable') {
+        return item.askingPrice <= game.balance;
+      }
+      return true;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -74,9 +94,26 @@ class MarketplaceScreen extends ConsumerWidget {
             ),
           ),
 
-          // Filter & Status Header
+          // Quick Filter Chips Bar
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                _buildFilterChip('all', 'Tüm Araçlar', Icons.directions_car_rounded, p),
+                const SizedBox(width: 8),
+                _buildFilterChip('bargain', '🔥 Kelepir Fırsatlar', Icons.local_fire_department_rounded, p),
+                const SizedBox(width: 8),
+                _buildFilterChip('clean', '🛡️ Hasarsız', Icons.verified_user_rounded, p),
+                const SizedBox(width: 8),
+                _buildFilterChip('affordable', '💰 Bütçeme Uygun', Icons.account_balance_wallet_rounded, p),
+              ],
+            ),
+          ),
+
+          // Status Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             color: p.surfaceColor,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,7 +132,7 @@ class MarketplaceScreen extends ConsumerWidget {
           Expanded(
             child: listings.isEmpty
                 ? Center(
-                    child: Text('Şu an pazarda araç kalmadı. Yenile butonuna bas.', style: AppTypography.bodyMedium(p.isDark)),
+                    child: Text('Aranan kriterde araç bulunamadı.', style: AppTypography.bodyMedium(p.isDark)),
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
@@ -345,6 +382,28 @@ class MarketplaceScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFilterChip(String key, String label, IconData icon, dynamic p) {
+    final isSelected = _selectedFilter == key;
+    final activeColor = isSelected ? p.primaryColor : p.surfaceBorderColor;
+    final textColor = isSelected ? (p.isDark ? Colors.black : Colors.white) : p.textPrimaryColor;
+
+    return FilterChip(
+      showCheckmark: false,
+      avatar: Icon(icon, size: 16, color: isSelected ? textColor : p.primaryColor),
+      label: Text(label, style: TextStyle(color: textColor, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 12)),
+      selected: isSelected,
+      selectedColor: p.primaryColor,
+      backgroundColor: p.surfaceColor,
+      side: BorderSide(color: activeColor, width: isSelected ? 1.5 : 1.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      onSelected: (selected) {
+        setState(() {
+          _selectedFilter = key;
+        });
+      },
     );
   }
 

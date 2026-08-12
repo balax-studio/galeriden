@@ -179,6 +179,11 @@ class DashboardScreen extends ConsumerWidget {
             Text('HIZLI MENÜ', style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 12),
 
+            // Financial Health & Bank Loans Summary Card
+            _buildFinancialSummaryCard(context, ref, game, p),
+
+            const SizedBox(height: 16),
+
             GridView.count(
               crossAxisCount: 2,
               crossAxisSpacing: 14,
@@ -516,6 +521,177 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFinancialSummaryCard(BuildContext context, WidgetRef ref, dynamic game, dynamic p) {
+    final activeLoans = game.activeLoans;
+    final totalLoanDebt = activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: p.surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: activeLoans.isNotEmpty ? p.warningColor : p.surfaceBorderColor, width: 1.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(
+                activeLoans.isNotEmpty ? Icons.account_balance_rounded : Icons.savings_rounded,
+                color: activeLoans.isNotEmpty ? p.warningColor : p.successColor,
+                size: 24,
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    activeLoans.isNotEmpty ? '🏦 Banka Kredileri (${activeLoans.length})' : '🏦 Banka Kredisi Kullan',
+                    style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    activeLoans.isNotEmpty
+                        ? 'Toplam Kalan Borç: ${CurrencyFormatter.formatShort(totalLoanDebt)}'
+                        : 'Kasa yetersiz kaldığında ₺500.000 limitli kredi çek',
+                    style: AppTypography.labelSmall(p.isDark),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: activeLoans.isNotEmpty ? p.warningColor : p.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: const Size(44, 36),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: p.backgroundColor,
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                builder: (ctx) => Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.account_balance_rounded, color: p.primaryColor),
+                          const SizedBox(width: 10),
+                          Text('BANKA FİNANS SİSTEMİ', style: AppTypography.titleLarge(p.isDark)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Şu an ${activeLoans.length}/3 aktif banka krediniz var.',
+                        style: AppTypography.bodyMedium(p.isDark),
+                      ),
+                      const SizedBox(height: 16),
+                      if (activeLoans.isNotEmpty) ...[
+                        Text('AKTİF KREDİLERİNİZ', style: AppTypography.labelSmall(p.isDark)),
+                        const SizedBox(height: 8),
+                        ...activeLoans.map((loan) => Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: Icon(Icons.credit_card_rounded, color: p.warningColor),
+                                title: Text('${loan.bankName} - ${CurrencyFormatter.formatShort(loan.monthlyPayment)} / ay'),
+                                subtitle: Text('Kalan Taksit: ${loan.remainingInstallments} ay | Kalan: ${CurrencyFormatter.formatShort(loan.remainingAmount)}'),
+                                trailing: TextButton(
+                                  onPressed: () {
+                                    final success = ref.read(gameProvider.notifier).payLoanInstallment(loan.id);
+                                    Navigator.pop(ctx);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(success ? 'Taksit başarıyla ödendi!' : 'Bakiye yetersiz!'),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('Öde'),
+                                ),
+                              ),
+                            )),
+                        const SizedBox(height: 12),
+                      ],
+                      Text('YENİ KREDİ ÇEK', style: AppTypography.labelSmall(p.isDark)),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                final success = ref.read(gameProvider.notifier).takeBankLoan(
+                                      bankName: 'Ziraat Finans',
+                                      amount: 100000.0,
+                                      months: 6,
+                                    );
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(success ? '₺100.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!'),
+                                  ),
+                                );
+                              },
+                              child: const Text('₺100.000\n(6 Ay)'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                final success = ref.read(gameProvider.notifier).takeBankLoan(
+                                      bankName: 'Vakıf Finans',
+                                      amount: 250000.0,
+                                      months: 6,
+                                    );
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(success ? '₺250.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!'),
+                                  ),
+                                );
+                              },
+                              child: const Text('₺250.000\n(6 Ay)'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                final success = ref.read(gameProvider.notifier).takeBankLoan(
+                                      bankName: 'İş Galeri Finans',
+                                      amount: 500000.0,
+                                      months: 12,
+                                    );
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(success ? '₺500.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!'),
+                                  ),
+                                );
+                              },
+                              child: const Text('₺500.000\n(12 Ay)'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: Text(activeLoans.isNotEmpty ? 'Yönet' : 'Çek', style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }
