@@ -110,73 +110,77 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
 
-            // Balance & Level Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    p.primaryColor.withValues(alpha: 0.25),
-                    p.surfaceColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            // Main Dealership Status Card (Click to open /character-growth)
+            InkWell(
+              onTap: () => context.push('/character-growth'),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      p.primaryColor.withValues(alpha: 0.25),
+                      p.surfaceColor,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: p.primaryColor.withValues(alpha: 0.4), width: 1.5),
                 ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: p.primaryColor.withValues(alpha: 0.4), width: 1.5),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('MEVCUT SERMAYE', style: AppTypography.labelSmall(p.isDark)),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: p.primaryColor,
-                              borderRadius: BorderRadius.circular(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('MEVCUT SERMAYE (Karakter Detayı ➔)', style: AppTypography.labelSmall(p.isDark)),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: p.primaryColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Seviye ${game.level}',
+                                style: AppTypography.labelSmall(false).copyWith(fontWeight: FontWeight.bold, color: Colors.black),
+                              ),
                             ),
-                            child: Text(
-                              'Seviye ${game.level}',
-                              style: AppTypography.labelSmall(false).copyWith(fontWeight: FontWeight.bold, color: Colors.black),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: p.secondaryColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '${skills.xp} XP',
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: p.secondaryColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${skills.xp} XP',
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    CurrencyFormatter.format(game.balance),
-                    style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 32, color: p.textPrimaryColor),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStat('Toplam Kâr', CurrencyFormatter.formatShort(game.totalProfit), p.isDark),
-                      _buildStat('Satılan Araç', '${game.carsSold} Adet', p.isDark),
-                      _buildStat('Galeri Kapasitesi', '${game.ownedCars.length}/${game.maxGarageSlots}', p.isDark),
-                    ],
-                  ),
-                ],
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      CurrencyFormatter.format(game.balance),
+                      style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 32, color: p.textPrimaryColor),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildStat('Toplam Kâr', CurrencyFormatter.formatShort(game.totalProfit), p.isDark),
+                        _buildStat('Satılan Araç', '${game.carsSold} Adet', p.isDark),
+                        _buildStat('Galeri Kapasitesi', '${game.ownedCars.length}/${game.maxGarageSlots}', p.isDark),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -186,67 +190,16 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             Column(
               children: game.activeMissions.map((mission) {
-                final double progressRatio = (mission.currentProgress / mission.targetGoal).clamp(0.0, 1.0);
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: p.surfaceColor,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: mission.isCompleted ? p.primaryColor : p.surfaceBorderColor,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(mission.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '+₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} / +${mission.rewardXP}XP',
-                                  style: TextStyle(color: p.primaryColor, fontSize: 11, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(mission.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
-                            const SizedBox(height: 8),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: progressRatio,
-                                minHeight: 6,
-                                backgroundColor: p.surfaceBorderColor,
-                                valueColor: AlwaysStoppedAnimation<Color>(p.primaryColor),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: mission.isCompleted ? Colors.grey : p.primaryColor,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        ),
-                        onPressed: (!mission.isCompleted && progressRatio >= 1.0)
-                            ? () {
-                                ref.read(gameProvider.notifier).claimMissionReward(mission.id);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('${mission.title} Tamamlandı! Ödüller Hesaba Eklendi.')),
-                                );
-                              }
-                            : null,
-                        child: Text(mission.isCompleted ? 'Alındı' : 'Topla', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
+                return _AnimatedMissionCard(
+                  key: ValueKey(mission.id),
+                  mission: mission,
+                  p: p,
+                  onClaim: () {
+                    ref.read(gameProvider.notifier).claimMissionReward(mission.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${mission.title} Tamamlandı! Ödüller Hesaba Eklendi.')),
+                    );
+                  },
                 );
               }).toList(),
             ),
@@ -556,6 +509,106 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AnimatedMissionCard extends StatefulWidget {
+  final dynamic mission;
+  final dynamic p;
+  final VoidCallback onClaim;
+
+  const _AnimatedMissionCard({
+    super.key,
+    required this.mission,
+    required this.p,
+    required this.onClaim,
+  });
+
+  @override
+  State<_AnimatedMissionCard> createState() => _AnimatedMissionCardState();
+}
+
+class _AnimatedMissionCardState extends State<_AnimatedMissionCard> {
+  bool _isClaiming = false;
+
+  void _handleClaim() {
+    setState(() => _isClaiming = true);
+    Future.delayed(const Duration(milliseconds: 350), () {
+      widget.onClaim();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double progressRatio = (widget.mission.currentProgress / widget.mission.targetGoal).clamp(0.0, 1.0);
+    final p = widget.p;
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 350),
+      opacity: _isClaiming ? 0.0 : (widget.mission.isCompleted ? 0.5 : 1.0),
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+        child: _isClaiming
+            ? const SizedBox(width: double.infinity, height: 0)
+            : Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: p.surfaceColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: widget.mission.isCompleted ? p.primaryColor : p.surfaceBorderColor,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(widget.mission.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                              const SizedBox(width: 8),
+                              Text(
+                                '+₺${CurrencyFormatter.formatShort(widget.mission.rewardMoney.toDouble())} / +${widget.mission.rewardXP}XP',
+                                style: TextStyle(color: p.primaryColor, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(widget.mission.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: progressRatio,
+                              minHeight: 6,
+                              backgroundColor: p.surfaceBorderColor,
+                              valueColor: AlwaysStoppedAnimation<Color>(p.primaryColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: widget.mission.isCompleted ? Colors.grey : p.primaryColor,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      onPressed: (!widget.mission.isCompleted && progressRatio >= 1.0 && !_isClaiming)
+                          ? _handleClaim
+                          : null,
+                      child: Text(widget.mission.isCompleted ? 'Alındı' : 'Topla', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ),
       ),
     );
   }

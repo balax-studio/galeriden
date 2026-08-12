@@ -9,12 +9,18 @@ import '../presentation/screens/settings/settings_screen.dart';
 import '../presentation/screens/showroom/showroom_screen.dart';
 import '../presentation/screens/workshop/workshop_screen.dart';
 
+import '../presentation/screens/character/character_growth_screen.dart';
+
 final appRouter = GoRouter(
   initialLocation: '/onboarding',
   routes: [
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/character-growth',
+      builder: (context, state) => const CharacterGrowthScreen(),
     ),
     GoRoute(
       path: '/dashboard',
