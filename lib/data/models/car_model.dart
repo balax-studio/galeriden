@@ -1,5 +1,11 @@
 import 'expertise_model.dart';
 
+enum ListingDeclarationType {
+  honest,
+  flawlessClaim,
+  tamperedMileageClaim,
+}
+
 class CarModel {
   final String id;
   final String brand;
@@ -12,6 +18,7 @@ class CarModel {
   final bool isDetailedCleaned;
   final bool isRare;
   final ExpertiseReport expertise;
+  final ListingDeclarationType declarationType;
 
   CarModel({
     required this.id,
@@ -25,6 +32,7 @@ class CarModel {
     this.isDetailedCleaned = false,
     this.isRare = false,
     required this.expertise,
+    this.declarationType = ListingDeclarationType.honest,
   });
 
   /// Calculates estimated overall value after repair & cleaning & rarity
@@ -62,6 +70,7 @@ class CarModel {
       'isDetailedCleaned': isDetailedCleaned,
       'isRare': isRare,
       'expertise': expertise.toJson(),
+      'declarationType': declarationType.name,
     };
   }
 
@@ -78,6 +87,12 @@ class CarModel {
       isDetailedCleaned: json['isDetailedCleaned'] as bool? ?? false,
       isRare: json['isRare'] as bool? ?? false,
       expertise: ExpertiseReport.fromJson(json['expertise'] as Map<String, dynamic>),
+      declarationType: json['declarationType'] != null
+          ? ListingDeclarationType.values.firstWhere(
+              (e) => e.name == json['declarationType'],
+              orElse: () => ListingDeclarationType.honest,
+            )
+          : ListingDeclarationType.honest,
     );
   }
 
@@ -87,6 +102,7 @@ class CarModel {
     bool? isDetailedCleaned,
     bool? isRare,
     ExpertiseReport? expertise,
+    ListingDeclarationType? declarationType,
   }) {
     return CarModel(
       id: id,
@@ -100,6 +116,7 @@ class CarModel {
       isDetailedCleaned: isDetailedCleaned ?? this.isDetailedCleaned,
       isRare: isRare ?? this.isRare,
       expertise: expertise ?? this.expertise,
+      declarationType: declarationType ?? this.declarationType,
     );
   }
 }

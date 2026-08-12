@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/models/car_model.dart';
+import '../../data/models/customer_model.dart';
 import '../../data/models/dealership_model.dart';
 import '../../data/models/mission_model.dart';
 import '../../data/models/offer_model.dart';
@@ -328,6 +329,47 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     state = state.copyWith(incomingOffers: updatedOffers);
     _saveState();
     return outcome;
+  }
+
+  /// Updates car's listing declaration status (honest, flawless claim, tampered mileage)
+  void updateCarListingDeclaration(String carId, ListingDeclarationType declaration) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return;
+
+    final updatedCar = state.ownedCars[carIndex].copyWith(declarationType: declaration);
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(ownedCars: updatedCars);
+    _saveState();
+  }
+
+  /// Accept offer with fraud inspection evaluation
+  FraudInspectionResult? acceptOfferWithFraudCheck(OfferModel offer, CustomerModel customer) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);
+    if (carIndex == -1) return null;
+
+    final car = state.ownedCars[carIndex];
+    final fraudResult = NegotiationEngine.evaluatePlayerFraudInspection(car: car, customer: customer);
+
+    if (fraudResult.caughtFraud) {
+      // Deduct fine (₺10.000) and reputation penalty (-15)
+      final newBalance = (state.balance - fraudResult.fineAmount).clamp(0.0, double.infinity);
+      final newReputation = (state.reputationScore - fraudResult.reputationPenalty).clamp(0, 100);
+      final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
+
+      state = state.copyWith(
+        balance: newBalance,
+        reputationScore: newReputation,
+        incomingOffers: updatedOffers,
+      );
+      _saveState();
+      return fraudResult;
+    }
+
+    // Honest or uninspected: proceed with standard sale!
+    acceptOffer(offer);
+    return fraudResult;
   }
 
   /// Accept an offer and sell car

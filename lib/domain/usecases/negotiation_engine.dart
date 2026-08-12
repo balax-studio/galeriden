@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../../data/models/car_model.dart';
+import '../../data/models/customer_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/offer_model.dart';
 
@@ -31,8 +32,70 @@ class ExpertiseDiscrepancyInfo {
   });
 }
 
+class FraudInspectionResult {
+  final bool didInspect;
+  final bool caughtFraud;
+  final String title;
+  final String description;
+  final double fineAmount;
+  final int reputationPenalty;
+
+  FraudInspectionResult({
+    required this.didInspect,
+    required this.caughtFraud,
+    required this.title,
+    required this.description,
+    required this.fineAmount,
+    required this.reputationPenalty,
+  });
+}
+
 class NegotiationEngine {
   static final Random _random = Random();
+
+  /// Evaluates whether a customer inspects player's listing and catches fraud/misleading claims
+  static FraudInspectionResult evaluatePlayerFraudInspection({
+    required CarModel car,
+    required CustomerModel customer,
+  }) {
+    if (car.declarationType == ListingDeclarationType.honest) {
+      return FraudInspectionResult(
+        didInspect: false,
+        caughtFraud: false,
+        title: 'Dürüst İlan',
+        description: 'İlanda beyan edilen bilgiler ekspertiz ile %100 uyuşuyor.',
+        fineAmount: 0.0,
+        reputationPenalty: 0,
+      );
+    }
+
+    final bool didInspect = _random.nextDouble() < customer.inspectionProbability;
+
+    if (!didInspect) {
+      return FraudInspectionResult(
+        didInspect: false,
+        caughtFraud: false,
+        title: 'Ekspertiz Yapılmadı',
+        description: 'Müşteri ilana güvendi ve aracı kontrolden geçirmeden kabul etti!',
+        fineAmount: 0.0,
+        reputationPenalty: 0,
+      );
+    }
+
+    String title = '🚨 YAKALANDINIZ!';
+    String description = car.declarationType == ListingDeclarationType.flawlessClaim
+        ? '${customer.name} aracı ekspertize soktu! İlanda "Hatasız" yazılan araçta ağır kusur tespit edildi!'
+        : '${customer.name} beyin taraması yaptırdı! Kilometrenin düşürüldüğü tespit edildi!';
+
+    return FraudInspectionResult(
+      didInspect: true,
+      caughtFraud: true,
+      title: title,
+      description: description,
+      fineAmount: 10000.0,
+      reputationPenalty: 15,
+    );
+  }
 
   /// Detects discrepancy between seller claim and full expertise report
   static ExpertiseDiscrepancyInfo detectExpertiseDiscrepancy(CarModel car) {

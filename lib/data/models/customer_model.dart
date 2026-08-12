@@ -24,6 +24,20 @@ class CustomerModel {
     required this.preferredDialogueTrait,
   });
 
+  /// Probability of buyer insisting on official expertise inspection before purchase
+  double get inspectionProbability {
+    switch (archetype) {
+      case CustomerArchetype.skepticalOfficial:
+        return 0.90;
+      case CustomerArchetype.familyMan:
+        return 0.75;
+      case CustomerArchetype.greedyFlipper:
+        return 0.60;
+      case CustomerArchetype.impatientYouth:
+        return 0.20;
+    }
+  }
+
   static CustomerModel generateRandomCustomer() {
     final archetypes = [
       CustomerModel(

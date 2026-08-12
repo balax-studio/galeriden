@@ -5,6 +5,7 @@ import 'package:galerisinden/domain/usecases/repair_engine.dart';
 import 'package:galerisinden/domain/usecases/auction_engine.dart';
 import 'package:galerisinden/domain/usecases/negotiation_engine.dart';
 import 'package:galerisinden/domain/usecases/risk_engine.dart';
+import 'package:galerisinden/data/models/car_model.dart';
 import 'package:galerisinden/data/models/customer_model.dart';
 import 'package:galerisinden/data/models/branch_model.dart';
 import 'package:galerisinden/data/models/detailing_model.dart';
@@ -144,6 +145,23 @@ void main() {
       final options = DetailingOption.getAvailableOptions();
       expect(options.length, equals(4));
       expect(options.any((o) => o.isRisky), isTrue);
+    });
+
+    test('NegotiationEngine evaluates player fraud inspection correctly', () {
+      final listings = MarketEngine.generateRandomListings(count: 1, playerLevel: 1);
+      final car = listings.first.car.copyWith(
+        declarationType: ListingDeclarationType.flawlessClaim,
+      );
+
+      final customer = CustomerModel.generateRandomCustomer();
+      expect(customer.inspectionProbability, greaterThan(0.0));
+
+      final result = NegotiationEngine.evaluatePlayerFraudInspection(car: car, customer: customer);
+      expect(result.title.isNotEmpty, isTrue);
+      if (result.caughtFraud) {
+        expect(result.fineAmount, equals(10000.0));
+        expect(result.reputationPenalty, equals(15));
+      }
     });
   });
 }

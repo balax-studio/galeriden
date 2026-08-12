@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/customer_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../providers/game_provider.dart';
@@ -105,7 +106,45 @@ class ShowroomScreen extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
+                              Container(
+                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                                 decoration: BoxDecoration(
+                                   color: p.surfaceColor,
+                                   borderRadius: BorderRadius.circular(10),
+                                   border: Border.all(color: p.surfaceBorderColor),
+                                 ),
+                                 child: Row(
+                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   children: [
+                                     Text('İlan Beyanı:', style: AppTypography.labelSmall(p.isDark)),
+                                     DropdownButton<ListingDeclarationType>(
+                                       value: car.declarationType,
+                                       underline: const SizedBox(),
+                                       dropdownColor: p.surfaceColor,
+                                       items: const [
+                                         DropdownMenuItem(
+                                           value: ListingDeclarationType.honest,
+                                           child: Text('🟢 Dürüst İlan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                         ),
+                                         DropdownMenuItem(
+                                           value: ListingDeclarationType.flawlessClaim,
+                                           child: Text('⚠️ Hatasız Boyasız Hilesi', style: TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.bold)),
+                                         ),
+                                         DropdownMenuItem(
+                                           value: ListingDeclarationType.tamperedMileageClaim,
+                                           child: Text('🚨 Sayaç Düşürme Hilesi', style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
+                                         ),
+                                       ],
+                                       onChanged: (val) {
+                                         if (val != null) {
+                                           ref.read(gameProvider.notifier).updateCarListingDeclaration(car.id, val);
+                                         }
+                                       },
+                                     ),
+                                   ],
+                                 ),
+                               ),
+                               const SizedBox(height: 8),
                                SizedBox(
                                  width: double.infinity,
                                  child: ElevatedButton.icon(
@@ -121,7 +160,7 @@ class ShowroomScreen extends ConsumerWidget {
                                      final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
                                      if (success) {
                                        ScaffoldMessenger.of(context).showSnackBar(
-                                         SnackBar(content: Text('${car.brand} ${car.modelName} için ₺2.500 Doping ile 2 ANINDA Alıcı Çekildi!')),
+                                         SnackBar(content: Text('${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!')),
                                        );
                                      } else {
                                        ScaffoldMessenger.of(context).showSnackBar(
@@ -186,46 +225,21 @@ class ShowroomScreen extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(offer.buyerName, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                                      if (offer.counterCount > 0) ...[
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: p.secondaryColor.withValues(alpha: 0.2),
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Text('Tur ${offer.counterCount}/${offer.maxCounters}', style: TextStyle(color: p.secondaryColor, fontSize: 10, fontWeight: FontWeight.bold)),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  Text(CurrencyFormatter.format(offer.offeredAmount), style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 18)),
+                                  Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
+                                  Text(CurrencyFormatter.format(offer.offeredAmount), style: AppTypography.moneyMedium(p.isDark)),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text('İlgilendiği Araç: ${car.brand} ${car.modelName}', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor)),
-                              const SizedBox(height: 8),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: p.backgroundColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text('"${offer.buyerMessage}"', style: AppTypography.bodyMedium(p.isDark).copyWith(fontStyle: FontStyle.italic)),
-                              ),
+                              Text('Teklif Veren: ${offer.buyerName}', style: AppTypography.labelSmall(p.isDark)),
+                              if (offer.buyerMessage.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text('"${offer.buyerMessage}"', style: TextStyle(fontStyle: FontStyle.italic, color: p.secondaryColor, fontSize: 12)),
+                              ],
                               const SizedBox(height: 12),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  OutlinedButton(
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: p.errorColor,
-                                      side: BorderSide(color: p.errorColor),
-                                    ),
+                                  TextButton(
                                     onPressed: () {
                                       ref.read(gameProvider.notifier).rejectOffer(offer.id);
                                     },
@@ -250,10 +264,42 @@ class ShowroomScreen extends ConsumerWidget {
                                           foregroundColor: Colors.white,
                                         ),
                                         onPressed: () {
-                                          ref.read(gameProvider.notifier).acceptOffer(offer);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı!')),
-                                          );
+                                          final customer = CustomerModel.generateRandomCustomer();
+                                          final fraudResult = ref.read(gameProvider.notifier).acceptOfferWithFraudCheck(offer, customer);
+
+                                          if (fraudResult != null && fraudResult.caughtFraud) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                backgroundColor: p.surfaceColor,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                                title: Row(
+                                                  children: [
+                                                    VectorIconWidget(type: 'error', color: p.errorColor, size: 24),
+                                                    const SizedBox(width: 8),
+                                                    Text(fraudResult.title, style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                                  ],
+                                                ),
+                                                content: Text(
+                                                  '${fraudResult.description}\n\n'
+                                                  '💸 Tazminat Cezası: ₺${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
+                                                  '⭐ İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
+                                                  style: AppTypography.bodyMedium(p.isDark),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(backgroundColor: p.errorColor, foregroundColor: Colors.white),
+                                                    onPressed: () => Navigator.pop(ctx),
+                                                    child: const Text('Tamam'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı!')),
+                                            );
+                                          }
                                         },
                                         child: const Text('Kabul Et & Sat'),
                                       ),

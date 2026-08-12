@@ -20,6 +20,7 @@ class DealershipModel {
   final DateTime lastLoginDate;
   final List<MissionModel> activeMissions;
   final MarketTrendModel marketTrend;
+  final int reputationScore;
 
   DealershipModel({
     required this.balance,
@@ -36,6 +37,7 @@ class DealershipModel {
     required this.lastLoginDate,
     required this.activeMissions,
     required this.marketTrend,
+    this.reputationScore = 100,
   });
 
   factory DealershipModel.initial() {
@@ -105,6 +107,7 @@ class DealershipModel {
       'lastLoginDate': lastLoginDate.toIso8601String(),
       'activeMissions': activeMissions.map((m) => m.toJson()).toList(),
       'marketTrend': marketTrend.toJson(),
+      'reputationScore': reputationScore,
     };
   }
 
@@ -137,6 +140,7 @@ class DealershipModel {
       marketTrend: json['marketTrend'] != null
           ? MarketTrendModel.fromJson(json['marketTrend'] as Map<String, dynamic>)
           : MarketTrendModel.defaultTrend(),
+      reputationScore: json['reputationScore'] as int? ?? 100,
     );
   }
 
@@ -155,6 +159,7 @@ class DealershipModel {
     DateTime? lastLoginDate,
     List<MissionModel>? activeMissions,
     MarketTrendModel? marketTrend,
+    int? reputationScore,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -171,6 +176,7 @@ class DealershipModel {
       lastLoginDate: lastLoginDate ?? this.lastLoginDate,
       activeMissions: activeMissions ?? this.activeMissions,
       marketTrend: marketTrend ?? this.marketTrend,
+      reputationScore: reputationScore ?? this.reputationScore,
     );
   }
 }
