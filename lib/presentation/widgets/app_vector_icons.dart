@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class VectorIconWidget extends StatelessWidget {
-  final String type; // 'car', 'expertise', 'workshop', 'negotiation', 'theme_store', 'streak'
+  final String type; // 'car', 'expertise', 'workshop', 'negotiation', 'theme_store', 'streak', 'rare', 'flash', 'craftsman'
   final Color color;
   final double size;
 
@@ -44,6 +44,41 @@ class _VectorIconPainter extends CustomPainter {
     final h = size.height;
 
     switch (type) {
+      case 'rare':
+        // Diamond Vector
+        final path = Path();
+        path.moveTo(w * 0.50, h * 0.10);
+        path.lineTo(w * 0.85, h * 0.40);
+        path.lineTo(w * 0.50, h * 0.90);
+        path.lineTo(w * 0.15, h * 0.40);
+        path.close();
+        canvas.drawPath(path, paint);
+        canvas.drawLine(Offset(w * 0.15, h * 0.40), Offset(w * 0.85, h * 0.40), paint);
+        canvas.drawLine(Offset(w * 0.50, h * 0.10), Offset(w * 0.50, h * 0.90), paint);
+        break;
+
+      case 'flash':
+        // Lightning Bolt Vector
+        final path = Path();
+        path.moveTo(w * 0.55, h * 0.10);
+        path.lineTo(w * 0.20, h * 0.55);
+        path.lineTo(w * 0.50, h * 0.55);
+        path.lineTo(w * 0.45, h * 0.90);
+        path.lineTo(w * 0.80, h * 0.45);
+        path.lineTo(w * 0.50, h * 0.45);
+        path.close();
+        canvas.drawPath(path, fillPaint);
+        break;
+
+      case 'craftsman':
+        // Hammer Vector
+        final path = Path();
+        path.addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.30, h * 0.15, w * 0.40, h * 0.20), const Radius.circular(3)));
+        path.moveTo(w * 0.50, h * 0.35);
+        path.lineTo(w * 0.50, h * 0.85);
+        canvas.drawPath(path, paint);
+        break;
+
       case 'expertise':
         // Magnifying Glass + Inspection Badge
         canvas.drawCircle(Offset(w * 0.45, h * 0.45), w * 0.30, paint);

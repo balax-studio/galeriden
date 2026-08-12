@@ -59,12 +59,12 @@ class MarketplaceScreen extends ConsumerWidget {
                       ),
                       if (marketSenseLevel >= 3)
                         Text(
-                          '💡 Piyasa Sezgisi (Lv $marketSenseLevel): SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
+                          'Piyasa Sezgisi (Lv $marketSenseLevel): SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
                           style: TextStyle(color: p.primaryColor, fontSize: 10, fontWeight: FontWeight.bold),
                         )
                       else
                         Text(
-                          '🔒 Piyasa Sezgisi Lv 3 yükseltilirse segment kâr oranları açılır.',
+                          'Piyasa Sezgisi Lv 3 yükseltilirse segment kâr oranları açılır.',
                           style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
                         ),
                     ],
@@ -154,7 +154,14 @@ class MarketplaceScreen extends ConsumerWidget {
                                             color: p.secondaryColor,
                                             borderRadius: BorderRadius.circular(6),
                                           ),
-                                          child: const Text('💎 NADİR KOLEKSİYON', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              VectorIconWidget(type: 'rare', color: Colors.white, size: 12),
+                                              const SizedBox(width: 4),
+                                              const Text('NADİR KOLEKSİYON', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                       if (isFlash) ...[
@@ -165,7 +172,14 @@ class MarketplaceScreen extends ConsumerWidget {
                                             color: p.warningColor,
                                             borderRadius: BorderRadius.circular(6),
                                           ),
-                                          child: const Text('⚡ FIRSAT %30 İNDİRİM', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              VectorIconWidget(type: 'flash', color: Colors.white, size: 12),
+                                              const SizedBox(width: 4),
+                                              const Text('FIRSAT %30 İNDİRİM', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ],

@@ -59,7 +59,7 @@ class RepairEngine {
       return RepairResult(
         updatedCar: car,
         isSuccess: false,
-        message: '⚠️ Çırak usta boyayı tuturamadı, renk dalgalanması oldu! İşlem başarısız.',
+        message: 'Çırak usta boyayı tuturamadı, renk dalgalanması oldu! İşlem başarısız.',
         costPaid: actualCost,
       );
     }
@@ -79,7 +79,7 @@ class RepairEngine {
     return RepairResult(
       updatedCar: car.copyWith(expertise: updatedExpertise),
       isSuccess: true,
-      message: '✅ $partName sıfır gibi orijinal kondisyona getirildi!',
+      message: '$partName sıfır gibi orijinal kondisyona getirildi!',
       costPaid: actualCost,
     );
   }
@@ -96,7 +96,7 @@ class RepairEngine {
       return RepairResult(
         updatedCar: car,
         isSuccess: false,
-        message: '⚠️ Motor rektefiye sırasında ayar tutturulamadı. Usta tekrar bakmalı!',
+        message: 'Motor rektefiye sırasında ayar tutturulamadı. Usta tekrar bakmalı!',
         costPaid: actualCost,
       );
     }
@@ -113,7 +113,7 @@ class RepairEngine {
     return RepairResult(
       updatedCar: car.copyWith(expertise: updatedExpertise),
       isSuccess: true,
-      message: '⚡ Motor ve Şanzıman saat gibi %100 kondisyona ulaştırıldı!',
+      message: 'Motor ve Şanzıman saat gibi %100 kondisyona ulaştırıldı!',
       costPaid: actualCost,
     );
   }

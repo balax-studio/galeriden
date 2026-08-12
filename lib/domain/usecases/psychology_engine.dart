@@ -3,7 +3,7 @@ import 'dart:math';
 class PsychologyEngine {
   static final Random _random = Random();
 
-  /// Simulated live viewer count for FOMO (e.g. "4 kişi bu ilana bakıyor")
+  /// Simulated live viewer count for FOMO
   static int getLiveViewerCount() {
     return 2 + _random.nextInt(7);
   }
@@ -11,11 +11,11 @@ class PsychologyEngine {
   /// Generate dynamic FOMO urgency text
   static String getRandomFomoText() {
     final texts = [
-      '🔥 3 kişi teklif vermeye hazırlanıyor!',
-      '⚡ Son 10 dakikadaki en popüler ilan',
-      '👀 5 farklı galerici bu aracı inceliyor',
-      '💎 Piyasa değerinin altında kaçırılmayacak fırsat!',
-      '🚀 Bugün eklenen en kelepir araç',
+      '3 kişi teklif vermeye hazırlanıyor!',
+      'Son 10 dakikadaki en popüler ilan',
+      '5 farklı galerici bu aracı inceliyor',
+      'Piyasa değerinin altında kaçırılmayacak fırsat!',
+      'Bugün eklenen en kelepir araç',
     ];
     return texts[_random.nextInt(texts.length)];
   }
@@ -33,7 +33,7 @@ class PsychologyEngine {
 
   /// Sunk cost alert text for repair screen
   static String getSunkCostRepairText(double spentSoFar, double estimatedGain) {
-    return 'Şu ana kadar bu araca ₺${spentSoFar.round()} harcadın. Bi parça daha boyatsan satış fiyatı ₺${estimatedGain.round()} artacak!';
+    return 'Şu ana kadar bu araca ₺${spentSoFar.round()} harcadın. Bir parça daha boyatsan satış fiyatı ₺${estimatedGain.round()} artacak!';
   }
 
   /// Calculate login streak reward

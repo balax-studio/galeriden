@@ -100,7 +100,7 @@ class DashboardScreen extends ConsumerWidget {
                     onPressed: () {
                       final reward = ref.read(gameProvider.notifier).claimDailyStreak();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('🎉 ₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü ve 50 XP Kazanıldı!')),
+                        SnackBar(content: Text('₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü ve 50 XP Kazanıldı!')),
                       );
                     },
                     child: const Text('Topla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
@@ -239,7 +239,7 @@ class DashboardScreen extends ConsumerWidget {
                             ? () {
                                 ref.read(gameProvider.notifier).claimMissionReward(mission.id);
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('🎁 ${mission.title} Tamamlandı! Ödüller Hesaba Eklendi.')),
+                                  SnackBar(content: Text('${mission.title} Tamamlandı! Ödüller Hesaba Eklendi.')),
                                 );
                               }
                             : null,

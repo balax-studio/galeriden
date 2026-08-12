@@ -12,7 +12,7 @@ class MarketEngine {
   static MarketTrendModel generateMarketTrend() {
     final trends = [
       {
-        'headline': '🔥 Bahar Ayı Yaza Doğru SUV & Spor Araç Fiyatları %15 Yükselişte!',
+        'headline': 'Bahar Ayı Yaza Doğru SUV & Spor Araç Fiyatları %15 Yükselişte!',
         'Sedan': 1.0,
         'Hatchback': 0.95,
         'SUV': 1.15,
@@ -20,7 +20,7 @@ class MarketEngine {
         'Klasik': 1.05,
       },
       {
-        'headline': '⛽ Yakıt Zamları Sonrası Ekonomi & Hatchback Araçlara Talep Patladı!',
+        'headline': 'Yakıt Zamları Sonrası Ekonomi & Hatchback Araçlara Talep Patladı!',
         'Sedan': 0.98,
         'Hatchback': 1.18,
         'SUV': 0.88,
@@ -28,7 +28,7 @@ class MarketEngine {
         'Klasik': 1.0,
       },
       {
-        'headline': '👑 Lüks & Klasik Araç Koleksiyonerleri Piyasayı Hareketlendirdi!',
+        'headline': 'Lüks & Klasik Araç Koleksiyonerleri Piyasayı Hareketlendirdi!',
         'Sedan': 1.05,
         'Hatchback': 1.0,
         'SUV': 1.05,
@@ -36,7 +36,7 @@ class MarketEngine {
         'Klasik': 1.30,
       },
       {
-        'headline': '📊 İkinci El Piyasasında Durgunluk — Kelepir Araç Fırsatları Artıyor.',
+        'headline': 'İkinci El Piyasasında Durgunluk — Kelepir Araç Fırsatları Artıyor.',
         'Sedan': 0.92,
         'Hatchback': 0.90,
         'SUV': 0.93,
@@ -164,19 +164,19 @@ class MarketEngine {
     final sellerCity = cities[_random.nextInt(cities.length)];
 
     String title = '$year ${brandData.name} $modelName';
-    if (isRare) title = '💎 [NADİR KOLEKSİYON] $title';
+    if (isRare) title = '[NADİR KOLEKSİYON] $title';
 
     String description = isFlashDeal
-        ? '⚡ ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır.'
+        ? 'ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır.'
         : (isRare
-            ? '💎 Garaj arabası, düşük km, hatasız boyasız koleksiyonluk fırsat!'
+            ? 'Garaj arabası, düşük km, hatasız boyasız koleksiyonluk fırsat!'
             : 'Temiz kullanılmıştır, bakımları zamanında yapılmıştır. Nakit satılık.');
 
     return ListingModel(
       id: 'listing_$id',
       car: car,
       sellerName: '${sellerProfile['name']} (${_getRandomSellerName()})',
-      sellerTrait: isRare ? '💎 Koleksiyonluk Nadir Araç' : (isFlashDeal ? '⚡ Fırsat İlanı! Çok Acele' : sellerProfile['trait']!),
+      sellerTrait: isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!),
       sellerCity: sellerCity,
       title: title,
       description: description,

@@ -8,6 +8,7 @@ import '../../../data/models/expertise_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/app_vector_icons.dart';
 
 class ShowroomScreen extends ConsumerWidget {
   const ShowroomScreen({super.key});
@@ -70,7 +71,14 @@ class ShowroomScreen extends ConsumerWidget {
                                             color: p.secondaryColor,
                                             borderRadius: BorderRadius.circular(6),
                                           ),
-                                          child: const Text('💎 NADİR', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              VectorIconWidget(type: 'rare', color: Colors.white, size: 10),
+                                              const SizedBox(width: 4),
+                                              const Text('NADİR', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ],

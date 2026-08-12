@@ -207,7 +207,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
               _buildCraftsmanTile(
                 context,
-                title: '🔨 Çırak Usta',
+                title: 'Çırak Usta',
                 subtitle: 'Maliyet: Ucuz (%55) | Başarı: %68 (Riskli)',
                 tier: RepairTier.apprentice,
                 isEngine: isEngine,
@@ -216,7 +216,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               ),
               _buildCraftsmanTile(
                 context,
-                title: '🛠️ Kalfa Usta',
+                title: 'Kalfa Usta',
                 subtitle: 'Maliyet: Standart (%100) | Başarı: %88 (Güvenilir)',
                 tier: RepairTier.journeyman,
                 isEngine: isEngine,
@@ -225,7 +225,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               ),
               _buildCraftsmanTile(
                 context,
-                title: '👨‍🔧 Master Kaportacı',
+                title: 'Master Kaportacı',
                 subtitle: 'Maliyet: Premium (%175) | Başarı: %100 (Orijinal Garantili)',
                 tier: RepairTier.master,
                 isEngine: isEngine,
@@ -256,6 +256,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         border: Border.all(color: p.surfaceBorderColor),
       ),
       child: ListTile(
+        leading: VectorIconWidget(type: 'craftsman', color: p.primaryColor, size: 22),
         title: Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
         subtitle: Text(subtitle, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
         onTap: () {
