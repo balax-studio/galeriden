@@ -391,7 +391,7 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     final profit = offer.offeredAmount - car.currentPurchasePrice;
 
     final updatedCars = state.ownedCars.where((c) => c.id != car.id).toList();
-    final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
+    final updatedOffers = state.incomingOffers.where((o) => o.carId != car.id).toList();
 
     int newCarsSold = state.carsSold + 1;
     int newLevel = state.level;
