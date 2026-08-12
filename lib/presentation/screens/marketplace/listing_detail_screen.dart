@@ -201,13 +201,50 @@ class ListingDetailScreen extends ConsumerWidget {
                   onPressed: game.balance < listing.askingPrice
                       ? null
                       : () {
-                          final success = ref.read(gameProvider.notifier).buyCar(car, listing.askingPrice);
-                          if (success) {
+                          final outcome = ref.read(gameProvider.notifier).buyCar(
+                                car,
+                                listing.askingPrice,
+                                isExpertiseCompleted: listing.isExpertiseCompleted,
+                              );
+                          if (outcome != null) {
                             ref.read(marketProvider.notifier).removeListing(listing.id);
                             context.pop(); // Return to market
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${car.brand} ${car.modelName} satın alındı ve garajına eklendi!')),
-                            );
+
+                            if (outcome.isTrapped) {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  backgroundColor: p.surfaceColor,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  title: Row(
+                                    children: [
+                                      Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 28),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          outcome.title,
+                                          style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 18),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  content: Text(
+                                    outcome.description,
+                                    style: TextStyle(color: p.textPrimaryColor, fontSize: 14),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      child: Text('Anladım', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${car.brand} ${car.modelName} satın alındı ve garajına eklendi!')),
+                              );
+                            }
                           }
                         },
                 ),

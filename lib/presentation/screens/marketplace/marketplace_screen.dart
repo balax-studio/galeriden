@@ -284,12 +284,49 @@ class MarketplaceScreen extends ConsumerWidget {
                                         onPressed: game.balance < item.askingPrice
                                             ? null
                                             : () {
-                                                final success = ref.read(gameProvider.notifier).buyCar(car, item.askingPrice);
-                                                if (success) {
+                                                final outcome = ref.read(gameProvider.notifier).buyCar(
+                                                      car,
+                                                      item.askingPrice,
+                                                      isExpertiseCompleted: item.isExpertiseCompleted,
+                                                    );
+                                                if (outcome != null) {
                                                   ref.read(marketProvider.notifier).removeListing(item.id);
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text('${car.brand} ${car.modelName} satın alındı ve garajına eklendi!')),
-                                                  );
+
+                                                  if (outcome.isTrapped) {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (ctx) => AlertDialog(
+                                                        backgroundColor: p.surfaceColor,
+                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                                        title: Row(
+                                                          children: [
+                                                            Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 28),
+                                                            const SizedBox(width: 8),
+                                                            Expanded(
+                                                              child: Text(
+                                                                outcome.title,
+                                                                style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 18),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        content: Text(
+                                                          outcome.description,
+                                                          style: TextStyle(color: p.textPrimaryColor, fontSize: 14),
+                                                        ),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () => Navigator.pop(ctx),
+                                                            child: Text('Anladım', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(content: Text('${car.brand} ${car.modelName} satın alındı ve garajına eklendi!')),
+                                                    );
+                                                  }
                                                 }
                                               },
                                         child: const Text('Satın Al', style: TextStyle(fontWeight: FontWeight.bold)),

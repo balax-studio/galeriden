@@ -253,14 +253,51 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     onPressed: game.balance < _offeredPrice
                         ? null
                         : () {
-                            final success = ref.read(gameProvider.notifier).buyCar(widget.listing.car, _offeredPrice);
-                            if (success) {
+                            final outcome = ref.read(gameProvider.notifier).buyCar(
+                                  widget.listing.car,
+                                  _offeredPrice,
+                                  isExpertiseCompleted: widget.listing.isExpertiseCompleted,
+                                );
+                            if (outcome != null) {
                               ref.read(marketProvider.notifier).removeListing(widget.listing.id);
                               Navigator.pop(context); // Close sheet
                               Navigator.pop(context); // Return to marketplace
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ₺${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!')),
-                              );
+
+                              if (outcome.isTrapped) {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    backgroundColor: p.surfaceColor,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    title: Row(
+                                      children: [
+                                        Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 28),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            outcome.title,
+                                            style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    content: Text(
+                                      outcome.description,
+                                      style: TextStyle(color: p.textPrimaryColor, fontSize: 14),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: Text('Anladım', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ₺${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!')),
+                                );
+                              }
                             }
                           },
                     child: Text('₺${CurrencyFormatter.formatShort(_offeredPrice)} Öde ve Satın Al', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),

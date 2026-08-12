@@ -33,14 +33,22 @@ class ExpertiseEngine {
 
     String overallGrade;
     if (damagePercentage < 10) {
-      overallGrade = 'A+ (Koleksiyonluk / Çil Çil)';
+      overallGrade = 'A+ (Koleksiyonluk / Geliştirici Bile Hayran Kaldı)';
     } else if (damagePercentage < 25) {
-      overallGrade = 'B (Temiz / Düzgün)';
+      overallGrade = 'B (Temiz / Garanti Banko Araç)';
     } else if (damagePercentage < 45) {
-      overallGrade = 'C (Masraflı / Bakım İster)';
+      overallGrade = 'C (Masraflı / Sanayi Yolları Göründü)';
     } else {
-      overallGrade = 'D (Ağır Hasarlı / Toplanmalı)';
+      overallGrade = 'D (Ağır Hasarlı / Oyunu Yazan Yazılımcı Bile Şaşkın)';
     }
+
+    final developerNotes = [
+      'Geliştirici Notu: Bu aracı alanın kafasına meteor düşme ihtimali %0.01.',
+      'Usta Notu: Valla oyunu yazan yazılımcı bile bu arabanın kazasız olduğuna inanmıyor!',
+      'Ekspertiz Notu: Şasisi saat gibi ama saat de bozuk olabilir.',
+      'Geliştirici Notu: Araçta sıfır boya var ama güneş yanığından renk görünmüyor.'
+    ];
+    final note = developerNotes[_random.nextInt(developerNotes.length)];
 
     return {
       'paintedCount': paintedCount,
@@ -49,6 +57,7 @@ class ExpertiseEngine {
       'damagePercentage': damagePercentage.clamp(0.0, 100.0),
       'fairMarketValue': fairMarketValue,
       'overallGrade': overallGrade,
+      'developerNote': note,
     };
   }
 }

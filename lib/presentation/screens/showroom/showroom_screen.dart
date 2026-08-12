@@ -6,7 +6,6 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/offer_model.dart';
-import '../../../domain/usecases/negotiation_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 
@@ -107,24 +106,31 @@ class ShowroomScreen extends ConsumerWidget {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.campaign_rounded),
-                                  label: const Text('Müşteri Çek / İlanı Öne Çıkar'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: p.primaryColor,
-                                    foregroundColor: Colors.black,
-                                  ),
-                                  onPressed: () {
-                                    final offer = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.1);
-                                    ref.read(gameProvider.notifier).addOffer(offer);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('${car.brand} için yeni bir alıcı teklifi geldi!')),
-                                    );
-                                  },
-                                ),
-                              ),
+                               SizedBox(
+                                 width: double.infinity,
+                                 child: ElevatedButton.icon(
+                                   icon: VectorIconWidget(type: 'flash', color: Colors.black, size: 16),
+                                   label: const Text('İlanı Öne Çıkar / Doping (₺2.500)'),
+                                   style: ElevatedButton.styleFrom(
+                                     backgroundColor: p.warningColor,
+                                     foregroundColor: Colors.black,
+                                     padding: const EdgeInsets.symmetric(vertical: 10),
+                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                   ),
+                                   onPressed: () {
+                                     final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
+                                     if (success) {
+                                       ScaffoldMessenger.of(context).showSnackBar(
+                                         SnackBar(content: Text('${car.brand} ${car.modelName} için ₺2.500 Doping ile 2 ANINDA Alıcı Çekildi!')),
+                                       );
+                                     } else {
+                                       ScaffoldMessenger.of(context).showSnackBar(
+                                         const SnackBar(content: Text('Doping için bakiyeniz yetersiz (₺2.500 gereklidir).')),
+                                       );
+                                     }
+                                   },
+                                 ),
+                               ),
                             ],
                           ),
                         ),

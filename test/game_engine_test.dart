@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:galerisinden/domain/usecases/market_engine.dart';
 import 'package:galerisinden/domain/usecases/expertise_engine.dart';
 import 'package:galerisinden/domain/usecases/repair_engine.dart';
+import 'package:galerisinden/domain/usecases/risk_engine.dart';
 import 'package:galerisinden/data/models/expertise_model.dart';
 
 void main() {
@@ -29,6 +30,18 @@ void main() {
       final result = RepairEngine.repairBodyPart(car, 'Kaput', RepairTier.master);
       expect(result.isSuccess, isTrue);
       expect(result.updatedCar.expertise.bodyParts['Kaput'], equals(PartStatus.original));
+    });
+
+    test('Risk Engine evaluates uninspected purchases correctly', () {
+      final listings = MarketEngine.generateRandomListings(count: 1, playerLevel: 1);
+      final car = listings.first.car;
+
+      // Run 20 evaluations to ensure risk engine produces valid outcomes
+      for (int i = 0; i < 20; i++) {
+        final outcome = RiskEngine.evaluateUninspectedPurchaseRisk(car);
+        expect(outcome.title.isNotEmpty, isTrue);
+        expect(outcome.description.isNotEmpty, isTrue);
+      }
     });
   });
 }

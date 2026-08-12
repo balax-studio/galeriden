@@ -12,6 +12,7 @@ import '../../domain/usecases/negotiation_engine.dart';
 import '../../domain/usecases/offline_progression.dart';
 import '../../domain/usecases/psychology_engine.dart';
 import '../../domain/usecases/repair_engine.dart';
+import '../../domain/usecases/risk_engine.dart';
 
 final gameProvider = StateNotifierProvider<GameNotifier, DealershipModel>((ref) {
   return GameNotifier();
@@ -88,33 +89,59 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     _saveState();
   }
 
-  /// Purchase a car from market
-  bool buyCar(CarModel car, double purchasePrice) {
-    if (state.balance < purchasePrice) return false;
-    if (state.ownedCars.length >= state.maxGarageSlots) return false;
+  /// Purchase a car from market with RiskEngine check
+  PurchaseRiskOutcome? buyCar(CarModel car, double purchasePrice, {bool isExpertiseCompleted = false}) {
+    if (state.balance < purchasePrice) return null;
+    if (state.ownedCars.length >= state.maxGarageSlots) return null;
 
     final updatedBalance = state.balance - purchasePrice;
-    final updatedCar = CarModel(
-      id: car.id,
-      brand: car.brand,
-      modelName: car.modelName,
-      modelYear: car.modelYear,
-      bodyType: car.bodyType,
-      colorHex: car.colorHex,
-      baseMarketValue: car.baseMarketValue,
+    
+    // Evaluate risk if expertise was not done
+    PurchaseRiskOutcome outcome;
+    if (!isExpertiseCompleted) {
+      outcome = RiskEngine.evaluateUninspectedPurchaseRisk(car);
+    } else {
+      outcome = PurchaseRiskOutcome(
+        isTrapped: false,
+        title: 'Ekspertizli Alım',
+        description: 'Ekspertiz raporu doğrultusunda güvenle satın alındı.',
+        updatedCar: car,
+      );
+    }
+
+    final finalCar = outcome.updatedCar.copyWith(
       currentPurchasePrice: purchasePrice,
-      isRare: car.isRare,
-      expertise: car.expertise,
     );
 
     state = state.copyWith(
       balance: updatedBalance,
-      ownedCars: [...state.ownedCars, updatedCar],
+      ownedCars: [...state.ownedCars, finalCar],
     );
 
     addXP(25);
     _checkAchievement('first_buy');
     _updateMissionProgress(MissionType.buyCars, 1);
+    _saveState();
+    return outcome;
+  }
+
+  /// Boost Listing Doping (₺2.500) to instantly bring 2 buyer offers
+  bool boostListingDoping(String carId) {
+    const cost = 2500.0;
+    if (state.balance < cost) return false;
+
+    final car = state.ownedCars.firstWhere((c) => c.id == carId, orElse: () => throw Exception('Car not found'));
+    
+    // Generate 2 immediate high-value offers
+    final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.1);
+    final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.1);
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      incomingOffers: [...state.incomingOffers, newOffer1, newOffer2],
+    );
+
+    addXP(15);
     _saveState();
     return true;
   }

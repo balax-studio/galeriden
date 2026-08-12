@@ -82,6 +82,8 @@ class CarModel {
   }
 
   CarModel copyWith({
+    double? baseMarketValue,
+    double? currentPurchasePrice,
     bool? isDetailedCleaned,
     bool? isRare,
     ExpertiseReport? expertise,
@@ -93,8 +95,8 @@ class CarModel {
       modelYear: modelYear,
       bodyType: bodyType,
       colorHex: colorHex,
-      baseMarketValue: baseMarketValue,
-      currentPurchasePrice: currentPurchasePrice,
+      baseMarketValue: baseMarketValue ?? this.baseMarketValue,
+      currentPurchasePrice: currentPurchasePrice ?? this.currentPurchasePrice,
       isDetailedCleaned: isDetailedCleaned ?? this.isDetailedCleaned,
       isRare: isRare ?? this.isRare,
       expertise: expertise ?? this.expertise,
