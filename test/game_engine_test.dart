@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:galerisinden/domain/usecases/market_engine.dart';
 import 'package:galerisinden/domain/usecases/expertise_engine.dart';
 import 'package:galerisinden/domain/usecases/repair_engine.dart';
+import 'package:galerisinden/domain/usecases/negotiation_engine.dart';
 import 'package:galerisinden/domain/usecases/risk_engine.dart';
 import 'package:galerisinden/data/models/expertise_model.dart';
 
@@ -93,6 +94,26 @@ void main() {
       final engRes2 = RepairEngine.repairEngine(engRes1.updatedCar, RepairTier.master);
       expect(engRes2.isSuccess, isFalse);
       expect(engRes2.costPaid, equals(0.0));
+    });
+
+    test('NegotiationEngine detects expertise discrepancy correctly', () {
+      final listings = MarketEngine.generateRandomListings(count: 1, playerLevel: 1);
+      final car = listings.first.car;
+
+      final tamperedCar = car.copyWith(
+        expertise: ExpertiseReport(
+          engineCondition: car.expertise.engineCondition,
+          transmissionCondition: car.expertise.transmissionCondition,
+          tramerAmount: car.expertise.tramerAmount,
+          mileage: car.expertise.mileage,
+          isMileageTampered: true,
+          bodyParts: car.expertise.bodyParts,
+        ),
+      );
+
+      final disc = NegotiationEngine.detectExpertiseDiscrepancy(tamperedCar);
+      expect(disc.hasDiscrepancy, isTrue);
+      expect(disc.extraDiscountPercent, equals(0.25));
     });
   });
 }

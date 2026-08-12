@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../../data/models/car_model.dart';
+import '../../data/models/expertise_model.dart';
 import '../../data/models/offer_model.dart';
 
 class NegotiationOutcome {
@@ -16,8 +17,66 @@ class NegotiationOutcome {
   });
 }
 
+class ExpertiseDiscrepancyInfo {
+  final bool hasDiscrepancy;
+  final String title;
+  final String description;
+  final double extraDiscountPercent;
+
+  ExpertiseDiscrepancyInfo({
+    required this.hasDiscrepancy,
+    required this.title,
+    required this.description,
+    required this.extraDiscountPercent,
+  });
+}
+
 class NegotiationEngine {
   static final Random _random = Random();
+
+  /// Detects discrepancy between seller claim and full expertise report
+  static ExpertiseDiscrepancyInfo detectExpertiseDiscrepancy(CarModel car) {
+    final exp = car.expertise;
+
+    if (exp.isMileageTampered) {
+      return ExpertiseDiscrepancyInfo(
+        hasDiscrepancy: true,
+        title: 'SAHTE SAYAÇ / KM DÜŞÜRÜLMÜŞ',
+        description: 'Ekspertiz beyin taramasında aracın kilometresinin düşürüldüğü kanıtlandı! (-%25 Ekstra İndirim Kozu)',
+        extraDiscountPercent: 0.25,
+      );
+    }
+
+    final changedOrDamaged = exp.bodyParts.entries.where(
+      (e) => e.value == PartStatus.changed || e.value == PartStatus.damaged,
+    ).toList();
+
+    if (changedOrDamaged.isNotEmpty) {
+      final partName = changedOrDamaged.first.key;
+      return ExpertiseDiscrepancyInfo(
+        hasDiscrepancy: true,
+        title: 'GİZLİ DEĞİŞEN / HASARLI PARÇA',
+        description: 'İlanda söylenmeyen $partName parçasında ağır hasar/değişen tespit edildi! (-%18 Ekstra İndirim Kozu)',
+        extraDiscountPercent: 0.18,
+      );
+    }
+
+    if (exp.tramerAmount > 45000) {
+      return ExpertiseDiscrepancyInfo(
+        hasDiscrepancy: true,
+        title: 'GİZLENMİŞ TRAMER KAYDI',
+        description: 'Ekspertiz raporunda ₺${exp.tramerAmount} yüksek tramer kaydı çıktı! (-%15 Ekstra İndirim Kozu)',
+        extraDiscountPercent: 0.15,
+      );
+    }
+
+    return ExpertiseDiscrepancyInfo(
+      hasDiscrepancy: false,
+      title: 'Çelişki Yok',
+      description: 'Ekspertiz raporu ile satıcı beyanı birebir örtüşüyor.',
+      extraDiscountPercent: 0.0,
+    );
+  }
 
   static const List<String> buyerMessages = [
     'Usta araç fotoğraflarda güzel duruyor, fiyatta bir şeyler yaparsan hemen geleyim.',

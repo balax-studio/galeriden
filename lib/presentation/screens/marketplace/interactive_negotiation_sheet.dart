@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/listing_model.dart';
+import '../../../domain/usecases/negotiation_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 
@@ -210,6 +211,68 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
               ),
             ),
             const SizedBox(height: 16),
+          ],
+
+          // Discrepancy Bargaining Leverage Card
+          if (_sellerResponse == null) ...[
+            Builder(
+              builder: (context) {
+                final disc = NegotiationEngine.detectExpertiseDiscrepancy(widget.listing.car);
+                if (!disc.hasDiscrepancy) return const SizedBox.shrink();
+
+                return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: p.secondaryColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: p.secondaryColor, width: 1.5),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.report_problem_rounded, color: p.secondaryColor, size: 20),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'KOZ FIRSATI: ${disc.title}',
+                              style: TextStyle(color: p.secondaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(disc.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.gavel_rounded, size: 16),
+                          label: Text('🚨 Gizli Kusuru Koz Kullan (-%${(disc.extraDiscountPercent * 100).toInt()} İndirim)'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: p.secondaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () {
+                            final targetDiscPrice = (asking * (1.0 - disc.extraDiscountPercent)).roundToDouble();
+                            setState(() {
+                              _offeredPrice = targetDiscPrice;
+                              _isAccepted = true;
+                              _sellerResponse = 'Usta yakaladın beni, haklısın... Gizli kusuru kabul ediyorum. Teklifin olan ₺${CurrencyFormatter.formatShort(targetDiscPrice)} fiyata hemen veriyorum!';
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ],
 
           // Action Buttons
