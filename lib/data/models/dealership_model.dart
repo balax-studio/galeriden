@@ -35,7 +35,7 @@ class DealershipModel {
   factory DealershipModel.initial() {
     final now = DateTime.now();
     return DealershipModel(
-      balance: 50000.0,
+      balance: 450000.0,
       level: 1,
       maxGarageSlots: 3,
       ownedCars: [],

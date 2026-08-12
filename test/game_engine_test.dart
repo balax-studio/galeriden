@@ -6,11 +6,11 @@ import 'package:galerisinden/data/models/expertise_model.dart';
 
 void main() {
   group('Galerisinden Tycoon Engine Tests', () {
-    test('Market Engine generates offline listings', () {
+    test('Market Engine generates offline listings with realistic Turkish prices', () {
       final listings = MarketEngine.generateRandomListings(count: 5, playerLevel: 1);
       expect(listings.length, equals(5));
       expect(listings.first.car.brand.isNotEmpty, isTrue);
-      expect(listings.first.askingPrice, greaterThan(0));
+      expect(listings.first.askingPrice, greaterThanOrEqualTo(250000));
     });
 
     test('Expertise Engine evaluates vehicle damage correctly', () {

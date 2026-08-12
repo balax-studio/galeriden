@@ -20,13 +20,13 @@ class MarketEngine {
     final brandData = _selectWeightedBrand();
     final modelName = brandData.models[_random.nextInt(brandData.models.length)];
     final bodyType = GameConstants.bodyTypes[_random.nextInt(GameConstants.bodyTypes.length)];
-    final year = 2014 + _random.nextInt(12);
+    final year = 2007 + _random.nextInt(17); // 2007 - 2023
     final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
 
     // Mileage & Tramer
-    final mileage = 15000 + _random.nextInt(220000);
+    final mileage = 25000 + _random.nextInt(260000);
     final hasTramer = _random.nextDouble() > 0.4;
-    final tramerAmount = hasTramer ? (1500 + _random.nextInt(45000)) : 0;
+    final tramerAmount = hasTramer ? (3500 + _random.nextInt(85000)) : 0;
     final isTampered = _random.nextDouble() < 0.15; // 15% risk of tampered KM
 
     // Body parts status
@@ -36,6 +36,11 @@ class MarketEngine {
       'Sol Ön Çamurluk': _getRandomPartStatus(),
       'Sağ Ön Çamurluk': _getRandomPartStatus(),
       'Sol Arka Çamurluk': _getRandomPartStatus(),
+      'Sağ Arka Çamurluk': _getRandomPartStatus(),
+      'Sol Ön Kapı': _getRandomPartStatus(),
+      'Sağ Ön Kapı': _getRandomPartStatus(),
+      'Sol Arka Kapı': _getRandomPartStatus(),
+      'Sağ Arka Kapı': _getRandomPartStatus(),
       'Bagaj': _getRandomPartStatus(),
       'Şasi/Podye': _getRandomPartStatus(shasiMultiplier: true),
     };
@@ -52,20 +57,23 @@ class MarketEngine {
       bodyParts: bodyParts,
     );
 
-    // Value calculation
-    double baseValue = 40000.0 + (playerLevel * 35000.0) + (year - 2014) * 8000.0;
+    // Realistic Turkish Market Base Value Calculation
+    double baseValue = 380000.0 + (year - 2007) * 45000.0 + (playerLevel - 1) * 60000.0;
+    if (brandData.name == 'Avdi' || brandData.name == 'BWM' || brandData.name == 'Mersedes') {
+      baseValue *= 1.45;
+    }
     if (bodyType == 'Spor') baseValue *= 1.35;
     if (bodyType == 'SUV') baseValue *= 1.25;
 
     // Seller traits
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
-    double discount = _random.nextDouble() * 0.15; // 0-15% below market
-    if (sellerProfile['urgency'] == 'high') discount += 0.10;
+    double discount = _random.nextDouble() * 0.12; // 0-12% below market
+    if (sellerProfile['urgency'] == 'high') discount += 0.08;
 
-    // 10% Chance of Flash Deal (%30 discount!)
+    // 10% Chance of Flash Deal (%25 discount!)
     final isFlashDeal = _random.nextDouble() < 0.10;
     if (isFlashDeal) {
-      discount += 0.25;
+      discount += 0.20;
     }
 
     double askingPrice = (baseValue * (1.0 - discount)).roundToDouble();

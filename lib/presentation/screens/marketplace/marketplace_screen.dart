@@ -86,11 +86,14 @@ class MarketplaceScreen extends ConsumerWidget {
                             width: isFlash ? 2.0 : 1.0,
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                        child: InkWell(
+                          onTap: () => context.push('/listing-detail', extra: item),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                               // Top Tag & Live Viewer FOMO
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -235,7 +238,8 @@ class MarketplaceScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
-                      );
+                      ),
+                    );
                     },
                   ),
           ),
