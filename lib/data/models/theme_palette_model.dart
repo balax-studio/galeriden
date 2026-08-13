@@ -57,21 +57,21 @@ class ThemePaletteModel {
       };
 
   factory ThemePaletteModel.fromJson(Map<String, dynamic> json) => ThemePaletteModel(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        price: json['price'] as int,
+        id: json['id'] as String? ?? 'quiet_luxury_dark',
+        name: json['name'] as String? ?? 'Quiet Luxury Dark',
+        price: (json['price'] as num?)?.toInt() ?? 0,
         isUnlocked: json['isUnlocked'] as bool? ?? false,
         isDark: json['isDark'] as bool? ?? true,
-        primaryColor: Color(json['primaryColor'] as int),
-        secondaryColor: Color(json['secondaryColor'] as int),
-        backgroundColor: Color(json['backgroundColor'] as int),
-        surfaceColor: Color(json['surfaceColor'] as int),
-        surfaceBorderColor: Color(json['surfaceBorderColor'] as int),
-        textPrimaryColor: Color(json['textPrimaryColor'] as int),
-        textSecondaryColor: Color(json['textSecondaryColor'] as int),
-        successColor: Color(json['successColor'] as int),
-        warningColor: Color(json['warningColor'] as int),
-        errorColor: Color(json['errorColor'] as int),
+        primaryColor: Color((json['primaryColor'] as num?)?.toInt() ?? 0xFFC9A96E),
+        secondaryColor: Color((json['secondaryColor'] as num?)?.toInt() ?? 0xFF4F46E5),
+        backgroundColor: Color((json['backgroundColor'] as num?)?.toInt() ?? 0xFF0D0D0F),
+        surfaceColor: Color((json['surfaceColor'] as num?)?.toInt() ?? 0xFF18181C),
+        surfaceBorderColor: Color((json['surfaceBorderColor'] as num?)?.toInt() ?? 0xFF2A2A32),
+        textPrimaryColor: Color((json['textPrimaryColor'] as num?)?.toInt() ?? 0xFFF3F4F6),
+        textSecondaryColor: Color((json['textSecondaryColor'] as num?)?.toInt() ?? 0xFF9CA3AF),
+        successColor: Color((json['successColor'] as num?)?.toInt() ?? 0xFF10B981),
+        warningColor: Color((json['warningColor'] as num?)?.toInt() ?? 0xFFF59E0B),
+        errorColor: Color((json['errorColor'] as num?)?.toInt() ?? 0xFFEF4444),
       );
 
   ThemePaletteModel copyWith({bool? isUnlocked}) => ThemePaletteModel(

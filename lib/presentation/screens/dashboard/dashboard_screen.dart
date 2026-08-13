@@ -7,7 +7,6 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../data/models/theme_palette_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/floating_money_overlay.dart';
