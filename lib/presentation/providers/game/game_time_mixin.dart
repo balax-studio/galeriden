@@ -165,8 +165,11 @@ mixin GameTimeMixin on GameBaseNotifier {
     // 8. Side Businesses (Pasif Gelir)
     List<SideBusinessModel> updatedBusinesses = List.from(state.sideBusinesses);
     for (int i = 0; i < updatedBusinesses.length; i++) {
-      if (updatedBusinesses[i].isOwned) {
-        newBalance += updatedBusinesses[i].dailyIncome;
+      final b = updatedBusinesses[i];
+      if (b.isOwned) {
+        final income = b.effectiveDailyIncome;
+        newBalance += income;
+        updatedBusinesses[i] = b.copyWith(totalEarned: b.totalEarned + income);
       }
     }
 

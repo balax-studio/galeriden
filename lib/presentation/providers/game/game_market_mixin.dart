@@ -65,6 +65,37 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Buy a specific sub-upgrade for a side business
+  bool buySideBusinessUpgrade(String businessId, String upgradeId) {
+    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    if (businessIndex == -1) return false;
+
+    final business = state.sideBusinesses[businessIndex];
+    if (!business.isOwned) return false;
+
+    final upgradeIndex = business.upgrades.indexWhere((u) => u.id == upgradeId);
+    if (upgradeIndex == -1) return false;
+
+    final upgrade = business.upgrades[upgradeIndex];
+    if (upgrade.isPurchased) return false;
+    if (state.balance < upgrade.cost) return false;
+
+    final updatedUpgrades = List<SideBusinessUpgradeModel>.from(business.upgrades);
+    updatedUpgrades[upgradeIndex] = upgrade.copyWith(isPurchased: true);
+
+    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] = business.copyWith(upgrades: updatedUpgrades);
+
+    state = state.copyWith(
+      balance: state.balance - upgrade.cost,
+      sideBusinesses: updatedBusinesses,
+    );
+
+    addXP(100);
+    saveState();
+    return true;
+  }
+
   /// Buy stocks
   bool buyStock(String symbol, int amount) {
     final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol, orElse: () => throw Exception('Hisse bulunamadı'));
