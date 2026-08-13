@@ -8,63 +8,69 @@ class AppTypography {
 
   // Outfit for Headings
   static TextStyle displayLarge(bool isDark) => GoogleFonts.outfit(
-        fontSize: 34,
-        fontWeight: FontWeight.bold,
-        letterSpacing: -0.5,
+        fontSize: 36,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -1.0,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   static TextStyle headlineMedium(bool isDark) => GoogleFonts.outfit(
         fontSize: 26,
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.3,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.5,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   static TextStyle titleLarge(bool isDark) => GoogleFonts.outfit(
         fontSize: 20,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   // Inter for Body & UI Controls
   static TextStyle bodyLarge(bool isDark) => GoogleFonts.inter(
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 1.4,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   static TextStyle bodyMedium(bool isDark) => GoogleFonts.inter(
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.4,
         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
       );
 
   static TextStyle labelSmall(bool isDark) => GoogleFonts.inter(
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.5,
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.2,
         color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
       );
 
   // JetBrains Mono for Currency, Numbers & Specs
   static TextStyle moneyLarge(bool isDark) => GoogleFonts.jetBrainsMono(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
+        fontSize: 32,
+        fontWeight: FontWeight.w800,
         letterSpacing: -0.5,
         color: AppColors.primaryAmber,
       );
 
   static TextStyle moneyMedium(bool isDark) => GoogleFonts.jetBrainsMono(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
         color: AppColors.primaryAmber,
       );
 
+  static TextStyle statValue(bool isDark) => GoogleFonts.jetBrainsMono(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+      );
+
   static TextStyle monoSpec(bool isDark) => GoogleFonts.jetBrainsMono(
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: FontWeight.w500,
         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
       );

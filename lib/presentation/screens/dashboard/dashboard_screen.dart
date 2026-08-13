@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
@@ -80,25 +81,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Row(
                     children: [
                       Expanded(child: _buildStatCard(p, 'Bakiye', '₺${CurrencyFormatter.formatShort(game.balance)}', Icons.account_balance_wallet_rounded, p.successColor)),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       Expanded(child: _buildStatCard(p, 'Araçlar', '${game.ownedCars.length}/${game.maxGarageSlots}', Icons.directions_car_rounded, p.primaryColor)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard(p, 'İtibar', '%${game.reputationScore}', Icons.star_rounded, Colors.amber)),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: _buildStatCard(p, 'İtibar', '%${game.reputationScore}', Icons.star_rounded, p.primaryColor)),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // 2.5D Interactive Isometric Showroom & Parking Canvas
                   const IsometricShowroomCanvas(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Game Day & Time Progress Card
                   DashboardGameTimeCard(game: game),
 
                   // Market Trend Banner
                   Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
                       color: p.primaryColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
@@ -107,7 +108,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 22),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +136,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                   // Daily Missions Section
                   Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
                   Column(
                     children: game.activeMissions.map((mission) {
                       return _AnimatedMissionCard(
@@ -150,25 +151,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.xl),
 
-                  // Minimalist Menu List
+                  // Asymmetric Bento Grid Menu (İŞLEMLER)
                   Text('İŞLEMLER', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: 12),
-
-                  Column(
-                    children: [
-                      _buildSimpleListItem(context, title: 'İkinci El Pazarı', subtitle: 'Araç İlanlarını İncele', icon: Icons.storefront_rounded, color: p.primaryColor, onTap: () => context.push('/marketplace')),
-                      _buildSimpleListItem(context, title: 'Tamir Atölyesi', subtitle: 'Araç Değerini Artır', icon: Icons.build_rounded, color: Colors.orangeAccent, onTap: () => context.push('/workshop')),
-                      _buildSimpleListItem(context, title: 'Oto Yıkama Stüdyosu', subtitle: 'Köpük & Pasta-Cila', icon: Icons.local_car_wash_rounded, color: Colors.blueAccent, onTap: () => context.push('/car-wash')),
-                      _buildSimpleListItem(context, title: 'Şube İmparatorluğu', subtitle: 'Kapasite Genişlet', icon: Icons.domain_rounded, color: p.secondaryColor, onTap: () => context.push('/branches')),
-                      _buildSimpleListItem(context, title: 'Finans & Tahsilat', subtitle: 'Vadeli ve Çek İşlemleri', icon: Icons.account_balance_rounded, color: Colors.green, onTap: () => context.push('/finance')),
-                      _buildSimpleListItem(context, title: 'Rent a Car', subtitle: 'Araçları Kiraya Ver', icon: Icons.car_rental_rounded, color: Colors.cyan, onTap: () => context.push('/rent-a-car')),
-                      _buildSimpleListItem(context, title: 'Yan İşletmeler', subtitle: 'Pasif Gelir Kaynakları', icon: Icons.store_mall_directory_rounded, color: Colors.deepPurpleAccent, onTap: () => context.push('/side-businesses')),
-                      _buildSimpleListItem(context, title: 'Borsa', subtitle: 'Hisse Senedi Piyasası', icon: Icons.show_chart_rounded, color: Colors.indigoAccent, onTap: () => context.push('/stock-market')),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildAsymmetricGrid(context, p),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Achievements List
                   Text('BAŞARIMLAR & ROLLER', style: AppTypography.labelSmall(p.isDark)),
@@ -406,60 +395,122 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 
   Widget _buildStatCard(dynamic p, String title, String value, IconData icon, Color color) {
-    return AppGlassContainer(
-      padding: const EdgeInsets.all(12),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: p.surfaceColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: p.surfaceBorderColor, width: 1),
+      ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(title, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
-          const SizedBox(height: 4),
-          Text(value, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: AppSpacing.xs),
+          Text(title, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10)),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(value, style: AppTypography.statValue(p.isDark).copyWith(color: color, fontSize: 14)),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSimpleListItem(
+  Widget _buildAsymmetricGrid(BuildContext context, dynamic p) {
+    return Column(
+      children: [
+        // Row 1: 3 Bento Cards (Marketplace, Workshop, CarWash)
+        Row(
+          children: [
+            Expanded(child: _buildGridItem(context, title: 'İkinci El', subtitle: 'Pazar', icon: Icons.storefront_rounded, color: p.primaryColor, onTap: () => context.push('/marketplace'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: _buildGridItem(context, title: 'Tamir', subtitle: 'Atölyesi', icon: Icons.build_rounded, color: p.warningColor, onTap: () => context.push('/workshop'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: _buildGridItem(context, title: 'Oto Yıkama', subtitle: 'Stüdyo', icon: Icons.local_car_wash_rounded, color: p.secondaryColor, onTap: () => context.push('/car-wash'))),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        // Row 2: 2 Wide Feature Cards (Branches, Finance)
+        Row(
+          children: [
+            Expanded(child: _buildGridItem(context, title: 'Şube İmparatorluğu', subtitle: 'Kapasite & Galeri', icon: Icons.domain_rounded, color: p.primaryColor, isWide: true, onTap: () => context.push('/branches'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: _buildGridItem(context, title: 'Finans & Tahsilat', subtitle: 'Vadeli / Çek', icon: Icons.account_balance_rounded, color: p.successColor, isWide: true, onTap: () => context.push('/finance'))),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        // Row 3: 3 Bento Cards (RentACar, SideBusinesses, StockMarket)
+        Row(
+          children: [
+            Expanded(child: _buildGridItem(context, title: 'Rent a Car', subtitle: 'Filo Kiralama', icon: Icons.car_rental_rounded, color: p.secondaryColor, onTap: () => context.push('/rent-a-car'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: _buildGridItem(context, title: 'Yan İşletme', subtitle: 'Pasif Gelir', icon: Icons.store_mall_directory_rounded, color: p.primaryColor, onTap: () => context.push('/side-businesses'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: _buildGridItem(context, title: 'Borsa', subtitle: 'Hisse Senedi', icon: Icons.show_chart_rounded, color: p.infoColor, onTap: () => context.push('/stock-market'))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGridItem(
     BuildContext context, {
     required String title,
-    required String subtitle,
+    String? subtitle,
     required IconData icon,
     required Color color,
+    bool isWide = false,
     required VoidCallback onTap,
   }) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+    return Material(
+      color: p.surfaceColor,
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: AppGlassContainer(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isWide ? AppSpacing.md : AppSpacing.sm,
+            vertical: AppSpacing.md,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: p.surfaceBorderColor, width: 1),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: color, size: 22),
+                child: Icon(icon, color: color, size: isWide ? 22 : 20),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                    const SizedBox(height: 2),
-                    Text(subtitle, style: AppTypography.labelSmall(p.isDark)),
-                  ],
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                title,
+                style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: isWide ? 13 : 12, fontWeight: FontWeight.bold),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: p.textSecondaryColor),
+              ],
             ],
           ),
         ),
