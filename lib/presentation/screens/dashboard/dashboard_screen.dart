@@ -8,8 +8,8 @@ import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_animated_counter.dart';
+import 'widgets/dashboard_game_time_card.dart';
+import 'widgets/dashboard_status_card.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -19,7 +19,6 @@ class DashboardScreen extends ConsumerWidget {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
-    final skills = game.skills;
     final trend = game.marketTrend;
 
     return Scaffold(
@@ -54,46 +53,7 @@ class DashboardScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Game Day & Time Progress Card
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: p.surfaceColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: p.surfaceBorderColor),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: p.primaryColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(Icons.calendar_today_rounded, color: p.primaryColor, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'OYUN TAKVİMİ — GÜN ${game.currentDay}',
-                          style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          game.pendingOrders.where((o) => !o.isInstalled).isEmpty
-                              ? 'Teslimat bekleyen parça yok — Atölye hazır.'
-                              : '${game.pendingOrders.where((o) => !o.isInstalled).length} Parça Kargoda / İşlemde (${game.pendingOrders.where((o) => !o.isInstalled).first.remainingSeconds}s Kalan)',
-                          style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            DashboardGameTimeCard(game: game),
 
             // Market Trend Banner
             Container(
@@ -136,70 +96,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
 
             // Main Dealership Status Card
-            AppGlassContainer(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Hoş Geldin, ${game.playerName}!',
-                          style: AppTypography.labelSmall(p.isDark).copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: p.primaryColor,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: p.primaryColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Seviye ${game.level}',
-                              style: AppTypography.labelSmall(false).copyWith(fontWeight: FontWeight.bold, color: Colors.black),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: p.secondaryColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${skills.xp} XP',
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  AppAnimatedCounter(
-                    value: game.balance,
-                    style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 32, color: p.textPrimaryColor),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStat('Toplam Kâr', CurrencyFormatter.formatShort(game.totalProfit), p.isDark),
-                      _buildStat('Satılan Araç', '${game.carsSold} Adet', p.isDark),
-                      _buildStat('Galeri Kapasitesi', '${game.ownedCars.length}/${game.maxGarageSlots}', p.isDark),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            DashboardStatusCard(game: game),
             const SizedBox(height: 24),
 
             // Daily Missions Section
@@ -372,16 +269,7 @@ class DashboardScreen extends ConsumerWidget {
 
 
 
-  Widget _buildStat(String label, String value, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AppTypography.labelSmall(isDark)),
-        const SizedBox(height: 2),
-        Text(value, style: AppTypography.monoSpec(isDark).copyWith(fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
+
 
   Widget _buildActionCard(
     BuildContext context, {
