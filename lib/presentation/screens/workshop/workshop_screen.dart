@@ -266,105 +266,68 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     // Detailing & Tuning Section
                     Text('MODİFİYE & DETAILING ATÖLYESİ', style: AppTypography.labelSmall(p.isDark)),
                     const SizedBox(height: 12),
-                    Column(
-                      children: DetailingOption.getAvailableOptions().map((opt) {
-                        final isApplied = _selectedCar?.appliedDetailingOptionIds.contains(opt.id) ?? false;
-                        final canAfford = game.balance >= opt.cost;
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: p.surfaceColor,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: isApplied
-                                  ? Colors.green.withValues(alpha: 0.4)
-                                  : (opt.isRisky ? p.secondaryColor : p.surfaceBorderColor),
+                    Builder(
+                      builder: (context) {
+                        final unappliedOptions = DetailingOption.getAvailableOptions()
+                            .where((opt) => !(_selectedCar?.appliedDetailingOptionIds.contains(opt.id) ?? false))
+                            .toList();
+
+                        if (unappliedOptions.isEmpty) {
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: isApplied
-                                    ? Colors.green.withValues(alpha: 0.15)
-                                    : (opt.isRisky ? p.secondaryColor.withValues(alpha: 0.15) : p.primaryColor.withValues(alpha: 0.15)),
-                                child: VectorIconWidget(
-                                  type: opt.vectorIcon,
-                                  color: isApplied ? Colors.greenAccent : (opt.isRisky ? p.secondaryColor : p.primaryColor),
-                                  size: 20,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.stars_rounded, color: Colors.greenAccent, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    'Tüm modifiye ve detaylı temizlik paketleri uygulandı! Araç parıl parıl parlıyor.',
+                                    style: AppTypography.labelSmall(p.isDark).copyWith(color: Colors.greenAccent, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-                                        if (isApplied) ...[
-                                          const SizedBox(width: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: Colors.green.withValues(alpha: 0.2),
-                                              borderRadius: BorderRadius.circular(6),
-                                            ),
-                                            child: const Text(
-                                              'Uygulandı',
-                                              style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(opt.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: isApplied
-                                      ? Colors.grey.withValues(alpha: 0.3)
-                                      : (opt.isRisky ? p.secondaryColor : p.primaryColor),
-                                  foregroundColor: isApplied
-                                      ? Colors.white54
-                                      : (opt.isRisky ? Colors.white : Colors.black),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                ),
-                                onPressed: (isApplied || !canAfford)
-                                    ? null
-                                    : () {
-                                        final success = ref.read(gameProvider.notifier).applyDetailingOption(_selectedCar!.id, opt);
-                                        if (success) {
-                                          final updatedCars = ref.read(gameProvider).ownedCars;
-                                          if (updatedCars.isNotEmpty) {
-                                            final updated = updatedCars.firstWhere(
-                                              (c) => c.id == _selectedCar!.id,
-                                              orElse: () => updatedCars.first,
-                                            );
-                                            setState(() => _selectedCar = updated);
-                                          }
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('${opt.badgeText} Yapıldı! Aracın İlan Çekiciliği Artırıldı.')),
-                                          );
-                                        } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Yetersiz Sermaye!')),
-                                          );
-                                        }
-                                      },
-                                child: Text(
-                                  isApplied ? 'Uygulandı' : '₺${CurrencyFormatter.formatShort(opt.cost)}',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return Column(
+                          children: unappliedOptions.map((opt) {
+                            final canAfford = game.balance >= opt.cost;
+                            return _DisappearingDetailingTile(
+                              key: ValueKey('${_selectedCar!.id}_${opt.id}'),
+                              opt: opt,
+                              p: p,
+                              canAfford: canAfford,
+                              onApply: () {
+                                final success = ref.read(gameProvider.notifier).applyDetailingOption(_selectedCar!.id, opt);
+                                if (success) {
+                                  final updatedCars = ref.read(gameProvider).ownedCars;
+                                  if (updatedCars.isNotEmpty) {
+                                    final updated = updatedCars.firstWhere(
+                                      (c) => c.id == _selectedCar!.id,
+                                      orElse: () => updatedCars.first,
+                                    );
+                                    setState(() => _selectedCar = updated);
+                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('${opt.badgeText} Yapıldı! Aracın İlan Çekiciliği Artırıldı.')),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Yetersiz Sermaye!')),
+                                  );
+                                }
+                              },
+                            );
+                          }).toList(),
                         );
-                      }).toList(),
+                      },
                     ),
                   ],
                 ],
@@ -670,6 +633,125 @@ class _AnimatedOrderCardState extends State<_AnimatedOrderCard> with SingleTicke
                   ),
                   onPressed: (isReady && !_isInstalling) ? _triggerInstallation : null,
                   child: Text(isReady ? (_isInstalling ? '...' : 'Montaj Et') : 'Bekleniyor'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DisappearingDetailingTile extends StatefulWidget {
+  final DetailingOption opt;
+  final ThemePaletteModel p;
+  final bool canAfford;
+  final VoidCallback onApply;
+
+  const _DisappearingDetailingTile({
+    required super.key,
+    required this.opt,
+    required this.p,
+    required this.canAfford,
+    required this.onApply,
+  });
+
+  @override
+  State<_DisappearingDetailingTile> createState() => _DisappearingDetailingTileState();
+}
+
+class _DisappearingDetailingTileState extends State<_DisappearingDetailingTile> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _sizeAnimation;
+  bool _isAnimatingOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(_fadeAnimation);
+    _sizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleApply() async {
+    if (_isAnimatingOut) return;
+    setState(() => _isAnimatingOut = true);
+    await _controller.forward();
+    widget.onApply();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final opt = widget.opt;
+    final p = widget.p;
+
+    return SizeTransition(
+      sizeFactor: _sizeAnimation,
+      alignment: Alignment.topCenter,
+      child: FadeTransition(
+        opacity: Tween<double>(begin: 1.0, end: 0.0).animate(_fadeAnimation),
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: p.surfaceColor,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: opt.isRisky ? p.secondaryColor : p.surfaceBorderColor,
+              ),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: opt.isRisky
+                      ? p.secondaryColor.withValues(alpha: 0.15)
+                      : p.primaryColor.withValues(alpha: 0.15),
+                  child: VectorIconWidget(
+                    type: opt.vectorIcon,
+                    color: opt.isRisky ? p.secondaryColor : p.primaryColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                      const SizedBox(height: 2),
+                      Text(opt.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: opt.isRisky ? p.secondaryColor : p.primaryColor,
+                    foregroundColor: opt.isRisky ? Colors.white : Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  onPressed: widget.canAfford && !_isAnimatingOut ? _handleApply : null,
+                  child: Text(
+                    CurrencyFormatter.formatShort(opt.cost),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
