@@ -11,6 +11,8 @@ import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_icons.dart';
+import '../../widgets/app_glass_container.dart';
+import '../../widgets/app_tactile_button.dart';
 import '../../../data/models/expertise_model.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
@@ -62,36 +64,47 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       body: Column(
         children: [
           // Market Trend & Skill Intel Banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: p.primaryColor.withValues(alpha: 0.12),
-            child: Row(
-              children: [
-                Icon(Icons.insights_rounded, color: p.primaryColor, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        trend.headline,
-                        style: AppTypography.labelSmall(p.isDark).copyWith(fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                      if (marketSenseLevel >= 3)
-                        Text(
-                          'Piyasa Sezgisi (Lv $marketSenseLevel): SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
-                          style: TextStyle(color: p.primaryColor, fontSize: 10, fontWeight: FontWeight.bold),
-                        )
-                      else
-                        Text(
-                          'Piyasa Sezgisi Lv 3 yükseltilirse segment kâr oranları açılır.',
-                          style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
-                        ),
-                    ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: AppGlassContainer(
+              padding: const EdgeInsets.all(12),
+              borderRadius: 14,
+              borderColor: p.primaryColor.withValues(alpha: 0.4),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: p.primaryColor.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.insights_rounded, color: p.primaryColor, size: 20),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          trend.headline,
+                          style: AppTypography.labelSmall(p.isDark).copyWith(fontWeight: FontWeight.bold, fontSize: 12),
+                        ),
+                        const SizedBox(height: 2),
+                        if (marketSenseLevel >= 3)
+                          Text(
+                            'Piyasa Sezgisi (Lv $marketSenseLevel): SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
+                            style: TextStyle(color: p.primaryColor, fontSize: 10, fontWeight: FontWeight.bold),
+                          )
+                        else
+                          Text(
+                            'Piyasa Sezgisi Lv 3 yükseltilirse segment kâr oranları açılır.',
+                            style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -387,22 +400,51 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   Widget _buildFilterChip(String key, String label, IconData icon, dynamic p) {
     final isSelected = _selectedFilter == key;
     final activeColor = isSelected ? p.primaryColor : p.surfaceBorderColor;
-    final textColor = isSelected ? (p.isDark ? Colors.black : Colors.white) : p.textPrimaryColor;
+    final textColor = isSelected ? (p.isDark ? const Color(0xFF0D0D0F) : Colors.white) : p.textPrimaryColor;
 
-    return FilterChip(
-      showCheckmark: false,
-      avatar: Icon(icon, size: 16, color: isSelected ? textColor : p.primaryColor),
-      label: Text(label, style: TextStyle(color: textColor, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 12)),
-      selected: isSelected,
-      selectedColor: p.primaryColor,
-      backgroundColor: p.surfaceColor,
-      side: BorderSide(color: activeColor, width: isSelected ? 1.5 : 1.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      onSelected: (selected) {
+    return AppTactileButton(
+      onPressed: () {
         setState(() {
           _selectedFilter = key;
         });
       },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? p.primaryColor : p.surfaceColor.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: activeColor,
+            width: isSelected ? 1.5 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: p.primaryColor.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  )
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: isSelected ? textColor : p.primaryColor),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: 12,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

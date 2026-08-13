@@ -7,6 +7,8 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/branch_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/app_glass_container.dart';
+import '../../widgets/app_double_bezel_card.dart';
 
 class BranchScreen extends ConsumerWidget {
   const BranchScreen({super.key});
@@ -57,17 +59,11 @@ class BranchScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Status Header Card
-                  Container(
+                  AppGlassContainer(
                     padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [p.secondaryColor.withValues(alpha: 0.25), p.surfaceColor],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: p.secondaryColor.withValues(alpha: 0.4), width: 1.5),
-                    ),
+                    borderRadius: 20,
+                    borderColor: p.secondaryColor.withValues(alpha: 0.5),
+                    glowColor: p.secondaryColor.withValues(alpha: 0.15),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -95,17 +91,10 @@ class BranchScreen extends ConsumerWidget {
                     final isCurrent = game.maxGarageSlots == b.maxGarageSlots;
                     final canAfford = game.balance >= b.requiredBalance;
 
-                    return Container(
+                    return AppDoubleBezelCard(
                       margin: const EdgeInsets.only(bottom: 14),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: p.surfaceColor,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isCurrent ? p.primaryColor : (b.isUnlocked ? p.surfaceBorderColor : Colors.grey.withValues(alpha: 0.3)),
-                          width: isCurrent ? 2 : 1,
-                        ),
-                      ),
+                      outerRadius: 18,
+                      accentColor: isCurrent ? p.primaryColor : (b.isUnlocked ? p.secondaryColor : null),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

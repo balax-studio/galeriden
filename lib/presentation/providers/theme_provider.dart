@@ -40,6 +40,8 @@ class ThemeState {
         backgroundColor: activePalette.surfaceColor,
         foregroundColor: activePalette.textPrimaryColor,
         elevation: 0,
+        centerTitle: true,
+        scrolledUnderElevation: 0,
       ),
       cardTheme: CardThemeData(
         color: activePalette.surfaceColor,
@@ -47,6 +49,88 @@ class ThemeState {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: activePalette.primaryColor,
+          foregroundColor: isDark ? const Color(0xFF0D0D0F) : Colors.white,
+          elevation: 4,
+          shadowColor: activePalette.primaryColor.withValues(alpha: 0.35),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.25), width: 0.8),
+          ),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.4,
+            fontSize: 14,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: activePalette.textPrimaryColor,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          side: BorderSide(color: activePalette.surfaceBorderColor, width: 1.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.3,
+            fontSize: 13,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: activePalette.surfaceColor.withValues(alpha: 0.7),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: activePalette.primaryColor, width: 1.5),
+        ),
+        hintStyle: TextStyle(color: activePalette.textSecondaryColor, fontSize: 13),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: activePalette.surfaceColor,
+        selectedColor: activePalette.primaryColor.withValues(alpha: 0.2),
+        secondarySelectedColor: activePalette.primaryColor,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
+        ),
+        labelStyle: TextStyle(
+          color: activePalette.textPrimaryColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: activePalette.surfaceColor,
+        elevation: 16,
+        shadowColor: Colors.black54,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: activePalette.surfaceBorderColor, width: 1.2),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: activePalette.surfaceColor,
+        elevation: 16,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
       ),
       extensions: [

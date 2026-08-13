@@ -9,6 +9,8 @@ import '../../../data/models/auction_model.dart';
 import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/app_glass_container.dart';
+import '../../widgets/app_double_bezel_card.dart';
 
 class AuctionScreen extends ConsumerStatefulWidget {
   const AuctionScreen({super.key});
@@ -176,13 +178,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
         child: Column(
           children: [
             // Timer & Status Banner
-            Container(
+            AppGlassContainer(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: _auction.secondsRemaining < 8 ? p.errorColor.withValues(alpha: 0.15) : p.primaryColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _auction.secondsRemaining < 8 ? p.errorColor : p.primaryColor),
-              ),
+              borderColor: _auction.secondsRemaining < 8 ? p.errorColor : p.primaryColor.withValues(alpha: 0.4),
+              glowColor: _auction.secondsRemaining < 8 ? p.errorColor.withValues(alpha: 0.25) : p.primaryColor.withValues(alpha: 0.15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -210,13 +209,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
             const SizedBox(height: 16),
 
             // Car Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: p.surfaceColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: p.surfaceBorderColor),
-              ),
+            AppDoubleBezelCard(
+              accentColor: _auction.isPlayerHighestBidder ? p.successColor : p.primaryColor,
               child: Row(
                 children: [
                   Container(
