@@ -23,11 +23,13 @@ class CharacterGrowthScreen extends ConsumerWidget {
     final game = ref.watch(gameProvider);
     final p = Theme.of(context).extension<AppThemeExtension>()!.palette;
     final skills = game.skills;
-    final title = _getCharacterTitle(game.level);
+    final currentLvl = skills.currentLevel;
+    final title = _getCharacterTitle(currentLvl);
 
-    // XP calculation: 100 XP per level
-    final xpInCurrentLevel = skills.xp % 100;
-    final xpProgress = xpInCurrentLevel / 100.0;
+    // Exponential XP calculations
+    final xpInCurrentLevel = skills.xpInCurrentLevel;
+    final targetXpForLevel = skills.currentLevelTargetXp;
+    final xpProgress = (xpInCurrentLevel / targetXpForLevel).clamp(0.0, 1.0);
 
     return Scaffold(
       backgroundColor: p.backgroundColor,
@@ -92,14 +94,14 @@ class CharacterGrowthScreen extends ConsumerWidget {
                                     color: p.secondaryColor,
                                     borderRadius: BorderRadius.circular(6),
                                   ),
-                                  child: Text('Seviye ${game.level}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                  child: Text('Seviye $currentLvl', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Text('Mevcut Bakiye: ₺${CurrencyFormatter.formatShort(game.balance)}', style: AppTypography.labelSmall(p.isDark)),
                             const SizedBox(height: 4),
-                            Text('Kullanılabilir SP: ${skills.availableSkillPoints}', style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 14)),
+                            Text('Kullanılabilir SP: ${skills.availableSkillPoints}', style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 14, color: p.primaryColor)),
                           ],
                         ),
                       ),
@@ -107,7 +109,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // XP Level Progress Indicator
+                  // XP Level Progress Indicator (Exponential XP Formula)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -115,7 +117,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Seviye İlerlemesi (XP)', style: AppTypography.labelSmall(p.isDark)),
-                          Text('$xpInCurrentLevel / 100 XP', style: AppTypography.labelSmall(p.isDark).copyWith(fontWeight: FontWeight.bold)),
+                          Text('$xpInCurrentLevel / $targetXpForLevel XP', style: AppTypography.labelSmall(p.isDark).copyWith(fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -149,8 +151,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
               context,
               ref: ref,
               title: 'Pazarlık Gücü',
-              desc: 'Alıcılardan daha yüksek ikna oranıyla teklif almanı sağlar.',
-              perk: skills.negotiationLevel >= 5 ? 'İkna Şansı +%25 Artırıldı' : 'Lv 5 Perk: İkna Şansı +%25 Artacak',
+              desc: 'Alıcılardan daha yüksek teklif almanı & ucuza araç kapatmanı sağlar.',
+              perk: 'Alım İndirimi / Kâr Marjı: +%${(skills.negotiationMultiplier * 100).toStringAsFixed(0)}',
               level: skills.negotiationLevel,
               skillKey: 'negotiation',
               p: p,
@@ -160,8 +162,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
               context,
               ref: ref,
               title: 'Ekspertiz Sezgisi',
-              desc: 'Rapor almadan araçlardaki gizli ayıpları sezme yeteneği.',
-              perk: skills.eyeForDetail >= 5 ? 'Ekspertizsiz Risk Sezgisi %50' : 'Lv 5 Perk: Gizli Ayıp Sezgisi %50 Açılır',
+              desc: 'Rapor almadan araçlardaki gizli ayıpları sezme ve rapor indirimi.',
+              perk: 'Ekspertiz Maliyet İndirimi: -%${(skills.expertiseCostDiscount * 100).toStringAsFixed(0)}',
               level: skills.eyeForDetail,
               skillKey: 'eyeForDetail',
               p: p,
@@ -171,8 +173,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
               context,
               ref: ref,
               title: 'Piyasa Tahmini',
-              desc: 'Aracın gerçek piyasa değerini ve trend kâr çarpanlarını görme.',
-              perk: skills.marketSense >= 3 ? 'SUV & Spor Kâr Çarpanları Açık' : 'Lv 3 Perk: Segment Kâr Çarpanları Açılır',
+              desc: 'İlan teklif sıklığını ve doping etkinliğini artırma.',
+              perk: 'Doping & Teklif Bonusu: +%${(skills.marketingDopingBonus * 100).toStringAsFixed(0)}',
               level: skills.marketSense,
               skillKey: 'marketSense',
               p: p,
@@ -189,30 +191,36 @@ class CharacterGrowthScreen extends ConsumerWidget {
               p: p,
               hasPoints: skills.availableSkillPoints > 0,
             ),
+            _buildSkillCard(
+              context,
+              ref: ref,
+              title: 'Finansal Zeka',
+              desc: 'Banka kredi faizlerini düşürme ve karşılıksız çek riskini azaltma.',
+              perk: 'Kredi Faiz İndirimi: -%${(skills.financeInterestDiscount * 100).toStringAsFixed(0)} | Çek Riski -%${(skills.chequeRiskReduction * 100).toStringAsFixed(1)}',
+              level: skills.financeSense,
+              skillKey: 'financeSense',
+              p: p,
+              hasPoints: skills.availableSkillPoints > 0,
+            ),
 
             const SizedBox(height: 24),
 
-            // 3. Achievements Showcase Section
-            Text('KAZANILAN BAŞARIMLAR (${game.achievements.where((a) => a.isUnlocked).length}/${game.achievements.length})', style: AppTypography.labelSmall(p.isDark)),
+            // 3. Achievements Showcase Section (Kademeli Başarımlar)
+            Text('BAŞARIMLAR (${game.achievements.where((a) => a.isUnlocked).length}/${game.achievements.length})', style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 12),
 
-            GridView.builder(
+            ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 2.2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
               itemCount: game.achievements.length,
               itemBuilder: (context, index) {
                 final item = game.achievements[index];
                 return Container(
-                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: item.isUnlocked ? p.primaryColor.withValues(alpha: 0.12) : p.surfaceColor,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: item.isUnlocked ? p.primaryColor : p.surfaceBorderColor,
                       width: item.isUnlocked ? 1.5 : 1.0,
@@ -220,36 +228,79 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        item.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
-                        color: item.isUnlocked ? p.primaryColor : p.textSecondaryColor,
-                        size: 24,
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: item.isUnlocked ? p.primaryColor.withValues(alpha: 0.2) : p.surfaceBorderColor,
+                        ),
+                        child: Icon(
+                          item.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
+                          color: item.isUnlocked ? p.primaryColor : p.textSecondaryColor,
+                          size: 24,
+                        ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              item.title,
-                              style: TextStyle(
-                                color: item.isUnlocked ? p.textPrimaryColor : p.textSecondaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Row(
+                              children: [
+                                Text(
+                                  item.title,
+                                  style: TextStyle(
+                                    color: item.isUnlocked ? p.textPrimaryColor : p.textSecondaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                  decoration: BoxDecoration(
+                                    color: p.secondaryColor.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text('Tier ${item.tier}', style: TextStyle(color: p.secondaryColor, fontSize: 9, fontWeight: FontWeight.bold)),
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 2),
                             Text(
                               item.description,
-                              style: TextStyle(color: p.textSecondaryColor, fontSize: 10),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: p.textSecondaryColor, fontSize: 11),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Ödül: ₺${CurrencyFormatter.formatShort(item.rewardMoney.toDouble())} + ${item.rewardSkillPoints} SP',
+                              style: TextStyle(color: p.primaryColor, fontSize: 11, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
                       ),
+                      if (item.isUnlocked && !item.isClaimed)
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: p.primaryColor,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () {
+                            ref.read(gameProvider.notifier).claimAchievementReward(item.id);
+                          },
+                          child: const Text('Ödülü Al', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                        )
+                      else if (item.isClaimed)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text('Alındı ✓', style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
                     ],
                   ),
                 );

@@ -16,6 +16,7 @@ import '../../data/models/part_order_model.dart';
 import '../../data/models/sale_record_model.dart';
 import '../../data/models/detailing_model.dart';
 import '../../data/models/player_skills.dart';
+import '../../data/models/player_achievements.dart';
 import '../../data/models/cheque_model.dart';
 import '../../data/models/installment_contract_model.dart';
 import '../../data/models/rental_agreement_model.dart';
@@ -295,10 +296,54 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
   Future<void> _saveState() async {
     if (!mounted) return;
+    _checkAchievementsInternal();
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     final jsonString = jsonEncode(state.toJson());
     await prefs.setString(_storageKey, jsonString);
+  }
+
+  void _checkAchievementsInternal() {
+    bool hasChanged = false;
+    final updated = state.achievements.map((a) {
+      if (a.isUnlocked) return a;
+      bool unlock = false;
+      switch (a.id) {
+        case 'first_buy':
+          unlock = state.ownedCars.isNotEmpty || state.carsSold > 0;
+          break;
+        case 'first_sale':
+          unlock = state.carsSold >= 1;
+          break;
+        case 'sales_10':
+          unlock = state.carsSold >= 10;
+          break;
+        case 'sales_50':
+          unlock = state.carsSold >= 50;
+          break;
+        case 'dealer_baron':
+          unlock = state.totalProfit >= 250000;
+          break;
+        case 'side_business_1':
+          unlock = state.sideBusinesses.any((b) => b.isOwned);
+          break;
+        case 'stock_investor':
+          unlock = state.ownedStocks.isNotEmpty;
+          break;
+        case 'streak_7':
+          unlock = state.loginStreak >= 7;
+          break;
+      }
+      if (unlock) {
+        hasChanged = true;
+        return a.copyWith(isUnlocked: true);
+      }
+      return a;
+    }).toList();
+
+    if (hasChanged) {
+      state = state.copyWith(achievements: updated);
+    }
   }
 
   /// Claim daily login streak reward
@@ -970,6 +1015,10 @@ class GameNotifier extends StateNotifier<DealershipModel> {
         if (skills.reputation >= 10) return false;
         updated = skills.copyWith(reputation: skills.reputation + 1);
         break;
+      case 'financeSense':
+        if (skills.financeSense >= 10) return false;
+        updated = skills.copyWith(financeSense: skills.financeSense + 1);
+        break;
       default:
         return false;
     }
@@ -979,10 +1028,41 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     return true;
   }
 
+  /// Claim achievement reward
+  bool claimAchievementReward(String achievementId) {
+    final index = state.achievements.indexWhere((a) => a.id == achievementId);
+    if (index == -1) return false;
+
+    final achievement = state.achievements[index];
+    if (!achievement.isUnlocked || achievement.isClaimed) return false;
+
+    List<AchievementItem> updatedAchievements = List.from(state.achievements);
+    updatedAchievements[index] = achievement.copyWith(isClaimed: true);
+
+    final updatedSkills = state.skills.copyWith(
+      xp: state.skills.xp + achievement.rewardXP,
+      bonusSkillPoints: state.skills.bonusSkillPoints + achievement.rewardSkillPoints,
+    );
+
+    state = state.copyWith(
+      balance: state.balance + achievement.rewardMoney,
+      achievements: updatedAchievements,
+      skills: updatedSkills,
+      level: updatedSkills.currentLevel,
+    );
+
+    _saveState();
+    return true;
+  }
+
   /// Add XP
   void addXP(int amount) {
     final updatedSkills = state.skills.copyWith(xp: state.skills.xp + amount);
-    state = state.copyWith(skills: updatedSkills);
+    state = state.copyWith(
+      skills: updatedSkills,
+      level: updatedSkills.currentLevel,
+    );
+    _saveState();
   }
 
   /// Take bank loan (e.g. ₺100.000, ₺250.000, ₺500.000)
