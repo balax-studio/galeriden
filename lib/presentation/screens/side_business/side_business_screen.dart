@@ -27,6 +27,12 @@ class SideBusinessScreen extends ConsumerWidget {
         return Icons.fire_truck_rounded;
       case SideBusinessType.autoShop:
         return Icons.storefront_rounded;
+      case SideBusinessType.inspectionStation:
+        return Icons.fact_check_rounded;
+      case SideBusinessType.carRental:
+        return Icons.car_rental_rounded;
+      case SideBusinessType.evCharging:
+        return Icons.ev_station_rounded;
     }
   }
 
@@ -170,17 +176,41 @@ class SideBusinessScreen extends ConsumerWidget {
                           ],
                         ),
                         if (isOwned)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: p.successColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: p.successColor),
-                            ),
-                            child: Text(
-                              'Lvl ${business.level}',
-                              style: TextStyle(color: p.successColor, fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
+                          Row(
+                            children: [
+                              if (business.hasManager)
+                                Container(
+                                  margin: const EdgeInsets.only(right: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: p.primaryColor.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: p.primaryColor),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.badge_rounded, size: 12, color: p.primaryColor),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Müdürlü',
+                                        style: TextStyle(color: p.primaryColor, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: p.successColor.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: p.successColor),
+                                ),
+                                child: Text(
+                                  'Lvl ${business.level}',
+                                  style: TextStyle(color: p.successColor, fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
                           ),
                       ],
                     ),

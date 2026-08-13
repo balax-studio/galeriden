@@ -1,4 +1,13 @@
-enum SideBusinessType { carWash, vendingMachine, towTruck, billboard, autoShop }
+enum SideBusinessType {
+  carWash,
+  vendingMachine,
+  towTruck,
+  billboard,
+  autoShop,
+  inspectionStation,
+  carRental,
+  evCharging,
+}
 
 class SideBusinessUpgradeModel {
   final String id;
@@ -72,6 +81,13 @@ class SideBusinessModel {
   final List<SideBusinessUpgradeModel> upgrades;
   final double totalEarned;
 
+  // Manager hiring & operational fields
+  final bool hasManager;
+  final String managerTitle;
+  final double managerCost;
+  final double managerSalary;
+  final double managerBonusPercent;
+
   SideBusinessModel({
     required this.id,
     required this.name,
@@ -83,13 +99,41 @@ class SideBusinessModel {
     this.level = 1,
     this.upgrades = const [],
     this.totalEarned = 0.0,
+    this.hasManager = false,
+    this.managerTitle = 'İşletme Müdürü',
+    this.managerCost = 15000.0,
+    this.managerSalary = 200.0,
+    this.managerBonusPercent = 0.30,
   });
 
   double get effectiveDailyIncome {
     if (!isOwned) return 0.0;
     final base = dailyIncome * (1 + (level - 1) * 0.4);
     final upgradeBonuses = upgrades.where((u) => u.isPurchased).fold(0.0, (sum, u) => sum + u.bonusDailyIncome);
-    return base + upgradeBonuses;
+    double total = base + upgradeBonuses;
+    if (hasManager) {
+      total = (total * (1 + managerBonusPercent)) - managerSalary;
+    }
+    return total.clamp(0.0, double.infinity);
+  }
+
+  double get totalInvested {
+    double total = cost;
+    if (level > 1) {
+      for (int i = 1; i < level; i++) {
+        total += cost * 0.5 * i;
+      }
+    }
+    final purchasedUpgradesCost = upgrades.where((u) => u.isPurchased).fold(0.0, (sum, u) => sum + u.cost);
+    total += purchasedUpgradesCost;
+    if (hasManager) total += managerCost;
+    return total;
+  }
+
+  int get roiDays {
+    final daily = effectiveDailyIncome;
+    if (daily <= 0) return 999;
+    return (totalInvested / daily).ceil();
   }
 
   int get purchasedUpgradeCount => upgrades.where((u) => u.isPurchased).length;
@@ -105,6 +149,11 @@ class SideBusinessModel {
     'level': level,
     'upgrades': upgrades.map((u) => u.toJson()).toList(),
     'totalEarned': totalEarned,
+    'hasManager': hasManager,
+    'managerTitle': managerTitle,
+    'managerCost': managerCost,
+    'managerSalary': managerSalary,
+    'managerBonusPercent': managerBonusPercent,
   };
 
   factory SideBusinessModel.fromJson(Map<String, dynamic> json) => SideBusinessModel(
@@ -123,6 +172,11 @@ class SideBusinessModel {
         ? (json['upgrades'] as List).map((u) => SideBusinessUpgradeModel.fromJson(u)).toList()
         : const [],
     totalEarned: (json['totalEarned'] as num?)?.toDouble() ?? 0.0,
+    hasManager: json['hasManager'] as bool? ?? false,
+    managerTitle: json['managerTitle'] as String? ?? 'İşletme Müdürü',
+    managerCost: (json['managerCost'] as num?)?.toDouble() ?? 15000.0,
+    managerSalary: (json['managerSalary'] as num?)?.toDouble() ?? 200.0,
+    managerBonusPercent: (json['managerBonusPercent'] as num?)?.toDouble() ?? 0.30,
   );
 
   SideBusinessModel copyWith({
@@ -136,6 +190,11 @@ class SideBusinessModel {
     int? level,
     List<SideBusinessUpgradeModel>? upgrades,
     double? totalEarned,
+    bool? hasManager,
+    String? managerTitle,
+    double? managerCost,
+    double? managerSalary,
+    double? managerBonusPercent,
   }) {
     return SideBusinessModel(
       id: id ?? this.id,
@@ -148,6 +207,11 @@ class SideBusinessModel {
       level: level ?? this.level,
       upgrades: upgrades ?? this.upgrades,
       totalEarned: totalEarned ?? this.totalEarned,
+      hasManager: hasManager ?? this.hasManager,
+      managerTitle: managerTitle ?? this.managerTitle,
+      managerCost: managerCost ?? this.managerCost,
+      managerSalary: managerSalary ?? this.managerSalary,
+      managerBonusPercent: managerBonusPercent ?? this.managerBonusPercent,
     );
   }
 }

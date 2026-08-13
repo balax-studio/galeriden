@@ -96,6 +96,28 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Hire a dedicated manager for a side business
+  bool hireSideBusinessManager(String businessId) {
+    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    if (businessIndex == -1) return false;
+
+    final business = state.sideBusinesses[businessIndex];
+    if (!business.isOwned || business.hasManager) return false;
+    if (state.balance < business.managerCost) return false;
+
+    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] = business.copyWith(hasManager: true);
+
+    state = state.copyWith(
+      balance: state.balance - business.managerCost,
+      sideBusinesses: updatedBusinesses,
+    );
+
+    addXP(120);
+    saveState();
+    return true;
+  }
+
   /// Buy stocks
   bool buyStock(String symbol, int amount) {
     final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol, orElse: () => throw Exception('Hisse bulunamadı'));
