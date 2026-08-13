@@ -7,6 +7,9 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/game_hud_widget.dart';
+import '../../widgets/car_icons.dart';
+import '../../widgets/app_glass_container.dart';
 
 import 'widgets/dashboard_game_time_card.dart';
 import 'widgets/dashboard_status_card.dart';
@@ -47,13 +50,118 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Game Day & Time Progress Card
-            DashboardGameTimeCard(game: game),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 90.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Floating Game HUD Header
+                const GameHudHeaderWidget(),
+                const SizedBox(height: 16),
+
+                // 2D Showroom Parking Bay Grid Section
+                Text('GALERİ OTOPARK İZOMETRİK GÖRÜNÜM (2D SİMÜLASYON)', style: AppTypography.labelSmall(p.isDark)),
+                const SizedBox(height: 12),
+
+                AppGlassContainer(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Kapasite: ${game.ownedCars.length} / ${game.maxGarageSlots} Araç Park Halinde',
+                            style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
+                          ),
+                          Text(
+                            game.dealershipName,
+                            style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 0.9,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemCount: game.maxGarageSlots,
+                        itemBuilder: (context, index) {
+                          final hasCar = index < game.ownedCars.length;
+                          final car = hasCar ? game.ownedCars[index] : null;
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: hasCar ? p.surfaceColor : p.surfaceColor.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: hasCar ? p.primaryColor.withValues(alpha: 0.5) : p.surfaceBorderColor,
+                                width: hasCar ? 1.5 : 1.0,
+                              ),
+                            ),
+                            child: hasCar
+                                ? InkWell(
+                                    onTap: () => context.push('/showroom'),
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          CarSilhouetteWidget(
+                                            bodyType: car!.bodyType,
+                                            color: Color(int.parse(car.colorHex.replaceFirst('#', '0xff'))),
+                                            width: 50,
+                                            height: 24,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            car.brand,
+                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: p.textPrimaryColor),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            car.modelName,
+                                            style: TextStyle(fontSize: 10, color: p.textSecondaryColor),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.local_parking_rounded, color: p.textSecondaryColor.withValues(alpha: 0.4), size: 24),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Boş Slot',
+                                          style: TextStyle(fontSize: 10, color: p.textSecondaryColor.withValues(alpha: 0.5)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Game Day & Time Progress Card
+                DashboardGameTimeCard(game: game),
 
             // Market Trend Banner
             Container(
@@ -286,8 +394,16 @@ class DashboardScreen extends ConsumerWidget {
                 },
               ),
             ),
-          ],
-        ),
+              ],
+            ),
+          ),
+          const Positioned(
+            left: 16,
+            right: 16,
+            bottom: 12,
+            child: GameHudDockWidget(),
+          ),
+        ],
       ),
     );
   }
