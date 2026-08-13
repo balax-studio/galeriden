@@ -202,7 +202,7 @@ mixin GameTimeMixin on GameBaseNotifier {
     }
 
     // 10. Daily Tax
-    newBalance -= (newBalance * state.dailyTaxRate);
+    newBalance -= state.dailyTaxRate;
 
     state = state.copyWith(
       currentDay: nextDay,
