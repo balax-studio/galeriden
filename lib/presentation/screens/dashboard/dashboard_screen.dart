@@ -53,6 +53,48 @@ class DashboardScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Game Day & Time Progress Card
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: p.surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: p.surfaceBorderColor),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: p.primaryColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.calendar_today_rounded, color: p.primaryColor, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'OYUN TAKVİMİ — GÜN ${game.currentDay}',
+                          style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          game.pendingOrders.where((o) => !o.isInstalled).isEmpty
+                              ? 'Teslimat bekleyen parça yok — Atölye hazır.'
+                              : '${game.pendingOrders.where((o) => !o.isInstalled).length} Parça Kargoda / İşlemde (${game.pendingOrders.where((o) => !o.isInstalled).first.remainingSeconds}s Kalan)',
+                          style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             // Market Trend Banner
             Container(
               margin: const EdgeInsets.only(bottom: 16),

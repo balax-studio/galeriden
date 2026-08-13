@@ -28,6 +28,7 @@ class DealershipModel {
   final List<PartOrderModel> pendingOrders;
   final bool tutorialCompleted;
   final int tutorialStepIndex;
+  final int currentDay;
   final String playerName;
   final String dealershipName;
   final String logoEmblemId;
@@ -52,6 +53,7 @@ class DealershipModel {
     this.pendingOrders = const [],
     this.tutorialCompleted = false,
     this.tutorialStepIndex = 0,
+    this.currentDay = 1,
     this.playerName = 'Kaptan',
     this.dealershipName = 'Miras Oto Galeri',
     this.logoEmblemId = 'crown',
@@ -147,6 +149,7 @@ class DealershipModel {
       'pendingOrders': pendingOrders.map((p) => p.toJson()).toList(),
       'tutorialCompleted': tutorialCompleted,
       'tutorialStepIndex': tutorialStepIndex,
+      'currentDay': currentDay,
       'playerName': playerName,
       'dealershipName': dealershipName,
       'logoEmblemId': logoEmblemId,
@@ -192,6 +195,7 @@ class DealershipModel {
           const [],
       tutorialCompleted: json['tutorialCompleted'] as bool? ?? false,
       tutorialStepIndex: json['tutorialStepIndex'] as int? ?? 0,
+      currentDay: json['currentDay'] as int? ?? 1,
       playerName: json['playerName'] as String? ?? 'Kaptan',
       dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
       logoEmblemId: json['logoEmblemId'] as String? ?? 'crown',
@@ -218,6 +222,7 @@ class DealershipModel {
     List<PartOrderModel>? pendingOrders,
     bool? tutorialCompleted,
     int? tutorialStepIndex,
+    int? currentDay,
     String? playerName,
     String? dealershipName,
     String? logoEmblemId,
@@ -242,6 +247,7 @@ class DealershipModel {
       pendingOrders: pendingOrders ?? this.pendingOrders,
       tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
       tutorialStepIndex: tutorialStepIndex ?? this.tutorialStepIndex,
+      currentDay: currentDay ?? this.currentDay,
       playerName: playerName ?? this.playerName,
       dealershipName: dealershipName ?? this.dealershipName,
       logoEmblemId: logoEmblemId ?? this.logoEmblemId,
