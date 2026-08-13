@@ -48,6 +48,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               AppHeroHeader(
                 game: game,
                 onSettingsTap: () => context.push('/settings'),
+                onProfileTap: () => context.push('/character-growth'),
               ),
             Expanded(
               child: IndexedStack(
@@ -272,6 +273,78 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ElevatedButton(
                     onPressed: () => context.push('/reviews'),
                     child: const Text('İncele'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Sales History Button Card
+            AppGlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.receipt_long_rounded, color: Colors.blueAccent, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Satış & İşlem Geçmişi', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text('${game.salesHistory.length} Tamamlanan Satış Defteri', style: AppTypography.labelSmall(p.isDark)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () => context.push('/history'),
+                    child: const Text('Görüntüle'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Character Growth & Skill Tree Card
+            AppGlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: p.primaryColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.bolt_rounded, color: p.primaryColor, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Yetenek Ağacı & Başarımlar', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text('Seviye ${game.level} • Yetenek Puanlarını Yönet', style: AppTypography.labelSmall(p.isDark)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () => context.push('/character-growth'),
+                    child: const Text('Geliştir'),
                   ),
                 ],
               ),

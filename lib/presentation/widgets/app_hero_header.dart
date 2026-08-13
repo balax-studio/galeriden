@@ -11,11 +11,13 @@ import 'app_vector_icons.dart';
 class AppHeroHeader extends StatelessWidget {
   final DealershipModel game;
   final VoidCallback? onSettingsTap;
+  final VoidCallback? onProfileTap;
 
   const AppHeroHeader({
     super.key,
     required this.game,
     this.onSettingsTap,
+    this.onProfileTap,
   });
 
   @override
@@ -46,49 +48,53 @@ class AppHeroHeader extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryAmber.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppColors.primaryAmber.withValues(alpha: 0.4),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: VectorIconWidget(
-                        type: game.logoEmblemId,
-                        color: AppColors.primaryAmber,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          game.dealershipName.toUpperCase(),
-                          style: AppTypography.titleLarge(isDark).copyWith(
-                            fontSize: 15,
-                            letterSpacing: 1.5,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                InkWell(
+                  onTap: onProfileTap,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryAmber.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.primaryAmber.withValues(alpha: 0.4),
+                            width: 1.0,
                           ),
                         ),
-                        Text(
-                          'PREMIUM DEALERSHIP',
-                          style: AppTypography.labelSmall(isDark).copyWith(
-                            fontSize: 9,
-                            color: AppColors.primaryAmber,
-                            letterSpacing: 1.2,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: VectorIconWidget(
+                          type: game.logoEmblemId,
+                          color: AppColors.primaryAmber,
+                          size: 20,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            game.dealershipName.toUpperCase(),
+                            style: AppTypography.titleLarge(isDark).copyWith(
+                              fontSize: 15,
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                            ),
+                          ),
+                          Text(
+                            'SEVİYE ${game.level} • YETENEKLER & PROFİL ›',
+                            style: AppTypography.labelSmall(isDark).copyWith(
+                              fontSize: 9,
+                              color: AppColors.primaryAmber,
+                              letterSpacing: 1.2,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                   icon: Icon(Icons.tune_rounded, color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight, size: 22),

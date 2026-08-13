@@ -27,6 +27,66 @@ class RepairEngine {
   static const double baseEngineCostPerPercent = 300.0;
   static const double detailedCleanCost = 2500.0;
 
+  /// Calculates realistic, dynamic repair/replacement costs based on vehicle value, part type, and order tier
+  static double calculatePartRepairCost(CarModel car, String partName, OrderType orderType) {
+    final carValue = max(100000.0, car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue);
+
+    double partFactor;
+    final normalizedPart = partName.toLowerCase();
+
+    if (normalizedPart.contains('motor') || normalizedPart.contains('şanzıman')) {
+      partFactor = 0.10;
+    } else if (normalizedPart.contains('şasi') || normalizedPart.contains('podye')) {
+      partFactor = 0.08;
+    } else if (normalizedPart.contains('tavan') || normalizedPart.contains('kaput') || normalizedPart.contains('bagaj')) {
+      partFactor = 0.045;
+    } else if (normalizedPart.contains('kapı')) {
+      partFactor = 0.035;
+    } else if (normalizedPart.contains('çamurluk')) {
+      partFactor = 0.025;
+    } else {
+      partFactor = 0.020;
+    }
+
+    double rawOemCost = carValue * partFactor;
+
+    double minFloor = 2500.0;
+    if (normalizedPart.contains('motor') || normalizedPart.contains('şanzıman')) {
+      minFloor = 18000.0;
+    } else if (normalizedPart.contains('şasi') || normalizedPart.contains('podye')) {
+      minFloor = 14000.0;
+    } else if (normalizedPart.contains('tavan') || normalizedPart.contains('kaput') || normalizedPart.contains('bagaj')) {
+      minFloor = 6500.0;
+    } else if (normalizedPart.contains('kapı')) {
+      minFloor = 4800.0;
+    } else if (normalizedPart.contains('çamurluk')) {
+      minFloor = 3800.0;
+    }
+
+    if (rawOemCost < minFloor) {
+      rawOemCost = minFloor;
+    }
+
+    int seed = (car.id + partName).hashCode;
+    double varianceMultiplier = 0.88 + ((seed.abs() % 25) / 100.0);
+    double fullOemCost = rawOemCost * varianceMultiplier;
+
+    double finalCost;
+    switch (orderType) {
+      case OrderType.quickPatch:
+        finalCost = fullOemCost * 0.30;
+        break;
+      case OrderType.masterRepair:
+        finalCost = fullOemCost * 0.60;
+        break;
+      case OrderType.newOemPart:
+        finalCost = fullOemCost;
+        break;
+    }
+
+    return (finalCost / 100.0).round() * 100.0;
+  }
+
   static double getCostMultiplier(RepairTier tier) {
     switch (tier) {
       case RepairTier.apprentice:

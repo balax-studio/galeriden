@@ -227,6 +227,25 @@ void main() {
       expect(restoredCar.expertise.partConditions['Kaput'], equals(100.0));
     });
 
+    test('RepairEngine calculates realistic and varied part repair costs', () {
+      final car = DealershipModel.initial().ownedCars.first;
+      final engineCost = RepairEngine.calculatePartRepairCost(car, 'Motor & Şanzıman', OrderType.newOemPart);
+      final hoodCost = RepairEngine.calculatePartRepairCost(car, 'Kaput', OrderType.newOemPart);
+      final doorCost = RepairEngine.calculatePartRepairCost(car, 'Sol Ön Kapı', OrderType.newOemPart);
+      final bumperCost = RepairEngine.calculatePartRepairCost(car, 'Ön Tampon', OrderType.newOemPart);
+
+      expect(engineCost, greaterThan(hoodCost));
+      expect(hoodCost, greaterThan(doorCost));
+      expect(doorCost, greaterThan(bumperCost));
+
+      final quickPatchHood = RepairEngine.calculatePartRepairCost(car, 'Kaput', OrderType.quickPatch);
+      final masterRepairHood = RepairEngine.calculatePartRepairCost(car, 'Kaput', OrderType.masterRepair);
+      final oemHood = RepairEngine.calculatePartRepairCost(car, 'Kaput', OrderType.newOemPart);
+
+      expect(quickPatchHood, lessThan(masterRepairHood));
+      expect(masterRepairHood, lessThan(oemHood));
+    });
+
     test('GameNotifier updates player name, dealership title and logo emblem', () async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();

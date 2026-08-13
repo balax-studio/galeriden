@@ -339,10 +339,19 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     PartStatus? currentStatus,
     VoidCallback? onSuccess,
   }) {
+    if (_selectedCar == null) return;
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final targetPart = isEngine ? 'Motor & Şanzıman' : (partName ?? 'Kaput');
     final canQuickPatch = !isEngine && currentStatus == PartStatus.damaged;
+
+    final quickPatchCost = RepairEngine.calculatePartRepairCost(_selectedCar!, targetPart, OrderType.quickPatch);
+    final masterRepairCost = RepairEngine.calculatePartRepairCost(_selectedCar!, targetPart, OrderType.masterRepair);
+    final newOemCost = RepairEngine.calculatePartRepairCost(_selectedCar!, targetPart, OrderType.newOemPart);
+
+    final quickPatchFormatted = CurrencyFormatter.formatShort(quickPatchCost);
+    final masterRepairFormatted = CurrencyFormatter.formatShort(masterRepairCost);
+    final newOemFormatted = CurrencyFormatter.formatShort(newOemCost);
 
     showModalBottomSheet(
       context: context,
@@ -365,42 +374,42 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 _buildRepairDecisionTile(
                   context,
                   title: 'Geçici Lokal Tamir',
-                  subtitle: 'Maliyet: ₺1.500 | Süre: Anında | Kondisyon: %60 Maksimum',
-                vectorType: 'workshop',
-                color: p.warningColor,
-                p: p,
-                onTap: () {
-                  Navigator.pop(context);
-                  if (_selectedCar == null) return;
-                  final success = ref.read(gameProvider.notifier).instantRepair(
-                    carId: _selectedCar!.id,
-                    partName: targetPart,
-                    orderType: OrderType.quickPatch,
-                    cost: 1500.0,
-                  );
-                  if (success) {
-                    ref.read(tutorialProvider.notifier).nextStep();
-                    final updatedCars = ref.read(gameProvider).ownedCars;
-                    if (updatedCars.isNotEmpty) {
-                      final updated = updatedCars.firstWhere(
-                        (c) => c.id == _selectedCar!.id,
-                        orElse: () => updatedCars.first,
-                      );
-                      setState(() => _selectedCar = updated);
+                  subtitle: 'Maliyet: ₺$quickPatchFormatted | Süre: Anında | Kondisyon: %60 Maksimum',
+                  vectorType: 'workshop',
+                  color: p.warningColor,
+                  p: p,
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (_selectedCar == null) return;
+                    final success = ref.read(gameProvider.notifier).instantRepair(
+                      carId: _selectedCar!.id,
+                      partName: targetPart,
+                      orderType: OrderType.quickPatch,
+                      cost: quickPatchCost,
+                    );
+                    if (success) {
+                      ref.read(tutorialProvider.notifier).nextStep();
+                      final updatedCars = ref.read(gameProvider).ownedCars;
+                      if (updatedCars.isNotEmpty) {
+                        final updated = updatedCars.firstWhere(
+                          (c) => c.id == _selectedCar!.id,
+                          orElse: () => updatedCars.first,
+                        );
+                        setState(() => _selectedCar = updated);
+                      }
+                      NotificationService.showSuccess(context, 'Geçici tamir anında uygulandı!');
+                      onSuccess?.call();
+                    } else {
+                      NotificationService.showError(context, 'Yetersiz bakiye!');
                     }
-                    NotificationService.showSuccess(context, 'Geçici tamir anında uygulandı!');
-                    onSuccess?.call();
-                  } else {
-                    NotificationService.showError(context, 'Yetersiz bakiye!');
-                  }
-                },
-              ),
+                  },
+                ),
 
               // Option 2: Master Craftsman (Ustaya Gönder) - 120s wait, 90% condition
               _buildRepairDecisionTile(
                 context,
                 title: 'Ustaya Gönder (Rektefiye & Sanayi)',
-                subtitle: 'Maliyet: ₺4.500 | Süre: 2 dk (Real-Time) | Kondisyon: %90',
+                subtitle: 'Maliyet: ₺$masterRepairFormatted | Süre: 2 dk (Real-Time) | Kondisyon: %90',
                 vectorType: 'craftsman',
                 color: p.primaryColor,
                 p: p,
@@ -411,7 +420,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     carId: _selectedCar!.id,
                     partName: targetPart,
                     orderType: OrderType.masterRepair,
-                    cost: 4500.0,
+                    cost: masterRepairCost,
                     deliveryDurationSeconds: 120,
                   );
                   if (success) {
@@ -426,7 +435,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               _buildRepairDecisionTile(
                 context,
                 title: 'Sıfır OEM Parça Siparişi',
-                subtitle: 'Maliyet: ₺9.000 | Süre: 1 dk (Kargo) | Kondisyon: %100 Orijinal',
+                subtitle: 'Maliyet: ₺$newOemFormatted | Süre: 1 dk (Kargo) | Kondisyon: %100 Orijinal',
                 vectorType: 'car',
                 color: p.successColor,
                 p: p,
@@ -437,7 +446,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     carId: _selectedCar!.id,
                     partName: targetPart,
                     orderType: OrderType.newOemPart,
-                    cost: 9000.0,
+                    cost: newOemCost,
                     deliveryDurationSeconds: 60,
                   );
                   if (success) {
