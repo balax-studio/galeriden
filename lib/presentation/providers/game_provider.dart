@@ -37,8 +37,15 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   }
 
   void _startPeriodicOrganicOfferTimer() {
-    _organicOfferTimer = Timer.periodic(const Duration(seconds: 25), (timer) {
-      if (state.ownedCars.isNotEmpty && _random.nextDouble() < 0.60) {
+    _organicOfferTimer = Timer.periodic(const Duration(seconds: 45), (timer) {
+      // ponytail: Advance game calendar day every 3 ticks (135 seconds)
+      if (timer.tick % 3 == 0) {
+        state = state.copyWith(currentDay: state.currentDay + 1);
+        refreshMarketTrends();
+      }
+
+      // Much lower probability (0.35) and longer intervals (45s) for organic offers
+      if (state.ownedCars.isNotEmpty && _random.nextDouble() < 0.35) {
         triggerOrganicOffers();
       }
     });

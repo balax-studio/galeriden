@@ -8,42 +8,42 @@ class AppTypography {
 
   // Outfit for Headings
   static TextStyle displayLarge(bool isDark) => GoogleFonts.outfit(
-        fontSize: 32,
+        fontSize: 34,
         fontWeight: FontWeight.bold,
         letterSpacing: -0.5,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   static TextStyle headlineMedium(bool isDark) => GoogleFonts.outfit(
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   static TextStyle titleLarge(bool isDark) => GoogleFonts.outfit(
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: FontWeight.w600,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   // Inter for Body & UI Controls
   static TextStyle bodyLarge(bool isDark) => GoogleFonts.inter(
-        fontSize: 15,
+        fontSize: 17,
         fontWeight: FontWeight.w400,
         height: 1.4,
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   static TextStyle bodyMedium(bool isDark) => GoogleFonts.inter(
-        fontSize: 13,
+        fontSize: 15,
         fontWeight: FontWeight.w400,
         height: 1.4,
         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
       );
 
   static TextStyle labelSmall(bool isDark) => GoogleFonts.inter(
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.5,
         color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
@@ -51,20 +51,20 @@ class AppTypography {
 
   // JetBrains Mono for Currency, Numbers & Specs
   static TextStyle moneyLarge(bool isDark) => GoogleFonts.jetBrainsMono(
-        fontSize: 26,
+        fontSize: 28,
         fontWeight: FontWeight.bold,
         letterSpacing: -0.5,
         color: AppColors.primaryAmber,
       );
 
   static TextStyle moneyMedium(bool isDark) => GoogleFonts.jetBrainsMono(
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: FontWeight.w600,
         color: AppColors.primaryAmber,
       );
 
   static TextStyle monoSpec(bool isDark) => GoogleFonts.jetBrainsMono(
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: FontWeight.w500,
         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
       );
