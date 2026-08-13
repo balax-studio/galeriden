@@ -1,8 +1,8 @@
-import 'dart:async';
+
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
+
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -17,6 +17,10 @@ import '../../providers/tutorial_provider.dart';
 import '../../widgets/app_glass_container.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/tutorial_overlay.dart';
+import 'widgets/animated_order_card.dart';
+import 'widgets/disappearing_detailing_tile.dart';
+import 'widgets/disappearing_repair_tile.dart';
+import 'widgets/isometric_hydraulic_lift.dart';
 
 class WorkshopScreen extends ConsumerStatefulWidget {
   const WorkshopScreen({super.key});
@@ -73,7 +77,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: game.pendingOrders.map((order) {
-                              return _AnimatedOrderCard(
+                              return AnimatedOrderCard(
                                 key: ValueKey(order.id),
                                 order: order,
                                 p: p,
@@ -158,7 +162,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               Text('Tahmini Değer: ${CurrencyFormatter.formatShort(_selectedCar!.estimatedRealValue)}', style: AppTypography.moneyMedium(p.isDark)),
                             ],
                           ),
-                          _IsometricHydraulicLiftWidget(car: _selectedCar!, p: p),
+                          IsometricHydraulicLiftWidget(car: _selectedCar!, p: p),
                           const Divider(height: 16),
 
                           // Engine Repair Button
@@ -241,7 +245,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             final partName = entry.key;
                             final status = entry.value;
 
-                            return _DisappearingRepairTile(
+                            return DisappearingRepairTile(
                               key: ValueKey('${_selectedCar!.id}_$partName'),
                               partName: partName,
                               status: status,
@@ -296,7 +300,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         return Column(
                           children: unappliedOptions.map((opt) {
                             final canAfford = game.balance >= opt.cost;
-                            return _DisappearingDetailingTile(
+                            return DisappearingDetailingTile(
                               key: ValueKey('${_selectedCar!.id}_${opt.id}'),
                               opt: opt,
                               p: p,
@@ -522,506 +526,5 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         ),
       ],
     );
-  }
-}
-
-class _AnimatedOrderCard extends StatefulWidget {
-  final PartOrderModel order;
-  final ThemePaletteModel p;
-  final VoidCallback onInstall;
-
-  const _AnimatedOrderCard({
-    super.key,
-    required this.order,
-    required this.p,
-    required this.onInstall,
-  });
-
-  @override
-  State<_AnimatedOrderCard> createState() => _AnimatedOrderCardState();
-}
-
-class _AnimatedOrderCardState extends State<_AnimatedOrderCard> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _sizeAnimation;
-  bool _isInstalling = false;
-  Timer? _refreshTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 380),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.4).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInBack),
-    );
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
-    _sizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-
-    // Refresh UI every second for countdown/progress
-    _refreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _refreshTimer?.cancel();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _triggerInstallation() {
-    if (_isInstalling) return;
-    setState(() => _isInstalling = true);
-    _controller.forward().then((_) {
-      if (mounted) {
-        widget.onInstall();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final order = widget.order;
-    final p = widget.p;
-    final isReady = order.isDelivered;
-    final remainingSec = order.remainingSeconds;
-
-    return SizeTransition(
-      sizeFactor: _sizeAnimation,
-      alignment: Alignment.topCenter,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: _isInstalling ? p.successColor.withValues(alpha: 0.25) : p.surfaceColor,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: _isInstalling ? p.successColor : p.surfaceBorderColor,
-                width: _isInstalling ? 2 : 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                VectorIconWidget(
-                  type: order.orderType == OrderType.masterRepair ? 'craftsman' : 'workshop',
-                  size: 24,
-                  color: isReady ? p.successColor : p.primaryColor,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${order.partName} (${order.orderType == OrderType.quickPatch ? 'Geçici' : order.orderType == OrderType.masterRepair ? 'Usta Tamiri' : 'Yeni Parça'})',
-                        style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
-                      ),
-                      const SizedBox(height: 4),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: order.progressPercentage,
-                          backgroundColor: p.surfaceBorderColor,
-                          valueColor: AlwaysStoppedAnimation<Color>(isReady ? p.successColor : p.primaryColor),
-                          minHeight: 6,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isReady ? (_isInstalling ? 'Monte Ediliyor...' : 'Teslimat Tamamlandı!') : 'Kargoda ($remainingSec sn kaldı)',
-                        style: AppTypography.labelSmall(p.isDark).copyWith(
-                          color: isReady ? p.successColor : p.warningColor,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isReady ? p.successColor : p.surfaceBorderColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: (isReady && !_isInstalling) ? _triggerInstallation : null,
-                  child: Text(isReady ? (_isInstalling ? '...' : 'Montaj Et') : 'Bekleniyor'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DisappearingDetailingTile extends StatefulWidget {
-  final DetailingOption opt;
-  final ThemePaletteModel p;
-  final bool canAfford;
-  final VoidCallback onApply;
-
-  const _DisappearingDetailingTile({
-    required super.key,
-    required this.opt,
-    required this.p,
-    required this.canAfford,
-    required this.onApply,
-  });
-
-  @override
-  State<_DisappearingDetailingTile> createState() => _DisappearingDetailingTileState();
-}
-
-class _DisappearingDetailingTileState extends State<_DisappearingDetailingTile> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _sizeAnimation;
-  bool _isAnimatingOut = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 380),
-    );
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(_fadeAnimation);
-    _sizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleApply() async {
-    if (_isAnimatingOut) return;
-    setState(() => _isAnimatingOut = true);
-    await _controller.forward();
-    if (mounted) {
-      widget.onApply();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final opt = widget.opt;
-    final p = widget.p;
-
-    return SizeTransition(
-      sizeFactor: _sizeAnimation,
-      alignment: Alignment.topCenter,
-      child: FadeTransition(
-        opacity: Tween<double>(begin: 1.0, end: 0.0).animate(_fadeAnimation),
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: p.surfaceColor,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: opt.isRisky ? p.secondaryColor : p.surfaceBorderColor,
-              ),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: opt.isRisky
-                      ? p.secondaryColor.withValues(alpha: 0.15)
-                      : p.primaryColor.withValues(alpha: 0.15),
-                  child: VectorIconWidget(
-                    type: opt.vectorIcon,
-                    color: opt.isRisky ? p.secondaryColor : p.primaryColor,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-                      const SizedBox(height: 2),
-                      Text(opt.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: opt.isRisky ? p.secondaryColor : p.primaryColor,
-                    foregroundColor: opt.isRisky ? Colors.white : Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  onPressed: widget.canAfford && !_isAnimatingOut ? _handleApply : null,
-                  child: Text(
-                    CurrencyFormatter.formatShort(opt.cost),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DisappearingRepairTile extends StatefulWidget {
-  final String partName;
-  final PartStatus status;
-  final ThemePaletteModel p;
-  final void Function(VoidCallback onSuccess) onOpenOptions;
-
-  const _DisappearingRepairTile({
-    required super.key,
-    required this.partName,
-    required this.status,
-    required this.p,
-    required this.onOpenOptions,
-  });
-
-  @override
-  State<_DisappearingRepairTile> createState() => _DisappearingRepairTileState();
-}
-
-class _DisappearingRepairTileState extends State<_DisappearingRepairTile> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _sizeAnimation;
-  bool _isAnimatingOut = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 380),
-    );
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(_fadeAnimation);
-    _sizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleSuccess() async {
-    if (_isAnimatingOut) return;
-    if (!mounted) return;
-    setState(() => _isAnimatingOut = true);
-    await _controller.forward();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final p = widget.p;
-
-    return SizeTransition(
-      sizeFactor: _sizeAnimation,
-      alignment: Alignment.topCenter,
-      child: FadeTransition(
-        opacity: Tween<double>(begin: 1.0, end: 0.0).animate(_fadeAnimation),
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              title: Text('${widget.partName} Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-              subtitle: Text(widget.status == PartStatus.damaged 
-                  ? 'Durum: Hasarlı (Onarım Gerekli)' 
-                  : widget.status == PartStatus.painted 
-                      ? 'Durum: Boyalı (Orijinale Çevrilebilir)' 
-                      : 'Durum: Değişen (Orijinale Çevrilebilir)'),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: p.secondaryColor,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: _isAnimatingOut ? null : () => widget.onOpenOptions(_handleSuccess),
-                child: const Text('Usta Seç & Onar'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _IsometricHydraulicLiftWidget extends StatefulWidget {
-  final CarModel car;
-  final ThemePaletteModel p;
-
-  const _IsometricHydraulicLiftWidget({required this.car, required this.p});
-
-  @override
-  State<_IsometricHydraulicLiftWidget> createState() => _IsometricHydraulicLiftWidgetState();
-}
-
-class _IsometricHydraulicLiftWidgetState extends State<_IsometricHydraulicLiftWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final carColor = Color(int.parse(widget.car.colorHex.replaceFirst('#', '0xff')));
-    final p = widget.p;
-
-    return AnimatedBuilder(
-      animation: _animController,
-      builder: (context, child) {
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 12),
-          height: 110,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: AppColors.isometricGridDark,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.neonCyan.withValues(alpha: 0.08 + (_animController.value * 0.08)),
-                blurRadius: 10,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Isometric Hydraulic Lift Stand with Animated Sparks
-              CustomPaint(
-                size: const Size(double.infinity, 110),
-                painter: _LiftPainter(
-                  primaryColor: p.primaryColor,
-                  carColor: carColor,
-                  animProgress: _animController.value,
-                ),
-              ),
-              Positioned(
-                top: 10,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.neonCyan.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.neonCyan, width: 1),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.build_circle_rounded, color: AppColors.neonCyan, size: 12),
-                      SizedBox(width: 4),
-                      Text('LİFTTE', style: TextStyle(color: AppColors.neonCyan, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _LiftPainter extends CustomPainter {
-  final Color primaryColor;
-  final Color carColor;
-  final double animProgress;
-
-  _LiftPainter({required this.primaryColor, required this.carColor, required this.animProgress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2 + 10);
-
-    // Hydraulic Lift Arms
-    final armPaint = Paint()
-      ..color = Colors.grey.shade700
-      ..strokeWidth = 4
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawLine(Offset(center.dx - 40, center.dy + 20), Offset(center.dx - 40, center.dy - 10), armPaint);
-    canvas.drawLine(Offset(center.dx + 40, center.dy + 20), Offset(center.dx + 40, center.dy - 10), armPaint);
-
-    // Platform Base
-    final platformPath = Path()
-      ..moveTo(center.dx, center.dy - 20)
-      ..lineTo(center.dx + 55, center.dy - 10)
-      ..lineTo(center.dx, center.dy)
-      ..lineTo(center.dx - 55, center.dy - 10)
-      ..close();
-    canvas.drawPath(platformPath, Paint()..color = primaryColor.withValues(alpha: 0.3));
-    canvas.drawPath(platformPath, Paint()..color = primaryColor..style = PaintingStyle.stroke..strokeWidth = 1.5);
-
-    // Car Silhouette elevated on hydraulic lift
-    final carPath = Path()
-      ..moveTo(center.dx, center.dy - 35)
-      ..lineTo(center.dx + 28, center.dy - 23)
-      ..lineTo(center.dx, center.dy - 11)
-      ..lineTo(center.dx - 28, center.dy - 23)
-      ..close();
-    canvas.drawPath(carPath, Paint()..color = carColor);
-
-    // Animated Repair Sparks (Juiciness effect)
-    final sparkPaint = Paint()
-      ..color = AppColors.neonCyan.withValues(alpha: 0.7)
-      ..style = PaintingStyle.fill;
-
-    final spark1Offset = Offset(center.dx - 20 + (animProgress * 15), center.dy - 25 - (animProgress * 8));
-    final spark2Offset = Offset(center.dx + 18 - (animProgress * 12), center.dy - 30 - (animProgress * 6));
-    canvas.drawCircle(spark1Offset, 2.5, sparkPaint);
-    canvas.drawCircle(spark2Offset, 2.0, sparkPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _LiftPainter oldDelegate) {
-    return oldDelegate.animProgress != animProgress || oldDelegate.carColor != carColor;
   }
 }
