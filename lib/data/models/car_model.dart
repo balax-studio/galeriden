@@ -99,27 +99,29 @@ class CarModel {
 
   factory CarModel.fromJson(Map<String, dynamic> json) {
     return CarModel(
-      id: json['id'] as String,
-      brand: json['brand'] as String,
-      modelName: json['modelName'] as String,
-      modelYear: json['modelYear'] as int,
-      bodyType: json['bodyType'] as String,
-      colorHex: json['colorHex'] as String,
-      baseMarketValue: (json['baseMarketValue'] as num).toDouble(),
-      currentPurchasePrice: (json['currentPurchasePrice'] as num).toDouble(),
+      id: json['id'] as String? ?? 'car_${DateTime.now().millisecondsSinceEpoch}',
+      brand: json['brand'] as String? ?? 'Bilinmeyen',
+      modelName: json['modelName'] as String? ?? 'Model',
+      modelYear: json['modelYear'] as int? ?? 2020,
+      bodyType: json['bodyType'] as String? ?? 'Sedan',
+      colorHex: json['colorHex'] as String? ?? '0xFFCCCCCC',
+      baseMarketValue: (json['baseMarketValue'] as num?)?.toDouble() ?? 500000.0,
+      currentPurchasePrice: (json['currentPurchasePrice'] as num?)?.toDouble() ?? 450000.0,
       isDetailedCleaned: json['isDetailedCleaned'] as bool? ?? false,
       isWashed: json['isWashed'] as bool? ?? false,
       isPolished: json['isPolished'] as bool? ?? false,
       isRare: json['isRare'] as bool? ?? false,
-      expertise: ExpertiseReport.fromJson(json['expertise'] as Map<String, dynamic>),
+      expertise: json['expertise'] != null
+          ? ExpertiseReport.fromJson(json['expertise'] as Map<String, dynamic>)
+          : ExpertiseReport.fromJson(const {}),
       declarationType: json['declarationType'] != null
           ? ListingDeclarationType.values.firstWhere(
               (e) => e.name == json['declarationType'],
               orElse: () => ListingDeclarationType.honest,
             )
           : ListingDeclarationType.honest,
-      customListingPrice: json['customListingPrice'] != null ? (json['customListingPrice'] as num).toDouble() : null,
-      appliedDetailingOptionIds: (json['appliedDetailingOptionIds'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
+      customListingPrice: json['customListingPrice'] != null ? (json['customListingPrice'] as num?)?.toDouble() : null,
+      appliedDetailingOptionIds: (json['appliedDetailingOptionIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       isRented: json['isRented'] as bool? ?? false,
     );
   }

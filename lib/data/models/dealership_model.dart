@@ -247,9 +247,9 @@ class DealershipModel {
   factory DealershipModel.fromJson(Map<String, dynamic> json) {
     final now = DateTime.now();
     return DealershipModel(
-      balance: (json['balance'] as num).toDouble(),
-      level: json['level'] as int,
-      maxGarageSlots: json['maxGarageSlots'] as int,
+      balance: (json['balance'] as num?)?.toDouble() ?? 50000.0,
+      level: json['level'] as int? ?? 1,
+      maxGarageSlots: json['maxGarageSlots'] as int? ?? 4,
       ownedCars: (json['ownedCars'] as List<dynamic>?)
               ?.map((c) => CarModel.fromJson(c as Map<String, dynamic>))
               .toList() ??
@@ -258,8 +258,8 @@ class DealershipModel {
               ?.map((o) => OfferModel.fromJson(o as Map<String, dynamic>))
               .toList() ??
           [],
-      totalProfit: (json['totalProfit'] as num).toDouble(),
-      carsSold: json['carsSold'] as int,
+      totalProfit: (json['totalProfit'] as num?)?.toDouble() ?? 0.0,
+      carsSold: json['carsSold'] as int? ?? 0,
       lastActiveTime: DateTime.tryParse(json['lastActiveTime'] as String? ?? '') ?? now,
       skills: json['skills'] != null ? PlayerSkills.fromJson(json['skills'] as Map<String, dynamic>) : PlayerSkills(),
       achievements: json['achievements'] != null
