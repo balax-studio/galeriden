@@ -1,12 +1,14 @@
 import 'car_model.dart';
 import 'offer_model.dart';
-import 'player_skills.dart';
-import 'player_achievements.dart';
-import 'mission_model.dart';
-import 'market_trend_model.dart';
 import 'loan_model.dart';
 import 'part_order_model.dart';
+import 'staff_model.dart';
+import 'customer_review_model.dart';
+import 'player_skills.dart';
+import 'player_achievements.dart';
 import 'expertise_model.dart';
+import 'mission_model.dart';
+import 'market_trend_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -26,6 +28,8 @@ class DealershipModel {
   final int reputationScore;
   final List<LoanModel> activeLoans;
   final List<PartOrderModel> pendingOrders;
+  final List<StaffModel> hiredStaff;
+  final List<CustomerReviewModel> customerReviews;
   final bool tutorialCompleted;
   final int tutorialStepIndex;
   final int currentDay;
@@ -51,6 +55,8 @@ class DealershipModel {
     this.reputationScore = 100,
     this.activeLoans = const [],
     this.pendingOrders = const [],
+    this.hiredStaff = const [],
+    this.customerReviews = const [],
     this.tutorialCompleted = false,
     this.tutorialStepIndex = 0,
     this.currentDay = 1,
@@ -147,6 +153,8 @@ class DealershipModel {
       'reputationScore': reputationScore,
       'activeLoans': activeLoans.map((l) => l.toJson()).toList(),
       'pendingOrders': pendingOrders.map((p) => p.toJson()).toList(),
+      'hiredStaff': hiredStaff.map((s) => s.toJson()).toList(),
+      'customerReviews': customerReviews.map((r) => r.toJson()).toList(),
       'tutorialCompleted': tutorialCompleted,
       'tutorialStepIndex': tutorialStepIndex,
       'currentDay': currentDay,
@@ -193,6 +201,14 @@ class DealershipModel {
               ?.map((p) => PartOrderModel.fromJson(p as Map<String, dynamic>))
               .toList() ??
           const [],
+      hiredStaff: (json['hiredStaff'] as List<dynamic>?)
+              ?.map((s) => StaffModel.fromJson(s as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      customerReviews: (json['customerReviews'] as List<dynamic>?)
+              ?.map((r) => CustomerReviewModel.fromJson(r as Map<String, dynamic>))
+              .toList() ??
+          const [],
       tutorialCompleted: json['tutorialCompleted'] as bool? ?? false,
       tutorialStepIndex: json['tutorialStepIndex'] as int? ?? 0,
       currentDay: json['currentDay'] as int? ?? 1,
@@ -220,6 +236,8 @@ class DealershipModel {
     int? reputationScore,
     List<LoanModel>? activeLoans,
     List<PartOrderModel>? pendingOrders,
+    List<StaffModel>? hiredStaff,
+    List<CustomerReviewModel>? customerReviews,
     bool? tutorialCompleted,
     int? tutorialStepIndex,
     int? currentDay,
@@ -245,6 +263,8 @@ class DealershipModel {
       reputationScore: reputationScore ?? this.reputationScore,
       activeLoans: activeLoans ?? this.activeLoans,
       pendingOrders: pendingOrders ?? this.pendingOrders,
+      hiredStaff: hiredStaff ?? this.hiredStaff,
+      customerReviews: customerReviews ?? this.customerReviews,
       tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
       tutorialStepIndex: tutorialStepIndex ?? this.tutorialStepIndex,
       currentDay: currentDay ?? this.currentDay,

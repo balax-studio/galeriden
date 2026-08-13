@@ -1,0 +1,159 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/app_theme_extension.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/staff_model.dart';
+import '../../providers/game_provider.dart';
+import '../../widgets/app_glass_container.dart';
+import '../../widgets/app_vector_icons.dart';
+
+class StaffScreen extends ConsumerWidget {
+  const StaffScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final game = ref.watch(gameProvider);
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PERSONEL & EKİP YÖNETİMİ'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Status Header
+            AppGlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: p.primaryColor.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.people_alt_rounded, color: p.primaryColor, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('AKTİF EKİP BÜYÜKLÜĞÜ', style: AppTypography.labelSmall(p.isDark)),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${game.hiredStaff.length} / ${StaffRole.values.length} Personel İşe Alındı',
+                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Text('KİRALANABİLİR PERSONEL KADROSU', style: AppTypography.labelSmall(p.isDark)),
+            const SizedBox(height: 12),
+
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: StaffRole.values.length,
+              itemBuilder: (context, index) {
+                final role = StaffRole.values[index];
+                final matches = game.hiredStaff.where((s) => s.role == role);
+                final hired = matches.isEmpty ? null : matches.first;
+                final isHired = hired != null;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: p.surfaceColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isHired ? p.primaryColor : p.surfaceBorderColor,
+                      width: isHired ? 2.0 : 1.0,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isHired ? p.primaryColor.withValues(alpha: 0.2) : p.surfaceBorderColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: VectorIconWidget(
+                              type: role.iconType,
+                              color: isHired ? p.primaryColor : p.textSecondaryColor,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(role.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Günlük Maaş: ₺${CurrencyFormatter.formatShort(role.dailySalary)}',
+                                  style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isHired ? p.errorColor : p.primaryColor,
+                              foregroundColor: isHired ? Colors.white : Colors.black,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            ),
+                            onPressed: () {
+                              if (isHired) {
+                                ref.read(gameProvider.notifier).fireStaff(hired.id);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('${role.title} İşten Çıkarıldı.')),
+                                );
+                              } else {
+                                final newStaff = StaffModel(
+                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                  name: 'Usta ${index + 1}',
+                                  role: role,
+                                  hiredAt: DateTime.now(),
+                                );
+                                final success = ref.read(gameProvider.notifier).hireStaff(newStaff);
+                                if (success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('${role.title} Ekibe Katıldı!')),
+                                  );
+                                }
+                              }
+                            },
+                            child: Text(isHired ? 'İşten Çıkar' : 'İşe Al'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(role.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12)),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

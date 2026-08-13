@@ -16,6 +16,8 @@ class CarModel {
   final double baseMarketValue;
   final double currentPurchasePrice;
   final bool isDetailedCleaned;
+  final bool isWashed;
+  final bool isPolished;
   final bool isRare;
   final ExpertiseReport expertise;
   final ListingDeclarationType declarationType;
@@ -31,6 +33,8 @@ class CarModel {
     required this.baseMarketValue,
     required this.currentPurchasePrice,
     this.isDetailedCleaned = false,
+    this.isWashed = false,
+    this.isPolished = false,
     this.isRare = false,
     required this.expertise,
     this.declarationType = ListingDeclarationType.honest,
@@ -51,8 +55,10 @@ class CarModel {
 
     factor += (1.0 - (changedOrDamagedCount * 0.08)).clamp(0.1, 0.3);
 
-    if (isDetailedCleaned) {
+    if (isDetailedCleaned || (isWashed && isPolished)) {
       factor += 0.08;
+    } else if (isWashed || isPolished) {
+      factor += 0.04;
     }
 
     if (isRare) {
@@ -73,6 +79,8 @@ class CarModel {
       'baseMarketValue': baseMarketValue,
       'currentPurchasePrice': currentPurchasePrice,
       'isDetailedCleaned': isDetailedCleaned,
+      'isWashed': isWashed,
+      'isPolished': isPolished,
       'isRare': isRare,
       'expertise': expertise.toJson(),
       'declarationType': declarationType.name,
@@ -91,6 +99,8 @@ class CarModel {
       baseMarketValue: (json['baseMarketValue'] as num).toDouble(),
       currentPurchasePrice: (json['currentPurchasePrice'] as num).toDouble(),
       isDetailedCleaned: json['isDetailedCleaned'] as bool? ?? false,
+      isWashed: json['isWashed'] as bool? ?? false,
+      isPolished: json['isPolished'] as bool? ?? false,
       isRare: json['isRare'] as bool? ?? false,
       expertise: ExpertiseReport.fromJson(json['expertise'] as Map<String, dynamic>),
       declarationType: json['declarationType'] != null
@@ -107,6 +117,8 @@ class CarModel {
     double? baseMarketValue,
     double? currentPurchasePrice,
     bool? isDetailedCleaned,
+    bool? isWashed,
+    bool? isPolished,
     bool? isRare,
     ExpertiseReport? expertise,
     ListingDeclarationType? declarationType,
@@ -122,6 +134,8 @@ class CarModel {
       baseMarketValue: baseMarketValue ?? this.baseMarketValue,
       currentPurchasePrice: currentPurchasePrice ?? this.currentPurchasePrice,
       isDetailedCleaned: isDetailedCleaned ?? this.isDetailedCleaned,
+      isWashed: isWashed ?? this.isWashed,
+      isPolished: isPolished ?? this.isPolished,
       isRare: isRare ?? this.isRare,
       expertise: expertise ?? this.expertise,
       declarationType: declarationType ?? this.declarationType,

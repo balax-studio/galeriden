@@ -5,6 +5,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/listing_model.dart';
+import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
@@ -206,6 +207,12 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Interactive Micron Gauge Mini-Game Card
+              Text('BOYA MİKRON ÖLÇER (İNTERAKTİF CİHAZ)', style: AppTypography.labelSmall(isDark)),
+              const SizedBox(height: 12),
+              _MicronGaugeMiniGame(bodyParts: exp.bodyParts, isDark: isDark),
+              const SizedBox(height: 24),
+
               // Fair Market Value vs Asking Price Summary Card
               Container(
                 padding: const EdgeInsets.all(20),
@@ -282,6 +289,118 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           Text(value, style: AppTypography.titleLarge(isDark).copyWith(fontSize: 16)),
           const SizedBox(height: 2),
           Text(sub, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+}
+
+class _MicronGaugeMiniGame extends StatefulWidget {
+  final Map<String, PartStatus> bodyParts;
+  final bool isDark;
+
+  const _MicronGaugeMiniGame({
+    required this.bodyParts,
+    required this.isDark,
+  });
+
+  @override
+  State<_MicronGaugeMiniGame> createState() => _MicronGaugeMiniGameState();
+}
+
+class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
+  String? _selectedPart;
+  int? _measuredMicrons;
+
+  int _calculateMicrons(PartStatus status) {
+    switch (status) {
+      case PartStatus.original:
+        return 90 + (widget.bodyParts.hashCode % 25);
+      case PartStatus.painted:
+        return 160 + (widget.bodyParts.hashCode % 60);
+      case PartStatus.changed:
+        return 280 + (widget.bodyParts.hashCode % 100);
+      case PartStatus.damaged:
+        return 380 + (widget.bodyParts.hashCode % 150);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: widget.isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primaryAmber.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.speed_rounded, color: AppColors.primaryAmber, size: 22),
+              const SizedBox(width: 8),
+              Text(
+                _selectedPart == null
+                    ? 'Ekspertiz probunu dokundurmak istediğin parçayı seç'
+                    : '$_selectedPart Ölçümü',
+                style: AppTypography.titleLarge(widget.isDark).copyWith(fontSize: 14),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          if (_measuredMicrons != null) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primaryAmber.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primaryAmber),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Ölçülen Boya Kalınlığı:',
+                    style: AppTypography.labelSmall(widget.isDark),
+                  ),
+                  Text(
+                    '$_measuredMicrons µm (Mikron)',
+                    style: AppTypography.titleLarge(widget.isDark).copyWith(color: AppColors.primaryAmber),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: widget.bodyParts.entries.map((e) {
+              final isSelected = _selectedPart == e.key;
+              return ChoiceChip(
+                showCheckmark: false,
+                selected: isSelected,
+                selectedColor: AppColors.primaryAmber,
+                label: Text(
+                  e.key,
+                  style: TextStyle(
+                    color: isSelected ? Colors.black : (widget.isDark ? Colors.white : Colors.black87),
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                onSelected: (_) {
+                  setState(() {
+                    _selectedPart = e.key;
+                    _measuredMicrons = _calculateMicrons(e.value);
+                  });
+                },
+              );
+            }).toList(),
+          ),
         ],
       ),
     );

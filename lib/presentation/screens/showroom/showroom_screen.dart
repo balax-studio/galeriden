@@ -7,6 +7,7 @@ import '../../../data/models/car_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/offer_model.dart';
+import '../../../data/models/customer_review_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 
@@ -312,8 +313,22 @@ class ShowroomScreen extends ConsumerWidget {
                                               ),
                                             );
                                           } else {
+                                            // Auto-generate customer review
+                                            final isHonest = car.declarationType == ListingDeclarationType.honest;
+                                            final review = CustomerReviewModel(
+                                              id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                              reviewerName: offer.buyerName,
+                                              carTitle: '${car.brand} ${car.modelName}',
+                                              rating: isHonest ? (4.0 + (offer.offeredAmount >= car.listingPrice ? 1.0 : 0.0)) : 1.0,
+                                              comment: isHonest
+                                                  ? 'Harika dürüst bir galerici! Araç tam ekspertizdeki gibi çıktı, çok memnunum.'
+                                                  : 'Göz göre göre gizli kusurlu araç sattılar! Kesinlikle tavsiye etmiyorum.',
+                                              createdAt: DateTime.now(),
+                                            );
+                                            ref.read(gameProvider.notifier).addCustomerReview(review);
+
                                             ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı!')),
+                                              SnackBar(content: Text('${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı! Müşteri değerlendirmesi eklendi.')),
                                             );
                                           }
                                         },

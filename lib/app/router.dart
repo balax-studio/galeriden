@@ -15,6 +15,9 @@ import '../presentation/screens/character/character_growth_screen.dart';
 
 import '../presentation/screens/settings/dealership_identity_screen.dart';
 import '../presentation/screens/settings/theme_store_screen.dart';
+import '../presentation/screens/staff/staff_screen.dart';
+import '../presentation/screens/car_wash/car_wash_screen.dart';
+import '../presentation/screens/reviews/customer_reviews_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/onboarding',
@@ -22,6 +25,18 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/staff',
+      builder: (context, state) => const StaffScreen(),
+    ),
+    GoRoute(
+      path: '/car-wash',
+      builder: (context, state) => const CarWashScreen(),
+    ),
+    GoRoute(
+      path: '/reviews',
+      builder: (context, state) => const CustomerReviewsScreen(),
     ),
     GoRoute(
       path: '/dealership-identity',

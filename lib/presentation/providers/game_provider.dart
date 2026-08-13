@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/models/staff_model.dart';
+import '../../data/models/customer_review_model.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/customer_model.dart';
 import '../../data/models/dealership_model.dart';
@@ -250,6 +252,60 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     }
     _saveState();
     return true;
+  }
+
+  /// Hire a staff member
+  bool hireStaff(StaffModel staff) {
+    if (state.hiredStaff.any((s) => s.role == staff.role)) return false; // Max 1 per role
+    state = state.copyWith(hiredStaff: [...state.hiredStaff, staff]);
+    _saveState();
+    return true;
+  }
+
+  /// Fire a staff member
+  void fireStaff(String staffId) {
+    state = state.copyWith(
+      hiredStaff: state.hiredStaff.where((s) => s.id != staffId).toList(),
+    );
+    _saveState();
+  }
+
+  /// Interactive Wash and Polish Car
+  bool washAndPolishCar(String carId, {required bool wash, required bool polish}) {
+    final cost = (wash ? 300.0 : 0.0) + (polish ? 800.0 : 0.0);
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedCar = car.copyWith(
+      isWashed: wash ? true : car.isWashed,
+      isPolished: polish ? true : car.isPolished,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(15);
+    _saveState();
+    return true;
+  }
+
+  /// Add customer review upon sales
+  void addCustomerReview(CustomerReviewModel review) {
+    // Update average rating impact on reputation score
+    final newReputation = (state.reputationScore + (review.rating >= 4.0 ? 5 : -10)).clamp(0, 100);
+    state = state.copyWith(
+      customerReviews: [review, ...state.customerReviews],
+      reputationScore: newReputation,
+    );
+    _saveState();
   }
 
   /// Update owned car after repair or detailing
