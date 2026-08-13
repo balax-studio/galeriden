@@ -4,6 +4,8 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../widgets/app_vector_icons.dart';
 
+import '../../widgets/dealership_setup_sheet.dart';
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -33,6 +35,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
+  Future<void> _finishOnboarding() async {
+    context.go('/dashboard');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final navContext = Navigator.of(context, rootNavigator: true).context;
+      DealershipSetupSheet.show(navContext);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
@@ -47,7 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Align(
                 alignment: Alignment.topRight,
                 child: TextButton(
-                  onPressed: () => context.go('/dashboard'),
+                  onPressed: _finishOnboarding,
                   child: Text('Atla', style: AppTypography.bodyMedium(p.isDark)),
                 ),
               ),
@@ -125,7 +135,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         curve: Curves.easeInOut,
                       );
                     } else {
-                      context.go('/dashboard');
+                      _finishOnboarding();
                     }
                   },
                   child: Text(

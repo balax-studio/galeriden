@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../data/models/theme_palette_model.dart';
 import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
@@ -43,11 +42,6 @@ class DashboardScreen extends ConsumerWidget {
           ],
         ),
         actions: [
-          IconButton(
-            icon: VectorIconWidget(type: 'streak', color: p.primaryColor, size: 22),
-            tooltip: 'Karakter Gelişimi & Yetenekler',
-            onPressed: () => _showSkillTreeSheet(context, ref),
-          ),
           IconButton(
             icon: Icon(Icons.settings, color: p.textPrimaryColor),
             onPressed: () => context.push('/settings'),
@@ -99,9 +93,8 @@ class DashboardScreen extends ConsumerWidget {
               },
             ),
 
-            // Main Dealership Status Card (Click to open /character-growth)
+            // Main Dealership Status Card
             AppGlassContainer(
-              onTap: () => context.push('/character-growth'),
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,138 +328,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  void _showSkillTreeSheet(BuildContext context, WidgetRef ref) {
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: p.backgroundColor,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final game = ref.watch(gameProvider);
-            final skills = game.skills;
-
-            return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('KARAKTER YETENEK AĞACI', style: AppTypography.titleLarge(p.isDark)),
-                      IconButton(icon: Icon(Icons.close, color: p.textPrimaryColor), onPressed: () => Navigator.pop(context)),
-                    ],
-                  ),
-                  Text('Kullanılabilir Beceri Puanı: ${skills.availableSkillPoints}', style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 15)),
-                  const SizedBox(height: 20),
-
-                  _buildSkillRow(
-                    'Pazarlık Gücü',
-                    'Alıcılardan daha yüksek ikna oranıyla teklif almanı sağlar.',
-                    skills.negotiationLevel >= 5 ? 'İkna Şansı +%25 Artırıldı' : 'Lv 5: İkna Şansı +%25 Artacak',
-                    skills.negotiationLevel,
-                    () => ref.read(gameProvider.notifier).upgradeSkill('negotiation'),
-                    p,
-                  ),
-                  _buildSkillRow(
-                    'Ekspertiz Sezgisi',
-                    'Rapor almadan araçlardaki gizli ayıpları sezme yeteneği.',
-                    skills.eyeForDetail >= 5 ? 'Ekspertizsiz Risk Sezgisi %50' : 'Lv 5: Gizli Ayıp Sezgisi %50 Açılır',
-                    skills.eyeForDetail,
-                    () => ref.read(gameProvider.notifier).upgradeSkill('eyeForDetail'),
-                    p,
-                  ),
-                  _buildSkillRow(
-                    'Piyasa Tahmini',
-                    'Aracın gerçek piyasa değerini ve trend kâr çarpanlarını görme.',
-                    skills.marketSense >= 3 ? 'SUV & Spor Kâr Çarpanları Açık' : 'Lv 3: Segment Kâr Çarpanları Açılır',
-                    skills.marketSense,
-                    () => ref.read(gameProvider.notifier).upgradeSkill('marketSense'),
-                    p,
-                  ),
-                  _buildSkillRow(
-                    'Galerici İtibarı',
-                    'Daha prestijli koleksiyonluk araçların ve zengin alıcıların gelmesi.',
-                    skills.reputation >= 5 ? 'Nadir Araç Düşme Şansı +%15' : 'Lv 5: Nadir Koleksiyon Düşüşü %15 Artar',
-                    skills.reputation,
-                    () => ref.read(gameProvider.notifier).upgradeSkill('reputation'),
-                    p,
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildSkillRow(String title, String desc, String perkInfo, int level, VoidCallback onUpgrade, ThemePaletteModel p) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14.0),
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: p.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: p.surfaceBorderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('$title (Lv $level/10)', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: p.primaryColor,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                onPressed: level >= 10 ? null : onUpgrade,
-                child: Text(level >= 10 ? 'MAX' : 'Yükselt (1 SP)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(desc, style: AppTypography.labelSmall(p.isDark)),
-          const SizedBox(height: 8),
-
-          // Visual Progress Bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: level / 10.0,
-              minHeight: 6,
-              backgroundColor: p.surfaceBorderColor,
-              valueColor: AlwaysStoppedAnimation<Color>(p.primaryColor),
-            ),
-          ),
-          const SizedBox(height: 6),
-
-          // Unlock Perk Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: p.secondaryColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              'Perk (Lv $level): $perkInfo',
-              style: TextStyle(color: p.secondaryColor, fontSize: 11, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildStat(String label, String value, bool isDark) {
     return Column(
