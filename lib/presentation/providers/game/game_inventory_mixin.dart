@@ -238,13 +238,18 @@ mixin GameInventoryMixin on GameBaseNotifier {
     saveState();
   }
 
-  /// Rent a Car
+  /// Rent a Car with strict market rate validation
   bool rentCar(String carId, double dailyRate) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
     
     final car = state.ownedCars[carIndex];
     if (car.isRented) return false;
+
+    // Cap daily rate to maximum 1.2% of car value to prevent economy exploits
+    final carValue = car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue;
+    final maxAllowedDailyRate = (carValue * 0.012).clamp(100.0, 50000.0);
+    final validatedDailyRate = dailyRate.clamp(100.0, maxAllowedDailyRate);
 
     final updatedCar = car.copyWith(isRented: true);
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -253,7 +258,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final agreement = RentalAgreement(
       id: 'rent_${DateTime.now().millisecondsSinceEpoch}',
       carId: carId,
-      dailyRate: dailyRate,
+      dailyRate: validatedDailyRate,
     );
 
     state = state.copyWith(

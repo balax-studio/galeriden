@@ -172,7 +172,10 @@ class RentACarScreen extends ConsumerWidget {
   }
 
   void _showRentDialog(BuildContext context, WidgetRef ref, dynamic p, dynamic car, double suggestedRate) {
-    double currentRate = suggestedRate;
+    final double carVal = (car.purchasePrice ?? car.basePrice ?? 100000.0).toDouble();
+    final double maxAllowedRate = (carVal * 0.012).clamp(100.0, 50000.0);
+    double currentRate = suggestedRate.clamp(100.0, maxAllowedRate);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: p.backgroundColor,
@@ -180,6 +183,10 @@ class RentACarScreen extends ConsumerWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setState) {
+            double demandRatio = 1.0 - ((currentRate - suggestedRate) / (maxAllowedRate - suggestedRate + 0.1)).clamp(0.0, 0.85);
+            int demandPercent = (demandRatio * 100).round();
+            Color demandColor = demandPercent > 70 ? p.successColor : (demandPercent > 40 ? p.warningColor : p.errorColor);
+
             return Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -187,17 +194,49 @@ class RentACarScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Aracı Kiraya Ver', style: AppTypography.titleLarge(p.isDark)),
-                  const SizedBox(height: 12),
-                  Text('${car.brand} ${car.model}', style: AppTypography.bodyMedium(p.isDark)),
+                  const SizedBox(height: 4),
+                  Text('${car.brand} ${car.model}', style: AppTypography.bodyMedium(p.isDark).copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 16),
+                  
+                  // Market Rayiç Bilgisi
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: p.surfaceColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: p.surfaceBorderColor),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Tavsiye Edilen Rayiç:', style: AppTypography.labelSmall(p.isDark)),
+                            Text('₺${CurrencyFormatter.formatShort(suggestedRate)} / Gün', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.successColor, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Müşteri Talep Oranı:', style: AppTypography.labelSmall(p.isDark)),
+                            Text('%$demandPercent Müşteri Talebi', style: AppTypography.labelSmall(p.isDark).copyWith(color: demandColor, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 20),
-                  Text('Günlük Kira Bedeli', style: AppTypography.labelSmall(p.isDark)),
+                  Text('Belirlenen Günlük Kira Bedeli', style: AppTypography.labelSmall(p.isDark)),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       IconButton(
                         icon: const Icon(Icons.remove_circle_outline),
                         onPressed: () {
                           setState(() {
-                            if (currentRate > 100) currentRate -= 100;
+                            if (currentRate > 200) currentRate -= 100;
                           });
                         },
                       ),
@@ -205,20 +244,22 @@ class RentACarScreen extends ConsumerWidget {
                         child: Text(
                           '₺${CurrencyFormatter.formatShort(currentRate)}',
                           textAlign: TextAlign.center,
-                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 18),
+                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 20, color: p.primaryColor),
                         ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.add_circle_outline),
                         onPressed: () {
                           setState(() {
-                            currentRate += 100;
+                            if (currentRate + 100 <= maxAllowedRate) {
+                              currentRate += 100;
+                            }
                           });
                         },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

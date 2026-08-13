@@ -336,7 +336,9 @@ class DealershipModel {
       marketStocks: [
         StockModel(symbol: 'TOF', name: 'Tof-AŞ Otomotiv', currentPrice: 15.4, previousPrice: 15.0),
         StockModel(symbol: 'FOR', name: 'For-D Motor', currentPrice: 85.2, previousPrice: 84.5),
-        StockModel(symbol: 'RNO', name: 'Reno-L', currentPrice: 42.1, previousPrice: 43.0),
+        StockModel(symbol: 'RNO', name: 'Reno-L Otomotiv', currentPrice: 42.1, previousPrice: 43.0),
+        StockModel(symbol: 'PET', name: 'Pet-Kim Akaryakıt & Kimya', currentPrice: 28.6, previousPrice: 27.9),
+        StockModel(symbol: 'TOG', name: 'Togg Elektrikli Otomobil', currentPrice: 110.5, previousPrice: 108.0),
       ],
       ownedStocks: const [],
       recentEvents: const [],
