@@ -13,6 +13,7 @@ import '../../data/models/loan_model.dart';
 import '../../data/models/mission_model.dart';
 import '../../data/models/offer_model.dart';
 import '../../data/models/part_order_model.dart';
+import '../../data/models/sale_record_model.dart';
 import '../../data/models/player_skills.dart';
 import '../../domain/usecases/market_engine.dart';
 import '../../domain/usecases/negotiation_engine.dart';
@@ -468,6 +469,17 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       newSlots += 1;
     }
 
+    final record = SaleRecordModel(
+      id: 'sale_${DateTime.now().millisecondsSinceEpoch}',
+      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}',
+      buyerName: offer.buyerName,
+      purchasePrice: car.currentPurchasePrice,
+      salePrice: offer.offeredAmount,
+      netProfit: profit,
+      saleDay: state.currentDay,
+      saleDate: DateTime.now(),
+    );
+
     state = state.copyWith(
       balance: state.balance + offer.offeredAmount,
       ownedCars: updatedCars,
@@ -476,6 +488,7 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       carsSold: newCarsSold,
       level: newLevel,
       maxGarageSlots: newSlots,
+      salesHistory: [record, ...state.salesHistory],
     );
 
     addXP(100 + (profit > 0 ? (profit / 1000).round() : 0));

@@ -9,6 +9,7 @@ import 'player_achievements.dart';
 import 'expertise_model.dart';
 import 'mission_model.dart';
 import 'market_trend_model.dart';
+import 'sale_record_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -30,6 +31,7 @@ class DealershipModel {
   final List<PartOrderModel> pendingOrders;
   final List<StaffModel> hiredStaff;
   final List<CustomerReviewModel> customerReviews;
+  final List<SaleRecordModel> salesHistory;
   final bool tutorialCompleted;
   final int tutorialStepIndex;
   final int currentDay;
@@ -57,6 +59,7 @@ class DealershipModel {
     this.pendingOrders = const [],
     this.hiredStaff = const [],
     this.customerReviews = const [],
+    this.salesHistory = const [],
     this.tutorialCompleted = false,
     this.tutorialStepIndex = 0,
     this.currentDay = 1,
@@ -129,6 +132,28 @@ class DealershipModel {
       marketTrend: MarketTrendModel.defaultTrend(),
       activeLoans: const [],
       pendingOrders: const [],
+      salesHistory: [
+        SaleRecordModel(
+          id: 'sale_init_1',
+          carTitle: '1998 Tofaş Şahin 1.6 ie',
+          buyerName: 'Ahmet Yılmaz',
+          purchasePrice: 95000.0,
+          salePrice: 135000.0,
+          netProfit: 40000.0,
+          saleDay: 0,
+          saleDate: DateTime.now().subtract(const Duration(days: 2)),
+        ),
+        SaleRecordModel(
+          id: 'sale_init_2',
+          carTitle: '2004 Renault Toros Wagon',
+          buyerName: 'Mehmet Kaya',
+          purchasePrice: 110000.0,
+          salePrice: 148000.0,
+          netProfit: 38000.0,
+          saleDay: 0,
+          saleDate: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+      ],
       tutorialCompleted: false,
       tutorialStepIndex: 0,
     );
@@ -155,6 +180,7 @@ class DealershipModel {
       'pendingOrders': pendingOrders.map((p) => p.toJson()).toList(),
       'hiredStaff': hiredStaff.map((s) => s.toJson()).toList(),
       'customerReviews': customerReviews.map((r) => r.toJson()).toList(),
+      'salesHistory': salesHistory.map((s) => s.toJson()).toList(),
       'tutorialCompleted': tutorialCompleted,
       'tutorialStepIndex': tutorialStepIndex,
       'currentDay': currentDay,
@@ -209,6 +235,10 @@ class DealershipModel {
               ?.map((r) => CustomerReviewModel.fromJson(r as Map<String, dynamic>))
               .toList() ??
           const [],
+      salesHistory: (json['salesHistory'] as List<dynamic>?)
+              ?.map((s) => SaleRecordModel.fromJson(s as Map<String, dynamic>))
+              .toList() ??
+          const [],
       tutorialCompleted: json['tutorialCompleted'] as bool? ?? false,
       tutorialStepIndex: json['tutorialStepIndex'] as int? ?? 0,
       currentDay: json['currentDay'] as int? ?? 1,
@@ -238,6 +268,7 @@ class DealershipModel {
     List<PartOrderModel>? pendingOrders,
     List<StaffModel>? hiredStaff,
     List<CustomerReviewModel>? customerReviews,
+    List<SaleRecordModel>? salesHistory,
     bool? tutorialCompleted,
     int? tutorialStepIndex,
     int? currentDay,
@@ -265,6 +296,7 @@ class DealershipModel {
       pendingOrders: pendingOrders ?? this.pendingOrders,
       hiredStaff: hiredStaff ?? this.hiredStaff,
       customerReviews: customerReviews ?? this.customerReviews,
+      salesHistory: salesHistory ?? this.salesHistory,
       tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
       tutorialStepIndex: tutorialStepIndex ?? this.tutorialStepIndex,
       currentDay: currentDay ?? this.currentDay,

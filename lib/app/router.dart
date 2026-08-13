@@ -18,10 +18,15 @@ import '../presentation/screens/settings/theme_store_screen.dart';
 import '../presentation/screens/staff/staff_screen.dart';
 import '../presentation/screens/car_wash/car_wash_screen.dart';
 import '../presentation/screens/reviews/customer_reviews_screen.dart';
+import '../presentation/screens/history/sales_history_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/onboarding',
   routes: [
+    GoRoute(
+      path: '/history',
+      builder: (context, state) => const SalesHistoryScreen(),
+    ),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
