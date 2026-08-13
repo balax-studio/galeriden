@@ -36,6 +36,8 @@ class ThemePaletteModel {
     required this.errorColor,
   });
 
+  Color get infoColor => secondaryColor;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
