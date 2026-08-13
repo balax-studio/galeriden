@@ -17,19 +17,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<Map<String, String>> _pages = [
     {
-      'title': 'Galerisinden Tycoon\'a Hoş Geldin',
-      'subtitle': 'Kendi araba galeri imparatorluğunu kur. İkinci el araç pazarını takip et, kelepir araçları bul ve kâr et.',
+      'title': 'Deden Hasan Usta\'dan Kalan Miras',
+      'subtitle': 'Eski usta dedenden sana 1978 model bir Tofaş Murat 124 ve 75.000 ₺ sermaye miras kaldı. Ama araç yürür vaziyette değil...',
       'vectorType': 'car',
     },
     {
-      'title': 'Detaylı Ekspertiz İncelemesi',
-      'subtitle': 'Aracı satın almadan önce ekspertize sok. Kaporta hasarlarını, motor durumunu ve Tramer kaydını ortaya çıkar.',
-      'vectorType': 'expertise',
+      'title': 'Stratejik Tamir & Parça Siparişi',
+      'subtitle': 'Atölyede arızaları incele. Parçayı geçici tamir mi edeceksin, ustaya mı göndereceksin yoksa yeni parça mı sipariş edeceksin? Bütçeni iyi yönet!',
+      'vectorType': 'workshop',
     },
     {
-      'title': 'Tamir Et, Temizle & İlana Koy',
-      'subtitle': 'Atölyede aracı restore et, pasta-cila yap. İlana koyarak gelen pazarlık tekliflerini değerlendir ve galerin seviye atlasın.',
-      'vectorType': 'workshop',
+      'title': 'İlk Satışını Yap & Galerini Büyüt',
+      'subtitle': 'Onardığın aracı ilana koy, gelen pazarlıkları değerlendir. İlk kârınla otomotiv imparatorluğunun temelini at!',
+      'vectorType': 'expertise',
     },
   ];
 

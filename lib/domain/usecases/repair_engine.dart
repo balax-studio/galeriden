@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
+import '../../data/models/part_order_model.dart';
 
 enum RepairTier { apprentice, journeyman, master }
 
@@ -140,6 +141,55 @@ class RepairEngine {
   /// Performs full detailing
   static CarModel performDetailing(CarModel car) {
     return car.copyWith(isDetailedCleaned: true);
+  }
+
+  /// Applies an installed part order to restore vehicle part condition
+  static CarModel applyInstalledPart(CarModel car, String partName, OrderType type) {
+    final updatedParts = Map<String, PartStatus>.from(car.expertise.bodyParts);
+    final updatedConditions = Map<String, double>.from(car.expertise.partConditions);
+
+    switch (type) {
+      case OrderType.quickPatch:
+        updatedParts[partName] = PartStatus.painted;
+        updatedConditions[partName] = 60.0;
+        break;
+      case OrderType.masterRepair:
+        updatedParts[partName] = PartStatus.original;
+        updatedConditions[partName] = 90.0;
+        break;
+      case OrderType.newOemPart:
+        updatedParts[partName] = PartStatus.original;
+        updatedConditions[partName] = 100.0;
+        break;
+    }
+
+    // Engine & transmission restoration if requested for Motor / Şanzıman
+    double engineCond = car.expertise.engineCondition;
+    double transCond = car.expertise.transmissionCondition;
+    if (partName == 'Motor' || partName == 'Şanzıman') {
+      if (type == OrderType.quickPatch) {
+        engineCond = engineCond.clamp(60.0, 100.0);
+        transCond = transCond.clamp(60.0, 100.0);
+      } else if (type == OrderType.masterRepair) {
+        engineCond = 90.0;
+        transCond = 90.0;
+      } else {
+        engineCond = 100.0;
+        transCond = 100.0;
+      }
+    }
+
+    final updatedExpertise = ExpertiseReport(
+      engineCondition: engineCond,
+      transmissionCondition: transCond,
+      tramerAmount: car.expertise.tramerAmount,
+      mileage: car.expertise.mileage,
+      isMileageTampered: car.expertise.isMileageTampered,
+      bodyParts: updatedParts,
+      partConditions: updatedConditions,
+    );
+
+    return car.copyWith(expertise: updatedExpertise);
   }
 
   /// Calculates total cost to fully restore vehicle at Journeyman tier

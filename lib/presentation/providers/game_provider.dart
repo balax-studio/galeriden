@@ -10,6 +10,7 @@ import '../../data/models/dealership_model.dart';
 import '../../data/models/loan_model.dart';
 import '../../data/models/mission_model.dart';
 import '../../data/models/offer_model.dart';
+import '../../data/models/part_order_model.dart';
 import '../../data/models/player_skills.dart';
 import '../../domain/usecases/market_engine.dart';
 import '../../domain/usecases/negotiation_engine.dart';
@@ -87,7 +88,9 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   }
 
   Future<void> _saveState() async {
+    if (!mounted) return;
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final jsonString = jsonEncode(state.toJson());
     await prefs.setString(_storageKey, jsonString);
   }
@@ -420,6 +423,10 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     }
     if (state.totalProfit >= 250000) _checkAchievement('dealer_baron');
 
+    if (!state.tutorialCompleted) {
+      completeTutorial();
+    }
+
     _saveState();
   }
 
@@ -583,6 +590,78 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   /// Add rewarded ad balance boost
   void claimAdReward(double rewardAmount) {
     state = state.copyWith(balance: state.balance + rewardAmount);
+    _saveState();
+  }
+
+  /// Place a part order or master repair request
+  bool orderPart({
+    required String carId,
+    required String partName,
+    required OrderType orderType,
+    required double cost,
+    required int deliveryDurationSeconds,
+  }) {
+    if (state.balance < cost) return false;
+
+    final newOrder = PartOrderModel(
+      id: 'order_${DateTime.now().millisecondsSinceEpoch}',
+      carId: carId,
+      partName: partName,
+      orderType: orderType,
+      cost: cost,
+      orderedAt: DateTime.now(),
+      deliveryDurationSeconds: deliveryDurationSeconds,
+    );
+
+    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)..add(newOrder);
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      pendingOrders: updatedOrders,
+    );
+    _saveState();
+    return true;
+  }
+
+  /// Install a delivered part order onto the car
+  bool installDeliveredPart(String orderId) {
+    final orderIndex = state.pendingOrders.indexWhere((o) => o.id == orderId);
+    if (orderIndex == -1) return false;
+
+    final order = state.pendingOrders[orderIndex];
+    if (!order.isDelivered) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == order.carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final restoredCar = RepairEngine.applyInstalledPart(car, order.partName, order.orderType);
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = restoredCar;
+
+    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)..removeAt(orderIndex);
+
+    state = state.copyWith(
+      ownedCars: updatedCars,
+      pendingOrders: updatedOrders,
+    );
+    _saveState();
+    return true;
+  }
+
+  /// Advance tutorial step index
+  void advanceTutorialStep(int nextStepIndex) {
+    state = state.copyWith(tutorialStepIndex: nextStepIndex);
+    _saveState();
+  }
+
+  /// Complete initial guided tutorial after first car sale
+  void completeTutorial() {
+    state = state.copyWith(
+      tutorialCompleted: true,
+      balance: state.balance + 50000.0, // Bonus capital reward for completing tutorial!
+    );
     _saveState();
   }
 

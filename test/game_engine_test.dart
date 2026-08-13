@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galerisinden/domain/usecases/market_engine.dart';
 import 'package:galerisinden/domain/usecases/expertise_engine.dart';
 import 'package:galerisinden/domain/usecases/repair_engine.dart';
@@ -9,8 +10,10 @@ import 'package:galerisinden/domain/usecases/risk_engine.dart';
 import 'package:galerisinden/data/models/car_model.dart';
 import 'package:galerisinden/data/models/customer_model.dart';
 import 'package:galerisinden/data/models/branch_model.dart';
+import 'package:galerisinden/data/models/dealership_model.dart';
 import 'package:galerisinden/data/models/detailing_model.dart';
 import 'package:galerisinden/data/models/expertise_model.dart';
+import 'package:galerisinden/data/models/part_order_model.dart';
 import 'package:galerisinden/presentation/providers/game_provider.dart';
 
 void main() {
@@ -168,6 +171,7 @@ void main() {
 
     test('GameNotifier processes bank loan and repayment correctly', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
+      SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -189,6 +193,38 @@ void main() {
 
       expect(paySuccess, isTrue);
       expect(container.read(gameProvider).activeLoans.first.remainingInstallments, equals(5));
+    });
+
+    test('DealershipModel initial state grants 75.000 TL and Heritage Car', () {
+      final initialDealership = DealershipModel.initial();
+      expect(initialDealership.balance, equals(75000.0));
+      expect(initialDealership.ownedCars.length, equals(1));
+      expect(initialDealership.ownedCars.first.brand, equals('Tofaş'));
+      expect(initialDealership.ownedCars.first.modelName, contains('Murat 124'));
+    });
+
+    test('PartOrderModel evaluates delivery progress and remaining time correctly', () {
+      final order = PartOrderModel(
+        id: 'order_test_1',
+        carId: 'car_heritage_dede',
+        partName: 'Kaput',
+        orderType: OrderType.masterRepair,
+        cost: 4500.0,
+        orderedAt: DateTime.now().subtract(const Duration(seconds: 10)),
+        deliveryDurationSeconds: 60,
+      );
+
+      expect(order.isDelivered, isFalse);
+      expect(order.remainingSeconds, lessThanOrEqualTo(50));
+      expect(order.progressPercentage, greaterThan(0.0));
+    });
+
+    test('RepairEngine applies installed part orders correctly', () {
+      final car = DealershipModel.initial().ownedCars.first;
+      final restoredCar = RepairEngine.applyInstalledPart(car, 'Kaput', OrderType.newOemPart);
+
+      expect(restoredCar.expertise.bodyParts['Kaput'], equals(PartStatus.original));
+      expect(restoredCar.expertise.partConditions['Kaput'], equals(100.0));
     });
   });
 }

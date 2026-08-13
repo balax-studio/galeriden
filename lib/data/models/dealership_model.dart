@@ -5,6 +5,8 @@ import 'player_achievements.dart';
 import 'mission_model.dart';
 import 'market_trend_model.dart';
 import 'loan_model.dart';
+import 'part_order_model.dart';
+import 'expertise_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -23,6 +25,9 @@ class DealershipModel {
   final MarketTrendModel marketTrend;
   final int reputationScore;
   final List<LoanModel> activeLoans;
+  final List<PartOrderModel> pendingOrders;
+  final bool tutorialCompleted;
+  final int tutorialStepIndex;
 
   DealershipModel({
     required this.balance,
@@ -41,15 +46,52 @@ class DealershipModel {
     required this.marketTrend,
     this.reputationScore = 100,
     this.activeLoans = const [],
+    this.pendingOrders = const [],
+    this.tutorialCompleted = false,
+    this.tutorialStepIndex = 0,
   });
 
   factory DealershipModel.initial() {
     final now = DateTime.now();
+    // Inherited Heritage Car from grandfather Hasan Usta
+    final heritageCar = CarModel(
+      id: 'car_heritage_dede',
+      brand: 'Tofaş',
+      modelName: 'Murat 124 (Dede Mirası)',
+      modelYear: 1978,
+      bodyType: 'Klasik',
+      colorHex: '0xFF8B4513', // Saddle Brown
+      baseMarketValue: 240000.0,
+      currentPurchasePrice: 0.0, // Inherited for free
+      isRare: true,
+      expertise: ExpertiseReport(
+        engineCondition: 40.0, // Low condition engine
+        transmissionCondition: 50.0, // Low condition gearbox
+        tramerAmount: 12500,
+        mileage: 215000,
+        isMileageTampered: false,
+        bodyParts: {
+          'Kaput': PartStatus.damaged,
+          'Tavan': PartStatus.painted,
+          'Sol Kapı': PartStatus.changed,
+          'Sağ Kapı': PartStatus.damaged,
+          'Bagaj': PartStatus.painted,
+        },
+        partConditions: {
+          'Kaput': 25.0,
+          'Tavan': 65.0,
+          'Sol Kapı': 45.0,
+          'Sağ Kapı': 30.0,
+          'Bagaj': 70.0,
+        },
+      ),
+    );
+
     return DealershipModel(
-      balance: 450000.0,
+      balance: 75000.0, // Starting money: 75k TL
       level: 1,
       maxGarageSlots: 3,
-      ownedCars: [],
+      ownedCars: [heritageCar],
       incomingOffers: [],
       totalProfit: 0.0,
       carsSold: 0,
@@ -60,38 +102,21 @@ class DealershipModel {
       lastLoginDate: now,
       activeMissions: [
         MissionModel(
-          id: 'm_buy_1',
-          title: 'İlk Alım',
-          description: 'Pazardan 1 araç satın al',
-          type: MissionType.buyCars,
-          currentProgress: 0,
-          targetGoal: 1,
-          rewardMoney: 15000,
-          rewardXP: 100,
-        ),
-        MissionModel(
-          id: 'm_sell_1',
-          title: 'Ticaret Adamı',
-          description: '1 aracı başarıyla sat',
+          id: 'm_heritage_1',
+          title: 'Dede Mirası',
+          description: 'Miras arabayı onarıp ilk satışını yap',
           type: MissionType.sellCars,
           currentProgress: 0,
           targetGoal: 1,
-          rewardMoney: 25000,
-          rewardXP: 150,
-        ),
-        MissionModel(
-          id: 'm_exp_1',
-          title: 'Titiz İnceleme',
-          description: '1 araca ekspertiz yaptır',
-          type: MissionType.doExpertise,
-          currentProgress: 0,
-          targetGoal: 1,
-          rewardMoney: 10000,
-          rewardXP: 80,
+          rewardMoney: 35000,
+          rewardXP: 250,
         ),
       ],
       marketTrend: MarketTrendModel.defaultTrend(),
       activeLoans: const [],
+      pendingOrders: const [],
+      tutorialCompleted: false,
+      tutorialStepIndex: 0,
     );
   }
 
@@ -113,6 +138,9 @@ class DealershipModel {
       'marketTrend': marketTrend.toJson(),
       'reputationScore': reputationScore,
       'activeLoans': activeLoans.map((l) => l.toJson()).toList(),
+      'pendingOrders': pendingOrders.map((p) => p.toJson()).toList(),
+      'tutorialCompleted': tutorialCompleted,
+      'tutorialStepIndex': tutorialStepIndex,
     };
   }
 
@@ -149,6 +177,12 @@ class DealershipModel {
       activeLoans: json['activeLoans'] != null
           ? (json['activeLoans'] as List<dynamic>).map((l) => LoanModel.fromJson(l as Map<String, dynamic>)).toList()
           : const [],
+      pendingOrders: (json['pendingOrders'] as List<dynamic>?)
+              ?.map((p) => PartOrderModel.fromJson(p as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      tutorialCompleted: json['tutorialCompleted'] as bool? ?? false,
+      tutorialStepIndex: json['tutorialStepIndex'] as int? ?? 0,
     );
   }
 
@@ -169,6 +203,9 @@ class DealershipModel {
     MarketTrendModel? marketTrend,
     int? reputationScore,
     List<LoanModel>? activeLoans,
+    List<PartOrderModel>? pendingOrders,
+    bool? tutorialCompleted,
+    int? tutorialStepIndex,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -187,6 +224,9 @@ class DealershipModel {
       marketTrend: marketTrend ?? this.marketTrend,
       reputationScore: reputationScore ?? this.reputationScore,
       activeLoans: activeLoans ?? this.activeLoans,
+      pendingOrders: pendingOrders ?? this.pendingOrders,
+      tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
+      tutorialStepIndex: tutorialStepIndex ?? this.tutorialStepIndex,
     );
   }
 }

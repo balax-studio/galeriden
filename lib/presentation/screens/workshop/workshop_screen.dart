@@ -6,10 +6,14 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/detailing_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/part_order_model.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/tutorial_provider.dart';
+import '../../widgets/app_glass_container.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/tutorial_overlay.dart';
 
 class WorkshopScreen extends ConsumerStatefulWidget {
   const WorkshopScreen({super.key});
@@ -38,22 +42,109 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       appBar: AppBar(
         title: const Text('TAMİR VE RESTORASYON ATÖLYESİ'),
       ),
-      body: game.ownedCars.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  'Garajında henüz araç yok. İkinci el pazarından araç satın alarak tamir ve restorasyon yapabilirsin.',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodyMedium(p.isDark),
-                ),
-              ),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+      body: Stack(
+        children: [
+          game.ownedCars.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Text(
+                      'Garajında henüz araç yok. İkinci el pazarından araç satın alarak tamir ve restorasyon yapabilirsin.',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodyMedium(p.isDark),
+                    ),
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 90),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Pending Part Orders & Master Repairs Tracker Section
+                      if (game.pendingOrders.isNotEmpty) ...[
+                        Text('PARÇA SİPARİŞİ VE KARGO TAKİBİ', style: AppTypography.labelSmall(p.isDark)),
+                        const SizedBox(height: 8),
+                        AppGlassContainer(
+                          padding: const EdgeInsets.all(16),
+                          borderColor: p.primaryColor.withValues(alpha: 0.4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: game.pendingOrders.map((order) {
+                              final isReady = order.isDelivered;
+                              final remainingSec = order.remainingSeconds;
+
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: p.surfaceColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: p.surfaceBorderColor),
+                                ),
+                                child: Row(
+                                  children: [
+                                    VectorIconWidget(
+                                      type: order.orderType == OrderType.masterRepair ? 'craftsman' : 'workshop',
+                                      size: 24,
+                                      color: isReady ? p.successColor : p.primaryColor,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${order.partName} (${order.orderType == OrderType.quickPatch ? 'Geçici' : order.orderType == OrderType.masterRepair ? 'Usta Tamiri' : 'Yeni Parça'})',
+                                            style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: LinearProgressIndicator(
+                                              value: order.progressPercentage,
+                                              backgroundColor: p.surfaceBorderColor,
+                                              valueColor: AlwaysStoppedAnimation<Color>(isReady ? p.successColor : p.primaryColor),
+                                              minHeight: 6,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            isReady ? 'Teslimat Tamamlandı!' : 'Kargoda ($remainingSec sn kaldı)',
+                                            style: AppTypography.labelSmall(p.isDark).copyWith(
+                                              color: isReady ? p.successColor : p.warningColor,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: isReady ? p.successColor : p.surfaceBorderColor,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      onPressed: isReady
+                                          ? () {
+                                              final success = ref.read(gameProvider.notifier).installDeliveredPart(order.id);
+                                              if (success) {
+                                                ref.read(tutorialProvider.notifier).nextStep();
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('${order.partName} başarıyla monte edildi ve kondisyon yenilendi!')),
+                                                );
+                                              }
+                                            }
+                                          : null,
+                                      child: Text(isReady ? 'Montaj Et' : 'Bekleniyor'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                   Text('İŞLEM YAPILACAK ARACI SEÇ', style: AppTypography.labelSmall(p.isDark)),
                   const SizedBox(height: 8),
                   SizedBox(
@@ -253,12 +344,16 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ],
               ),
             ),
+          const TutorialOverlayBanner(),
+        ],
+      ),
     );
   }
 
   void _showCraftsmanSelectionSheet(BuildContext context, {required bool isEngine, String? partName}) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final targetPart = isEngine ? 'Motor & Şanzıman' : (partName ?? 'Kaput');
 
     showModalBottomSheet(
       context: context,
@@ -271,37 +366,90 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('USTA VE KAPORTACI SEÇİMİ', style: AppTypography.titleLarge(p.isDark)),
+              Text('RESTORASYON VE PARÇA SEÇİMİ', style: AppTypography.titleLarge(p.isDark)),
               const SizedBox(height: 4),
-              Text('Ustaların maliyetleri ve işçilik başarı şansı değişkenlik gösterir:', style: AppTypography.labelSmall(p.isDark)),
+              Text('$targetPart için bütçene ve zamanına uygun yöntemi seç:', style: AppTypography.labelSmall(p.isDark)),
               const SizedBox(height: 16),
 
-              _buildCraftsmanTile(
+              // Option 1: Quick Patch (Geçici Tamir) - Instant, cheaper, caps at 60% condition
+              _buildRepairDecisionTile(
                 context,
-                title: 'Çırak Usta',
-                subtitle: 'Maliyet: Ucuz (%55) | Başarı: %68 (Riskli)',
-                tier: RepairTier.apprentice,
-                isEngine: isEngine,
-                partName: partName,
+                title: 'Geçici Lokal Tamir',
+                subtitle: 'Maliyet: ₺1.500 | Süre: Anında | Kondisyon: %60 Maksimum',
+                vectorType: 'workshop',
+                color: p.warningColor,
                 p: p,
+                onTap: () {
+                  Navigator.pop(context);
+                  if (_selectedCar == null) return;
+                  final success = ref.read(gameProvider.notifier).orderPart(
+                    carId: _selectedCar!.id,
+                    partName: targetPart,
+                    orderType: OrderType.quickPatch,
+                    cost: 1500.0,
+                    deliveryDurationSeconds: 1, // Instant 1 second
+                  );
+                  if (success) {
+                    ref.read(tutorialProvider.notifier).nextStep();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Geçici tamir siparişi verildi! Montaj sekmesinden araca uygula.')),
+                    );
+                  }
+                },
               ),
-              _buildCraftsmanTile(
+
+              // Option 2: Master Craftsman (Ustaya Gönder) - 120s wait, 90% condition
+              _buildRepairDecisionTile(
                 context,
-                title: 'Kalfa Usta',
-                subtitle: 'Maliyet: Standart (%100) | Başarı: %88 (Güvenilir)',
-                tier: RepairTier.journeyman,
-                isEngine: isEngine,
-                partName: partName,
+                title: 'Ustaya Gönder (Rektefiye & Sanayi)',
+                subtitle: 'Maliyet: ₺4.500 | Süre: 2 dk (Real-Time) | Kondisyon: %90',
+                vectorType: 'craftsman',
+                color: p.primaryColor,
                 p: p,
+                onTap: () {
+                  Navigator.pop(context);
+                  if (_selectedCar == null) return;
+                  final success = ref.read(gameProvider.notifier).orderPart(
+                    carId: _selectedCar!.id,
+                    partName: targetPart,
+                    orderType: OrderType.masterRepair,
+                    cost: 4500.0,
+                    deliveryDurationSeconds: 120,
+                  );
+                  if (success) {
+                    ref.read(tutorialProvider.notifier).nextStep();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Sanayi usta tamir siparişi verildi! Kargoda bekleniyor.')),
+                    );
+                  }
+                },
               ),
-              _buildCraftsmanTile(
+
+              // Option 3: New OEM Part (Sıfır Orijinal Parça) - 60s wait, 100% condition
+              _buildRepairDecisionTile(
                 context,
-                title: 'Master Kaportacı',
-                subtitle: 'Maliyet: Premium (%175) | Başarı: %100 (Orijinal Garantili)',
-                tier: RepairTier.master,
-                isEngine: isEngine,
-                partName: partName,
+                title: 'Sıfır OEM Parça Siparişi',
+                subtitle: 'Maliyet: ₺9.000 | Süre: 1 dk (Kargo) | Kondisyon: %100 Orijinal',
+                vectorType: 'car',
+                color: p.successColor,
                 p: p,
+                onTap: () {
+                  Navigator.pop(context);
+                  if (_selectedCar == null) return;
+                  final success = ref.read(gameProvider.notifier).orderPart(
+                    carId: _selectedCar!.id,
+                    partName: targetPart,
+                    orderType: OrderType.newOemPart,
+                    cost: 9000.0,
+                    deliveryDurationSeconds: 60,
+                  );
+                  if (success) {
+                    ref.read(tutorialProvider.notifier).nextStep();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Sıfır OEM parça siparişi verildi! Kargo takibini kontrol et.')),
+                    );
+                  }
+                },
               ),
             ],
           ),
@@ -310,14 +458,14 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     );
   }
 
-  Widget _buildCraftsmanTile(
+  Widget _buildRepairDecisionTile(
     BuildContext context, {
     required String title,
     required String subtitle,
-    required RepairTier tier,
-    required bool isEngine,
-    String? partName,
+    required String vectorType,
+    required Color color,
     required ThemePaletteModel p,
+    required VoidCallback onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -327,33 +475,13 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         border: Border.all(color: p.surfaceBorderColor),
       ),
       child: ListTile(
-        leading: VectorIconWidget(type: 'craftsman', color: p.primaryColor, size: 22),
-        title: Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+        leading: CircleAvatar(
+          backgroundColor: color.withValues(alpha: 0.15),
+          child: VectorIconWidget(type: vectorType, color: color, size: 20),
+        ),
+        title: Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
         subtitle: Text(subtitle, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
-        onTap: () {
-          Navigator.pop(context);
-          if (_selectedCar == null) return;
-
-          RepairResult res;
-          if (isEngine) {
-            res = ref.read(gameProvider.notifier).repairEngineWithTier(_selectedCar!, tier);
-          } else {
-            res = ref.read(gameProvider.notifier).repairBodyPartWithTier(_selectedCar!, partName!, tier);
-          }
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: res.isSuccess ? p.successColor : p.errorColor,
-              content: Text(res.message),
-            ),
-          );
-
-          if (res.isSuccess) {
-            setState(() {
-              _selectedCar = res.updatedCar;
-            });
-          }
-        },
+        onTap: onTap,
       ),
     );
   }
