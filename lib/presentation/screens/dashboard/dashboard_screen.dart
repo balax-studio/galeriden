@@ -20,6 +20,7 @@ import '../../widgets/app_glass_container.dart';
 import 'widgets/dashboard_game_time_card.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import '../showroom/showroom_screen.dart';
 import '../auction/auction_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -147,10 +148,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
 
             // Tab 1: Showroom (Galeri)
-            ShowroomScreen(),
+            const ShowroomScreen(),
 
             // Tab 2: İhale (Live Auctions)
-            AuctionScreen(),
+            const AuctionScreen(),
 
                   // Tab 3: Ofis (Unified Operations)
                   _buildOfficeTab(context, game, p),
