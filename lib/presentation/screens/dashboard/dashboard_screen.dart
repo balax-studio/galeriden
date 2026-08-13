@@ -147,10 +147,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
 
             // Tab 1: Showroom (Galeri)
-            const ShowroomScreen(),
+            ShowroomScreen(),
 
-                  // Tab 2: İhale (Live Auctions)
-                  const AuctionScreen(),
+            // Tab 2: İhale (Live Auctions)
+            AuctionScreen(),
 
                   // Tab 3: Ofis (Unified Operations)
                   _buildOfficeTab(context, game, p),
