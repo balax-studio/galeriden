@@ -22,6 +22,7 @@ class CarModel {
   final ExpertiseReport expertise;
   final ListingDeclarationType declarationType;
   final double? customListingPrice;
+  final List<String> appliedDetailingOptionIds;
 
   CarModel({
     required this.id,
@@ -39,12 +40,13 @@ class CarModel {
     required this.expertise,
     this.declarationType = ListingDeclarationType.honest,
     this.customListingPrice,
+    this.appliedDetailingOptionIds = const [],
   });
 
   /// Effective listing price (custom if set by player, otherwise estimated real value)
   double get listingPrice => customListingPrice ?? estimatedRealValue;
 
-  /// Calculates estimated overall value after repair & cleaning & rarity
+  /// Calculates estimated overall value after repair & cleaning & rarity & detailing
   double get estimatedRealValue {
     double factor = (expertise.engineCondition / 100.0) * 0.4 +
         (expertise.transmissionCondition / 100.0) * 0.3;
@@ -61,11 +63,14 @@ class CarModel {
       factor += 0.04;
     }
 
+    // Boost factor per applied custom detailing option
+    factor += appliedDetailingOptionIds.length * 0.06;
+
     if (isRare) {
       factor += 0.15;
     }
 
-    return (baseMarketValue * factor).clamp(baseMarketValue * 0.4, baseMarketValue * 1.8);
+    return (baseMarketValue * factor).clamp(baseMarketValue * 0.4, baseMarketValue * 2.2);
   }
 
   Map<String, dynamic> toJson() {
@@ -85,6 +90,7 @@ class CarModel {
       'expertise': expertise.toJson(),
       'declarationType': declarationType.name,
       'customListingPrice': customListingPrice,
+      'appliedDetailingOptionIds': appliedDetailingOptionIds,
     };
   }
 
@@ -110,6 +116,7 @@ class CarModel {
             )
           : ListingDeclarationType.honest,
       customListingPrice: json['customListingPrice'] != null ? (json['customListingPrice'] as num).toDouble() : null,
+      appliedDetailingOptionIds: (json['appliedDetailingOptionIds'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
     );
   }
 
@@ -123,6 +130,7 @@ class CarModel {
     ExpertiseReport? expertise,
     ListingDeclarationType? declarationType,
     double? customListingPrice,
+    List<String>? appliedDetailingOptionIds,
   }) {
     return CarModel(
       id: id,
@@ -140,6 +148,7 @@ class CarModel {
       expertise: expertise ?? this.expertise,
       declarationType: declarationType ?? this.declarationType,
       customListingPrice: customListingPrice ?? this.customListingPrice,
+      appliedDetailingOptionIds: appliedDetailingOptionIds ?? this.appliedDetailingOptionIds,
     );
   }
 }

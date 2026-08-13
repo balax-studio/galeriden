@@ -78,6 +78,14 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                   final success = ref.read(gameProvider.notifier).installDeliveredPart(order.id);
                                   if (success) {
                                     ref.read(tutorialProvider.notifier).nextStep();
+                                    final updatedCars = ref.read(gameProvider).ownedCars;
+                                    if (updatedCars.isNotEmpty && _selectedCar != null) {
+                                      final updated = updatedCars.firstWhere(
+                                        (c) => c.id == _selectedCar!.id,
+                                        orElse: () => updatedCars.first,
+                                      );
+                                      setState(() => _selectedCar = updated);
+                                    }
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('${order.partName} başarıyla monte edildi ve kondisyon yenilendi!')),
                                     );
@@ -196,30 +204,60 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     Text('KAPORTA RESTORASYONU', style: AppTypography.labelSmall(p.isDark)),
                     const SizedBox(height: 8),
 
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _selectedCar!.expertise.bodyParts.length,
-                      itemBuilder: (context, index) {
-                        final partName = _selectedCar!.expertise.bodyParts.keys.elementAt(index);
-                        final status = _selectedCar!.expertise.bodyParts.values.elementAt(index);
+                    Builder(
+                      builder: (context) {
+                        final damagedParts = _selectedCar!.expertise.bodyParts.entries
+                            .where((e) => e.value != PartStatus.original)
+                            .toList();
 
-                        if (status == PartStatus.original) return const SizedBox.shrink();
-
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            title: Text('$partName Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-                            subtitle: Text(status == PartStatus.painted ? 'Lokal Boya Yapılacak' : 'Orijinal Parça ile Değişecek'),
-                            trailing: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: p.secondaryColor,
-                                foregroundColor: Colors.white,
-                              ),
-                              onPressed: () => _showCraftsmanSelectionSheet(context, isEngine: false, partName: partName),
-                              child: const Text('Usta Seç & Onar'),
+                        if (damagedParts.isEmpty) {
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                             ),
-                          ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.greenAccent, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    'Tüm kaporta parçaları orijinal kondisyonda! Onarılacak parça kalmadı.',
+                                    style: AppTypography.labelSmall(p.isDark).copyWith(color: Colors.greenAccent, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: damagedParts.length,
+                          itemBuilder: (context, index) {
+                            final partName = damagedParts[index].key;
+                            final status = damagedParts[index].value;
+
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                title: Text('$partName Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                                subtitle: Text(status == PartStatus.painted ? 'Lokal Boya Yapılacak' : 'Orijinal Parça ile Değişecek'),
+                                trailing: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: p.secondaryColor,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  onPressed: () => _showCraftsmanSelectionSheet(context, isEngine: false, partName: partName),
+                                  child: const Text('Usta Seç & Onar'),
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
@@ -230,6 +268,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     const SizedBox(height: 12),
                     Column(
                       children: DetailingOption.getAvailableOptions().map((opt) {
+                        final isApplied = _selectedCar?.appliedDetailingOptionIds.contains(opt.id) ?? false;
                         final canAfford = game.balance >= opt.cost;
                         return Container(
                           margin: const EdgeInsets.only(bottom: 10),
@@ -237,20 +276,48 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           decoration: BoxDecoration(
                             color: p.surfaceColor,
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: opt.isRisky ? p.secondaryColor : p.surfaceBorderColor),
+                            border: Border.all(
+                              color: isApplied
+                                  ? Colors.green.withValues(alpha: 0.4)
+                                  : (opt.isRisky ? p.secondaryColor : p.surfaceBorderColor),
+                            ),
                           ),
                           child: Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor: opt.isRisky ? p.secondaryColor.withValues(alpha: 0.15) : p.primaryColor.withValues(alpha: 0.15),
-                                child: VectorIconWidget(type: opt.vectorIcon, color: opt.isRisky ? p.secondaryColor : p.primaryColor, size: 20),
+                                backgroundColor: isApplied
+                                    ? Colors.green.withValues(alpha: 0.15)
+                                    : (opt.isRisky ? p.secondaryColor.withValues(alpha: 0.15) : p.primaryColor.withValues(alpha: 0.15)),
+                                child: VectorIconWidget(
+                                  type: opt.vectorIcon,
+                                  color: isApplied ? Colors.greenAccent : (opt.isRisky ? p.secondaryColor : p.primaryColor),
+                                  size: 20,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                                    Row(
+                                      children: [
+                                        Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                                        if (isApplied) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green.withValues(alpha: 0.2),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: const Text(
+                                              'Uygulandı',
+                                              style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                     const SizedBox(height: 2),
                                     Text(opt.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
                                   ],
@@ -259,14 +326,27 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               const SizedBox(width: 8),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: opt.isRisky ? p.secondaryColor : p.primaryColor,
-                                  foregroundColor: opt.isRisky ? Colors.white : Colors.black,
+                                  backgroundColor: isApplied
+                                      ? Colors.grey.withValues(alpha: 0.3)
+                                      : (opt.isRisky ? p.secondaryColor : p.primaryColor),
+                                  foregroundColor: isApplied
+                                      ? Colors.white54
+                                      : (opt.isRisky ? Colors.white : Colors.black),
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 ),
-                                onPressed: canAfford
-                                    ? () {
-                                        final success = ref.read(gameProvider.notifier).detailCleanCar(_selectedCar!.id);
+                                onPressed: (isApplied || !canAfford)
+                                    ? null
+                                    : () {
+                                        final success = ref.read(gameProvider.notifier).applyDetailingOption(_selectedCar!.id, opt);
                                         if (success) {
+                                          final updatedCars = ref.read(gameProvider).ownedCars;
+                                          if (updatedCars.isNotEmpty) {
+                                            final updated = updatedCars.firstWhere(
+                                              (c) => c.id == _selectedCar!.id,
+                                              orElse: () => updatedCars.first,
+                                            );
+                                            setState(() => _selectedCar = updated);
+                                          }
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(content: Text('${opt.badgeText} Yapıldı! Aracın İlan Çekiciliği Artırıldı.')),
                                           );
@@ -275,9 +355,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                             const SnackBar(content: Text('Yetersiz Sermaye!')),
                                           );
                                         }
-                                      }
-                                    : null,
-                                child: Text('₺${CurrencyFormatter.formatShort(opt.cost)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                      },
+                                child: Text(
+                                  isApplied ? 'Uygulandı' : '₺${CurrencyFormatter.formatShort(opt.cost)}',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ],
                           ),

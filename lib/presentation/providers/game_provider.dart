@@ -14,6 +14,7 @@ import '../../data/models/mission_model.dart';
 import '../../data/models/offer_model.dart';
 import '../../data/models/part_order_model.dart';
 import '../../data/models/sale_record_model.dart';
+import '../../data/models/detailing_model.dart';
 import '../../data/models/player_skills.dart';
 import '../../domain/usecases/market_engine.dart';
 import '../../domain/usecases/negotiation_engine.dart';
@@ -225,6 +226,35 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     final offer = NegotiationEngine.generateBuyerOffer(randomCar, randomCar.estimatedRealValue);
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     _saveState();
+  }
+
+  /// Apply a specific detailing/tuning option to a car
+  bool applyDetailingOption(String carId, DetailingOption option) {
+    if (state.balance < option.cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.appliedDetailingOptionIds.contains(option.id)) return false; // Already applied
+
+    final updatedOptionIds = [...car.appliedDetailingOptionIds, option.id];
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptionIds,
+      isDetailedCleaned: true,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - option.cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(25);
+    _saveState();
+    return true;
   }
 
   /// Perform detailing & pasta cila (+8% value boost & shine badge)

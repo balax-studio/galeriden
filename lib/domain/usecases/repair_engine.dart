@@ -148,31 +148,33 @@ class RepairEngine {
     final updatedParts = Map<String, PartStatus>.from(car.expertise.bodyParts);
     final updatedConditions = Map<String, double>.from(car.expertise.partConditions);
 
-    switch (type) {
-      case OrderType.quickPatch:
-        updatedParts[partName] = PartStatus.painted;
-        updatedConditions[partName] = 60.0;
-        break;
-      case OrderType.masterRepair:
-        updatedParts[partName] = PartStatus.original;
-        updatedConditions[partName] = 90.0;
-        break;
-      case OrderType.newOemPart:
-        updatedParts[partName] = PartStatus.original;
-        updatedConditions[partName] = 100.0;
-        break;
+    if (updatedParts.containsKey(partName)) {
+      switch (type) {
+        case OrderType.quickPatch:
+          updatedParts[partName] = PartStatus.painted;
+          updatedConditions[partName] = 75.0;
+          break;
+        case OrderType.masterRepair:
+          updatedParts[partName] = PartStatus.original;
+          updatedConditions[partName] = 90.0;
+          break;
+        case OrderType.newOemPart:
+          updatedParts[partName] = PartStatus.original;
+          updatedConditions[partName] = 100.0;
+          break;
+      }
     }
 
     // Engine & transmission restoration if requested for Motor / Şanzıman
     double engineCond = car.expertise.engineCondition;
     double transCond = car.expertise.transmissionCondition;
-    if (partName == 'Motor' || partName == 'Şanzıman') {
+    if (partName.contains('Motor') || partName.contains('Şanzıman')) {
       if (type == OrderType.quickPatch) {
-        engineCond = engineCond.clamp(60.0, 100.0);
-        transCond = transCond.clamp(60.0, 100.0);
+        engineCond = max(engineCond, 65.0);
+        transCond = max(transCond, 65.0);
       } else if (type == OrderType.masterRepair) {
-        engineCond = 90.0;
-        transCond = 90.0;
+        engineCond = max(engineCond, 90.0);
+        transCond = max(transCond, 90.0);
       } else {
         engineCond = 100.0;
         transCond = 100.0;
