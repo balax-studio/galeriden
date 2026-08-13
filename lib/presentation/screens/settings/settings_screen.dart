@@ -6,8 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/app_vector_icons.dart';
-import '../../widgets/dealership_setup_sheet.dart';
-import 'theme_store_sheet.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -32,8 +31,8 @@ class SettingsScreen extends ConsumerWidget {
               leading: VectorIconWidget(type: game.logoEmblemId, color: p.primaryColor, size: 26),
               title: Text('GALERİ VE PROFİL KİMLİĞİ', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
               subtitle: Text('${game.dealershipName} (${game.playerName})', style: AppTypography.labelSmall(p.isDark)),
-              trailing: const Icon(Icons.edit_rounded, size: 18),
-              onTap: () => DealershipSetupSheet.show(context),
+              trailing: const Icon(Icons.chevron_right_rounded, size: 22),
+              onTap: () => context.push('/dealership-identity'),
             ),
           ),
           const SizedBox(height: 16),
@@ -44,15 +43,8 @@ class SettingsScreen extends ConsumerWidget {
               leading: VectorIconWidget(type: 'theme_store', color: p.primaryColor, size: 26),
               title: Text('TEMA VE GÖRÜNÜM MAĞAZASI', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
               subtitle: Text('Aktif Tema: ${p.name}', style: AppTypography.labelSmall(p.isDark)),
-              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => const ThemeStoreSheet(),
-                );
-              },
+              trailing: const Icon(Icons.chevron_right_rounded, size: 22),
+              onTap: () => context.push('/theme-store'),
             ),
           ),
           const SizedBox(height: 16),

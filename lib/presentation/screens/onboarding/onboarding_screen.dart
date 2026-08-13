@@ -4,7 +4,6 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../widgets/app_vector_icons.dart';
 
-import '../../widgets/dealership_setup_sheet.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -35,12 +34,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
-  Future<void> _finishOnboarding() async {
-    context.go('/dashboard');
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final navContext = Navigator.of(context, rootNavigator: true).context;
-      DealershipSetupSheet.show(navContext);
-    });
+  void _finishOnboarding() {
+    context.go('/dealership-identity');
   }
 
   @override

@@ -114,6 +114,13 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     _saveState();
   }
 
+  /// Deduct balance from dealership capital
+  void deductBalance(double amount) {
+    if (state.balance < amount) return;
+    state = state.copyWith(balance: state.balance - amount);
+    _saveState();
+  }
+
   /// Purchase a car from market with RiskEngine check
   PurchaseRiskOutcome? buyCar(CarModel car, double purchasePrice, {bool isExpertiseCompleted = false}) {
     if (state.balance < purchasePrice) return null;

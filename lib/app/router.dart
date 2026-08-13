@@ -13,12 +13,23 @@ import '../presentation/screens/auction/auction_screen.dart';
 import '../presentation/screens/branch/branch_screen.dart';
 import '../presentation/screens/character/character_growth_screen.dart';
 
+import '../presentation/screens/settings/dealership_identity_screen.dart';
+import '../presentation/screens/settings/theme_store_screen.dart';
+
 final appRouter = GoRouter(
   initialLocation: '/onboarding',
   routes: [
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/dealership-identity',
+      builder: (context, state) => const DealershipIdentityScreen(),
+    ),
+    GoRoute(
+      path: '/theme-store',
+      builder: (context, state) => const ThemeStoreScreen(),
     ),
     GoRoute(
       path: '/character-growth',
