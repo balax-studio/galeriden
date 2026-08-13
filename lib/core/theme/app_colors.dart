@@ -40,4 +40,12 @@ class AppColors {
   static const Color partPainted = Color(0xFFF57C00);  // Orange
   static const Color partChanged = Color(0xFFD32F2F);  // Red
   static const Color partDamaged = Color(0xFF7B1FA2);  // Purple
+
+  // Arcade Tycoon Vibrant Tokens
+  static const Color neonCyan = Color(0xFF00F0FF);
+  static const Color arcadeGold = Color(0xFFFFD700);
+  static const Color electricPurple = Color(0xFFB026FF);
+  static const Color laserGreen = Color(0xFF00FF66);
+  static const Color isometricGridDark = Color(0xFF1E222D);
+  static const Color isometricGridLight = Color(0xFFE6ECEF);
 }

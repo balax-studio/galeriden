@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/currency_formatter.dart';
@@ -21,13 +22,13 @@ class GameHudHeaderWidget extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: p.surfaceColor.withValues(alpha: 0.85),
+        color: p.surfaceColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: p.primaryColor.withValues(alpha: 0.4), width: 1.5),
+        border: Border.all(color: AppColors.neonCyan.withValues(alpha: 0.5), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: p.primaryColor.withValues(alpha: 0.15),
-            blurRadius: 12,
+            color: AppColors.neonCyan.withValues(alpha: 0.15),
+            blurRadius: 14,
             spreadRadius: 2,
           ),
         ],
@@ -43,7 +44,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: p.primaryColor.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
-                  border: Border.all(color: p.primaryColor, width: 1),
+                  border: Border.all(color: p.primaryColor, width: 1.5),
                 ),
                 child: VectorIconWidget(
                   type: game.logoEmblemId,
@@ -61,11 +62,11 @@ class GameHudHeaderWidget extends ConsumerWidget {
                   ),
                   Row(
                     children: [
-                      Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                      const Icon(Icons.star_rounded, color: AppColors.arcadeGold, size: 14),
                       const SizedBox(width: 4),
                       Text(
                         '${game.reputationScore} İtibar',
-                        style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: AppColors.arcadeGold, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -78,19 +79,19 @@ class GameHudHeaderWidget extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: p.backgroundColor.withValues(alpha: 0.6),
+              color: AppColors.laserGreen.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: p.successColor.withValues(alpha: 0.6)),
+              border: Border.all(color: AppColors.laserGreen.withValues(alpha: 0.6), width: 1.2),
             ),
             child: Row(
               children: [
-                Icon(Icons.account_balance_wallet_rounded, color: p.successColor, size: 16),
+                const Icon(Icons.account_balance_wallet_rounded, color: AppColors.laserGreen, size: 16),
                 const SizedBox(width: 6),
                 Text(
-                  '₺${CurrencyFormatter.formatShort(game.balance)}',
+                  CurrencyFormatter.formatShort(game.balance),
                   style: AppTypography.moneyMedium(p.isDark).copyWith(
                     fontSize: 14,
-                    color: p.successColor,
+                    color: AppColors.laserGreen,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

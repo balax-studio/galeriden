@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -157,7 +158,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               Text('Tahmini Değer: ${CurrencyFormatter.formatShort(_selectedCar!.estimatedRealValue)}', style: AppTypography.moneyMedium(p.isDark)),
                             ],
                           ),
-                          const Divider(height: 24),
+                          _IsometricHydraulicLiftWidget(car: _selectedCar!, p: p),
+                          const Divider(height: 16),
 
                           // Engine Repair Button
                           _buildRepairOption(
@@ -760,4 +762,99 @@ class _DisappearingDetailingTileState extends State<_DisappearingDetailingTile> 
       ),
     );
   }
+}
+
+class _IsometricHydraulicLiftWidget extends StatelessWidget {
+  final CarModel car;
+  final ThemePaletteModel p;
+
+  const _IsometricHydraulicLiftWidget({required this.car, required this.p});
+
+  @override
+  Widget build(BuildContext context) {
+    final carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xff')));
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      height: 110,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.isometricGridDark,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Isometric Hydraulic Lift Stand
+          CustomPaint(
+            size: const Size(double.infinity, 110),
+            painter: _LiftPainter(primaryColor: p.primaryColor, carColor: carColor),
+          ),
+          Positioned(
+            top: 10,
+            right: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.neonCyan.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: AppColors.neonCyan, width: 1),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.build_circle_rounded, color: AppColors.neonCyan, size: 12),
+                  SizedBox(width: 4),
+                  Text('LİFTTE', style: TextStyle(color: AppColors.neonCyan, fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LiftPainter extends CustomPainter {
+  final Color primaryColor;
+  final Color carColor;
+
+  _LiftPainter({required this.primaryColor, required this.carColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2 + 10);
+
+    // Hydraulic Lift Arms
+    final armPaint = Paint()
+      ..color = Colors.grey.shade700
+      ..strokeWidth = 4
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(Offset(center.dx - 40, center.dy + 20), Offset(center.dx - 40, center.dy - 10), armPaint);
+    canvas.drawLine(Offset(center.dx + 40, center.dy + 20), Offset(center.dx + 40, center.dy - 10), armPaint);
+
+    // Platform Base
+    final platformPath = Path()
+      ..moveTo(center.dx, center.dy - 20)
+      ..lineTo(center.dx + 55, center.dy - 10)
+      ..lineTo(center.dx, center.dy)
+      ..lineTo(center.dx - 55, center.dy - 10)
+      ..close();
+    canvas.drawPath(platformPath, Paint()..color = primaryColor.withValues(alpha: 0.3));
+    canvas.drawPath(platformPath, Paint()..color = primaryColor..style = PaintingStyle.stroke..strokeWidth = 1.5);
+
+    // Car silhouette elevated on hydraulic lift
+    final carPath = Path()
+      ..moveTo(center.dx, center.dy - 35)
+      ..lineTo(center.dx + 28, center.dy - 23)
+      ..lineTo(center.dx, center.dy - 11)
+      ..lineTo(center.dx - 28, center.dy - 23)
+      ..close();
+    canvas.drawPath(carPath, Paint()..color = carColor);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
