@@ -4,57 +4,74 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/game_hud_widget.dart';
 import '../../widgets/isometric_showroom_canvas.dart';
+import '../../widgets/app_glass_container.dart';
 
 import 'widgets/dashboard_game_time_card.dart';
 import 'widgets/dashboard_status_card.dart';
 
-class DashboardScreen extends ConsumerWidget {
+import '../showroom/showroom_screen.dart';
+import '../auction/auction_screen.dart';
+
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final trend = game.marketTrend;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            VectorIconWidget(
-              type: game.logoEmblemId,
-              color: p.primaryColor,
-              size: 22,
+    // Dynamically display title and actions on AppBar based on active tab index
+    final PreferredSizeWidget? appBar = _selectedIndex == 0
+        ? AppBar(
+            title: Row(
+              children: [
+                VectorIconWidget(
+                  type: game.logoEmblemId,
+                  color: p.primaryColor,
+                  size: 22,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    game.dealershipName.toUpperCase(),
+                    style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.5),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                game.dealershipName.toUpperCase(),
-                style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.5),
-                overflow: TextOverflow.ellipsis,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.settings, color: p.textPrimaryColor),
+                onPressed: () => context.push('/settings'),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings, color: p.textPrimaryColor),
-            onPressed: () => context.push('/settings'),
-          ),
-        ],
-      ),
+            ],
+          )
+        : null; // Let nested screens render their own AppBars to prevent duplication
+
+    return Scaffold(
+      appBar: appBar,
       body: FloatingMoneyOverlay(
-        child: Stack(
+        child: IndexedStack(
+          index: _selectedIndex,
           children: [
+            // Tab 0: Simplified Dashboard (Ana Ekran)
             SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 90.0),
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -134,187 +151,283 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Quick Menu Hub Grid
+                  // Simplified Quick Menu Hub Grid - Exactly 4 Action Cards
                   Text('HIZLI MENÜ', style: AppTypography.labelSmall(p.isDark)),
                   const SizedBox(height: 12),
 
-            // Financial Health & Bank Loans Summary Card
-            _buildFinancialSummaryCard(context, ref, game, p),
-
-            const SizedBox(height: 16),
-
-            GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildActionCard(
-                  context,
-                  title: 'İkinci El Pazarı',
-                  subtitle: 'Araç İlanlarını İncele',
-                  vectorType: 'car',
-                  color: p.primaryColor,
-                  onTap: () => context.push('/marketplace'),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Showroom / İlanlarım',
-                  subtitle: 'Gelen Teklifler (${game.incomingOffers.length})',
-                  vectorType: 'negotiation',
-                  color: p.secondaryColor,
-                  badge: game.incomingOffers.isNotEmpty ? '${game.incomingOffers.length}' : null,
-                  onTap: () => context.push('/showroom'),
-                ),
-                Builder(
-                  builder: (context) {
-                    final isAuctionLive = AuctionEngine.isAuctionActiveNow();
-                    final remainingSec = AuctionEngine.getSecondsUntilNextAuction();
-                    final mins = remainingSec ~/ 60;
-                    final secs = remainingSec % 60;
-                    final timeStr = '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-
-                    return _buildActionCard(
-                      context,
-                      title: 'Canlı İhale',
-                      subtitle: isAuctionLive ? 'Gümrük İcraları Açık!' : 'Sonraki: $timeStr',
-                      vectorType: 'flash',
-                      color: isAuctionLive ? p.errorColor : Colors.grey,
-                      badge: isAuctionLive ? 'CANLI' : 'KAPALI',
-                      onTap: () {
-                        if (isAuctionLive) {
-                          context.push('/auction');
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('İhale şu an kapalı! Sonraki gümrük ihalesi $timeStr dakika sonra açılacak.'),
-                            ),
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Şube İmparatorluğu',
-                  subtitle: 'Kapasite Genişlet',
-                  vectorType: 'rare',
-                  color: p.secondaryColor,
-                  onTap: () => context.push('/branches'),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Tamir Atölyesi',
-                  subtitle: 'Araç Değerini Artır',
-                  vectorType: 'workshop',
-                  color: p.primaryColor,
-                  onTap: () => context.push('/workshop'),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Ekspertiz Merkezi',
-                  subtitle: 'Kusurları Tespiti Et',
-                  vectorType: 'expertise',
-                  color: p.warningColor,
-                  onTap: () => context.push('/marketplace'),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Personel Kadrosu',
-                  subtitle: 'Usta & Ekip Kiralama',
-                  vectorType: 'workshop',
-                  color: p.primaryColor,
-                  onTap: () => context.push('/staff'),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Oto Yıkama Stüdyosu',
-                  subtitle: 'Köpük & Pasta-Cila',
-                  vectorType: 'car',
-                  color: Colors.blueAccent,
-                  onTap: () => context.push('/car-wash'),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Müşteri Yorumları',
-                  subtitle: 'Yıldız & Puanlama',
-                  vectorType: 'streak',
-                  color: Colors.amber,
-                  badge: '${game.reputationScore} İtibar',
-                  onTap: () => context.push('/reviews'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Achievements List
-            Text('BAŞARIMLAR & ROLLER', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 10),
-
-            SizedBox(
-              height: 90,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: game.achievements.length,
-                itemBuilder: (context, index) {
-                  final ach = game.achievements[index];
-                  return Container(
-                    width: 170,
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: ach.isUnlocked ? p.primaryColor.withValues(alpha: 0.15) : p.surfaceColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: ach.isUnlocked ? p.primaryColor : p.surfaceBorderColor,
+                  GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildActionCard(
+                        context,
+                        title: 'İkinci El Pazarı',
+                        subtitle: 'Araç İlanlarını İncele',
+                        vectorType: 'car',
+                        color: p.primaryColor,
+                        onTap: () => context.push('/marketplace'),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              ach.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
-                              color: ach.isUnlocked ? p.primaryColor : p.textSecondaryColor,
-                              size: 18,
+                      _buildActionCard(
+                        context,
+                        title: 'Tamir Atölyesi',
+                        subtitle: 'Araç Değerini Artır',
+                        vectorType: 'workshop',
+                        color: Colors.orangeAccent,
+                        onTap: () => context.push('/workshop'),
+                      ),
+                      _buildActionCard(
+                        context,
+                        title: 'Oto Yıkama Stüdyosu',
+                        subtitle: 'Köpük & Pasta-Cila',
+                        vectorType: 'car',
+                        color: Colors.blueAccent,
+                        onTap: () => context.push('/car-wash'),
+                      ),
+                      _buildActionCard(
+                        context,
+                        title: 'Şube İmparatorluğu',
+                        subtitle: 'Kapasite Genişlet',
+                        vectorType: 'rare',
+                        color: p.secondaryColor,
+                        onTap: () => context.push('/branches'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Achievements List
+                  Text('BAŞARIMLAR & ROLLER', style: AppTypography.labelSmall(p.isDark)),
+                  const SizedBox(height: 10),
+
+                  SizedBox(
+                    height: 90,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: game.achievements.length,
+                      itemBuilder: (context, index) {
+                        final ach = game.achievements[index];
+                        return Container(
+                          width: 170,
+                          margin: const EdgeInsets.only(right: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: ach.isUnlocked ? p.primaryColor.withValues(alpha: 0.15) : p.surfaceColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: ach.isUnlocked ? p.primaryColor : p.surfaceBorderColor,
                             ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                ach.title,
-                                style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 13),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    ach.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
+                                    color: ach.isUnlocked ? p.primaryColor : p.textSecondaryColor,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      ach.title,
+                                      style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 13),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(ach.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10), maxLines: 2),
-                      ],
+                              const SizedBox(height: 4),
+                              Text(ach.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10), maxLines: 2),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-              ],
+
+            // Tab 1: Showroom (Galeri)
+            const ShowroomScreen(),
+
+            // Tab 2: İhale (Live Auctions)
+            const AuctionScreen(),
+
+            // Tab 3: Ofis (Unified Operations)
+            _buildOfficeTab(context, game, p),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: p.surfaceBorderColor.withValues(alpha: 0.5),
+              width: 1,
             ),
           ),
-          const Positioned(
-            left: 16,
-            right: 16,
-            bottom: 12,
-            child: GameHudDockWidget(),
-          ),
-        ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() => _selectedIndex = index),
+          backgroundColor: p.surfaceColor,
+          selectedItemColor: p.primaryColor,
+          unselectedItemColor: p.textSecondaryColor,
+          type: BottomNavigationBarType.fixed,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+          unselectedLabelStyle: const TextStyle(fontSize: 10),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard_rounded),
+              label: 'Ana Ekran',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.storefront_rounded),
+              label: 'Galeri',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.gavel_rounded),
+              label: 'İhale',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.business_center_rounded),
+              label: 'Ofis',
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  Widget _buildOfficeTab(BuildContext context, dynamic game, dynamic p) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('OFİS VE İSTATİSTİKLER'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Reputation Card
+            AppGlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: p.primaryColor.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.star_rounded, color: p.primaryColor, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Bayi İtibarı', style: AppTypography.titleLarge(p.isDark)),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Müşteri memnuniyet skoru: %${game.reputationScore}',
+                          style: AppTypography.bodyMedium(p.isDark),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Financial Summary & Loans Management Card
+            _buildFinancialSummaryCard(context, ref, game, p),
+            const SizedBox(height: 16),
+
+            // Staff Recruitment Button Card
+            AppGlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.people_alt_rounded, color: Colors.purpleAccent, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Personel Kadrosu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text('${game.hiredStaff.length} Aktif Usta / Danışman', style: AppTypography.labelSmall(p.isDark)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () => context.push('/staff'),
+                    child: const Text('Yönet'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Customer Reviews Button Card
+            AppGlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.chat_bubble_rounded, color: Colors.amber, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Müşteri Yorumları', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text('${game.customerReviews.length} Toplam Değerlendirme', style: AppTypography.labelSmall(p.isDark)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () => context.push('/reviews'),
+                    child: const Text('İncele'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
 
 
