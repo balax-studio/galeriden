@@ -1,4 +1,4 @@
-package com.galerisinden.galerisinden
+package com.balax.galeriden
 
 import io.flutter.embedding.android.FlutterActivity
 

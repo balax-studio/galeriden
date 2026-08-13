@@ -1,23 +1,23 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:galerisinden/domain/usecases/market_engine.dart';
-import 'package:galerisinden/domain/usecases/expertise_engine.dart';
-import 'package:galerisinden/domain/usecases/repair_engine.dart';
-import 'package:galerisinden/domain/usecases/auction_engine.dart';
-import 'package:galerisinden/domain/usecases/negotiation_engine.dart';
-import 'package:galerisinden/domain/usecases/risk_engine.dart';
-import 'package:galerisinden/data/models/car_model.dart';
-import 'package:galerisinden/data/models/customer_model.dart';
-import 'package:galerisinden/data/models/branch_model.dart';
-import 'package:galerisinden/data/models/dealership_model.dart';
-import 'package:galerisinden/data/models/detailing_model.dart';
-import 'package:galerisinden/data/models/expertise_model.dart';
-import 'package:galerisinden/data/models/part_order_model.dart';
-import 'package:galerisinden/presentation/providers/game_provider.dart';
+import 'package:galeriden/domain/usecases/market_engine.dart';
+import 'package:galeriden/domain/usecases/expertise_engine.dart';
+import 'package:galeriden/domain/usecases/repair_engine.dart';
+import 'package:galeriden/domain/usecases/auction_engine.dart';
+import 'package:galeriden/domain/usecases/negotiation_engine.dart';
+import 'package:galeriden/domain/usecases/risk_engine.dart';
+import 'package:galeriden/data/models/car_model.dart';
+import 'package:galeriden/data/models/customer_model.dart';
+import 'package:galeriden/data/models/branch_model.dart';
+import 'package:galeriden/data/models/dealership_model.dart';
+import 'package:galeriden/data/models/detailing_model.dart';
+import 'package:galeriden/data/models/expertise_model.dart';
+import 'package:galeriden/data/models/part_order_model.dart';
+import 'package:galeriden/presentation/providers/game_provider.dart';
 
 void main() {
-  group('Galerisinden Tycoon Engine Tests', () {
+  group('Galeriden Tycoon Engine Tests', () {
     test('Market Engine generates offline listings with realistic Turkish prices', () {
       final listings = MarketEngine.generateRandomListings(count: 5, playerLevel: 1);
       expect(listings.length, equals(5));

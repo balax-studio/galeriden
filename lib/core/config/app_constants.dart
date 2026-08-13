@@ -2,7 +2,7 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'Galerisinden Tycoon';
+  static const String appName = 'Galeriden Tycoon';
   static const String currencySymbol = '₺';
 
   // Game Balance & Limits

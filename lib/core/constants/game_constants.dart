@@ -15,7 +15,7 @@ class CarBrandData {
 class GameConstants {
   GameConstants._();
 
-  static const String appName = 'Galerisinden';
+  static const String appName = 'Galeriden';
   static const String appVersion = '1.2.0';
 
   // Economy Defaults

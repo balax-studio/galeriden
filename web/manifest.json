@@ -1,6 +1,6 @@
 {
-    "name": "galerisinden",
-    "short_name": "galerisinden",
+    "name": "Galeriden",
+    "short_name": "Galeriden",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
