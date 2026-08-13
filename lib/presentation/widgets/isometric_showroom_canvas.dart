@@ -238,18 +238,20 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
                               ownedCars: game.ownedCars,
                               maxSlots: game.maxGarageSlots,
                               dealershipName: game.dealershipName,
+                              inGameTime: game.inGameTime,
                               animProgress: _animController.value,
                               p: p,
                             ),
                           ),
 
-                          // Customer Speech / Offer Bubbles
-                          if (game.ownedCars.isNotEmpty)
+                          // Dynamic Animated Customer Speech / Emotion Bubbles
+                          if (game.ownedCars.isNotEmpty) ...[
+                            // Customer 1: Buy Interest
                             Positioned(
-                              top: 25 + math.sin(_animController.value * math.pi * 2) * 6,
-                              left: width * 0.28,
+                              top: 22 + math.sin(_animController.value * math.pi * 2) * 5,
+                              left: width * 0.26,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.black.withValues(alpha: 0.85),
                                   borderRadius: BorderRadius.circular(10),
@@ -258,16 +260,42 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text('👤', style: TextStyle(fontSize: 12)),
+                                    Text('❤️', style: TextStyle(fontSize: 11)),
                                     SizedBox(width: 4),
                                     Text(
-                                      'Alıcı: "Aklıma yattı!"',
+                                      'Müşteri: "Temiz araç!"',
                                       style: TextStyle(color: AppColors.arcadeGold, fontSize: 10, fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
+                            // Customer 2: Offer Thinking (if 2+ cars)
+                            if (game.ownedCars.length >= 2)
+                              Positioned(
+                                top: 85 + math.cos(_animController.value * math.pi * 2) * 5,
+                                right: width * 0.22,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.85),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: AppColors.neonCyan, width: 1.2),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text('💭', style: TextStyle(fontSize: 11)),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Alıcı: "Teklif var!"',
+                                        style: TextStyle(color: AppColors.neonCyan, fontSize: 10, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ],
                       ),
                     ),
@@ -287,6 +315,7 @@ class _IsometricShowroomPainter extends CustomPainter {
   final List<CarModel> ownedCars;
   final int maxSlots;
   final String dealershipName;
+  final DateTime inGameTime;
   final double animProgress;
   final ThemePaletteModel p;
 
@@ -294,6 +323,7 @@ class _IsometricShowroomPainter extends CustomPainter {
     required this.ownedCars,
     required this.maxSlots,
     required this.dealershipName,
+    required this.inGameTime,
     required this.animProgress,
     required this.p,
   });
@@ -306,6 +336,20 @@ class _IsometricShowroomPainter extends CustomPainter {
 
     final gridRows = (maxSlots / 3).ceil();
     const gridCols = 3;
+
+    // Ambient Day/Night Lighting Layer
+    final hour = inGameTime.hour;
+    Color ambientColor;
+    if (hour >= 20 || hour < 6) {
+      ambientColor = const Color(0xFF0F172A).withValues(alpha: 0.35); // Deep night
+    } else if (hour >= 17) {
+      ambientColor = Colors.deepOrange.withValues(alpha: 0.15); // Sunset
+    } else {
+      ambientColor = Colors.amber.withValues(alpha: 0.05); // Daytime
+    }
+
+    final ambientPaint = Paint()..color = ambientColor;
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), ambientPaint);
 
     // Draw Floor Tiles
     for (int r = 0; r < gridRows; r++) {
@@ -423,6 +467,8 @@ class _IsometricShowroomPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _IsometricShowroomPainter oldDelegate) {
-    return oldDelegate.animProgress != animProgress || oldDelegate.ownedCars != ownedCars;
+    return oldDelegate.animProgress != animProgress ||
+        oldDelegate.ownedCars != ownedCars ||
+        oldDelegate.inGameTime != inGameTime;
   }
 }

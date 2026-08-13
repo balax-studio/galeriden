@@ -7,6 +7,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/game_hud_widget.dart';
 import '../../widgets/isometric_showroom_canvas.dart';
 
@@ -49,91 +50,93 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 90.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Floating Game HUD Header
-                const GameHudHeaderWidget(),
-                const SizedBox(height: 16),
-
-                // 2.5D Interactive Isometric Showroom & Parking Canvas
-                const IsometricShowroomCanvas(),
-                const SizedBox(height: 20),
-
-                // Game Day & Time Progress Card
-                DashboardGameTimeCard(game: game),
-
-            // Market Trend Banner
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: p.primaryColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: p.primaryColor.withValues(alpha: 0.3)),
-              ),
-              child: Row(
+      body: FloatingMoneyOverlay(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 90.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  // Top Floating Game HUD Header
+                  const GameHudHeaderWidget(),
+                  const SizedBox(height: 16),
+
+                  // 2.5D Interactive Isometric Showroom & Parking Canvas
+                  const IsometricShowroomCanvas(),
+                  const SizedBox(height: 20),
+
+                  // Game Day & Time Progress Card
+                  DashboardGameTimeCard(game: game),
+
+                  // Market Trend Banner
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: p.primaryColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: p.primaryColor.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
                       children: [
-                        Text('GÜNCEL PİYASA TRENDİ', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 2),
-                        Text(trend.headline, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12)),
+                        Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('GÜNCEL PİYASA TRENDİ', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 2),
+                              Text(trend.headline, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
 
-            // Daily Streak & Reward Card
-            // Daily Login Streak Bonus Card with Premium Dismissal Animation
-            _AnimatedDailyBonusCard(
-              game: game,
-              p: p,
-              onClaim: () {
-                final reward = ref.read(gameProvider.notifier).claimDailyStreak();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!')),
-                );
-              },
-            ),
+                  // Daily Login Streak Bonus Card with Premium Dismissal Animation
+                  _AnimatedDailyBonusCard(
+                    game: game,
+                    p: p,
+                    onClaim: () {
+                      final reward = ref.read(gameProvider.notifier).claimDailyStreak();
+                      FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!')),
+                      );
+                    },
+                  ),
 
-            // Main Dealership Status Card
-            DashboardStatusCard(game: game),
-            const SizedBox(height: 24),
+                  // Main Dealership Status Card
+                  DashboardStatusCard(game: game),
+                  const SizedBox(height: 24),
 
-            // Daily Missions Section
-            Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-            Column(
-              children: game.activeMissions.map((mission) {
-                return _AnimatedMissionCard(
-                  key: ValueKey(mission.id),
-                  mission: mission,
-                  p: p,
-                  onClaim: () {
-                    ref.read(gameProvider.notifier).claimMissionReward(mission.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${mission.title} Tamamlandı! Ödüller Hesaba Eklendi.')),
-                    );
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
+                  // Daily Missions Section
+                  Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
+                  const SizedBox(height: 12),
+                  Column(
+                    children: game.activeMissions.map((mission) {
+                      return _AnimatedMissionCard(
+                        key: ValueKey(mission.id),
+                        mission: mission,
+                        p: p,
+                        onClaim: () {
+                          ref.read(gameProvider.notifier).claimMissionReward(mission.id);
+                          FloatingMoneyOverlay.of(context)?.showMoneyPopUp(mission.rewardMoney.toDouble(), label: 'Görev Ödülü!');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.')),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
 
-            // Quick Menu Hub Grid
-            Text('HIZLI MENÜ', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
+                  // Quick Menu Hub Grid
+                  Text('HIZLI MENÜ', style: AppTypography.labelSmall(p.isDark)),
+                  const SizedBox(height: 12),
 
             // Financial Health & Bank Loans Summary Card
             _buildFinancialSummaryCard(context, ref, game, p),
@@ -309,8 +312,9 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
 
 

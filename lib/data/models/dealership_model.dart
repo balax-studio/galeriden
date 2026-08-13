@@ -39,6 +39,8 @@ class DealershipModel {
   final String dealershipName;
   final String logoEmblemId;
 
+  DateTime get inGameTime => DateTime.now();
+
   DealershipModel({
     required this.balance,
     required this.level,
