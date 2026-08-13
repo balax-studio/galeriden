@@ -128,59 +128,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const SizedBox(height: AppSpacing.md),
                   _buildAsymmetricGrid(context, p),
                   const SizedBox(height: AppSpacing.xl),
-
-                  // Achievements List
-                  Text('BAŞARIMLAR & ROLLER', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: 10),
-
-                  SizedBox(
-                    height: 90,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: game.achievements.length,
-                      itemBuilder: (context, index) {
-                        final ach = game.achievements[index];
-                        return Container(
-                          width: 170,
-                          margin: const EdgeInsets.only(right: 12),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: ach.isUnlocked ? p.primaryColor.withValues(alpha: 0.15) : p.surfaceColor,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: ach.isUnlocked ? p.primaryColor : p.surfaceBorderColor,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    ach.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
-                                    color: ach.isUnlocked ? p.primaryColor : p.textSecondaryColor,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      ach.title,
-                                      style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 13),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(ach.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10), maxLines: 2),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
                 ],
               ),
             ),

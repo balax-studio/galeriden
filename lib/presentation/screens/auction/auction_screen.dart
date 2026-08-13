@@ -2,7 +2,6 @@ import 'package:galeriden/core/utils/notification_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -21,6 +20,7 @@ class AuctionScreen extends ConsumerStatefulWidget {
 class _AuctionScreenState extends ConsumerState<AuctionScreen> {
   late AuctionModel _auction;
   Timer? _timer;
+  bool _hasPlayerEnteredBid = false;
   final List<String> _bidLogs = [];
 
   @override
@@ -71,6 +71,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
     }
 
     setState(() {
+      _hasPlayerEnteredBid = true;
       _auction = _auction.copyWith(
         currentBid: nextBid,
         highestBidderName: 'Öz Galeri (Sen)',
@@ -81,7 +82,34 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
     });
   }
 
+  void _resetAuctionSilently() {
+    _timer?.cancel();
+    if (!mounted) return;
+    final game = ref.read(gameProvider);
+    setState(() {
+      _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+      _bidLogs.clear();
+      _bidLogs.add('Gümrük ve İcra Araç İhalesi Başladı!');
+      _bidLogs.add('Başlangıç Teklifi: ₺${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      _hasPlayerEnteredBid = false;
+    });
+    _startAuctionTimer();
+  }
+
   void _handleAuctionEnd() {
+    // If player did NOT enter/bid in this auction, do not show any popup dialog notification!
+    if (!_hasPlayerEnteredBid && !_auction.isPlayerHighestBidder) {
+      setState(() {
+        _bidLogs.insert(0, 'İhale sonlandı (${_auction.highestBidderName} kazandı). Yeni ihale hazırlanıyor...');
+      });
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          _resetAuctionSilently();
+        }
+      });
+      return;
+    }
+
     if (_auction.isPlayerHighestBidder) {
       // Player won! Deduct balance and add car to garage
       ref.read(gameProvider.notifier).buyCarDirectly(_auction.car, _auction.currentBid);
@@ -98,9 +126,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(ctx).pop();
-                context.pop();
+                _resetAuctionSilently();
               },
-              child: const Text('Galeriye Git'),
+              child: const Text('Sonraki İhaleye Geç'),
             ),
           ],
         ),
@@ -116,9 +144,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(ctx).pop();
-                context.pop();
+                _resetAuctionSilently();
               },
-              child: const Text('Ayrıl'),
+              child: const Text('Devam Et'),
             ),
           ],
         ),
