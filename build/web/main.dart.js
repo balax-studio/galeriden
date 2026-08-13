@@ -95936,7 +95936,7 @@ B.b.eN(a4,0,new A.l8(s+e,a8+" Hissesinde Dalgalanma","Piyasa haberleri "+a8+" hi
 if(b0<1)b0=1
 a3[n]=new A.hC(a5.a,a5.b,b0,a5.d)}if(a4.length>50)a4=B.b.d2(a4,0,50)
 b2=b1.f
-b1.sbe(b2.auI(a0,d,o,j,b4-b4*b2.p2,b3,p,a3,i,a4,a2))
+b1.sbe(b2.auI(a0,d,o,j,b4-b2.p2,b3,p,a3,i,a4,a2))
 b1.a3_()}}
 A.acR.prototype={
 $1(a){var s,r,q

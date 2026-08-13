@@ -79,7 +79,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
           final selectedCar = cars[slotIndex];
           _showCarDetailsSheet(context, selectedCar);
         } else {
-          context.push('/market');
+          context.push('/marketplace');
         }
       }
     }
