@@ -5,16 +5,19 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/floating_money_overlay.dart';
+import '../../widgets/app_double_bezel_card.dart';
+import '../../widgets/app_floating_dock.dart';
+import '../../widgets/app_hero_header.dart';
 
 import '../../widgets/isometric_showroom_canvas.dart';
 import '../../widgets/app_glass_container.dart';
 
 import 'widgets/dashboard_game_time_card.dart';
-
 
 import '../showroom/showroom_screen.dart';
 import '../auction/auction_screen.dart';
@@ -36,62 +39,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final p = themeExt.palette;
     final trend = game.marketTrend;
 
-    // Dynamically display title and actions on AppBar based on active tab index
-    final PreferredSizeWidget? appBar = _selectedIndex == 0
-        ? AppBar(
-            title: Row(
-              children: [
-                VectorIconWidget(
-                  type: game.logoEmblemId,
-                  color: p.primaryColor,
-                  size: 22,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    game.dealershipName.toUpperCase(),
-                    style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.5),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.settings, color: p.textPrimaryColor),
-                onPressed: () => context.push('/settings'),
-              ),
-            ],
-          )
-        : null; // Let nested screens render their own AppBars to prevent duplication
-
     return Scaffold(
-      appBar: appBar,
+      backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: FloatingMoneyOverlay(
-        child: IndexedStack(
-          index: _selectedIndex,
+        child: Column(
           children: [
-            // Tab 0: Simplified Dashboard (Ana Ekran)
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (_selectedIndex == 0)
+              AppHeroHeader(
+                game: game,
+                onSettingsTap: () => context.push('/settings'),
+              ),
+            Expanded(
+              child: IndexedStack(
+                index: _selectedIndex,
                 children: [
-                  // Top 3 Important Stats
-                  Row(
-                    children: [
-                      Expanded(child: _buildStatCard(p, 'Bakiye', '₺${CurrencyFormatter.formatShort(game.balance)}', Icons.account_balance_wallet_rounded, p.successColor)),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(child: _buildStatCard(p, 'Araçlar', '${game.ownedCars.length}/${game.maxGarageSlots}', Icons.directions_car_rounded, p.primaryColor)),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(child: _buildStatCard(p, 'İtibar', '%${game.reputationScore}', Icons.star_rounded, p.primaryColor)),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // 2.5D Interactive Isometric Showroom & Parking Canvas
-                  const IsometricShowroomCanvas(),
-                  const SizedBox(height: AppSpacing.lg),
+                  // Tab 0: Simplified Dashboard (Ana Ekran)
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 2.5D Interactive Isometric Showroom & Parking Canvas
+                        const IsometricShowroomCanvas(),
+                        const SizedBox(height: AppSpacing.lg),
 
                   // Game Day & Time Progress Card
                   DashboardGameTimeCard(game: game),
@@ -218,48 +188,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             // Tab 1: Showroom (Galeri)
             const ShowroomScreen(),
 
-            // Tab 2: İhale (Live Auctions)
-            const AuctionScreen(),
+                  // Tab 2: İhale (Live Auctions)
+                  const AuctionScreen(),
 
-            // Tab 3: Ofis (Unified Operations)
-            _buildOfficeTab(context, game, p),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: p.surfaceBorderColor.withValues(alpha: 0.5),
-              width: 1,
+                  // Tab 3: Ofis (Unified Operations)
+                  _buildOfficeTab(context, game, p),
+                ],
+              ),
             ),
-          ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) => setState(() => _selectedIndex = index),
-          backgroundColor: p.surfaceColor,
-          selectedItemColor: p.primaryColor,
-          unselectedItemColor: p.textSecondaryColor,
-          type: BottomNavigationBarType.fixed,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontSize: 10),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_rounded),
-              label: 'Ana Ekran',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.storefront_rounded),
-              label: 'Galeri',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.gavel_rounded),
-              label: 'İhale',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.business_center_rounded),
-              label: 'Ofis',
+            AppFloatingDock(
+              currentIndex: _selectedIndex,
+              onTap: (index) => setState(() => _selectedIndex = index),
+              items: const [
+                FloatingDockItem(icon: Icons.dashboard_rounded, label: 'Ana Ekran'),
+                FloatingDockItem(icon: Icons.storefront_rounded, label: 'Galeri'),
+                FloatingDockItem(icon: Icons.gavel_rounded, label: 'İhale'),
+                FloatingDockItem(icon: Icons.business_center_rounded, label: 'Ofis'),
+              ],
             ),
           ],
         ),
@@ -394,28 +339,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 
 
-  Widget _buildStatCard(dynamic p, String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
-      decoration: BoxDecoration(
-        color: p.surfaceColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: p.surfaceBorderColor, width: 1),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: AppSpacing.xs),
-          Text(title, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10)),
-          const SizedBox(height: 2),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(value, style: AppTypography.statValue(p.isDark).copyWith(color: color, fontSize: 14)),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildAsymmetricGrid(BuildContext context, dynamic p) {
     return Column(
@@ -466,54 +390,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
 
-    return Material(
-      color: p.surfaceColor,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: isWide ? AppSpacing.md : AppSpacing.sm,
-            vertical: AppSpacing.md,
+    return AppDoubleBezelCard(
+      onTap: onTap,
+      accentColor: color,
+      outerRadius: 18,
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? AppSpacing.md : AppSpacing.xs,
+        vertical: AppSpacing.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: isWide ? 22 : 20),
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: p.surfaceBorderColor, width: 1),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            title,
+            style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: isWide ? 13 : 12, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color, size: isWide ? 22 : 20),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                title,
-                style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: isWide ? 13 : 12, fontWeight: FontWeight.bold),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ],
-          ),
-        ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
       ),
     );
   }
