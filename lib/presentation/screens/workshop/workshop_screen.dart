@@ -206,7 +206,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       builder: (context) {
                         final damagedParts = _selectedCar!.expertise.bodyParts.entries
                             .where((e) {
-                              if (e.value != PartStatus.damaged) return false;
+                              if (e.value == PartStatus.original) return false;
                               final hasPendingOrder = game.pendingOrders.any((o) => o.carId == _selectedCar!.id && o.partName == e.key);
                               return !hasPendingOrder;
                             })
@@ -236,34 +236,25 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           );
                         }
 
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: damagedParts.length,
-                          itemBuilder: (context, index) {
-                            final partName = damagedParts[index].key;
-                            final status = damagedParts[index].value;
+                        return Column(
+                          children: damagedParts.map((entry) {
+                            final partName = entry.key;
+                            final status = entry.value;
 
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                title: Text('$partName Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-                                subtitle: Text(status == PartStatus.damaged 
-                                    ? 'Durum: Hasarlı (Onarım Gerekli)' 
-                                    : status == PartStatus.painted 
-                                        ? 'Durum: Boyalı (Orijinale Çevrilebilir)' 
-                                        : 'Durum: Değişen (Orijinale Çevrilebilir)'),
-                                trailing: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: p.secondaryColor,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  onPressed: () => _showCraftsmanSelectionSheet(context, isEngine: false, partName: partName, currentStatus: status),
-                                  child: const Text('Usta Seç & Onar'),
-                                ),
+                            return _DisappearingRepairTile(
+                              key: ValueKey('${_selectedCar!.id}_$partName'),
+                              partName: partName,
+                              status: status,
+                              p: p,
+                              onOpenOptions: (onSuccess) => _showCraftsmanSelectionSheet(
+                                context,
+                                isEngine: false,
+                                partName: partName,
+                                currentStatus: status,
+                                onSuccess: onSuccess,
                               ),
                             );
-                          },
+                          }).toList(),
                         );
                       },
                     ),
@@ -341,7 +332,13 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     );
   }
 
-  void _showCraftsmanSelectionSheet(BuildContext context, {required bool isEngine, String? partName, PartStatus? currentStatus}) {
+  void _showCraftsmanSelectionSheet(
+    BuildContext context, {
+    required bool isEngine,
+    String? partName,
+    PartStatus? currentStatus,
+    VoidCallback? onSuccess,
+  }) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final targetPart = isEngine ? 'Motor & Şanzıman' : (partName ?? 'Kaput');
@@ -392,6 +389,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       setState(() => _selectedCar = updated);
                     }
                     NotificationService.showSuccess(context, 'Geçici tamir anında uygulandı!');
+                    onSuccess?.call();
                   } else {
                     NotificationService.showError(context, 'Yetersiz bakiye!');
                   }
@@ -419,6 +417,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   if (success) {
                     ref.read(tutorialProvider.notifier).nextStep();
                     NotificationService.showSuccess(context, 'Sanayi usta tamir siparişi verildi! Kargoda bekleniyor.');
+                    onSuccess?.call();
                   }
                 },
               ),
@@ -444,6 +443,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   if (success) {
                     ref.read(tutorialProvider.notifier).nextStep();
                     NotificationService.showSuccess(context, 'Sıfır OEM parça siparişi verildi! Kargo takibini kontrol et.');
+                    onSuccess?.call();
                   }
                 },
               ),
@@ -571,9 +571,12 @@ class _AnimatedOrderCardState extends State<_AnimatedOrderCard> with SingleTicke
   }
 
   void _triggerInstallation() {
+    if (_isInstalling) return;
     setState(() => _isInstalling = true);
     _controller.forward().then((_) {
-      widget.onInstall();
+      if (mounted) {
+        widget.onInstall();
+      }
     });
   }
 
@@ -706,7 +709,9 @@ class _DisappearingDetailingTileState extends State<_DisappearingDetailingTile> 
     if (_isAnimatingOut) return;
     setState(() => _isAnimatingOut = true);
     await _controller.forward();
-    widget.onApply();
+    if (mounted) {
+      widget.onApply();
+    }
   }
 
   @override
@@ -768,6 +773,94 @@ class _DisappearingDetailingTileState extends State<_DisappearingDetailingTile> 
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DisappearingRepairTile extends StatefulWidget {
+  final String partName;
+  final PartStatus status;
+  final ThemePaletteModel p;
+  final void Function(VoidCallback onSuccess) onOpenOptions;
+
+  const _DisappearingRepairTile({
+    required super.key,
+    required this.partName,
+    required this.status,
+    required this.p,
+    required this.onOpenOptions,
+  });
+
+  @override
+  State<_DisappearingRepairTile> createState() => _DisappearingRepairTileState();
+}
+
+class _DisappearingRepairTileState extends State<_DisappearingRepairTile> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _sizeAnimation;
+  bool _isAnimatingOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(_fadeAnimation);
+    _sizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleSuccess() async {
+    if (_isAnimatingOut) return;
+    if (!mounted) return;
+    setState(() => _isAnimatingOut = true);
+    await _controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.p;
+
+    return SizeTransition(
+      sizeFactor: _sizeAnimation,
+      alignment: Alignment.topCenter,
+      child: FadeTransition(
+        opacity: Tween<double>(begin: 1.0, end: 0.0).animate(_fadeAnimation),
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              title: Text('${widget.partName} Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+              subtitle: Text(widget.status == PartStatus.damaged 
+                  ? 'Durum: Hasarlı (Onarım Gerekli)' 
+                  : widget.status == PartStatus.painted 
+                      ? 'Durum: Boyalı (Orijinale Çevrilebilir)' 
+                      : 'Durum: Değişen (Orijinale Çevrilebilir)'),
+              trailing: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: p.secondaryColor,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: _isAnimatingOut ? null : () => widget.onOpenOptions(_handleSuccess),
+                child: const Text('Usta Seç & Onar'),
+              ),
             ),
           ),
         ),

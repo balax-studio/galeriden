@@ -13,6 +13,9 @@ import 'sale_record_model.dart';
 import 'cheque_model.dart';
 import 'installment_contract_model.dart';
 import 'rental_agreement_model.dart';
+import 'side_business_model.dart';
+import 'stock_model.dart';
+import 'game_event_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -45,6 +48,13 @@ class DealershipModel {
   final String dealershipName;
   final String logoEmblemId;
   final DateTime? lastRewardClaimDate;
+  
+  // Yeni Pasif Gelir ve Ekonomi Alanları
+  final List<SideBusinessModel> sideBusinesses;
+  final List<StockModel> marketStocks;
+  final List<PlayerStockModel> ownedStocks;
+  final List<GameEventModel> recentEvents;
+  final double dailyTaxRate;
 
   DateTime get inGameTime => DateTime.now();
 
@@ -79,6 +89,11 @@ class DealershipModel {
     this.dealershipName = 'Miras Oto Galeri',
     this.logoEmblemId = 'crown',
     this.lastRewardClaimDate,
+    this.sideBusinesses = const [],
+    this.marketStocks = const [],
+    this.ownedStocks = const [],
+    this.recentEvents = const [],
+    this.dailyTaxRate = 150.0,
   });
 
   factory DealershipModel.initial() {
@@ -172,6 +187,20 @@ class DealershipModel {
       ],
       tutorialCompleted: false,
       tutorialStepIndex: 0,
+      sideBusinesses: [
+        SideBusinessModel(id: 'sb_1', name: 'Otomat Makinesi', description: 'Galeriye otomat makinesi kurarak günlük pasif gelir elde et.', type: SideBusinessType.vendingMachine, dailyIncome: 150.0, cost: 5000.0),
+        SideBusinessModel(id: 'sb_2', name: 'Oto Yıkama', description: 'Küçük bir oto yıkama alanı kurarak ekstra gelir sağla.', type: SideBusinessType.carWash, dailyIncome: 500.0, cost: 25000.0),
+        SideBusinessModel(id: 'sb_3', name: 'Reklam Panosu', description: 'Galerinin önüne reklam panosu al.', type: SideBusinessType.billboard, dailyIncome: 1000.0, cost: 75000.0),
+        SideBusinessModel(id: 'sb_4', name: 'Çekici Hizmeti', description: 'Bir çekici alarak yolda kalanlara hizmet ver.', type: SideBusinessType.towTruck, dailyIncome: 2500.0, cost: 150000.0),
+      ],
+      marketStocks: [
+        StockModel(symbol: 'TOF', name: 'Tof-AŞ Otomotiv', currentPrice: 15.4, previousPrice: 15.0),
+        StockModel(symbol: 'FOR', name: 'For-D Motor', currentPrice: 85.2, previousPrice: 84.5),
+        StockModel(symbol: 'RNO', name: 'Reno-L', currentPrice: 42.1, previousPrice: 43.0),
+      ],
+      ownedStocks: const [],
+      recentEvents: const [],
+      dailyTaxRate: 150.0,
     );
   }
 
@@ -207,6 +236,11 @@ class DealershipModel {
       'dealershipName': dealershipName,
       'logoEmblemId': logoEmblemId,
       'lastRewardClaimDate': lastRewardClaimDate?.toIso8601String(),
+      'sideBusinesses': sideBusinesses.map((e) => e.toJson()).toList(),
+      'marketStocks': marketStocks.map((e) => e.toJson()).toList(),
+      'ownedStocks': ownedStocks.map((e) => e.toJson()).toList(),
+      'recentEvents': recentEvents.map((e) => e.toJson()).toList(),
+      'dailyTaxRate': dailyTaxRate,
     };
   }
 
@@ -278,6 +312,23 @@ class DealershipModel {
       dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
       logoEmblemId: json['logoEmblemId'] as String? ?? 'crown',
       lastRewardClaimDate: json['lastRewardClaimDate'] != null ? DateTime.tryParse(json['lastRewardClaimDate'] as String) : null,
+      sideBusinesses: (json['sideBusinesses'] as List<dynamic>?)
+              ?.map((e) => SideBusinessModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      marketStocks: (json['marketStocks'] as List<dynamic>?)
+              ?.map((e) => StockModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          DealershipModel.initial().marketStocks,
+      ownedStocks: (json['ownedStocks'] as List<dynamic>?)
+              ?.map((e) => PlayerStockModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      recentEvents: (json['recentEvents'] as List<dynamic>?)
+              ?.map((e) => GameEventModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      dailyTaxRate: (json['dailyTaxRate'] as num?)?.toDouble() ?? 150.0,
     );
   }
 
@@ -312,6 +363,11 @@ class DealershipModel {
     String? dealershipName,
     String? logoEmblemId,
     DateTime? lastRewardClaimDate,
+    List<SideBusinessModel>? sideBusinesses,
+    List<StockModel>? marketStocks,
+    List<PlayerStockModel>? ownedStocks,
+    List<GameEventModel>? recentEvents,
+    double? dailyTaxRate,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -344,6 +400,11 @@ class DealershipModel {
       dealershipName: dealershipName ?? this.dealershipName,
       logoEmblemId: logoEmblemId ?? this.logoEmblemId,
       lastRewardClaimDate: lastRewardClaimDate ?? this.lastRewardClaimDate,
+      sideBusinesses: sideBusinesses ?? this.sideBusinesses,
+      marketStocks: marketStocks ?? this.marketStocks,
+      ownedStocks: ownedStocks ?? this.ownedStocks,
+      recentEvents: recentEvents ?? this.recentEvents,
+      dailyTaxRate: dailyTaxRate ?? this.dailyTaxRate,
     );
   }
 }

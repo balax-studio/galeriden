@@ -19,6 +19,9 @@ import '../../data/models/player_skills.dart';
 import '../../data/models/cheque_model.dart';
 import '../../data/models/installment_contract_model.dart';
 import '../../data/models/rental_agreement_model.dart';
+import '../../data/models/side_business_model.dart';
+import '../../data/models/stock_model.dart';
+import '../../data/models/game_event_model.dart';
 
 import '../../domain/usecases/market_engine.dart';
 import '../../domain/usecases/negotiation_engine.dart';
@@ -182,6 +185,50 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       updatedLoans.clear(); // Borçlar silinir
     }
 
+    // 8. Side Businesses (Pasif Gelir)
+    List<SideBusinessModel> updatedBusinesses = List.from(state.sideBusinesses);
+    for (int i = 0; i < updatedBusinesses.length; i++) {
+      if (updatedBusinesses[i].isOwned) {
+        newBalance += updatedBusinesses[i].dailyIncome;
+      }
+    }
+
+    // 9. Stock Market Fluctuations
+    List<StockModel> updatedStocks = List.from(state.marketStocks);
+    List<GameEventModel> newEvents = List.from(state.recentEvents);
+    
+    for (int i = 0; i < updatedStocks.length; i++) {
+      final stock = updatedStocks[i];
+      double changePercent = (_random.nextDouble() * 0.10) - 0.05; // -5% to +5%
+      
+      if (_random.nextDouble() < 0.05) {
+        changePercent = (_random.nextDouble() * 0.30) - 0.15; // -15% to +15%
+        newEvents.insert(0, GameEventModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString() + i.toString(),
+          date: DateTime.now(),
+          title: '${stock.symbol} Hissesinde Dalgalanma',
+          description: 'Piyasa haberleri ${stock.symbol} hissesini etkiledi.',
+          amount: 0.0,
+          type: changePercent > 0 ? GameEventType.income : GameEventType.badEvent,
+        ));
+      }
+      
+      double newPrice = stock.currentPrice * (1 + changePercent);
+      if (newPrice < 1.0) newPrice = 1.0; 
+      
+      updatedStocks[i] = stock.copyWith(currentPrice: newPrice);
+    }
+    
+    // Keep only last 50 events
+    if (newEvents.length > 50) {
+      newEvents = newEvents.sublist(0, 50);
+    }
+
+    // 10. Daily Tax
+    // Apply tax on balance or daily profit? Let's apply a very small wealth tax for now, or just a flat daily fee representing expenses.
+    // We can interpret dailyTaxRate as a percentage of balance or flat. Let's do small percentage of balance.
+    newBalance -= (newBalance * state.dailyTaxRate);
+
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
@@ -191,6 +238,9 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       activeRentals: updatedRentals,
       activeInstallments: updatedInstallments,
       activeCheques: updatedCheques,
+      sideBusinesses: updatedBusinesses,
+      marketStocks: updatedStocks,
+      recentEvents: newEvents,
     );
 
     refreshMarketTrends();
@@ -276,6 +326,124 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     if (state.balance < amount) return;
     state = state.copyWith(balance: state.balance - amount);
     _saveState();
+  }
+
+  /// Buy a side business
+  bool buySideBusiness(String businessId) {
+    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    if (businessIndex == -1) return false;
+
+    final business = state.sideBusinesses[businessIndex];
+    if (business.isOwned) return false; // Zaten sahip
+    if (state.balance < business.cost) return false; // Yetersiz bakiye
+
+    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] = business.copyWith(isOwned: true);
+
+    state = state.copyWith(
+      balance: state.balance - business.cost,
+      sideBusinesses: updatedBusinesses,
+    );
+    
+    addXP(150); 
+    _saveState();
+    return true;
+  }
+
+  /// Upgrade a side business
+  bool upgradeSideBusiness(String businessId) {
+    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    if (businessIndex == -1) return false;
+
+    final business = state.sideBusinesses[businessIndex];
+    if (!business.isOwned) return false;
+    
+    double upgradeCost = business.cost * 0.5 * business.level; // Basit artış
+    if (state.balance < upgradeCost) return false;
+
+    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] = business.copyWith(
+      level: business.level + 1,
+      dailyIncome: business.dailyIncome * 1.5, // %50 gelir artışı
+    );
+
+    state = state.copyWith(
+      balance: state.balance - upgradeCost,
+      sideBusinesses: updatedBusinesses,
+    );
+    
+    addXP(50);
+    _saveState();
+    return true;
+  }
+
+  /// Buy stocks
+  bool buyStock(String symbol, int amount) {
+    final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol, orElse: () => throw Exception('Hisse bulunamadı'));
+    double totalCost = stock.currentPrice * amount;
+    
+    if (state.balance < totalCost) return false;
+
+    List<PlayerStockModel> updatedOwned = List.from(state.ownedStocks);
+    final existingIndex = updatedOwned.indexWhere((s) => s.symbol == symbol);
+    
+    if (existingIndex != -1) {
+      final existing = updatedOwned[existingIndex];
+      double totalSpent = (existing.averageCost * existing.quantity) + totalCost;
+      int newShares = existing.quantity + amount;
+      double newAvgPrice = totalSpent / newShares;
+      
+      updatedOwned[existingIndex] = existing.copyWith(
+        quantity: newShares,
+        averageCost: newAvgPrice,
+      );
+    } else {
+      updatedOwned.add(PlayerStockModel(
+        symbol: symbol,
+        quantity: amount,
+        averageCost: stock.currentPrice,
+      ));
+    }
+
+    state = state.copyWith(
+      balance: state.balance - totalCost,
+      ownedStocks: updatedOwned,
+    );
+    
+    addXP(10);
+    _saveState();
+    return true;
+  }
+
+  /// Sell stocks
+  bool sellStock(String symbol, int amount) {
+    List<PlayerStockModel> updatedOwned = List.from(state.ownedStocks);
+    final existingIndex = updatedOwned.indexWhere((s) => s.symbol == symbol);
+    
+    if (existingIndex == -1) return false;
+    
+    final existing = updatedOwned[existingIndex];
+    if (existing.quantity < amount) return false;
+    
+    final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol);
+    double revenue = stock.currentPrice * amount;
+
+    if (existing.quantity == amount) {
+      updatedOwned.removeAt(existingIndex);
+    } else {
+      updatedOwned[existingIndex] = existing.copyWith(
+        quantity: existing.quantity - amount,
+      );
+    }
+
+    state = state.copyWith(
+      balance: state.balance + revenue,
+      ownedStocks: updatedOwned,
+    );
+    
+    addXP(10);
+    _saveState();
+    return true;
   }
 
   /// Purchase a car from market with RiskEngine check

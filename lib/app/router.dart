@@ -21,10 +21,20 @@ import '../presentation/screens/reviews/customer_reviews_screen.dart';
 import '../presentation/screens/history/sales_history_screen.dart';
 import '../presentation/screens/finance/finance_screen.dart';
 import '../presentation/screens/rent_a_car/rent_a_car_screen.dart';
+import '../presentation/screens/side_business/side_business_screen.dart';
+import '../presentation/screens/stock_market/stock_market_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/onboarding',
   routes: [
+    GoRoute(
+      path: '/side-businesses',
+      builder: (context, state) => const SideBusinessScreen(),
+    ),
+    GoRoute(
+      path: '/stock-market',
+      builder: (context, state) => const StockMarketScreen(),
+    ),
     GoRoute(
       path: '/history',
       builder: (context, state) => const SalesHistoryScreen(),

@@ -164,6 +164,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       _buildSimpleListItem(context, title: 'Şube İmparatorluğu', subtitle: 'Kapasite Genişlet', icon: Icons.domain_rounded, color: p.secondaryColor, onTap: () => context.push('/branches')),
                       _buildSimpleListItem(context, title: 'Finans & Tahsilat', subtitle: 'Vadeli ve Çek İşlemleri', icon: Icons.account_balance_rounded, color: Colors.green, onTap: () => context.push('/finance')),
                       _buildSimpleListItem(context, title: 'Rent a Car', subtitle: 'Araçları Kiraya Ver', icon: Icons.car_rental_rounded, color: Colors.cyan, onTap: () => context.push('/rent-a-car')),
+                      _buildSimpleListItem(context, title: 'Yan İşletmeler', subtitle: 'Pasif Gelir Kaynakları', icon: Icons.store_mall_directory_rounded, color: Colors.deepPurpleAccent, onTap: () => context.push('/side-businesses')),
+                      _buildSimpleListItem(context, title: 'Borsa', subtitle: 'Hisse Senedi Piyasası', icon: Icons.show_chart_rounded, color: Colors.indigoAccent, onTap: () => context.push('/stock-market')),
                     ],
                   ),
                   const SizedBox(height: 24),
