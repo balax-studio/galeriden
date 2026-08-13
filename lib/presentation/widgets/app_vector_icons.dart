@@ -126,6 +126,69 @@ class _VectorIconPainter extends CustomPainter {
         canvas.drawPath(path, fillPaint);
         break;
 
+      case 'crown':
+        // Crown Emblem
+        final crownPath = Path();
+        crownPath.moveTo(w * 0.15, h * 0.75);
+        crownPath.lineTo(w * 0.15, h * 0.35);
+        crownPath.lineTo(w * 0.35, h * 0.55);
+        crownPath.lineTo(w * 0.50, h * 0.20);
+        crownPath.lineTo(w * 0.65, h * 0.55);
+        crownPath.lineTo(w * 0.85, h * 0.35);
+        crownPath.lineTo(w * 0.85, h * 0.75);
+        crownPath.close();
+        canvas.drawPath(crownPath, fillPaint);
+        break;
+
+      case 'shield':
+        // Shield Emblem
+        final shieldPath = Path();
+        shieldPath.moveTo(w * 0.50, h * 0.15);
+        shieldPath.lineTo(w * 0.85, h * 0.25);
+        shieldPath.lineTo(w * 0.85, h * 0.60);
+        shieldPath.quadraticBezierTo(w * 0.50, h * 0.90, w * 0.50, h * 0.90);
+        shieldPath.quadraticBezierTo(w * 0.50, h * 0.90, w * 0.15, h * 0.60);
+        shieldPath.lineTo(w * 0.15, h * 0.25);
+        shieldPath.close();
+        canvas.drawPath(shieldPath, paint);
+        break;
+
+      case 'star':
+        // Star Emblem
+        final starPath = Path();
+        starPath.moveTo(w * 0.50, h * 0.10);
+        starPath.lineTo(w * 0.62, h * 0.38);
+        starPath.lineTo(w * 0.90, h * 0.40);
+        starPath.lineTo(w * 0.68, h * 0.60);
+        starPath.lineTo(w * 0.75, h * 0.90);
+        starPath.lineTo(w * 0.50, h * 0.73);
+        starPath.lineTo(w * 0.25, h * 0.90);
+        starPath.lineTo(w * 0.32, h * 0.60);
+        starPath.lineTo(w * 0.10, h * 0.40);
+        starPath.lineTo(w * 0.38, h * 0.38);
+        starPath.close();
+        canvas.drawPath(starPath, fillPaint);
+        break;
+
+      case 'eagle':
+        // Eagle / Wings Emblem
+        final wingPath = Path();
+        wingPath.moveTo(w * 0.10, h * 0.30);
+        wingPath.lineTo(w * 0.50, h * 0.50);
+        wingPath.lineTo(w * 0.90, h * 0.30);
+        wingPath.lineTo(w * 0.75, h * 0.75);
+        wingPath.lineTo(w * 0.50, h * 0.60);
+        wingPath.lineTo(w * 0.25, h * 0.75);
+        wingPath.close();
+        canvas.drawPath(wingPath, paint);
+        break;
+
+      case 'vintage':
+        // Vintage Badge Crest
+        canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.38, paint);
+        canvas.drawRect(Rect.fromLTWH(w * 0.25, h * 0.42, w * 0.50, h * 0.16), fillPaint);
+        break;
+
       case 'car':
       default:
         // Minimalist Car Silhouette Icon

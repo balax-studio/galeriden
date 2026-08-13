@@ -68,17 +68,26 @@ class TutorialOverlayBanner extends ConsumerWidget {
                 ],
               ),
             ),
-            IconButton(
-              tooltip: 'Rehberi Atla',
-              icon: VectorIconWidget(
-                type: 'close',
-                size: 18,
-                color: p.textSecondaryColor,
-              ),
-              onPressed: () {
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
                 ref.read(tutorialProvider.notifier).skipTutorial();
                 ref.read(gameProvider.notifier).completeTutorial();
               },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'Atla',
+                  style: AppTypography.labelSmall(p.isDark).copyWith(
+                    color: p.textSecondaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

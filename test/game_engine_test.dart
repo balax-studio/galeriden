@@ -226,5 +226,25 @@ void main() {
       expect(restoredCar.expertise.bodyParts['Kaput'], equals(PartStatus.original));
       expect(restoredCar.expertise.partConditions['Kaput'], equals(100.0));
     });
+
+    test('GameNotifier updates player name, dealership title and logo emblem', () async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      expect(container.read(gameProvider).playerName, equals('Kaptan'));
+      expect(container.read(gameProvider).dealershipName, equals('Miras Oto Galeri'));
+      expect(container.read(gameProvider).logoEmblemId, equals('crown'));
+
+      notifier.updateDealershipIdentity(
+        playerName: 'Mehmet Usta',
+        dealershipName: 'Aslanlar Motors',
+        logoEmblemId: 'shield',
+      );
+
+      expect(container.read(gameProvider).playerName, equals('Mehmet Usta'));
+      expect(container.read(gameProvider).dealershipName, equals('Aslanlar Motors'));
+      expect(container.read(gameProvider).logoEmblemId, equals('shield'));
+    });
   });
 }

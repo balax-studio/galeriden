@@ -665,6 +665,20 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     _saveState();
   }
 
+  /// Update player identity, gallery title and logo emblem
+  void updateDealershipIdentity({
+    String? playerName,
+    String? dealershipName,
+    String? logoEmblemId,
+  }) {
+    state = state.copyWith(
+      playerName: playerName ?? state.playerName,
+      dealershipName: dealershipName ?? state.dealershipName,
+      logoEmblemId: logoEmblemId ?? state.logoEmblemId,
+    );
+    _saveState();
+  }
+
   /// Reset progress
   void resetGame() {
     state = DealershipModel.initial();

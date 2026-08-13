@@ -28,6 +28,9 @@ class DealershipModel {
   final List<PartOrderModel> pendingOrders;
   final bool tutorialCompleted;
   final int tutorialStepIndex;
+  final String playerName;
+  final String dealershipName;
+  final String logoEmblemId;
 
   DealershipModel({
     required this.balance,
@@ -49,6 +52,9 @@ class DealershipModel {
     this.pendingOrders = const [],
     this.tutorialCompleted = false,
     this.tutorialStepIndex = 0,
+    this.playerName = 'Kaptan',
+    this.dealershipName = 'Miras Oto Galeri',
+    this.logoEmblemId = 'crown',
   });
 
   factory DealershipModel.initial() {
@@ -141,6 +147,9 @@ class DealershipModel {
       'pendingOrders': pendingOrders.map((p) => p.toJson()).toList(),
       'tutorialCompleted': tutorialCompleted,
       'tutorialStepIndex': tutorialStepIndex,
+      'playerName': playerName,
+      'dealershipName': dealershipName,
+      'logoEmblemId': logoEmblemId,
     };
   }
 
@@ -183,6 +192,9 @@ class DealershipModel {
           const [],
       tutorialCompleted: json['tutorialCompleted'] as bool? ?? false,
       tutorialStepIndex: json['tutorialStepIndex'] as int? ?? 0,
+      playerName: json['playerName'] as String? ?? 'Kaptan',
+      dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
+      logoEmblemId: json['logoEmblemId'] as String? ?? 'crown',
     );
   }
 
@@ -206,6 +218,9 @@ class DealershipModel {
     List<PartOrderModel>? pendingOrders,
     bool? tutorialCompleted,
     int? tutorialStepIndex,
+    String? playerName,
+    String? dealershipName,
+    String? logoEmblemId,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -227,6 +242,9 @@ class DealershipModel {
       pendingOrders: pendingOrders ?? this.pendingOrders,
       tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
       tutorialStepIndex: tutorialStepIndex ?? this.tutorialStepIndex,
+      playerName: playerName ?? this.playerName,
+      dealershipName: dealershipName ?? this.dealershipName,
+      logoEmblemId: logoEmblemId ?? this.logoEmblemId,
     );
   }
 }

@@ -25,7 +25,23 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('GALERİSİNDEN', style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 2)),
+        title: Row(
+          children: [
+            VectorIconWidget(
+              type: game.logoEmblemId,
+              color: p.primaryColor,
+              size: 22,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                game.dealershipName.toUpperCase(),
+                style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.5),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: VectorIconWidget(type: 'streak', color: p.primaryColor, size: 22),
@@ -93,7 +109,16 @@ class DashboardScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('MEVCUT SERMAYE (Karakter Detayı)', style: AppTypography.labelSmall(p.isDark)),
+                      Expanded(
+                        child: Text(
+                          'Hoş Geldin, ${game.playerName}!',
+                          style: AppTypography.labelSmall(p.isDark).copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: p.primaryColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       Row(
                         children: [
                           Container(

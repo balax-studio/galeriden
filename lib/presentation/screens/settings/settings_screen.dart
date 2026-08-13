@@ -6,6 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/dealership_setup_sheet.dart';
 import 'theme_store_sheet.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -14,6 +15,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+    final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
 
@@ -24,6 +26,18 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          // Dealership Identity Customization Card
+          Card(
+            child: ListTile(
+              leading: VectorIconWidget(type: game.logoEmblemId, color: p.primaryColor, size: 26),
+              title: Text('GALERİ VE PROFİL KİMLİĞİ', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+              subtitle: Text('${game.dealershipName} (${game.playerName})', style: AppTypography.labelSmall(p.isDark)),
+              trailing: const Icon(Icons.edit_rounded, size: 18),
+              onTap: () => DealershipSetupSheet.show(context),
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Theme Store Entry Button
           Card(
             child: ListTile(
