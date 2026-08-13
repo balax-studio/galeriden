@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../providers/game_provider.dart';
+import '../../providers/tutorial_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 
-
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+      final game = ref.read(gameProvider);
+      if ((hasSeenOnboarding || game.tutorialCompleted) && mounted) {
+        context.go('/dashboard');
+      }
+    });
+  }
 
   final List<Map<String, String>> _pages = [
     {
@@ -34,8 +50,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
-  void _finishOnboarding() {
-    context.go('/dealership-identity');
+  void _finishOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
+    ref.read(gameProvider.notifier).completeTutorial();
+    ref.read(tutorialProvider.notifier).skipTutorial();
+    if (mounted) {
+      context.go('/dealership-identity');
+    }
   }
 
   @override

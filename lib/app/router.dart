@@ -25,7 +25,7 @@ import '../presentation/screens/side_business/side_business_screen.dart';
 import '../presentation/screens/stock_market/stock_market_screen.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/onboarding',
+  initialLocation: '/dashboard',
   errorBuilder: (context, state) => const DashboardScreen(),
   routes: [
     GoRoute(

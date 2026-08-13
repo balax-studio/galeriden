@@ -19,7 +19,7 @@ import '../../widgets/app_glass_container.dart';
 
 import 'widgets/dashboard_game_time_card.dart';
 
-import '../showroom/showroom_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../auction/auction_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -31,6 +31,19 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+      final game = ref.read(gameProvider);
+      if (!hasSeenOnboarding && !game.tutorialCompleted && mounted) {
+        context.go('/onboarding');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -763,8 +776,15 @@ class _AnimatedDailyBonusCardState extends State<_AnimatedDailyBonusCard> with S
   Widget build(BuildContext context) {
     if (_isClaimed) return const SizedBox.shrink();
 
-    final p = widget.p;
     final game = widget.game;
+    final now = DateTime.now();
+    if (game.lastRewardClaimDate != null) {
+      final lastClaim = game.lastRewardClaimDate!;
+      if (lastClaim.year == now.year && lastClaim.month == now.month && lastClaim.day == now.day) {
+        return const SizedBox.shrink();
+      }
+    }
+    final p = widget.p;
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 350),
