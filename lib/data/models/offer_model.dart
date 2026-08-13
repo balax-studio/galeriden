@@ -1,4 +1,5 @@
 enum OfferStatus { pending, accepted, rejected, countered, expired }
+enum OfferType { cash, installment, cheque }
 
 class OfferModel {
   final String id;
@@ -11,6 +12,7 @@ class OfferModel {
   final int counterCount;
   final int maxCounters;
   final DateTime expiresAt;
+  final OfferType offerType;
 
   OfferModel({
     required this.id,
@@ -23,6 +25,7 @@ class OfferModel {
     this.counterCount = 0,
     this.maxCounters = 3,
     DateTime? expiresAt,
+    this.offerType = OfferType.cash,
   }) : expiresAt = expiresAt ?? createdAt.add(const Duration(hours: 12));
 
   bool get isExpired => DateTime.now().isAfter(expiresAt);
@@ -39,6 +42,7 @@ class OfferModel {
       'counterCount': counterCount,
       'maxCounters': maxCounters,
       'expiresAt': expiresAt.toIso8601String(),
+      'offerType': offerType.name,
     };
   }
 
@@ -58,6 +62,10 @@ class OfferModel {
       counterCount: json['counterCount'] as int? ?? 0,
       maxCounters: json['maxCounters'] as int? ?? 3,
       expiresAt: DateTime.tryParse(json['expiresAt'] as String? ?? '') ?? created.add(const Duration(hours: 12)),
+      offerType: OfferType.values.firstWhere(
+        (e) => e.name == json['offerType'],
+        orElse: () => OfferType.cash,
+      ),
     );
   }
 
@@ -67,6 +75,7 @@ class OfferModel {
     String? buyerMessage,
     int? counterCount,
     DateTime? expiresAt,
+    OfferType? offerType,
   }) {
     return OfferModel(
       id: id,
@@ -79,6 +88,7 @@ class OfferModel {
       counterCount: counterCount ?? this.counterCount,
       maxCounters: maxCounters,
       expiresAt: expiresAt ?? this.expiresAt,
+      offerType: offerType ?? this.offerType,
     );
   }
 }

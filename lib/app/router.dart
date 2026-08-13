@@ -19,6 +19,8 @@ import '../presentation/screens/staff/staff_screen.dart';
 import '../presentation/screens/car_wash/car_wash_screen.dart';
 import '../presentation/screens/reviews/customer_reviews_screen.dart';
 import '../presentation/screens/history/sales_history_screen.dart';
+import '../presentation/screens/finance/finance_screen.dart';
+import '../presentation/screens/rent_a_car/rent_a_car_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/onboarding',
@@ -42,6 +44,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/reviews',
       builder: (context, state) => const CustomerReviewsScreen(),
+    ),
+    GoRoute(
+      path: '/finance',
+      builder: (context, state) => const FinanceScreen(),
+    ),
+    GoRoute(
+      path: '/rent-a-car',
+      builder: (context, state) => const RentACarScreen(),
     ),
     GoRoute(
       path: '/dealership-identity',

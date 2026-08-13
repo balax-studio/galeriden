@@ -16,6 +16,10 @@ import '../../data/models/part_order_model.dart';
 import '../../data/models/sale_record_model.dart';
 import '../../data/models/detailing_model.dart';
 import '../../data/models/player_skills.dart';
+import '../../data/models/cheque_model.dart';
+import '../../data/models/installment_contract_model.dart';
+import '../../data/models/rental_agreement_model.dart';
+
 import '../../domain/usecases/market_engine.dart';
 import '../../domain/usecases/negotiation_engine.dart';
 import '../../domain/usecases/offline_progression.dart';
@@ -95,9 +99,85 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       }
     }
 
-    // 3. Bailout (İflas Kurtarma Mekanizması)
+    // 4. Rent a Car (Pasif Gelir) mechanics
+    List<RentalAgreement> updatedRentals = List.from(state.activeRentals);
+    List<CarModel> currentCars = List.from(state.ownedCars);
+    
+    for (int i = updatedRentals.length - 1; i >= 0; i--) {
+      final rental = updatedRentals[i];
+      newBalance += rental.dailyRate;
+      
+      final carIndex = currentCars.indexWhere((c) => c.id == rental.carId);
+      if (carIndex != -1) {
+        CarModel car = currentCars[carIndex];
+        if (_random.nextDouble() < 0.05) { 
+          car = car.copyWith(expertise: car.expertise.copyWith(engineCondition: max(0, car.expertise.engineCondition - 5)));
+        } else if (_random.nextDouble() < 0.01) { 
+          car = car.copyWith(expertise: car.expertise.copyWith(tramerAmount: car.expertise.tramerAmount + 15000, engineCondition: max(0, car.expertise.engineCondition - 20)));
+        }
+        currentCars[carIndex] = car;
+      }
+      
+      updatedRentals[i] = rental.copyWith(
+        rentedDays: rental.rentedDays + 1,
+        totalEarned: rental.totalEarned + rental.dailyRate,
+      );
+    }
+
+    // 5. Installments mechanics
+    List<InstallmentContract> updatedInstallments = List.from(state.activeInstallments);
+    for (int i = updatedInstallments.length - 1; i >= 0; i--) {
+      final contract = updatedInstallments[i];
+      int remainingDays = contract.daysUntilNextPayment - 1;
+      
+      if (remainingDays <= 0) {
+        if (_random.nextDouble() < 0.05) {
+          newBalance += (contract.totalAmount - contract.paidAmount) * 0.5;
+          updatedInstallments.removeAt(i);
+        } else if (_random.nextDouble() < 0.10) {
+          updatedInstallments[i] = contract.copyWith(daysUntilNextPayment: 5, isDefaulted: true);
+        } else {
+          newBalance += contract.installmentAmount;
+          int newPaidInstallments = contract.paidInstallments + 1;
+          
+          if (newPaidInstallments >= contract.totalInstallments) {
+            updatedInstallments.removeAt(i);
+          } else {
+            updatedInstallments[i] = contract.copyWith(
+              paidAmount: contract.paidAmount + contract.installmentAmount,
+              paidInstallments: newPaidInstallments,
+              daysUntilNextPayment: 30,
+              isDefaulted: false,
+            );
+          }
+        }
+      } else {
+        updatedInstallments[i] = contract.copyWith(daysUntilNextPayment: remainingDays);
+      }
+    }
+
+    // 6. Cheques mechanics
+    List<Cheque> updatedCheques = List.from(state.activeCheques);
+    for (int i = updatedCheques.length - 1; i >= 0; i--) {
+      final cheque = updatedCheques[i];
+      int remainingDays = cheque.daysUntilDue - 1;
+      
+      if (remainingDays <= 0) {
+        if (_random.nextDouble() < 0.05) {
+          newBalance += cheque.amount * 0.5; 
+          updatedCheques.removeAt(i);
+        } else {
+          newBalance += cheque.amount;
+          updatedCheques.removeAt(i);
+        }
+      } else {
+        updatedCheques[i] = cheque.copyWith(daysUntilDue: remainingDays);
+      }
+    }
+
+    // 7. Bailout (İflas Kurtarma Mekanizması)
     // Eğer oyuncu kredi taksiti sonrası eksiye düştüyse ve satacak arabası yoksa soft-lock olur.
-    if (newBalance < 0 && state.ownedCars.isEmpty && state.pendingOrders.isEmpty) {
+    if (newBalance < 0 && currentCars.isEmpty && state.pendingOrders.isEmpty) {
       newBalance = 25000.0; // Devlet hibesi / başlangıç sermayesi
       updatedLoans.clear(); // Borçlar silinir
     }
@@ -105,8 +185,12 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
+      ownedCars: currentCars,
       hiredStaff: currentStaff,
       activeLoans: updatedLoans,
+      activeRentals: updatedRentals,
+      activeInstallments: updatedInstallments,
+      activeCheques: updatedCheques,
     );
 
     refreshMarketTrends();
@@ -591,11 +675,40 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       saleDate: DateTime.now(),
     );
 
+    // Depending on offerType
+    double cashReceived = 0.0;
+    List<Cheque> updatedCheques = List.from(state.activeCheques);
+    List<InstallmentContract> updatedInstallments = List.from(state.activeInstallments);
+
+    if (offer.offerType == OfferType.cash) {
+      cashReceived = offer.offeredAmount;
+    } else if (offer.offerType == OfferType.cheque) {
+      updatedCheques.add(Cheque(
+        id: 'cheque_${DateTime.now().millisecondsSinceEpoch}',
+        customerName: offer.buyerName,
+        amount: offer.offeredAmount,
+        daysUntilDue: 30, // 1 month
+      ));
+    } else if (offer.offerType == OfferType.installment) {
+      updatedInstallments.add(InstallmentContract(
+        id: 'inst_${DateTime.now().millisecondsSinceEpoch}',
+        customerName: offer.buyerName,
+        totalAmount: offer.offeredAmount,
+        paidAmount: 0.0,
+        installmentAmount: offer.offeredAmount / 5,
+        totalInstallments: 5,
+        paidInstallments: 0,
+        daysUntilNextPayment: 30,
+      ));
+    }
+
     state = state.copyWith(
-      balance: state.balance + offer.offeredAmount,
+      balance: state.balance + cashReceived,
       ownedCars: updatedCars,
       incomingOffers: updatedOffers,
       pendingOrders: updatedPendingOrders,
+      activeCheques: updatedCheques,
+      activeInstallments: updatedInstallments,
       totalProfit: state.totalProfit + profit,
       carsSold: newCarsSold,
       salesHistory: [record, ...state.salesHistory],
@@ -809,6 +922,32 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     return true;
   }
 
+  /// Perform an instant repair without placing an order (for Quick Patch)
+  bool instantRepair({
+    required String carId,
+    required String partName,
+    required OrderType orderType,
+    required double cost,
+  }) {
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final restoredCar = RepairEngine.applyInstalledPart(car, partName, orderType);
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = restoredCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+    _saveState();
+    return true;
+  }
+
   /// Install a delivered part order onto the car
   bool installDeliveredPart(String orderId) {
     final orderIndex = state.pendingOrders.indexWhere((o) => o.id == orderId);
@@ -870,5 +1009,57 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   void resetGame() {
     state = DealershipModel.initial();
     _saveState();
+  }
+
+  /// Rent a Car
+  bool rentCar(String carId, double dailyRate) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+    
+    final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
+
+    final updatedCar = car.copyWith(isRented: true);
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    final agreement = RentalAgreement(
+      id: 'rent_${DateTime.now().millisecondsSinceEpoch}',
+      carId: carId,
+      dailyRate: dailyRate,
+    );
+
+    state = state.copyWith(
+      ownedCars: updatedCars,
+      activeRentals: [...state.activeRentals, agreement],
+    );
+    _saveState();
+    return true;
+  }
+
+  /// Return Rented Car
+  bool returnRentedCar(String agreementId) {
+    final rentalIndex = state.activeRentals.indexWhere((r) => r.id == agreementId);
+    if (rentalIndex == -1) return false;
+
+    final rental = state.activeRentals[rentalIndex];
+    
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == rental.carId);
+    if (carIndex != -1) {
+      final updatedCar = state.ownedCars[carIndex].copyWith(isRented: false);
+      final updatedCars = List<CarModel>.from(state.ownedCars);
+      updatedCars[carIndex] = updatedCar;
+      
+      final updatedRentals = List<RentalAgreement>.from(state.activeRentals);
+      updatedRentals.removeAt(rentalIndex);
+
+      state = state.copyWith(
+        ownedCars: updatedCars,
+        activeRentals: updatedRentals,
+      );
+      _saveState();
+      return true;
+    }
+    return false;
   }
 }

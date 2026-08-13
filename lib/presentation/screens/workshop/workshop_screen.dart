@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -204,7 +205,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     Builder(
                       builder: (context) {
                         final damagedParts = _selectedCar!.expertise.bodyParts.entries
-                            .where((e) => e.value != PartStatus.original)
+                            .where((e) {
+                              if (e.value != PartStatus.damaged) return false;
+                              final hasPendingOrder = game.pendingOrders.any((o) => o.carId == _selectedCar!.id && o.partName == e.key);
+                              return !hasPendingOrder;
+                            })
                             .toList();
 
                         if (damagedParts.isEmpty) {
@@ -222,7 +227,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    'Tüm kaporta parçaları orijinal kondisyonda! Onarılacak parça kalmadı.',
+                                    'Araçta onarım gerektiren hasarlı kaporta parçası bulunmuyor.',
                                     style: AppTypography.labelSmall(p.isDark).copyWith(color: Colors.greenAccent, fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -243,13 +248,17 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
                                 title: Text('$partName Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-                                subtitle: Text(status == PartStatus.painted ? 'Lokal Boya Yapılacak' : 'Orijinal Parça ile Değişecek'),
+                                subtitle: Text(status == PartStatus.damaged 
+                                    ? 'Durum: Hasarlı (Onarım Gerekli)' 
+                                    : status == PartStatus.painted 
+                                        ? 'Durum: Boyalı (Orijinale Çevrilebilir)' 
+                                        : 'Durum: Değişen (Orijinale Çevrilebilir)'),
                                 trailing: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: p.secondaryColor,
                                     foregroundColor: Colors.white,
                                   ),
-                                  onPressed: () => _showCraftsmanSelectionSheet(context, isEngine: false, partName: partName),
+                                  onPressed: () => _showCraftsmanSelectionSheet(context, isEngine: false, partName: partName, currentStatus: status),
                                   child: const Text('Usta Seç & Onar'),
                                 ),
                               ),
@@ -332,10 +341,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     );
   }
 
-  void _showCraftsmanSelectionSheet(BuildContext context, {required bool isEngine, String? partName}) {
+  void _showCraftsmanSelectionSheet(BuildContext context, {required bool isEngine, String? partName, PartStatus? currentStatus}) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final targetPart = isEngine ? 'Motor & Şanzıman' : (partName ?? 'Kaput');
+    final canQuickPatch = !isEngine && currentStatus == PartStatus.damaged;
 
     showModalBottomSheet(
       context: context,
@@ -354,26 +364,36 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               const SizedBox(height: 16),
 
               // Option 1: Quick Patch (Geçici Tamir) - Instant, cheaper, caps at 60% condition
-              _buildRepairDecisionTile(
-                context,
-                title: 'Geçici Lokal Tamir',
-                subtitle: 'Maliyet: ₺1.500 | Süre: Anında | Kondisyon: %60 Maksimum',
+              if (isEngine || canQuickPatch)
+                _buildRepairDecisionTile(
+                  context,
+                  title: 'Geçici Lokal Tamir',
+                  subtitle: 'Maliyet: ₺1.500 | Süre: Anında | Kondisyon: %60 Maksimum',
                 vectorType: 'workshop',
                 color: p.warningColor,
                 p: p,
                 onTap: () {
                   Navigator.pop(context);
                   if (_selectedCar == null) return;
-                  final success = ref.read(gameProvider.notifier).orderPart(
+                  final success = ref.read(gameProvider.notifier).instantRepair(
                     carId: _selectedCar!.id,
                     partName: targetPart,
                     orderType: OrderType.quickPatch,
                     cost: 1500.0,
-                    deliveryDurationSeconds: 1, // Instant 1 second
                   );
                   if (success) {
                     ref.read(tutorialProvider.notifier).nextStep();
-                    NotificationService.showSuccess(context, 'Geçici tamir siparişi verildi! Montaj sekmesinden araca uygula.');
+                    final updatedCars = ref.read(gameProvider).ownedCars;
+                    if (updatedCars.isNotEmpty) {
+                      final updated = updatedCars.firstWhere(
+                        (c) => c.id == _selectedCar!.id,
+                        orElse: () => updatedCars.first,
+                      );
+                      setState(() => _selectedCar = updated);
+                    }
+                    NotificationService.showSuccess(context, 'Geçici tamir anında uygulandı!');
+                  } else {
+                    NotificationService.showError(context, 'Yetersiz bakiye!');
                   }
                 },
               ),
@@ -518,6 +538,7 @@ class _AnimatedOrderCardState extends State<_AnimatedOrderCard> with SingleTicke
   late Animation<double> _fadeAnimation;
   late Animation<double> _sizeAnimation;
   bool _isInstalling = false;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -535,10 +556,16 @@ class _AnimatedOrderCardState extends State<_AnimatedOrderCard> with SingleTicke
     _sizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+
+    // Refresh UI every second for countdown/progress
+    _refreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }

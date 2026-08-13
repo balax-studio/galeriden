@@ -10,6 +10,9 @@ import 'expertise_model.dart';
 import 'mission_model.dart';
 import 'market_trend_model.dart';
 import 'sale_record_model.dart';
+import 'cheque_model.dart';
+import 'installment_contract_model.dart';
+import 'rental_agreement_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -32,6 +35,9 @@ class DealershipModel {
   final List<StaffModel> hiredStaff;
   final List<CustomerReviewModel> customerReviews;
   final List<SaleRecordModel> salesHistory;
+  final List<Cheque> activeCheques;
+  final List<InstallmentContract> activeInstallments;
+  final List<RentalAgreement> activeRentals;
   final bool tutorialCompleted;
   final int tutorialStepIndex;
   final int currentDay;
@@ -63,6 +69,9 @@ class DealershipModel {
     this.hiredStaff = const [],
     this.customerReviews = const [],
     this.salesHistory = const [],
+    this.activeCheques = const [],
+    this.activeInstallments = const [],
+    this.activeRentals = const [],
     this.tutorialCompleted = false,
     this.tutorialStepIndex = 0,
     this.currentDay = 1,
@@ -136,6 +145,9 @@ class DealershipModel {
       marketTrend: MarketTrendModel.defaultTrend(),
       activeLoans: const [],
       pendingOrders: const [],
+      activeCheques: const [],
+      activeInstallments: const [],
+      activeRentals: const [],
       salesHistory: [
         SaleRecordModel(
           id: 'sale_init_1',
@@ -185,6 +197,9 @@ class DealershipModel {
       'hiredStaff': hiredStaff.map((s) => s.toJson()).toList(),
       'customerReviews': customerReviews.map((r) => r.toJson()).toList(),
       'salesHistory': salesHistory.map((s) => s.toJson()).toList(),
+      'activeCheques': activeCheques.map((c) => c.toJson()).toList(),
+      'activeInstallments': activeInstallments.map((i) => i.toJson()).toList(),
+      'activeRentals': activeRentals.map((r) => r.toJson()).toList(),
       'tutorialCompleted': tutorialCompleted,
       'tutorialStepIndex': tutorialStepIndex,
       'currentDay': currentDay,
@@ -244,6 +259,18 @@ class DealershipModel {
               ?.map((s) => SaleRecordModel.fromJson(s as Map<String, dynamic>))
               .toList() ??
           const [],
+      activeCheques: (json['activeCheques'] as List<dynamic>?)
+              ?.map((c) => Cheque.fromJson(c as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      activeInstallments: (json['activeInstallments'] as List<dynamic>?)
+              ?.map((i) => InstallmentContract.fromJson(i as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      activeRentals: (json['activeRentals'] as List<dynamic>?)
+              ?.map((r) => RentalAgreement.fromJson(r as Map<String, dynamic>))
+              .toList() ??
+          const [],
       tutorialCompleted: json['tutorialCompleted'] as bool? ?? false,
       tutorialStepIndex: json['tutorialStepIndex'] as int? ?? 0,
       currentDay: json['currentDay'] as int? ?? 1,
@@ -275,6 +302,9 @@ class DealershipModel {
     List<StaffModel>? hiredStaff,
     List<CustomerReviewModel>? customerReviews,
     List<SaleRecordModel>? salesHistory,
+    List<Cheque>? activeCheques,
+    List<InstallmentContract>? activeInstallments,
+    List<RentalAgreement>? activeRentals,
     bool? tutorialCompleted,
     int? tutorialStepIndex,
     int? currentDay,
@@ -304,6 +334,9 @@ class DealershipModel {
       hiredStaff: hiredStaff ?? this.hiredStaff,
       customerReviews: customerReviews ?? this.customerReviews,
       salesHistory: salesHistory ?? this.salesHistory,
+      activeCheques: activeCheques ?? this.activeCheques,
+      activeInstallments: activeInstallments ?? this.activeInstallments,
+      activeRentals: activeRentals ?? this.activeRentals,
       tutorialCompleted: tutorialCompleted ?? this.tutorialCompleted,
       tutorialStepIndex: tutorialStepIndex ?? this.tutorialStepIndex,
       currentDay: currentDay ?? this.currentDay,

@@ -23,6 +23,7 @@ class CarModel {
   final ListingDeclarationType declarationType;
   final double? customListingPrice;
   final List<String> appliedDetailingOptionIds;
+  final bool isRented;
 
   CarModel({
     required this.id,
@@ -41,6 +42,7 @@ class CarModel {
     this.declarationType = ListingDeclarationType.honest,
     this.customListingPrice,
     this.appliedDetailingOptionIds = const [],
+    this.isRented = false,
   });
 
   /// Effective listing price (custom if set by player, otherwise estimated real value)
@@ -91,6 +93,7 @@ class CarModel {
       'declarationType': declarationType.name,
       'customListingPrice': customListingPrice,
       'appliedDetailingOptionIds': appliedDetailingOptionIds,
+      'isRented': isRented,
     };
   }
 
@@ -117,6 +120,7 @@ class CarModel {
           : ListingDeclarationType.honest,
       customListingPrice: json['customListingPrice'] != null ? (json['customListingPrice'] as num).toDouble() : null,
       appliedDetailingOptionIds: (json['appliedDetailingOptionIds'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
+      isRented: json['isRented'] as bool? ?? false,
     );
   }
 
@@ -131,6 +135,7 @@ class CarModel {
     ListingDeclarationType? declarationType,
     double? customListingPrice,
     List<String>? appliedDetailingOptionIds,
+    bool? isRented,
   }) {
     return CarModel(
       id: id,
@@ -149,6 +154,7 @@ class CarModel {
       declarationType: declarationType ?? this.declarationType,
       customListingPrice: customListingPrice ?? this.customListingPrice,
       appliedDetailingOptionIds: appliedDetailingOptionIds ?? this.appliedDetailingOptionIds,
+      isRented: isRented ?? this.isRented,
     );
   }
 }

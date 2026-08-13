@@ -71,4 +71,24 @@ class ExpertiseReport {
       partConditions: conditionsMap,
     );
   }
+
+  ExpertiseReport copyWith({
+    double? engineCondition,
+    double? transmissionCondition,
+    int? tramerAmount,
+    int? mileage,
+    bool? isMileageTampered,
+    Map<String, PartStatus>? bodyParts,
+    Map<String, double>? partConditions,
+  }) {
+    return ExpertiseReport(
+      engineCondition: engineCondition ?? this.engineCondition,
+      transmissionCondition: transmissionCondition ?? this.transmissionCondition,
+      tramerAmount: tramerAmount ?? this.tramerAmount,
+      mileage: mileage ?? this.mileage,
+      isMileageTampered: isMileageTampered ?? this.isMileageTampered,
+      bodyParts: bodyParts ?? Map.from(this.bodyParts),
+      partConditions: partConditions ?? Map.from(this.partConditions),
+    );
+  }
 }
