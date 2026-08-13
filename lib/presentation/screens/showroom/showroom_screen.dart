@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -174,13 +175,9 @@ class ShowroomScreen extends ConsumerWidget {
                                       onPressed: () {
                                         final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
                                         if (success) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!')),
-                                          );
+                                          NotificationService.showSuccess(context, '${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!');
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Doping için bakiyeniz yetersiz (₺2.500 gereklidir).')),
-                                          );
+                                          NotificationService.showError(context, 'Doping için bakiyeniz yetersiz (₺2.500 gereklidir).');
                                         }
                                       },
                                     ),
@@ -327,9 +324,7 @@ class ShowroomScreen extends ConsumerWidget {
                                             );
                                             ref.read(gameProvider.notifier).addCustomerReview(review);
 
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı! Müşteri değerlendirmesi eklendi.')),
-                                            );
+                                            NotificationService.showSuccess(context, '${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı! Müşteri değerlendirmesi eklendi.');
                                           }
                                         },
                                         child: const Text('Kabul Et & Sat'),
@@ -403,9 +398,7 @@ class ShowroomScreen extends ConsumerWidget {
                       onPressed: () {
                         Navigator.pop(context);
                         final outcome = ref.read(gameProvider.notifier).counterOffer(offer.id, targetPrice);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(outcome.responseMessage)),
-                        );
+                        NotificationService.showSuccess(context, outcome.responseMessage);
                       },
                       child: const Text('Karşı Teklifi İlet', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
@@ -576,9 +569,7 @@ class ShowroomScreen extends ConsumerWidget {
                                 declaration: selectedDeclaration,
                               );
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${car.brand} ${car.modelName} ilanı güncellendi!')),
-                          );
+                          NotificationService.showSuccess(context, '${car.brand} ${car.modelName} ilanı güncellendi!');
                         },
                         child: const Text('İlanı Güncelle & Kaydet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       ),

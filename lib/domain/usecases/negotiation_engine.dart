@@ -253,7 +253,18 @@ class NegotiationEngine {
     }
 
     // Check walkaway threshold (asking way above real value or huge counter)
-    if (diffRatio > 0.25 || playerTargetPrice > carRealValue * 1.35) {
+    // 1) Hard Walkaway for ridiculous offers (No skill can save this)
+    if (diffRatio > 0.40 || playerTargetPrice > carRealValue * 1.30) {
+      return NegotiationOutcome(
+        updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected),
+        responseMessage: 'Dalga mı geçiyorsun usta? Bu paraya bayiden sıfırını alırım! Hadi eyvallah.',
+        isAccepted: false,
+        isWalkaway: true,
+      );
+    }
+
+    // 2) Soft Walkaway for high offers (Can be saved by skill)
+    if (diffRatio > 0.25 || playerTargetPrice > carRealValue * 1.15) {
       if (_random.nextDouble() > (0.15 + skillBonus)) {
         return NegotiationOutcome(
           updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected),
@@ -266,6 +277,11 @@ class NegotiationEngine {
 
     // Buyer makes a middle counter-offer
     double buyerNewOffer = (previousOffer + (playerTargetPrice - previousOffer) * (0.45 + _random.nextDouble() * 0.20 + skillBonus)).roundToDouble();
+    
+    // HARD CAP: Buyer will NEVER offer more than 115% of the car's real value
+    if (buyerNewOffer > carRealValue * 1.15) {
+      buyerNewOffer = (carRealValue * 1.15).roundToDouble();
+    }
     int newCount = currentOffer.counterCount + 1;
 
     if (newCount >= currentOffer.maxCounters) {

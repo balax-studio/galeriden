@@ -37,18 +37,79 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   }
 
   void _startPeriodicOrganicOfferTimer() {
-    _organicOfferTimer = Timer.periodic(const Duration(seconds: 45), (timer) {
-      // ponytail: Advance game calendar day every 3 ticks (135 seconds)
-      if (timer.tick % 3 == 0) {
-        state = state.copyWith(currentDay: state.currentDay + 1);
-        refreshMarketTrends();
+    _organicOfferTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      // ponytail: Advance game calendar day every 2 ticks (120 seconds)
+      if (timer.tick % 2 == 0) {
+        _advanceGameDay();
       }
 
-      // Much lower probability (0.35) and longer intervals (45s) for organic offers
-      if (state.ownedCars.isNotEmpty && _random.nextDouble() < 0.35) {
+      // Günlük dalgalanma faktörü (0.8 ile 1.2 arası)
+      double dayFactor = 0.8 + (_random.nextDouble() * 0.4);
+
+      // Daha düşük ihtimal ve daha uzun aralıklarla organik teklifler (Örn: %15 şans)
+      if (state.ownedCars.isNotEmpty && _random.nextDouble() < (0.15 * dayFactor)) {
         triggerOrganicOffers();
       }
     });
+  }
+
+  void _advanceGameDay() {
+    int nextDay = state.currentDay + 1;
+    double newBalance = state.balance;
+
+    // 1. Deduct daily salaries for hired staff
+    double totalSalaries = 0.0;
+    for (var staff in state.hiredStaff) {
+      totalSalaries += staff.role.dailySalary;
+    }
+    
+    // Eğer maaşı ödeyecek para yoksa personel işi bırakır
+    List<StaffModel> currentStaff = List.from(state.hiredStaff);
+    if (newBalance >= totalSalaries) {
+      newBalance -= totalSalaries;
+    } else {
+      newBalance = 0; // Kalan para ancak bir kısmını ödedi
+      currentStaff.clear(); // Tüm personel ayrıldı
+    }
+
+    // 2. Process automatic loan installments every 7 days (Weekly deduction)
+    List<LoanModel> updatedLoans = List.from(state.activeLoans);
+    bool isLoanPaymentDay = nextDay % 7 == 0;
+
+    if (isLoanPaymentDay && updatedLoans.isNotEmpty) {
+      for (int i = updatedLoans.length - 1; i >= 0; i--) {
+        final loan = updatedLoans[i];
+        newBalance -= loan.monthlyPayment;
+
+        final newRemaining = loan.remainingAmount - loan.monthlyPayment;
+        final newInstallments = loan.remainingInstallments - 1;
+
+        if (newInstallments <= 0 || newRemaining <= 0) {
+          updatedLoans.removeAt(i);
+        } else {
+          updatedLoans[i] = loan.copyWith(
+            remainingAmount: newRemaining,
+            remainingInstallments: newInstallments,
+          );
+        }
+      }
+    }
+
+    // 3. Bailout (İflas Kurtarma Mekanizması)
+    // Eğer oyuncu kredi taksiti sonrası eksiye düştüyse ve satacak arabası yoksa soft-lock olur.
+    if (newBalance < 0 && state.ownedCars.isEmpty && state.pendingOrders.isEmpty) {
+      newBalance = 25000.0; // Devlet hibesi / başlangıç sermayesi
+      updatedLoans.clear(); // Borçlar silinir
+    }
+
+    state = state.copyWith(
+      currentDay: nextDay,
+      balance: newBalance,
+      hiredStaff: currentStaff,
+      activeLoans: updatedLoans,
+    );
+
+    refreshMarketTrends();
   }
 
   @override
@@ -112,6 +173,7 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     state = state.copyWith(
       balance: state.balance + reward,
       lastLoginDate: DateTime.now(),
+      lastRewardClaimDate: DateTime.now(),
     );
     addXP(50);
     _saveState();
@@ -171,6 +233,7 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   /// Directly purchase a car (e.g. won from Live Auction)
   bool buyCarDirectly(CarModel car, double price) {
     if (state.balance < price) return false;
+    if (state.ownedCars.length >= state.maxGarageSlots) return false;
     final finalCar = car.copyWith(currentPurchasePrice: price);
     state = state.copyWith(
       balance: state.balance - price,
@@ -212,12 +275,14 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
     // Doping brings 2 offers after realistic randomized delays (3-8 sec)
     Future.delayed(Duration(seconds: delay1), () {
+      if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
       _saveState();
     });
 
     Future.delayed(Duration(seconds: delay2), () {
+      if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
       _saveState();
@@ -229,7 +294,16 @@ class GameNotifier extends StateNotifier<DealershipModel> {
   /// Organic buyer offers trigger over time even WITHOUT paid doping
   void triggerOrganicOffers() {
     if (state.ownedCars.isEmpty) return;
-    final randomCar = state.ownedCars[_random.nextInt(state.ownedCars.length)];
+    
+    // Sadece üzerinde 2'den az aktif teklif olan araçlara organik teklif gelsin
+    final eligibleCars = state.ownedCars.where((car) {
+       int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+       return activeOffers < 2; 
+    }).toList();
+
+    if (eligibleCars.isEmpty) return;
+
+    final randomCar = eligibleCars[_random.nextInt(eligibleCars.length)];
     final offer = NegotiationEngine.generateBuyerOffer(randomCar, randomCar.estimatedRealValue);
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     _saveState();
@@ -248,7 +322,6 @@ class GameNotifier extends StateNotifier<DealershipModel> {
     final updatedOptionIds = [...car.appliedDetailingOptionIds, option.id];
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptionIds,
-      isDetailedCleaned: true,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -310,16 +383,23 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
   /// Interactive Wash and Polish Car
   bool washAndPolishCar(String carId, {required bool wash, required bool polish}) {
-    final cost = (wash ? 300.0 : 0.0) + (polish ? 800.0 : 0.0);
-    if (state.balance < cost) return false;
-
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    
+    // Only charge for what is actually needed
+    final bool willWash = wash && !car.isWashed;
+    final bool willPolish = polish && !car.isPolished;
+    
+    if (!willWash && !willPolish) return false;
+
+    final cost = (willWash ? 300.0 : 0.0) + (willPolish ? 800.0 : 0.0);
+    if (state.balance < cost) return false;
+
     final updatedCar = car.copyWith(
-      isWashed: wash ? true : car.isWashed,
-      isPolished: polish ? true : car.isPolished,
+      isWashed: willWash ? true : car.isWashed,
+      isPolished: willPolish ? true : car.isPolished,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -496,15 +576,9 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
     final updatedCars = state.ownedCars.where((c) => c.id != car.id).toList();
     final updatedOffers = state.incomingOffers.where((o) => o.carId != car.id).toList();
+    final updatedPendingOrders = state.pendingOrders.where((o) => o.carId != car.id).toList();
 
     int newCarsSold = state.carsSold + 1;
-    int newLevel = state.level;
-    int newSlots = state.maxGarageSlots;
-
-    if (newCarsSold % 3 == 0) {
-      newLevel += 1;
-      newSlots += 1;
-    }
 
     final record = SaleRecordModel(
       id: 'sale_${DateTime.now().millisecondsSinceEpoch}',
@@ -521,10 +595,9 @@ class GameNotifier extends StateNotifier<DealershipModel> {
       balance: state.balance + offer.offeredAmount,
       ownedCars: updatedCars,
       incomingOffers: updatedOffers,
+      pendingOrders: updatedPendingOrders,
       totalProfit: state.totalProfit + profit,
       carsSold: newCarsSold,
-      level: newLevel,
-      maxGarageSlots: newSlots,
       salesHistory: [record, ...state.salesHistory],
     );
 
@@ -771,6 +844,7 @@ class GameNotifier extends StateNotifier<DealershipModel> {
 
   /// Complete initial guided tutorial after first car sale
   void completeTutorial() {
+    if (state.tutorialCompleted) return; // Prevent duplicate rewards
     state = state.copyWith(
       tutorialCompleted: true,
       balance: state.balance + 50000.0, // Bonus capital reward for completing tutorial!

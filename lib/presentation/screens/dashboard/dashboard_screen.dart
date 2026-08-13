@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,12 +8,12 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/floating_money_overlay.dart';
-import '../../widgets/game_hud_widget.dart';
+
 import '../../widgets/isometric_showroom_canvas.dart';
 import '../../widgets/app_glass_container.dart';
 
 import 'widgets/dashboard_game_time_card.dart';
-import 'widgets/dashboard_status_card.dart';
+
 
 import '../showroom/showroom_screen.dart';
 import '../auction/auction_screen.dart';
@@ -75,9 +76,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top Floating Game HUD Header
-                  const GameHudHeaderWidget(),
-                  const SizedBox(height: 16),
+                  // Top 3 Important Stats
+                  Row(
+                    children: [
+                      Expanded(child: _buildStatCard(p, 'Bakiye', '₺${CurrencyFormatter.formatShort(game.balance)}', Icons.account_balance_wallet_rounded, p.successColor)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildStatCard(p, 'Araçlar', '${game.ownedCars.length}/${game.maxGarageSlots}', Icons.directions_car_rounded, p.primaryColor)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildStatCard(p, 'İtibar', '%${game.reputationScore}', Icons.star_rounded, Colors.amber)),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
 
                   // 2.5D Interactive Isometric Showroom & Parking Canvas
                   const IsometricShowroomCanvas(),
@@ -120,15 +129,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     onClaim: () {
                       final reward = ref.read(gameProvider.notifier).claimDailyStreak();
                       FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!')),
-                      );
+                      NotificationService.showSuccess(context, '₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!');
                     },
                   ),
-
-                  // Main Dealership Status Card
-                  DashboardStatusCard(game: game),
-                  const SizedBox(height: 24),
 
                   // Daily Missions Section
                   Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
@@ -142,58 +145,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         onClaim: () {
                           ref.read(gameProvider.notifier).claimMissionReward(mission.id);
                           FloatingMoneyOverlay.of(context)?.showMoneyPopUp(mission.rewardMoney.toDouble(), label: 'Görev Ödülü!');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.')),
-                          );
+                          NotificationService.showSuccess(context, '${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.');
                         },
                       );
                     }).toList(),
                   ),
                   const SizedBox(height: 24),
 
-                  // Simplified Quick Menu Hub Grid - Exactly 4 Action Cards
-                  Text('HIZLI MENÜ', style: AppTypography.labelSmall(p.isDark)),
+                  // Minimalist Menu List
+                  Text('İŞLEMLER', style: AppTypography.labelSmall(p.isDark)),
                   const SizedBox(height: 12),
 
-                  GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+                  Column(
                     children: [
-                      _buildActionCard(
-                        context,
-                        title: 'İkinci El Pazarı',
-                        subtitle: 'Araç İlanlarını İncele',
-                        vectorType: 'car',
-                        color: p.primaryColor,
-                        onTap: () => context.push('/marketplace'),
-                      ),
-                      _buildActionCard(
-                        context,
-                        title: 'Tamir Atölyesi',
-                        subtitle: 'Araç Değerini Artır',
-                        vectorType: 'workshop',
-                        color: Colors.orangeAccent,
-                        onTap: () => context.push('/workshop'),
-                      ),
-                      _buildActionCard(
-                        context,
-                        title: 'Oto Yıkama Stüdyosu',
-                        subtitle: 'Köpük & Pasta-Cila',
-                        vectorType: 'car',
-                        color: Colors.blueAccent,
-                        onTap: () => context.push('/car-wash'),
-                      ),
-                      _buildActionCard(
-                        context,
-                        title: 'Şube İmparatorluğu',
-                        subtitle: 'Kapasite Genişlet',
-                        vectorType: 'rare',
-                        color: p.secondaryColor,
-                        onTap: () => context.push('/branches'),
-                      ),
+                      _buildSimpleListItem(context, title: 'İkinci El Pazarı', subtitle: 'Araç İlanlarını İncele', icon: Icons.storefront_rounded, color: p.primaryColor, onTap: () => context.push('/marketplace')),
+                      _buildSimpleListItem(context, title: 'Tamir Atölyesi', subtitle: 'Araç Değerini Artır', icon: Icons.build_rounded, color: Colors.orangeAccent, onTap: () => context.push('/workshop')),
+                      _buildSimpleListItem(context, title: 'Oto Yıkama Stüdyosu', subtitle: 'Köpük & Pasta-Cila', icon: Icons.local_car_wash_rounded, color: Colors.blueAccent, onTap: () => context.push('/car-wash')),
+                      _buildSimpleListItem(context, title: 'Şube İmparatorluğu', subtitle: 'Kapasite Genişlet', icon: Icons.domain_rounded, color: p.secondaryColor, onTap: () => context.push('/branches')),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -433,59 +401,63 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 
 
-  Widget _buildActionCard(
+  Widget _buildStatCard(dynamic p, String title, String value, IconData icon, Color color) {
+    return AppGlassContainer(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(title, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+          const SizedBox(height: 4),
+          Text(value, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimpleListItem(
     BuildContext context, {
     required String title,
     required String subtitle,
-    required String vectorType,
+    required IconData icon,
     required Color color,
     required VoidCallback onTap,
-    String? badge,
   }) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: p.surfaceColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  backgroundColor: color.withValues(alpha: 0.15),
-                  child: VectorIconWidget(type: vectorType, color: color, size: 20),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: AppGlassContainer(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
                 ),
-                if (badge != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: p.errorColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                  ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                const SizedBox(height: 2),
-                Text(subtitle, style: AppTypography.labelSmall(p.isDark)),
-              ],
-            ),
-          ],
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: AppTypography.labelSmall(p.isDark)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: p.textSecondaryColor),
+            ],
+          ),
         ),
       ),
     );
@@ -576,11 +548,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   onPressed: () {
                                     final success = ref.read(gameProvider.notifier).payLoanInstallment(loan.id);
                                     Navigator.pop(ctx);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(success ? 'Taksit başarıyla ödendi!' : 'Bakiye yetersiz!'),
-                                      ),
-                                    );
+                                    NotificationService.showError(context, success ? 'Taksit başarıyla ödendi!' : 'Bakiye yetersiz!');
                                   },
                                   child: const Text('Öde'),
                                 ),
@@ -601,11 +569,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       months: 6,
                                     );
                                 Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(success ? '₺100.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!'),
-                                  ),
-                                );
+                                NotificationService.showSuccess(context, success ? '₺100.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!');
                               },
                               child: const Text('₺100.000\n(6 Ay)'),
                             ),
@@ -620,11 +584,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       months: 6,
                                     );
                                 Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(success ? '₺250.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!'),
-                                  ),
-                                );
+                                NotificationService.showSuccess(context, success ? '₺250.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!');
                               },
                               child: const Text('₺250.000\n(6 Ay)'),
                             ),
@@ -639,11 +599,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       months: 12,
                                     );
                                 Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(success ? '₺500.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!'),
-                                  ),
-                                );
+                                NotificationService.showSuccess(context, success ? '₺500.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!');
                               },
                               child: const Text('₺500.000\n(12 Ay)'),
                             ),

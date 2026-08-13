@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
@@ -87,9 +88,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                       );
                                       setState(() => _selectedCar = updated);
                                     }
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('${order.partName} başarıyla monte edildi ve kondisyon yenilendi!')),
-                                    );
+                                    NotificationService.showSuccess(context, '${order.partName} başarıyla monte edildi ve kondisyon yenilendi!');
                                   }
                                 },
                               );
@@ -188,13 +187,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                     if (success) {
                                       final updated = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
                                       setState(() => _selectedCar = updated);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Pasta-Cila & Detaylı Temizlik Tamamlandı! Araç Parıl Parıl Parlıyor (+%8 Değer Boost).')),
-                                      );
+                                      NotificationService.showSuccess(context, 'Pasta-Cila & Detaylı Temizlik Tamamlandı! Araç Parıl Parıl Parlıyor (+%8 Değer Boost).');
                                     } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Yetersiz bakiye! Pasta-Cila için ₺2.500 gereklidir.')),
-                                      );
+                                      NotificationService.showError(context, 'Yetersiz bakiye! Pasta-Cila için ₺2.500 gereklidir.');
                                     }
                                   },
                           ),
@@ -317,13 +312,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                     );
                                     setState(() => _selectedCar = updated);
                                   }
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('${opt.badgeText} Yapıldı! Aracın İlan Çekiciliği Artırıldı.')),
-                                  );
+                                  NotificationService.showSuccess(context, '${opt.badgeText} Yapıldı! Aracın İlan Çekiciliği Artırıldı.');
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Yetersiz Sermaye!')),
-                                  );
+                                  NotificationService.showError(context, 'Yetersiz Sermaye!');
                                 }
                               },
                             );
@@ -382,9 +373,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   );
                   if (success) {
                     ref.read(tutorialProvider.notifier).nextStep();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Geçici tamir siparişi verildi! Montaj sekmesinden araca uygula.')),
-                    );
+                    NotificationService.showSuccess(context, 'Geçici tamir siparişi verildi! Montaj sekmesinden araca uygula.');
                   }
                 },
               ),
@@ -409,9 +398,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   );
                   if (success) {
                     ref.read(tutorialProvider.notifier).nextStep();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Sanayi usta tamir siparişi verildi! Kargoda bekleniyor.')),
-                    );
+                    NotificationService.showSuccess(context, 'Sanayi usta tamir siparişi verildi! Kargoda bekleniyor.');
                   }
                 },
               ),
@@ -436,9 +423,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   );
                   if (success) {
                     ref.read(tutorialProvider.notifier).nextStep();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Sıfır OEM parça siparişi verildi! Kargo takibini kontrol et.')),
-                    );
+                    NotificationService.showSuccess(context, 'Sıfır OEM parça siparişi verildi! Kargo takibini kontrol et.');
                   }
                 },
               ),

@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -154,9 +155,7 @@ class BranchScreen extends ConsumerWidget {
                                 onPressed: canAfford
                                     ? () {
                                         ref.read(gameProvider.notifier).expandGarageSlot(b.maxGarageSlots, b.requiredBalance);
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('${b.name} Şubesi Açıldı! Kapasite ${b.maxGarageSlots} Araç Oldu.')),
-                                        );
+                                        NotificationService.showSuccess(context, '${b.name} Şubesi Açıldı! Kapasite ${b.maxGarageSlots} Araç Oldu.');
                                       }
                                     : null,
                                 child: Text(

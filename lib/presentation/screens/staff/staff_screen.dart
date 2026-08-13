@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -122,9 +123,7 @@ class StaffScreen extends ConsumerWidget {
                             onPressed: () {
                               if (isHired) {
                                 ref.read(gameProvider.notifier).fireStaff(hired.id);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('${role.title} İşten Çıkarıldı.')),
-                                );
+                                NotificationService.showSuccess(context, '${role.title} İşten Çıkarıldı.');
                               } else {
                                 final newStaff = StaffModel(
                                   id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -134,9 +133,7 @@ class StaffScreen extends ConsumerWidget {
                                 );
                                 final success = ref.read(gameProvider.notifier).hireStaff(newStaff);
                                 if (success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('${role.title} Ekibe Katıldı!')),
-                                  );
+                                  NotificationService.showSuccess(context, '${role.title} Ekibe Katıldı!');
                                 }
                               }
                             },

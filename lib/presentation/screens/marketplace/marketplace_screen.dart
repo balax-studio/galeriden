@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -360,9 +361,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                                       ),
                                                     );
                                                   } else {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(content: Text('${car.brand} ${car.modelName} satın alındı ve garajına eklendi!')),
-                                                    );
+                                                    NotificationService.showSuccess(context, '${car.brand} ${car.modelName} satın alındı ve garajına eklendi!');
                                                   }
                                                 }
                                               },

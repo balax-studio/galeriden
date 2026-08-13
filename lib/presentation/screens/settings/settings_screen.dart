@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/game_constants.dart';
@@ -112,9 +113,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                       onPressed: () {
                         ref.read(gameProvider.notifier).claimAdReward(25000.0);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Tebrikler! ₺25.000 galeri desteği sermayene eklendi.')),
-                        );
+                        NotificationService.showSuccess(context, 'Tebrikler! ₺25.000 galeri desteği sermayene eklendi.');
                       },
                     ),
                   ),

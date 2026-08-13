@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -46,9 +47,7 @@ class ListingDetailScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.share_rounded),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('İlan bağlantısı kopyalandı!')),
-              );
+              NotificationService.showSuccess(context, 'İlan bağlantısı kopyalandı!');
             },
           ),
         ],
@@ -261,9 +260,7 @@ class ListingDetailScreen extends ConsumerWidget {
                                 ),
                               );
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${car.brand} ${car.modelName} satın alındı ve garajına eklendi!')),
-                              );
+                              NotificationService.showSuccess(context, '${car.brand} ${car.modelName} satın alındı ve garajına eklendi!');
                             }
                           }
                         },

@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -404,9 +405,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                   ),
                                 );
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ₺${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!')),
-                                );
+                                NotificationService.showSuccess(context, 'Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ₺${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!');
                               }
                             }
                           },

@@ -38,6 +38,7 @@ class DealershipModel {
   final String playerName;
   final String dealershipName;
   final String logoEmblemId;
+  final DateTime? lastRewardClaimDate;
 
   DateTime get inGameTime => DateTime.now();
 
@@ -68,6 +69,7 @@ class DealershipModel {
     this.playerName = 'Kaptan',
     this.dealershipName = 'Miras Oto Galeri',
     this.logoEmblemId = 'crown',
+    this.lastRewardClaimDate,
   });
 
   factory DealershipModel.initial() {
@@ -189,6 +191,7 @@ class DealershipModel {
       'playerName': playerName,
       'dealershipName': dealershipName,
       'logoEmblemId': logoEmblemId,
+      'lastRewardClaimDate': lastRewardClaimDate?.toIso8601String(),
     };
   }
 
@@ -247,6 +250,7 @@ class DealershipModel {
       playerName: json['playerName'] as String? ?? 'Kaptan',
       dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
       logoEmblemId: json['logoEmblemId'] as String? ?? 'crown',
+      lastRewardClaimDate: json['lastRewardClaimDate'] != null ? DateTime.tryParse(json['lastRewardClaimDate'] as String) : null,
     );
   }
 
@@ -277,6 +281,7 @@ class DealershipModel {
     String? playerName,
     String? dealershipName,
     String? logoEmblemId,
+    DateTime? lastRewardClaimDate,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -305,6 +310,7 @@ class DealershipModel {
       playerName: playerName ?? this.playerName,
       dealershipName: dealershipName ?? this.dealershipName,
       logoEmblemId: logoEmblemId ?? this.logoEmblemId,
+      lastRewardClaimDate: lastRewardClaimDate ?? this.lastRewardClaimDate,
     );
   }
 }

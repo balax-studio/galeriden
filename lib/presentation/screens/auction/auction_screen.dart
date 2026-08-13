@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,9 +66,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
     final nextBid = _auction.currentBid + increment;
 
     if (game.balance < nextBid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Yetersiz Sermaye! Bu teklifi veremezsiniz.')),
-      );
+      NotificationService.showError(context, 'Yetersiz Sermaye! Bu teklifi veremezsiniz.');
       return;
     }
 

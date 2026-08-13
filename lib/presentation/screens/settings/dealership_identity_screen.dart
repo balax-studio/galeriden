@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -58,9 +59,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
       logoEmblemId: _selectedEmblem,
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Galeri ve profil bilgileri başarıyla kaydedildi!')),
-    );
+    NotificationService.showSuccess(context, 'Galeri ve profil bilgileri başarıyla kaydedildi!');
 
     if (context.canPop()) {
       context.pop();

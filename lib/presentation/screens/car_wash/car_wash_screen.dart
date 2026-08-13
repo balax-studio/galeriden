@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -143,9 +144,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               : () {
                                   final success = ref.read(gameProvider.notifier).washAndPolishCar(_selectedCar!.id, wash: true, polish: false);
                                   if (success) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Araç köpükle yıkandı ve temizlendi!')),
-                                    );
+                                    NotificationService.showSuccess(context, 'Araç köpükle yıkandı ve temizlendi!');
                                     setState(() {
                                       _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
                                     });
@@ -170,9 +169,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               : () {
                                   final success = ref.read(gameProvider.notifier).washAndPolishCar(_selectedCar!.id, wash: false, polish: true);
                                   if (success) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Pasta-cila yapıldı, araç ayna gibi parlıyor!')),
-                                    );
+                                    NotificationService.showSuccess(context, 'Pasta-cila yapıldı, araç ayna gibi parlıyor!');
                                     setState(() {
                                       _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
                                     });

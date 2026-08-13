@@ -1,3 +1,4 @@
+import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -116,13 +117,9 @@ class ThemeStoreScreen extends ConsumerWidget {
                                   final success = ref.read(themeProvider.notifier).unlockPalette(palette.id, game.balance);
                                   if (success) {
                                     ref.read(gameProvider.notifier).deductBalance(palette.price.toDouble());
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('${palette.name} Paleti Açıldı ve Aktif Edildi!')),
-                                    );
+                                    NotificationService.showSuccess(context, '${palette.name} Paleti Açıldı ve Aktif Edildi!');
                                   } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Yetersiz Sermaye!')),
-                                    );
+                                    NotificationService.showError(context, 'Yetersiz Sermaye!');
                                   }
                                 }
                               },
