@@ -330,33 +330,32 @@ class _IsometricShowroomPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Draw Beneloil Isometric Grass Background Terrain
-    final bgPaint = Paint()..color = p.isDark ? const Color(0xFF161E14) : AppColors.beneloilGrassGreen;
+    // 1. Draw Background Terrain
+    final bgPaint = Paint()..color = p.isDark ? const Color(0xFF111827) : AppColors.beneloilGrassGreen;
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
 
-    // 2. Draw Beneloil Diagonal Asphalt Road across canvas
+    // 2. Draw Bottom Asphalt Road
     final roadPaint = Paint()
       ..color = AppColors.beneloilAsphaltRoad
       ..style = PaintingStyle.fill;
 
     final roadPath = Path()
-      ..moveTo(0, size.height * 0.15)
-      ..lineTo(size.width, size.height * 0.75)
-      ..lineTo(size.width, size.height * 0.95)
-      ..lineTo(0, size.height * 0.35)
+      ..moveTo(0, size.height * 0.76)
+      ..lineTo(size.width, size.height * 0.84)
+      ..lineTo(size.width, size.height * 0.98)
+      ..lineTo(0, size.height * 0.90)
       ..close();
     canvas.drawPath(roadPath, roadPaint);
 
     // Road Yellow Center Dash Line
     final linePaint = Paint()
       ..color = const Color(0xFFFFD54F)
-      ..strokeWidth = 2.5
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    final startPt = Offset(0, size.height * 0.25);
-    final endPt = Offset(size.width, size.height * 0.85);
+    final startPt = Offset(0, size.height * 0.83);
+    final endPt = Offset(size.width, size.height * 0.91);
 
-    // Draw dashed center line
     const dashLength = 12.0;
     const gapLength = 8.0;
     final totalDist = (endPt - startPt).distance;
@@ -374,40 +373,46 @@ class _IsometricShowroomPainter extends CustomPainter {
       currentDist += dashLength + gapLength;
     }
 
-    // 3. Draw Moving Cars on the Road (Beneloil Style Traffic)
+    // 3. Draw Moving Cars on the Bottom Road
     _drawMovingCarsOnRoad(canvas, size, startPt, endPt);
 
-    // 4. Draw Dealership Building Plot & Showroom Bays
-    final origin = Offset(size.width * 0.48, size.height * 0.22);
-    const tileWidth = 95.0;
-    const tileHeight = 48.0;
+    // 4. Calculate Showroom Isometric Dimensions
+    const tileWidth = 78.0;
+    const tileHeight = 39.0;
+    final origin = Offset(size.width * 0.44, size.height * 0.28);
 
     final gridRows = (maxSlots / 3).ceil();
     const gridCols = 3;
 
-    // Plot Base (Concrete Pad for Dealership)
+    // Dynamically calculate tight Isometric Pad bounds using IsoToScreen math
+    final padTop = IsometricMath.isoToScreen(-0.8, -0.6, tileWidth, tileHeight, origin);
+    final padRight = IsometricMath.isoToScreen(-0.8, gridCols - 0.3, tileWidth, tileHeight, origin);
+    final padBottom = IsometricMath.isoToScreen(gridRows - 0.3, gridCols - 0.3, tileWidth, tileHeight, origin);
+    final padLeft = IsometricMath.isoToScreen(gridRows - 0.3, -0.6, tileWidth, tileHeight, origin);
+
     final padPath = Path()
-      ..moveTo(origin.dx - tileWidth * 1.6, origin.dy + tileHeight * 0.8)
-      ..lineTo(origin.dx + tileWidth * 1.8, origin.dy - tileHeight * 0.8)
-      ..lineTo(origin.dx + tileWidth * 2.5, origin.dy + tileHeight * 2.2)
-      ..lineTo(origin.dx - tileWidth * 0.9, origin.dy + tileHeight * 3.8)
+      ..moveTo(padTop.dx, padTop.dy)
+      ..lineTo(padRight.dx, padRight.dy)
+      ..lineTo(padBottom.dx, padBottom.dy)
+      ..lineTo(padLeft.dx, padLeft.dy)
       ..close();
 
     final padPaint = Paint()
-      ..color = p.isDark ? const Color(0xFF1E2430) : const Color(0xFFDCDFE5)
+      ..color = p.isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)
       ..style = PaintingStyle.fill;
     canvas.drawPath(padPath, padPaint);
 
     final padBorderPaint = Paint()
-      ..color = Colors.white54
+      ..color = p.primaryColor.withValues(alpha: 0.6)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
     canvas.drawPath(padPath, padBorderPaint);
 
-    // Draw Dealership Main Building Block
-    _drawDealershipBuildingBlock(canvas, Offset(origin.dx + tileWidth * 1.0, origin.dy - tileHeight * 0.4));
+    // 5. Draw Dealership Main Building Block at back-right of pad
+    final buildingPos = IsometricMath.isoToScreen(-0.8, 1.2, tileWidth, tileHeight, origin);
+    _drawDealershipBuildingBlock(canvas, Offset(buildingPos.dx + 25, buildingPos.dy - 10));
 
-    // Draw Floor Tiles & Parking Bays for Showroom Cars
+    // 6. Draw Floor Tiles & Parking Bays for Showroom Cars
     for (int r = 0; r < gridRows; r++) {
       for (int c = 0; c < gridCols; c++) {
         final center = IsometricMath.isoToScreen(r.toDouble(), c.toDouble(), tileWidth, tileHeight, origin);
@@ -444,8 +449,8 @@ class _IsometricShowroomPainter extends CustomPainter {
         final textSpan = TextSpan(
           text: slotText,
           style: TextStyle(
-            color: hasCar ? p.primaryColor : Colors.grey.shade700,
-            fontSize: 8.5,
+            color: hasCar ? p.primaryColor : Colors.grey.shade600,
+            fontSize: 8.0,
             fontWeight: FontWeight.bold,
           ),
         );
