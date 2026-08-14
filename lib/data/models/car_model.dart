@@ -24,6 +24,7 @@ class CarModel {
   final double? customListingPrice;
   final List<String> appliedDetailingOptionIds;
   final bool isRented;
+  final bool isDoped;
 
   CarModel({
     required this.id,
@@ -43,7 +44,11 @@ class CarModel {
     this.customListingPrice,
     this.appliedDetailingOptionIds = const [],
     this.isRented = false,
+    this.isDoped = false,
   });
+
+  /// Check if car is actively listed for sale
+  bool get isListed => customListingPrice != null && customListingPrice! > 0;
 
   /// Effective listing price (custom if set by player, otherwise estimated real value)
   double get listingPrice => customListingPrice ?? estimatedRealValue;
@@ -94,6 +99,7 @@ class CarModel {
       'customListingPrice': customListingPrice,
       'appliedDetailingOptionIds': appliedDetailingOptionIds,
       'isRented': isRented,
+      'isDoped': isDoped,
     };
   }
 
@@ -123,6 +129,7 @@ class CarModel {
       customListingPrice: json['customListingPrice'] != null ? (json['customListingPrice'] as num?)?.toDouble() : null,
       appliedDetailingOptionIds: (json['appliedDetailingOptionIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       isRented: json['isRented'] as bool? ?? false,
+      isDoped: json['isDoped'] as bool? ?? false,
     );
   }
 
@@ -138,6 +145,7 @@ class CarModel {
     double? customListingPrice,
     List<String>? appliedDetailingOptionIds,
     bool? isRented,
+    bool? isDoped,
   }) {
     return CarModel(
       id: id,
@@ -157,6 +165,7 @@ class CarModel {
       customListingPrice: customListingPrice ?? this.customListingPrice,
       appliedDetailingOptionIds: appliedDetailingOptionIds ?? this.appliedDetailingOptionIds,
       isRented: isRented ?? this.isRented,
+      isDoped: isDoped ?? this.isDoped,
     );
   }
 }

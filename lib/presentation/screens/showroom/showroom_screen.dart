@@ -65,8 +65,36 @@ class ShowroomScreen extends ConsumerWidget {
                                   Row(
                                     children: [
                                       Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: car.isListed ? p.successColor.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: car.isListed ? p.successColor : Colors.grey),
+                                        ),
+                                        child: Text(
+                                          car.isListed ? 'İLANDA' : 'YAYINDA DEĞİL',
+                                          style: TextStyle(color: car.isListed ? p.successColor : Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      if (car.isDoped) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: p.warningColor.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(color: p.warningColor),
+                                          ),
+                                          child: Text(
+                                            '⚡ DOPİNGLİ',
+                                            style: TextStyle(color: p.warningColor, fontSize: 10, fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
                                       if (car.isRare) ...[
-                                        const SizedBox(width: 8),
+                                        const SizedBox(width: 6),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
@@ -164,22 +192,33 @@ class ShowroomScreen extends ConsumerWidget {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: ElevatedButton.icon(
-                                      icon: VectorIconWidget(type: 'flash', color: Colors.black, size: 16),
-                                      label: const Text('İlanı Öne Çıkar (₺2.500)'),
+                                      icon: VectorIconWidget(type: 'flash', color: car.isDoped ? Colors.grey : Colors.black, size: 16),
+                                      label: Text(car.isDoped ? 'Dopingli (Max 1)' : 'İlanı Öne Çıkar (₺2.500)'),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: p.warningColor,
-                                        foregroundColor: Colors.black,
+                                        backgroundColor: car.isDoped ? Colors.grey.withValues(alpha: 0.3) : p.warningColor,
+                                        foregroundColor: car.isDoped ? Colors.grey : Colors.black,
                                         padding: const EdgeInsets.symmetric(vertical: 10),
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                       ),
-                                      onPressed: () {
-                                        final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
-                                        if (success) {
-                                          NotificationService.showSuccess(context, '${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!');
-                                        } else {
-                                          NotificationService.showError(context, 'Doping için bakiyeniz yetersiz (₺2.500 gereklidir).');
-                                        }
-                                      },
+                                      onPressed: car.isDoped
+                                          ? () => NotificationService.showError(context, 'Bu araç için doping hakkı zaten kullanıldı!')
+                                          : () {
+                                              if (!car.isListed) {
+                                                NotificationService.showError(context, 'Araç ilana konulmadan doping yapılamaz! Lütfen önce ilan fiyatı girin.');
+                                                return;
+                                              }
+                                              final activeOffersCount = game.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+                                              if (activeOffersCount >= 3) {
+                                                NotificationService.showError(context, 'Aracın maksimum teklif sınırına (3/3) ulaşıldı!');
+                                                return;
+                                              }
+                                              final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
+                                              if (success) {
+                                                NotificationService.showSuccess(context, '${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!');
+                                              } else {
+                                                NotificationService.showError(context, 'Doping için bakiyeniz yetersiz (₺2.500 gereklidir).');
+                                              }
+                                            },
                                     ),
                                   ),
                                 ],

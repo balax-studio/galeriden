@@ -187,13 +187,34 @@ mixin GameMarketMixin on GameBaseNotifier {
   }
 
   /// Boost Listing Doping
+  /// Boost Listing Doping (Can only be done once per car, requires car to be listed, caps at max 3 offers)
   bool boostListingDoping(String carId) {
     const cost = 2500.0;
     if (state.balance < cost) return false;
 
-    final car = state.ownedCars.firstWhere((c) => c.id == carId, orElse: () => throw Exception('Car not found'));
-    
-    state = state.copyWith(balance: state.balance - cost);
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+
+    // Rule 1: Car MUST be listed for sale to receive doping
+    if (!car.isListed || car.isRented) return false;
+
+    // Rule 2: Doping can only be applied ONCE per car
+    if (car.isDoped) return false;
+
+    // Rule 3: Max 3 active offers per car limit
+    final activeOffersCount = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+    if (activeOffersCount >= 3) return false;
+
+    final updatedCar = car.copyWith(isDoped: true);
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
     addXP(15);
     saveState();
 
@@ -202,6 +223,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     Future.delayed(Duration(seconds: delay1), () {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
+      final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      if (currentOffers >= 3) return;
       final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
       saveState();
@@ -209,6 +232,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     Future.delayed(Duration(seconds: delay2), () {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
+      final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      if (currentOffers >= 3) return;
       final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
       saveState();
@@ -217,15 +242,16 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Organic buyer offers trigger over time even WITHOUT paid doping
+  /// Organic buyer offers trigger over time ONLY for listed, non-rented cars with < 3 active offers
   @override
   void triggerOrganicOffers() {
     if (state.ownedCars.isEmpty) return;
-    
-    // Sadece üzerinde 2'den az aktif teklif olan araçlara organik teklif gelsin
+
+    // Sadece İLANA KONULMUŞ, kiralanmamış ve üzerinde 3'ten az aktif teklif olan araçlara organik teklif gelsin
     final eligibleCars = state.ownedCars.where((car) {
-       int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
-       return activeOffers < 2; 
+      if (!car.isListed || car.isRented) return false;
+      int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      return activeOffers < 3;
     }).toList();
 
     if (eligibleCars.isEmpty) return;
