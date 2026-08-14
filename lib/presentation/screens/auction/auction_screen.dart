@@ -11,6 +11,7 @@ import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/app_glass_container.dart';
 import '../../widgets/app_double_bezel_card.dart';
+import '../../widgets/app_tactile_button.dart';
 
 class AuctionScreen extends ConsumerStatefulWidget {
   const AuctionScreen({super.key});
@@ -276,32 +277,20 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: p.primaryColor,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                      ),
+                    child: AppTactileButton.primary(
+                      label: '+₺5.000 Teklif',
+                      icon: Icons.gavel_rounded,
+                      color: p.primaryColor,
                       onPressed: () => _placePlayerBid(5000),
-                      child: const FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text('+₺5.000 Teklif', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: p.secondaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                      ),
+                    child: AppTactileButton.secondary(
+                      label: '+₺15.000 Teklif',
+                      icon: Icons.bolt_rounded,
+                      color: p.secondaryColor,
                       onPressed: () => _placePlayerBid(15000),
-                      child: const FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text('+₺15.000 Teklif', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
                     ),
                   ),
                 ],

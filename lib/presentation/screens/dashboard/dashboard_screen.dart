@@ -16,6 +16,7 @@ import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/app_double_bezel_card.dart';
 import '../../widgets/app_floating_dock.dart';
 import '../../widgets/app_hero_header.dart';
+import '../../widgets/app_tactile_button.dart';
 
 import '../../widgets/isometric_showroom_canvas.dart';
 import '../../widgets/app_glass_container.dart';
@@ -251,9 +252,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ],
                   ),
-                  ElevatedButton(
+                  AppTactileButton.primary(
+                    label: 'Yönet',
+                    color: Colors.purpleAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                     onPressed: () => context.push('/staff'),
-                    child: const Text('Yönet'),
                   ),
                 ],
               ),
@@ -287,9 +290,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ],
                   ),
-                  ElevatedButton(
+                  AppTactileButton.primary(
+                    label: 'İncele',
+                    color: Colors.amber,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                     onPressed: () => context.push('/reviews'),
-                    child: const Text('İncele'),
                   ),
                 ],
               ),
@@ -323,9 +328,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ],
                   ),
-                  ElevatedButton(
+                  AppTactileButton.primary(
+                    label: 'Görüntüle',
+                    color: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                     onPressed: () => context.push('/history'),
-                    child: const Text('Görüntüle'),
                   ),
                 ],
               ),
@@ -359,9 +366,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ],
                   ),
-                  ElevatedButton(
+                  AppTactileButton.primary(
+                    label: 'Geliştir',
+                    color: p.primaryColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                     onPressed: () => context.push('/character-growth'),
-                    child: const Text('Geliştir'),
                   ),
                 ],
               ),
@@ -510,19 +519,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: activeLoans.isNotEmpty ? p.warningColor : p.primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              minimumSize: const Size(44, 36),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
+          AppTactileButton.primary(
+            label: activeLoans.isNotEmpty ? 'Yönet' : 'Kredi Çek',
+            color: activeLoans.isNotEmpty ? p.warningColor : p.primaryColor,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             onPressed: () => context.push('/finance'),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(activeLoans.isNotEmpty ? 'Yönet' : 'Kredi Çek', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            ),
           ),
         ],
       ),

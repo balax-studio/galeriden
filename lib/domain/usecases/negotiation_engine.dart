@@ -196,6 +196,19 @@ class NegotiationEngine {
 
     final buyerName = buyerNames[_random.nextInt(buyerNames.length)];
 
+    // Randomize Offer Type: 60% Cash, 25% Installment, 15% Cheque
+    OfferType chosenOfferType = OfferType.cash;
+    final typeRoll = _random.nextDouble();
+    if (typeRoll < 0.25) {
+      chosenOfferType = OfferType.installment;
+      baseOffer = (baseOffer * 1.12).roundToDouble(); // %12 vadeli prim
+      message = 'Usta peşinat verip kalanını 5 taksitle ödemek istiyorum. Toplam ₺${baseOffer.round()} veririm.';
+    } else if (typeRoll < 0.40) {
+      chosenOfferType = OfferType.cheque;
+      baseOffer = (baseOffer * 1.15).roundToDouble(); // %15 senet prim
+      message = '30 gün vadeli resmi şirket senetim var. Kabul edersen ₺${baseOffer.round()} senet veririm.';
+    }
+
     return OfferModel(
       id: 'offer_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}',
       carId: car.id,
@@ -204,6 +217,7 @@ class NegotiationEngine {
       buyerMessage: message,
       status: OfferStatus.pending,
       createdAt: DateTime.now(),
+      offerType: chosenOfferType,
     );
   }
 

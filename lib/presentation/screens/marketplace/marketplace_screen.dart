@@ -316,28 +316,24 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                   ),
                                   Row(
                                     children: [
-                                      OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          side: BorderSide(color: p.primaryColor),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                        ),
+                                      AppTactileButton(
+                                        color: p.surfaceColor,
+                                        glowColor: p.primaryColor.withValues(alpha: 0.2),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                         onPressed: () {
                                           context.push('/expertise', extra: item);
                                         },
                                         child: Text(
                                           item.isExpertiseCompleted ? 'Rapor' : 'Ekspertiz (₺1.500)',
-                                          style: TextStyle(fontSize: 12, color: p.textPrimaryColor),
+                                          style: TextStyle(fontSize: 12, color: p.primaryColor, fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      ElevatedButton.icon(
-                                        icon: VectorIconWidget(type: 'negotiation', color: Colors.black, size: 16),
-                                        label: const Text('Pazarlık Et & Satın Al', style: TextStyle(fontWeight: FontWeight.bold)),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: p.primaryColor,
-                                          foregroundColor: Colors.black,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                        ),
+                                      AppTactileButton.primary(
+                                        label: 'Pazarlık Et & Satın Al',
+                                        icon: Icons.handshake_rounded,
+                                        color: p.primaryColor,
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                         onPressed: () {
                                           showModalBottomSheet(
                                             context: context,
