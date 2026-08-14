@@ -14,7 +14,9 @@ class RentalAgreement {
   });
 
   /// Fallback getters for safety
+  @pragma('vm:entry-point')
   String get carModelName => 'Kiradaki Araç';
+  @pragma('vm:entry-point')
   double get purchasePrice => 0.0;
 
   Map<String, dynamic> toJson() => {

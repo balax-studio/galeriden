@@ -2,6 +2,7 @@ class SaleRecordModel {
   final String id;
   final String carTitle;
   final String buyerName;
+  @pragma('vm:entry-point')
   final double purchasePrice;
   final double salePrice;
   final double netProfit;

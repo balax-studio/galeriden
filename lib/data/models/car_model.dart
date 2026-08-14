@@ -48,6 +48,7 @@ class CarModel {
   });
 
   /// Alias for currentPurchasePrice to prevent runtime NoSuchMethodError
+  @pragma('vm:entry-point')
   double get purchasePrice => currentPurchasePrice;
 
   /// Check if car is actively listed for sale
