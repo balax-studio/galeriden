@@ -21,7 +21,10 @@ class StaffScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PERSONEL & EKİP YÖNETİMİ'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('PERSONEL & EKİP YÖNETİMİ'),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

@@ -31,7 +31,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OTO YIKAMA & DETAY STÜDYOSU'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('OTO YIKAMA & DETAY STÜDYOSU'),
+        ),
       ),
       body: ownedCars.isEmpty
           ? Center(
@@ -150,7 +153,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                     });
                                   }
                                 },
-                          child: Text(_selectedCar!.isWashed ? 'Temiz' : 'Yıka'),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(_selectedCar!.isWashed ? 'Temiz' : 'Yıka'),
+                          ),
                         ),
                       ),
                     ),
@@ -175,7 +181,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                     });
                                   }
                                 },
-                          child: Text(_selectedCar!.isPolished ? 'Parlak' : 'Cila At'),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(_selectedCar!.isPolished ? 'Parlak' : 'Cila At'),
+                          ),
                         ),
                       ),
                     ),

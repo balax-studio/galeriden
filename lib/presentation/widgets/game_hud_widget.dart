@@ -3,102 +3,158 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
-import '../../core/theme/app_typography.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../providers/game_provider.dart';
 import 'app_glass_container.dart';
-import 'app_vector_icons.dart';
 
-/// Floating Game HUD overlay widget
+/// Floating Game HUD overlay widget - Beneloil Tycoon Style
 class GameHudHeaderWidget extends ConsumerWidget {
   const GameHudHeaderWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(gameProvider);
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
 
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          // GÜN Pill
+          _buildPill(
+            icon: Icons.calendar_today_rounded,
+            iconColor: Colors.amber.shade700,
+            label: 'GÜN ${game.currentDay}',
+          ),
+          const SizedBox(width: 6),
+
+          // KASA Pill
+          _buildPill(
+            icon: Icons.account_balance_wallet_rounded,
+            iconColor: Colors.green.shade700,
+            label: 'KASA ${CurrencyFormatter.formatShort(game.balance)}',
+            bold: true,
+          ),
+          const SizedBox(width: 6),
+
+          // GARAJ STOK Pill
+          _buildPill(
+            icon: Icons.directions_car_rounded,
+            iconColor: Colors.blue.shade700,
+            label: 'GARAJ ${game.ownedCars.length}/${game.maxGarageSlots}',
+          ),
+          const SizedBox(width: 6),
+
+          // İTİBAR Pill
+          _buildPill(
+            icon: Icons.star_rounded,
+            iconColor: Colors.amber.shade600,
+            label: 'İTİBAR ${game.reputationScore.toStringAsFixed(1)}',
+          ),
+          const SizedBox(width: 6),
+
+          // GÖREV Pill
+          _buildPill(
+            icon: Icons.assignment_turned_in_rounded,
+            iconColor: Colors.purple.shade600,
+            label: 'GÖREV 0/15',
+          ),
+          const SizedBox(width: 10),
+
+          // Red Action Pill Button: Araç Al (Pazaryeri)
+          _buildRedActionPill(
+            context,
+            icon: Icons.shopping_bag_rounded,
+            label: 'Araç Al',
+            onTap: () => context.push('/marketplace'),
+          ),
+          const SizedBox(width: 6),
+
+          // Red Action Pill Button: İnşaat / Şube
+          _buildRedActionPill(
+            context,
+            icon: Icons.domain_rounded,
+            label: 'İnşaat / Şube',
+            onTap: () => context.push('/branches'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPill({
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    bool bold = false,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: p.surfaceColor.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.neonCyan.withValues(alpha: 0.5), width: 1.5),
-        boxShadow: [
+        color: AppColors.beneloilPillBg,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
           BoxShadow(
-            color: AppColors.neonCyan.withValues(alpha: 0.15),
-            blurRadius: 14,
-            spreadRadius: 2,
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Dealership Emblem & Title
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: p.primaryColor.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: p.primaryColor, width: 1.5),
-                ),
-                child: VectorIconWidget(
-                  type: game.logoEmblemId,
-                  color: p.primaryColor,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    game.dealershipName,
-                    style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded, color: AppColors.arcadeGold, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${game.reputationScore} İtibar',
-                        style: const TextStyle(color: AppColors.arcadeGold, fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          // Cash Balance Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.laserGreen.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.laserGreen.withValues(alpha: 0.6), width: 1.2),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.account_balance_wallet_rounded, color: AppColors.laserGreen, size: 16),
-                const SizedBox(width: 6),
-                Text(
-                  CurrencyFormatter.formatShort(game.balance),
-                  style: AppTypography.moneyMedium(p.isDark).copyWith(
-                    fontSize: 14,
-                    color: AppColors.laserGreen,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+          Icon(icon, size: 14, color: iconColor),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: bold ? FontWeight.w900 : FontWeight.bold,
+              color: const Color(0xFF0F172A),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRedActionPill(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.beneloilRed,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: Colors.white),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

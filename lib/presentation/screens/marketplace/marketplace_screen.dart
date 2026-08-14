@@ -49,7 +49,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('İKİNCİ EL PAZARI'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('İKİNCİ EL PAZARI'),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),

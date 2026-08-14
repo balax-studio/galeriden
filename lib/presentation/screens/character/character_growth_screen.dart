@@ -36,7 +36,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: p.surfaceColor,
         elevation: 0,
-        title: Text('KARAKTER GELİŞİMİ', style: AppTypography.titleLarge(p.isDark)),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('KARAKTER GELİŞİMİ', style: AppTypography.titleLarge(p.isDark)),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded, color: p.textPrimaryColor),
           onPressed: () => context.pop(),

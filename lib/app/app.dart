@@ -15,6 +15,17 @@ class GaleridenApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: themeState.buildThemeData(),
       routerConfig: appRouter,
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        final clampedScaler = mediaQuery.textScaler.clamp(
+          minScaleFactor: 0.80,
+          maxScaleFactor: 1.15,
+        );
+        return MediaQuery(
+          data: mediaQuery.copyWith(textScaler: clampedScaler),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

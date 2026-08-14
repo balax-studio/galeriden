@@ -47,7 +47,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TAMİR VE RESTORASYON ATÖLYESİ'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('TAMİR VE RESTORASYON ATÖLYESİ'),
+        ),
       ),
       body: Stack(
         children: [
@@ -520,9 +523,13 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: p.primaryColor,
             foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
           onPressed: onPressed,
-          child: Text(onPressed == null ? 'Tamamlandı' : costLabel),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(onPressed == null ? 'Tamamlandı' : costLabel),
+          ),
         ),
       ],
     );

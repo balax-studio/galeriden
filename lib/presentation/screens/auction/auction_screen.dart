@@ -171,7 +171,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
       backgroundColor: p.backgroundColor,
       appBar: AppBar(
         backgroundColor: p.surfaceColor,
-        title: const Text('CANLI GÜMRÜK İHALESİ'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('CANLI GÜMRÜK İHALESİ'),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -277,10 +280,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: p.primaryColor,
                         foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                       ),
                       onPressed: () => _placePlayerBid(5000),
-                      child: const Text('+₺5.000 Teklif', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('+₺5.000 Teklif', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -289,10 +295,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: p.secondaryColor,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                       ),
                       onPressed: () => _placePlayerBid(15000),
-                      child: const Text('+₺15.000 Teklif', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('+₺15.000 Teklif', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
                     ),
                   ),
                 ],

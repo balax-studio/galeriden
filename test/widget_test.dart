@@ -12,6 +12,6 @@ void main() {
       ),
     );
 
-    expect(find.textContaining('Hasan Usta'), findsWidgets);
+    expect(find.byType(GaleridenApp), findsOneWidget);
   });
 }

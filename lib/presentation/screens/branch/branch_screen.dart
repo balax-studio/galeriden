@@ -38,7 +38,10 @@ class BranchScreen extends ConsumerWidget {
         backgroundColor: p.backgroundColor,
         appBar: AppBar(
           backgroundColor: p.surfaceColor,
-          title: const Text('ŞUBE İMPARATORLUĞU & GELİŞİM'),
+          title: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text('ŞUBE İMPARATORLUĞU & GELİŞİM'),
+          ),
           bottom: TabBar(
             labelColor: p.primaryColor,
             unselectedLabelColor: Colors.grey,
@@ -147,9 +150,12 @@ class BranchScreen extends ConsumerWidget {
                                         NotificationService.showSuccess(context, '${b.name} Şubesi Açıldı! Kapasite ${b.maxGarageSlots} Araç Oldu.');
                                       }
                                     : null,
-                                child: Text(
-                                  canAfford ? 'Şubeyi Aç (₺${CurrencyFormatter.formatShort(b.requiredBalance)})' : 'Yetersiz Bakiye (₺${CurrencyFormatter.formatShort(b.requiredBalance)})',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    canAfford ? 'Şubeyi Aç (₺${CurrencyFormatter.formatShort(b.requiredBalance)})' : 'Yetersiz Bakiye (₺${CurrencyFormatter.formatShort(b.requiredBalance)})',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
                             ),

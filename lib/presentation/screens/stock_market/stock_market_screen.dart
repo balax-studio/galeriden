@@ -37,9 +37,12 @@ class StockMarketScreen extends ConsumerWidget {
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: p.textPrimaryColor, size: 20),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          'BORSA İŞLEMLERİ (BİST-OTO)',
-          style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2, fontSize: 16),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            'BORSA İŞLEMLERİ (BİST-OTO)',
+            style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2, fontSize: 16),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -71,16 +74,24 @@ class StockMarketScreen extends ConsumerWidget {
                       children: [
                         Text('Toplam Portföy Değeri', style: AppTypography.labelSmall(p.isDark)),
                         const SizedBox(height: 4),
-                        Text(
-                          '₺${CurrencyFormatter.formatShort(totalPortfolioValue)}',
-                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 20, color: p.primaryColor),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '₺${CurrencyFormatter.formatShort(totalPortfolioValue)}',
+                            style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 20, color: p.primaryColor),
+                          ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          'Net Kar/Zarar: ${isOverallProfitable ? '+' : ''}₺${CurrencyFormatter.formatShort(totalProfitLoss)}',
-                          style: AppTypography.bodyMedium(p.isDark).copyWith(
-                            color: isOverallProfitable ? p.successColor : p.errorColor,
-                            fontWeight: FontWeight.bold,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Net Kar/Zarar: ${isOverallProfitable ? '+' : ''}₺${CurrencyFormatter.formatShort(totalProfitLoss)}',
+                            style: AppTypography.bodyMedium(p.isDark).copyWith(
+                              color: isOverallProfitable ? p.successColor : p.errorColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -112,36 +123,49 @@ class StockMarketScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: (isUp ? p.successColor : p.errorColor).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: (isUp ? p.successColor : p.errorColor).withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    isUp ? Icons.show_chart_rounded : Icons.south_east_rounded,
+                                    color: isUp ? p.successColor : p.errorColor,
+                                    size: 20,
+                                  ),
                                 ),
-                                child: Icon(
-                                  isUp ? Icons.show_chart_rounded : Icons.south_east_rounded,
-                                  color: isUp ? p.successColor : p.errorColor,
-                                  size: 20,
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        stock.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15),
+                                      ),
+                                      Text(stock.symbol, style: AppTypography.labelSmall(p.isDark).copyWith(color: p.textSecondaryColor)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(stock.name, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                                  Text(stock.symbol, style: AppTypography.labelSmall(p.isDark).copyWith(color: p.textSecondaryColor)),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                '₺${CurrencyFormatter.formatShort(stock.currentPrice)}',
-                                style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16, color: p.primaryColor),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '₺${CurrencyFormatter.formatShort(stock.currentPrice)}',
+                                  style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16, color: p.primaryColor),
+                                ),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -199,7 +223,7 @@ class StockMarketScreen extends ConsumerWidget {
                           Expanded(
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                                 side: BorderSide(color: p.surfaceBorderColor),
                               ),
                               onPressed: () {
@@ -210,14 +234,17 @@ class StockMarketScreen extends ConsumerWidget {
                                   NotificationService.showError(context, 'Yetersiz bakiye!');
                                 }
                               },
-                              child: const Text('10 Lot Al'),
+                              child: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('10 Lot Al'),
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                                 side: BorderSide(color: p.surfaceBorderColor),
                               ),
                               onPressed: () {
@@ -228,17 +255,20 @@ class StockMarketScreen extends ConsumerWidget {
                                   NotificationService.showError(context, 'Yetersiz bakiye!');
                                 }
                               },
-                              child: const Text('100 Lot Al'),
+                              child: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('100 Lot Al'),
+                              ),
                             ),
                           ),
                           if (sharesOwned > 0) ...[
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: p.errorColor,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                                 ),
                                 onPressed: () {
                                   final success = ref.read(gameProvider.notifier).sellStock(stock.symbol, sharesOwned);
@@ -248,7 +278,10 @@ class StockMarketScreen extends ConsumerWidget {
                                     NotificationService.showError(context, 'İşlem gerçekleştirilemedi!');
                                   }
                                 },
-                                child: const Text('Tümünü Sat'),
+                                child: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('Tümünü Sat'),
+                                ),
                               ),
                             ),
                           ],

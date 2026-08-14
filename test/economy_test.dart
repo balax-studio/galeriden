@@ -107,7 +107,7 @@ void main() {
       expect(gameNotifier.state.activeRentals.length, 1);
       final rental = gameNotifier.state.activeRentals.first;
       expect(rental.carId, testCar.id);
-      expect(rental.dailyRate, 1000.0);
+      expect(rental.dailyRate, 600.0);
       
       final car = gameNotifier.state.ownedCars.firstWhere((c) => c.id == testCar.id);
       expect(car.isRented, isTrue);

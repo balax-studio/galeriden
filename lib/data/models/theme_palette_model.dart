@@ -95,6 +95,23 @@ class ThemePaletteModel {
   // Pre-defined Preset Palettes for In-Game Store
   static const List<ThemePaletteModel> defaultPalettes = [
     ThemePaletteModel(
+      id: 'beneloil_galeri',
+      name: 'Beneloil Tycoon Galeri',
+      price: 0,
+      isUnlocked: true,
+      isDark: false,
+      primaryColor: Color(0xFFDC2626),
+      secondaryColor: Color(0xFF2563EB),
+      backgroundColor: Color(0xFF8BBF52),
+      surfaceColor: Color(0xFFFFFFFF),
+      surfaceBorderColor: Color(0xFFE2E8F0),
+      textPrimaryColor: Color(0xFF1E293B),
+      textSecondaryColor: Color(0xFF64748B),
+      successColor: Color(0xFF16A34A),
+      warningColor: Color(0xFFD97706),
+      errorColor: Color(0xFFDC2626),
+    ),
+    ThemePaletteModel(
       id: 'quiet_luxury_dark',
       name: '2026 Imperial Gold (Koyu)',
       price: 0,

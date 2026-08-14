@@ -330,28 +330,84 @@ class _IsometricShowroomPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final origin = Offset(size.width / 2, 45);
-    const tileWidth = 110.0;
-    const tileHeight = 55.0;
+    // 1. Draw Beneloil Isometric Grass Background Terrain
+    final bgPaint = Paint()..color = p.isDark ? const Color(0xFF161E14) : AppColors.beneloilGrassGreen;
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
+
+    // 2. Draw Beneloil Diagonal Asphalt Road across canvas
+    final roadPaint = Paint()
+      ..color = AppColors.beneloilAsphaltRoad
+      ..style = PaintingStyle.fill;
+
+    final roadPath = Path()
+      ..moveTo(0, size.height * 0.15)
+      ..lineTo(size.width, size.height * 0.75)
+      ..lineTo(size.width, size.height * 0.95)
+      ..lineTo(0, size.height * 0.35)
+      ..close();
+    canvas.drawPath(roadPath, roadPaint);
+
+    // Road Yellow Center Dash Line
+    final linePaint = Paint()
+      ..color = const Color(0xFFFFD54F)
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+
+    final startPt = Offset(0, size.height * 0.25);
+    final endPt = Offset(size.width, size.height * 0.85);
+
+    // Draw dashed center line
+    const dashLength = 12.0;
+    const gapLength = 8.0;
+    final totalDist = (endPt - startPt).distance;
+    final dx = (endPt.dx - startPt.dx) / totalDist;
+    final dy = (endPt.dy - startPt.dy) / totalDist;
+
+    double currentDist = 0.0;
+    while (currentDist < totalDist) {
+      final p1 = Offset(startPt.dx + dx * currentDist, startPt.dy + dy * currentDist);
+      final p2 = Offset(
+        startPt.dx + dx * math.min(currentDist + dashLength, totalDist),
+        startPt.dy + dy * math.min(currentDist + dashLength, totalDist),
+      );
+      canvas.drawLine(p1, p2, linePaint);
+      currentDist += dashLength + gapLength;
+    }
+
+    // 3. Draw Moving Cars on the Road (Beneloil Style Traffic)
+    _drawMovingCarsOnRoad(canvas, size, startPt, endPt);
+
+    // 4. Draw Dealership Building Plot & Showroom Bays
+    final origin = Offset(size.width * 0.48, size.height * 0.22);
+    const tileWidth = 95.0;
+    const tileHeight = 48.0;
 
     final gridRows = (maxSlots / 3).ceil();
     const gridCols = 3;
 
-    // Ambient Day/Night Lighting Layer
-    final hour = inGameTime.hour;
-    Color ambientColor;
-    if (hour >= 20 || hour < 6) {
-      ambientColor = const Color(0xFF0F172A).withValues(alpha: 0.35); // Deep night
-    } else if (hour >= 17) {
-      ambientColor = Colors.deepOrange.withValues(alpha: 0.15); // Sunset
-    } else {
-      ambientColor = Colors.amber.withValues(alpha: 0.05); // Daytime
-    }
+    // Plot Base (Concrete Pad for Dealership)
+    final padPath = Path()
+      ..moveTo(origin.dx - tileWidth * 1.6, origin.dy + tileHeight * 0.8)
+      ..lineTo(origin.dx + tileWidth * 1.8, origin.dy - tileHeight * 0.8)
+      ..lineTo(origin.dx + tileWidth * 2.5, origin.dy + tileHeight * 2.2)
+      ..lineTo(origin.dx - tileWidth * 0.9, origin.dy + tileHeight * 3.8)
+      ..close();
 
-    final ambientPaint = Paint()..color = ambientColor;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), ambientPaint);
+    final padPaint = Paint()
+      ..color = p.isDark ? const Color(0xFF1E2430) : const Color(0xFFDCDFE5)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(padPath, padPaint);
 
-    // Draw Floor Tiles
+    final padBorderPaint = Paint()
+      ..color = Colors.white54
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    canvas.drawPath(padPath, padBorderPaint);
+
+    // Draw Dealership Main Building Block
+    _drawDealershipBuildingBlock(canvas, Offset(origin.dx + tileWidth * 1.0, origin.dy - tileHeight * 0.4));
+
+    // Draw Floor Tiles & Parking Bays for Showroom Cars
     for (int r = 0; r < gridRows; r++) {
       for (int c = 0; c < gridCols; c++) {
         final center = IsometricMath.isoToScreen(r.toDouble(), c.toDouble(), tileWidth, tileHeight, origin);
@@ -371,25 +427,25 @@ class _IsometricShowroomPainter extends CustomPainter {
         // Floor fill
         final tilePaint = Paint()
           ..color = hasCar
-              ? p.primaryColor.withValues(alpha: 0.12)
-              : (p.isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03))
+              ? p.primaryColor.withValues(alpha: 0.25)
+              : (p.isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.85))
           ..style = PaintingStyle.fill;
         canvas.drawPath(path, tilePaint);
 
         // Isometric Border Line
         final borderPaint = Paint()
-          ..color = hasCar ? p.primaryColor.withValues(alpha: 0.6) : p.surfaceBorderColor.withValues(alpha: 0.5)
+          ..color = hasCar ? p.primaryColor : const Color(0xFF94A3B8)
           ..style = PaintingStyle.stroke
           ..strokeWidth = hasCar ? 1.5 : 1.0;
         canvas.drawPath(path, borderPaint);
 
         // Draw Slot Label / Number
-        final slotText = 'P-${slotIndex + 1}';
+        final slotText = 'SLOT-${slotIndex + 1}';
         final textSpan = TextSpan(
           text: slotText,
           style: TextStyle(
-            color: hasCar ? p.primaryColor : Colors.grey.withValues(alpha: 0.5),
-            fontSize: 9,
+            color: hasCar ? p.primaryColor : Colors.grey.shade700,
+            fontSize: 8.5,
             fontWeight: FontWeight.bold,
           ),
         );
@@ -405,6 +461,82 @@ class _IsometricShowroomPainter extends CustomPainter {
         }
       }
     }
+  }
+
+  void _drawMovingCarsOnRoad(Canvas canvas, Size size, Offset startPt, Offset endPt) {
+    final t1 = (animProgress * 1.5) % 1.0;
+    final pos1 = Offset(
+      startPt.dx + (endPt.dx - startPt.dx) * t1,
+      startPt.dy + (endPt.dy - startPt.dy) * t1,
+    );
+
+    final carPaint1 = Paint()..color = const Color(0xFFEF4444);
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(pos1.dx, pos1.dy + 3), width: 22, height: 10),
+      Paint()..color = Colors.black38,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: pos1, width: 18, height: 10),
+        const Radius.circular(3),
+      ),
+      carPaint1,
+    );
+
+    final t2 = ((animProgress + 0.5) * 1.2) % 1.0;
+    final pos2 = Offset(
+      startPt.dx + (endPt.dx - startPt.dx) * t2,
+      startPt.dy + (endPt.dy - startPt.dy) * t2,
+    );
+
+    final carPaint2 = Paint()..color = const Color(0xFF3B82F6);
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(pos2.dx, pos2.dy + 3), width: 22, height: 10),
+      Paint()..color = Colors.black38,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: pos2, width: 18, height: 10),
+        const Radius.circular(3),
+      ),
+      carPaint2,
+    );
+  }
+
+  void _drawDealershipBuildingBlock(Canvas canvas, Offset center) {
+    final bldPath = Path()
+      ..moveTo(center.dx, center.dy - 35)
+      ..lineTo(center.dx + 40, center.dy - 15)
+      ..lineTo(center.dx + 40, center.dy + 15)
+      ..lineTo(center.dx, center.dy + 35)
+      ..lineTo(center.dx - 40, center.dy + 15)
+      ..lineTo(center.dx - 40, center.dy - 15)
+      ..close();
+
+    final bldPaint = Paint()..color = const Color(0xFF1E293B);
+    canvas.drawPath(bldPath, bldPaint);
+
+    final roofPath = Path()
+      ..moveTo(center.dx, center.dy - 35)
+      ..lineTo(center.dx + 40, center.dy - 15)
+      ..lineTo(center.dx, center.dy + 5)
+      ..lineTo(center.dx - 40, center.dy - 15)
+      ..close();
+
+    final roofPaint = Paint()..color = const Color(0xFF334155);
+    canvas.drawPath(roofPath, roofPaint);
+
+    final textSpan = TextSpan(
+      text: dealershipName.toUpperCase(),
+      style: const TextStyle(
+        color: AppColors.primaryAmber,
+        fontSize: 9,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1.0,
+      ),
+    );
+    final tp = TextPainter(text: textSpan, textDirection: TextDirection.ltr)..layout();
+    tp.paint(canvas, Offset(center.dx - tp.width / 2, center.dy - 48));
   }
 
   void _drawIsometricCar(Canvas canvas, Offset center, CarModel car, ThemePaletteModel p) {

@@ -131,14 +131,18 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isReady ? p.successColor : p.surfaceBorderColor,
                     foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   ),
                   onPressed: (isReady && !_isInstalling) ? _triggerInstallation : null,
-                  child: Text(isReady ? (_isInstalling ? '...' : 'Montaj Et') : 'Bekleniyor'),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(isReady ? (_isInstalling ? '...' : 'Montaj Et') : 'Bekleniyor'),
+                  ),
                 ),
               ],
             ),

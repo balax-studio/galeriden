@@ -112,9 +112,12 @@ class _DisappearingDetailingTileState extends State<DisappearingDetailingTile> w
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                   onPressed: widget.canAfford && !_isAnimatingOut ? _handleApply : null,
-                  child: Text(
-                    CurrencyFormatter.formatShort(opt.cost),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      CurrencyFormatter.formatShort(opt.cost),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],

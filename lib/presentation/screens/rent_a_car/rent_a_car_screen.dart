@@ -18,7 +18,10 @@ class RentACarScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('RENT A CAR MÜDÜRLÜĞÜ'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('RENT A CAR MÜDÜRLÜĞÜ'),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -64,7 +67,11 @@ class RentACarScreen extends ConsumerWidget {
               children: [
                 Text('Günlük Kira Geliri', style: AppTypography.labelSmall(p.isDark)),
                 const SizedBox(height: 4),
-                Text('₺${CurrencyFormatter.formatShort(dailyRentalIncome)} / Gün', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 18, color: p.successColor)),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text('₺${CurrencyFormatter.formatShort(dailyRentalIncome)} / Gün', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 18, color: p.successColor)),
+                ),
                 const SizedBox(height: 2),
                 Text('${game.activeRentals.length} Araç Kirada', style: AppTypography.bodyMedium(p.isDark)),
               ],
@@ -90,7 +97,12 @@ class RentACarScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(rental.carModelName, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                Text(
+                  rental.carModelName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15),
+                ),
                 const SizedBox(height: 4),
                 Text('Günlük Getiri: ₺${CurrencyFormatter.formatShort(rental.dailyRate)}', style: AppTypography.bodyMedium(p.isDark).copyWith(color: p.successColor)),
                 const SizedBox(height: 4),
@@ -99,10 +111,12 @@ class RentACarScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: p.errorColor,
               foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
             onPressed: () {
               final success = ref.read(gameProvider.notifier).returnRentedCar(rental.id);
@@ -110,7 +124,10 @@ class RentACarScreen extends ConsumerWidget {
                 NotificationService.showSuccess(context, 'Araç kiralama iptal edildi ve galeriye geri döndü.');
               }
             },
-            child: const Text('Geri Çağır'),
+            child: const FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text('Geri Çağır'),
+            ),
           ),
         ],
       ),
@@ -154,16 +171,28 @@ class RentACarScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${car.brand} ${car.model}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                  Text(
+                    '${car.brand} ${car.model}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
+                  ),
                   Text('Değer: ₺${CurrencyFormatter.formatShort(car.purchasePrice ?? car.basePrice)}', style: AppTypography.labelSmall(p.isDark)),
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
               onPressed: () {
                 _showRentDialog(context, ref, p, car, suggestedDailyRate);
               },
-              child: const Text('Kiraya Ver'),
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Kiraya Ver'),
+              ),
             ),
           ],
         ),

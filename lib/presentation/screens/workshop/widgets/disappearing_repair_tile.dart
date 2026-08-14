@@ -81,7 +81,10 @@ class _DisappearingRepairTileState extends State<DisappearingRepairTile> with Si
                   foregroundColor: Colors.white,
                 ),
                 onPressed: _isAnimatingOut ? null : () => widget.onOpenOptions(_handleSuccess),
-                child: const Text('Usta Seç & Onar'),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Usta Seç & Onar'),
+                ),
               ),
             ),
           ),

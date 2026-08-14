@@ -10,7 +10,7 @@ void main() {
   group('Tycoon Theme Engine Tests', () {
     test('ThemePaletteModel contains 5 default preset palettes with prices', () {
       final palettes = ThemePaletteModel.defaultPalettes;
-      expect(palettes.length, equals(5));
+      expect(palettes.length, equals(6));
 
       final freePalette = palettes.firstWhere((p) => p.id == 'quiet_luxury_dark');
       expect(freePalette.price, equals(0));

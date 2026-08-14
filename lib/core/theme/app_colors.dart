@@ -50,4 +50,10 @@ class AppColors {
   static const Color laserGreen = Color(0xFF00FF66);
   static const Color isometricGridDark = Color(0xFF171B26);
   static const Color isometricGridLight = Color(0xFFE6ECEF);
+
+  // Beneloil Style Game UI Tokens
+  static const Color beneloilRed = Color(0xFFDC2626);
+  static const Color beneloilPillBg = Color(0xFFFFFFFF);
+  static const Color beneloilGrassGreen = Color(0xFF8BBF52);
+  static const Color beneloilAsphaltRoad = Color(0xFF4A4E58);
 }

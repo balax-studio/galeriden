@@ -61,9 +61,12 @@ class SideBusinessScreen extends ConsumerWidget {
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: p.textPrimaryColor, size: 20),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          'YAN İŞLETMELER & DÜKKANLAR',
-          style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            'YAN İŞLETMELER & DÜKKANLAR',
+            style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -81,22 +84,31 @@ class SideBusinessScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.monetization_on_rounded, color: p.primaryColor, size: 28),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('TOPLAM PASİF GELİR', style: AppTypography.labelSmall(p.isDark)),
-                              Text(
-                                '₺${CurrencyFormatter.formatShort(totalDailyIncome)} / gün',
-                                style: AppTypography.titleLarge(p.isDark).copyWith(color: p.successColor, fontSize: 18),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Icon(Icons.monetization_on_rounded, color: p.primaryColor, size: 28),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('TOPLAM PASİF GELİR', style: AppTypography.labelSmall(p.isDark)),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      '₺${CurrencyFormatter.formatShort(totalDailyIncome)} / gün',
+                                      style: AppTypography.titleLarge(p.isDark).copyWith(color: p.successColor, fontSize: 18),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
@@ -118,9 +130,12 @@ class SideBusinessScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Toplam Biriken Gelir:', style: AppTypography.labelSmall(p.isDark)),
-                      Text(
-                        '₺${CurrencyFormatter.format(totalLifetimeEarned)}',
-                        style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 14, color: p.primaryColor),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '₺${CurrencyFormatter.format(totalLifetimeEarned)}',
+                          style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 14, color: p.primaryColor),
+                        ),
                       ),
                     ],
                   ),
@@ -147,36 +162,48 @@ class SideBusinessScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: isOwned ? p.primaryColor.withValues(alpha: 0.15) : p.surfaceBorderColor,
-                                borderRadius: BorderRadius.circular(12),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: isOwned ? p.primaryColor.withValues(alpha: 0.15) : p.surfaceBorderColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  iconData,
+                                  color: isOwned ? p.primaryColor : p.textSecondaryColor,
+                                  size: 24,
+                                ),
                               ),
-                              child: Icon(
-                                iconData,
-                                color: isOwned ? p.primaryColor : p.textSecondaryColor,
-                                size: 24,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      business.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16),
+                                    ),
+                                    if (isOwned && business.upgrades.isNotEmpty)
+                                      Text(
+                                        '${business.purchasedUpgradeCount}/${business.upgrades.length} Dükkan Modülü Aktif',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(color: p.primaryColor, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(business.name, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                                if (isOwned && business.upgrades.isNotEmpty)
-                                  Text(
-                                    '${business.purchasedUpgradeCount}/${business.upgrades.length} Dükkan Modülü Aktif',
-                                    style: TextStyle(color: p.primaryColor, fontSize: 11, fontWeight: FontWeight.bold),
-                                  ),
-                              ],
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         if (isOwned)
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               if (business.hasManager)
                                 Container(
@@ -188,6 +215,7 @@ class SideBusinessScreen extends ConsumerWidget {
                                     border: Border.all(color: p.primaryColor),
                                   ),
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(Icons.badge_rounded, size: 12, color: p.primaryColor),
                                       const SizedBox(width: 4),
@@ -220,16 +248,23 @@ class SideBusinessScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Günlük Gelir', style: AppTypography.labelSmall(p.isDark)),
-                            Text(
-                              '₺${CurrencyFormatter.formatShort(isOwned ? business.effectiveDailyIncome : business.dailyIncome)}',
-                              style: AppTypography.titleLarge(p.isDark).copyWith(color: isOwned ? p.successColor : p.textSecondaryColor),
-                            ),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Günlük Gelir', style: AppTypography.labelSmall(p.isDark)),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  '₺${CurrencyFormatter.formatShort(isOwned ? business.effectiveDailyIncome : business.dailyIncome)}',
+                                  style: AppTypography.titleLarge(p.isDark).copyWith(color: isOwned ? p.successColor : p.textSecondaryColor),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         if (!isOwned)
                           AppTactileButton(
                             onPressed: () {
@@ -241,18 +276,22 @@ class SideBusinessScreen extends ConsumerWidget {
                               }
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
                                 color: p.primaryColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(Icons.shopping_cart_rounded, size: 16, color: Colors.black),
                                   const SizedBox(width: 6),
-                                  Text(
-                                    'Satın Al: ₺${CurrencyFormatter.formatShort(business.cost)}',
-                                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'Satın Al: ₺${CurrencyFormatter.formatShort(business.cost)}',
+                                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -262,18 +301,22 @@ class SideBusinessScreen extends ConsumerWidget {
                           AppTactileButton(
                             onPressed: () => _openDetailSheet(context, business.id),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
                                 color: p.secondaryColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: const [
                                   Icon(Icons.store_rounded, size: 16, color: Colors.white),
                                   SizedBox(width: 6),
-                                  Text(
-                                    'Dükkanı Yönet & Geliştir',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'Dükkanı Yönet & Geliştir',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
                                   ),
                                 ],
                               ),

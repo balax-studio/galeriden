@@ -38,7 +38,10 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DETAYLI EKSPERTİZ RAPORU'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('DETAYLI EKSPERTİZ RAPORU'),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
