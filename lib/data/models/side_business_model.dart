@@ -7,6 +7,9 @@ enum SideBusinessType {
   inspectionStation,
   carRental,
   evCharging,
+  corporateExpertise,
+  sparePartsStore,
+  wrapStudio,
 }
 
 class SideBusinessUpgradeModel {
@@ -106,15 +109,35 @@ class SideBusinessModel {
     this.managerBonusPercent = 0.30,
   });
 
-  double get effectiveDailyIncome {
+  double get grossDailyIncome {
     if (!isOwned) return 0.0;
-    final base = dailyIncome * (1 + (level - 1) * 0.4);
+    final base = dailyIncome * (1 + (level - 1) * 0.35);
     final upgradeBonuses = upgrades.where((u) => u.isPurchased).fold(0.0, (sum, u) => sum + u.bonusDailyIncome);
     double total = base + upgradeBonuses;
     if (hasManager) {
-      total = (total * (1 + managerBonusPercent)) - managerSalary;
+      total = total * (1 + managerBonusPercent);
     }
-    return total.clamp(0.0, double.infinity);
+    return total;
+  }
+
+  double get dailyMaintenanceExpense {
+    if (!isOwned) return 0.0;
+    double expense = grossDailyIncome * 0.15;
+    if (hasManager) {
+      expense += managerSalary;
+    }
+    return expense;
+  }
+
+  double get effectiveDailyIncome {
+    if (!isOwned) return 0.0;
+    final net = grossDailyIncome - dailyMaintenanceExpense;
+    return net.clamp(0.0, double.infinity);
+  }
+
+  double get nextLevelUpgradeCost {
+    if (level >= 5) return 0.0;
+    return cost * 0.40 * level;
   }
 
   double get totalInvested {

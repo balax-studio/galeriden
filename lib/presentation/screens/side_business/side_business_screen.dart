@@ -33,6 +33,12 @@ class SideBusinessScreen extends ConsumerWidget {
         return Icons.car_rental_rounded;
       case SideBusinessType.evCharging:
         return Icons.ev_station_rounded;
+      case SideBusinessType.corporateExpertise:
+        return Icons.verified_rounded;
+      case SideBusinessType.sparePartsStore:
+        return Icons.inventory_2_rounded;
+      case SideBusinessType.wrapStudio:
+        return Icons.auto_fix_high_rounded;
     }
   }
 

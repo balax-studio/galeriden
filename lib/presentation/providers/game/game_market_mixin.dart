@@ -38,29 +38,28 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Upgrade a side business
+  /// Upgrade a side business level (Level 1 to 5)
   bool upgradeSideBusiness(String businessId) {
     final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return false;
 
     final business = state.sideBusinesses[businessIndex];
-    if (!business.isOwned) return false;
-    
-    double upgradeCost = business.cost * 0.5 * business.level;
+    if (!business.isOwned || business.level >= 5) return false;
+
+    double upgradeCost = business.nextLevelUpgradeCost;
     if (state.balance < upgradeCost) return false;
 
     final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
     updatedBusinesses[businessIndex] = business.copyWith(
       level: business.level + 1,
-      dailyIncome: business.dailyIncome * 1.5,
     );
 
     state = state.copyWith(
       balance: state.balance - upgradeCost,
       sideBusinesses: updatedBusinesses,
     );
-    
-    addXP(50);
+
+    addXP(75);
     saveState();
     return true;
   }

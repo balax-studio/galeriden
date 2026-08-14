@@ -116,14 +116,45 @@ void main() {
     test('returning a rented car', () {
       gameNotifier.rentCar(testCar.id, 1000.0);
       final rentalId = gameNotifier.state.activeRentals.first.id;
-      
+
       final success = gameNotifier.returnRentedCar(rentalId);
       expect(success, isTrue);
-      
+
       expect(gameNotifier.state.activeRentals.isEmpty, isTrue);
-      
+
       final car = gameNotifier.state.ownedCars.firstWhere((c) => c.id == testCar.id);
       expect(car.isRented, isFalse);
+    });
+
+    test('purchasing and upgrading side business level', () {
+      // Find sb_9 (Kurumsal Oto Ekspertiz Bayii)
+      final business = gameNotifier.state.sideBusinesses.firstWhere((b) => b.id == 'sb_9');
+      expect(business.isOwned, isFalse);
+      expect(business.level, 1);
+
+      // Add enough money to buy and upgrade
+      gameNotifier.state = gameNotifier.state.copyWith(balance: 1000000.0);
+
+      final buySuccess = gameNotifier.buySideBusiness('sb_9');
+      expect(buySuccess, isTrue);
+
+      var updated = gameNotifier.state.sideBusinesses.firstWhere((b) => b.id == 'sb_9');
+      expect(updated.isOwned, isTrue);
+      expect(updated.level, 1);
+
+      // Verify Net Income (Gross minus 15% maintenance)
+      expect(updated.grossDailyIncome, 7500.0);
+      expect(updated.dailyMaintenanceExpense, 1125.0);
+      expect(updated.effectiveDailyIncome, 6375.0);
+
+      // Upgrade level to 2
+      final upgradeSuccess = gameNotifier.upgradeSideBusiness('sb_9');
+      expect(upgradeSuccess, isTrue);
+
+      updated = gameNotifier.state.sideBusinesses.firstWhere((b) => b.id == 'sb_9');
+      expect(updated.level, 2);
+      expect(updated.grossDailyIncome, 10125.0); // 7500 * (1 + 0.35)
+      expect(updated.effectiveDailyIncome, 8606.25); // 10125 * 0.85
     });
   });
 }

@@ -92,7 +92,8 @@ class SideBusinessDetailSheet extends ConsumerWidget {
     if (businessIndex == -1) return const SizedBox.shrink();
 
     final business = game.sideBusinesses[businessIndex];
-    final nextLevelCost = business.cost * 0.5 * business.level;
+    final nextLevelCost = business.nextLevelUpgradeCost;
+    final isMaxLevel = business.level >= 5;
 
     return Container(
       decoration: BoxDecoration(
@@ -296,33 +297,50 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Seviye ${business.level + 1} İşletme Genişletme', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                          Text(
+                            isMaxLevel ? 'Maksimum Seviye Ulaşıldı (Lvl 5)' : 'Seviye ${business.level + 1} İşletme Genişletme',
+                            style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15),
+                          ),
                           const SizedBox(height: 2),
-                          Text('Baz geliri +%40 artırır.', style: AppTypography.labelSmall(p.isDark)),
+                          Text(
+                            isMaxLevel ? 'İşletme en yüksek kapasite seviyesinde hizmet veriyor.' : 'Baz geliri +%35 artırır. Bakım gideri düşülür.',
+                            style: AppTypography.labelSmall(p.isDark),
+                          ),
                         ],
                       ),
                     ),
-                    AppTactileButton(
-                      onPressed: () {
-                        final success = ref.read(gameProvider.notifier).upgradeSideBusiness(business.id);
-                        if (success) {
-                          NotificationService.showSuccess(context, '${business.name} Seviye ${business.level + 1} oldu!');
-                        } else {
-                          NotificationService.showError(context, 'Yetersiz Sermaye!');
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    if (isMaxLevel)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: p.primaryColor,
-                          borderRadius: BorderRadius.circular(12),
+                          color: p.successColor.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: p.successColor),
                         ),
-                        child: Text(
-                          '₺${CurrencyFormatter.formatShort(nextLevelCost)}',
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+                        child: const Text('MAX LVL', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 12)),
+                      )
+                    else
+                      AppTactileButton(
+                        onPressed: () {
+                          final success = ref.read(gameProvider.notifier).upgradeSideBusiness(business.id);
+                          if (success) {
+                            NotificationService.showSuccess(context, '${business.name} Seviye ${business.level + 1} oldu!');
+                          } else {
+                            NotificationService.showError(context, 'Yetersiz Sermaye!');
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: p.primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '₺${CurrencyFormatter.formatShort(nextLevelCost)}',
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
