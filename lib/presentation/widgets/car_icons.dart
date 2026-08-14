@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'isometric_3d_car_painter.dart';
 
 class CarSilhouetteWidget extends StatelessWidget {
   final String bodyType;
@@ -22,7 +23,11 @@ class CarSilhouetteWidget extends StatelessWidget {
     
     Widget content = CustomPaint(
       size: Size(width, height),
-      painter: _CarSilhouettePainter(bodyType: bodyType, carColor: effectiveColor),
+      painter: Isometric3DCarPainter(
+        bodyColor: effectiveColor,
+        category: bodyType,
+        isHeadlightOn: true,
+      ),
     );
 
     if (!showBackgroundPod) return content;

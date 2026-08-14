@@ -9,6 +9,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../providers/game_provider.dart';
+import 'parallax_skyline_painter.dart';
 
 /// 2.5D Isometric Coordinate Helper
 class IsometricMath {
@@ -232,6 +233,13 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
                       borderRadius: BorderRadius.circular(16),
                       child: Stack(
                         children: [
+                          CustomPaint(
+                            size: canvasSize,
+                            painter: ParallaxSkylinePainter(
+                              cameraOffset: Offset(_animController.value * 60.0, 0),
+                              parallaxFactor: 0.3,
+                            ),
+                          ),
                           CustomPaint(
                             size: canvasSize,
                             painter: _IsometricShowroomPainter(
