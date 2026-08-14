@@ -68,7 +68,8 @@ class GameCoreNotifier extends GameBaseNotifier
         saveState();
         return;
       } catch (e) {
-        // Fallback
+        // Fallback: Clear corrupted storage key if load fails
+        await prefs.remove(_storageKey);
       }
     }
 

@@ -442,88 +442,63 @@ class DealershipModel {
 
   factory DealershipModel.fromJson(Map<String, dynamic> json) {
     final now = DateTime.now();
+
+    List<T> parseList<T>(List<dynamic>? raw, T Function(Map<String, dynamic>) factory) {
+      if (raw == null) return [];
+      final list = <T>[];
+      for (final item in raw) {
+        if (item is Map) {
+          try {
+            final map = Map<String, dynamic>.from(item);
+            list.add(factory(map));
+          } catch (_) {}
+        }
+      }
+      return list;
+    }
+
     return DealershipModel(
       balance: (json['balance'] as num?)?.toDouble() ?? 50000.0,
       level: json['level'] as int? ?? 1,
       maxGarageSlots: json['maxGarageSlots'] as int? ?? 4,
-      ownedCars: (json['ownedCars'] as List<dynamic>?)
-              ?.map((c) => CarModel.fromJson(c as Map<String, dynamic>))
-              .toList() ??
-          [],
-      incomingOffers: (json['incomingOffers'] as List<dynamic>?)
-              ?.map((o) => OfferModel.fromJson(o as Map<String, dynamic>))
-              .toList() ??
-          [],
+      ownedCars: parseList(json['ownedCars'] as List<dynamic>?, CarModel.fromJson),
+      incomingOffers: parseList(json['incomingOffers'] as List<dynamic>?, OfferModel.fromJson),
       totalProfit: (json['totalProfit'] as num?)?.toDouble() ?? 0.0,
       carsSold: json['carsSold'] as int? ?? 0,
       lastActiveTime: DateTime.tryParse(json['lastActiveTime'] as String? ?? '') ?? now,
-      skills: json['skills'] != null ? PlayerSkills.fromJson(json['skills'] as Map<String, dynamic>) : PlayerSkills(),
-      achievements: json['achievements'] != null
-          ? (json['achievements'] as List<dynamic>).map((a) => AchievementItem.fromJson(a as Map<String, dynamic>)).toList()
+      skills: json['skills'] is Map ? PlayerSkills.fromJson(Map<String, dynamic>.from(json['skills'] as Map)) : PlayerSkills(),
+      achievements: parseList(json['achievements'] as List<dynamic>?, AchievementItem.fromJson).isNotEmpty
+          ? parseList(json['achievements'] as List<dynamic>?, AchievementItem.fromJson)
           : PlayerAchievements.initialList,
       loginStreak: json['loginStreak'] as int? ?? 1,
       lastLoginDate: DateTime.tryParse(json['lastLoginDate'] as String? ?? '') ?? now,
-      activeMissions: json['activeMissions'] != null
-          ? (json['activeMissions'] as List<dynamic>).map((m) => MissionModel.fromJson(m as Map<String, dynamic>)).toList()
+      activeMissions: parseList(json['activeMissions'] as List<dynamic>?, MissionModel.fromJson).isNotEmpty
+          ? parseList(json['activeMissions'] as List<dynamic>?, MissionModel.fromJson)
           : DealershipModel.initial().activeMissions,
-      marketTrend: json['marketTrend'] != null
-          ? MarketTrendModel.fromJson(json['marketTrend'] as Map<String, dynamic>)
+      marketTrend: json['marketTrend'] is Map
+          ? MarketTrendModel.fromJson(Map<String, dynamic>.from(json['marketTrend'] as Map))
           : MarketTrendModel.defaultTrend(),
       reputationScore: json['reputationScore'] as int? ?? 100,
-      activeLoans: json['activeLoans'] != null
-          ? (json['activeLoans'] as List<dynamic>).map((l) => LoanModel.fromJson(l as Map<String, dynamic>)).toList()
-          : const [],
-      pendingOrders: (json['pendingOrders'] as List<dynamic>?)
-              ?.map((p) => PartOrderModel.fromJson(p as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      hiredStaff: (json['hiredStaff'] as List<dynamic>?)
-              ?.map((s) => StaffModel.fromJson(s as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      customerReviews: (json['customerReviews'] as List<dynamic>?)
-              ?.map((r) => CustomerReviewModel.fromJson(r as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      salesHistory: (json['salesHistory'] as List<dynamic>?)
-              ?.map((s) => SaleRecordModel.fromJson(s as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      activeCheques: (json['activeCheques'] as List<dynamic>?)
-              ?.map((c) => Cheque.fromJson(c as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      activeInstallments: (json['activeInstallments'] as List<dynamic>?)
-              ?.map((i) => InstallmentContract.fromJson(i as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      activeRentals: (json['activeRentals'] as List<dynamic>?)
-              ?.map((r) => RentalAgreement.fromJson(r as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      activeLoans: parseList(json['activeLoans'] as List<dynamic>?, LoanModel.fromJson),
+      pendingOrders: parseList(json['pendingOrders'] as List<dynamic>?, PartOrderModel.fromJson),
+      hiredStaff: parseList(json['hiredStaff'] as List<dynamic>?, StaffModel.fromJson),
+      customerReviews: parseList(json['customerReviews'] as List<dynamic>?, CustomerReviewModel.fromJson),
+      salesHistory: parseList(json['salesHistory'] as List<dynamic>?, SaleRecordModel.fromJson),
+      activeCheques: parseList(json['activeCheques'] as List<dynamic>?, Cheque.fromJson),
+      activeInstallments: parseList(json['activeInstallments'] as List<dynamic>?, InstallmentContract.fromJson),
+      activeRentals: parseList(json['activeRentals'] as List<dynamic>?, RentalAgreement.fromJson),
       tutorialCompleted: json['tutorialCompleted'] as bool? ?? false,
       tutorialStepIndex: json['tutorialStepIndex'] as int? ?? 0,
       currentDay: json['currentDay'] as int? ?? 1,
       playerName: json['playerName'] as String? ?? 'Kaptan',
       dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
-      logoEmblemId: json['logoEmblemId'] as String? ?? 'crown',
       lastRewardClaimDate: json['lastRewardClaimDate'] != null ? DateTime.tryParse(json['lastRewardClaimDate'] as String) : null,
-      sideBusinesses: (json['sideBusinesses'] as List<dynamic>?)
-              ?.map((e) => SideBusinessModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      marketStocks: (json['marketStocks'] as List<dynamic>?)
-              ?.map((e) => StockModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          DealershipModel.initial().marketStocks,
-      ownedStocks: (json['ownedStocks'] as List<dynamic>?)
-              ?.map((e) => PlayerStockModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      recentEvents: (json['recentEvents'] as List<dynamic>?)
-              ?.map((e) => GameEventModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      sideBusinesses: parseList(json['sideBusinesses'] as List<dynamic>?, SideBusinessModel.fromJson),
+      marketStocks: parseList(json['marketStocks'] as List<dynamic>?, StockModel.fromJson).isNotEmpty
+          ? parseList(json['marketStocks'] as List<dynamic>?, StockModel.fromJson)
+          : DealershipModel.initial().marketStocks,
+      ownedStocks: parseList(json['ownedStocks'] as List<dynamic>?, PlayerStockModel.fromJson),
+      recentEvents: parseList(json['recentEvents'] as List<dynamic>?, GameEventModel.fromJson),
       dailyTaxRate: (json['dailyTaxRate'] as num?)?.toDouble() ?? 150.0,
     );
   }
