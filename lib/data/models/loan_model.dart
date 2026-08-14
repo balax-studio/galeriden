@@ -34,15 +34,15 @@ class LoanModel {
       };
 
   factory LoanModel.fromJson(Map<String, dynamic> json) => LoanModel(
-        id: json['id'] as String,
-        bankName: json['bankName'] as String,
-        principalAmount: (json['principalAmount'] as num).toDouble(),
-        interestRate: (json['interestRate'] as num).toDouble(),
-        totalRepayment: (json['totalRepayment'] as num).toDouble(),
-        remainingAmount: (json['remainingAmount'] as num).toDouble(),
-        totalInstallments: json['totalInstallments'] as int,
-        remainingInstallments: json['remainingInstallments'] as int,
-        monthlyPayment: (json['monthlyPayment'] as num).toDouble(),
+        id: json['id'] as String? ?? 'loan_${DateTime.now().millisecondsSinceEpoch}',
+        bankName: json['bankName'] as String? ?? 'Banka',
+        principalAmount: (json['principalAmount'] as num?)?.toDouble() ?? 0.0,
+        interestRate: (json['interestRate'] as num?)?.toDouble() ?? 0.0,
+        totalRepayment: (json['totalRepayment'] as num?)?.toDouble() ?? 0.0,
+        remainingAmount: (json['remainingAmount'] as num?)?.toDouble() ?? 0.0,
+        totalInstallments: json['totalInstallments'] as int? ?? 1,
+        remainingInstallments: json['remainingInstallments'] as int? ?? 0,
+        monthlyPayment: (json['monthlyPayment'] as num?)?.toDouble() ?? 0.0,
       );
 
   LoanModel copyWith({

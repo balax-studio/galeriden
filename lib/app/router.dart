@@ -95,7 +95,8 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/expertise',
       builder: (context, state) {
-        final listing = state.extra as ListingModel;
+        final listing = state.extra as ListingModel?;
+        if (listing == null) return const MarketplaceScreen();
         return ExpertiseScreen(listing: listing);
       },
     ),
@@ -114,7 +115,8 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/listing-detail',
       builder: (context, state) {
-        final listing = state.extra as ListingModel;
+        final listing = state.extra as ListingModel?;
+        if (listing == null) return const MarketplaceScreen();
         return ListingDetailScreen(listing: listing);
       },
     ),

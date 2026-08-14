@@ -58,14 +58,14 @@ class ExpertiseReport {
 
     final rawConditions = json['partConditions'] as Map<String, dynamic>?;
     final conditionsMap = rawConditions != null
-        ? rawConditions.map((key, value) => MapEntry(key, (value as num).toDouble()))
+        ? rawConditions.map((key, value) => MapEntry(key, (value as num?)?.toDouble() ?? 100.0))
         : _defaultConditions(bodyPartsMap);
 
     return ExpertiseReport(
-      engineCondition: (json['engineCondition'] as num).toDouble(),
-      transmissionCondition: (json['transmissionCondition'] as num).toDouble(),
-      tramerAmount: json['tramerAmount'] as int,
-      mileage: json['mileage'] as int,
+      engineCondition: (json['engineCondition'] as num?)?.toDouble() ?? 100.0,
+      transmissionCondition: (json['transmissionCondition'] as num?)?.toDouble() ?? 100.0,
+      tramerAmount: (json['tramerAmount'] as num?)?.toInt() ?? 0,
+      mileage: (json['mileage'] as num?)?.toInt() ?? 50000,
       isMileageTampered: json['isMileageTampered'] as bool? ?? false,
       bodyParts: bodyPartsMap,
       partConditions: conditionsMap,

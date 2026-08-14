@@ -53,14 +53,14 @@ class PartOrderModel {
 
   factory PartOrderModel.fromJson(Map<String, dynamic> json) {
     return PartOrderModel(
-      id: json['id'] as String,
-      carId: json['carId'] as String,
-      partName: json['partName'] as String,
+      id: json['id'] as String? ?? 'order_${DateTime.now().millisecondsSinceEpoch}',
+      carId: json['carId'] as String? ?? '',
+      partName: json['partName'] as String? ?? 'Yedek Parça',
       orderType: OrderType.values.firstWhere(
         (e) => e.name == json['orderType'],
         orElse: () => OrderType.masterRepair,
       ),
-      cost: (json['cost'] as num).toDouble(),
+      cost: (json['cost'] as num?)?.toDouble() ?? 0.0,
       orderedAt: DateTime.tryParse(json['orderedAt'] as String? ?? '') ?? DateTime.now(),
       deliveryDurationSeconds: json['deliveryDurationSeconds'] as int? ?? 120,
       isInstalled: json['isInstalled'] as bool? ?? false,

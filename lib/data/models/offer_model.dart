@@ -49,11 +49,11 @@ class OfferModel {
   factory OfferModel.fromJson(Map<String, dynamic> json) {
     final created = DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now();
     return OfferModel(
-      id: json['id'] as String,
-      carId: json['carId'] as String,
-      buyerName: json['buyerName'] as String,
-      offeredAmount: (json['offeredAmount'] as num).toDouble(),
-      buyerMessage: json['buyerMessage'] as String,
+      id: json['id'] as String? ?? 'offer_${DateTime.now().millisecondsSinceEpoch}',
+      carId: json['carId'] as String? ?? '',
+      buyerName: json['buyerName'] as String? ?? 'Teklif Sahibi',
+      offeredAmount: (json['offeredAmount'] as num?)?.toDouble() ?? 0.0,
+      buyerMessage: json['buyerMessage'] as String? ?? '',
       status: OfferStatus.values.firstWhere(
         (e) => e.name == json['status'],
         orElse: () => OfferStatus.pending,

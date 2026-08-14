@@ -27,11 +27,14 @@ class GameEventModel {
   };
 
   factory GameEventModel.fromJson(Map<String, dynamic> json) => GameEventModel(
-    id: json['id'] as String,
-    title: json['title'] as String,
-    description: json['description'] as String,
-    amount: (json['amount'] as num).toDouble(),
-    type: GameEventType.values.firstWhere((e) => e.name == json['type']),
-    date: DateTime.parse(json['date'] as String),
+    id: json['id'] as String? ?? 'event_${DateTime.now().millisecondsSinceEpoch}',
+    title: json['title'] as String? ?? 'Olay',
+    description: json['description'] as String? ?? '',
+    amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+    type: GameEventType.values.firstWhere(
+      (e) => e.name == json['type'],
+      orElse: () => GameEventType.neutral,
+    ),
+    date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
   );
 }
