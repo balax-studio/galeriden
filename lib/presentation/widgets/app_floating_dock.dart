@@ -33,84 +33,12 @@ class AppFloatingDock extends StatelessWidget {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Beneloil Bottom Action Pills Bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Bottom Left: Hızlı Al-Sat (Red Action Pill)
-              InkWell(
-                onTap: () => Navigator.of(context).pushNamed('/marketplace'),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: AppColors.beneloilRed,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-                    ],
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.flash_on_rounded, color: Colors.white, size: 12),
-                      SizedBox(width: 4),
-                      Text(
-                        '⚡ Hızlı Al-Sat',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Bottom Right: Sorun / Öneri Bildir (Red Action Pill)
-              InkWell(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sorun & Öneri Bildirim Formu Açıldı!')),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: AppColors.beneloilRed,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-                    ],
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 12),
-                      SizedBox(width: 4),
-                      Text(
-                        'Sorun / Öneri Bildir',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 4),
-
-        // Main Glass Dock
-        Container(
-          margin: const EdgeInsets.only(
-            left: AppSpacing.lg,
-            right: AppSpacing.lg,
-            bottom: AppSpacing.md,
-          ),
+    return Container(
+      margin: const EdgeInsets.only(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.md,
+      ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(32),
             child: BackdropFilter(
@@ -207,8 +135,6 @@ class AppFloatingDock extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ],
-    );
+        );
   }
 }
