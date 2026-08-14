@@ -76,7 +76,7 @@ class ExpertiseReportSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // 4th Wall Developer Humor Card
+            // Expert Inspection Note Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -87,13 +87,13 @@ class ExpertiseReportSheet extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.psychology_rounded, color: p.secondaryColor, size: 24),
+                  Icon(Icons.fact_check_rounded, color: p.secondaryColor, size: 24),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       eval['developerNote'] as String,
                       style: AppTypography.bodyMedium(p.isDark).copyWith(
-                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w600,
                         color: p.secondaryColor,
                         fontSize: 13,
                       ),

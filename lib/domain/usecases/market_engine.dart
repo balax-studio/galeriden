@@ -145,9 +145,7 @@ class MarketEngine {
       discount += 0.20;
     }
 
-    double askingPrice = (baseValue * (1.0 - discount)).roundToDouble();
-
-    final car = CarModel(
+    final carTemp = CarModel(
       id: id,
       brand: brandData.name,
       modelName: modelName,
@@ -155,10 +153,19 @@ class MarketEngine {
       bodyType: bodyType,
       colorHex: _getRandomColorHex(),
       baseMarketValue: baseValue,
-      currentPurchasePrice: askingPrice,
+      currentPurchasePrice: baseValue,
       isRare: isRare,
       expertise: expertise,
     );
+
+    // Realistic seller asking price anchored to true condition value (+4% to +18% overprice margin)
+    double sellerMarkup = 1.04 + (_random.nextDouble() * 0.14);
+    if (sellerProfile['urgency'] == 'high') sellerMarkup -= 0.08;
+    if (isFlashDeal) sellerMarkup -= 0.18;
+
+    double askingPrice = (carTemp.estimatedRealValue * sellerMarkup).clamp(carTemp.estimatedRealValue * 0.75, baseValue * 1.15).roundToDouble();
+
+    final car = carTemp.copyWith(currentPurchasePrice: askingPrice);
 
     final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana'];
     final sellerCity = cities[_random.nextInt(cities.length)];

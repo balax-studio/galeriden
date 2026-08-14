@@ -219,32 +219,79 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
               const SizedBox(height: 24),
 
               // Fair Market Value vs Asking Price Summary Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryAmber.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primaryAmber.withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              Builder(
+                builder: (context) {
+                  final fairValue = eval['fairMarketValue'] as double;
+                  final askingPrice = widget.listing.askingPrice;
+                  final diff = askingPrice - fairValue;
+                  final isOverpriced = diff > 0;
+
+                  return Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: isOverpriced ? AppColors.primaryAmber.withValues(alpha: 0.5) : AppColors.successGreen.withValues(alpha: 0.5)),
+                    ),
+                    child: Column(
                       children: [
-                        Text('GERÇEK PİYASA DEĞERİ', style: AppTypography.labelSmall(isDark)),
-                        Text(CurrencyFormatter.format(eval['fairMarketValue'] as double), style: AppTypography.moneyMedium(isDark)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('EKSPERTİZ PİYASA DEĞERİ', style: AppTypography.labelSmall(isDark).copyWith(fontSize: 10)),
+                                Text(CurrencyFormatter.format(fairValue), style: AppTypography.moneyMedium(isDark).copyWith(fontSize: 16)),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('SATICININ İLAN FİYATI', style: AppTypography.labelSmall(isDark).copyWith(fontSize: 10)),
+                                Text(CurrencyFormatter.format(askingPrice), style: AppTypography.moneyMedium(isDark).copyWith(fontSize: 16)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isOverpriced ? AppColors.primaryAmber.withValues(alpha: 0.12) : AppColors.successGreen.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isOverpriced ? AppColors.primaryAmber.withValues(alpha: 0.3) : AppColors.successGreen.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                isOverpriced ? Icons.trending_up_rounded : Icons.local_offer_rounded,
+                                color: isOverpriced ? AppColors.primaryAmber : AppColors.successGreen,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  isOverpriced
+                                      ? 'Satıcı ₺${CurrencyFormatter.formatShort(diff)} yüksek istiyor (Pazarlık Kozu!)'
+                                      : 'Piyasanın ₺${CurrencyFormatter.formatShort(-diff)} altında kelepir fırsat!',
+                                  style: TextStyle(
+                                    color: isOverpriced ? AppColors.primaryAmber : AppColors.successGreen,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('İLAN FİYATI', style: AppTypography.labelSmall(isDark)),
-                        Text(CurrencyFormatter.format(widget.listing.askingPrice), style: AppTypography.moneyMedium(isDark)),
-                      ],
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             ],
           ],

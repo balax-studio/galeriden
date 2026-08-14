@@ -33,20 +33,22 @@ class ExpertiseEngine {
 
     String overallGrade;
     if (damagePercentage < 10) {
-      overallGrade = 'A+ (Koleksiyonluk / Geliştirici Bile Hayran Kaldı)';
-    } else if (damagePercentage < 25) {
-      overallGrade = 'B (Temiz / Garanti Banko Araç)';
-    } else if (damagePercentage < 45) {
-      overallGrade = 'C (Masraflı / Sanayi Yolları Göründü)';
+      overallGrade = 'A+ (Kusursuz / Koleksiyonluk)';
+    } else if (damagePercentage < 22) {
+      overallGrade = 'A (Temiz / Masrafsız)';
+    } else if (damagePercentage < 35) {
+      overallGrade = 'B (İyi Durumda / Lokal Boyalı)';
+    } else if (damagePercentage < 50) {
+      overallGrade = 'C (Orta / Bakım Gerekli)';
     } else {
-      overallGrade = 'D (Ağır Hasarlı / Oyunu Yazan Yazılımcı Bile Şaşkın)';
+      overallGrade = 'D (Ağır Hasarlı / Onarım Gerekli)';
     }
 
     final developerNotes = [
-      'Geliştirici Notu: Bu aracı alanın kafasına meteor düşme ihtimali %0.01.',
-      'Usta Notu: Valla oyunu yazan yazılımcı bile bu arabanın kazasız olduğuna inanmıyor!',
-      'Ekspertiz Notu: Şasisi saat gibi ama saat de bozuk olabilir.',
-      'Geliştirici Notu: Araçta sıfır boya var ama güneş yanığından renk görünmüyor.'
+      'Ekspertiz Notu: Motor ve şanzıman performansı iyi durumda, mekanik masrafı bulunmamaktadır.',
+      'Ekspertiz Notu: Kaporta aksamında parçalı boyalar mevcut, şasi ve podyeler tamamen orijinaldir.',
+      'Ekspertiz Notu: Hasar geçmişi nedeniyle değer kaybı mevcut, yürüyen aksam bakımı tavsiye edilir.',
+      'Ekspertiz Notu: Detaylı kaporta onarımı ve periyodik bakım sonrasında değer artışı sağlanabilir.'
     ];
     final note = developerNotes[_random.nextInt(developerNotes.length)];
 
