@@ -2,29 +2,51 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
-/// CustomPainter for rendering a cinematic night city skyline with parallax depth,
-/// glowing skyscraper windows, and atmospheric night gradients.
+/// CustomPainter for rendering a cinematic city skyline with parallax depth,
+/// time-of-day sky transitions (day/sunset/night), glowing skyscraper windows, and atmospheric horizon glow.
 class ParallaxSkylinePainter extends CustomPainter {
   final Offset cameraOffset;
   final double parallaxFactor;
+  final int hour;
 
   ParallaxSkylinePainter({
     required this.cameraOffset,
     this.parallaxFactor = 0.25,
+    this.hour = 21,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Base Night Sky Gradient
+    final isDay = hour >= 7 && hour < 17;
+    final isSunset = hour >= 17 && hour < 20;
+
+    // 1. Base Sky Gradient depending on in-game time
     final skyRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final List<Color> skyColors;
+    if (isDay) {
+      skyColors = [
+        const Color(0xFF1E3A8A), // Deep Sky Blue
+        const Color(0xFF3B82F6), // Azure Blue
+        const Color(0xFF93C5FD), // Soft Horizon Blue
+      ];
+    } else if (isSunset) {
+      skyColors = [
+        const Color(0xFF311042), // Deep Sunset Violet
+        const Color(0xFF831843), // Crimson Magenta
+        const Color(0xFFF97316), // Golden Sunset Amber
+      ];
+    } else {
+      skyColors = [
+        const Color(0xFF030508), // Obsidian Night
+        const Color(0xFF0A0F1A), // Deep Midnight Navy
+        const Color(0xFF141A29), // Horizon Slate
+      ];
+    }
+
     final skyGradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [
-        const Color(0xFF030508),
-        const Color(0xFF0A0F1A),
-        const Color(0xFF141A29),
-      ],
+      colors: skyColors,
     );
     canvas.drawRect(skyRect, Paint()..shader = skyGradient.createShader(skyRect));
 
@@ -32,8 +54,17 @@ class ParallaxSkylinePainter extends CustomPainter {
     final shiftedX = cameraOffset.dx * parallaxFactor;
 
     // 2. Distant Skyscraper Silhouette Layer (Slower parallax)
-    final distantPaint = Paint()..color = const Color(0xFF0E1320);
-    final windowPaint = Paint()..color = AppColors.primaryAmber.withValues(alpha: 0.35);
+    final distantColor = isDay
+        ? const Color(0xFF1E293B).withValues(alpha: 0.85)
+        : (isSunset ? const Color(0xFF26122F) : const Color(0xFF0E1320));
+    final distantPaint = Paint()..color = distantColor;
+
+    final windowColor = isDay
+        ? Colors.white.withValues(alpha: 0.25)
+        : (isSunset
+            ? const Color(0xFFFDE047).withValues(alpha: 0.5)
+            : AppColors.primaryAmber.withValues(alpha: 0.45));
+    final windowPaint = Paint()..color = windowColor;
 
     double startX = (shiftedX % 120.0) - 120.0;
     while (startX < size.width + 120.0) {
@@ -56,14 +87,20 @@ class ParallaxSkylinePainter extends CustomPainter {
       startX += buildingWidth + 15.0;
     }
 
-    // 3. Ambient Gold Horizon Glow
+    // 3. Ambient Horizon Glow
+    final glowColor = isDay
+        ? Colors.white.withValues(alpha: 0.12)
+        : (isSunset
+            ? const Color(0xFFF97316).withValues(alpha: 0.2)
+            : AppColors.primaryAmber.withValues(alpha: 0.08));
+
     final horizonGlow = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
           Colors.transparent,
-          AppColors.primaryAmber.withValues(alpha: 0.08),
+          glowColor,
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, size.height * 0.35, size.width, size.height * 0.3));
@@ -72,6 +109,9 @@ class ParallaxSkylinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ParallaxSkylinePainter oldDelegate) {
-    return oldDelegate.cameraOffset != cameraOffset || oldDelegate.parallaxFactor != parallaxFactor;
+    return oldDelegate.cameraOffset != cameraOffset ||
+        oldDelegate.parallaxFactor != parallaxFactor ||
+        oldDelegate.hour != hour;
   }
 }
+
