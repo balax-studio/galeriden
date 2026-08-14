@@ -146,7 +146,7 @@ class RentACarScreen extends ConsumerWidget {
     }
 
     return availableCars.map((car) {
-      double suggestedDailyRate = (car.purchasePrice ?? car.basePrice) * 0.005; // 0.5% of value daily
+      double suggestedDailyRate = car.currentPurchasePrice * 0.005; // 0.5% of value daily
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
@@ -172,12 +172,12 @@ class RentACarScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${car.brand} ${car.model}',
+                    '${car.brand} ${car.modelName}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
                   ),
-                  Text('Değer: ₺${CurrencyFormatter.formatShort(car.purchasePrice ?? car.basePrice)}', style: AppTypography.labelSmall(p.isDark)),
+                  Text('Değer: ₺${CurrencyFormatter.formatShort(car.currentPurchasePrice)}', style: AppTypography.labelSmall(p.isDark)),
                 ],
               ),
             ),
@@ -201,7 +201,7 @@ class RentACarScreen extends ConsumerWidget {
   }
 
   void _showRentDialog(BuildContext context, WidgetRef ref, dynamic p, dynamic car, double suggestedRate) {
-    final double carVal = (car.purchasePrice ?? car.basePrice ?? 100000.0).toDouble();
+    final double carVal = car.currentPurchasePrice.toDouble();
     final double maxAllowedRate = (carVal * 0.012).clamp(100.0, 50000.0);
     double currentRate = suggestedRate.clamp(100.0, maxAllowedRate);
 
@@ -224,7 +224,7 @@ class RentACarScreen extends ConsumerWidget {
                 children: [
                   Text('Aracı Kiraya Ver', style: AppTypography.titleLarge(p.isDark)),
                   const SizedBox(height: 4),
-                  Text('${car.brand} ${car.model}', style: AppTypography.bodyMedium(p.isDark).copyWith(fontWeight: FontWeight.w600)),
+                  Text('${car.brand} ${car.modelName}', style: AppTypography.bodyMedium(p.isDark).copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 16),
                   
                   // Market Rayiç Bilgisi
