@@ -144,7 +144,7 @@ class RentACarScreen extends ConsumerWidget {
   List<Widget> _buildAvailableCarsList(BuildContext context, WidgetRef ref, ThemePaletteModel p, DealershipModel game) {
     // Determine which cars are in the garage but not rented out
     final rentedCarIds = game.activeRentals.map((r) => r.carId).toSet();
-    final availableCars = game.ownedCars.where((c) => !rentedCarIds.contains(c.id)).toList();
+    final availableCars = game.ownedCars.where((c) => !c.isRented && !rentedCarIds.contains(c.id)).toList();
 
     if (availableCars.isEmpty) {
       return [

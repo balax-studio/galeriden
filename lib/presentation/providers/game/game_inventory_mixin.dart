@@ -238,13 +238,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
     saveState();
   }
 
-  /// Rent a Car with strict market rate validation
+  /// Rent a Car with strict market rate validation and state sync
   bool rentCar(String carId, double dailyRate) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
     
     final car = state.ownedCars[carIndex];
-    if (car.isRented) return false;
+    if (car.isRented || state.activeRentals.any((r) => r.carId == carId)) return false;
 
     // Cap daily rate to maximum 1.2% of car value to prevent economy exploits
     final carValue = car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue;
@@ -269,12 +269,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Return Rented Car
+  /// Return Rented Car (Self-healing: returns true and cleans up even if car was removed)
   bool returnRentedCar(String agreementId) {
     final rentalIndex = state.activeRentals.indexWhere((r) => r.id == agreementId);
     if (rentalIndex == -1) return false;
 
     final rental = state.activeRentals[rentalIndex];
+    final updatedRentals = List<RentalAgreement>.from(state.activeRentals)..removeAt(rentalIndex);
     
     final carIndex = state.ownedCars.indexWhere((c) => c.id == rental.carId);
     if (carIndex != -1) {
@@ -282,16 +283,35 @@ mixin GameInventoryMixin on GameBaseNotifier {
       final updatedCars = List<CarModel>.from(state.ownedCars);
       updatedCars[carIndex] = updatedCar;
       
-      final updatedRentals = List<RentalAgreement>.from(state.activeRentals);
-      updatedRentals.removeAt(rentalIndex);
-
       state = state.copyWith(
         ownedCars: updatedCars,
         activeRentals: updatedRentals,
       );
-      saveState();
-      return true;
+    } else {
+      // Orphan agreement cleanup when car was sold/removed
+      state = state.copyWith(activeRentals: updatedRentals);
     }
-    return false;
+    saveState();
+    return true;
+  }
+
+  /// Self-healing state sync: Ensures all ownedCars.isRented flags match activeRentals
+  void syncRentalState() {
+    final rentedCarIds = state.activeRentals.map((r) => r.carId).toSet();
+    bool needsUpdate = false;
+
+    final syncedCars = state.ownedCars.map((car) {
+      final shouldBeRented = rentedCarIds.contains(car.id);
+      if (car.isRented != shouldBeRented) {
+        needsUpdate = true;
+        return car.copyWith(isRented: shouldBeRented);
+      }
+      return car;
+    }).toList();
+
+    if (needsUpdate) {
+      state = state.copyWith(ownedCars: syncedCars);
+      saveState();
+    }
   }
 }

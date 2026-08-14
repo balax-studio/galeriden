@@ -126,6 +126,36 @@ void main() {
       expect(car.isRented, isFalse);
     });
 
+    test('returning an orphan rented car cleans up agreement', () {
+      gameNotifier.rentCar(testCar.id, 1000.0);
+      final rentalId = gameNotifier.state.activeRentals.first.id;
+
+      // Remove car from ownedCars to simulate car deletion/sale
+      gameNotifier.state = gameNotifier.state.copyWith(
+        ownedCars: gameNotifier.state.ownedCars.where((c) => c.id != testCar.id).toList(),
+      );
+
+      final success = gameNotifier.returnRentedCar(rentalId);
+      expect(success, isTrue);
+      expect(gameNotifier.state.activeRentals.isEmpty, isTrue);
+    });
+
+    test('syncRentalState auto-heals desynced car flags', () {
+      final carId = gameNotifier.state.ownedCars.first.id;
+      gameNotifier.rentCar(carId, 1000.0);
+      
+      // Manually tamper isRented to false
+      final car = gameNotifier.state.ownedCars.firstWhere((c) => c.id == carId);
+      final tamperedCar = car.copyWith(isRented: false);
+      gameNotifier.state = gameNotifier.state.copyWith(ownedCars: [tamperedCar]);
+
+      // Call syncRentalState
+      gameNotifier.syncRentalState();
+
+      final healedCar = gameNotifier.state.ownedCars.firstWhere((c) => c.id == carId);
+      expect(healedCar.isRented, isTrue);
+    });
+
     test('purchasing and upgrading side business level', () {
       // Find sb_9 (Kurumsal Oto Ekspertiz Bayii)
       final business = gameNotifier.state.sideBusinesses.firstWhere((b) => b.id == 'sb_9');

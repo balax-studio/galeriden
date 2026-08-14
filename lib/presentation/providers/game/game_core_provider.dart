@@ -64,6 +64,7 @@ class GameCoreNotifier extends GameBaseNotifier
         updated = updated.copyWith(loginStreak: streak, lastLoginDate: now);
 
         state = updated;
+        syncRentalState();
         saveState();
         return;
       } catch (e) {

@@ -32,12 +32,12 @@ class RentalAgreement {
   };
 
   factory RentalAgreement.fromJson(Map<String, dynamic> json) => RentalAgreement(
-    id: json['id'] as String, 
-    carId: json['carId'] as String,
-    dailyRate: (json['dailyRate'] as num).toDouble(),
-    rentedDays: json['rentedDays'] as int? ?? 0,
-    totalEarned: (json['totalEarned'] as num).toDouble(),
-  );
+        id: json['id'] as String? ?? 'rent_${DateTime.now().millisecondsSinceEpoch}',
+        carId: json['carId'] as String? ?? '',
+        dailyRate: (json['dailyRate'] as num?)?.toDouble() ?? 0.0,
+        rentedDays: (json['rentedDays'] as num?)?.toInt() ?? 0,
+        totalEarned: (json['totalEarned'] as num?)?.toDouble() ?? 0.0,
+      );
   
   RentalAgreement copyWith({int? rentedDays, double? totalEarned}) {
       return RentalAgreement(
