@@ -47,6 +47,9 @@ class CarModel {
     this.isDoped = false,
   });
 
+  /// Alias for currentPurchasePrice to prevent runtime NoSuchMethodError
+  double get purchasePrice => currentPurchasePrice;
+
   /// Check if car is actively listed for sale
   bool get isListed => customListingPrice != null && customListingPrice! > 0;
 

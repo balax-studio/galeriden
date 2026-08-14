@@ -13,6 +13,10 @@ class RentalAgreement {
     this.totalEarned = 0.0,
   });
 
+  /// Fallback getters for safety
+  String get carModelName => 'Kiradaki Araç';
+  double get purchasePrice => 0.0;
+
   Map<String, dynamic> toJson() => {
     'id': id, 
     'carId': carId, 

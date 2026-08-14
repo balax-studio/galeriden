@@ -34,7 +34,7 @@ class RentACarScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             if (game.activeRentals.isEmpty)
               Text('Şu an kirada olan aracınız bulunmuyor.', style: AppTypography.bodyMedium(p.isDark).copyWith(color: p.textSecondaryColor)),
-            ...game.activeRentals.map((rental) => _buildRentalCard(context, ref, p, rental)),
+            ...game.activeRentals.map((rental) => _buildRentalCard(context, ref, p, rental, game)),
             const SizedBox(height: 24),
             Text('KİRAYA VERİLEBİLECEK ARAÇLAR (GARAJ)', style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 12),
@@ -82,7 +82,10 @@ class RentACarScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRentalCard(BuildContext context, WidgetRef ref, dynamic p, dynamic rental) {
+  Widget _buildRentalCard(BuildContext context, WidgetRef ref, dynamic p, dynamic rental, dynamic game) {
+    final car = game.ownedCars.where((c) => c.id == rental.carId).firstOrNull;
+    final carTitle = car != null ? '${car.brand} ${car.modelName}' : 'Kiradaki Araç';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -98,7 +101,7 @@ class RentACarScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  rental.carModelName,
+                  carTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15),
