@@ -65,6 +65,8 @@ class DealershipModel {
   final List<ScrapyardCar> scrapyardCars;
   final List<BlackMarketCarModel> blackMarketCars;
 
+  final Set<String> unlockedBuildings;
+
   DateTime get inGameTime => DateTime.now();
 
   DealershipModel({
@@ -107,6 +109,7 @@ class DealershipModel {
     this.salvagedParts = const [],
     this.scrapyardCars = const [],
     this.blackMarketCars = const [],
+    this.unlockedBuildings = const {},
   });
 
   factory DealershipModel.initial() {
@@ -410,6 +413,7 @@ class DealershipModel {
       ownedStocks: const [],
       recentEvents: const [],
       dailyTaxRate: 150.0,
+      unlockedBuildings: const {'/marketplace', '/workshop'},
     );
   }
 
@@ -454,6 +458,7 @@ class DealershipModel {
       'salvagedParts': salvagedParts.map((p) => p.toJson()).toList(),
       'scrapyardCars': scrapyardCars.map((c) => c.toJson()).toList(),
       'blackMarketCars': blackMarketCars.map((c) => c.toJson()).toList(),
+      'unlockedBuildings': unlockedBuildings.toList(),
     };
   }
 
@@ -521,6 +526,7 @@ class DealershipModel {
       salvagedParts: parseList(json['salvagedParts'] as List<dynamic>?, SalvagedPart.fromJson),
       scrapyardCars: parseList(json['scrapyardCars'] as List<dynamic>?, ScrapyardCar.fromJson),
       blackMarketCars: parseList(json['blackMarketCars'] as List<dynamic>?, BlackMarketCarModel.fromJson),
+      unlockedBuildings: (json['unlockedBuildings'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {'/marketplace', '/workshop'},
     );
   }
 
@@ -592,6 +598,7 @@ class DealershipModel {
     List<SalvagedPart>? salvagedParts,
     List<ScrapyardCar>? scrapyardCars,
     List<BlackMarketCarModel>? blackMarketCars,
+    Set<String>? unlockedBuildings,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -633,6 +640,9 @@ class DealershipModel {
       salvagedParts: salvagedParts ?? this.salvagedParts,
       scrapyardCars: scrapyardCars ?? this.scrapyardCars,
       blackMarketCars: blackMarketCars ?? this.blackMarketCars,
+      unlockedBuildings: unlockedBuildings ?? this.unlockedBuildings,
     );
   }
+
+  bool isBuildingUnlocked(String route) => unlockedBuildings.contains(route);
 }

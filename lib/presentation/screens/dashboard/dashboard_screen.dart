@@ -13,15 +13,12 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/floating_money_overlay.dart';
-import '../../widgets/app_double_bezel_card.dart';
 import '../../widgets/app_floating_dock.dart';
 import '../../widgets/app_hero_header.dart';
 import '../../widgets/app_tactile_button.dart';
 
-import '../../widgets/isometric_showroom_canvas.dart';
+import '../../widgets/isometric_world_map.dart';
 import '../../widgets/app_glass_container.dart';
-
-import 'widgets/dashboard_game_time_card.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import '../showroom/showroom_screen.dart';
@@ -55,7 +52,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
-    final trend = game.marketTrend;
 
     return Scaffold(
       backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -72,156 +68,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               child: IndexedStack(
                 index: _selectedIndex,
                 children: [
-                  // Tab 0: Simplified Dashboard (Ana Ekran)
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Showroom & Parking Canvas
-                        const IsometricShowroomCanvas(),
-                        const SizedBox(height: AppSpacing.lg),
-
-                        // Game Day & Time Progress Card
-                        DashboardGameTimeCard(game: game),
-
-                        // Market Trend Banner
-                        Container(
-                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          decoration: BoxDecoration(
-                            color: p.primaryColor.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: p.primaryColor.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 22),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('GÜNCEL PİYASA TRENDİ', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 2),
-                                    Text(trend.headline, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Live Market News Ticker Bar (Dinamik Piyasa Haber Bandı)
-                        if (game.activeNews != null) ...[
-                          Container(
-                            margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.amber.shade900.withValues(alpha: 0.3),
-                                  Colors.orange.shade800.withValues(alpha: 0.15),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.amber.withValues(alpha: 0.6), width: 1.2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.amber.withValues(alpha: 0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(Icons.newspaper_rounded, color: Colors.amber, size: 20),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            game.activeNews!.title,
-                                            style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.w900, fontSize: 13),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                            decoration: BoxDecoration(
-                                              color: Colors.amber.withValues(alpha: 0.3),
-                                              borderRadius: BorderRadius.circular(6),
-                                            ),
-                                            child: const Text(
-                                              'FLAŞ HABER',
-                                              style: TextStyle(color: Colors.amber, fontSize: 9, fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        game.activeNews!.description,
-                                        style: AppTypography.bodyMedium(p.isDark).copyWith(fontSize: 11.5),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-
-                        // Asymmetric Bento Grid Menu (İŞLEMLER)
-                        Text('İŞLEMLER & MERKEZ', style: AppTypography.labelSmall(p.isDark)),
-                        const SizedBox(height: AppSpacing.md),
-                        _buildAsymmetricGrid(context, p),
-                        const SizedBox(height: AppSpacing.xl),
-
-                        // Daily Login Streak Bonus Card
-                        _AnimatedDailyBonusCard(
-                          game: game,
-                          p: p,
-                          onClaim: () {
-                            final reward = ref.read(gameProvider.notifier).claimDailyStreak();
-                            FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
-                            NotificationService.showSuccess(context, '₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!');
-                          },
-                        ),
-
-                        // Daily Missions Section
-                        Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
-                        const SizedBox(height: AppSpacing.md),
-                        Column(
-                          children: game.activeMissions.map((mission) {
-                            return _AnimatedMissionCard(
-                              key: ValueKey(mission.id),
-                              mission: mission,
-                              p: p,
-                              onClaim: () {
-                                ref.read(gameProvider.notifier).claimMissionReward(mission.id);
-                                FloatingMoneyOverlay.of(context)?.showMoneyPopUp(mission.rewardMoney.toDouble(), label: 'Görev Ödülü!');
-                                NotificationService.showSuccess(context, '${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.');
-                              },
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                      ],
-                    ),
-                  ),
+                  // Tab 0: Full-Screen Isometric Tycoon World (Ana Ekran)
+                  _buildWorldTab(context, game, p),
 
             // Tab 1: Showroom (Galeri)
             const ShowroomScreen(),
@@ -247,6 +95,174 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  /// Full-screen isometric tycoon world with tappable buildings + floating overlays.
+  Widget _buildWorldTab(BuildContext context, DealershipModel game, ThemePaletteModel p) {
+    final trend = game.marketTrend;
+    final completedMissions = game.activeMissions.where((m) => m.isCompleted).length;
+    final claimableExists = game.activeMissions.any((m) => m.isCompleted);
+
+    return Stack(
+      children: [
+        // The pannable / zoomable isometric city.
+        const Positioned.fill(child: IsometricWorldMap()),
+
+        // Top market-trend ribbon.
+        Positioned(
+          top: 10,
+          left: 12,
+          right: 12,
+          child: IgnorePointer(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      trend.headline,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Floating right-side quick actions (Görevler & Ödüller, Ipucu).
+        Positioned(
+          right: 12,
+          bottom: 20,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _WorldActionButton(
+                icon: Icons.assignment_turned_in_rounded,
+                label: 'Görevler',
+                badge: '$completedMissions/${game.activeMissions.length}',
+                color: const Color(0xFFA855F7),
+                highlight: claimableExists,
+                onTap: () => _showTasksSheet(context, game, p),
+              ),
+              const SizedBox(height: 10),
+              _WorldActionButton(
+                icon: Icons.storefront_rounded,
+                label: 'Galeri',
+                color: p.primaryColor,
+                onTap: () => context.push('/showroom'),
+              ),
+            ],
+          ),
+        ),
+
+        // Pan hint.
+        Positioned(
+          left: 12,
+          bottom: 20,
+          child: IgnorePointer(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.pan_tool_alt_rounded, color: Colors.white70, size: 14),
+                  SizedBox(width: 6),
+                  Text('Kaydır · Yakınlaştır · Binaya dokun', style: TextStyle(color: Colors.white70, fontSize: 10.5)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Bottom sheet listing the daily streak bonus + active missions.
+  void _showTasksSheet(BuildContext context, DealershipModel game, ThemePaletteModel p) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          minChildSize: 0.35,
+          maxChildSize: 0.9,
+          builder: (ctx, scrollController) {
+            final liveGame = ref.watch(gameProvider);
+            return Container(
+              decoration: BoxDecoration(
+                color: p.surfaceColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border.all(color: p.surfaceBorderColor),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: ListView(
+                controller: scrollController,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 4,
+                      decoration: BoxDecoration(color: p.surfaceBorderColor, borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text('GÜNLÜK ÖDÜL', style: AppTypography.labelSmall(p.isDark)),
+                  const SizedBox(height: AppSpacing.md),
+                  _AnimatedDailyBonusCard(
+                    game: liveGame,
+                    p: p,
+                    onClaim: () {
+                      final reward = ref.read(gameProvider.notifier).claimDailyStreak();
+                      FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
+                      NotificationService.showSuccess(context, '₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!');
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
+                  const SizedBox(height: AppSpacing.md),
+                  ...liveGame.activeMissions.map((mission) {
+                    return _AnimatedMissionCard(
+                      key: ValueKey(mission.id),
+                      mission: mission,
+                      p: p,
+                      onClaim: () {
+                        ref.read(gameProvider.notifier).claimMissionReward(mission.id);
+                        FloatingMoneyOverlay.of(context)?.showMoneyPopUp(mission.rewardMoney.toDouble(), label: 'Görev Ödülü!');
+                        NotificationService.showSuccess(context, '${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.');
+                      },
+                    );
+                  }),
+                  if (liveGame.activeMissions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: Text('Şu an aktif görev yok.', style: AppTypography.labelSmall(p.isDark)),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -458,109 +474,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 
 
-
-  Widget _buildAsymmetricGrid(BuildContext context, ThemePaletteModel p) {
-    return Column(
-      children: [
-        // Row 1: 3 Bento Cards (Marketplace, Workshop, CarWash)
-        Row(
-          children: [
-            Expanded(child: _buildGridItem(context, title: 'İkinci El', subtitle: 'Pazar', icon: Icons.storefront_rounded, color: p.primaryColor, onTap: () => context.push('/marketplace'))),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(child: _buildGridItem(context, title: 'Tamir', subtitle: 'Atölyesi', icon: Icons.build_rounded, color: p.warningColor, onTap: () => context.push('/workshop'))),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(child: _buildGridItem(context, title: 'Oto Yıkama', subtitle: 'Stüdyo', icon: Icons.local_car_wash_rounded, color: p.secondaryColor, onTap: () => context.push('/car-wash'))),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        // Row 2: 2 Wide Feature Cards (Branches, Finance)
-        Row(
-          children: [
-            Expanded(child: _buildGridItem(context, title: 'Şube İmparatorluğu', subtitle: 'Kapasite & Galeri', icon: Icons.domain_rounded, color: p.primaryColor, isWide: true, onTap: () => context.push('/branches'))),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(child: _buildGridItem(context, title: 'Finans & Tahsilat', subtitle: 'Vadeli / Çek', icon: Icons.account_balance_rounded, color: p.successColor, isWide: true, onTap: () => context.push('/finance'))),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        // Row 3: 3 Bento Cards (RentACar, SideBusinesses, StockMarket)
-        Row(
-          children: [
-            Expanded(child: _buildGridItem(context, title: 'Rent a Car', subtitle: 'Filo Kiralama', icon: Icons.car_rental_rounded, color: p.secondaryColor, onTap: () => context.push('/rent-a-car'))),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(child: _buildGridItem(context, title: 'Yan İşletme', subtitle: 'Pasif Gelir', icon: Icons.store_mall_directory_rounded, color: p.primaryColor, onTap: () => context.push('/side-businesses'))),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(child: _buildGridItem(context, title: 'Borsa', subtitle: 'Hisse Senedi', icon: Icons.show_chart_rounded, color: p.infoColor, onTap: () => context.push('/stock-market'))),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        // Row 4: 3 New Feature Bento Cards (Scrapyard, BlackMarket, TuningStudio)
-        Row(
-          children: [
-            Expanded(child: _buildGridItem(context, title: 'Hurdalık', subtitle: 'Parça Söküm', icon: Icons.minor_crash_rounded, color: Colors.orangeAccent, onTap: () => context.push('/scrapyard'))),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(child: _buildGridItem(context, title: 'Karaborsa', subtitle: 'Riskli Oto', icon: Icons.security_rounded, color: Colors.redAccent, onTap: () => context.push('/black-market'))),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(child: _buildGridItem(context, title: 'VIP Tuning', subtitle: 'Performans', icon: Icons.speed_rounded, color: Colors.amber, onTap: () => context.push('/tuning-studio'))),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGridItem(
-    BuildContext context, {
-    required String title,
-    String? subtitle,
-    required IconData icon,
-    required Color color,
-    bool isWide = false,
-    required VoidCallback onTap,
-  }) {
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
-
-    return AppDoubleBezelCard(
-      onTap: onTap,
-      accentColor: color,
-      outerRadius: 18,
-      padding: EdgeInsets.symmetric(
-        horizontal: isWide ? AppSpacing.md : AppSpacing.xs,
-        vertical: AppSpacing.md,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: isWide ? 22 : 20),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            title,
-            style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: isWide ? 13 : 12, fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 
   Widget _buildFinancialSummaryCard(BuildContext context, WidgetRef ref, DealershipModel game, ThemePaletteModel p) {
     final activeLoans = game.activeLoans;
@@ -832,6 +745,86 @@ class _AnimatedDailyBonusCardState extends State<_AnimatedDailyBonusCard> with S
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Floating circular action button used as an overlay on the isometric world map.
+class _WorldActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? badge;
+  final Color color;
+  final bool highlight;
+  final VoidCallback onTap;
+
+  const _WorldActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+    this.badge,
+    this.highlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          width: 62,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: color.withValues(alpha: highlight ? 0.9 : 0.5), width: highlight ? 2 : 1.2),
+            boxShadow: [
+              BoxShadow(color: color.withValues(alpha: highlight ? 0.4 : 0.18), blurRadius: 12, offset: const Offset(0, 4)),
+              const BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2)),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: color.withValues(alpha: 0.16), shape: BoxShape.circle),
+                    child: Icon(icon, color: color, size: 22),
+                  ),
+                  if (badge != null)
+                    Positioned(
+                      right: -6,
+                      top: -6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: highlight ? const Color(0xFF16A34A) : color,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white, width: 1.2),
+                        ),
+                        child: Text(
+                          badge!,
+                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 9.5, fontWeight: FontWeight.w800),
+              ),
+            ],
           ),
         ),
       ),

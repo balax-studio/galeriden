@@ -223,6 +223,17 @@ class GameCoreNotifier extends GameBaseNotifier
     state = DealershipModel.initial();
     saveState();
   }
+
+  void unlockBuilding(String route, double cost) {
+    if (state.unlockedBuildings.contains(route)) return;
+    if (state.balance < cost) return;
+    final updated = {...state.unlockedBuildings, route};
+    state = state.copyWith(
+      balance: state.balance - cost,
+      unlockedBuildings: updated,
+    );
+    saveState();
+  }
 }
 
 final gameCoreProvider = StateNotifierProvider<GameCoreNotifier, DealershipModel>((ref) {
