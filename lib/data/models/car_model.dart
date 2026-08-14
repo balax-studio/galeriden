@@ -51,6 +51,12 @@ class CarModel {
   @pragma('vm:entry-point')
   double get purchasePrice => currentPurchasePrice;
 
+  @pragma('vm:entry-point')
+  String get carTitle => '$brand $modelName';
+
+  @pragma('vm:entry-point')
+  String get carModelName => '$brand $modelName';
+
   /// Check if car is actively listed for sale
   bool get isListed => customListingPrice != null && customListingPrice! > 0;
 

@@ -20,6 +20,11 @@ class SaleRecordModel {
     required this.saleDate,
   });
 
+  @pragma('vm:entry-point')
+  double get currentPurchasePrice => purchasePrice;
+  @pragma('vm:entry-point')
+  String get carModelName => carTitle;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'carTitle': carTitle,

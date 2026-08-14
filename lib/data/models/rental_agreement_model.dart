@@ -17,7 +17,11 @@ class RentalAgreement {
   @pragma('vm:entry-point')
   String get carModelName => 'Kiradaki Araç';
   @pragma('vm:entry-point')
+  String get carTitle => 'Kiradaki Araç';
+  @pragma('vm:entry-point')
   double get purchasePrice => 0.0;
+  @pragma('vm:entry-point')
+  double get currentPurchasePrice => 0.0;
 
   Map<String, dynamic> toJson() => {
     'id': id, 
