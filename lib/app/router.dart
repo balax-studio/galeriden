@@ -29,10 +29,6 @@ final appRouter = GoRouter(
   errorBuilder: (context, state) => const DashboardScreen(),
   routes: [
     GoRoute(
-      path: '/market',
-      builder: (context, state) => const MarketplaceScreen(),
-    ),
-    GoRoute(
       path: '/side-businesses',
       builder: (context, state) => const SideBusinessScreen(),
     ),

@@ -23,7 +23,8 @@ import 'widgets/disappearing_repair_tile.dart';
 import 'widgets/isometric_hydraulic_lift.dart';
 
 class WorkshopScreen extends ConsumerStatefulWidget {
-  const WorkshopScreen({super.key});
+  final int initialTabIndex;
+  const WorkshopScreen({super.key, this.initialTabIndex = 0});
 
   @override
   ConsumerState<WorkshopScreen> createState() => _WorkshopScreenState();
@@ -45,15 +46,24 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       _selectedCar = game.ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => game.ownedCars.first);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text('TAMİR VE RESTORASYON ATÖLYESİ'),
+    return DefaultTabController(
+      length: 2,
+      initialIndex: widget.initialTabIndex,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text('TAMİR, YIKAMA VE RESTORASYON MERKEZİ'),
+          ),
+          bottom: const TabBar(
+            tabs: [
+              Tab(icon: Icon(Icons.build_rounded), text: 'Tamir & Kaporta'),
+              Tab(icon: Icon(Icons.dry_cleaning_rounded), text: 'Yıkama & Detailing'),
+            ],
+          ),
         ),
-      ),
-      body: Stack(
-        children: [
+        body: Stack(
+          children: [
           game.ownedCars.isEmpty
               ? Center(
                   child: Padding(
@@ -336,8 +346,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
           const TutorialOverlayBanner(),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showCraftsmanSelectionSheet(
     BuildContext context, {

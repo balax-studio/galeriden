@@ -515,107 +515,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               minimumSize: const Size(44, 36),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: p.backgroundColor,
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-                builder: (ctx) => Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.account_balance_rounded, color: p.primaryColor),
-                          const SizedBox(width: 10),
-                          Text('BANKA FİNANS SİSTEMİ', style: AppTypography.titleLarge(p.isDark)),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Şu an ${activeLoans.length}/3 aktif banka krediniz var.',
-                        style: AppTypography.bodyMedium(p.isDark),
-                      ),
-                      const SizedBox(height: 16),
-                      if (activeLoans.isNotEmpty) ...[
-                        Text('AKTİF KREDİLERİNİZ', style: AppTypography.labelSmall(p.isDark)),
-                        const SizedBox(height: 8),
-                        ...activeLoans.map((loan) => Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                leading: Icon(Icons.credit_card_rounded, color: p.warningColor),
-                                title: Text('${loan.bankName} - ${CurrencyFormatter.formatShort(loan.monthlyPayment)} / ay'),
-                                subtitle: Text('Kalan Taksit: ${loan.remainingInstallments} ay | Kalan: ${CurrencyFormatter.formatShort(loan.remainingAmount)}'),
-                                trailing: TextButton(
-                                  onPressed: () {
-                                    final success = ref.read(gameProvider.notifier).payLoanInstallment(loan.id);
-                                    Navigator.pop(ctx);
-                                    NotificationService.showError(context, success ? 'Taksit başarıyla ödendi!' : 'Bakiye yetersiz!');
-                                  },
-                                  child: const Text('Öde'),
-                                ),
-                              ),
-                            )),
-                        const SizedBox(height: 12),
-                      ],
-                      Text('YENİ KREDİ ÇEK', style: AppTypography.labelSmall(p.isDark)),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                final success = ref.read(gameProvider.notifier).takeBankLoan(
-                                      bankName: 'Ziraat Finans',
-                                      amount: 100000.0,
-                                      months: 6,
-                                    );
-                                Navigator.pop(ctx);
-                                NotificationService.showSuccess(context, success ? '₺100.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!');
-                              },
-                              child: const Text('₺100.000\n(6 Ay)'),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                final success = ref.read(gameProvider.notifier).takeBankLoan(
-                                      bankName: 'Vakıf Finans',
-                                      amount: 250000.0,
-                                      months: 6,
-                                    );
-                                Navigator.pop(ctx);
-                                NotificationService.showSuccess(context, success ? '₺250.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!');
-                              },
-                              child: const Text('₺250.000\n(6 Ay)'),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                final success = ref.read(gameProvider.notifier).takeBankLoan(
-                                      bankName: 'İş Galeri Finans',
-                                      amount: 500000.0,
-                                      months: 12,
-                                    );
-                                Navigator.pop(ctx);
-                                NotificationService.showSuccess(context, success ? '₺500.000 kredi hesabınıza aktarıldı!' : 'Kredi limiti dolu!');
-                              },
-                              child: const Text('₺500.000\n(12 Ay)'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-            child: Text(activeLoans.isNotEmpty ? 'Yönet' : 'Çek', style: const TextStyle(fontWeight: FontWeight.bold)),
+            onPressed: () => context.push('/finance'),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(activeLoans.isNotEmpty ? 'Yönet' : 'Kredi Çek', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            ),
           ),
         ],
       ),
