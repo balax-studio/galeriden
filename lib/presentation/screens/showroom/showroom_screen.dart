@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/expertise_model.dart';
@@ -629,7 +630,7 @@ class ShowroomScreen extends ConsumerWidget {
     required Color color,
     required bool isSelected,
     required VoidCallback onTap,
-    required dynamic p,
+    required ThemePaletteModel p,
   }) {
     return InkWell(
       onTap: onTap,

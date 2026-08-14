@@ -21,10 +21,13 @@ class Cheque {
     'isDefaulted': isDefaulted,
   };
 
+  String get carModelName => 'Çekli Satış ($customerName)';
+  int get dueDay => daysUntilDue;
+
   factory Cheque.fromJson(Map<String, dynamic> json) => Cheque(
-    id: json['id'] as String,
-    customerName: json['customerName'] as String,
-    amount: (json['amount'] as num).toDouble(),
+    id: json['id'] as String? ?? 'chq_${DateTime.now().millisecondsSinceEpoch}',
+    customerName: json['customerName'] as String? ?? 'Müşteri',
+    amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
     daysUntilDue: json['daysUntilDue'] as int? ?? 0,
     isDefaulted: json['isDefaulted'] as bool? ?? false,
   );

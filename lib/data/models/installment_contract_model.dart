@@ -33,15 +33,18 @@ class InstallmentContract {
     'isDefaulted': isDefaulted
   };
 
+  String get carModelName => 'Taksitli Satış ($customerName)';
+  int get nextPaymentDay => daysUntilNextPayment;
+
   factory InstallmentContract.fromJson(Map<String, dynamic> json) => InstallmentContract(
-    id: json['id'] as String,
-    customerName: json['customerName'] as String,
-    totalAmount: (json['totalAmount'] as num).toDouble(),
-    paidAmount: (json['paidAmount'] as num).toDouble(),
-    installmentAmount: (json['installmentAmount'] as num).toDouble(),
-    totalInstallments: json['totalInstallments'] as int,
-    paidInstallments: json['paidInstallments'] as int,
-    daysUntilNextPayment: json['daysUntilNextPayment'] as int,
+    id: json['id'] as String? ?? 'inst_${DateTime.now().millisecondsSinceEpoch}',
+    customerName: json['customerName'] as String? ?? 'Müşteri',
+    totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+    paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0.0,
+    installmentAmount: (json['installmentAmount'] as num?)?.toDouble() ?? 0.0,
+    totalInstallments: json['totalInstallments'] as int? ?? 1,
+    paidInstallments: json['paidInstallments'] as int? ?? 0,
+    daysUntilNextPayment: json['daysUntilNextPayment'] as int? ?? 30,
     isDefaulted: json['isDefaulted'] as bool? ?? false,
   );
   

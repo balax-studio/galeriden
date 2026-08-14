@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/sale_record_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_glass_container.dart';
@@ -480,7 +481,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     );
   }
 
-  Widget _buildWorkshopActivitySection(dynamic game) {
+  Widget _buildWorkshopActivitySection(DealershipModel game) {
     final pendingCount = game.pendingOrders.length;
 
     return AppGlassContainer(

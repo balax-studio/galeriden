@@ -12,6 +12,7 @@ import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_icons.dart';
 import '../../widgets/app_glass_container.dart';
 import '../../widgets/app_tactile_button.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/expertise_model.dart';
 import 'interactive_negotiation_sheet.dart';
 
@@ -363,7 +364,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     );
   }
 
-  Widget _buildFilterChip(String key, String label, IconData icon, dynamic p) {
+  Widget _buildFilterChip(String key, String label, IconData icon, ThemePaletteModel p) {
     final isSelected = _selectedFilter == key;
     final activeColor = isSelected ? p.primaryColor : p.surfaceBorderColor;
     final textColor = isSelected ? (p.isDark ? const Color(0xFF0D0D0F) : Colors.white) : p.textPrimaryColor;

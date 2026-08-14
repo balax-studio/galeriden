@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../data/models/theme_palette_model.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../data/models/expertise_model.dart';
 
@@ -145,7 +146,7 @@ class CarDamageSchemaWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPartBox(String label, PartStatus? status, dynamic p, {double minHeight = 46, bool isHighlight = false}) {
+  Widget _buildPartBox(String label, PartStatus? status, ThemePaletteModel p, {double minHeight = 46, bool isHighlight = false}) {
     Color statusColor;
     String statusText;
 

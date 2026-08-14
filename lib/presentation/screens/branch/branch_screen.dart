@@ -1,6 +1,7 @@
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -289,7 +290,7 @@ class BranchScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSkillTile(BuildContext context, WidgetRef ref, {required String title, required int level, required double cost, required String vectorType, required dynamic p, required VoidCallback onUpgrade}) {
+  Widget _buildSkillTile(BuildContext context, WidgetRef ref, {required String title, required int level, required double cost, required String vectorType, required ThemePaletteModel p, required VoidCallback onUpgrade}) {
     final game = ref.watch(gameProvider);
     final canAfford = game.balance >= cost && level < 10;
 

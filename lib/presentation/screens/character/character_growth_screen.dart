@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -324,7 +325,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
     required String perk,
     required int level,
     required String skillKey,
-    required dynamic p,
+    required ThemePaletteModel p,
     required bool hasPoints,
   }) {
     return Container(

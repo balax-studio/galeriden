@@ -115,7 +115,7 @@ class CarModel {
       bodyType: json['bodyType'] as String? ?? 'Sedan',
       colorHex: json['colorHex'] as String? ?? '0xFFCCCCCC',
       baseMarketValue: (json['baseMarketValue'] as num?)?.toDouble() ?? 500000.0,
-      currentPurchasePrice: (json['currentPurchasePrice'] as num?)?.toDouble() ?? 450000.0,
+      currentPurchasePrice: (json['currentPurchasePrice'] as num?)?.toDouble() ?? (json['purchasePrice'] as num?)?.toDouble() ?? 450000.0,
       isDetailedCleaned: json['isDetailedCleaned'] as bool? ?? false,
       isWashed: json['isWashed'] as bool? ?? false,
       isPolished: json['isPolished'] as bool? ?? false,

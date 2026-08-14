@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../data/models/dealership_model.dart';
+import '../../../data/models/installment_contract_model.dart';
+import '../../../data/models/cheque_model.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -44,7 +48,7 @@ class FinanceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummary(dynamic p, dynamic game) {
+  Widget _buildSummary(ThemePaletteModel p, DealershipModel game) {
     double totalInstallmentReceivables = game.activeInstallments.fold(0.0, (sum, c) => sum + (c.totalAmount - c.paidAmount));
     double totalChequeReceivables = game.activeCheques.fold(0.0, (sum, c) => sum + c.amount);
 
@@ -83,7 +87,7 @@ class FinanceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInstallmentCard(dynamic p, dynamic contract) {
+  Widget _buildInstallmentCard(ThemePaletteModel p, InstallmentContract contract) {
     double progress = contract.paidAmount / contract.totalAmount;
     
     return AppDoubleBezelCard(
@@ -125,7 +129,7 @@ class FinanceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildChequeCard(dynamic p, dynamic cheque, int currentDay) {
+  Widget _buildChequeCard(ThemePaletteModel p, Cheque cheque, int currentDay) {
     int daysLeft = cheque.dueDay - currentDay;
     return AppDoubleBezelCard(
       margin: const EdgeInsets.only(bottom: 12),

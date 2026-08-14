@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../data/models/car_model.dart';
+import '../../../data/models/dealership_model.dart';
+import '../../../data/models/rental_agreement_model.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -45,7 +49,7 @@ class RentACarScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummary(dynamic p, dynamic game) {
+  Widget _buildSummary(ThemePaletteModel p, DealershipModel game) {
     double dailyRentalIncome = game.activeRentals.fold(0.0, (sum, r) => sum + r.dailyRate);
 
     return AppGlassContainer(
@@ -82,7 +86,7 @@ class RentACarScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRentalCard(BuildContext context, WidgetRef ref, dynamic p, dynamic rental, dynamic game) {
+  Widget _buildRentalCard(BuildContext context, WidgetRef ref, ThemePaletteModel p, RentalAgreement rental, DealershipModel game) {
     final car = game.ownedCars.where((c) => c.id == rental.carId).firstOrNull;
     final carTitle = car != null ? '${car.brand} ${car.modelName}' : 'Kiradaki Araç';
 
@@ -137,7 +141,7 @@ class RentACarScreen extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildAvailableCarsList(BuildContext context, WidgetRef ref, dynamic p, dynamic game) {
+  List<Widget> _buildAvailableCarsList(BuildContext context, WidgetRef ref, ThemePaletteModel p, DealershipModel game) {
     // Determine which cars are in the garage but not rented out
     final rentedCarIds = game.activeRentals.map((r) => r.carId).toSet();
     final availableCars = game.ownedCars.where((c) => !rentedCarIds.contains(c.id)).toList();
@@ -203,7 +207,7 @@ class RentACarScreen extends ConsumerWidget {
     }).toList();
   }
 
-  void _showRentDialog(BuildContext context, WidgetRef ref, dynamic p, dynamic car, double suggestedRate) {
+  void _showRentDialog(BuildContext context, WidgetRef ref, ThemePaletteModel p, CarModel car, double suggestedRate) {
     final double carVal = car.currentPurchasePrice.toDouble();
     final double maxAllowedRate = (carVal * 0.012).clamp(100.0, 50000.0);
     double currentRate = suggestedRate.clamp(100.0, maxAllowedRate);

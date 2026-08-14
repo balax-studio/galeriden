@@ -1,3 +1,6 @@
+import '../../../data/models/dealership_model.dart';
+import '../../../data/models/mission_model.dart';
+import '../../../data/models/theme_palette_model.dart';
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -174,7 +177,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildOfficeTab(BuildContext context, dynamic game, dynamic p) {
+  Widget _buildOfficeTab(BuildContext context, DealershipModel game, ThemePaletteModel p) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('OFİS VE İSTATİSTİKLER'),
@@ -375,7 +378,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 
 
-  Widget _buildAsymmetricGrid(BuildContext context, dynamic p) {
+  Widget _buildAsymmetricGrid(BuildContext context, ThemePaletteModel p) {
     return Column(
       children: [
         // Row 1: 3 Bento Cards (Marketplace, Workshop, CarWash)
@@ -467,7 +470,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildFinancialSummaryCard(BuildContext context, WidgetRef ref, dynamic game, dynamic p) {
+  Widget _buildFinancialSummaryCard(BuildContext context, WidgetRef ref, DealershipModel game, ThemePaletteModel p) {
     final activeLoans = game.activeLoans;
     final totalLoanDebt = activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
 
@@ -528,8 +531,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 }
 
 class _AnimatedMissionCard extends StatefulWidget {
-  final dynamic mission;
-  final dynamic p;
+  final MissionModel mission;
+  final ThemePaletteModel p;
   final VoidCallback onClaim;
 
   const _AnimatedMissionCard({
@@ -629,8 +632,8 @@ class _AnimatedMissionCardState extends State<_AnimatedMissionCard> {
 }
 
 class _AnimatedDailyBonusCard extends StatefulWidget {
-  final dynamic game;
-  final dynamic p;
+  final DealershipModel game;
+  final ThemePaletteModel p;
   final VoidCallback onClaim;
 
   const _AnimatedDailyBonusCard({

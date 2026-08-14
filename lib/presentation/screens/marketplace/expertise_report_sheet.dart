@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
@@ -180,7 +181,7 @@ class ExpertiseReportSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildSpecTile(String title, String value, Color valueColor, dynamic p, {String? subtitle}) {
+  Widget _buildSpecTile(String title, String value, Color valueColor, ThemePaletteModel p, {String? subtitle}) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

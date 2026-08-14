@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../widgets/app_vector_icons.dart';
@@ -230,7 +231,7 @@ class ListingDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSpecRow(String label, String value, dynamic p, {Color? valueColor}) {
+  Widget _buildSpecRow(String label, String value, ThemePaletteModel p, {Color? valueColor}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
