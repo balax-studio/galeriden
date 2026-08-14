@@ -137,14 +137,14 @@ class SideBusinessModel {
 
   double get nextLevelUpgradeCost {
     if (level >= 5) return 0.0;
-    return cost * 0.40 * level;
+    return cost * 1.20 * level;
   }
 
   double get totalInvested {
     double total = cost;
     if (level > 1) {
       for (int i = 1; i < level; i++) {
-        total += cost * 0.5 * i;
+        total += cost * 1.5 * i;
       }
     }
     final purchasedUpgradesCost = upgrades.where((u) => u.isPurchased).fold(0.0, (sum, u) => sum + u.cost);

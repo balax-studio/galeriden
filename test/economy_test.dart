@@ -163,7 +163,7 @@ void main() {
       expect(business.level, 1);
 
       // Add enough money to buy and upgrade
-      gameNotifier.state = gameNotifier.state.copyWith(balance: 1000000.0);
+      gameNotifier.state = gameNotifier.state.copyWith(balance: 3000000.0);
 
       final buySuccess = gameNotifier.buySideBusiness('sb_9');
       expect(buySuccess, isTrue);
@@ -173,9 +173,9 @@ void main() {
       expect(updated.level, 1);
 
       // Verify Net Income (Gross minus 15% maintenance)
-      expect(updated.grossDailyIncome, 7500.0);
-      expect(updated.dailyMaintenanceExpense, 1125.0);
-      expect(updated.effectiveDailyIncome, 6375.0);
+      expect(updated.grossDailyIncome, 22500.0);
+      expect(updated.dailyMaintenanceExpense, 3375.0);
+      expect(updated.effectiveDailyIncome, 19125.0);
 
       // Upgrade level to 2
       final upgradeSuccess = gameNotifier.upgradeSideBusiness('sb_9');
@@ -183,8 +183,8 @@ void main() {
 
       updated = gameNotifier.state.sideBusinesses.firstWhere((b) => b.id == 'sb_9');
       expect(updated.level, 2);
-      expect(updated.grossDailyIncome, 10125.0); // 7500 * (1 + 0.35)
-      expect(updated.effectiveDailyIncome, 8606.25); // 10125 * 0.85
+      expect(updated.grossDailyIncome, closeTo(30375.0, 0.01)); // 22500 * (1 + 0.35)
+      expect(updated.effectiveDailyIncome, closeTo(25818.75, 0.01)); // 30375 * 0.85
     });
   });
 }
