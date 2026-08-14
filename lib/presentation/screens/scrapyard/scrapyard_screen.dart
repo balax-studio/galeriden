@@ -6,7 +6,6 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
-import '../../../data/models/scrapyard_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_double_bezel_card.dart';
 import '../../widgets/app_glass_container.dart';

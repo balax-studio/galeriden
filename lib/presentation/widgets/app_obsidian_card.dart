@@ -21,7 +21,7 @@ class AppObsidianCard extends StatelessWidget {
     this.onTap,
     this.borderColor,
     this.backgroundColor,
-    this.borderRadius = AppRadius.lg,
+    this.borderRadius = 16.0,
     this.hasGoldGlow = false,
   });
 

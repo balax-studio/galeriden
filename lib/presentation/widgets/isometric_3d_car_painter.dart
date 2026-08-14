@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
-import '../../data/models/car_model.dart';
 
 /// Multi-Angle 3D Volumetric Metallic Isometric Car Painter
 /// Renders 3D metallic bodies with custom paint colors, chrome highlights,

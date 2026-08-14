@@ -137,13 +137,7 @@ class MarketEngine {
 
     // Seller traits
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
-    double discount = _random.nextDouble() * 0.12;
-    if (sellerProfile['urgency'] == 'high') discount += 0.08;
-
     final isFlashDeal = _random.nextDouble() < 0.10;
-    if (isFlashDeal) {
-      discount += 0.20;
-    }
 
     final carTemp = CarModel(
       id: id,

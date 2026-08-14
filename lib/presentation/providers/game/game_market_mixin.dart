@@ -13,7 +13,6 @@ import '../../../data/models/stock_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/black_market_car_model.dart';
-import '../../../data/models/market_news_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
