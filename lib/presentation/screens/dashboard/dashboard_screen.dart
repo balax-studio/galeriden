@@ -16,8 +16,7 @@ import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/app_floating_dock.dart';
 import '../../widgets/app_hero_header.dart';
 import '../../widgets/app_tactile_button.dart';
-
-import '../../widgets/isometric_world_map.dart';
+import '../../widgets/threejs_city_view.dart';
 import '../../widgets/app_glass_container.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,8 +105,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Stack(
       children: [
-        // The pannable / zoomable isometric city.
-        const Positioned.fill(child: IsometricWorldMap()),
+        // The pannable / zoomable 3D Infinitown city.
+        const Positioned.fill(child: ThreeJsCityView()),
 
         // Top market-trend ribbon.
         Positioned(
