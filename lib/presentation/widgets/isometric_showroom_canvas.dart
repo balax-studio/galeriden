@@ -169,10 +169,10 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
           children: [
             Row(
               children: [
-                const Icon(Icons.view_in_ar_rounded, color: AppColors.neonCyan, size: 20),
+                const Icon(Icons.storefront_rounded, color: AppColors.neonCyan, size: 20),
                 const SizedBox(width: 6),
                 Text(
-                  '2.5D İZOMETRİK GALERİ SAHNESİ',
+                  'GALERİ SAHNESİ',
                   style: AppTypography.labelSmall(isDark).copyWith(
                     color: AppColors.neonCyan,
                     fontWeight: FontWeight.bold,

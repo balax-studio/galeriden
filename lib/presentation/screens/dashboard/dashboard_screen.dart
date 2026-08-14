@@ -77,78 +77,78 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 2.5D Interactive Isometric Showroom & Parking Canvas
+                        // Showroom & Parking Canvas
                         const IsometricShowroomCanvas(),
                         const SizedBox(height: AppSpacing.lg),
 
-                  // Game Day & Time Progress Card
-                  DashboardGameTimeCard(game: game),
+                        // Game Day & Time Progress Card
+                        DashboardGameTimeCard(game: game),
 
-                  // Market Trend Banner
-                  Container(
-                    margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: p.primaryColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: p.primaryColor.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 22),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        // Market Trend Banner
+                        Container(
+                          margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color: p.primaryColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: p.primaryColor.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
                             children: [
-                              Text('GÜNCEL PİYASA TRENDİ', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 2),
-                              Text(trend.headline, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12)),
+                              Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 22),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('GÜNCEL PİYASA TRENDİ', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 2),
+                                    Text(trend.headline, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 12)),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
+
+                        // Asymmetric Bento Grid Menu (İŞLEMLER)
+                        Text('İŞLEMLER & MERKEZ', style: AppTypography.labelSmall(p.isDark)),
+                        const SizedBox(height: AppSpacing.md),
+                        _buildAsymmetricGrid(context, p),
+                        const SizedBox(height: AppSpacing.xl),
+
+                        // Daily Login Streak Bonus Card
+                        _AnimatedDailyBonusCard(
+                          game: game,
+                          p: p,
+                          onClaim: () {
+                            final reward = ref.read(gameProvider.notifier).claimDailyStreak();
+                            FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
+                            NotificationService.showSuccess(context, '₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!');
+                          },
+                        ),
+
+                        // Daily Missions Section
+                        Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
+                        const SizedBox(height: AppSpacing.md),
+                        Column(
+                          children: game.activeMissions.map((mission) {
+                            return _AnimatedMissionCard(
+                              key: ValueKey(mission.id),
+                              mission: mission,
+                              p: p,
+                              onClaim: () {
+                                ref.read(gameProvider.notifier).claimMissionReward(mission.id);
+                                FloatingMoneyOverlay.of(context)?.showMoneyPopUp(mission.rewardMoney.toDouble(), label: 'Görev Ödülü!');
+                                NotificationService.showSuccess(context, '${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.');
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
                       ],
                     ),
                   ),
-
-                  // Daily Login Streak Bonus Card with Premium Dismissal Animation
-                  _AnimatedDailyBonusCard(
-                    game: game,
-                    p: p,
-                    onClaim: () {
-                      final reward = ref.read(gameProvider.notifier).claimDailyStreak();
-                      FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
-                      NotificationService.showSuccess(context, '₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!');
-                    },
-                  ),
-
-                  // Daily Missions Section
-                  Text('GÜNÜN GÖREVLERİ', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: AppSpacing.md),
-                  Column(
-                    children: game.activeMissions.map((mission) {
-                      return _AnimatedMissionCard(
-                        key: ValueKey(mission.id),
-                        mission: mission,
-                        p: p,
-                        onClaim: () {
-                          ref.read(gameProvider.notifier).claimMissionReward(mission.id);
-                          FloatingMoneyOverlay.of(context)?.showMoneyPopUp(mission.rewardMoney.toDouble(), label: 'Görev Ödülü!');
-                          NotificationService.showSuccess(context, '${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.');
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // Asymmetric Bento Grid Menu (İŞLEMLER)
-                  Text('İŞLEMLER', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: AppSpacing.md),
-                  _buildAsymmetricGrid(context, p),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
-              ),
-            ),
 
             // Tab 1: Showroom (Galeri)
             const ShowroomScreen(),

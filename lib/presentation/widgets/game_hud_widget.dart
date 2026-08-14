@@ -56,25 +56,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
           _buildPill(
             icon: Icons.assignment_turned_in_rounded,
             iconColor: Colors.purple.shade600,
-            label: 'GÖREV 0/15',
-          ),
-          const SizedBox(width: 10),
-
-          // Red Action Pill Button: Araç Al (Pazaryeri)
-          _buildRedActionPill(
-            context,
-            icon: Icons.shopping_bag_rounded,
-            label: 'Araç Al',
-            onTap: () => context.push('/marketplace'),
-          ),
-          const SizedBox(width: 6),
-
-          // Red Action Pill Button: İnşaat / Şube
-          _buildRedActionPill(
-            context,
-            icon: Icons.domain_rounded,
-            label: 'İnşaat / Şube',
-            onTap: () => context.push('/branches'),
+            label: 'GÖREV ${game.activeMissions.where((m) => m.isCompleted).length}/${game.activeMissions.length}',
           ),
         ],
       ),
@@ -114,47 +96,6 @@ class GameHudHeaderWidget extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildRedActionPill(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.beneloilRed,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: Colors.white),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
