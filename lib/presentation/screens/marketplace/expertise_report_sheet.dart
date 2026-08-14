@@ -3,13 +3,21 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
+import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_damage_schema_widget.dart';
+import 'interactive_negotiation_sheet.dart';
 
 class ExpertiseReportSheet extends StatelessWidget {
   final CarModel car;
+  final ListingModel? listing;
 
-  const ExpertiseReportSheet({super.key, required this.car});
+  const ExpertiseReportSheet({
+    super.key,
+    required this.car,
+    this.listing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -126,13 +134,39 @@ class ExpertiseReportSheet extends StatelessWidget {
             CarDamageSchemaWidget(bodyParts: car.expertise.bodyParts),
             const SizedBox(height: 20),
 
-            // Close Button
+            // Action Buttons
+            if (listing != null) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: VectorIconWidget(type: 'negotiation', color: Colors.black, size: 18),
+                  label: const Text('Pazarlık Et & Satın Al', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: p.primaryColor,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    final targetListing = listing!;
+                    Navigator.pop(context);
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (ctx) => InteractiveNegotiationSheet(listing: targetListing),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: p.primaryColor,
-                  foregroundColor: Colors.black,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: p.textPrimaryColor,
+                  side: BorderSide(color: p.surfaceBorderColor),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

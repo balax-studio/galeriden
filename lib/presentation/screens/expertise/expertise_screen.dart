@@ -9,6 +9,8 @@ import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
+import '../../widgets/app_vector_icons.dart';
+import '../marketplace/interactive_negotiation_sheet.dart';
 
 class ExpertiseScreen extends ConsumerStatefulWidget {
   final ListingModel listing;
@@ -248,6 +250,31 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: _isInspected
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: ElevatedButton.icon(
+                  icon: VectorIconWidget(type: 'negotiation', color: Colors.black, size: 20),
+                  label: const Text('Pazarlık Et & Satın Al', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryAmber,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (ctx) => InteractiveNegotiationSheet(listing: widget.listing),
+                    );
+                  },
+                ),
+              ),
+            )
+          : null,
     );
   }
 

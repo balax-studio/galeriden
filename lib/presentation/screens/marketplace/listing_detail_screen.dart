@@ -1,15 +1,12 @@
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
-import '../../providers/game_provider.dart';
-import '../../providers/market_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/car_icons.dart';
@@ -26,7 +23,6 @@ class ListingDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final car = listing.car;
@@ -138,7 +134,7 @@ class ListingDetailScreen extends ConsumerWidget {
                       context: context,
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
-                      builder: (ctx) => ExpertiseReportSheet(car: car),
+                      builder: (ctx) => ExpertiseReportSheet(car: car, listing: listing),
                     );
                   },
                 ),
@@ -206,64 +202,25 @@ class ListingDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 10),
 
-              // Direct Buy Button
+              // Buy & Negotiate Button
               Expanded(
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.shopping_cart_rounded, size: 18),
-                  label: const Text('Satın Al'),
+                  icon: VectorIconWidget(type: 'negotiation', color: Colors.black, size: 18),
+                  label: const Text('Pazarlık Et & Satın Al'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: p.primaryColor,
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: game.balance < listing.askingPrice
-                      ? null
-                      : () {
-                          final outcome = ref.read(gameProvider.notifier).buyCar(
-                                car,
-                                listing.askingPrice,
-                                isExpertiseCompleted: listing.isExpertiseCompleted,
-                              );
-                          if (outcome != null) {
-                            ref.read(marketProvider.notifier).removeListing(listing.id);
-                            context.pop(); // Return to market
-
-                            if (outcome.isTrapped) {
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  backgroundColor: p.surfaceColor,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  title: Row(
-                                    children: [
-                                      Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 28),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          outcome.title,
-                                          style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 18),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  content: Text(
-                                    outcome.description,
-                                    style: TextStyle(color: p.textPrimaryColor, fontSize: 14),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx),
-                                      child: Text('Anladım', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold)),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            } else {
-                              NotificationService.showSuccess(context, '${car.brand} ${car.modelName} satın alındı ve garajına eklendi!');
-                            }
-                          }
-                        },
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (ctx) => InteractiveNegotiationSheet(listing: listing),
+                    );
+                  },
                 ),
               ),
             ],

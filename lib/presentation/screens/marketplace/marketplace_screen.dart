@@ -1,4 +1,3 @@
-import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +13,7 @@ import '../../widgets/car_icons.dart';
 import '../../widgets/app_glass_container.dart';
 import '../../widgets/app_tactile_button.dart';
 import '../../../data/models/expertise_model.dart';
+import 'interactive_negotiation_sheet.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
   const MarketplaceScreen({super.key});
@@ -329,59 +329,22 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      ElevatedButton(
+                                      ElevatedButton.icon(
+                                        icon: VectorIconWidget(type: 'negotiation', color: Colors.black, size: 16),
+                                        label: const Text('Pazarlık Et & Satın Al', style: TextStyle(fontWeight: FontWeight.bold)),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: p.primaryColor,
                                           foregroundColor: Colors.black,
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                         ),
-                                        onPressed: game.balance < item.askingPrice
-                                            ? null
-                                            : () {
-                                                final outcome = ref.read(gameProvider.notifier).buyCar(
-                                                      car,
-                                                      item.askingPrice,
-                                                      isExpertiseCompleted: item.isExpertiseCompleted,
-                                                    );
-                                                if (outcome != null) {
-                                                  ref.read(marketProvider.notifier).removeListing(item.id);
-
-                                                  if (outcome.isTrapped) {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (ctx) => AlertDialog(
-                                                        backgroundColor: p.surfaceColor,
-                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                                        title: Row(
-                                                          children: [
-                                                            Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 28),
-                                                            const SizedBox(width: 8),
-                                                            Expanded(
-                                                              child: Text(
-                                                                outcome.title,
-                                                                style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 18),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        content: Text(
-                                                          outcome.description,
-                                                          style: TextStyle(color: p.textPrimaryColor, fontSize: 14),
-                                                        ),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () => Navigator.pop(ctx),
-                                                            child: Text('Anladım', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold)),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    NotificationService.showSuccess(context, '${car.brand} ${car.modelName} satın alındı ve garajına eklendi!');
-                                                  }
-                                                }
-                                              },
-                                        child: const Text('Satın Al', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (ctx) => InteractiveNegotiationSheet(listing: item),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),

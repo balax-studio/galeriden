@@ -371,8 +371,11 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 );
                             if (outcome != null) {
                               ref.read(marketProvider.notifier).removeListing(widget.listing.id);
-                              Navigator.pop(context); // Close sheet
-                              Navigator.pop(context); // Return to marketplace
+                              final nav = Navigator.of(context);
+                              nav.pop(); // Close sheet
+                              if (nav.canPop()) {
+                                nav.pop(); // Return to market if on detail screen
+                              }
 
                               if (outcome.isTrapped) {
                                 showDialog(
