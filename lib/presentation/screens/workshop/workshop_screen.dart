@@ -1,4 +1,5 @@
 
+import 'package:go_router/go_router.dart';
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,6 +81,45 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // VIP Tuning Studio Navigation Banner Card
+                      AppGlassContainer(
+                        padding: const EdgeInsets.all(14),
+                        borderColor: Colors.amber.withValues(alpha: 0.5),
+                        glowColor: Colors.amber.withValues(alpha: 0.15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.speed_rounded, color: Colors.amber, size: 22),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('VIP Tuning & Modifikasyon Stüdyosu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                                    const SizedBox(height: 2),
+                                    Text('Stage 1/2 Yazılım, Varex, Air & Bodykit', style: AppTypography.labelSmall(p.isDark)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            ElevatedButton(
+                              onPressed: () => context.push('/tuning-studio'),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.amber, foregroundColor: Colors.black),
+                              child: const Text('Giriş Et', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
                       // Pending Part Orders & Master Repairs Tracker Section
                       if (game.pendingOrders.isNotEmpty) ...[
                         Text('PARÇA SİPARİŞİ VE KARGO TAKİBİ', style: AppTypography.labelSmall(p.isDark)),

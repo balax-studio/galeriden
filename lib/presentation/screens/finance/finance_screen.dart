@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/dealership_model.dart';
@@ -29,6 +30,45 @@ class FinanceScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Bank Investments Navigation Banner
+            AppGlassContainer(
+              padding: const EdgeInsets.all(16),
+              borderColor: p.successColor.withValues(alpha: 0.5),
+              glowColor: p.successColor.withValues(alpha: 0.15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: p.successColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.account_balance_rounded, color: p.successColor, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Vadeli Mevduat & Kredi Skoru', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                          const SizedBox(height: 2),
+                          Text('Faiz Getirisi, Altın/Döviz & Limit Yükseltme', style: AppTypography.labelSmall(p.isDark)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () => context.push('/bank-investments'),
+                    style: ElevatedButton.styleFrom(backgroundColor: p.successColor, foregroundColor: Colors.black),
+                    child: const Text('Yönet', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
             _buildSummary(p, game),
             const SizedBox(height: 24),
             Text('AKTİF TAKSİTLİ SÖZLEŞMELER', style: AppTypography.labelSmall(p.isDark)),

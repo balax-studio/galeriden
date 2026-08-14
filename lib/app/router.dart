@@ -23,11 +23,31 @@ import '../presentation/screens/finance/finance_screen.dart';
 import '../presentation/screens/rent_a_car/rent_a_car_screen.dart';
 import '../presentation/screens/side_business/side_business_screen.dart';
 import '../presentation/screens/stock_market/stock_market_screen.dart';
+import '../presentation/screens/workshop/tuning_studio_screen.dart';
+import '../presentation/screens/finance/bank_investments_screen.dart';
+import '../presentation/screens/staff/staff_academy_screen.dart';
+import '../presentation/screens/branch/showroom_decor_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
   errorBuilder: (context, state) => const DashboardScreen(),
   routes: [
+    GoRoute(
+      path: '/tuning-studio',
+      builder: (context, state) => const TuningStudioScreen(),
+    ),
+    GoRoute(
+      path: '/bank-investments',
+      builder: (context, state) => const BankInvestmentsScreen(),
+    ),
+    GoRoute(
+      path: '/staff-academy',
+      builder: (context, state) => const StaffAcademyScreen(),
+    ),
+    GoRoute(
+      path: '/showroom-decor',
+      builder: (context, state) => const ShowroomDecorScreen(),
+    ),
     GoRoute(
       path: '/side-businesses',
       builder: (context, state) => const SideBusinessScreen(),

@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,6 +58,45 @@ class StaffScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Staff Academy Navigation Banner Card
+            AppGlassContainer(
+              padding: const EdgeInsets.all(14),
+              borderColor: Colors.purpleAccent.withValues(alpha: 0.5),
+              glowColor: Colors.purpleAccent.withValues(alpha: 0.15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.purpleAccent.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.school_rounded, color: Colors.purpleAccent, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Personel Akademisi & Sertifikalar', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text('Satış ikna, Motor ustalık & VIP sertifikası', style: AppTypography.labelSmall(p.isDark)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () => context.push('/staff-academy'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.purpleAccent, foregroundColor: Colors.white),
+                    child: const Text('Eğit', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

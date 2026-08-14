@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,9 +87,48 @@ class BranchScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                  Text('ŞUBE LOKASYONLARI VE GENİŞLEME', style: AppTypography.labelSmall(p.isDark)),
+                  // Showroom Decor Navigation Banner Card
+                  AppGlassContainer(
+                    padding: const EdgeInsets.all(14),
+                    borderColor: Colors.cyanAccent.withValues(alpha: 0.5),
+                    glowColor: Colors.cyanAccent.withValues(alpha: 0.15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.cyanAccent.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.palette_rounded, color: Colors.cyanAccent, size: 22),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Showroom Dekorasyon & Mimari', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                                const SizedBox(height: 2),
+                                Text('LED ızgara, İtalyan mermer & VIP Lounge', style: AppTypography.labelSmall(p.isDark)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        ElevatedButton(
+                          onPressed: () => context.push('/showroom-decor'),
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.cyanAccent, foregroundColor: Colors.black),
+                          child: const Text('Yenile', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  Text('GALERİ ŞUBE KADEMELERİ VE KAPASİTE', style: AppTypography.labelSmall(p.isDark)),
                   const SizedBox(height: 12),
 
                   ...branches.map((b) {
