@@ -11,6 +11,10 @@ import '../../../data/models/cheque_model.dart';
 import '../../../data/models/installment_contract_model.dart';
 import '../../../data/models/stock_model.dart';
 import '../../../data/models/mission_model.dart';
+import '../../../data/models/scrapyard_model.dart';
+import '../../../data/models/black_market_car_model.dart';
+import '../../../data/models/market_news_model.dart';
+import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import 'game_base_notifier.dart';
@@ -588,5 +592,96 @@ mixin GameMarketMixin on GameBaseNotifier {
       reputationScore: newReputation,
     );
     saveState();
+  }
+
+  /// Hurdalıktan pert araç satın alıp parçalarına sökme
+  bool buyScrapyardCar(String carId) {
+    final index = state.scrapyardCars.indexWhere((c) => c.id == carId);
+    if (index == -1) return false;
+
+    final scrapCar = state.scrapyardCars[index];
+    if (scrapCar.isPurchased) return false;
+    if (state.balance < scrapCar.scrapPrice) return false;
+
+    List<ScrapyardCar> updatedScrap = List.from(state.scrapyardCars);
+    updatedScrap[index] = scrapCar.copyWith(isPurchased: true);
+
+    state = state.copyWith(
+      balance: state.balance - scrapCar.scrapPrice,
+      scrapyardCars: updatedScrap,
+      salvagedParts: [...state.salvagedParts, ...scrapCar.parts],
+    );
+
+    addXP(120);
+    saveState();
+    return true;
+  }
+
+  /// Sökülen yedek parçayı pazarda satma
+  bool sellSalvagedPart(String partId) {
+    final index = state.salvagedParts.indexWhere((p) => p.id == partId);
+    if (index == -1) return false;
+
+    final part = state.salvagedParts[index];
+    if (part.isSold) return false;
+
+    List<SalvagedPart> updatedParts = List.from(state.salvagedParts);
+    updatedParts.removeAt(index);
+
+    state = state.copyWith(
+      balance: state.balance + part.estimatedValue,
+      salvagedParts: updatedParts,
+    );
+
+    addXP(45);
+    saveState();
+    return true;
+  }
+
+  /// Karaborsadan riskli (change/soruşturmalı) araç satın alma
+  bool buyBlackMarketCar(String carId) {
+    if (state.ownedCars.length >= state.maxGarageSlots) return false;
+
+    final index = state.blackMarketCars.indexWhere((c) => c.id == carId);
+    if (index == -1) return false;
+
+    final bmCar = state.blackMarketCars[index];
+    if (bmCar.isPurchased) return false;
+    if (state.balance < bmCar.askingPrice) return false;
+
+    // Convert to CarModel in garage
+    final newCar = CarModel(
+      id: 'bm_owned_${DateTime.now().millisecondsSinceEpoch}',
+      brand: bmCar.brand,
+      modelName: '${bmCar.modelName} [Karaborsa]',
+      modelYear: bmCar.modelYear,
+      bodyType: 'Spor',
+      colorHex: '0xFF111111',
+      baseMarketValue: bmCar.realMarketValue,
+      currentPurchasePrice: bmCar.askingPrice,
+      isRare: true,
+      expertise: ExpertiseReport(
+        engineCondition: 85.0,
+        transmissionCondition: 85.0,
+        tramerAmount: 0,
+        mileage: 45000,
+        isMileageTampered: true,
+        bodyParts: const {},
+        partConditions: const {},
+      ),
+    );
+
+    List<BlackMarketCarModel> updatedBM = List.from(state.blackMarketCars);
+    updatedBM[index] = bmCar.copyWith(isPurchased: true);
+
+    state = state.copyWith(
+      balance: state.balance - bmCar.askingPrice,
+      blackMarketCars: updatedBM,
+      ownedCars: [...state.ownedCars, newCar],
+    );
+
+    addXP(200);
+    saveState();
+    return true;
   }
 }

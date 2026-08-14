@@ -27,11 +27,21 @@ import '../presentation/screens/workshop/tuning_studio_screen.dart';
 import '../presentation/screens/finance/bank_investments_screen.dart';
 import '../presentation/screens/staff/staff_academy_screen.dart';
 import '../presentation/screens/branch/showroom_decor_screen.dart';
+import '../presentation/screens/scrapyard/scrapyard_screen.dart';
+import '../presentation/screens/black_market/black_market_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
   errorBuilder: (context, state) => const DashboardScreen(),
   routes: [
+    GoRoute(
+      path: '/scrapyard',
+      builder: (context, state) => const ScrapyardScreen(),
+    ),
+    GoRoute(
+      path: '/black-market',
+      builder: (context, state) => const BlackMarketScreen(),
+    ),
     GoRoute(
       path: '/tuning-studio',
       builder: (context, state) => const TuningStudioScreen(),

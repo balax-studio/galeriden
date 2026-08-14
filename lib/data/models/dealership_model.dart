@@ -16,6 +16,9 @@ import 'rental_agreement_model.dart';
 import 'side_business_model.dart';
 import 'stock_model.dart';
 import 'game_event_model.dart';
+import 'market_news_model.dart';
+import 'scrapyard_model.dart';
+import 'black_market_car_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -56,6 +59,12 @@ class DealershipModel {
   final List<GameEventModel> recentEvents;
   final double dailyTaxRate;
 
+  // Yeni Haber, Hurdalık ve Karaborsa Alanları
+  final MarketNewsModel? activeNews;
+  final List<SalvagedPart> salvagedParts;
+  final List<ScrapyardCar> scrapyardCars;
+  final List<BlackMarketCarModel> blackMarketCars;
+
   DateTime get inGameTime => DateTime.now();
 
   DealershipModel({
@@ -94,6 +103,10 @@ class DealershipModel {
     this.ownedStocks = const [],
     this.recentEvents = const [],
     this.dailyTaxRate = 150.0,
+    this.activeNews,
+    this.salvagedParts = const [],
+    this.scrapyardCars = const [],
+    this.blackMarketCars = const [],
   });
 
   factory DealershipModel.initial() {
@@ -437,6 +450,10 @@ class DealershipModel {
       'ownedStocks': ownedStocks.map((e) => e.toJson()).toList(),
       'recentEvents': recentEvents.map((e) => e.toJson()).toList(),
       'dailyTaxRate': dailyTaxRate,
+      'activeNews': activeNews?.toJson(),
+      'salvagedParts': salvagedParts.map((p) => p.toJson()).toList(),
+      'scrapyardCars': scrapyardCars.map((c) => c.toJson()).toList(),
+      'blackMarketCars': blackMarketCars.map((c) => c.toJson()).toList(),
     };
   }
 
@@ -500,6 +517,10 @@ class DealershipModel {
       ownedStocks: parseList(json['ownedStocks'] as List<dynamic>?, PlayerStockModel.fromJson),
       recentEvents: parseList(json['recentEvents'] as List<dynamic>?, GameEventModel.fromJson),
       dailyTaxRate: (json['dailyTaxRate'] as num?)?.toDouble() ?? 150.0,
+      activeNews: json['activeNews'] is Map ? MarketNewsModel.fromJson(Map<String, dynamic>.from(json['activeNews'] as Map)) : null,
+      salvagedParts: parseList(json['salvagedParts'] as List<dynamic>?, SalvagedPart.fromJson),
+      scrapyardCars: parseList(json['scrapyardCars'] as List<dynamic>?, ScrapyardCar.fromJson),
+      blackMarketCars: parseList(json['blackMarketCars'] as List<dynamic>?, BlackMarketCarModel.fromJson),
     );
   }
 
@@ -567,6 +588,10 @@ class DealershipModel {
     List<PlayerStockModel>? ownedStocks,
     List<GameEventModel>? recentEvents,
     double? dailyTaxRate,
+    MarketNewsModel? activeNews,
+    List<SalvagedPart>? salvagedParts,
+    List<ScrapyardCar>? scrapyardCars,
+    List<BlackMarketCarModel>? blackMarketCars,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -604,6 +629,10 @@ class DealershipModel {
       ownedStocks: ownedStocks ?? this.ownedStocks,
       recentEvents: recentEvents ?? this.recentEvents,
       dailyTaxRate: dailyTaxRate ?? this.dailyTaxRate,
+      activeNews: activeNews ?? this.activeNews,
+      salvagedParts: salvagedParts ?? this.salvagedParts,
+      scrapyardCars: scrapyardCars ?? this.scrapyardCars,
+      blackMarketCars: blackMarketCars ?? this.blackMarketCars,
     );
   }
 }

@@ -87,7 +87,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                         // Market Trend Banner
                         Container(
-                          margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
                           padding: const EdgeInsets.all(AppSpacing.md),
                           decoration: BoxDecoration(
                             color: p.primaryColor.withValues(alpha: 0.12),
@@ -111,6 +111,78 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ],
                           ),
                         ),
+
+                        // Live Market News Ticker Bar (Dinamik Piyasa Haber Bandı)
+                        if (game.activeNews != null) ...[
+                          Container(
+                            margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.amber.shade900.withValues(alpha: 0.3),
+                                  Colors.orange.shade800.withValues(alpha: 0.15),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.amber.withValues(alpha: 0.6), width: 1.2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.amber.withValues(alpha: 0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(Icons.newspaper_rounded, color: Colors.amber, size: 20),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            game.activeNews!.title,
+                                            style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.w900, fontSize: 13),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                            decoration: BoxDecoration(
+                                              color: Colors.amber.withValues(alpha: 0.3),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: const Text(
+                                              'FLAŞ HABER',
+                                              style: TextStyle(color: Colors.amber, fontSize: 9, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        game.activeNews!.description,
+                                        style: AppTypography.bodyMedium(p.isDark).copyWith(fontSize: 11.5),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
 
                         // Asymmetric Bento Grid Menu (İŞLEMLER)
                         Text('İŞLEMLER & MERKEZ', style: AppTypography.labelSmall(p.isDark)),
@@ -418,6 +490,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Expanded(child: _buildGridItem(context, title: 'Yan İşletme', subtitle: 'Pasif Gelir', icon: Icons.store_mall_directory_rounded, color: p.primaryColor, onTap: () => context.push('/side-businesses'))),
             const SizedBox(width: AppSpacing.sm),
             Expanded(child: _buildGridItem(context, title: 'Borsa', subtitle: 'Hisse Senedi', icon: Icons.show_chart_rounded, color: p.infoColor, onTap: () => context.push('/stock-market'))),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        // Row 4: 3 New Feature Bento Cards (Scrapyard, BlackMarket, TuningStudio)
+        Row(
+          children: [
+            Expanded(child: _buildGridItem(context, title: 'Hurdalık', subtitle: 'Parça Söküm', icon: Icons.minor_crash_rounded, color: Colors.orangeAccent, onTap: () => context.push('/scrapyard'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: _buildGridItem(context, title: 'Karaborsa', subtitle: 'Riskli Oto', icon: Icons.security_rounded, color: Colors.redAccent, onTap: () => context.push('/black-market'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: _buildGridItem(context, title: 'VIP Tuning', subtitle: 'Performans', icon: Icons.speed_rounded, color: Colors.amber, onTap: () => context.push('/tuning-studio'))),
           ],
         ),
       ],

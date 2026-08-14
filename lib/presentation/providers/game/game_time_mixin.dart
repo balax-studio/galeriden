@@ -10,6 +10,9 @@ import '../../../data/models/cheque_model.dart';
 import '../../../data/models/side_business_model.dart';
 import '../../../data/models/stock_model.dart';
 import '../../../data/models/game_event_model.dart';
+import '../../../data/models/market_news_model.dart';
+import '../../../data/models/scrapyard_model.dart';
+import '../../../data/models/black_market_car_model.dart';
 
 import 'game_base_notifier.dart';
 
@@ -207,6 +210,24 @@ mixin GameTimeMixin on GameBaseNotifier {
     // 10. Daily Tax
     newBalance -= state.dailyTaxRate;
 
+    // 11. Market News Event Rotation (Every 5 days or if null)
+    MarketNewsModel? currentNews = state.activeNews;
+    if (currentNews == null || nextDay % 5 == 0) {
+      final randomIndex = random.nextInt(MarketNewsModel.newsList.length);
+      currentNews = MarketNewsModel.newsList[randomIndex];
+    }
+
+    // 12. Scrapyard & Black Market Inventory Refresh (Every 3 days)
+    List<ScrapyardCar> currentScrapCars = List.from(state.scrapyardCars);
+    List<BlackMarketCarModel> currentBlackCars = List.from(state.blackMarketCars);
+
+    if (nextDay % 3 == 0 || currentScrapCars.isEmpty) {
+      currentScrapCars = _generateRandomScrapyardCars(nextDay);
+    }
+    if (nextDay % 3 == 0 || currentBlackCars.isEmpty) {
+      currentBlackCars = _generateRandomBlackMarketCars(nextDay);
+    }
+
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
@@ -219,8 +240,102 @@ mixin GameTimeMixin on GameBaseNotifier {
       sideBusinesses: updatedBusinesses,
       marketStocks: updatedStocks,
       recentEvents: newEvents,
+      activeNews: currentNews,
+      scrapyardCars: currentScrapCars,
+      blackMarketCars: currentBlackCars,
     );
 
     refreshMarketTrends();
+  }
+
+  List<ScrapyardCar> _generateRandomScrapyardCars(int day) {
+    return [
+      ScrapyardCar(
+        id: 'scrap_${day}_1',
+        brand: 'BMW',
+        modelName: '320i M-Sport (Ağır Pert)',
+        modelYear: 2016,
+        scrapPrice: 140000.0,
+        estimatedPartTotalValue: 280000.0,
+        damageNote: 'Önden ağır taklalı, tavan ezik. Motor ve şanzıman sapasağlam.',
+        parts: const [
+          SalvagedPart(id: 'p_1_1', name: '2.0 TwinPower Turbo Motor Bloğu', carModelName: 'BMW 320i', category: 'engine', conditionPercent: 88, estimatedValue: 120000.0),
+          SalvagedPart(id: 'p_1_2', name: '8 İleri ZF Otomatik Şanzıman', carModelName: 'BMW 320i', category: 'transmission', conditionPercent: 92, estimatedValue: 85000.0),
+          SalvagedPart(id: 'p_1_3', name: '19" M Alaşım Çift Jant Takımı', carModelName: 'BMW 320i', category: 'wheels', conditionPercent: 80, estimatedValue: 35000.0),
+          SalvagedPart(id: 'p_1_4', name: 'Harman Kardon Müzik Sistemi', carModelName: 'BMW 320i', category: 'audio', conditionPercent: 95, estimatedValue: 40000.0),
+        ],
+      ),
+      ScrapyardCar(
+        id: 'scrap_${day}_2',
+        brand: 'Volkswagen',
+        modelName: 'Golf 7.5 GTI (Pert Kayıtlı)',
+        modelYear: 2018,
+        scrapPrice: 190000.0,
+        estimatedPartTotalValue: 360000.0,
+        damageNote: 'Arkadan kamyon çarpması sonrası pert kararı verilmiş.',
+        parts: const [
+          SalvagedPart(id: 'p_2_1', name: '2.0 TSI GTI Turbo Şarj Kiti', carModelName: 'Golf GTI', category: 'turbo', conditionPercent: 94, estimatedValue: 65000.0),
+          SalvagedPart(id: 'p_2_2', name: 'DSG Islak Kavrama Şanzıman', carModelName: 'Golf GTI', category: 'transmission', conditionPercent: 90, estimatedValue: 95000.0),
+          SalvagedPart(id: 'p_2_3', name: 'Karbon Difüzör & Çift Egzoz Takımı', carModelName: 'Golf GTI', category: 'bodywork', conditionPercent: 85, estimatedValue: 45000.0),
+          SalvagedPart(id: 'p_2_4', name: 'GTI Hayalet Gösterge & Direksiyon', carModelName: 'Golf GTI', category: 'bodywork', conditionPercent: 96, estimatedValue: 75000.0),
+        ],
+      ),
+      ScrapyardCar(
+        id: 'scrap_${day}_3',
+        brand: 'Mercedes-Benz',
+        modelName: 'C200d AMG (Yanık/Pert)',
+        modelYear: 2017,
+        scrapPrice: 165000.0,
+        estimatedPartTotalValue: 310000.0,
+        damageNote: 'Elektrik kontağından motor kompartımanı kısmen hasarlı.',
+        parts: const [
+          SalvagedPart(id: 'p_3_1', name: 'AMG Deri Koltuk & İç Döşeme Takımı', carModelName: 'C200d', category: 'bodywork', conditionPercent: 92, estimatedValue: 80000.0),
+          SalvagedPart(id: 'p_3_2', name: '9G-Tronic Otomatik Şanzıman', carModelName: 'C200d', category: 'transmission', conditionPercent: 89, estimatedValue: 110000.0),
+          SalvagedPart(id: 'p_3_3', name: 'Burmester VIP Ses Sistemi', carModelName: 'C200d', category: 'audio', conditionPercent: 98, estimatedValue: 55000.0),
+          SalvagedPart(id: 'p_3_4', name: 'AMG MultiBeam LED Far Takımı', carModelName: 'C200d', category: 'bodywork', conditionPercent: 85, estimatedValue: 65000.0),
+        ],
+      ),
+    ];
+  }
+
+  List<BlackMarketCarModel> _generateRandomBlackMarketCars(int day) {
+    return [
+      BlackMarketCarModel(
+        id: 'bm_${day}_1',
+        brand: 'Porsche',
+        modelName: 'Panamera GTS (%50 Kelepir / Soruşturmalı)',
+        modelYear: 2019,
+        askingPrice: 1200000.0,
+        realMarketValue: 2400000.0,
+        riskType: 'change_vin',
+        riskLevelPercent: 25,
+        sellerAlias: 'Gece Kuşu Selim',
+        riskDescription: 'Şasi numarası yurt dışı gümrük kaçakçılığı şüphesiyle takipli. Satışta %25 Polis Yakalama Riski!',
+      ),
+      BlackMarketCarModel(
+        id: 'bm_${day}_2',
+        brand: 'Mercedes-Benz',
+        modelName: 'G63 AMG V8 (%60 İndirimli / Hacizli)',
+        modelYear: 2021,
+        askingPrice: 2800000.0,
+        realMarketValue: 6500000.0,
+        riskType: 'stolen_paperwork',
+        riskLevelPercent: 35,
+        sellerAlias: 'Karanlık Kenan',
+        riskDescription: 'Yurt dışından kaçak sokulmuş sahte plaka G-Wagon. Satış esnasında %35 Polis El Koyma Riski!',
+      ),
+      BlackMarketCarModel(
+        id: 'bm_${day}_3',
+        brand: 'Audi',
+        modelName: 'RS6 Avant (%45 İndirimli / Çifte Şasi)',
+        modelYear: 2020,
+        askingPrice: 1950000.0,
+        realMarketValue: 4200000.0,
+        riskType: 'salvage_hidden',
+        riskLevelPercent: 20,
+        sellerAlias: 'Gölge İbrahim',
+        riskDescription: 'İki kazalı araç kaynağı ile yapılmış Change RS6. Yakalanırsa araç kaza enkazı sayılarak bağlanır!',
+      ),
+    ];
   }
 }
