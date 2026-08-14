@@ -493,7 +493,7 @@ class DealershipModel {
       playerName: json['playerName'] as String? ?? 'Kaptan',
       dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
       lastRewardClaimDate: json['lastRewardClaimDate'] != null ? DateTime.tryParse(json['lastRewardClaimDate'] as String) : null,
-      sideBusinesses: parseList(json['sideBusinesses'] as List<dynamic>?, SideBusinessModel.fromJson),
+      sideBusinesses: _parseAndMergeSideBusinesses(parseList(json['sideBusinesses'] as List<dynamic>?, SideBusinessModel.fromJson)),
       marketStocks: parseList(json['marketStocks'] as List<dynamic>?, StockModel.fromJson).isNotEmpty
           ? parseList(json['marketStocks'] as List<dynamic>?, StockModel.fromJson)
           : DealershipModel.initial().marketStocks,
@@ -501,6 +501,34 @@ class DealershipModel {
       recentEvents: parseList(json['recentEvents'] as List<dynamic>?, GameEventModel.fromJson),
       dailyTaxRate: (json['dailyTaxRate'] as num?)?.toDouble() ?? 150.0,
     );
+  }
+
+  static List<SideBusinessModel> _parseAndMergeSideBusinesses(List<SideBusinessModel> parsed) {
+    final initialList = DealershipModel.initial().sideBusinesses;
+    if (parsed.isEmpty) {
+      return initialList;
+    }
+
+    final Map<String, SideBusinessModel> parsedMap = {
+      for (final b in parsed) b.id: b,
+    };
+
+    final merged = <SideBusinessModel>[];
+    for (final initialBusiness in initialList) {
+      if (parsedMap.containsKey(initialBusiness.id)) {
+        merged.add(parsedMap[initialBusiness.id]!);
+      } else {
+        merged.add(initialBusiness);
+      }
+    }
+
+    for (final parsedBusiness in parsed) {
+      if (!merged.any((b) => b.id == parsedBusiness.id)) {
+        merged.add(parsedBusiness);
+      }
+    }
+
+    return merged;
   }
 
   DealershipModel copyWith({
