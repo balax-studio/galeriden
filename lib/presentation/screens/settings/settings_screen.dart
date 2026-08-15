@@ -1,13 +1,15 @@
-import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/game_constants.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
-import '../../widgets/app_vector_icons.dart';
-import 'package:go_router/go_router.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -18,145 +20,401 @@ class SettingsScreen extends ConsumerWidget {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
-        title: const Text('AYARLAR VE BİLGİLER'),
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'AYARLAR & PROFİL',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
         children: [
-          // Dealership Identity Customization Card
-          Card(
-            child: ListTile(
-              leading: VectorIconWidget(type: game.logoEmblemId, color: p.primaryColor, size: 26),
-              title: Text('GALERİ VE PROFİL KİMLİĞİ', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-              subtitle: Text('${game.dealershipName} (${game.playerName})', style: AppTypography.labelSmall(p.isDark)),
-              trailing: const Icon(Icons.chevron_right_rounded, size: 22),
+          // 1. Dealership Identity
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: InkWell(
               onTap: () => context.push('/dealership-identity'),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.brutalYellow,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                    ),
+                    child: const Icon(Icons.badge_rounded, color: Colors.black, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'GALERİ & PROFİL KİMLİĞİ',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${game.dealershipName} (${game.playerName})',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
-          // Theme Store Entry Button
-          Card(
-            child: ListTile(
-              leading: VectorIconWidget(type: 'theme_store', color: p.primaryColor, size: 26),
-              title: Text('TEMA VE GÖRÜNÜM MAĞAZASI', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-              subtitle: Text('Aktif Tema: ${p.name}', style: AppTypography.labelSmall(p.isDark)),
-              trailing: const Icon(Icons.chevron_right_rounded, size: 22),
+          // 2. Theme Store
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: InkWell(
               onTap: () => context.push('/theme-store'),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFA855F7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                    ),
+                    child: const Icon(Icons.palette_rounded, color: Colors.white, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'TEMA & GÖRÜNÜM MAĞAZASI',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Aktif Tema: ${p.name}',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
-          Card(
+          // 3. Audio & Language Settings
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
             child: Column(
               children: [
-                SwitchListTile(
-                  title: Text('Ses Efektleri', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                  subtitle: const Text('Motor ve buton tıklama sesleri'),
-                  value: settings.isAudioEnabled,
-                  activeTrackColor: p.primaryColor,
-                  onChanged: (_) {
-                    ref.read(settingsProvider.notifier).toggleAudio();
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ses Efektleri',
+                          style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                        ),
+                        Text(
+                          'Motor ve buton sesleri',
+                          style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                    Switch(
+                      value: settings.isAudioEnabled,
+                      activeTrackColor: AppColors.brutalYellow,
+                      onChanged: (_) => ref.read(settingsProvider.notifier).toggleAudio(),
+                    ),
+                  ],
+                ),
+                const Divider(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Dil Seçeneği',
+                          style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                        ),
+                        Text(
+                          'Arayüz dili',
+                          style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                    NeoBrutalBadge(
+                      text: settings.languageCode == 'tr' ? 'Türkçe (TR)' : 'English (EN)',
+                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white : Colors.black,
+                      fontSize: 11,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 4. Rewarded Support Banner
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'SPONSOR DESTEK FONU (OPSİYONEL)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Oyunda zorunlu reklam yoktur. Destek olmak istediğinde video izleyerek kasana ₺25.000 hibe alabilirsin.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                NeoBrutalButton(
+                  label: 'VİDEO İZLE (+₺25.000 KAZAN)',
+                  icon: Icons.play_circle_fill_rounded,
+                  backgroundColor: AppColors.brutalGreen,
+                  textColor: Colors.black,
+                  fontSize: 12,
+                  fullWidth: true,
+                  onPressed: () {
+                    ref.read(gameProvider.notifier).claimAdReward(25000.0);
+                    NotificationService.showSuccess(context, 'Tebrikler! ₺25.000 galeri desteği sermayene eklendi.');
                   },
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  title: Text('Dil Seçeneği', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                  subtitle: Text(settings.languageCode == 'tr' ? 'Türkçe (TR)' : 'English (EN)'),
-                  trailing: DropdownButton<String>(
-                    value: settings.languageCode,
-                    dropdownColor: p.surfaceColor,
-                    items: const [
-                      DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
-                      DropdownMenuItem(value: 'en', child: Text('English')),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        ref.read(settingsProvider.notifier).setLanguage(val);
-                      }
-                    },
-                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 5. Developer Test Panel (GOD MODE)
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF161528) : const Color(0xFFF5F3FF),
+            borderColor: const Color(0xFF8B5CF6),
+            borderWidth: 2.2,
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.bolt_rounded, color: Color(0xFF8B5CF6), size: 20),
+                        SizedBox(width: 6),
+                        Text(
+                          'GELİŞTİRİCİ PANELİ (GOD MODE)',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF8B5CF6),
+                          ),
+                        ),
+                      ],
+                    ),
+                    NeoBrutalBadge(
+                      text: 'DEV TEST',
+                      backgroundColor: const Color(0xFF8B5CF6),
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Hızlı mekanik doğrulaması ve tüm mülk/modül testleri için tek tıkla sermaye ve seviye hilesi uygula.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: '+₺100.000.000',
+                        icon: Icons.attach_money_rounded,
+                        backgroundColor: const Color(0xFF10B981),
+                        textColor: Colors.black,
+                        fontSize: 11,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        onPressed: () {
+                          ref.read(gameProvider.notifier).addCheatFunds(100000000.0);
+                          NotificationService.showSuccess(context, '⚡ ₺100.000.000 Hile Sermayesi Eklendi!');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: 'SEVİYE 4 & FULL AÇ',
+                        icon: Icons.workspace_premium_rounded,
+                        backgroundColor: const Color(0xFF8B5CF6),
+                        textColor: Colors.white,
+                        fontSize: 10.5,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        onPressed: () {
+                          ref.read(gameProvider.notifier).unlockAllPropertiesAndMaxLevel();
+                          NotificationService.showSuccess(context, '🏛️ Seviye 4 (Mega Otomotiv Kalesi) ve Tüm Özellikler Açıldı!');
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                NeoBrutalButton(
+                  label: 'GARAJI TEMİZLE (BOŞALT)',
+                  icon: Icons.cleaning_services_rounded,
+                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                  textColor: isDark ? Colors.white70 : const Color(0xFF334155),
+                  fontSize: 10.5,
+                  fullWidth: true,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  onPressed: () {
+                    ref.read(gameProvider.notifier).clearGarage();
+                    NotificationService.showInfo(context, '🧹 Garaj temizlendi.');
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 6. Danger Zone
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: AppColors.errorRed,
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'İLERLEMEYİ SIFIRLA',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Oyunu başlangıç durumuna (₺50.000 başlangıç sermayesi) sıfırlar.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                NeoBrutalButton(
+                  label: 'TÜM OYUNU SIFIRLA',
+                  icon: Icons.delete_forever_rounded,
+                  backgroundColor: AppColors.errorRed,
+                  textColor: Colors.white,
+                  fontSize: 11.5,
+                  fullWidth: true,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => Dialog(
+                        backgroundColor: Colors.transparent,
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(20),
+                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                          borderColor: AppColors.errorRed,
+                          borderRadius: 16,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.warning_amber_rounded, color: AppColors.errorRed, size: 40),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'SIFIRLAMA ONAYI',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Tüm garajınız ve birikiminiz sıfırlanacaktır. Emin misiniz?',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: NeoBrutalButton(
+                                      label: 'VAZGEÇ',
+                                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                      textColor: isDark ? Colors.white : Colors.black,
+                                      onPressed: () => Navigator.pop(ctx),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: NeoBrutalButton(
+                                      label: 'SIFIRLA',
+                                      backgroundColor: AppColors.errorRed,
+                                      textColor: Colors.white,
+                                      onPressed: () {
+                                        ref.read(gameProvider.notifier).resetGame();
+                                        Navigator.pop(ctx);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
 
-          // Optional Rewarded Ad Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      VectorIconWidget(type: 'streak', color: p.primaryColor, size: 22),
-                      const SizedBox(width: 8),
-                      Text('ÖDÜLLÜ VİDEO İZLE (OPSİYONEL)', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Oyunda zorunlu reklam yoktur. İstediğin zaman video izleyerek galeri sermayene ₺25.000 destek ekleyebilirsin.', style: AppTypography.bodyMedium(p.isDark)),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.play_circle_fill_rounded),
-                      label: const Text('Ödüllü Video İzle (₺25.000 Ödül)'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: p.primaryColor,
-                        foregroundColor: Colors.black,
-                      ),
-                      onPressed: () {
-                        ref.read(gameProvider.notifier).claimAdReward(25000.0);
-                        NotificationService.showSuccess(context, 'Tebrikler! ₺25.000 galeri desteği sermayene eklendi.');
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Danger Zone Reset Button
-          Card(
-            child: ListTile(
-              title: Text('Tüm İlerlemeyi Sıfırla', style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Oyunu başlangıç durumuna (₺50.000 sermaye) döndürür.'),
-              trailing: Icon(Icons.delete_forever, color: p.errorColor),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Sıfırlama Onayı'),
-                    content: const Text('Tüm garajınız ve birikiminiz sıfırlanacaktır. Emin misiniz?'),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Vazgeç')),
-                      TextButton(
-                        onPressed: () {
-                          ref.read(gameProvider.notifier).resetGame();
-                          Navigator.pop(ctx);
-                        },
-                        child: Text('Sıfırla', style: TextStyle(color: p.errorColor)),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 24),
-
           Center(
             child: Text(
-              '${GameConstants.appName} v${GameConstants.appVersion}\nClean Architecture + Riverpod + Dynamic Theme Engine',
+              '${GameConstants.appName} v${GameConstants.appVersion}\nNeo-Brutalism & Monolithic Blocks Design System',
               textAlign: TextAlign.center,
-              style: AppTypography.labelSmall(p.isDark),
+              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
             ),
           ),
         ],

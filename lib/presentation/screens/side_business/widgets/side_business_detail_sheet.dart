@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../providers/game_provider.dart';
-import '../../../widgets/app_double_bezel_card.dart';
-import '../../../widgets/app_glass_container.dart';
-import '../../../widgets/app_tactile_button.dart';
+import '../../../widgets/neo_brutal_badge.dart';
+import '../../../widgets/neo_brutal_button.dart';
+import '../../../widgets/neo_brutal_card.dart';
 
 class SideBusinessDetailSheet extends ConsumerWidget {
   final String businessId;
@@ -85,7 +85,9 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = Theme.of(context).extension<AppThemeExtension>()!.palette;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
+    final isDark = p.isDark;
     final game = ref.watch(gameProvider);
 
     final businessIndex = game.sideBusinesses.indexWhere((b) => b.id == businessId);
@@ -97,10 +99,11 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: p.backgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        border: const Border(top: BorderSide(color: Colors.black, width: 2)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -111,14 +114,14 @@ class SideBusinessDetailSheet extends ConsumerWidget {
               Center(
                 child: Container(
                   width: 44,
-                  height: 5,
+                  height: 4,
                   decoration: BoxDecoration(
-                    color: p.surfaceBorderColor,
+                    color: isDark ? Colors.white24 : Colors.black26,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               // Title Header
               Row(
@@ -130,81 +133,92 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       children: [
                         Text(
                           business.name.toUpperCase(),
-                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 18, letterSpacing: 1.1),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Dükkan Seviyesi: Lvl ${business.level} • ${business.purchasedUpgradeCount}/${business.upgrades.length} Modül Aktif',
-                          style: AppTypography.labelSmall(p.isDark),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close_rounded, color: p.textSecondaryColor),
+                    icon: Icon(Icons.close_rounded, color: isDark ? Colors.white : Colors.black),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
-              // Performance & Financial ROI Analytics Card
-              AppGlassContainer(
-                padding: const EdgeInsets.all(16),
-                borderColor: p.primaryColor.withValues(alpha: 0.4),
-                glowColor: p.primaryColor.withValues(alpha: 0.15),
+              // ROI Analytics Card
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 14,
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatColumn('Net Günlük Kâr', '₺${CurrencyFormatter.formatShort(business.effectiveDailyIncome)}', p.successColor, p.isDark),
-                        Container(width: 1, height: 35, color: p.surfaceBorderColor),
-                        _buildStatColumn('Biriken Kazanç', '₺${CurrencyFormatter.formatShort(business.totalEarned)}', p.primaryColor, p.isDark),
-                        Container(width: 1, height: 35, color: p.surfaceBorderColor),
-                        _buildStatColumn('Amorti Süresi', '${business.roiDays} Gün', p.secondaryColor, p.isDark),
+                        _buildStatColumn('Net Günlük Kâr', '₺${CurrencyFormatter.formatShort(business.effectiveDailyIncome)}', AppColors.brutalGreen),
+                        Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
+                        _buildStatColumn('Biriken Kazanç', '₺${CurrencyFormatter.formatShort(business.totalEarned)}', AppColors.brutalYellow),
+                        Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
+                        _buildStatColumn('Amorti', '${business.roiDays} Gün', const Color(0xFF06B6D4)),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Divider(color: p.surfaceBorderColor, height: 1),
                     const SizedBox(height: 10),
+                    const Divider(height: 1),
+                    const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Toplam Yapılan Sermaye Yatırımı:', style: AppTypography.labelSmall(p.isDark)),
+                        const Text(
+                          'Toplam Sermaye Yatırımı:',
+                          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                        ),
                         Text(
                           '₺${CurrencyFormatter.format(business.totalInvested)}',
-                          style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
 
-              // Dedicated Business Manager Hiring Card
-              Text('ÖZEL İŞLETME MÜDÜRÜ VE AMİR ATAMA', style: AppTypography.labelSmall(p.isDark)),
+              // Manager Card
+              Text(
+                'İŞLETME MÜDÜRÜ ATAMA',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
               const SizedBox(height: 8),
-              AppGlassContainer(
-                padding: const EdgeInsets.all(14),
-                borderColor: business.hasManager ? p.successColor.withValues(alpha: 0.5) : p.surfaceBorderColor,
-                glowColor: business.hasManager ? p.successColor.withValues(alpha: 0.1) : null,
+
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(12),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: business.hasManager ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                borderRadius: 12,
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: business.hasManager ? p.successColor.withValues(alpha: 0.2) : p.surfaceBorderColor,
-                        borderRadius: BorderRadius.circular(12),
+                        color: business.hasManager ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black, width: 1.2),
                       ),
-                      child: Icon(
-                        Icons.badge_rounded,
-                        color: business.hasManager ? p.successColor : p.textSecondaryColor,
-                        size: 26,
-                      ),
+                      child: Icon(Icons.badge_rounded, color: business.hasManager ? Colors.black : const Color(0xFF64748B), size: 22),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,19 +227,14 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                             children: [
                               Text(
                                 business.managerTitle,
-                                style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                               ),
                               const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: p.primaryColor.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  '+%${(business.managerBonusPercent * 100).toInt()} Gelir',
-                                  style: TextStyle(color: p.primaryColor, fontSize: 10, fontWeight: FontWeight.bold),
-                                ),
+                              NeoBrutalBadge(
+                                text: '+%${(business.managerBonusPercent * 100).toInt()}',
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 9.5,
                               ),
                             ],
                           ),
@@ -233,25 +242,27 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           Text(
                             business.hasManager
                                 ? 'Müdür atandı. Günlük Maaş: ₺${business.managerSalary.toInt()}'
-                                : 'İşletmenin başına müdür atayarak tüm pasif geliri %30 artırın.',
-                            style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11),
+                                : 'İşletmenin başına müdür atayarak geliri %30 artırın.',
+                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
                     if (business.hasManager)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: p.successColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: p.successColor),
-                        ),
-                        child: const Text('GÖREVDE', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 11)),
+                      const NeoBrutalBadge(
+                        text: 'GÖREVDE',
+                        backgroundColor: AppColors.brutalGreen,
+                        textColor: Colors.black,
+                        fontSize: 10,
                       )
                     else
-                      AppTactileButton(
+                      NeoBrutalButton(
+                        label: 'İŞE AL (₺${CurrencyFormatter.formatShort(business.managerCost)})',
+                        backgroundColor: AppColors.brutalGreen,
+                        textColor: Colors.black,
+                        fontSize: 10.5,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         onPressed: () {
                           final success = ref.read(gameProvider.notifier).hireSideBusinessManager(business.id);
                           if (success) {
@@ -260,67 +271,71 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                             NotificationService.showError(context, 'Yetersiz Sermaye!');
                           }
                         },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: p.primaryColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '₺${CurrencyFormatter.formatShort(business.managerCost)}',
-                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
 
-              // Main Business Level Up Section
-              Text('DÜKKAN KAPASİTE VE SEVİYE YÜKSELTME', style: AppTypography.labelSmall(p.isDark)),
+              // Level Up Business
+              Text(
+                'DÜKKAN KAPASİTE YÜKSELTME',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
               const SizedBox(height: 8),
-              AppDoubleBezelCard(
-                accentColor: p.primaryColor,
+
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(12),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 12,
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: p.primaryColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.brutalYellow,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black, width: 1.2),
                       ),
-                      child: Icon(Icons.bolt_rounded, color: p.primaryColor, size: 28),
+                      child: const Icon(Icons.bolt_rounded, color: Colors.black, size: 22),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isMaxLevel ? 'Maksimum Seviye Ulaşıldı (Lvl 5)' : 'Seviye ${business.level + 1} İşletme Genişletme',
-                            style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15),
+                            isMaxLevel ? 'Maksimum Seviye (Lvl 5)' : 'Seviye ${business.level + 1} Genişletme',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            isMaxLevel ? 'İşletme en yüksek kapasite seviyesinde hizmet veriyor.' : 'Baz geliri +%35 artırır. Bakım gideri düşülür.',
-                            style: AppTypography.labelSmall(p.isDark),
+                            isMaxLevel ? 'İşletme en yüksek kapasitede.' : 'Baz geliri +%35 artırır.',
+                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
                     ),
                     if (isMaxLevel)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: p.successColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: p.successColor),
-                        ),
-                        child: const Text('MAX LVL', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 12)),
+                      const NeoBrutalBadge(
+                        text: 'MAX LVL',
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 10,
                       )
                     else
-                      AppTactileButton(
+                      NeoBrutalButton(
+                        label: 'YÜKSELT (₺${CurrencyFormatter.formatShort(nextLevelCost)})',
+                        backgroundColor: AppColors.brutalGreen,
+                        textColor: Colors.black,
+                        fontSize: 10.5,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         onPressed: () {
                           final success = ref.read(gameProvider.notifier).upgradeSideBusiness(business.id);
                           if (success) {
@@ -329,136 +344,102 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                             NotificationService.showError(context, 'Yetersiz Sermaye!');
                           }
                         },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: p.primaryColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '₺${CurrencyFormatter.formatShort(nextLevelCost)}',
-                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                        ),
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-              // Sub-Upgrades & Modules Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('DÜKKAN İÇİ EKİPMAN & MODÜL KATALOĞU', style: AppTypography.labelSmall(p.isDark)),
-                  Text('${business.purchasedUpgradeCount}/${business.upgrades.length}', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold, fontSize: 12)),
-                ],
+              // Modules List
+              Text(
+                'DÜKKAN MODÜL & EKİPMANLARI (${business.purchasedUpgradeCount}/${business.upgrades.length})',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
-              if (business.upgrades.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text('Bu dükkan için özel modül bulunmuyor.', style: AppTypography.bodyMedium(p.isDark)),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: business.upgrades.length,
-                  itemBuilder: (context, idx) {
-                    final upgrade = business.upgrades[idx];
-                    final isPurchased = upgrade.isPurchased;
-                    final iconData = _getUpgradeIconData(upgrade.iconName);
+              ...business.upgrades.map((upgrade) {
+                final isPurchased = upgrade.isPurchased;
+                final iconData = _getUpgradeIconData(upgrade.iconName);
 
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: AppGlassContainer(
-                        padding: const EdgeInsets.all(14),
-                        borderColor: isPurchased ? p.successColor.withValues(alpha: 0.5) : p.surfaceBorderColor,
-                        glowColor: isPurchased ? p.successColor.withValues(alpha: 0.1) : null,
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: isPurchased ? p.successColor.withValues(alpha: 0.2) : p.surfaceBorderColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                iconData,
-                                color: isPurchased ? p.successColor : p.textSecondaryColor,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(10),
+                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                    borderRadius: 10,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.black, width: 1.2),
+                          ),
+                          child: Icon(iconData, color: isPurchased ? Colors.black : const Color(0xFF64748B), size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          upgrade.title,
-                                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
-                                        ),
-                                      ),
-                                      Text(
-                                        '+₺${CurrencyFormatter.formatShort(upgrade.bonusDailyIncome)}/gün',
-                                        style: TextStyle(color: p.successColor, fontWeight: FontWeight.bold, fontSize: 12),
-                                      ),
-                                    ],
+                                  Expanded(
+                                    child: Text(
+                                      upgrade.title,
+                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                                    ),
                                   ),
-                                  const SizedBox(height: 2),
                                   Text(
-                                    upgrade.description,
-                                    style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11),
+                                    '+₺${CurrencyFormatter.formatShort(upgrade.bonusDailyIncome)}/g',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(width: 10),
-
-                            if (isPurchased)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: p.successColor.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: p.successColor),
-                                ),
-                                child: const Text('AKTİF', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 11)),
-                              )
-                            else
-                              AppTactileButton(
-                                onPressed: () {
-                                  final success = ref.read(gameProvider.notifier).buySideBusinessUpgrade(business.id, upgrade.id);
-                                  if (success) {
-                                    NotificationService.showSuccess(context, '${upgrade.title} modülü satın alındı!');
-                                  } else {
-                                    NotificationService.showError(context, 'Yetersiz Bakiye!');
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: p.secondaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    '₺${CurrencyFormatter.formatShort(upgrade.cost)}',
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                                  ),
-                                ),
+                              const SizedBox(height: 2),
+                              Text(
+                                upgrade.description,
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                               ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              const SizedBox(height: 16),
+                        const SizedBox(width: 8),
+                        if (isPurchased)
+                          const NeoBrutalBadge(
+                            text: 'AKTİF',
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 9.5,
+                          )
+                        else
+                          NeoBrutalButton(
+                            label: '₺${CurrencyFormatter.formatShort(upgrade.cost)}',
+                            backgroundColor: const Color(0xFFA855F7),
+                            textColor: Colors.white,
+                            fontSize: 10.5,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            onPressed: () {
+                              final success = ref.read(gameProvider.notifier).buySideBusinessUpgrade(business.id, upgrade.id);
+                              if (success) {
+                                NotificationService.showSuccess(context, '${upgrade.title} modülü satın alındı!');
+                              } else {
+                                NotificationService.showError(context, 'Yetersiz Bakiye!');
+                              }
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ),
@@ -466,15 +447,12 @@ class SideBusinessDetailSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatColumn(String label, String value, Color color, bool isDark) {
+  Widget _buildStatColumn(String label, String value, Color color) {
     return Column(
       children: [
-        Text(label, style: TextStyle(color: Colors.grey, fontSize: 11)),
+        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
         const SizedBox(height: 2),
-        Text(
-          value,
-          style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14),
-        ),
+        Text(value, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13)),
       ],
     );
   }

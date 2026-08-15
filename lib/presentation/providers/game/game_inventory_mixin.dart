@@ -1,6 +1,9 @@
+import '../../../data/models/branch_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/detailing_model.dart';
+import '../../../data/models/expertise_model.dart';
 import '../../../data/models/rental_agreement_model.dart';
+import '../../../data/models/scrapyard_model.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
 import '../../../data/models/mission_model.dart';
@@ -26,20 +29,43 @@ mixin GameInventoryMixin on GameBaseNotifier {
       );
     }
 
-    final finalCar = outcome.updatedCar.copyWith(
-      currentPurchasePrice: purchasePrice,
-    );
+    final purchasedCar = outcome.updatedCar;
+    final updatedCars = [...state.ownedCars, purchasedCar];
 
     state = state.copyWith(
       balance: updatedBalance,
-      ownedCars: [...state.ownedCars, finalCar],
+      ownedCars: updatedCars,
     );
 
-    addXP(25);
+    addXP(50);
     checkAchievement('first_buy');
     updateMissionProgress(MissionType.buyCars, 1);
     saveState();
     return outcome;
+  }
+
+  /// Sell a car from garage
+  bool sellCar(String carId, double sellingPrice) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final profit = sellingPrice - car.currentPurchasePrice;
+
+    final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(carIndex);
+    
+    state = state.copyWith(
+      balance: state.balance + sellingPrice,
+      ownedCars: updatedCars,
+      totalProfit: state.totalProfit + profit,
+      carsSold: state.carsSold + 1,
+    );
+
+    addXP(100);
+    checkAchievement('first_sale');
+    updateMissionProgress(MissionType.sellCars, 1);
+    saveState();
+    return true;
   }
 
   /// Directly purchase a car
@@ -66,6 +92,22 @@ mixin GameInventoryMixin on GameBaseNotifier {
       maxGarageSlots: newMaxSlots,
     );
     addXP(100);
+    checkAchievement('garage_expand');
+    saveState();
+    return true;
+  }
+
+  /// Purchase & Upgrade Branch (Advances Dealership Level directly)
+  bool upgradeBranch(BranchModel branch) {
+    if (state.balance < branch.requiredBalance) return false;
+
+    final newLevel = branch.targetLevel > state.level ? branch.targetLevel : state.level;
+    state = state.copyWith(
+      balance: state.balance - branch.requiredBalance,
+      maxGarageSlots: branch.maxGarageSlots,
+      level: newLevel,
+    );
+    addXP(250);
     checkAchievement('garage_expand');
     saveState();
     return true;
@@ -313,5 +355,230 @@ mixin GameInventoryMixin on GameBaseNotifier {
       state = state.copyWith(ownedCars: syncedCars);
       saveState();
     }
+  }
+
+  /// Purchase and dismantle a scrap car into salvaged parts
+  bool buyAndDismantleScrapCar(String scrapCarId) {
+    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+    if (scrapIndex == -1) return false;
+
+    final scrapCar = state.scrapyardCars[scrapIndex];
+    if (state.balance < scrapCar.scrapPrice) return false;
+
+    final generatedParts = scrapCar.parts.isNotEmpty
+        ? scrapCar.parts
+        : ScrapyardCar.generateRandomParts('${scrapCar.brand} ${scrapCar.modelName}', scrapCar.scrapPrice * 1.5);
+
+    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars)..removeAt(scrapIndex);
+
+    state = state.copyWith(
+      balance: state.balance - scrapCar.scrapPrice,
+      salvagedParts: [...state.salvagedParts, ...generatedParts],
+      scrapyardCars: updatedScrapCars,
+    );
+
+    addXP(60);
+    checkAchievement('first_scrap');
+    saveState();
+    return true;
+  }
+
+  /// Sell a salvaged part on the secondary parts market
+  bool sellSalvagedPart(String partId) {
+    final partIndex = state.salvagedParts.indexWhere((p) => p.id == partId);
+    if (partIndex == -1) return false;
+
+    final part = state.salvagedParts[partIndex];
+    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)..removeAt(partIndex);
+
+    state = state.copyWith(
+      balance: state.balance + part.estimatedValue,
+      salvagedParts: updatedParts,
+    );
+
+    addXP(15);
+    saveState();
+    return true;
+  }
+
+  /// Fit a salvaged part to improve an owned car in the workshop
+  bool installPartToCar(String partId, String carId) {
+    final partIndex = state.salvagedParts.indexWhere((p) => p.id == partId);
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (partIndex == -1 || carIndex == -1) return false;
+
+    final part = state.salvagedParts[partIndex];
+    final car = state.ownedCars[carIndex];
+
+    // Calculate boost depending on part category and condition
+    double engineBoost = 0.0;
+    double transBoost = 0.0;
+
+    if (part.category == 'engine' || part.category == 'turbo' || part.category == 'ecu' || part.category == 'radiator') {
+      engineBoost = (part.conditionPercent * 0.35).clamp(10.0, 45.0);
+    } else if (part.category == 'transmission' || part.category == 'brakes' || part.category == 'suspension') {
+      transBoost = (part.conditionPercent * 0.35).clamp(10.0, 45.0);
+    }
+
+    final newEngineCond = (car.expertise.engineCondition + engineBoost).clamp(0.0, 100.0);
+    final newTransCond = (car.expertise.transmissionCondition + transBoost).clamp(0.0, 100.0);
+
+    final updatedCar = car.copyWith(
+      expertise: car.expertise.copyWith(
+        engineCondition: newEngineCond,
+        transmissionCondition: newTransCond,
+      ),
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)..removeAt(partIndex);
+
+    state = state.copyWith(
+      ownedCars: updatedCars,
+      salvagedParts: updatedParts,
+    );
+
+    addXP(45);
+    saveState();
+    return true;
+  }
+
+  /// Purchase an equipment upgrade for Wash or Workshop
+  bool purchaseEquipmentUpgrade(String equipmentId, double cost) {
+    if (state.balance < cost) return false;
+    if (state.unlockedBuildings.contains(equipmentId)) return false;
+
+    final updatedBuildings = Set<String>.from(state.unlockedBuildings)..add(equipmentId);
+    state = state.copyWith(
+      balance: state.balance - cost,
+      unlockedBuildings: updatedBuildings,
+    );
+
+    addXP(120);
+    saveState();
+    return true;
+  }
+
+  /// Perform a dedicated Wash & Detailing service package on an owned car
+  bool performWashService(
+    String carId, {
+    required double cost,
+    required double valueBoostPercent,
+    required bool setPolished,
+    required bool setDetailed,
+  }) {
+    if (state.balance < cost) return false;
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final newValue = car.baseMarketValue * (1.0 + valueBoostPercent);
+
+    final updatedCar = car.copyWith(
+      baseMarketValue: newValue,
+      isWashed: true,
+      isPolished: setPolished ? true : car.isPolished,
+      isDetailedCleaned: setDetailed ? true : car.isDetailedCleaned,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(30);
+    saveState();
+    return true;
+  }
+
+  /// Perform specialized workshop station repair
+  bool performWorkshopStationRepair(
+    String carId, {
+    required String repairType,
+    required double cost,
+  }) {
+    if (state.balance < cost) return false;
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final exp = car.expertise;
+
+    ExpertiseReport updatedExp = exp;
+    double valueBoost = 1.0;
+
+    switch (repairType) {
+      case 'engine':
+        updatedExp = exp.copyWith(engineCondition: 100.0);
+        valueBoost = 1.10;
+        break;
+      case 'transmission':
+        updatedExp = exp.copyWith(transmissionCondition: 100.0);
+        valueBoost = 1.08;
+        break;
+      case 'ecu':
+        updatedExp = exp.copyWith(engineCondition: (exp.engineCondition + 15).clamp(0.0, 100.0));
+        valueBoost = 1.05;
+        break;
+      case 'bodywork':
+        final repairedParts = Map<String, PartStatus>.from(exp.bodyParts);
+        repairedParts.forEach((key, value) {
+          if (value == PartStatus.changed || value == PartStatus.painted || value == PartStatus.damaged) {
+            repairedParts[key] = PartStatus.original;
+          }
+        });
+        updatedExp = exp.copyWith(bodyParts: repairedParts);
+        valueBoost = 1.15;
+        break;
+      case 'chassis':
+        updatedExp = exp.copyWith(
+          engineCondition: 100.0,
+          transmissionCondition: 100.0,
+        );
+        valueBoost = 1.20;
+        break;
+    }
+
+    final updatedCar = car.copyWith(
+      expertise: updatedExp,
+      baseMarketValue: (car.baseMarketValue * valueBoost).clamp(car.baseMarketValue * 0.5, car.baseMarketValue * 1.35),
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(50);
+    saveState();
+    return true;
+  }
+
+  /// Emergency Bailout: Dede Mirası Can Suyu (₺50.000)
+  bool claimEmergencyBailout() {
+    if (state.balance > 15000 && state.ownedCars.isNotEmpty) return false;
+    state = state.copyWith(
+      balance: state.balance + 50000.0,
+    );
+    addXP(100);
+    saveState();
+    return true;
+  }
+
+  /// Daily Scrapyard Side Gig: Hurdalıkta Günlük Çıraklık (₺5.000)
+  bool doDailyScrapyardSideGig() {
+    state = state.copyWith(
+      balance: state.balance + 5000.0,
+    );
+    addXP(25);
+    saveState();
+    return true;
   }
 }

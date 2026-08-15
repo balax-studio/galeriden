@@ -6,7 +6,7 @@ import '../../core/utils/currency_formatter.dart';
 import '../providers/game_provider.dart';
 import 'app_glass_container.dart';
 
-/// Floating Game HUD overlay widget - Premium Glassmorphic Cyber-Tycoon Bar
+/// Floating Game HUD overlay widget - Neo-Brutalist Monolithic Stats Bar
 class GameHudHeaderWidget extends ConsumerWidget {
   const GameHudHeaderWidget({super.key});
 
@@ -18,62 +18,62 @@ class GameHudHeaderWidget extends ConsumerWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
         children: [
           // GÜN Pill
           _buildPill(
             context,
-            icon: Icons.calendar_today_rounded,
-            accentColor: const Color(0xFFF59E0B),
+            icon: Icons.calendar_month_rounded,
+            accentColor: const Color(0xFFFFB703),
             title: 'GÜN',
             value: '${game.currentDay}',
             onTap: () {},
             isDark: isDark,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
 
           // KASA Pill (Interactive -> Finance)
           _buildPill(
             context,
             icon: Icons.account_balance_wallet_rounded,
-            accentColor: const Color(0xFF10B981),
+            accentColor: const Color(0xFF00E575),
             title: 'KASA',
             value: CurrencyFormatter.formatShort(game.balance),
             bold: true,
             onTap: () => context.push('/finance'),
             isDark: isDark,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
 
           // GARAJ STOK Pill (Interactive -> Showroom)
           _buildPill(
             context,
             icon: Icons.directions_car_rounded,
-            accentColor: const Color(0xFF06B6D4),
+            accentColor: const Color(0xFF00F0FF),
             title: 'GARAJ',
             value: '${game.ownedCars.length}/${game.maxGarageSlots}',
             onTap: () => context.push('/showroom'),
             isDark: isDark,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
 
           // İTİBAR Pill (Interactive -> Branch Empire)
           _buildPill(
             context,
             icon: Icons.star_rounded,
-            accentColor: const Color(0xFFFBBF24),
+            accentColor: const Color(0xFFFFDE59),
             title: 'İTİBAR',
-            value: game.reputationScore.toStringAsFixed(1),
+            value: '%${game.reputationScore}',
             onTap: () => context.push('/branch'),
             isDark: isDark,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
 
           // GÖREV Pill
           _buildPill(
             context,
-            icon: Icons.assignment_turned_in_rounded,
+            icon: Icons.task_alt_rounded,
             accentColor: const Color(0xFFA855F7),
             title: 'GÖREV',
             value: '${game.activeMissions.where((m) => m.isCompleted).length}/${game.activeMissions.length}',
@@ -95,63 +95,71 @@ class GameHudHeaderWidget extends ConsumerWidget {
     required bool isDark,
     bool bold = false,
   }) {
+    final bgColor = isDark ? const Color(0xFF141721) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final shadowColor = isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        splashColor: accentColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
           decoration: BoxDecoration(
-            color: isDark
-                ? const Color(0xCC0F172A)
-                : const Color(0xEEFFFFFF),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isDark
-                  ? accentColor.withValues(alpha: 0.35)
-                  : accentColor.withValues(alpha: 0.45),
-              width: 1.0,
-            ),
+            borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: shadowColor,
+                offset: const Offset(2.0, 2.0),
+                blurRadius: 0,
               ),
             ],
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(3.5),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(icon, size: 12, color: accentColor),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: borderColor,
+                width: 1.6,
               ),
-              const SizedBox(width: 6),
-              Text(
-                '$title ',
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: isDark ? Colors.black38 : const Color(0xFF0F172A),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Icon(icon, size: 12, color: Colors.black),
                 ),
-              ),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: bold ? FontWeight.w900 : FontWeight.w800,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                const SizedBox(width: 6),
+                Text(
+                  '$title ',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  ),
                 ),
-              ),
-            ],
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: bold ? FontWeight.w900 : FontWeight.w800,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

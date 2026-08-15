@@ -11,6 +11,7 @@ import '../../../domain/usecases/psychology_engine.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/car_icons.dart';
+import '../../widgets/neo_brutal_button.dart';
 import 'expertise_report_sheet.dart';
 import 'interactive_negotiation_sheet.dart';
 
@@ -169,62 +170,25 @@ class ListingDetailScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: p.surfaceColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          border: Border(top: BorderSide(color: p.surfaceBorderColor, width: 2)),
         ),
         child: SafeArea(
-          child: Row(
-            children: [
-              // Negotiation Button
-              Expanded(
-                child: OutlinedButton.icon(
-                  icon: VectorIconWidget(type: 'negotiation', color: p.primaryColor, size: 18),
-                  label: const Text('Pazarlık Et'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: p.primaryColor),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (ctx) => InteractiveNegotiationSheet(listing: listing),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-
-              // Buy & Negotiate Button
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: VectorIconWidget(type: 'negotiation', color: Colors.black, size: 18),
-                  label: const Text('Pazarlık Et & Satın Al'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: p.primaryColor,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (ctx) => InteractiveNegotiationSheet(listing: listing),
-                    );
-                  },
-                ),
-              ),
-            ],
+          child: NeoBrutalButton(
+            label: 'PAZARLIK ET & SATIN AL',
+            icon: Icons.handshake_rounded,
+            backgroundColor: p.primaryColor,
+            textColor: Colors.black,
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+            fullWidth: true,
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (ctx) => InteractiveNegotiationSheet(listing: listing),
+              );
+            },
           ),
         ),
       ),

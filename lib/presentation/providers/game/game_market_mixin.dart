@@ -1,3 +1,4 @@
+import '../../../data/models/staff_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/customer_review_model.dart';
@@ -260,7 +261,9 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (eligibleCars.isEmpty) return;
 
     final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
-    final offer = NegotiationEngine.generateBuyerOffer(randomCar, randomCar.estimatedRealValue);
+    final hasSalesman = state.hiredStaff.any((s) => s.role == StaffRole.salesman);
+    final baseTargetPrice = randomCar.estimatedRealValue * (hasSalesman ? 1.10 : 1.0);
+    final offer = NegotiationEngine.generateBuyerOffer(randomCar, baseTargetPrice);
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     saveState();
   }

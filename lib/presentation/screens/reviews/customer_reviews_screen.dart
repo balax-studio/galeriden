@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_glass_container.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class CustomerReviewsScreen extends ConsumerWidget {
   const CustomerReviewsScreen({super.key});
@@ -13,6 +15,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     final reviews = game.customerReviews;
     final avgRating = reviews.isEmpty
@@ -20,119 +23,169 @@ class CustomerReviewsScreen extends ConsumerWidget {
         : reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length;
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
-        title: const Text('MÜŞTERİ YORUMLARI & YILDIZ PUANI'),
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'MÜŞTERİ YORUMLARI & PUAN',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Rating Header Card
-            AppGlassContainer(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Column(
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Rating Header Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.brutalYellow,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: Column(
                     children: [
                       Text(
                         avgRating.toStringAsFixed(1),
-                        style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 36, color: p.primaryColor),
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.black),
                       ),
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: List.generate(5, (i) {
                           return Icon(
                             i < avgRating.round() ? Icons.star_rounded : Icons.star_border_rounded,
-                            color: Colors.amber,
-                            size: 18,
+                            color: Colors.black,
+                            size: 14,
                           );
                         }),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('HARİTA VE HARİCİ GALERİ PUANI', style: AppTypography.labelSmall(p.isDark)),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${reviews.length} Gerçek Müşteri Değerlendirmesi',
-                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Galeri İtibar Puanı: ${game.reputationScore} / 100',
-                          style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'GALERİ HARİTA PUANI',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${reviews.length} Gerçek Müşteri Değerlendirmesi',
+                        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'İtibar Puanı: ${game.reputationScore} / 100',
+                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 16),
 
-            Text('GELEN MÜŞTERİ YORUMLARI', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
+          Text(
+            'MÜŞTERİ GERİ BİLDİRİMLERİ',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
 
-            reviews.isEmpty
-                ? Container(
-                    padding: const EdgeInsets.all(24),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Henüz müşteri yorumu yok. İlk araç satışını yaptığında alıcılar buraya değerlendirme bırakacak!',
-                      style: AppTypography.bodyMedium(p.isDark),
+          // 2. Reviews List
+          if (reviews.isEmpty)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(24),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 14,
+              child: const Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.rate_review_outlined, size: 36, color: Color(0xFF64748B)),
+                    SizedBox(height: 8),
+                    Text(
+                      'Henüz müşteri yorumu yok. Araç satışı yaptıkça alıcılar buraya puan bırakacak!',
                       textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                     ),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: reviews.length,
-                    itemBuilder: (context, index) {
-                      final r = reviews[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: p.surfaceColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: p.surfaceBorderColor),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  r.reviewerName,
-                                  style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15),
-                                ),
-                                Row(
-                                  children: List.generate(5, (i) {
-                                    return Icon(
-                                      i < r.rating.round() ? Icons.star_rounded : Icons.star_border_rounded,
-                                      color: Colors.amber,
-                                      size: 16,
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text('Satılan Araç: ${r.carTitle}', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor)),
-                            const SizedBox(height: 8),
-                            Text(r.comment, style: AppTypography.bodyMedium(p.isDark)),
-                          ],
-                        ),
-                      );
-                    },
+                  ],
+                ),
+              ),
+            )
+          else
+            ...reviews.map((r) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            r.reviewerName,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                          ),
+                          Row(
+                            children: List.generate(5, (i) {
+                              return Icon(
+                                i < r.rating.round() ? Icons.star_rounded : Icons.star_border_rounded,
+                                color: AppColors.brutalYellow,
+                                size: 16,
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      NeoBrutalBadge(
+                        text: 'Satılan: ${r.carTitle}',
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                        textColor: isDark ? Colors.white70 : const Color(0xFF334155),
+                        fontSize: 10,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        r.comment,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
-          ],
-        ),
+                ),
+              );
+            }),
+        ],
       ),
     );
   }

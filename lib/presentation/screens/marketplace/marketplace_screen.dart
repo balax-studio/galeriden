@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/expertise_model.dart';
+import '../../../data/models/theme_palette_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
-import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_icons.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_tactile_button.dart';
-import '../../../data/models/theme_palette_model.dart';
-import '../../../data/models/expertise_model.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 import 'interactive_negotiation_sheet.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
@@ -32,6 +33,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     final marketSenseLevel = game.skills.marketSense;
     final trend = game.marketTrend;
@@ -49,10 +51,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     }).toList();
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
-        title: const FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text('İKİNCİ EL PAZARI'),
+        title: const Text(
+          'İKİNCİ EL PAZARI',
+          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
         ),
         actions: [
           IconButton(
@@ -67,22 +70,24 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       ),
       body: Column(
         children: [
-          // Market Trend & Skill Intel Banner
+          // Market Trend & Skill Intel Banner (Neo-Brutal Card)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: AppGlassContainer(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+            child: NeoBrutalCard(
               padding: const EdgeInsets.all(12),
-              borderRadius: 14,
-              borderColor: p.primaryColor.withValues(alpha: 0.4),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: p.primaryColor.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
+                      color: p.primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black, width: 1.4),
                     ),
-                    child: Icon(Icons.insights_rounded, color: p.primaryColor, size: 20),
+                    child: const Icon(Icons.insights_rounded, color: Colors.black, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -91,18 +96,29 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       children: [
                         Text(
                           trend.headline,
-                          style: AppTypography.labelSmall(p.isDark).copyWith(fontWeight: FontWeight.bold, fontSize: 12),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
                         ),
                         const SizedBox(height: 2),
                         if (marketSenseLevel >= 3)
                           Text(
                             'Piyasa Sezgisi (Lv $marketSenseLevel): SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
-                            style: TextStyle(color: p.primaryColor, fontSize: 10, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: p.primaryColor,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                            ),
                           )
                         else
                           Text(
-                            'Piyasa Sezgisi Lv 3 yükseltilirse segment kâr oranları açılır.',
-                            style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10),
+                            'Piyasa Sezgisi Lv 3 ile kâr çarpanları açılır.',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            ),
                           ),
                       ],
                     ),
@@ -112,48 +128,70 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             ),
           ),
 
-          // Quick Filter Chips Bar
+          // Quick Filter Chips Bar (Monolithic Buttons)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             child: Row(
               children: [
-                _buildFilterChip('all', 'Tüm Araçlar', Icons.directions_car_rounded, p),
+                _buildFilterChip('all', 'Tüm İlanlar (${allListings.length})', Icons.directions_car_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('bargain', 'Kelepir Fırsatlar', Icons.local_fire_department_rounded, p),
+                _buildFilterChip('bargain', 'Kelepir Fırsatlar', Icons.local_fire_department_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('clean', 'Hasarsız', Icons.verified_user_rounded, p),
+                _buildFilterChip('clean', 'Hatasız / Boyasız', Icons.verified_user_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('affordable', 'Bütçeme Uygun', Icons.account_balance_wallet_rounded, p),
+                _buildFilterChip('affordable', 'Bütçeme Uygun', Icons.account_balance_wallet_rounded, p, isDark),
               ],
             ),
           ),
 
-          // Status Header
+          // Sub-Header Info Bar
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            color: p.surfaceColor,
+            margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                width: 1.4,
+              ),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    VectorIconWidget(type: 'car', color: p.primaryColor, size: 20),
-                    const SizedBox(width: 8),
-                    Text('Satılık Araçlar (${listings.length})', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                  ],
+                Text(
+                  'Listelenen: ${listings.length} Araç',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
                 ),
-                Text('Sermaye: ${CurrencyFormatter.formatShort(game.balance)}', style: AppTypography.moneyMedium(p.isDark)),
+                Text(
+                  'Kasa: ₺${CurrencyFormatter.formatShort(game.balance)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                  ),
+                ),
               ],
             ),
           ),
+
+          // Listings Scrollable List
           Expanded(
             child: listings.isEmpty
                 ? Center(
-                    child: Text('Aranan kriterde araç bulunamadı.', style: AppTypography.bodyMedium(p.isDark)),
+                    child: Text(
+                      'Aranan kriterde araç bulunamadı.',
+                      style: AppTypography.bodyMedium(p.isDark),
+                    ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
+                    physics: const BouncingScrollPhysics(),
                     itemCount: listings.length,
                     itemBuilder: (context, index) {
                       final item = listings[index];
@@ -170,138 +208,165 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         carColor = p.primaryColor;
                       }
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                            color: car.isRare ? p.secondaryColor : (isFlash ? p.warningColor : p.surfaceBorderColor),
-                            width: (car.isRare || isFlash) ? 2.0 : 1.0,
-                          ),
-                        ),
-                        child: InkWell(
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(14),
+                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                          borderColor: car.isRare
+                              ? const Color(0xFFA855F7)
+                              : (isFlash
+                                  ? const Color(0xFFFF7A00)
+                                  : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
+                          borderRadius: 12,
                           onTap: () => context.push('/listing-detail', extra: item),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               // Top Tag & Live Viewer FOMO
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: p.secondaryColor.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: Text(car.bodyType, style: AppTypography.labelSmall(p.isDark).copyWith(color: p.secondaryColor)),
+                                      NeoBrutalBadge(
+                                        text: car.bodyType,
+                                        backgroundColor: p.secondaryColor.withValues(alpha: 0.2),
+                                        textColor: isDark ? p.secondaryColor : const Color(0xFF0F172A),
+                                        borderColor: p.secondaryColor,
+                                        fontSize: 9.5,
                                       ),
                                       if (car.isRare) ...[
                                         const SizedBox(width: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: p.secondaryColor,
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              VectorIconWidget(type: 'rare', color: Colors.white, size: 12),
-                                              const SizedBox(width: 4),
-                                              const Text('NADİR KOLEKSİYON', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                            ],
-                                          ),
+                                        const NeoBrutalBadge(
+                                          text: 'NADİR KOLEKSİYON',
+                                          backgroundColor: Color(0xFFA855F7),
+                                          textColor: Colors.white,
+                                          fontSize: 9.5,
                                         ),
                                       ],
                                       if (isFlash) ...[
                                         const SizedBox(width: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: p.warningColor,
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              VectorIconWidget(type: 'flash', color: Colors.white, size: 12),
-                                              const SizedBox(width: 4),
-                                              const Text('FIRSAT %30 İNDİRİM', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                            ],
-                                          ),
+                                        const NeoBrutalBadge(
+                                          text: 'KELEPİR FIRSAT',
+                                          backgroundColor: Color(0xFFFF7A00),
+                                          textColor: Colors.black,
+                                          fontSize: 9.5,
                                         ),
                                       ],
                                     ],
                                   ),
                                   Row(
                                     children: [
-                                      Icon(Icons.remove_red_eye_rounded, size: 14, color: p.textSecondaryColor),
+                                      Icon(
+                                        Icons.visibility_rounded,
+                                        size: 14,
+                                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                      ),
                                       const SizedBox(width: 4),
-                                      Text('$viewerCount kişi bakıyor', style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
+                                      Text(
+                                        '$viewerCount kişi bakıyor',
+                                        style: TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 10),
 
-                              // Car Header: Silhouette Icon + Name
+                              // Car Header: Silhouette Icon + Name + City
                               Row(
                                 children: [
-                                  CarSilhouetteWidget(
-                                    bodyType: car.bodyType,
-                                    color: carColor,
-                                    width: 54,
-                                    height: 28,
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                        width: 1.4,
+                                      ),
+                                    ),
+                                    child: CarSilhouetteWidget(
+                                      bodyType: car.bodyType,
+                                      color: carColor,
+                                      width: 52,
+                                      height: 26,
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 17)),
-                                        Text('${item.sellerCity} • ${car.modelYear} Model', style: AppTypography.labelSmall(p.isDark)),
+                                        Text(
+                                          '${car.brand} ${car.modelName}',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w900,
+                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '${item.sellerCity} • ${car.modelYear} Model',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 10),
 
                               // Color-Coded Stat Badges (KM, Engine, Tramer)
                               Wrap(
-                                spacing: 8,
+                                spacing: 6,
                                 runSpacing: 6,
                                 children: [
-                                  _buildColorBadge(
-                                    label: '${(exp.mileage / 1000).toStringAsFixed(0)}K KM',
-                                    color: StatColors.getMileageColor(exp.mileage),
-                                    tooltip: StatColors.getMileageLabel(exp.mileage),
+                                  NeoBrutalBadge(
+                                    text: '${(exp.mileage / 1000).toStringAsFixed(0)}K KM',
+                                    backgroundColor: StatColors.getMileageColor(exp.mileage).withValues(alpha: 0.2),
+                                    textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                    borderColor: StatColors.getMileageColor(exp.mileage),
+                                    fontSize: 10,
                                   ),
-                                  _buildColorBadge(
-                                    label: exp.tramerAmount == 0 ? 'Tramer: 0 ₺' : 'Tramer: ₺${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
-                                    color: StatColors.getTramerColor(exp.tramerAmount),
-                                    tooltip: StatColors.getTramerLabel(exp.tramerAmount),
+                                  NeoBrutalBadge(
+                                    text: exp.tramerAmount == 0
+                                        ? 'Tramer: 0 ₺'
+                                        : 'Tramer: ₺${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
+                                    backgroundColor: StatColors.getTramerColor(exp.tramerAmount).withValues(alpha: 0.2),
+                                    textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                    borderColor: StatColors.getTramerColor(exp.tramerAmount),
+                                    fontSize: 10,
                                   ),
-                                  _buildColorBadge(
-                                    label: 'Motor: %${exp.engineCondition.round()}',
-                                    color: StatColors.getEngineColor(exp.engineCondition),
-                                    tooltip: StatColors.getEngineLabel(exp.engineCondition),
+                                  NeoBrutalBadge(
+                                    text: 'Motor: %${exp.engineCondition.round()}',
+                                    backgroundColor: StatColors.getEngineColor(exp.engineCondition).withValues(alpha: 0.2),
+                                    textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                    borderColor: StatColors.getEngineColor(exp.engineCondition),
+                                    fontSize: 10,
                                   ),
                                   if (exp.isMileageTampered && item.isExpertiseCompleted)
-                                    _buildColorBadge(
-                                      label: 'ŞÜPHELİ KM!',
-                                      color: p.errorColor,
-                                      tooltip: 'KM Düşürülmüş Olabilir!',
+                                    const NeoBrutalBadge(
+                                      text: 'ŞÜPHELİ KM!',
+                                      backgroundColor: Color(0xFFEF4444),
+                                      textColor: Colors.white,
+                                      fontSize: 10,
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 12),
 
                               // Price & Action Buttons
                               Row(
@@ -310,30 +375,45 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('İlan Fiyatı', style: AppTypography.labelSmall(p.isDark)),
-                                      Text(CurrencyFormatter.format(item.askingPrice), style: AppTypography.moneyMedium(p.isDark)),
+                                      Text(
+                                        'İlan Fiyatı',
+                                        style: TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                        ),
+                                      ),
+                                      Text(
+                                        CurrencyFormatter.format(item.askingPrice),
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w900,
+                                          color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                   Row(
                                     children: [
-                                      AppTactileButton(
-                                        color: p.surfaceColor,
-                                        glowColor: p.primaryColor.withValues(alpha: 0.2),
+                                      NeoBrutalButton(
+                                        label: item.isExpertiseCompleted ? 'RAPOR' : 'EKSPERTİZ',
+                                        icon: Icons.assignment_outlined,
+                                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                        textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                        fontSize: 10.5,
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                         onPressed: () {
                                           context.push('/expertise', extra: item);
                                         },
-                                        child: Text(
-                                          item.isExpertiseCompleted ? 'Rapor' : 'Ekspertiz (₺1.500)',
-                                          style: TextStyle(fontSize: 12, color: p.primaryColor, fontWeight: FontWeight.bold),
-                                        ),
                                       ),
                                       const SizedBox(width: 8),
-                                      AppTactileButton.primary(
-                                        label: 'Pazarlık Et & Satın Al',
+                                      NeoBrutalButton(
+                                        label: 'TEKLİF VER & PAZARLIK ET',
                                         icon: Icons.handshake_rounded,
-                                        color: p.primaryColor,
-                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        backgroundColor: const Color(0xFFFFDE59),
+                                        textColor: Colors.black,
+                                        fontSize: 11,
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                         onPressed: () {
                                           showModalBottomSheet(
                                             context: context,
@@ -350,8 +430,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             ],
                           ),
                         ),
-                      ),
-                    );
+                      );
                     },
                   ),
           ),
@@ -360,70 +439,57 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     );
   }
 
-  Widget _buildFilterChip(String key, String label, IconData icon, ThemePaletteModel p) {
+  Widget _buildFilterChip(
+    String key,
+    String label,
+    IconData icon,
+    ThemePaletteModel p,
+    bool isDark,
+  ) {
     final isSelected = _selectedFilter == key;
-    final activeColor = isSelected ? p.primaryColor : p.surfaceBorderColor;
-    final textColor = isSelected ? (p.isDark ? const Color(0xFF0D0D0F) : Colors.white) : p.textPrimaryColor;
+    final activeBg = const Color(0xFFFFDE59);
+    final inactiveBg = isDark ? const Color(0xFF141721) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
 
-    return AppTactileButton(
-      onPressed: () {
-        setState(() {
-          _selectedFilter = key;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    return GestureDetector(
+      onTap: () => setState(() => _selectedFilter = key),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? p.primaryColor : p.surfaceColor.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? activeBg : inactiveBg,
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: activeColor,
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? const Color(0xFF0F172A) : borderColor,
+            width: 1.5,
           ),
           boxShadow: isSelected
-              ? [
+              ? const [
                   BoxShadow(
-                    color: p.primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  )
+                    color: Colors.black,
+                    offset: Offset(2, 2),
+                    blurRadius: 0,
+                  ),
                 ]
               : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: isSelected ? textColor : p.primaryColor),
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? Colors.black : (isDark ? p.primaryColor : const Color(0xFF0F172A)),
+            ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: textColor,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                fontSize: 12,
-                letterSpacing: 0.2,
+                color: isSelected ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                fontSize: 11.5,
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildColorBadge({required String label, required Color color, required String tooltip}) {
-    return Tooltip(
-      message: tooltip,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: color.withValues(alpha: 0.5)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
         ),
       ),
     );

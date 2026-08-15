@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_double_bezel_card.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_tactile_button.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class DecorUpgradeOption {
   final String id;
@@ -43,11 +42,11 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
     DecorUpgradeOption(
       id: 'decor_led_grid',
       title: 'Tavan Lazer LED Aydınlatma Izgarası',
-      description: 'Lüks showroom havası vererek vitrindeki araçların parlamasını sağlar.',
+      description: 'Lüks showroom atmosferi vererek vitrindeki araçların parlamasını sağlar.',
       cost: 25000,
       reputationBonus: 5.0,
       icon: Icons.light_mode_rounded,
-      color: Colors.amber,
+      color: AppColors.brutalYellow,
     ),
     DecorUpgradeOption(
       id: 'decor_granite_floor',
@@ -56,7 +55,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
       cost: 45000,
       reputationBonus: 8.0,
       icon: Icons.grid_view_rounded,
-      color: Colors.cyanAccent,
+      color: Color(0xFF06B6D4),
     ),
     DecorUpgradeOption(
       id: 'decor_vip_lounge',
@@ -65,7 +64,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
       cost: 65000,
       reputationBonus: 12.0,
       icon: Icons.coffee_rounded,
-      color: Colors.purpleAccent,
+      color: Color(0xFFA855F7),
     ),
     DecorUpgradeOption(
       id: 'decor_security_cctv',
@@ -74,7 +73,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
       cost: 35000,
       reputationBonus: 6.0,
       icon: Icons.security_rounded,
-      color: Colors.greenAccent,
+      color: AppColors.brutalGreen,
     ),
   ];
 
@@ -83,147 +82,163 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     return Scaffold(
-      backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: p.textPrimaryColor, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
           onPressed: () => context.pop(),
         ),
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            'SHOWROOM DEKORASYON & MİMARİ',
-            style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2),
+        title: Text(
+          'SHOWROOM DEKORASYON & MİMARİ',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Overview Card
-            AppGlassContainer(
-              padding: const EdgeInsets.all(18),
-              borderColor: Colors.cyanAccent.withValues(alpha: 0.5),
-              glowColor: Colors.cyanAccent.withValues(alpha: 0.15),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.cyanAccent.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.storefront_rounded, color: Colors.cyanAccent, size: 28),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Header Overview Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF06B6D4),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black, width: 1.5),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Lüks Galeri Mimarisi', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Galerini üst düzey mimari konseptlerle yenileyerek müşteri itibar skorunu yükselt.',
-                          style: AppTypography.bodyMedium(p.isDark).copyWith(fontSize: 12),
-                        ),
-                      ],
-                    ),
+                  child: const Icon(Icons.storefront_rounded, color: Colors.black, size: 24),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'LÜKS GALERİ MİMARİSİ',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Showroomu üst düzey mimari konseptlerle yenileyerek itibarını ve müşteri ilgisini artır.',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 16),
 
-            Text('DEKORASYON VE MİMARİ Mimariler', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
+          Text(
+            'MİMARİ GELİŞTİRME SEÇENEKLERİ',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
 
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _decorOptions.length,
-              itemBuilder: (context, index) {
-                final item = _decorOptions[index];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: AppDoubleBezelCard(
-                    accentColor: item.color,
-                    outerRadius: 16,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          // 2. Options List
+          ..._decorOptions.map((item) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 14,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: item.color.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
+                                color: item.color,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.black, width: 1.2),
                               ),
-                              child: Icon(item.icon, color: item.color, size: 24),
+                              child: Icon(item.icon, color: Colors.black, size: 20),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(item.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                                  Text(
-                                    'İtibar Katkısı: +${item.reputationBonus.toStringAsFixed(1)} Puan',
-                                    style: TextStyle(color: p.successColor, fontSize: 12, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
+                            const SizedBox(width: 10),
+                            Text(
+                              item.title,
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Text(item.description, style: AppTypography.bodyMedium(p.isDark)),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Ücret: ₺${CurrencyFormatter.formatShort(item.cost)}',
-                              style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
-                            ),
-                            AppTactileButton(
-                              onPressed: () {
-                                if (game.balance < item.cost) {
-                                  NotificationService.showError(context, 'Yetersiz Bakiye!');
-                                  return;
-                                }
-
-                                ref.read(gameProvider.notifier).deductBalance(item.cost);
-                                NotificationService.showSuccess(context, '${item.title} İnşa Edildi! Galeri İtibarı Artırıldı.');
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: item.color,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Text(
-                                  'Yenile / İnşa Et',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
-                                ),
-                              ),
-                            ),
-                          ],
+                        NeoBrutalBadge(
+                          text: '+${item.reputationBonus.toStringAsFixed(1)} İtibar',
+                          backgroundColor: AppColors.brutalGreen,
+                          textColor: Colors.black,
+                          fontSize: 10,
                         ),
                       ],
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+                    const SizedBox(height: 8),
+                    Text(
+                      item.description,
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '₺${CurrencyFormatter.formatShort(item.cost)}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        ),
+                        NeoBrutalButton(
+                          label: 'İNŞA ET',
+                          icon: Icons.architecture_rounded,
+                          backgroundColor: item.color,
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          onPressed: () {
+                            if (game.balance < item.cost) {
+                              NotificationService.showError(context, 'Yetersiz Bakiye!');
+                              return;
+                            }
+
+                            ref.read(gameProvider.notifier).deductBalance(item.cost);
+                            NotificationService.showSuccess(
+                              context,
+                              '${item.title} İnşa Edildi! Galeri İtibarı Artırıldı.',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

@@ -3,14 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/staff_model.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_double_bezel_card.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_tactile_button.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class StaffCourseOption {
   final String id;
@@ -45,7 +44,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
       description: 'Müşterilerle yapılan pazarlıklarda araç satış teklifi kabul oranını +%25 artırır.',
       cost: 12000,
       icon: Icons.handshake_rounded,
-      color: Colors.amber,
+      color: AppColors.brutalYellow,
     ),
     StaffCourseOption(
       id: 'course_mechanic_master',
@@ -53,7 +52,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
       description: 'Atölyedeki tamir ve parça değişim maliyetlerini %30 düşürür, süreyi yarıya indirir.',
       cost: 18000,
       icon: Icons.build_rounded,
-      color: Colors.orangeAccent,
+      color: AppColors.brutalOrange,
     ),
     StaffCourseOption(
       id: 'course_expertise_cert',
@@ -61,7 +60,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
       description: 'Araç ekspertiz raporlarında boyalı ve değişen parçaların %100 kusursuz tespit edilmesini sağlar.',
       cost: 25000,
       icon: Icons.verified_rounded,
-      color: Colors.cyanAccent,
+      color: Color(0xFF06B6D4),
     ),
     StaffCourseOption(
       id: 'course_vip_concierge',
@@ -69,7 +68,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
       description: 'Her satış sonrası müşteri memnuniyet yorumlarını ve bayi itibar puanını yükseltir.',
       cost: 15000,
       icon: Icons.star_rounded,
-      color: Colors.purpleAccent,
+      color: Color(0xFFA855F7),
     ),
   ];
 
@@ -78,187 +77,218 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
     final staffList = game.hiredStaff;
 
     return Scaffold(
-      backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: p.textPrimaryColor, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
           onPressed: () => context.pop(),
         ),
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            'PERSONEL AKADEMİSİ & EĞİTİM',
-            style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2),
+        title: Text(
+          'PERSONEL AKADEMİSİ & EĞİTİM',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Overview Card
-            AppGlassContainer(
-              padding: const EdgeInsets.all(18),
-              borderColor: Colors.purpleAccent.withValues(alpha: 0.5),
-              glowColor: Colors.purpleAccent.withValues(alpha: 0.15),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.purpleAccent.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.school_rounded, color: Colors.purpleAccent, size: 28),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Header Overview Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFA855F7),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black, width: 1.5),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Kurumsal Personel Gelişimi', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Ustalarını ve danışmanlarını akredite sertifika programlarına göndererek kârını katla.',
-                          style: AppTypography.bodyMedium(p.isDark).copyWith(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            Text('PERSONEL KADROSU (${staffList.length} Aktif)', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-
-            if (staffList.isEmpty)
-              AppGlassContainer(
-                padding: const EdgeInsets.all(20),
-                child: Center(
-                  child: Text('Henüz İşe Alınmış Personel Bulunmuyor.', style: AppTypography.bodyMedium(p.isDark)),
+                  child: const Icon(Icons.school_rounded, color: Colors.white, size: 24),
                 ),
-              )
-            else
-              Column(
-                children: staffList.map((staff) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: p.surfaceColor,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: p.surfaceBorderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: p.primaryColor.withValues(alpha: 0.2),
-                          child: Icon(Icons.person_rounded, color: p.primaryColor),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(staff.name, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                              Text(
-                                staff.role.title,
-                                style: TextStyle(color: p.primaryColor, fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'KURUMSAL PERSONEL AKADEMİSİ',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Ustalarını ve danışmanlarını akredite sertifika programlarına göndererek kârını katla.',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 2. Hired Staff Quick List
+          Text(
+            'EĞİTİLECEK PERSONEL (${staffList.length} Aktif)',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          if (staffList.isEmpty)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(16),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
+              child: const Center(
+                child: Text(
+                  'Henüz işe alınmış personel bulunmuyor.',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
               ),
+            )
+          else
+            ...staffList.map((staff) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(10),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.person_rounded, size: 18, color: AppColors.brutalYellow),
+                          const SizedBox(width: 8),
+                          Text(
+                            staff.name,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                          ),
+                        ],
+                      ),
+                      NeoBrutalBadge(
+                        text: staff.role.title,
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        textColor: isDark ? Colors.white : Colors.black,
+                        fontSize: 10,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          const SizedBox(height: 16),
 
-            const SizedBox(height: 24),
+          // 3. Courses List
+          Text(
+            'AKADEMİ SERTİFİKA PROGRAMLARI',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
 
-            Text('AKADEMİ SERTİFİKA PROGRAMLARI', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _courses.length,
-              itemBuilder: (context, index) {
-                final course = _courses[index];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: AppDoubleBezelCard(
-                    accentColor: course.color,
-                    outerRadius: 16,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          ..._courses.map((course) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 14,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: course.color.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
+                                color: course.color,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.black, width: 1.4),
                               ),
-                              child: Icon(course.icon, color: course.color, size: 24),
+                              child: Icon(course.icon, color: Colors.black, size: 20),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(course.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(course.description, style: AppTypography.bodyMedium(p.isDark)),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                            const SizedBox(width: 10),
                             Text(
-                              'Eğitim Ücreti: ₺${CurrencyFormatter.formatShort(course.cost)}',
-                              style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
-                            ),
-                            AppTactileButton(
-                              onPressed: () {
-                                if (game.balance < course.cost) {
-                                  NotificationService.showError(context, 'Yetersiz Bakiye!');
-                                  return;
-                                }
-
-                                ref.read(gameProvider.notifier).deductBalance(course.cost);
-                                NotificationService.showSuccess(context, '${course.title} Tamamlandı! Personellerine Sertifika Tanımlandı.');
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: course.color,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Text(
-                                  'Eğitime Gönder',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
-                                ),
-                              ),
+                              course.title,
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+                    const SizedBox(height: 8),
+                    Text(
+                      course.description,
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '₺${CurrencyFormatter.formatShort(course.cost)}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        ),
+                        NeoBrutalButton(
+                          label: 'EĞİTİME GÖNDER',
+                          icon: Icons.school_rounded,
+                          backgroundColor: course.color,
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          onPressed: () {
+                            if (game.balance < course.cost) {
+                              NotificationService.showError(context, 'Yetersiz Bakiye!');
+                              return;
+                            }
+
+                            ref.read(gameProvider.notifier).deductBalance(course.cost);
+                            NotificationService.showSuccess(
+                              context,
+                              '${course.title} Tamamlandı! Personellerine Sertifika Tanımlandı.',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

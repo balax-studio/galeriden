@@ -63,13 +63,14 @@ class MarketEngine {
   }
 
   static List<ListingModel> generateRandomListings({
-    int count = 7,
+    int count = 10,
     int playerLevel = 1,
     MarketTrendModel? trend,
   }) {
     final activeTrend = trend ?? generateMarketTrend();
+    final actualCount = 8 + _random.nextInt(8); // 8 - 15 listings
     List<ListingModel> listings = [];
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < actualCount; i++) {
       listings.add(_generateSingleListing(playerLevel, activeTrend));
     }
     return listings;
@@ -78,18 +79,49 @@ class MarketEngine {
   static ListingModel _generateSingleListing(int playerLevel, MarketTrendModel trend) {
     final brandData = _selectWeightedBrand();
     final modelName = brandData.models[_random.nextInt(brandData.models.length)];
-    final bodyType = GameConstants.bodyTypes[_random.nextInt(GameConstants.bodyTypes.length)];
-    final year = 2007 + _random.nextInt(17); // 2007 - 2023
+    
+    // Determine body type and year based on brand and model
+    String bodyType = GameConstants.bodyTypes[_random.nextInt(GameConstants.bodyTypes.length)];
+    int year = 2010 + _random.nextInt(15); // 2010 - 2024 default
+
+    bool isClassicModel = modelName.contains('Murat') ||
+        modelName.contains('Toros') ||
+        modelName.contains('Broad-Vey') ||
+        modelName.contains('A-Bir') ||
+        modelName.contains('STC') ||
+        modelName.contains('Böcek') ||
+        modelName.contains('E-30') ||
+        modelName.contains('W-124') ||
+        modelName.contains('Supra') ||
+        modelName.contains('S-İkiBin') ||
+        modelName.contains('Uno') ||
+        modelName.contains('Temprament') ||
+        modelName.contains('Serçe') ||
+        modelName.contains('Kartal') ||
+        modelName.contains('Şahin') ||
+        modelName.contains('Doğan');
+
+    if (isClassicModel) {
+      bodyType = 'Klasik';
+      year = 1974 + _random.nextInt(32); // 1974 - 2005
+    } else if (modelName.contains('SUV') || modelName.contains('Keçisi') || modelName.contains('Tuğla') || modelName.contains('Gezgini') || modelName.contains('Hilaks') || modelName.contains('Aslan SUV') || modelName.contains('T-Oniks') || modelName.contains('Kros') || modelName.contains('Boğası')) {
+      bodyType = 'SUV';
+    } else if (modelName.contains('9-1-2') || modelName.contains('M-Dört') || modelName.contains('Haraççı') || modelName.contains('Canavar') || modelName.contains('V10') || modelName.contains('V12') || modelName.contains('Müstang') || modelName.contains('S-İkiBin') || modelName.contains('Roket')) {
+      bodyType = 'Spor';
+    }
+
     final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
 
-    // 5% chance of Rare vehicle drop!
-    final isRare = _random.nextDouble() < 0.05;
+    // 12% chance of Rare vehicle drop (or classic model is inherently collectible)
+    final isRare = isClassicModel || (_random.nextDouble() < 0.12);
 
     // Mileage & Tramer
-    final mileage = isRare ? (15000 + _random.nextInt(45000)) : (25000 + _random.nextInt(260000));
-    final hasTramer = isRare ? false : (_random.nextDouble() > 0.4);
-    final tramerAmount = hasTramer ? (3500 + _random.nextInt(85000)) : 0;
-    final isTampered = isRare ? false : (_random.nextDouble() < 0.15);
+    final mileage = isRare
+        ? (12000 + _random.nextInt(180000))
+        : (5000 + _random.nextInt(345000));
+    final hasTramer = isRare ? (_random.nextDouble() < 0.3) : (_random.nextDouble() < 0.55);
+    final tramerAmount = hasTramer ? (1500 + _random.nextInt(43500)) : 0;
+    final isTampered = _random.nextDouble() < 0.08;
 
     final bodyParts = <String, PartStatus>{
       'Kaput': isRare ? PartStatus.original : _getRandomPartStatus(),
@@ -106,8 +138,8 @@ class MarketEngine {
       'Şasi/Podye': isRare ? PartStatus.original : _getRandomPartStatus(shasiMultiplier: true),
     };
 
-    final engineCondition = isRare ? (85.0 + _random.nextInt(15)) : (60.0 + _random.nextInt(38)).clamp(40.0, 100.0);
-    final transCondition = isRare ? (88.0 + _random.nextInt(12)) : (65.0 + _random.nextInt(33)).clamp(50.0, 100.0);
+    final engineCondition = (40.0 + _random.nextInt(61)).clamp(40.0, 100.0);
+    final transCondition = (45.0 + _random.nextInt(56)).clamp(45.0, 100.0);
 
     final expertise = ExpertiseReport(
       engineCondition: engineCondition.toDouble(),
@@ -118,26 +150,63 @@ class MarketEngine {
       bodyParts: bodyParts,
     );
 
-    // Realistic Turkish Market Base Value Calculation
-    double baseValue = 380000.0 + (year - 2007) * 45000.0 + (playerLevel - 1) * 60000.0;
-    if (brandData.name == 'Avdi' || brandData.name == 'BWM' || brandData.name == 'Mersedes') {
-      baseValue *= 1.45;
+    // Realistic Segment-Based Base Value Calculation
+    double baseValue;
+    if (isClassicModel) {
+      baseValue = isRare ? (320000.0 + _random.nextInt(480000)) : (140000.0 + _random.nextInt(190000));
+    } else {
+      final int yearDiff = (year >= 2005) ? (year - 2005) : 0;
+      switch (brandData.segment) {
+        case 'efsane':
+        case 'klasik':
+          baseValue = isRare ? (320000.0 + _random.nextInt(480000)) : (140000.0 + _random.nextInt(190000));
+          break;
+        case 'ekonomi':
+          baseValue = 350000.0 + yearDiff * 28000.0;
+          break;
+        case 'halk':
+          baseValue = 480000.0 + yearDiff * 35000.0;
+          break;
+        case 'popüler':
+        case 'güvenilir':
+          baseValue = 580000.0 + yearDiff * 42000.0;
+          break;
+        case 'premium':
+        case 'lüks':
+        case 'güvenlik':
+          baseValue = 1100000.0 + yearDiff * 85000.0;
+          break;
+        case 'elektrikli':
+          baseValue = 1800000.0 + (year >= 2018 ? (year - 2018) : 0) * 90000.0;
+          break;
+        case 'süperspor':
+          baseValue = 3800000.0 + (year >= 2010 ? (year - 2010) : 0) * 220000.0;
+          break;
+        case 'egzotik':
+          baseValue = 7500000.0 + (year >= 2015 ? (year - 2015) : 0) * 450000.0;
+          break;
+        default:
+          baseValue = 450000.0 + yearDiff * 35000.0;
+      }
     }
-    if (bodyType == 'Spor') baseValue *= 1.35;
-    if (bodyType == 'SUV') baseValue *= 1.25;
+
+    if (baseValue < 100000.0) baseValue = 100000.0;
+
+    if (bodyType == 'Spor') baseValue *= 1.25;
+    if (bodyType == 'SUV') baseValue *= 1.20;
 
     // Apply market trend multiplier!
     final trendMult = trend.bodyTypeMultipliers[bodyType] ?? 1.0;
     baseValue *= trendMult;
 
-    // Rare bonus
-    if (isRare) {
-      baseValue *= 1.25;
+    // Rare collector multiplier
+    if (isRare && isClassicModel) {
+      baseValue *= 1.35;
     }
 
-    // Seller traits
+    // Seller profile
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
-    final isFlashDeal = _random.nextDouble() < 0.10;
+    final isFlashDeal = _random.nextDouble() < 0.12;
 
     final carTemp = CarModel(
       id: id,
@@ -152,26 +221,26 @@ class MarketEngine {
       expertise: expertise,
     );
 
-    // Realistic seller asking price anchored to true condition value (+4% to +18% overprice margin)
-    double sellerMarkup = 1.04 + (_random.nextDouble() * 0.14);
-    if (sellerProfile['urgency'] == 'high') sellerMarkup -= 0.08;
-    if (isFlashDeal) sellerMarkup -= 0.18;
+    // Realistic seller asking price between 70% and 130% of fair market value
+    double randomMarginFactor = 0.70 + (_random.nextDouble() * 0.60); // 0.70 to 1.30
+    if (isFlashDeal) randomMarginFactor = 0.65 + (_random.nextDouble() * 0.15); // 0.65 to 0.80
 
-    double askingPrice = (carTemp.estimatedRealValue * sellerMarkup).clamp(carTemp.estimatedRealValue * 0.75, baseValue * 1.15).roundToDouble();
+    double askingPrice = (carTemp.estimatedRealValue * randomMarginFactor).roundToDouble();
+    if (askingPrice < 50000) askingPrice = 50000;
 
     final car = carTemp.copyWith(currentPurchasePrice: askingPrice);
 
-    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana'];
+    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Trabzon'];
     final sellerCity = cities[_random.nextInt(cities.length)];
 
     String title = '$year ${brandData.name} $modelName';
-    if (isRare) title = '[NADİR KOLEKSİYON] $title';
+    if (isRare) title = '⭐ [KOLEKSİYON] $title';
 
     String description = isFlashDeal
-        ? 'ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır.'
+        ? '🔥 ACİL SATILIK KELEPİR FİYAT! İlk arayan alır, pazarlık sünnettir.'
         : (isRare
-            ? 'Garaj arabası, düşük km, hatasız boyasız koleksiyonluk fırsat!'
-            : 'Temiz kullanılmıştır, bakımları zamanında yapılmıştır. Nakit satılık.');
+            ? 'Garaj arabası, düşük km, özenle saklanmış koleksiyonluk nadide araç!'
+            : 'Bakımları yetkili serviste yapılmıştır. Masrafsız, nakit veya mantıklı takasa uygundur.');
 
     return ListingModel(
       id: 'listing_$id',

@@ -8,21 +8,21 @@ void main() {
   SharedPreferences.setMockInitialValues({});
 
   group('Tycoon Theme Engine Tests', () {
-    test('ThemePaletteModel contains 5 default preset palettes with prices', () {
+    test('ThemePaletteModel contains 6 curated preset palettes with prices', () {
       final palettes = ThemePaletteModel.defaultPalettes;
       expect(palettes.length, equals(6));
 
-      final freePalette = palettes.firstWhere((p) => p.id == 'quiet_luxury_dark');
+      final freePalette = palettes.firstWhere((p) => p.id == 'sanayi_ciragi_light');
       expect(freePalette.price, equals(0));
       expect(freePalette.isUnlocked, isTrue);
 
-      final cyberPalette = palettes.firstWhere((p) => p.id == 'neon_cyber');
-      expect(cyberPalette.price, equals(25000));
-      expect(cyberPalette.isUnlocked, isFalse);
+      final nightPalette = palettes.firstWhere((p) => p.id == 'gece_vardiyasi_dark');
+      expect(nightPalette.price, equals(50000));
+      expect(nightPalette.isUnlocked, isFalse);
     });
 
     test('ThemePaletteModel serializes and deserializes to JSON correctly', () {
-      final original = ThemePaletteModel.defaultPalettes[2]; // neon_cyber
+      final original = ThemePaletteModel.defaultPalettes[1]; // gece_vardiyasi_dark
       final jsonMap = original.toJson();
       final restored = ThemePaletteModel.fromJson(jsonMap);
 
@@ -34,12 +34,12 @@ void main() {
 
     test('ThemeNotifier unlocks palette and deducts price logic correctly', () {
       final notifier = ThemeNotifier();
-      final initialBalance = 30000.0;
+      final initialBalance = 60000.0;
 
-      // Unlocking neon_cyber palette (price: 25.000 TL)
-      final success = notifier.unlockPalette('neon_cyber', initialBalance);
+      // Unlocking gece_vardiyasi_dark palette (price: 50.000 TL)
+      final success = notifier.unlockPalette('gece_vardiyasi_dark', initialBalance);
       expect(success, isTrue);
-      expect(notifier.state.activePalette.id, equals('neon_cyber'));
+      expect(notifier.state.activePalette.id, equals('gece_vardiyasi_dark'));
     });
   });
 }

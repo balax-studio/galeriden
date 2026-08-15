@@ -6,8 +6,8 @@ import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
-import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_damage_schema_widget.dart';
+import '../../widgets/neo_brutal_button.dart';
 import 'interactive_negotiation_sheet.dart';
 
 class ExpertiseReportSheet extends StatelessWidget {
@@ -137,28 +137,25 @@ class ExpertiseReportSheet extends StatelessWidget {
 
             // Action Buttons
             if (listing != null) ...[
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: VectorIconWidget(type: 'negotiation', color: Colors.black, size: 18),
-                  label: const Text('Pazarlık Et & Satın Al', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: p.primaryColor,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    final targetListing = listing!;
-                    Navigator.pop(context);
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (ctx) => InteractiveNegotiationSheet(listing: targetListing),
-                    );
-                  },
-                ),
+              NeoBrutalButton(
+                label: 'PAZARLIK ET & SATIN AL',
+                icon: Icons.handshake_rounded,
+                backgroundColor: p.primaryColor,
+                textColor: Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+                fullWidth: true,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                onPressed: () {
+                  final targetListing = listing!;
+                  Navigator.pop(context);
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (ctx) => InteractiveNegotiationSheet(listing: targetListing),
+                  );
+                },
               ),
               const SizedBox(height: 10),
             ],

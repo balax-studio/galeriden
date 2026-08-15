@@ -149,33 +149,41 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
     _loadThemeState();
   }
 
-  static const String _storageKey = 'theme_palettes_v1';
-  static const String _activeIdKey = 'active_palette_id_v1';
+  static const String _storageKey = 'theme_palettes_v2';
+  static const String _activeIdKey = 'active_palette_id_v2';
 
   Future<void> _loadThemeState() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_storageKey);
-    final activeId = prefs.getString(_activeIdKey) ?? 'quiet_luxury_dark';
+    final activeId = prefs.getString(_activeIdKey) ?? 'sanayi_ciragi_light';
 
-    List<ThemePaletteModel> loadedList = ThemePaletteModel.defaultPalettes;
+    List<ThemePaletteModel> basePalettes = List<ThemePaletteModel>.from(ThemePaletteModel.defaultPalettes);
 
     if (jsonString != null) {
       try {
         final List<dynamic> decoded = jsonDecode(jsonString);
-        loadedList = decoded.map((item) => ThemePaletteModel.fromJson(item as Map<String, dynamic>)).toList();
+        final storedList = decoded.map((item) => ThemePaletteModel.fromJson(item as Map<String, dynamic>)).toList();
+        final unlockedIds = storedList.where((p) => p.isUnlocked).map((p) => p.id).toSet();
+
+        basePalettes = basePalettes.map((p) {
+          if (unlockedIds.contains(p.id)) {
+            return p.copyWith(isUnlocked: true);
+          }
+          return p;
+        }).toList();
       } catch (e) {
-        // Fallback
+        // Fallback to defaults
       }
     }
 
-    final active = loadedList.firstWhere(
+    final active = basePalettes.firstWhere(
       (p) => p.id == activeId,
-      orElse: () => loadedList.first,
+      orElse: () => basePalettes.first,
     );
 
     state = ThemeState(
       activePalette: active,
-      availablePalettes: loadedList,
+      availablePalettes: basePalettes,
     );
   }
 

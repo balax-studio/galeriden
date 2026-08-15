@@ -69,6 +69,47 @@ class DealershipModel {
 
   DateTime get inGameTime => DateTime.now();
 
+  static int getRequiredLevel(String route) {
+    switch (route) {
+      case '/marketplace':
+      case '/showroom':
+      case '/expertise':
+      case '/car-wash':
+      case '/character-growth':
+      case '/settings':
+      case '/dealership-identity':
+      case '/theme-store':
+        return 1;
+      case '/workshop':
+      case '/tuning-studio':
+      case '/staff':
+      case '/staff-academy':
+      case '/history':
+        return 2;
+      case '/auction':
+      case '/finance':
+      case '/bank-investments':
+      case '/stock-market':
+      case '/reviews':
+      case '/showroom-decor':
+        return 3;
+      case '/scrapyard':
+      case '/rent-a-car':
+      case '/black-market':
+      case '/side-businesses':
+      case '/branches':
+        return 4;
+      default:
+        return 1;
+    }
+  }
+
+  bool isFeatureUnlocked(String route) {
+    if (unlockedBuildings.contains(route)) return true;
+    final req = getRequiredLevel(route);
+    return level >= req;
+  }
+
   DealershipModel({
     required this.balance,
     required this.level,
@@ -117,8 +158,8 @@ class DealershipModel {
     // Inherited Heritage Car from grandfather Hasan Usta
     final heritageCar = CarModel(
       id: 'car_heritage_dede',
-      brand: 'Tofaş',
-      modelName: 'Murat 124 (Dede Mirası)',
+      brand: 'Tofaşk',
+      modelName: 'Tofaşk Hacı Murat 124 (Dede Mirası)',
       modelYear: 1978,
       bodyType: 'Klasik',
       colorHex: '0xFF8B4513', // Saddle Brown
@@ -403,13 +444,7 @@ class DealershipModel {
           ],
         ),
       ],
-      marketStocks: [
-        StockModel(symbol: 'TOF', name: 'Tof-AŞ Otomotiv', currentPrice: 15.4, previousPrice: 15.0),
-        StockModel(symbol: 'FOR', name: 'For-D Motor', currentPrice: 85.2, previousPrice: 84.5),
-        StockModel(symbol: 'RNO', name: 'Reno-L Otomotiv', currentPrice: 42.1, previousPrice: 43.0),
-        StockModel(symbol: 'PET', name: 'Pet-Kim Akaryakıt & Kimya', currentPrice: 28.6, previousPrice: 27.9),
-        StockModel(symbol: 'TOG', name: 'Togg Elektrikli Otomobil', currentPrice: 110.5, previousPrice: 108.0),
-      ],
+      marketStocks: StockModel.defaultStocks,
       ownedStocks: const [],
       recentEvents: const [],
       dailyTaxRate: 150.0,

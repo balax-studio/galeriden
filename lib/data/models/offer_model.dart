@@ -13,6 +13,8 @@ class OfferModel {
   final int maxCounters;
   final DateTime expiresAt;
   final OfferType offerType;
+  final int customerCreditScore; // 0 - 100
+  final int installmentMonths;    // e.g. 6 or 12
 
   OfferModel({
     required this.id,
@@ -26,9 +28,27 @@ class OfferModel {
     this.maxCounters = 3,
     DateTime? expiresAt,
     this.offerType = OfferType.cash,
+    this.customerCreditScore = 85,
+    this.installmentMonths = 0,
   }) : expiresAt = expiresAt ?? createdAt.add(const Duration(hours: 12));
 
   bool get isExpired => DateTime.now().isAfter(expiresAt);
+
+  /// Credit Risk Level: safe (80+), moderate (50-79), risky (30-49), severe (<30)
+  String get riskLevel {
+    if (customerCreditScore >= 80) return 'Düşük Risk';
+    if (customerCreditScore >= 50) return 'Orta Risk';
+    if (customerCreditScore >= 30) return 'Yüksek Risk';
+    return 'Batık / Çok Riskli';
+  }
+
+  /// Payment Guarantee Probability based on credit score
+  double get paymentProbability {
+    if (customerCreditScore >= 80) return 0.95;
+    if (customerCreditScore >= 50) return 0.70;
+    if (customerCreditScore >= 30) return 0.40;
+    return 0.15;
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -43,6 +63,8 @@ class OfferModel {
       'maxCounters': maxCounters,
       'expiresAt': expiresAt.toIso8601String(),
       'offerType': offerType.name,
+      'customerCreditScore': customerCreditScore,
+      'installmentMonths': installmentMonths,
     };
   }
 
@@ -66,6 +88,8 @@ class OfferModel {
         (e) => e.name == json['offerType'],
         orElse: () => OfferType.cash,
       ),
+      customerCreditScore: json['customerCreditScore'] as int? ?? 85,
+      installmentMonths: json['installmentMonths'] as int? ?? 0,
     );
   }
 
@@ -76,6 +100,8 @@ class OfferModel {
     int? counterCount,
     DateTime? expiresAt,
     OfferType? offerType,
+    int? customerCreditScore,
+    int? installmentMonths,
   }) {
     return OfferModel(
       id: id,
@@ -89,6 +115,8 @@ class OfferModel {
       maxCounters: maxCounters,
       expiresAt: expiresAt ?? this.expiresAt,
       offerType: offerType ?? this.offerType,
+      customerCreditScore: customerCreditScore ?? this.customerCreditScore,
+      installmentMonths: installmentMonths ?? this.installmentMonths,
     );
   }
 }

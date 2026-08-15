@@ -1,7 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme_extension.dart';
 
 class FloatingDockItem {
@@ -14,7 +11,7 @@ class FloatingDockItem {
   });
 }
 
-/// Ultra-Premium Floating Glass Island Dock Navigation
+/// Neo-Brutalism Monolithic Floating Dock Navigation
 class AppFloatingDock extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -33,108 +30,97 @@ class AppFloatingDock extends StatelessWidget {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
+    final bgColor = isDark ? const Color(0xFF141721) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final shadowColor = isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
+    final activeBg = p.primaryColor;
+    final activeText = isDark ? Colors.black : Colors.black;
+
     return Container(
       margin: const EdgeInsets.only(
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-        bottom: AppSpacing.md,
+        left: 14,
+        right: 14,
+        bottom: 12,
       ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(32),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceShellDark.withValues(alpha: 0.85)
-                      : AppColors.surfaceLight.withValues(alpha: 0.90),
-                  borderRadius: BorderRadius.circular(32),
-                  border: Border.all(
-                    color: isDark
-                        ? AppColors.primaryAmber.withValues(alpha: 0.35)
-                        : AppColors.surfaceBorderLight,
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(items.length, (index) {
-                    final item = items[index];
-                    final isSelected = index == currentIndex;
-                    final activeColor = AppColors.primaryAmber;
-                    final inactiveColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-
-                    return InkWell(
-                      onTap: () => onTap(index),
-                      borderRadius: BorderRadius.circular(24),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOutCubic,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isSelected ? AppSpacing.md : AppSpacing.sm,
-                          vertical: AppSpacing.xs + 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? activeColor.withValues(alpha: 0.15)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              item.icon,
-                              color: isSelected ? activeColor : inactiveColor,
-                              size: isSelected ? 22 : 20,
-                            ),
-                            if (isSelected) ...[
-                              const SizedBox(width: 6),
-                              Text(
-                                item.label,
-                                style: TextStyle(
-                                  color: activeColor,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Container(
-                                width: 5,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  color: activeColor,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: activeColor.withValues(alpha: 0.8),
-                                      blurRadius: 4,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor,
+              offset: const Offset(3.0, 3.0),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: borderColor,
+              width: 2.0,
             ),
           ),
-        );
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(items.length, (index) {
+              final item = items[index];
+              final isSelected = index == currentIndex;
+              final inactiveColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
+              return GestureDetector(
+                onTap: () => onTap(index),
+                behavior: HitTestBehavior.opaque,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOutCubic,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSelected ? 14 : 10,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected ? activeBg : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                    border: isSelected
+                        ? Border.all(
+                            color: isDark ? Colors.black38 : const Color(0xFF0F172A),
+                            width: 1.6,
+                          )
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        item.icon,
+                        color: isSelected ? activeText : inactiveColor,
+                        size: 20,
+                      ),
+                      if (isSelected) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            color: activeText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
   }
 }

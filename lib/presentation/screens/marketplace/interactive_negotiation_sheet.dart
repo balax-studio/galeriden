@@ -11,6 +11,8 @@ import '../../../domain/usecases/negotiation_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class InteractiveNegotiationSheet extends ConsumerStatefulWidget {
   final ListingModel listing;
@@ -205,7 +207,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
             ],
           ),
           Text(
-            discountAmount > 0 ? 'İstenen İndirim: ₺${CurrencyFormatter.formatShort(discountAmount)} (-%$discountRatio)' : 'Tam Fiyat Teklifi',
+            discountAmount > 0 ? 'İstenen İndirim: ${CurrencyFormatter.formatShort(discountAmount)} (-%$discountRatio)' : 'Tam Fiyat Teklifi',
             style: AppTypography.labelSmall(p.isDark),
           ),
           const SizedBox(height: 10),
@@ -268,55 +270,55 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                 final disc = NegotiationEngine.detectExpertiseDiscrepancy(widget.listing.car);
                 if (!disc.hasDiscrepancy) return const SizedBox.shrink();
 
-                return Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: p.secondaryColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: p.secondaryColor, width: 1.5),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.report_problem_rounded, color: p.secondaryColor, size: 20),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              'KOZ FIRSATI: ${disc.title}',
-                              style: TextStyle(color: p.secondaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(12),
+                    backgroundColor: const Color(0xFFFEF3C7),
+                    borderColor: Colors.black,
+                    borderWidth: 2,
+                    borderRadius: 12,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.report_problem_rounded, color: Color(0xFFD97706), size: 20),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'KOZ FIRSATI: ${disc.title}',
+                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(disc.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.gavel_rounded, size: 16),
-                          label: Text('Gizli Kusuru Koz Kullan (-%${(disc.extraDiscountPercent * 100).toInt()} İndirim)'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: p.secondaryColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          disc.description,
+                          style: const TextStyle(color: Color(0xFF451A03), fontSize: 11, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 10),
+                        NeoBrutalButton(
+                          label: 'Gizli Kusuru Koz Kullan (-%${(disc.extraDiscountPercent * 100).toInt()} İndirim)',
+                          icon: Icons.gavel_rounded,
+                          backgroundColor: const Color(0xFFD97706),
+                          textColor: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          fullWidth: true,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             final targetDiscPrice = (asking * (1.0 - disc.extraDiscountPercent)).roundToDouble();
                             setState(() {
                               _offeredPrice = targetDiscPrice;
                               _isAccepted = true;
-                              _sellerResponse = 'Usta yakaladın beni, haklısın... Gizli kusuru kabul ediyorum. Teklifin olan ₺${CurrencyFormatter.formatShort(targetDiscPrice)} fiyata hemen veriyorum!';
+                              _sellerResponse = 'Usta yakaladın beni, haklısın... Gizli kusuru kabul ediyorum. Teklifin olan ${CurrencyFormatter.formatShort(targetDiscPrice)} fiyata hemen veriyorum!';
                             });
                           },
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -328,13 +330,15 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
             children: [
               if (_sellerResponse == null)
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: p.primaryColor,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                  child: NeoBrutalButton(
+                    label: 'TEKLİFİ GÖNDER',
+                    icon: Icons.send_rounded,
+                    backgroundColor: p.primaryColor,
+                    textColor: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     onPressed: () {
                       final roll = Random().nextInt(100) + 1;
                       if (roll <= chancePercent) {
@@ -349,18 +353,19 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                         });
                       }
                     },
-                    child: const Text('Teklifi Gönder', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                   ),
                 )
               else if (_isAccepted)
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: p.successColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                  child: NeoBrutalButton(
+                    label: '${CurrencyFormatter.formatShort(_offeredPrice)} ÖDE VE SATIN AL',
+                    icon: Icons.shopping_bag_rounded,
+                    backgroundColor: const Color(0xFF22C55E),
+                    textColor: Colors.black,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w900,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     onPressed: game.balance < _offeredPrice
                         ? null
                         : () {
@@ -412,23 +417,24 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                               }
                             }
                           },
-                    child: Text('₺${CurrencyFormatter.formatShort(_offeredPrice)} Öde ve Satın Al', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                   ),
                 )
               else
                 Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: BorderSide(color: p.primaryColor),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                  child: NeoBrutalButton(
+                    label: 'TEKLİFİ REVİZE ET',
+                    icon: Icons.refresh_rounded,
+                    backgroundColor: p.surfaceColor,
+                    textColor: p.textPrimaryColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     onPressed: () {
                       setState(() {
                         _sellerResponse = null;
                       });
                     },
-                    child: Text('Teklifi Revize Et', style: TextStyle(color: p.textPrimaryColor, fontWeight: FontWeight.bold)),
                   ),
                 ),
             ],

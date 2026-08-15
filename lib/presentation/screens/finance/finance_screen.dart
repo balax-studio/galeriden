@@ -1,16 +1,16 @@
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme_extension.dart';
+import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/cheque_model.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/installment_contract_model.dart';
-import '../../../data/models/cheque_model.dart';
-import '../../../data/models/theme_palette_model.dart';
-import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_double_bezel_card.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class FinanceScreen extends ConsumerWidget {
   const FinanceScreen({super.key});
@@ -20,105 +20,204 @@ class FinanceScreen extends ConsumerWidget {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
-        title: const Text('FİNANS & TAHSİLAT'),
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'FİNANS & TAHSİLAT MERKEZİ',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Bank Investments Navigation Banner
-            AppGlassContainer(
-              padding: const EdgeInsets.all(16),
-              borderColor: p.successColor.withValues(alpha: 0.5),
-              glowColor: p.successColor.withValues(alpha: 0.15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Bank Investments Nav Banner
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: p.successColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          color: AppColors.brutalGreen,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black, width: 1.5),
                         ),
-                        child: Icon(Icons.account_balance_rounded, color: p.successColor, size: 24),
+                        child: const Icon(Icons.account_balance_rounded, color: Colors.black, size: 22),
                       ),
                       const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Vadeli Mevduat & Kredi Skoru', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                          const SizedBox(height: 2),
-                          Text('Faiz Getirisi, Altın/Döviz & Limit Yükseltme', style: AppTypography.labelSmall(p.isDark)),
-                        ],
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Vadeli Mevduat & Kredi Skoru',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Faiz Getirisi, Altın/Döviz & Limit Artırma',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  ElevatedButton(
-                    onPressed: () => context.push('/bank-investments'),
-                    style: ElevatedButton.styleFrom(backgroundColor: p.successColor, foregroundColor: Colors.black),
-                    child: const Text('Yönet', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                NeoBrutalButton(
+                  label: 'YÖNET',
+                  backgroundColor: AppColors.brutalGreen,
+                  textColor: Colors.black,
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  onPressed: () => context.push('/bank-investments'),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+          ),
+          const SizedBox(height: 12),
 
-            _buildSummary(p, game),
-            const SizedBox(height: 24),
-            Text('AKTİF TAKSİTLİ SÖZLEŞMELER', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-            if (game.activeInstallments.isEmpty)
-              Text('Şu an aktif taksitli satışınız bulunmuyor.', style: AppTypography.bodyMedium(p.isDark).copyWith(color: p.textSecondaryColor)),
-            ...game.activeInstallments.map((contract) => _buildInstallmentCard(p, contract)),
-            const SizedBox(height: 24),
-            Text('BEKLEYEN ÇEKLER', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-            if (game.activeCheques.isEmpty)
-              Text('Şu an bekleyen çekiniz bulunmuyor.', style: AppTypography.bodyMedium(p.isDark).copyWith(color: p.textSecondaryColor)),
-            ...game.activeCheques.map((cheque) => _buildChequeCard(p, cheque, game.currentDay)),
-          ],
-        ),
+          // 2. Summary Receivables Cards
+          _buildSummary(isDark, game),
+          const SizedBox(height: 16),
+
+          // 3. Active Installments
+          Text(
+            'AKTİF SENETLİ / TAKSİTLİ SÖZLEŞMELER (${game.activeInstallments.length})',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          if (game.activeInstallments.isEmpty)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(20),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
+              child: const Center(
+                child: Text(
+                  'Şu an aktif vadeli senet sözleşmeniz bulunmuyor.',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+              ),
+            )
+          else
+            ...game.activeInstallments.map((c) => _buildInstallmentCard(isDark, c)),
+
+          const SizedBox(height: 16),
+
+          // 4. Pending Cheques
+          Text(
+            'BEKLEYEN TİCARİ ÇEKLER (${game.activeCheques.length})',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          if (game.activeCheques.isEmpty)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(20),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
+              child: const Center(
+                child: Text(
+                  'Şu an bekleyen şirket çeki bulunmuyor.',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+              ),
+            )
+          else
+            ...game.activeCheques.map((ch) => _buildChequeCard(isDark, ch, game.currentDay)),
+        ],
       ),
     );
   }
 
-  Widget _buildSummary(ThemePaletteModel p, DealershipModel game) {
-    double totalInstallmentReceivables = game.activeInstallments.fold(0.0, (sum, c) => sum + (c.totalAmount - c.paidAmount));
-    double totalChequeReceivables = game.activeCheques.fold(0.0, (sum, c) => sum + c.amount);
+  Widget _buildSummary(bool isDark, DealershipModel game) {
+    final double totalInstallmentReceivables =
+        game.activeInstallments.fold(0.0, (sum, c) => sum + (c.totalAmount - c.paidAmount));
+    final double totalChequeReceivables = game.activeCheques.fold(0.0, (sum, c) => sum + c.amount);
 
     return Row(
       children: [
         Expanded(
-          child: AppGlassContainer(
-            padding: const EdgeInsets.all(16),
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 12,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.request_quote_rounded, color: p.primaryColor, size: 28),
+                const NeoBrutalBadge(
+                  text: 'SENET ALACAĞI',
+                  backgroundColor: AppColors.brutalYellow,
+                  textColor: Colors.black,
+                  fontSize: 9.5,
+                ),
                 const SizedBox(height: 8),
-                Text('Taksit Alacakları', style: AppTypography.labelSmall(p.isDark)),
-                const SizedBox(height: 4),
-                Text('₺${CurrencyFormatter.formatShort(totalInstallmentReceivables)}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
+                Text(
+                  CurrencyFormatter.formatShort(totalInstallmentReceivables),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                ),
               ],
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
-          child: AppGlassContainer(
-            padding: const EdgeInsets.all(16),
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 12,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.receipt_long_rounded, color: Colors.orangeAccent, size: 28),
+                const NeoBrutalBadge(
+                  text: 'ÇEK ALACAĞI',
+                  backgroundColor: AppColors.brutalOrange,
+                  textColor: Colors.black,
+                  fontSize: 9.5,
+                ),
                 const SizedBox(height: 8),
-                Text('Çek Alacakları', style: AppTypography.labelSmall(p.isDark)),
-                const SizedBox(height: 4),
-                Text('₺${CurrencyFormatter.formatShort(totalChequeReceivables)}', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
+                Text(
+                  CurrencyFormatter.formatShort(totalChequeReceivables),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalOrange),
+                ),
               ],
             ),
           ),
@@ -127,83 +226,124 @@ class FinanceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInstallmentCard(ThemePaletteModel p, InstallmentContract contract) {
-    double progress = contract.paidAmount / contract.totalAmount;
-    
-    return AppDoubleBezelCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      outerRadius: 18,
-      accentColor: p.primaryColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(contract.carModelName, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-              Text('Sonraki: Gün ${contract.nextPaymentDay}', style: AppTypography.labelSmall(p.isDark).copyWith(color: p.primaryColor, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Ödenen: ₺${CurrencyFormatter.formatShort(contract.paidAmount)}', style: AppTypography.bodyMedium(p.isDark)),
-              Text('Kalan: ₺${CurrencyFormatter.formatShort(contract.totalAmount - contract.paidAmount)}', style: AppTypography.bodyMedium(p.isDark)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: p.surfaceBorderColor,
-              valueColor: AlwaysStoppedAnimation<Color>(p.primaryColor),
+  Widget _buildInstallmentCard(bool isDark, InstallmentContract contract) {
+    final double progress = (contract.paidAmount / contract.totalAmount).clamp(0.0, 1.0);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.all(14),
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+        borderRadius: 12,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  contract.carModelName,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                ),
+                NeoBrutalBadge(
+                  text: '${contract.daysUntilNextPayment} Gün Kaldı',
+                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                  textColor: isDark ? Colors.white : Colors.black,
+                  fontSize: 10,
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text('${contract.paidInstallments}/${contract.totalInstallments} Taksit Ödendi', style: AppTypography.labelSmall(p.isDark)),
-        ],
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Tahsil: ₺${CurrencyFormatter.formatShort(contract.paidAmount)}',
+                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
+                ),
+                Text(
+                  'Kalan: ₺${CurrencyFormatter.formatShort(contract.totalAmount - contract.paidAmount)}',
+                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.brutalOrange),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              height: 8,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F1118) : const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.black, width: 1),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progress,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.brutalGreen,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${contract.paidInstallments}/${contract.totalInstallments} Taksit Ödendi (Aylık: ₺${CurrencyFormatter.formatShort(contract.installmentAmount)})',
+              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildChequeCard(ThemePaletteModel p, Cheque cheque, int currentDay) {
-    int daysLeft = cheque.dueDay - currentDay;
-    return AppDoubleBezelCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      outerRadius: 18,
-      accentColor: Colors.orangeAccent,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.orangeAccent.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
+  Widget _buildChequeCard(bool isDark, Cheque cheque, int currentDay) {
+    final int daysLeft = cheque.dueDay - currentDay;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.all(14),
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+        borderRadius: 12,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.brutalOrange,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.black, width: 1.5),
+              ),
+              child: const Icon(Icons.receipt_rounded, color: Colors.black, size: 22),
             ),
-            child: const Icon(Icons.receipt_rounded, color: Colors.orangeAccent),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(cheque.carModelName, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                const SizedBox(height: 2),
-                Text('Tutar: ₺${CurrencyFormatter.formatShort(cheque.amount)}', style: AppTypography.bodyMedium(p.isDark)),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cheque.carModelName,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Tutar: ₺${CurrencyFormatter.formatShort(cheque.amount)}',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Vade', style: AppTypography.labelSmall(p.isDark)),
-              Text(daysLeft > 0 ? '$daysLeft Gün' : 'Bugün', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14, color: daysLeft <= 1 ? p.warningColor : p.primaryColor)),
-            ],
-          ),
-        ],
+            NeoBrutalBadge(
+              text: daysLeft > 0 ? '$daysLeft Gün Vade' : 'Bugün Tahsil',
+              backgroundColor: daysLeft <= 1 ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+              textColor: Colors.black,
+              fontSize: 10,
+            ),
+          ],
+        ),
       ),
     );
   }

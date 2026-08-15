@@ -196,17 +196,36 @@ class NegotiationEngine {
 
     final buyerName = buyerNames[_random.nextInt(buyerNames.length)];
 
-    // Randomize Offer Type: 60% Cash, 25% Installment, 15% Cheque
+    // Credit score generation
+    int creditScore;
+    final scoreRoll = _random.nextDouble();
+    if (scoreRoll < 0.40) {
+      creditScore = 80 + _random.nextInt(19); // 80 - 98 (Safe)
+    } else if (scoreRoll < 0.75) {
+      creditScore = 50 + _random.nextInt(29); // 50 - 78 (Moderate)
+    } else if (scoreRoll < 0.90) {
+      creditScore = 30 + _random.nextInt(19); // 30 - 48 (Risky)
+    } else {
+      creditScore = 12 + _random.nextInt(17); // 12 - 28 (Severe default risk)
+    }
+
+    // Offer Type Distribution: 50% Cash, 30% Installment (Senetli/Taksitli), 20% Cheque (Çekli)
     OfferType chosenOfferType = OfferType.cash;
+    int installments = 0;
     final typeRoll = _random.nextDouble();
-    if (typeRoll < 0.25) {
+
+    if (typeRoll < 0.30) {
       chosenOfferType = OfferType.installment;
-      baseOffer = (baseOffer * 1.12).roundToDouble(); // %12 vadeli prim
-      message = 'Usta peşinat verip kalanını 5 taksitle ödemek istiyorum. Toplam ₺${baseOffer.round()} veririm.';
-    } else if (typeRoll < 0.40) {
+      installments = _random.nextBool() ? 6 : 12;
+      final premium = 1.15 + (_random.nextDouble() * 0.15); // +15% to +30% price premium
+      baseOffer = (baseOffer * premium).roundToDouble();
+      message = 'Usta nakitim kısıtlı ama aylık gelirim iyi. Aracı $installments ay vadeli senetle ₺${baseOffer.round()} fiyata alayım.';
+    } else if (typeRoll < 0.50) {
       chosenOfferType = OfferType.cheque;
-      baseOffer = (baseOffer * 1.15).roundToDouble(); // %15 senet prim
-      message = '30 gün vadeli resmi şirket senetim var. Kabul edersen ₺${baseOffer.round()} senet veririm.';
+      installments = 1;
+      final premium = 1.12 + (_random.nextDouble() * 0.10); // +12% to +22% cheque premium
+      baseOffer = (baseOffer * premium).roundToDouble();
+      message = 'Ticari 45 gün vadeli banka onaylı çekim var. Kabul edersen ₺${baseOffer.round()} fiyata anlaşalım.';
     }
 
     return OfferModel(
@@ -218,6 +237,8 @@ class NegotiationEngine {
       status: OfferStatus.pending,
       createdAt: DateTime.now(),
       offerType: chosenOfferType,
+      customerCreditScore: creditScore,
+      installmentMonths: installments,
     );
   }
 

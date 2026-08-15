@@ -1,14 +1,13 @@
-import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_glass_container.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class DealershipIdentityScreen extends ConsumerStatefulWidget {
   const DealershipIdentityScreen({super.key});
@@ -72,172 +71,201 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
-        title: const Text('GALERİ VE PROFİL KİMLİĞİ'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Preview Card
-            AppGlassContainer(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: p.primaryColor.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: VectorIconWidget(
-                      type: _selectedEmblem,
-                      color: p.primaryColor,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _galleryController.text.trim().isEmpty ? 'Miras Oto Galeri' : _galleryController.text.trim(),
-                          style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Oyuncu: ${_nameController.text.trim().isEmpty ? 'Kaptan' : _nameController.text.trim()}',
-                          style: AppTypography.labelSmall(p.isDark),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            Text('GENEL BİLGİLER', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-
-            // Player Name Field
-            TextField(
-              controller: _nameController,
-              onChanged: (_) => setState(() {}),
-              style: GoogleFonts.outfit(color: p.textPrimaryColor),
-              decoration: InputDecoration(
-                labelText: 'Oyuncu Adı (Unvan)',
-                labelStyle: TextStyle(color: p.textSecondaryColor),
-                prefixIcon: Icon(Icons.person_outline, color: p.primaryColor),
-                filled: true,
-                fillColor: p.surfaceColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: p.surfaceBorderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: p.primaryColor),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Gallery Name Field
-            TextField(
-              controller: _galleryController,
-              onChanged: (_) => setState(() {}),
-              style: GoogleFonts.outfit(color: p.textPrimaryColor),
-              decoration: InputDecoration(
-                labelText: 'Galeri Unvanı / Markası',
-                labelStyle: TextStyle(color: p.textSecondaryColor),
-                prefixIcon: Icon(Icons.storefront_outlined, color: p.primaryColor),
-                filled: true,
-                fillColor: p.surfaceColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: p.surfaceBorderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: p.primaryColor),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            Text('AMBLEM VE LOGO SEÇİMİ', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: _emblems.map((e) {
-                final isSelected = _selectedEmblem == e['id'];
-                return ChoiceChip(
-                  showCheckmark: false,
-                  selected: isSelected,
-                  backgroundColor: p.surfaceColor,
-                  selectedColor: p.primaryColor.withValues(alpha: 0.25),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: isSelected ? p.primaryColor : p.surfaceBorderColor,
-                      width: isSelected ? 2 : 1,
-                    ),
-                  ),
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        VectorIconWidget(
-                          type: e['id']!,
-                          color: isSelected ? p.primaryColor : p.textSecondaryColor,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          e['name']!,
-                          style: GoogleFonts.outfit(
-                            color: isSelected ? p.primaryColor : p.textSecondaryColor,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onSelected: (_) => setState(() => _selectedEmblem = e['id']!),
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 36),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: p.primaryColor,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: _saveIdentity,
-                child: Text(
-                  'KİMLİK BİLGİLERİNİ KAYDET',
-                  style: AppTypography.titleLarge(false).copyWith(fontSize: 16, color: Colors.black),
-                ),
-              ),
-            ),
-          ],
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
+          onPressed: () => context.pop(),
         ),
+        title: Text(
+          'GALERİ & PROFİL KİMLİĞİ',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Preview Identity Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.brutalYellow,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: VectorIconWidget(
+                    type: _selectedEmblem,
+                    color: Colors.black,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _galleryController.text.trim().isEmpty ? 'Miras Oto Galeri' : _galleryController.text.trim(),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Oyuncu: ${_nameController.text.trim().isEmpty ? 'Kaptan' : _nameController.text.trim()}',
+                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 2. Input Fields
+          Text(
+            'GENEL BİLGİLER',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          TextField(
+            controller: _nameController,
+            onChanged: (_) => setState(() {}),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+            decoration: InputDecoration(
+              labelText: 'Oyuncu Adı (Unvan)',
+              filled: true,
+              fillColor: isDark ? const Color(0xFF141721) : Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          TextField(
+            controller: _galleryController,
+            onChanged: (_) => setState(() {}),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+            decoration: InputDecoration(
+              labelText: 'Galeri Markası / Unvanı',
+              filled: true,
+              fillColor: isDark ? const Color(0xFF141721) : Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          // 3. Emblem Selector
+          Text(
+            'AMBLEM & LOGO TERCİHİ',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _emblems.map((e) {
+              final isSelected = _selectedEmblem == e['id'];
+              return InkWell(
+                onTap: () => setState(() => _selectedEmblem = e['id']!),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.brutalYellow
+                        : (isDark ? const Color(0xFF141721) : Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black, width: isSelected ? 2.2 : 1.2),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      VectorIconWidget(
+                        type: e['id']!,
+                        color: Colors.black,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        e['name']!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 24),
+
+          // 4. Save Button
+          NeoBrutalButton(
+            label: 'KİMLİK BİLGİLERİNİ KAYDET',
+            icon: Icons.check_circle_rounded,
+            backgroundColor: AppColors.brutalGreen,
+            textColor: Colors.black,
+            fontSize: 13,
+            fullWidth: true,
+            onPressed: _saveIdentity,
+          ),
+        ],
       ),
     );
   }

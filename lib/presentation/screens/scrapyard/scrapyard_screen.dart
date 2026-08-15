@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../data/models/scrapyard_model.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_double_bezel_card.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_tactile_button.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class ScrapyardScreen extends ConsumerStatefulWidget {
   const ScrapyardScreen({super.key});
@@ -33,38 +32,165 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
     super.dispose();
   }
 
+  Color _getTierColor(PartQualityTier tier) {
+    switch (tier) {
+      case PartQualityTier.worn:
+        return const Color(0xFFEF4444); // Red
+      case PartQualityTier.usable:
+        return const Color(0xFFF59E0B); // Amber
+      case PartQualityTier.good:
+        return const Color(0xFF3B82F6); // Blue
+      case PartQualityTier.pristine:
+        return const Color(0xFF10B981); // Emerald
+    }
+  }
+
+  void _showInstallPartDialog(BuildContext context, SalvagedPart part) {
+    final game = ref.read(gameProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (game.ownedCars.isEmpty) {
+      NotificationService.showError(context, 'Garajında parça takabileceğin hiç araç yok!');
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(18),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 16,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'PARÇAYI ARACA MONTE ET',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${part.name} (%${part.conditionPercent} kondisyon) hangi araca takılsın?',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 14),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 250),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: game.ownedCars.length,
+                    itemBuilder: (cCtx, i) {
+                      final car = game.ownedCars[i];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            final success = ref.read(gameProvider.notifier).installPartToCar(part.id, car.id);
+                            if (success) {
+                              NotificationService.showSuccess(
+                                context,
+                                '${part.name}, ${car.brand} ${car.modelName} aracına başarıyla takıldı!',
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.black, width: 1.2),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${car.modelYear} ${car.brand} ${car.modelName}',
+                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
+                                    ),
+                                    Text(
+                                      'Motor: %${car.expertise.engineCondition.round()} • Şanzıman: %${car.expertise.transmissionCondition.round()}',
+                                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                    ),
+                                  ],
+                                ),
+                                const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
     final scrapCars = game.scrapyardCars;
     final salvagedParts = game.salvagedParts;
 
     return Scaffold(
-      backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: p.textPrimaryColor, size: 20),
-          onPressed: () => context.pop(),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            'HURDALIK & PARÇA SÖKÜM TESİSİ',
-            style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2),
+        title: Text(
+          'HURDALIK & SÖKÜM TESİSİ',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
         bottom: TabBar(
           controller: _tabController,
+          labelColor: Colors.black,
+          unselectedLabelColor: isDark ? Colors.white60 : Colors.black54,
+          indicator: BoxDecoration(
+            color: AppColors.brutalYellow,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.black, width: 1.5),
+          ),
+          indicatorPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           tabs: [
             Tab(
-              icon: const Icon(Icons.minor_crash_rounded),
-              text: 'Pert Araçlar (${scrapCars.where((c) => !c.isPurchased).length})',
+              child: Text(
+                'PERT ARAÇLAR (${scrapCars.where((c) => !c.isPurchased).length})',
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11.5),
+              ),
             ),
             Tab(
-              icon: const Icon(Icons.handyman_rounded),
-              text: 'Sökülen Parçalar (${salvagedParts.length})',
+              child: Text(
+                'ÇIKMA PARÇALAR (${salvagedParts.length})',
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11.5),
+              ),
             ),
           ],
         ),
@@ -73,276 +199,324 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
         controller: _tabController,
         children: [
           // Tab 1: Pert Hurda Araçlar
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Info Header Card
-                AppGlassContainer(
-                  padding: const EdgeInsets.all(16),
-                  borderColor: Colors.orange.withValues(alpha: 0.5),
-                  glowColor: Colors.orange.withValues(alpha: 0.15),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.car_crash_rounded, color: Colors.orange, size: 28),
+          ListView(
+            padding: const EdgeInsets.all(14),
+            physics: const BouncingScrollPhysics(),
+            children: [
+              // Monolithic Info Card
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 14,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.brutalOrange,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black, width: 1.5),
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Oto Hurdalığı & Demontaj', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Kazalı pert araçları ucuza satın alıp sağlam parçalarını sök, yedek parça pazarında yüksek kârla sat!',
-                              style: AppTypography.bodyMedium(p.isDark).copyWith(fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                Text('SATILIK PERT VE HURDA ARAÇLAR', style: AppTypography.labelSmall(p.isDark)),
-                const SizedBox(height: 12),
-
-                if (scrapCars.isEmpty || scrapCars.every((c) => c.isPurchased))
-                  AppGlassContainer(
-                    padding: const EdgeInsets.all(24),
-                    child: Center(
-                      child: Text(
-                        'Hurdalıkta şu an satılık pert araç kalmadı. Yeni hurda araçlar 3 gün içinde gelecek!',
-                        style: AppTypography.bodyMedium(p.isDark),
-                        textAlign: TextAlign.center,
+                      child: const Icon(Icons.car_crash_rounded, color: Colors.black, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'KAZALI & PERT ARAÇ SÖKÜMÜ',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Pert araçları satın alıp sağlam parçalarını sökün. Pazarda satın veya atölyede araçlarınıza takın!',
+                            style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          ),
+                        ],
                       ),
                     ),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: scrapCars.length,
-                    itemBuilder: (context, index) {
-                      final car = scrapCars[index];
-                      if (car.isPurchased) return const SizedBox.shrink();
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: AppDoubleBezelCard(
-                          accentColor: Colors.orangeAccent,
-                          outerRadius: 18,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+              if (scrapCars.isEmpty || scrapCars.every((c) => c.isPurchased))
+                NeoBrutalCard(
+                  padding: const EdgeInsets.all(24),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 14,
+                  child: const Center(
+                    child: Text(
+                      'Hurdalıkta şu an satılık pert araç kalmadı. Yeni hurda araçlar 3 gün içinde gelecek!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                )
+              else
+                ...scrapCars.where((c) => !c.isPurchased).map((car) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: NeoBrutalCard(
+                      padding: const EdgeInsets.all(14),
+                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      borderRadius: 14,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      '${car.modelYear} ${car.brand} ${car.modelName}',
-                                      style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16),
-                                    ),
+                              Expanded(
+                                child: Text(
+                                  '${car.modelYear} ${car.brand} ${car.modelName}',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.redAccent.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
-                                    ),
-                                    child: const Text(
-                                      'AĞIR PERT',
-                                      style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.w900),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text('Hasar Durumu: ${car.damageNote}', style: AppTypography.bodyMedium(p.isDark).copyWith(color: Colors.orangeAccent)),
-                              const SizedBox(height: 12),
-                              
-                              // Estimated Parts Preview
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: p.isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('SÖKÜLEBİLİR SAĞLAM PARÇALAR (${car.parts.length} Parça):', style: AppTypography.labelSmall(p.isDark)),
-                                    const SizedBox(height: 6),
-                                    ...car.parts.map((p) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 4),
+                              ),
+                              const NeoBrutalBadge(
+                                text: 'AĞIR PERT',
+                                backgroundColor: AppColors.errorRed,
+                                textColor: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Hasar Notu: ${car.damageNote}',
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.brutalOrange),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Parts Preview
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.black, width: 1.2),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'SÖKÜLEBİLİR PARÇALAR (${car.parts.length} Parça):',
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                                ),
+                                const SizedBox(height: 6),
+                                ...car.parts.map((p) => Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 2),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text('• ${p.name}', style: TextStyle(fontSize: 12, color: themeExt.palette.textSecondaryColor)),
-                                          Text('~₺${CurrencyFormatter.formatShort(p.estimatedValue)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
-                                        ],
-                                      ),
-                                    )),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Hurda Alış Fiyatı:', style: AppTypography.labelSmall(p.isDark)),
-                                      Text(
-                                        '₺${CurrencyFormatter.formatShort(car.scrapPrice)}',
-                                        style: AppTypography.titleLarge(p.isDark).copyWith(color: p.primaryColor, fontSize: 18),
-                                      ),
-                                    ],
-                                  ),
-                                  AppTactileButton(
-                                    onPressed: () {
-                                      if (game.balance < car.scrapPrice) {
-                                        NotificationService.showError(context, 'Yetersiz bakiye! ₺${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
-                                        return;
-                                      }
-
-                                      final success = ref.read(gameProvider.notifier).buyScrapyardCar(car.id);
-                                      if (success) {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          '${car.modelName} hurdalıktan alındı ve ${car.parts.length} sağlam parçaya söküldü!',
-                                        );
-                                      }
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.orangeAccent,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Row(
-                                        children: [
-                                          Icon(Icons.build_rounded, size: 16, color: Colors.black),
-                                          SizedBox(width: 6),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                width: 8,
+                                                height: 8,
+                                                decoration: BoxDecoration(
+                                                  color: _getTierColor(p.tier),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                p.name,
+                                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                                              ),
+                                            ],
+                                          ),
                                           Text(
-                                            'Satın Al & Parçala',
-                                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+                                            '~₺${CurrencyFormatter.formatShort(p.estimatedValue)}',
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                                           ),
                                         ],
                                       ),
-                                    ),
+                                    )),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'HURDA ALIŞ FİYATI',
+                                    style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                                  ),
+                                  Text(
+                                    '₺${CurrencyFormatter.formatShort(car.scrapPrice)}',
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalOrange),
+                                  ),
+                                ],
+                              ),
+                              NeoBrutalButton(
+                                label: 'SATIN AL & PARÇALA',
+                                icon: Icons.build_rounded,
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 11.5,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                onPressed: () {
+                                  if (game.balance < car.scrapPrice) {
+                                    NotificationService.showError(context, 'Yetersiz bakiye! ₺${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
+                                    return;
+                                  }
+                                  final success = ref.read(gameProvider.notifier).buyAndDismantleScrapCar(car.id);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${car.modelName} satın alındı ve parçalarına ayrılarak depoya aktarıldı!',
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+            ],
+          ),
+
+          // Tab 2: Sökülen Parçalar Stoğu
+          ListView(
+            padding: const EdgeInsets.all(14),
+            physics: const BouncingScrollPhysics(),
+            children: [
+              Text(
+                'ÇIKMA YEDEK PARÇA DEPOSU (${salvagedParts.length} Parça)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              if (salvagedParts.isEmpty)
+                NeoBrutalCard(
+                  padding: const EdgeInsets.all(28),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 14,
+                  child: const Column(
+                    children: [
+                      Icon(Icons.inventory_2_rounded, color: Color(0xFF64748B), size: 40),
+                      SizedBox(height: 10),
+                      Text(
+                        'Yedek Parça Stoğun Boş!',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Pert araç sekmesinden araç satın alıp parçalayarak deponu doldurabilirsin.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...salvagedParts.map((part) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: NeoBrutalCard(
+                      padding: const EdgeInsets.all(12),
+                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      borderRadius: 12,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  part.name,
+                                  style: TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                              ),
+                              NeoBrutalBadge(
+                                text: part.tierName,
+                                backgroundColor: _getTierColor(part.tier),
+                                textColor: Colors.white,
+                                fontSize: 9.5,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Model: ${part.carModelName} • Kondisyon: %${part.conditionPercent}',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '₺${CurrencyFormatter.formatShort(part.estimatedValue)}',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                              ),
+                              Row(
+                                children: [
+                                  NeoBrutalButton(
+                                    label: 'ARACA TAK',
+                                    icon: Icons.handyman_rounded,
+                                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                    textColor: isDark ? Colors.white : Colors.black,
+                                    fontSize: 10.5,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    onPressed: () => _showInstallPartDialog(context, part),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  NeoBrutalButton(
+                                    label: 'PAZARDA SAT',
+                                    icon: Icons.attach_money_rounded,
+                                    backgroundColor: AppColors.brutalGreen,
+                                    textColor: Colors.black,
+                                    fontSize: 10.5,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    onPressed: () {
+                                      final success = ref.read(gameProvider.notifier).sellSalvagedPart(part.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                          context,
+                                          '${part.name} ₺${CurrencyFormatter.formatShort(part.estimatedValue)} karşılığı satıldı!',
+                                        );
+                                      }
+                                    },
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  ),
-              ],
-            ),
-          ),
-
-          // Tab 2: Sökülen Parçalar Stoğu
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('STOKTAKİ SÖKÜLEN YEDEK PARÇALAR', style: AppTypography.labelSmall(p.isDark)),
-                const SizedBox(height: 12),
-
-                if (salvagedParts.isEmpty)
-                  AppGlassContainer(
-                    padding: const EdgeInsets.all(24),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Icon(Icons.inventory_2_rounded, color: p.textSecondaryColor, size: 48),
-                          const SizedBox(height: 12),
-                          Text('Yedek Parça Stoğun Boş!', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                          const SizedBox(height: 4),
-                          Text('Pert araç sekmesinden araç satın alarak parçalarını sökebilirsin.', style: AppTypography.bodyMedium(p.isDark)),
                         ],
                       ),
                     ),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: salvagedParts.length,
-                    itemBuilder: (context, index) {
-                      final part = salvagedParts[index];
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: p.surfaceColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: p.surfaceBorderColor),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(part.name, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                                  const SizedBox(height: 2),
-                                  Text('Kaynak: ${part.carModelName} | Kondisyon: %${part.conditionPercent}', style: AppTypography.bodyMedium(p.isDark)),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Pazar Satış Değeri: ₺${CurrencyFormatter.formatShort(part.estimatedValue)}',
-                                    style: TextStyle(color: p.successColor, fontWeight: FontWeight.bold, fontSize: 13),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            AppTactileButton(
-                              onPressed: () {
-                                final success = ref.read(gameProvider.notifier).sellSalvagedPart(part.id);
-                                if (success) {
-                                  NotificationService.showSuccess(
-                                    context,
-                                    '${part.name} ₺${CurrencyFormatter.formatShort(part.estimatedValue)} fiyata yedek parça pazarına satıldı!',
-                                  );
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: p.primaryColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Text(
-                                  'Pazarda Sat',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-              ],
-            ),
+                  );
+                }),
+            ],
           ),
         ],
       ),

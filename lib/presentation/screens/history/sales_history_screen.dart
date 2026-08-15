@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../data/models/dealership_model.dart';
 import '../../../data/models/sale_record_model.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_tactile_button.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class SalesHistoryScreen extends ConsumerStatefulWidget {
   const SalesHistoryScreen({super.key});
@@ -22,8 +21,11 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
   int _selectedFilterIndex = 0; // 0: All, 1: Profitable, 2: Loss/Break-even
 
   @override
-  Widget build(BuildContext meContext) {
+  Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
+    final isDark = p.isDark;
     final history = game.salesHistory;
 
     final totalRevenue = history.fold<double>(0.0, (sum, s) => sum + s.salePrice);
@@ -38,503 +40,302 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top App Bar
-            _buildAppBar(context),
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // KPI Overview Bento Cards
-                    _buildOverviewMetrics(
-                      carsSold: game.carsSold,
-                      totalRevenue: totalRevenue,
-                      totalProfit: totalProfit,
-                      avgProfit: avgProfit,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Filter Tabs & Section Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Geçmiş Satış Kayıtları',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              _buildFilterChip('Tümü (${history.length})', 0),
-                              const SizedBox(width: 4),
-                              _buildFilterChip('Kârlı', 1),
-                              const SizedBox(width: 4),
-                              _buildFilterChip('Zarar/Maliyet', 2),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Sales History List
-                    if (filteredHistory.isEmpty)
-                      _buildEmptyState()
-                    else
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: filteredHistory.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
-                        itemBuilder: (context, index) {
-                          final item = filteredHistory[index];
-                          return _buildSaleCard(item);
-                        },
-                      ),
-
-                    const SizedBox(height: 24),
-                    // Deliveries & Workshop Activity Summary
-                    _buildWorkshopActivitySection(game),
-                  ],
-                ),
-              ),
-            ),
-          ],
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
+          onPressed: () => context.pop(),
         ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDark.withValues(alpha: 0.9),
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
-        ),
-      ),
-      child: Row(
-        children: [
-          AppTactileButton(
-            onPressed: () => context.pop(),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'SATIŞ VE FİNANSAL GEÇMİŞ',
-                style: TextStyle(
-                  color: AppColors.primaryAmber,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Galeri Ticaret Dökümü',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.95),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.primaryAmber.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.primaryAmber.withValues(alpha: 0.3)),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.history_edu, color: AppColors.primaryAmber, size: 16),
-                SizedBox(width: 6),
-                Text(
-                  'Kayıtlı',
-                  style: TextStyle(
-                    color: AppColors.primaryAmber,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOverviewMetrics({
-    required int carsSold,
-    required double totalRevenue,
-    required double totalProfit,
-    required double avgProfit,
-  }) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Toplam Satılan',
-                value: '$carsSold Araç',
-                icon: Icons.directions_car,
-                color: Colors.lightBlueAccent,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Toplam Hasılat',
-                value: CurrencyFormatter.format(totalRevenue),
-                icon: Icons.account_balance_wallet,
-                color: Colors.amberAccent,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Net Toplam Kâr',
-                value: CurrencyFormatter.format(totalProfit),
-                icon: Icons.trending_up,
-                color: totalProfit >= 0 ? Colors.greenAccent : Colors.redAccent,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Araç Başı Kâr',
-                value: CurrencyFormatter.format(avgProfit),
-                icon: Icons.query_stats,
-                color: avgProfit >= 0 ? AppColors.primaryAmber : Colors.orangeAccent,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMetricCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
-    return AppGlassContainer(
-      padding: const EdgeInsets.all(14),
-      borderRadius: 16,
-      borderColor: color.withValues(alpha: 0.25),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 18),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.65),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, int index) {
-    final isSelected = _selectedFilterIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilterIndex = index;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryAmber : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          label,
+        title: Text(
+          'SATIŞ & TİCARET GEÇMİŞİ',
           style: TextStyle(
-            color: isSelected ? Colors.black : Colors.white.withValues(alpha: 0.7),
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSaleCard(SaleRecordModel sale) {
-    final isProfitable = sale.netProfit >= 0;
-    final profitPercentage = sale.purchasePrice > 0
-        ? (sale.netProfit / sale.purchasePrice) * 100
-        : 0.0;
-    final formattedDate = DateFormat('dd.MM.yyyy HH:mm').format(sale.saleDate);
-
-    return AppGlassContainer(
-      padding: const EdgeInsets.all(14),
-      borderRadius: 16,
-      borderColor: isProfitable
-          ? Colors.green.withValues(alpha: 0.3)
-          : Colors.red.withValues(alpha: 0.3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
         children: [
+          // 1. KPI Overview Metrics
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isProfitable
-                      ? Colors.green.withValues(alpha: 0.15)
-                      : Colors.red.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isProfitable ? Icons.arrow_upward : Icons.arrow_downward,
-                  color: isProfitable ? Colors.greenAccent : Colors.redAccent,
-                  size: 18,
+              Expanded(
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(12),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'TOPLAM SATILAN',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${game.carsSold} Araç',
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(12),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'TOPLAM HASILAT',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        CurrencyFormatter.formatShort(totalRevenue),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Expanded(
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(12),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'NET TOPLAM KÂR',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        CurrencyFormatter.formatShort(totalProfit),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: totalProfit >= 0 ? AppColors.brutalGreen : AppColors.errorRed,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(12),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'ARAÇ BAŞI ORT. KÂR',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        CurrencyFormatter.formatShort(avgProfit),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: avgProfit >= 0 ? AppColors.brutalYellow : AppColors.errorRed,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // 2. Filter Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'SATIŞ KAYITLARI (${filteredHistory.length})',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
+              Row(
+                children: [
+                  _buildFilterBtn('Tümü', 0, isDark),
+                  const SizedBox(width: 6),
+                  _buildFilterBtn('Kârlı', 1, isDark),
+                  const SizedBox(width: 6),
+                  _buildFilterBtn('Zarar', 2, isDark),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // 3. Sales History List
+          if (filteredHistory.isEmpty)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(24),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 14,
+              child: const Center(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Icon(Icons.directions_car_outlined, size: 36, color: Color(0xFF64748B)),
+                    SizedBox(height: 8),
                     Text(
-                      sale.carTitle,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Alıcı: ${sale.buyerName} • Gün ${sale.saleDay}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.55),
-                        fontSize: 11,
-                      ),
+                      'Henüz bu filtrede kayıtlı satış bulunmuyor.',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: (isProfitable ? Colors.green : Colors.red).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: (isProfitable ? Colors.green : Colors.red).withValues(alpha: 0.3),
+            )
+          else
+            ...filteredHistory.map((sale) {
+              final isProfitable = sale.netProfit >= 0;
+              final profitPercentage = sale.purchasePrice > 0
+                  ? (sale.netProfit / sale.purchasePrice) * 100
+                  : 0.0;
+              final formattedDate = DateFormat('dd.MM.yyyy HH:mm').format(sale.saleDate);
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
+                  borderRadius: 14,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  sale.carTitle,
+                                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Alıcı: ${sale.buyerName} • Gün ${sale.saleDay}',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          NeoBrutalBadge(
+                            text: '${isProfitable ? '+' : ''}${profitPercentage.toStringAsFixed(1)}%',
+                            backgroundColor: isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
+                            textColor: isProfitable ? Colors.black : Colors.white,
+                            fontSize: 11,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Divider(height: 1),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildPriceColumn('Alış Fiyatı', '₺${CurrencyFormatter.formatShort(sale.purchasePrice)}', const Color(0xFF64748B)),
+                          _buildPriceColumn('Satış Fiyatı', '₺${CurrencyFormatter.formatShort(sale.salePrice)}', isDark ? Colors.white : Colors.black),
+                          _buildPriceColumn(
+                            'Net Kâr',
+                            '₺${CurrencyFormatter.formatShort(sale.netProfit)}',
+                            isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          formattedDate,
+                          style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Text(
-                  '${isProfitable ? '+' : ''}${profitPercentage.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    color: isProfitable ? Colors.greenAccent : Colors.redAccent,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(color: Colors.white10, height: 1),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildPriceDetail('Alış Fiyatı', CurrencyFormatter.format(sale.purchasePrice)),
-              _buildPriceDetail('Satış Fiyatı', CurrencyFormatter.format(sale.salePrice)),
-              _buildPriceDetail(
-                'Net Kâr',
-                CurrencyFormatter.format(sale.netProfit),
-                valueColor: isProfitable ? Colors.greenAccent : Colors.redAccent,
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              formattedDate,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.35),
-                fontSize: 10,
-              ),
-            ),
-          ),
+              );
+            }),
         ],
       ),
     );
   }
 
-  Widget _buildPriceDetail(String label, String value, {Color? valueColor}) {
+  Widget _buildFilterBtn(String label, int index, bool isDark) {
+    final isSelected = _selectedFilterIndex == index;
+    return InkWell(
+      onTap: () => setState(() => _selectedFilterIndex = index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.brutalYellow
+              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black, width: isSelected ? 1.8 : 1.0),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF334155)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPriceColumn(String label, String value, Color valueColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.5),
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 2),
         Text(
           value,
-          style: TextStyle(
-            color: valueColor ?? Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: valueColor),
         ),
       ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return AppGlassContainer(
-      padding: const EdgeInsets.all(32),
-      borderRadius: 16,
-      child: Center(
-        child: Column(
-          children: [
-            Icon(Icons.directions_car_outlined, color: Colors.white.withValues(alpha: 0.3), size: 48),
-            const SizedBox(height: 12),
-            Text(
-              'Henüz kayıtlı satış bulunmuyor',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Araç alım satımı yaptıkça geçmişiniz buraya eklenecektir.',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4),
-                fontSize: 11,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWorkshopActivitySection(DealershipModel game) {
-    final pendingCount = game.pendingOrders.length;
-
-    return AppGlassContainer(
-      padding: const EdgeInsets.all(16),
-      borderRadius: 16,
-      borderColor: AppColors.primaryAmber.withValues(alpha: 0.2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.build_circle, color: AppColors.primaryAmber, size: 20),
-              const SizedBox(width: 8),
-              const Text(
-                'Atölye & Parça Sipariş Durumu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: pendingCount > 0
-                      ? Colors.amber.withValues(alpha: 0.2)
-                      : Colors.green.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  pendingCount > 0 ? '$pendingCount Parça Yolda' : 'Atölye Hazır',
-                  style: TextStyle(
-                    color: pendingCount > 0 ? Colors.amberAccent : Colors.greenAccent,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            pendingCount > 0
-                ? 'Sipariş verilen yedek parçaların kargo teslimat süreleri Oyun Takvimi ile senkronize ilerler.'
-                : 'Şu anda kargoda bekleyen yedek parça siparişi bulunmuyor.',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -44,7 +44,18 @@ mixin GameTimeMixin on GameBaseNotifier {
     int nextDay = state.currentDay + 1;
     double newBalance = state.balance;
 
-    // 1. Deduct daily salaries for hired staff
+    // 1. Deduct daily property fixed overhead / burn-rate
+    double propertyDailyBurn = 500.0;
+    if (state.level == 2) {
+      propertyDailyBurn = 4500.0;
+    } else if (state.level == 3) {
+      propertyDailyBurn = 32000.0;
+    } else if (state.level >= 4) {
+      propertyDailyBurn = 240000.0;
+    }
+    newBalance -= propertyDailyBurn;
+
+    // 2. Deduct daily salaries for hired staff
     double totalSalaries = 0.0;
     for (var staff in state.hiredStaff) {
       totalSalaries += staff.role.dailySalary;
@@ -54,9 +65,57 @@ mixin GameTimeMixin on GameBaseNotifier {
     List<StaffModel> currentStaff = List.from(state.hiredStaff);
     if (newBalance >= totalSalaries) {
       newBalance -= totalSalaries;
-    } else {
+    } else if (newBalance > 0) {
       newBalance = 0; // Kalan para ancak bir kısmını ödedi
       currentStaff.clear(); // Tüm personel ayrıldı
+    } else {
+      currentStaff.clear();
+    }
+
+    // --- AKTİF PERSONEL OTOMASYONU ---
+    List<CarModel> currentCars = List.from(state.ownedCars);
+    final hasWasher = currentStaff.any((s) => s.role == StaffRole.washer);
+    final hasMechanic = currentStaff.any((s) => s.role == StaffRole.masterMechanic);
+    final hasSalesman = currentStaff.any((s) => s.role == StaffRole.salesman);
+
+    // 1. Oto Yıkama & Detay Uzmanı: Garajdaki araçları otomatik yıkar ve cilalar
+    if (hasWasher && currentCars.isNotEmpty) {
+      int washedCount = 0;
+      for (int i = 0; i < currentCars.length; i++) {
+        final car = currentCars[i];
+        if (!car.isWashed || !car.isPolished || !car.isDetailedCleaned) {
+          currentCars[i] = car.copyWith(
+            isWashed: true,
+            isPolished: true,
+            isDetailedCleaned: true,
+          );
+          washedCount++;
+          if (washedCount >= 2) break; // Günde 2 araca kadar detaylı bakım
+        }
+      }
+    }
+
+    // 2. Mekanik Usta: Hasarlı motor ve şanzımanı günde +%20 ücretsiz onarır
+    if (hasMechanic && currentCars.isNotEmpty) {
+      for (int i = 0; i < currentCars.length; i++) {
+        final car = currentCars[i];
+        if (car.expertise.engineCondition < 100 || car.expertise.transmissionCondition < 100) {
+          final newEngine = min(100.0, car.expertise.engineCondition + 20.0);
+          final newTrans = min(100.0, car.expertise.transmissionCondition + 20.0);
+          currentCars[i] = car.copyWith(
+            expertise: car.expertise.copyWith(
+              engineCondition: newEngine,
+              transmissionCondition: newTrans,
+            ),
+          );
+          break; // Günde 1 motor/şanzıman rektifiye revizyonu
+        }
+      }
+    }
+
+    // 3. Satış Danışmanı: Her gün yeni alıcı müşteri çeker
+    if (hasSalesman && currentCars.any((c) => c.isListed && !c.isRented)) {
+      triggerOrganicOffers();
     }
 
     // 2. Process automatic loan installments every 7 days (Weekly deduction)
@@ -84,7 +143,6 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     // 4. Rent a Car (Pasif Gelir) mechanics
     List<RentalAgreement> updatedRentals = List.from(state.activeRentals);
-    List<CarModel> currentCars = List.from(state.ownedCars);
     
     for (int i = updatedRentals.length - 1; i >= 0; i--) {
       final rental = updatedRentals[i];
@@ -182,24 +240,23 @@ mixin GameTimeMixin on GameBaseNotifier {
     
     for (int i = 0; i < updatedStocks.length; i++) {
       final stock = updatedStocks[i];
-      double changePercent = (random.nextDouble() * 0.10) - 0.05; // -5% to +5%
+      // Max +-10% daily price volatility
+      double changePercent = (random.nextDouble() * 0.20) - 0.10; // -10.0% to +10.0%
       
-      if (random.nextDouble() < 0.05) {
-        changePercent = (random.nextDouble() * 0.30) - 0.15; // -15% to +15%
-        newEvents.insert(0, GameEventModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString() + i.toString(),
-          date: DateTime.now(),
-          title: '${stock.symbol} Hissesinde Dalgalanma',
-          description: 'Piyasa haberleri ${stock.symbol} hissesini etkiledi.',
-          amount: 0.0,
-          type: changePercent > 0 ? GameEventType.income : GameEventType.badEvent,
-        ));
-      }
-      
-      double newPrice = stock.currentPrice * (1 + changePercent);
+      double newPrice = (stock.currentPrice * (1.0 + changePercent)).roundToDouble();
       if (newPrice < 1.0) newPrice = 1.0; 
       
-      updatedStocks[i] = stock.copyWith(currentPrice: newPrice);
+      List<double> history = List.from(stock.priceHistory);
+      history.add(newPrice);
+      if (history.length > 30) {
+        history = history.sublist(history.length - 30);
+      }
+      
+      updatedStocks[i] = stock.copyWith(
+        previousPrice: stock.currentPrice,
+        currentPrice: newPrice,
+        priceHistory: history,
+      );
     }
     
     // Keep only last 50 events
@@ -252,47 +309,47 @@ mixin GameTimeMixin on GameBaseNotifier {
     return [
       ScrapyardCar(
         id: 'scrap_${day}_1',
-        brand: 'BMW',
-        modelName: '320i M-Sport (Ağır Pert)',
+        brand: 'Bemeve',
+        modelName: 'Bemeve 3.20d Yanlama E-90 (Ağır Pert)',
         modelYear: 2016,
         scrapPrice: 140000.0,
         estimatedPartTotalValue: 280000.0,
         damageNote: 'Önden ağır taklalı, tavan ezik. Motor ve şanzıman sapasağlam.',
         parts: const [
-          SalvagedPart(id: 'p_1_1', name: '2.0 TwinPower Turbo Motor Bloğu', carModelName: 'BMW 320i', category: 'engine', conditionPercent: 88, estimatedValue: 120000.0),
-          SalvagedPart(id: 'p_1_2', name: '8 İleri ZF Otomatik Şanzıman', carModelName: 'BMW 320i', category: 'transmission', conditionPercent: 92, estimatedValue: 85000.0),
-          SalvagedPart(id: 'p_1_3', name: '19" M Alaşım Çift Jant Takımı', carModelName: 'BMW 320i', category: 'wheels', conditionPercent: 80, estimatedValue: 35000.0),
-          SalvagedPart(id: 'p_1_4', name: 'Harman Kardon Müzik Sistemi', carModelName: 'BMW 320i', category: 'audio', conditionPercent: 95, estimatedValue: 40000.0),
+          SalvagedPart(id: 'p_1_1', name: '2.0 TwinPower Turbo Motor Bloğu', carModelName: 'Bemeve 3.20d', category: 'engine', conditionPercent: 88, estimatedValue: 120000.0),
+          SalvagedPart(id: 'p_1_2', name: '8 İleri ZF Otomatik Şanzıman', carModelName: 'Bemeve 3.20d', category: 'transmission', conditionPercent: 92, estimatedValue: 85000.0),
+          SalvagedPart(id: 'p_1_3', name: '19" M Alaşım Çift Jant Takımı', carModelName: 'Bemeve 3.20d', category: 'wheels', conditionPercent: 80, estimatedValue: 35000.0),
+          SalvagedPart(id: 'p_1_4', name: 'Harman Kardon Müzik Sistemi', carModelName: 'Bemeve 3.20d', category: 'audio', conditionPercent: 95, estimatedValue: 40000.0),
         ],
       ),
       ScrapyardCar(
         id: 'scrap_${day}_2',
-        brand: 'Volkswagen',
-        modelName: 'Golf 7.5 GTI (Pert Kayıtlı)',
+        brand: 'Vosgen',
+        modelName: 'Vosgen Golf Sekiz R-Line (Pert Kayıtlı)',
         modelYear: 2018,
         scrapPrice: 190000.0,
         estimatedPartTotalValue: 360000.0,
         damageNote: 'Arkadan kamyon çarpması sonrası pert kararı verilmiş.',
         parts: const [
-          SalvagedPart(id: 'p_2_1', name: '2.0 TSI GTI Turbo Şarj Kiti', carModelName: 'Golf GTI', category: 'turbo', conditionPercent: 94, estimatedValue: 65000.0),
-          SalvagedPart(id: 'p_2_2', name: 'DSG Islak Kavrama Şanzıman', carModelName: 'Golf GTI', category: 'transmission', conditionPercent: 90, estimatedValue: 95000.0),
-          SalvagedPart(id: 'p_2_3', name: 'Karbon Difüzör & Çift Egzoz Takımı', carModelName: 'Golf GTI', category: 'bodywork', conditionPercent: 85, estimatedValue: 45000.0),
-          SalvagedPart(id: 'p_2_4', name: 'GTI Hayalet Gösterge & Direksiyon', carModelName: 'Golf GTI', category: 'bodywork', conditionPercent: 96, estimatedValue: 75000.0),
+          SalvagedPart(id: 'p_2_1', name: '2.0 TSI GTI Turbo Şarj Kiti', carModelName: 'Vosgen Golf', category: 'turbo', conditionPercent: 94, estimatedValue: 65000.0),
+          SalvagedPart(id: 'p_2_2', name: 'DSG Islak Kavrama Şanzıman', carModelName: 'Vosgen Golf', category: 'transmission', conditionPercent: 90, estimatedValue: 95000.0),
+          SalvagedPart(id: 'p_2_3', name: 'Karbon Difüzör & Çift Egzoz Takımı', carModelName: 'Vosgen Golf', category: 'bodywork', conditionPercent: 85, estimatedValue: 45000.0),
+          SalvagedPart(id: 'p_2_4', name: 'GTI Hayalet Gösterge & Direksiyon', carModelName: 'Vosgen Golf', category: 'bodywork', conditionPercent: 96, estimatedValue: 75000.0),
         ],
       ),
       ScrapyardCar(
         id: 'scrap_${day}_3',
-        brand: 'Mercedes-Benz',
-        modelName: 'C200d AMG (Yanık/Pert)',
+        brand: 'Merso',
+        modelName: 'Merso C-200 Makam AMG (Yanık/Pert)',
         modelYear: 2017,
         scrapPrice: 165000.0,
         estimatedPartTotalValue: 310000.0,
         damageNote: 'Elektrik kontağından motor kompartımanı kısmen hasarlı.',
         parts: const [
-          SalvagedPart(id: 'p_3_1', name: 'AMG Deri Koltuk & İç Döşeme Takımı', carModelName: 'C200d', category: 'bodywork', conditionPercent: 92, estimatedValue: 80000.0),
-          SalvagedPart(id: 'p_3_2', name: '9G-Tronic Otomatik Şanzıman', carModelName: 'C200d', category: 'transmission', conditionPercent: 89, estimatedValue: 110000.0),
-          SalvagedPart(id: 'p_3_3', name: 'Burmester VIP Ses Sistemi', carModelName: 'C200d', category: 'audio', conditionPercent: 98, estimatedValue: 55000.0),
-          SalvagedPart(id: 'p_3_4', name: 'AMG MultiBeam LED Far Takımı', carModelName: 'C200d', category: 'bodywork', conditionPercent: 85, estimatedValue: 65000.0),
+          SalvagedPart(id: 'p_3_1', name: 'AMG Deri Koltuk & İç Döşeme Takımı', carModelName: 'Merso C-200', category: 'bodywork', conditionPercent: 92, estimatedValue: 80000.0),
+          SalvagedPart(id: 'p_3_2', name: '9G-Tronic Otomatik Şanzıman', carModelName: 'Merso C-200', category: 'transmission', conditionPercent: 89, estimatedValue: 110000.0),
+          SalvagedPart(id: 'p_3_3', name: 'Burmester VIP Ses Sistemi', carModelName: 'Merso C-200', category: 'audio', conditionPercent: 98, estimatedValue: 55000.0),
+          SalvagedPart(id: 'p_3_4', name: 'AMG MultiBeam LED Far Takımı', carModelName: 'Merso C-200', category: 'bodywork', conditionPercent: 85, estimatedValue: 65000.0),
         ],
       ),
     ];
@@ -302,8 +359,8 @@ mixin GameTimeMixin on GameBaseNotifier {
     return [
       BlackMarketCarModel(
         id: 'bm_${day}_1',
-        brand: 'Porsche',
-        modelName: 'Panamera GTS (%50 Kelepir / Soruşturmalı)',
+        brand: 'Porş',
+        modelName: 'Porş Pana-Mera 4S Lüks (%50 Kelepir / Soruşturmalı)',
         modelYear: 2019,
         askingPrice: 1200000.0,
         realMarketValue: 2400000.0,
@@ -314,27 +371,27 @@ mixin GameTimeMixin on GameBaseNotifier {
       ),
       BlackMarketCarModel(
         id: 'bm_${day}_2',
-        brand: 'Mercedes-Benz',
-        modelName: 'G63 AMG V8 (%60 İndirimli / Hacizli)',
+        brand: 'Merso',
+        modelName: 'Merso G-63 Tuğla V8 (%60 İndirimli / Hacizli)',
         modelYear: 2021,
         askingPrice: 2800000.0,
         realMarketValue: 6500000.0,
         riskType: 'stolen_paperwork',
         riskLevelPercent: 35,
         sellerAlias: 'Karanlık Kenan',
-        riskDescription: 'Yurt dışından kaçak sokulmuş sahte plaka G-Wagon. Satış esnasında %35 Polis El Koyma Riski!',
+        riskDescription: 'Yurt dışından kaçak sokulmuş sahte plaka Merso G-Kasa Tuğla. Satış esnasında %35 Polis El Koyma Riski!',
       ),
       BlackMarketCarModel(
         id: 'bm_${day}_3',
-        brand: 'Audi',
-        modelName: 'RS6 Avant (%45 İndirimli / Çifte Şasi)',
+        brand: 'Avdi',
+        modelName: 'Avdi RS-Altı Canavar (%45 İndirimli / Çifte Şasi)',
         modelYear: 2020,
         askingPrice: 1950000.0,
         realMarketValue: 4200000.0,
         riskType: 'salvage_hidden',
         riskLevelPercent: 20,
         sellerAlias: 'Gölge İbrahim',
-        riskDescription: 'İki kazalı araç kaynağı ile yapılmış Change RS6. Yakalanırsa araç kaza enkazı sayılarak bağlanır!',
+        riskDescription: 'İki kazalı araç kaynağı ile yapılmış Change Avdi RS-Altı. Yakalanırsa araç kaza enkazı sayılarak bağlanır!',
       ),
     ];
   }

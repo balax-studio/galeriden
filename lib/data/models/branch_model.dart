@@ -3,9 +3,12 @@ class BranchModel {
   final String name;
   final String locationName;
   final double requiredBalance;
+  final double dailyBurnRate;
   final int maxGarageSlots;
+  final int targetLevel;
   final double profitMultiplier;
   final String vectorIcon;
+  final String unlockedSummary;
   final bool isUnlocked;
 
   BranchModel({
@@ -13,53 +16,68 @@ class BranchModel {
     required this.name,
     required this.locationName,
     required this.requiredBalance,
+    required this.dailyBurnRate,
     required this.maxGarageSlots,
+    required this.targetLevel,
     required this.profitMultiplier,
     required this.vectorIcon,
+    required this.unlockedSummary,
     this.isUnlocked = false,
   });
 
-  static List<BranchModel> getAllBranches(int currentSlotCount) {
+  static List<BranchModel> getAllBranches({int currentSlotCount = 3, int currentLevel = 1}) {
     return [
       BranchModel(
         id: 'branch_1',
-        name: 'Otoyol Otopark Şubesi',
-        locationName: 'E-5 Kenarı Küçük Galeri',
+        name: 'Kaldırım Başı Sokak Garajı',
+        locationName: 'Sokak & Kaldırım Otoparkı',
         requiredBalance: 0,
+        dailyBurnRate: 300.0,
         maxGarageSlots: 3,
+        targetLevel: 1,
         profitMultiplier: 1.0,
         vectorIcon: 'craftsman',
+        unlockedSummary: 'İkinci El Pazarı, Showroom, Ekspertiz, Oto Yıkama',
         isUnlocked: true,
       ),
       BranchModel(
         id: 'branch_2',
-        name: 'Oto Galericiler Sitesi',
-        locationName: 'İkitelli Oto Center',
-        requiredBalance: 4500000,
+        name: 'İkitelli Sanayi Dükkânı',
+        locationName: 'Sanayi Sitesi / 2 Liftli Atölye',
+        requiredBalance: 350000.0,
+        dailyBurnRate: 1800.0,
         maxGarageSlots: 6,
+        targetLevel: 2,
         profitMultiplier: 1.25,
-        vectorIcon: 'flash',
+        vectorIcon: 'workshop',
+        unlockedSummary: 'Atölye & Tamirhane, Tuning Stüdyosu, Personel Kadrosu',
         isUnlocked: currentSlotCount >= 6,
       ),
       BranchModel(
         id: 'branch_3',
-        name: 'Ototeknik Plaza',
-        locationName: 'Maslak Otomotiv Plazası',
-        requiredBalance: 15000000,
+        name: 'Maslak Otomotiv Plazası',
+        locationName: 'Maslak Cam Giydirme Showroom',
+        requiredBalance: 2500000.0,
+        dailyBurnRate: 12000.0,
         maxGarageSlots: 10,
+        targetLevel: 3,
         profitMultiplier: 1.60,
         vectorIcon: 'shield',
+        unlockedSummary: 'Canlı İhale, Finans Masası, Borsa & Yatırım',
         isUnlocked: currentSlotCount >= 10,
       ),
       BranchModel(
         id: 'branch_4',
-        name: 'Etiler & Bodrum Showroom',
-        locationName: 'Etiler Lüks Motor World',
-        requiredBalance: 45000000,
-        maxGarageSlots: 15,
+        name: 'Levent Mega Holding Plazası',
+        locationName: 'Levent Gökdelen Kulesi & Heliped',
+        requiredBalance: 12000000.0,
+        dailyBurnRate: 50000.0,
+        maxGarageSlots: 16,
+        targetLevel: 4,
         profitMultiplier: 2.20,
         vectorIcon: 'rare',
-        isUnlocked: currentSlotCount >= 15,
+        unlockedSummary: 'Hurdalık & Parça, Rent-a-Car Filosu, Karaborsa, Holding İşletmeleri',
+        isUnlocked: currentSlotCount >= 16,
       ),
     ];
   }

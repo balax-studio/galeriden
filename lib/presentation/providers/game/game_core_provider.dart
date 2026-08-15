@@ -145,11 +145,39 @@ class GameCoreNotifier extends GameBaseNotifier
   @override
   void addXP(int amount) {
     final updatedSkills = state.skills.copyWith(xp: state.skills.xp + amount);
+    final calculatedLevel = updatedSkills.currentLevel;
+    final newLevel = calculatedLevel > state.level ? calculatedLevel : state.level;
+    
     state = state.copyWith(
       skills: updatedSkills,
-      level: updatedSkills.currentLevel,
+      level: newLevel,
     );
+    checkAndUnlockFeatures();
     saveState();
+  }
+
+  void checkAndUnlockFeatures() {
+    final currentLvl = state.level;
+    final Set<String> updatedBuildings = Set.from(state.unlockedBuildings);
+    
+    // Check all routes and auto-unlock based on level
+    final allRoutes = [
+      '/marketplace', '/showroom', '/workshop', '/expertise', '/car-wash',
+      '/reviews', '/history', '/staff', '/staff-academy', '/showroom-decor',
+      '/auction', '/tuning-studio', '/finance', '/bank-investments',
+      '/stock-market', '/scrapyard', '/rent-a-car', '/black-market',
+      '/side-businesses', '/branches',
+    ];
+
+    for (final route in allRoutes) {
+      if (currentLvl >= DealershipModel.getRequiredLevel(route)) {
+        updatedBuildings.add(route);
+      }
+    }
+
+    if (updatedBuildings.length != state.unlockedBuildings.length) {
+      state = state.copyWith(unlockedBuildings: updatedBuildings);
+    }
   }
 
   @override
@@ -232,6 +260,28 @@ class GameCoreNotifier extends GameBaseNotifier
       balance: state.balance - cost,
       unlockedBuildings: updated,
     );
+    saveState();
+  }
+
+  /// Dev / God Mode: Add Cheat Funds
+  void addCheatFunds(double amount) {
+    state = state.copyWith(balance: state.balance + amount);
+    saveState();
+  }
+
+  /// Dev / God Mode: Unlock All Properties & Level 4 (Mega Otomotiv Kalesi)
+  void unlockAllPropertiesAndMaxLevel() {
+    state = state.copyWith(
+      level: 4,
+      maxGarageSlots: 15,
+      reputationScore: 100,
+    );
+    saveState();
+  }
+
+  /// Dev / God Mode: Clear Garage
+  void clearGarage() {
+    state = state.copyWith(ownedCars: []);
     saveState();
   }
 }

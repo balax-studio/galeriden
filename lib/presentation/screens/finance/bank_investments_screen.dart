@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_double_bezel_card.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_tactile_button.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class BankInvestmentsScreen extends ConsumerStatefulWidget {
   const BankInvestmentsScreen({super.key});
@@ -20,12 +19,10 @@ class BankInvestmentsScreen extends ConsumerStatefulWidget {
 
 class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
   final TextEditingController _depositController = TextEditingController();
-  final TextEditingController _withdrawController = TextEditingController();
 
   @override
   void dispose() {
     _depositController.dispose();
-    _withdrawController.dispose();
     super.dispose();
   }
 
@@ -34,189 +31,216 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     return Scaffold(
-      backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: p.textPrimaryColor, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
           onPressed: () => context.pop(),
         ),
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            'BANKA & MEVDUAT YATIRIMLARI',
-            style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2),
+        title: Text(
+          'BANKA & MEVDUAT YATIRIMLARI',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Investment Summary Card
-            AppGlassContainer(
-              padding: const EdgeInsets.all(18),
-              borderColor: p.successColor.withValues(alpha: 0.5),
-              glowColor: p.successColor.withValues(alpha: 0.15),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.account_balance_rounded, color: p.successColor, size: 32),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('VADELİ MEVDUAT HESABI', style: AppTypography.labelSmall(p.isDark)),
-                              Text(
-                                '₺${CurrencyFormatter.formatShort(game.balance * 0.15)} Biriken Mevduat',
-                                style: AppTypography.titleLarge(p.isDark).copyWith(color: p.successColor, fontSize: 18),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: p.successColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: p.successColor),
-                        ),
-                        child: const Text(
-                          '%24.5 Günlük APY',
-                          style: TextStyle(color: AppColors.laserGreen, fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Deposit Cash Section
-            Text('MEVDUAT YATIR / ÇEK', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-
-            AppDoubleBezelCard(
-              accentColor: p.primaryColor,
-              outerRadius: 18,
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Kasa Bakiyenden Mevduat Hesabına Para Aktar', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                  const SizedBox(height: 6),
-                  Text('Aktarılan mevduat her oyun gününde faiz getirisi kazandırır.', style: AppTypography.bodyMedium(p.isDark)),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _depositController,
-                          keyboardType: TextInputType.number,
-                          style: TextStyle(color: p.textPrimaryColor),
-                          decoration: InputDecoration(
-                            hintText: 'Miktar (₺)',
-                            hintStyle: TextStyle(color: p.textSecondaryColor),
-                            filled: true,
-                            fillColor: p.surfaceBorderColor.withValues(alpha: 0.3),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      AppTactileButton(
-                        onPressed: () {
-                          final amount = double.tryParse(_depositController.text) ?? 0.0;
-                          if (amount <= 0 || amount > game.balance) {
-                            NotificationService.showError(context, 'Geçersiz miktar veya yetersiz bakiye!');
-                            return;
-                          }
-
-                          ref.read(gameProvider.notifier).deductBalance(amount);
-                          _depositController.clear();
-                          NotificationService.showSuccess(
-                            context,
-                            '₺${CurrencyFormatter.formatShort(amount)} Vadeli Mevduat Hesabına Yatırıldı!',
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Time Deposit Header Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: p.primaryColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Text('Yatır', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Credit Score & Extended Credit Line Card
-            Text('KREDİ SCORE & LİMİT YÜKSELTME', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-
-            AppGlassContainer(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.verified_user_rounded, color: Colors.blueAccent, size: 28),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Kredi Skoru: AAA (Mükemmel)', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                              Text('Mevcut Banka Kredi Limiti: ₺15,000,000', style: AppTypography.bodyMedium(p.isDark)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Limiti ₺25.000.000 Yap:', style: AppTypography.bodyMedium(p.isDark)),
-                      AppTactileButton(
-                        onPressed: () {
-                          NotificationService.showSuccess(context, 'Kredi Limiti Başarıyla ₺25,000,000 Seviyesine Yükseltildi!');
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent,
+                            color: AppColors.brutalGreen,
                             borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black, width: 1.5),
                           ),
-                          child: const Text('Limiti Yükselt', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          child: const Icon(Icons.account_balance_rounded, color: Colors.black, size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'VADELİ MEVDUAT HESABI',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                            ),
+                            Text(
+                              '₺${CurrencyFormatter.formatShort(game.balance * 0.15)}',
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const NeoBrutalBadge(
+                      text: '%24.5 Günlük APY',
+                      backgroundColor: AppColors.brutalYellow,
+                      textColor: Colors.black,
+                      fontSize: 10.5,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 2. Deposit Cash Input Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'MEVDUAT HESABINA AKTAR',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Kasa bakiyenden mevduata para aktararak günlük faiz geliri kazanabilirsin.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _depositController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                        decoration: InputDecoration(
+                          hintText: 'Miktar (₺)',
+                          filled: true,
+                          fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    const SizedBox(width: 8),
+                    NeoBrutalButton(
+                      label: 'YATIR',
+                      icon: Icons.savings_rounded,
+                      backgroundColor: AppColors.brutalGreen,
+                      textColor: Colors.black,
+                      fontSize: 12,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      onPressed: () {
+                        final amount = double.tryParse(_depositController.text) ?? 0.0;
+                        if (amount <= 0 || amount > game.balance) {
+                          NotificationService.showError(context, 'Geçersiz miktar veya yetersiz bakiye!');
+                          return;
+                        }
+
+                        ref.read(gameProvider.notifier).deductBalance(amount);
+                        _depositController.clear();
+                        NotificationService.showSuccess(
+                          context,
+                          '₺${CurrencyFormatter.formatShort(amount)} Vadeli Mevduat Hesabına Yatırıldı!',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 14),
+
+          // 3. Credit Score & Line Upgrade
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF3B82F6),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black, width: 1.5),
+                          ),
+                          child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Kredi Skoru: AAA (Mükemmel)',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Mevcut Banka Kredi Limiti: ₺15,000,000',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                NeoBrutalButton(
+                  label: 'LİMİTİ ₺25.000.000 SEVİYESİNE YÜKSELT',
+                  icon: Icons.trending_up_rounded,
+                  backgroundColor: AppColors.brutalYellow,
+                  textColor: Colors.black,
+                  fontSize: 11.5,
+                  fullWidth: true,
+                  onPressed: () {
+                    NotificationService.showSuccess(context, 'Kredi Limiti Başarıyla ₺25,000,000 Seviyesine Yükseltildi!');
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

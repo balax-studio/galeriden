@@ -56,4 +56,21 @@ class AppColors {
   static const Color beneloilPillBg = Color(0xFFFFFFFF);
   static const Color beneloilGrassGreen = Color(0xFF8BBF52);
   static const Color beneloilAsphaltRoad = Color(0xFF4A4E58);
+
+  // Neo-Brutalism & Monolithic Block Tokens
+  static const Color brutalYellow = Color(0xFFFFDE59);
+  static const Color brutalCyan = Color(0xFF00F0FF);
+  static const Color brutalPink = Color(0xFFFF54B0);
+  static const Color brutalOrange = Color(0xFFFF7A00);
+  static const Color brutalGreen = Color(0xFF00E575);
+  static const Color brutalPurple = Color(0xFFA855F7);
+  static const Color brutalBlue = Color(0xFF3B82F6);
+  static const Color brutalDarkBg = Color(0xFF0C0E14);
+  static const Color brutalDarkSurface = Color(0xFF141721);
+  static const Color brutalDarkBorder = Color(0xFF2A3142);
+  static const Color brutalLightBg = Color(0xFFF4F4F0);
+  static const Color brutalLightSurface = Color(0xFFFFFFFF);
+  static const Color brutalLightBorder = Color(0xFF0F172A);
+  static const Color brutalShadowDark = Color(0xFF000000);
+  static const Color brutalShadowLight = Color(0xFF0F172A);
 }

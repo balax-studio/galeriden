@@ -1,384 +1,336 @@
-import 'package:go_router/go_router.dart';
-import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/models/theme_palette_model.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/branch_model.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_vector_icons.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_double_bezel_card.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class BranchScreen extends ConsumerWidget {
   const BranchScreen({super.key});
 
-  String _getCharacterTitle(int level) {
-    if (level >= 15) return 'Galerici Kralı';
-    if (level >= 10) return 'Oto Galeri Patronu';
-    if (level >= 6) return 'Usta Galerici';
-    if (level >= 3) return 'Çırak Al-Satçı';
-    return 'Stajyer Galerici';
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = Theme.of(context).extension<AppThemeExtension>()!.palette;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
+    final isDark = p.isDark;
     final game = ref.watch(gameProvider);
-    final branches = BranchModel.getAllBranches(game.maxGarageSlots);
-    final skills = game.skills;
-    final title = _getCharacterTitle(game.level);
+    final branches = BranchModel.getAllBranches(currentSlotCount: game.maxGarageSlots, currentLevel: game.level);
 
-    final xpInCurrentLevel = skills.xp % 100;
-    final xpProgress = xpInCurrentLevel / 100.0;
-
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: p.backgroundColor,
-        appBar: AppBar(
-          backgroundColor: p.surfaceColor,
-          title: const FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text('ŞUBE İMPARATORLUĞU & GELİŞİM'),
-          ),
-          bottom: TabBar(
-            labelColor: p.primaryColor,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: p.primaryColor,
-            tabs: const [
-              Tab(icon: Icon(Icons.store_rounded, size: 20), text: 'Şubeler'),
-              Tab(icon: Icon(Icons.bolt_rounded, size: 20), text: 'Yetenekler'),
-              Tab(icon: Icon(Icons.emoji_events_rounded, size: 20), text: 'Başarımlar'),
-            ],
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'ŞUBE & PLAZA BÜYÜTME',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
-        body: TabBarView(
-          children: [
-            // TAB 1: Branch Empire Tiers
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Status Header Card
-                  AppGlassContainer(
-                    padding: const EdgeInsets.all(20),
-                    borderRadius: 20,
-                    borderColor: p.secondaryColor.withValues(alpha: 0.5),
-                    glowColor: p.secondaryColor.withValues(alpha: 0.15),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('MEVCUT GALERİ DÜZEYİ', style: AppTypography.labelSmall(p.isDark)),
-                        const SizedBox(height: 4),
-                        Text('Öz Galeri Motor Plaza', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 22)),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildInfoTile('Kapasite', '${game.maxGarageSlots} Araç Slotu', p.isDark),
-                            _buildInfoTile('Galeri İtibarı', '⭐ ${game.reputationScore} Puan', p.isDark),
-                            _buildInfoTile('Sermaye', CurrencyFormatter.formatShort(game.balance), p.isDark),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Current Branch Status Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'MEVCUT GALERİ MERKEZİ',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  game.dealershipName,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildInfoColumn('Kapasite', '${game.maxGarageSlots} Araç Slotu', isDark),
+                    _buildInfoColumn('Galeri Seviyesi', 'Seviye ${game.level}', isDark),
+                    _buildInfoColumn('Sermaye', CurrencyFormatter.formatShort(game.balance), isDark),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
 
-                  // Showroom Decor Navigation Banner Card
-                  AppGlassContainer(
-                    padding: const EdgeInsets.all(14),
-                    borderColor: Colors.cyanAccent.withValues(alpha: 0.5),
-                    glowColor: Colors.cyanAccent.withValues(alpha: 0.15),
-                    child: Row(
+          // 2. Showroom Decor Navigation Banner
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF06B6D4),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black, width: 1.5),
+                  ),
+                  child: const Icon(Icons.palette_rounded, color: Colors.black, size: 22),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Showroom Mimari & Dekorasyon',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'LED tavan ızgarası, İtalyan mermer & VIP Salonu',
+                        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                NeoBrutalButton(
+                  label: 'YENİLE',
+                  backgroundColor: const Color(0xFF06B6D4),
+                  textColor: Colors.black,
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  onPressed: () => context.push('/showroom-decor'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          Text(
+            'GALERİ ŞUBE KADEMELERİ & KAPASİTE',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 3. Branches List
+          ...branches.map((b) {
+            final isCurrent = game.maxGarageSlots == b.maxGarageSlots;
+            final isLevelUnlocked = game.level >= b.targetLevel;
+            final canAfford = game.balance >= b.requiredBalance;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isCurrent ? AppColors.brutalYellow : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                borderWidth: isCurrent ? 2.5 : 1.5,
+                borderRadius: 14,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.cyanAccent.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(Icons.palette_rounded, color: Colors.cyanAccent, size: 22),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Showroom Dekorasyon & Mimari', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-                                const SizedBox(height: 2),
-                                Text('LED ızgara, İtalyan mermer & VIP Lounge', style: AppTypography.labelSmall(p.isDark)),
-                              ],
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          onPressed: () => context.push('/showroom-decor'),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.cyanAccent, foregroundColor: Colors.black),
-                          child: const Text('Yenile', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  Text('GALERİ ŞUBE KADEMELERİ VE KAPASİTE', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: 12),
-
-                  ...branches.map((b) {
-                    final isCurrent = game.maxGarageSlots == b.maxGarageSlots;
-                    final canAfford = game.balance >= b.requiredBalance;
-
-                    return AppDoubleBezelCard(
-                      margin: const EdgeInsets.only(bottom: 14),
-                      outerRadius: 18,
-                      accentColor: isCurrent ? p.primaryColor : (b.isUnlocked ? p.secondaryColor : null),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                        Expanded(
+                          child: Row(
                             children: [
-                              CircleAvatar(
-                                backgroundColor: (isCurrent || b.isUnlocked) ? p.primaryColor.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.15),
-                                child: VectorIconWidget(type: b.vectorIcon, color: (isCurrent || b.isUnlocked) ? p.primaryColor : Colors.grey, size: 20),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: (isCurrent || b.isUnlocked) ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.black, width: 1.2),
+                                ),
+                                child: const Icon(Icons.storefront_rounded, color: Colors.black, size: 22),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(b.name, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                                    Text(b.locationName, style: AppTypography.labelSmall(p.isDark)),
+                                    Text(
+                                      b.name,
+                                      style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      b.locationName,
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                    ),
                                   ],
                                 ),
                               ),
-                              if (isCurrent)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(color: p.primaryColor, borderRadius: BorderRadius.circular(10)),
-                                  child: const Text('MEVCUT ŞUBE', style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold)),
-                                ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('• Araç Kapasitesi: ${b.maxGarageSlots} Araç', style: AppTypography.labelSmall(p.isDark)),
-                              Text('• Kâr Çarpanı: ${b.profitMultiplier}x', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold, fontSize: 12)),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-
-                          if (!isCurrent && !b.isUnlocked)
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: canAfford ? p.secondaryColor : Colors.grey,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                ),
-                                onPressed: canAfford
-                                    ? () {
-                                        ref.read(gameProvider.notifier).expandGarageSlot(b.maxGarageSlots, b.requiredBalance);
-                                        NotificationService.showSuccess(context, '${b.name} Şubesi Açıldı! Kapasite ${b.maxGarageSlots} Araç Oldu.');
-                                      }
-                                    : null,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    canAfford ? 'Şubeyi Aç (₺${CurrencyFormatter.formatShort(b.requiredBalance)})' : 'Yetersiz Bakiye (₺${CurrencyFormatter.formatShort(b.requiredBalance)})',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
-
-            // TAB 2: Character Skills Tree
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: p.surfaceColor,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: p.surfaceBorderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundColor: p.primaryColor.withValues(alpha: 0.2),
-                          child: VectorIconWidget(type: 'craftsman', color: p.primaryColor, size: 28),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 18)),
-                              const SizedBox(height: 4),
-                              Text('Seviye ${game.level} • XP: ${skills.xp}', style: AppTypography.labelSmall(p.isDark)),
-                              const SizedBox(height: 8),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
-                                child: LinearProgressIndicator(
-                                  value: xpProgress,
-                                  minHeight: 8,
-                                  backgroundColor: p.surfaceBorderColor,
-                                  valueColor: AlwaysStoppedAnimation<Color>(p.primaryColor),
-                                ),
-                              ),
-                            ],
+                        if (isCurrent)
+                          const NeoBrutalBadge(
+                            text: 'MEVCUT ŞUBE',
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          )
+                        else
+                          NeoBrutalBadge(
+                            text: 'SEVİYE ${b.targetLevel}',
+                            backgroundColor: isLevelUnlocked ? const Color(0xFF6366F1) : const Color(0xFF64748B),
+                            textColor: Colors.white,
+                            fontSize: 10,
                           ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '• Kapasite: ${b.maxGarageSlots} Slot',
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                        ),
+                        Text(
+                          '• Sabit Gider: ${CurrencyFormatter.formatShort(b.dailyBurnRate)}/gün',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626),
+                          ),
+                        ),
+                        Text(
+                          '• Kâr: ${b.profitMultiplier}x',
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  Text('YETENEK AĞACI & PERKLER', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: 12),
-
-                  _buildSkillTile(context, ref, title: 'İkna & Pazarlık', level: skills.negotiationLevel, cost: 5000.0 * skills.negotiationLevel, vectorType: 'negotiation', p: p, onUpgrade: () => ref.read(gameProvider.notifier).upgradeSkill('negotiation')),
-                  _buildSkillTile(context, ref, title: 'Ekspertiz Sezgisi', level: skills.eyeForDetail, cost: 5000.0 * skills.eyeForDetail, vectorType: 'expertise', p: p, onUpgrade: () => ref.read(gameProvider.notifier).upgradeSkill('eyeForDetail')),
-                  _buildSkillTile(context, ref, title: 'Piyasa Tahmini', level: skills.marketSense, cost: 5000.0 * skills.marketSense, vectorType: 'flash', p: p, onUpgrade: () => ref.read(gameProvider.notifier).upgradeSkill('marketSense')),
-                  _buildSkillTile(context, ref, title: 'Galeri İtibarı', level: skills.reputation, cost: 5000.0 * skills.reputation, vectorType: 'rare', p: p, onUpgrade: () => ref.read(gameProvider.notifier).upgradeSkill('reputation')),
-                ],
-              ),
-            ),
-
-            // TAB 3: Achievements Grid
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('BAŞARIMLAR VE ROZETLER', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: 12),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.1,
-                    ),
-                    itemCount: game.achievements.length,
-                    itemBuilder: (context, index) {
-                      final ach = game.achievements[index];
-                      return Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: p.surfaceColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: ach.isUnlocked ? p.warningColor : p.surfaceBorderColor,
-                            width: ach.isUnlocked ? 1.5 : 1,
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: isDark ? const Color(0xFF202636) : const Color(0xFFCBD5E1), width: 1),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(isLevelUnlocked ? Icons.lock_open_rounded : Icons.lock_rounded, size: 14, color: isLevelUnlocked ? AppColors.brutalGreen : const Color(0xFF64748B)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Açılanlar: ${b.unlockedSummary}',
+                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: ach.isUnlocked ? p.warningColor.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.15),
-                              child: VectorIconWidget(type: 'rare', color: ach.isUnlocked ? p.warningColor : Colors.grey, size: 20),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              ach.title,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: ach.isUnlocked ? p.textPrimaryColor : Colors.grey),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              ach.description,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                        ],
+                      ),
+                    ),
+                    if (!isCurrent && !b.isUnlocked) ...[
+                      const SizedBox(height: 12),
+                      NeoBrutalButton(
+                        label: !isLevelUnlocked
+                            ? 'SEVİYE ${b.targetLevel} GEREKLİ (XP KAZAN)'
+                            : (canAfford
+                                ? 'MÜLKÜ SATIN AL (${CurrencyFormatter.formatShort(b.requiredBalance)})'
+                                : 'YETERSİZ BAKİYE (${CurrencyFormatter.formatShort(b.requiredBalance)})'),
+                        backgroundColor: !isLevelUnlocked
+                            ? (isDark ? const Color(0xFF1A1F2C) : const Color(0xFFCBD5E1))
+                            : (canAfford ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))),
+                        textColor: isLevelUnlocked && canAfford ? Colors.black : const Color(0xFF64748B),
+                        fontSize: 11.5,
+                        fullWidth: true,
+                        onPressed: (isLevelUnlocked && canAfford)
+                            ? () {
+                                final success = ref.read(gameProvider.notifier).upgradeBranch(b);
+                                if (success) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        side: const BorderSide(color: Colors.black, width: 2.5),
+                                      ),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.brutalYellow,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.black, width: 2),
+                                            ),
+                                            child: const Icon(Icons.stars_rounded, size: 40, color: Colors.black),
+                                          ),
+                                          const SizedBox(height: 14),
+                                          const Text('🎉 TEBRİKLER! ŞUBE AÇILDI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Galeri Seviyeniz Seviye ${b.targetLevel} oldu! Yeni özellikler ve ${b.maxGarageSlots} araç slotu kullanıma açıldı.',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          NeoBrutalButton(
+                                            label: 'HARİKA!',
+                                            fullWidth: true,
+                                            backgroundColor: AppColors.brutalYellow,
+                                            textColor: Colors.black,
+                                            onPressed: () => Navigator.pop(ctx),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            : null,
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSkillTile(BuildContext context, WidgetRef ref, {required String title, required int level, required double cost, required String vectorType, required ThemePaletteModel p, required VoidCallback onUpgrade}) {
-    final game = ref.watch(gameProvider);
-    final canAfford = game.balance >= cost && level < 10;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: p.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: p.surfaceBorderColor),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: p.primaryColor.withValues(alpha: 0.15),
-            child: VectorIconWidget(type: vectorType, color: p.primaryColor, size: 20),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                Text('Seviye $level / 10', style: AppTypography.labelSmall(p.isDark)),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: canAfford ? p.primaryColor : Colors.grey,
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            ),
-            onPressed: canAfford ? onUpgrade : null,
-            child: Text(level >= 10 ? 'MAX' : '₺${CurrencyFormatter.formatShort(cost)}'),
-          ),
+            );
+          }),
         ],
       ),
     );
   }
 
-  Widget _buildInfoTile(String title, String value, bool isDark) {
+  Widget _buildInfoColumn(String title, String value, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppTypography.labelSmall(isDark).copyWith(fontSize: 11)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+        ),
         const SizedBox(height: 2),
-        Text(value, style: AppTypography.titleLarge(isDark).copyWith(fontSize: 14)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+        ),
       ],
     );
   }

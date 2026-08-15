@@ -5,10 +5,10 @@ import '../../domain/usecases/market_engine.dart';
 class AuctionEngine {
   static final Random _random = Random();
 
-  /// Checks if an auction is currently live (Active for 2 minutes every 5 minutes window)
+  /// Checks if an auction window is currently active (Active 3 minutes, Closed 3 minutes)
   static bool isAuctionActiveNow() {
     final minute = DateTime.now().minute;
-    return (minute % 5) < 2;
+    return (minute % 6) < 3;
   }
 
   /// Calculates remaining seconds until next auction window opens
@@ -17,7 +17,7 @@ class AuctionEngine {
     final minute = now.minute;
     final second = now.second;
 
-    int minutesUntil = 5 - (minute % 5);
+    int minutesUntil = 6 - (minute % 6);
     int totalSeconds = (minutesUntil * 60) - second;
     return totalSeconds > 0 ? totalSeconds : 60;
   }
@@ -27,26 +27,34 @@ class AuctionEngine {
     final car = listings.first.car;
 
     final marketValue = car.estimatedRealValue;
-    final startingPrice = (marketValue * 0.65).roundToDouble(); // Starts 35% below market!
+    // Kelepir starting price: 50% - 70% of market value
+    final startRatio = 0.50 + (_random.nextDouble() * 0.20);
+    final startingPrice = (marketValue * startRatio).roundToDouble();
 
     final rivals = [
       AuctionRival(
-        name: 'Çakal Kerim',
+        name: 'Hızlı Ahmet',
         avatarType: 'craftsman',
-        maxBudget: (marketValue * 0.95).roundToDouble(),
-        personality: 'Agresif',
+        maxBudget: (marketValue * 0.82).roundToDouble(),
+        personality: 'Erken Agresif',
       ),
       AuctionRival(
-        name: 'Hacı Osman',
+        name: 'Sabırlı Mehmet',
         avatarType: 'shield',
-        maxBudget: (marketValue * 0.88).roundToDouble(),
-        personality: 'Temkinli',
+        maxBudget: (marketValue * 0.92).roundToDouble(),
+        personality: 'Son Saniye Sniper',
       ),
       AuctionRival(
-        name: 'Sosyetik Mert',
+        name: 'Zengin Ayşe',
         avatarType: 'rare',
-        maxBudget: (marketValue * 1.05).roundToDouble(),
-        personality: 'Blöfçü',
+        maxBudget: (marketValue * 1.15).roundToDouble(),
+        personality: 'Yüksek Bütçe & Lüks',
+      ),
+      AuctionRival(
+        name: 'Çılgın Kemal',
+        avatarType: 'sparkles',
+        maxBudget: (marketValue * 0.98).roundToDouble(),
+        personality: 'Sürpriz & Kaotik',
       ),
     ];
 
@@ -56,15 +64,15 @@ class AuctionEngine {
       startingPrice: startingPrice,
       estimatedMarketValue: marketValue,
       currentBid: startingPrice,
-      highestBidderName: 'Gümrük İdaresi',
+      highestBidderName: 'Gümrük ve Tasfiye İdaresi',
       isPlayerHighestBidder: false,
-      secondsRemaining: 30,
+      secondsRemaining: 25,
       status: AuctionStatus.active,
       rivals: rivals,
     );
   }
 
-  /// Process AI rivals' bid logic on each tick (returns updated auction or null if no bid placed)
+  /// Process AI rivals' bid logic on each tick
   static AuctionModel? processRivalBid(AuctionModel auction) {
     if (auction.status != AuctionStatus.active || auction.secondsRemaining <= 0) {
       return null;
@@ -73,23 +81,53 @@ class AuctionEngine {
     final activeRivals = auction.rivals.where((r) => !r.isFolded && r.maxBudget > auction.currentBid).toList();
     if (activeRivals.isEmpty) return null;
 
-    // 40% chance an active rival bids on this tick
-    if (_random.nextDouble() > 0.40) return null;
+    // Evaluate each rival's personality
+    for (final rival in activeRivals) {
+      bool shouldBid = false;
+      double increment = 5000.0;
 
-    final bidder = activeRivals[_random.nextInt(activeRivals.length)];
-    final bidIncrement = (5000 + _random.nextInt(15000)).toDouble();
-    final newBid = auction.currentBid + bidIncrement;
+      if (rival.name == 'Hızlı Ahmet') {
+        // Ahmet bids early (seconds > 12) with high chance
+        if (auction.secondsRemaining > 10 && _random.nextDouble() < 0.45) {
+          shouldBid = true;
+          increment = 7500.0 + _random.nextInt(7500);
+        }
+      } else if (rival.name == 'Sabırlı Mehmet') {
+        // Mehmet snipes at the very end (seconds <= 5)
+        if (auction.secondsRemaining <= 5 && _random.nextDouble() < 0.70) {
+          shouldBid = true;
+          increment = 5000.0 + _random.nextInt(10000);
+        }
+      } else if (rival.name == 'Zengin Ayşe') {
+        // Ayşe bids if marketValue is high or randomly
+        if (_random.nextDouble() < 0.35) {
+          shouldBid = true;
+          increment = 12000.0 + _random.nextInt(18000);
+        }
+      } else if (rival.name == 'Çılgın Kemal') {
+        // Kemal has erratic bursts
+        if (_random.nextDouble() < 0.30) {
+          shouldBid = true;
+          increment = 3000.0 + _random.nextInt(25000);
+        }
+      }
 
-    if (newBid > bidder.maxBudget) {
-      bidder.isFolded = true;
-      return null;
+      if (shouldBid) {
+        final newBid = auction.currentBid + increment;
+        if (newBid > rival.maxBudget) {
+          rival.isFolded = true;
+          continue;
+        }
+
+        return auction.copyWith(
+          currentBid: newBid,
+          highestBidderName: rival.name,
+          isPlayerHighestBidder: false,
+          secondsRemaining: (auction.secondsRemaining < 6) ? 7 : auction.secondsRemaining,
+        );
+      }
     }
 
-    return auction.copyWith(
-      currentBid: newBid,
-      highestBidderName: bidder.name,
-      isPlayerHighestBidder: false,
-      secondsRemaining: (auction.secondsRemaining < 8) ? 8 : auction.secondsRemaining,
-    );
+    return null;
   }
 }

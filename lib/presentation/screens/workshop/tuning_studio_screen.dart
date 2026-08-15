@@ -3,14 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/app_double_bezel_card.dart';
-import '../../widgets/app_glass_container.dart';
-import '../../widgets/app_tactile_button.dart';
+import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 
 class TuningStudioOption {
   final String id;
@@ -50,7 +49,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       cost: 15000,
       valueMultiplier: 1.12,
       icon: Icons.memory_rounded,
-      color: Colors.amber,
+      color: AppColors.brutalYellow,
     ),
     TuningStudioOption(
       id: 'tune_ecu_stg2',
@@ -59,7 +58,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       cost: 35000,
       valueMultiplier: 1.25,
       icon: Icons.speed_rounded,
-      color: Colors.redAccent,
+      color: AppColors.errorRed,
     ),
     TuningStudioOption(
       id: 'tune_exhaust',
@@ -68,7 +67,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       cost: 22000,
       valueMultiplier: 1.15,
       icon: Icons.minor_crash_rounded,
-      color: Colors.orangeAccent,
+      color: AppColors.brutalOrange,
     ),
     TuningStudioOption(
       id: 'tune_bodykit',
@@ -77,7 +76,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       cost: 45000,
       valueMultiplier: 1.30,
       icon: Icons.auto_awesome_rounded,
-      color: Colors.purpleAccent,
+      color: Color(0xFFA855F7),
     ),
     TuningStudioOption(
       id: 'tune_rims',
@@ -86,7 +85,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       cost: 28000,
       valueMultiplier: 1.18,
       icon: Icons.tire_repair_rounded,
-      color: Colors.cyanAccent,
+      color: Color(0xFF06B6D4),
     ),
     TuningStudioOption(
       id: 'tune_air_suspension',
@@ -95,7 +94,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       cost: 55000,
       valueMultiplier: 1.35,
       icon: Icons.tune_rounded,
-      color: Colors.greenAccent,
+      color: AppColors.brutalGreen,
     ),
   ];
 
@@ -104,6 +103,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
     final ownedCars = game.ownedCars;
 
     if (_selectedCar != null && !ownedCars.any((c) => c.id == _selectedCar!.id)) {
@@ -111,234 +111,136 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     }
 
     return Scaffold(
-      backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: p.textPrimaryColor, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
           onPressed: () => context.pop(),
         ),
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            'PERFORMANS & TUNING STÜDYOSU',
-            style: AppTypography.titleLarge(p.isDark).copyWith(letterSpacing: 1.2),
+        title: Text(
+          'VIP TUNİNG & MODİFİYE STÜDYOSU',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.8,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Info Banner
-            AppGlassContainer(
-              padding: const EdgeInsets.all(16),
-              borderColor: Colors.amber.withValues(alpha: 0.5),
-              glowColor: Colors.amber.withValues(alpha: 0.15),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.speed_rounded, color: Colors.amber, size: 28),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Header Banner
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.brutalYellow,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black, width: 1.5),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('VIP Tuning & Modifikasyon', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Araçlarına özel performans yazılımı ve bodykit ekleyerek değerlerini %35\'e kadar artır.',
-                          style: AppTypography.bodyMedium(p.isDark).copyWith(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Car Selector Header
-            Text('TUNİNG UYGULANACAK ARACI SEÇ', style: AppTypography.labelSmall(p.isDark)),
-            const SizedBox(height: 12),
-
-            if (ownedCars.isEmpty)
-              AppGlassContainer(
-                padding: const EdgeInsets.all(24),
-                child: Center(
+                  child: const Icon(Icons.speed_rounded, color: Colors.black, size: 24),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.directions_car_filled_rounded, color: p.textSecondaryColor, size: 48),
-                      const SizedBox(height: 12),
-                      Text('Garajında Henüz Araç Yok!', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                      const SizedBox(height: 4),
-                      Text('Pazardan araç satın alarak tuning atölyesine getirebilirsin.', style: AppTypography.bodyMedium(p.isDark)),
+                      Text(
+                        'VIP TUNİNG & GÜÇ YÜKLEME',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Araçlara özel performans yazılımı ve bodykit ekleyerek değerlerini %35\'e kadar artırın.',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
                     ],
                   ),
                 ),
-              )
-            else
-              SizedBox(
-                height: 110,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: ownedCars.length,
-                  itemBuilder: (context, index) {
-                    final car = ownedCars[index];
-                    final isSelected = _selectedCar?.id == car.id;
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
 
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedCar = car),
-                      child: Container(
-                        width: 180,
-                        margin: const EdgeInsets.only(right: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isSelected ? p.primaryColor.withValues(alpha: 0.15) : p.surfaceColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? p.primaryColor : p.surfaceBorderColor,
-                            width: isSelected ? 2 : 1,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    '${car.modelYear} ${car.brand}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(Icons.check_circle_rounded, color: p.primaryColor, size: 18),
-                              ],
-                            ),
-                            Text(car.modelName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodyMedium(p.isDark)),
-                            Text(
-                              '₺${CurrencyFormatter.formatShort(car.currentPurchasePrice)}',
-                              style: TextStyle(color: p.successColor, fontWeight: FontWeight.bold, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+          // 2. Car Selector
+          Text(
+            'TUNİNG YAPILACAK ARACI SEÇ',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          if (ownedCars.isEmpty)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(20),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
+              child: const Center(
+                child: Text(
+                  'Garajında tuning uygulayabileceğin araç yok!',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                 ),
               ),
-
-            const SizedBox(height: 24),
-
-            if (_selectedCar != null) ...[
-              Text('${_selectedCar!.brand} ${_selectedCar!.modelName} İÇİN TUNİNG MODÜLLERİ', style: AppTypography.labelSmall(p.isDark)),
-              const SizedBox(height: 12),
-
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _tuningOptions.length,
+            )
+          else
+            SizedBox(
+              height: 86,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: ownedCars.length,
                 itemBuilder: (context, index) {
-                  final opt = _tuningOptions[index];
+                  final car = ownedCars[index];
+                  final isSelected = _selectedCar?.id == car.id;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: AppDoubleBezelCard(
-                      accentColor: opt.color,
-                      outerRadius: 16,
-                      padding: const EdgeInsets.all(16),
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedCar = car),
+                    child: Container(
+                      width: 150,
+                      margin: const EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.brutalYellow
+                            : (isDark ? const Color(0xFF141721) : Colors.white),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black, width: isSelected ? 2.5 : 1.5),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: opt.color.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(opt.icon, color: opt.color, size: 24),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 16)),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Değer Artışı: +%${((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)}',
-                                      style: TextStyle(color: p.successColor, fontSize: 12, fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          Text(
+                            '${car.brand} ${car.modelName}',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w900,
+                              color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 10),
-                          Text(opt.description, style: AppTypography.bodyMedium(p.isDark)),
-                          const SizedBox(height: 14),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Maliyet: ₺${CurrencyFormatter.formatShort(opt.cost)}',
-                                style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
-                              ),
-                              AppTactileButton(
-                                onPressed: () {
-                                  if (game.balance < opt.cost) {
-                                    NotificationService.showError(context, 'Yetersiz bakiye! ₺${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
-                                    return;
-                                  }
-
-                                  // Apply Tuning Upgrade to selected car
-                                  final newMarketValue = _selectedCar!.baseMarketValue * opt.valueMultiplier;
-                                  final updatedCar = _selectedCar!.copyWith(baseMarketValue: newMarketValue);
-                                  
-                                  ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
-
-                                  setState(() {
-                                    _selectedCar = updatedCar;
-                                  });
-
-                                  NotificationService.showSuccess(
-                                    context,
-                                    '${opt.title} uygulandı! Yeni Pazar Değeri: ₺${CurrencyFormatter.formatShort(newMarketValue)}',
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: opt.color,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.flash_on_rounded, size: 16, color: Colors.black),
-                                      const SizedBox(width: 6),
-                                      const Text(
-                                        'Uygula',
-                                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: 2),
+                          Text(
+                            '₺${CurrencyFormatter.formatShort(car.currentPurchasePrice)}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: isSelected ? Colors.black87 : const Color(0xFF64748B),
+                            ),
                           ),
                         ],
                       ),
@@ -346,9 +248,111 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   );
                 },
               ),
-            ],
+            ),
+          const SizedBox(height: 16),
+
+          // 3. Tuning Modules
+          if (_selectedCar != null) ...[
+            Text(
+              '${_selectedCar!.brand} ${_selectedCar!.modelName} İÇİN MODÜLLER',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+                color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            ..._tuningOptions.map((opt) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 14,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: opt.color,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.black, width: 1.4),
+                                ),
+                                child: Icon(opt.icon, color: Colors.black, size: 20),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                opt.title,
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                              ),
+                            ],
+                          ),
+                          NeoBrutalBadge(
+                            text: '+%${((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)} Değer',
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        opt.description,
+                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '₺${CurrencyFormatter.formatShort(opt.cost)}',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalOrange),
+                          ),
+                          NeoBrutalButton(
+                            label: 'UYGULA',
+                            icon: Icons.flash_on_rounded,
+                            backgroundColor: opt.color,
+                            textColor: Colors.black,
+                            fontSize: 11.5,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            onPressed: () {
+                              if (game.balance < opt.cost) {
+                                NotificationService.showError(context, 'Yetersiz bakiye! ₺${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
+                                return;
+                              }
+
+                              final newMarketValue = _selectedCar!.baseMarketValue * opt.valueMultiplier;
+                              final updatedCar = _selectedCar!.copyWith(baseMarketValue: newMarketValue);
+                              ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
+
+                              setState(() {
+                                _selectedCar = updatedCar;
+                              });
+
+                              NotificationService.showSuccess(
+                                context,
+                                '${opt.title} uygulandı! Yeni Pazar Değeri: ₺${CurrencyFormatter.formatShort(newMarketValue)}',
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ],
-        ),
+        ],
       ),
     );
   }
