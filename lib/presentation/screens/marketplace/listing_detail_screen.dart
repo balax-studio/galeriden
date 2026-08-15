@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -114,9 +115,9 @@ class ListingDetailScreen extends ConsumerWidget {
                   _buildSpecRow('Konum / Şehir', listing.sellerCity, p),
                   _buildSpecRow('Marka / Model', '${car.brand} ${car.modelName}', p),
                   _buildSpecRow('Model Yılı', '${car.modelYear}', p),
-                  _buildSpecRow('Kilometre', '${CurrencyFormatter.formatShort(exp.mileage.toDouble())} KM', p, valueColor: StatColors.getMileageColor(exp.mileage)),
+                  _buildSpecRow('Kilometre', '${NumberFormat('#,###', 'tr_TR').format(exp.mileage)} KM', p, valueColor: StatColors.getMileageColor(exp.mileage)),
                   _buildSpecRow('Motor Kondisyonu', '%${exp.engineCondition.round()}', p, valueColor: StatColors.getEngineColor(exp.engineCondition)),
-                  _buildSpecRow('Tramer Kaydı', exp.tramerAmount == 0 ? 'Hasar Kayıtsız' : '₺${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}', p, valueColor: StatColors.getTramerColor(exp.tramerAmount)),
+                  _buildSpecRow('Tramer Kaydı', exp.tramerAmount == 0 ? 'Hasar Kayıtsız' : CurrencyFormatter.formatShort(exp.tramerAmount.toDouble()), p, valueColor: StatColors.getTramerColor(exp.tramerAmount)),
                   _buildSpecRow('Satıcı Profil', listing.sellerName, p),
                 ],
               ),

@@ -162,7 +162,7 @@ class BlackMarketScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Piyasa: ₺${CurrencyFormatter.formatShort(car.realMarketValue)}',
+                                'Piyasa: ${CurrencyFormatter.formatShort(car.realMarketValue)}',
                                 style: const TextStyle(
                                   decoration: TextDecoration.lineThrough,
                                   fontSize: 11,
@@ -171,7 +171,7 @@ class BlackMarketScreen extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                '₺${CurrencyFormatter.formatShort(car.askingPrice)}',
+                                CurrencyFormatter.formatShort(car.askingPrice),
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                               ),
                             ],
@@ -189,7 +189,7 @@ class BlackMarketScreen extends ConsumerWidget {
                                 return;
                               }
                               if (game.balance < car.askingPrice) {
-                                NotificationService.showError(context, 'Yetersiz bakiye! ₺${CurrencyFormatter.formatShort(car.askingPrice)} gerekli.');
+                                NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(car.askingPrice)} gerekli.');
                                 return;
                               }
 

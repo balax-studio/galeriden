@@ -335,7 +335,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                             ],
                                           ),
                                           Text(
-                                            '~₺${CurrencyFormatter.formatShort(p.estimatedValue)}',
+                                            '~${CurrencyFormatter.formatShort(p.estimatedValue)}',
                                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                                           ),
                                         ],
@@ -357,7 +357,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                     style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                                   ),
                                   Text(
-                                    '₺${CurrencyFormatter.formatShort(car.scrapPrice)}',
+                                    CurrencyFormatter.formatShort(car.scrapPrice),
                                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalOrange),
                                   ),
                                 ],
@@ -371,7 +371,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                 onPressed: () {
                                   if (game.balance < car.scrapPrice) {
-                                    NotificationService.showError(context, 'Yetersiz bakiye! ₺${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
+                                    NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
                                     return;
                                   }
                                   final success = ref.read(gameProvider.notifier).buyAndDismantleScrapCar(car.id);
@@ -475,7 +475,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '₺${CurrencyFormatter.formatShort(part.estimatedValue)}',
+                                CurrencyFormatter.formatShort(part.estimatedValue),
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                               ),
                               Row(
@@ -502,7 +502,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                       if (success) {
                                         NotificationService.showSuccess(
                                           context,
-                                          '${part.name} ₺${CurrencyFormatter.formatShort(part.estimatedValue)} karşılığı satıldı!',
+                                          '${part.name} ${CurrencyFormatter.formatShort(part.estimatedValue)} karşılığı satıldı!',
                                         );
                                       }
                                     },

@@ -169,7 +169,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   ),
                 ),
                 Text(
-                  'Kasa: ₺${CurrencyFormatter.formatShort(game.balance)}',
+                  'Kasa: ${CurrencyFormatter.formatShort(game.balance)}',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -343,8 +343,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                   ),
                                   NeoBrutalBadge(
                                     text: exp.tramerAmount == 0
-                                        ? 'Tramer: 0 ₺'
-                                        : 'Tramer: ₺${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
+                                        ? 'Tramer: ₺0'
+                                        : 'Tramer: ${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
                                     backgroundColor: StatColors.getTramerColor(exp.tramerAmount).withValues(alpha: 0.2),
                                     textColor: isDark ? Colors.white : const Color(0xFF0F172A),
                                     borderColor: StatColors.getTramerColor(exp.tramerAmount),

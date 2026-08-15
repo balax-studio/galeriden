@@ -258,7 +258,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '₺${CurrencyFormatter.formatShort(course.cost)}',
+                          CurrencyFormatter.formatShort(course.cost),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                         ),
                         NeoBrutalButton(

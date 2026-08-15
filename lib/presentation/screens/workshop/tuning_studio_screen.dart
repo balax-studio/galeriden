@@ -235,7 +235,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '₺${CurrencyFormatter.formatShort(car.currentPurchasePrice)}',
+                            CurrencyFormatter.formatShort(car.currentPurchasePrice),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
@@ -314,7 +314,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '₺${CurrencyFormatter.formatShort(opt.cost)}',
+                            CurrencyFormatter.formatShort(opt.cost),
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalOrange),
                           ),
                           NeoBrutalButton(
@@ -326,7 +326,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             onPressed: () {
                               if (game.balance < opt.cost) {
-                                NotificationService.showError(context, 'Yetersiz bakiye! ₺${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
+                                NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
                                 return;
                               }
 
@@ -340,7 +340,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
                               NotificationService.showSuccess(
                                 context,
-                                '${opt.title} uygulandı! Yeni Pazar Değeri: ₺${CurrencyFormatter.formatShort(newMarketValue)}',
+                                '${opt.title} uygulandı! Yeni Pazar Değeri: ${CurrencyFormatter.formatShort(newMarketValue)}',
                               );
                             },
                           ),

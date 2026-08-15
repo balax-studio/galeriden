@@ -416,7 +416,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 children: [
                                   Text(part.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
                                   Text(
-                                    'Kondisyon: %${part.conditionPercent} • Tahmini Değer: ₺${CurrencyFormatter.format(part.estimatedValue)}',
+                                    'Kondisyon: %${part.conditionPercent} • Tahmini Değer: ${CurrencyFormatter.format(part.estimatedValue)}',
                                     style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                                   ),
                                 ],
@@ -591,7 +591,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Onarım Bedeli: ₺${CurrencyFormatter.format(cost)}',
+                  'Onarım Bedeli: ${CurrencyFormatter.format(cost)}',
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: Color(0xFFFF7A00)),
                 ),
               ],
@@ -669,7 +669,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isOwned ? 'Atölyeye kuruldu' : 'Fiyat: ₺${CurrencyFormatter.format(cost)}',
+                  isOwned ? 'Atölyeye kuruldu' : 'Fiyat: ${CurrencyFormatter.format(cost)}',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -703,7 +703,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     if (_selectedCar == null) return;
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context, 'Yetersiz Bakiye! ₺${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
       return;
     }
 
@@ -722,7 +722,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
   void _buyEquipment(String eqId, double cost, String name) {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context, 'Yetersiz Bakiye! ₺${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
       return;
     }
 

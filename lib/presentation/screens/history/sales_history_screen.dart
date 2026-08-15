@@ -270,11 +270,11 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildPriceColumn('Alış Fiyatı', '₺${CurrencyFormatter.formatShort(sale.purchasePrice)}', const Color(0xFF64748B)),
-                          _buildPriceColumn('Satış Fiyatı', '₺${CurrencyFormatter.formatShort(sale.salePrice)}', isDark ? Colors.white : Colors.black),
+                          _buildPriceColumn('Alış Fiyatı', CurrencyFormatter.formatShort(sale.purchasePrice), const Color(0xFF64748B)),
+                          _buildPriceColumn('Satış Fiyatı', CurrencyFormatter.formatShort(sale.salePrice), isDark ? Colors.white : Colors.black),
                           _buildPriceColumn(
                             'Net Kâr',
-                            '₺${CurrencyFormatter.formatShort(sale.netProfit)}',
+                            CurrencyFormatter.formatShort(sale.netProfit),
                             isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
                           ),
                         ],

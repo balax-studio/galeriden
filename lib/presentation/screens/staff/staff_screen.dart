@@ -177,7 +177,7 @@ class StaffScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Günlük Maaş: ₺${CurrencyFormatter.formatShort(role.dailySalary)}',
+                                'Günlük Maaş: ${CurrencyFormatter.formatShort(role.dailySalary)}',
                                 style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                               ),
                             ],

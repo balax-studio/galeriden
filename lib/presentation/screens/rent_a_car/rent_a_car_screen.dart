@@ -76,7 +76,7 @@ class RentACarScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '₺${CurrencyFormatter.formatShort(dailyRentalIncome)} / Gün',
+                        '${CurrencyFormatter.formatShort(dailyRentalIncome)} / Gün',
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                       ),
                       const SizedBox(height: 2),
@@ -169,12 +169,12 @@ class RentACarScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Günlük Getiri: ₺${CurrencyFormatter.formatShort(rental.dailyRate)}',
+                    'Günlük Getiri: ${CurrencyFormatter.formatShort(rental.dailyRate)}',
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Toplam: ₺${CurrencyFormatter.formatShort(rental.totalEarned)} • ${rental.rentedDays} Gün',
+                    'Toplam: ${CurrencyFormatter.formatShort(rental.totalEarned)} • ${rental.rentedDays} Gün',
                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                   ),
                 ],
@@ -258,7 +258,7 @@ class RentACarScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Değer: ₺${CurrencyFormatter.formatShort(car.currentPurchasePrice)}',
+                      'Değer: ${CurrencyFormatter.formatShort(car.currentPurchasePrice)}',
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                     ),
                   ],
@@ -286,9 +286,8 @@ class RentACarScreen extends ConsumerWidget {
     double suggestedRate,
     bool isDark,
   ) {
-    final double carVal = car.currentPurchasePrice.toDouble();
-    final double maxAllowedRate = (carVal * 0.012).clamp(100.0, 50000.0);
-    double currentRate = suggestedRate.clamp(100.0, maxAllowedRate);
+    double currentRate = suggestedRate.clamp(100.0, 50000.0);
+    final double maxAllowedRate = (car.currentPurchasePrice * 0.012).clamp(100.0, 50000.0);
 
     showModalBottomSheet(
       context: context,
@@ -329,7 +328,7 @@ class RentACarScreen extends ConsumerWidget {
                           children: [
                             const Text('Tavsiye Edilen Rayiç:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                             Text(
-                              '₺${CurrencyFormatter.formatShort(suggestedRate)} / Gün',
+                              '${CurrencyFormatter.formatShort(suggestedRate)} / Gün',
                               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                             ),
                           ],
@@ -366,7 +365,7 @@ class RentACarScreen extends ConsumerWidget {
                       Expanded(
                         child: Center(
                           child: Text(
-                            '₺${CurrencyFormatter.formatShort(currentRate)} / Gün',
+                            '${CurrencyFormatter.formatShort(currentRate)} / Gün',
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                           ),
                         ),
@@ -396,7 +395,7 @@ class RentACarScreen extends ConsumerWidget {
                       if (success) {
                         NotificationService.showSuccess(
                           context,
-                          '${car.brand} günlük ₺${CurrencyFormatter.formatShort(currentRate)} bedelle kiraya verildi.',
+                          '${car.brand} günlük ${CurrencyFormatter.formatShort(currentRate)} bedelle kiraya verildi.',
                         );
                       }
                     },

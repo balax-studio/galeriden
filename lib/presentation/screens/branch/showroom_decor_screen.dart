@@ -208,7 +208,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '₺${CurrencyFormatter.formatShort(item.cost)}',
+                          CurrencyFormatter.formatShort(item.cost),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                         ),
                         NeoBrutalButton(

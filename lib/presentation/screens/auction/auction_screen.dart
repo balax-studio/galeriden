@@ -42,7 +42,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     final game = ref.read(gameProvider);
     _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
     _bidLogs.add('🏛️ Gümrük ve Tasfiye İhale Seansı Başladı!');
-    _bidLogs.add('🏷️ Açılış Fiyatı: ₺${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+    _bidLogs.add('🏷️ Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
     _startAuctionTimer();
   }
 
@@ -83,7 +83,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       if (updated != null) {
         setState(() {
           _auction = updated;
-          _bidLogs.insert(0, '⚡ ${updated.highestBidderName} teklif yükseltti: ₺${CurrencyFormatter.formatShort(updated.currentBid)}');
+          _bidLogs.insert(0, '⚡ ${updated.highestBidderName} teklif yükseltti: ${CurrencyFormatter.formatShort(updated.currentBid)}');
         });
       }
     });
@@ -106,7 +106,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         isPlayerHighestBidder: true,
         secondsRemaining: (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
       );
-      _bidLogs.insert(0, '🔥 SENİN TEKLİFİN: ₺${CurrencyFormatter.formatShort(nextBid)}');
+      _bidLogs.insert(0, '🔥 SENİN TEKLİFİN: ${CurrencyFormatter.formatShort(nextBid)}');
     });
   }
 
@@ -118,7 +118,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
       _bidLogs.clear();
       _bidLogs.add('🏛️ Yeni Araç İhale Masasında!');
-      _bidLogs.add('🏷️ Başlangıç Fiyatı: ₺${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      _bidLogs.add('🏷️ Başlangıç Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
       _hasPlayerEnteredBid = false;
     });
     _startAuctionTimer();
@@ -174,13 +174,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '${_auction.car.modelYear} ${_auction.car.brand} ${_auction.car.modelName} aracını ₺${CurrencyFormatter.formatShort(_auction.currentBid)} kelepir fiyata galerine ekledin!',
+                    '${_auction.car.modelYear} ${_auction.car.brand} ${_auction.car.modelName} aracını ${CurrencyFormatter.formatShort(_auction.currentBid)} kelepir fiyata galerine ekledin!',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, height: 1.4),
                   ),
                   const SizedBox(height: 8),
                   NeoBrutalBadge(
-                    text: 'Piyasa Değeri: ₺${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
+                    text: 'Piyasa Değeri: ${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                   ),
@@ -238,7 +238,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'İhaleyi ${_auction.highestBidderName} ₺${CurrencyFormatter.formatShort(_auction.currentBid)} teklifle kazandı.',
+                    'İhaleyi ${_auction.highestBidderName} ${CurrencyFormatter.formatShort(_auction.currentBid)} teklifle kazandı.',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
@@ -426,7 +426,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             ),
                           ),
                           NeoBrutalBadge(
-                            text: 'Piyasa: ₺${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
+                            text: 'Piyasa: ${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
                             backgroundColor: AppColors.brutalYellow,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -460,7 +460,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '₺${CurrencyFormatter.formatShort(_auction.currentBid)}',
+                                  CurrencyFormatter.formatShort(_auction.currentBid),
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,

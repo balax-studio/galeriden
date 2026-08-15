@@ -184,7 +184,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   ),
                                   const Spacer(),
                                   Text(
-                                    '₺${CurrencyFormatter.formatShort(car.baseMarketValue)}',
+                                    CurrencyFormatter.formatShort(car.baseMarketValue),
                                     style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
                                   ),
                                 ],
@@ -230,7 +230,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Piyasa Değeri: ₺${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • Yıl: ${_selectedCar!.modelYear}',
+                                    'Piyasa Değeri: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • Yıl: ${_selectedCar!.modelYear}',
                                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                                   ),
                                 ],
@@ -494,7 +494,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Hizmet Bedeli: ₺${CurrencyFormatter.format(cost)}',
+                  'Hizmet Bedeli: ${CurrencyFormatter.format(cost)}',
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
                 ),
               ],
@@ -572,7 +572,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isOwned ? 'Maliyeti düşürüldü' : 'Fiyat: ₺${CurrencyFormatter.format(cost)}',
+                  isOwned ? 'Maliyeti düşürüldü' : 'Fiyat: ${CurrencyFormatter.format(cost)}',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -608,7 +608,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
     if (_selectedCar == null) return;
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context, 'Yetersiz Bakiye! ₺${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
       return;
     }
 
@@ -629,7 +629,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
   void _buyEquipment(String eqId, double cost, String name) {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context, 'Yetersiz Bakiye! ₺${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
       return;
     }
 

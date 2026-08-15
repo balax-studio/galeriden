@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
@@ -110,7 +111,7 @@ class ExpertiseReportSheet extends StatelessWidget {
                 Expanded(
                   child: _buildSpecTile(
                     'Tramer Kaydı',
-                    car.expertise.tramerAmount > 0 ? '₺${CurrencyFormatter.formatShort(car.expertise.tramerAmount.toDouble())}' : 'Hasar Kayıtsız',
+                    car.expertise.tramerAmount > 0 ? CurrencyFormatter.formatShort(car.expertise.tramerAmount.toDouble()) : 'Hasar Kayıtsız',
                     car.expertise.tramerAmount > 0 ? p.errorColor : p.successColor,
                     p,
                   ),
@@ -119,7 +120,7 @@ class ExpertiseReportSheet extends StatelessWidget {
                 Expanded(
                   child: _buildSpecTile(
                     'Kilometre',
-                    '${CurrencyFormatter.formatShort(car.expertise.mileage.toDouble())} km',
+                    '${NumberFormat('#,###', 'tr_TR').format(car.expertise.mileage)} km',
                     car.expertise.isMileageTampered ? p.errorColor : p.textPrimaryColor,
                     p,
                     subtitle: car.expertise.isMileageTampered ? 'Düşürülmüş KM' : 'Orijinal KM',

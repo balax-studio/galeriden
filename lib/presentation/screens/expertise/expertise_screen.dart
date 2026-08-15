@@ -361,8 +361,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                             Expanded(
                               child: Text(
                                 isOverpriced
-                                    ? 'Satıcı ₺${CurrencyFormatter.formatShort(diff)} yüksek istiyor (Pazarlık Kozu!)'
-                                    : 'Piyasanın ₺${CurrencyFormatter.formatShort(-diff)} altında kelepir fırsat!',
+                                    ? 'Satıcı ${CurrencyFormatter.formatShort(diff)} yüksek istiyor (Pazarlık Kozu!)'
+                                    : 'Piyasanın ${CurrencyFormatter.formatShort(-diff)} altında kelepir fırsat!',
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.w800,

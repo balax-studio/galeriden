@@ -413,7 +413,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                   ),
                                 );
                               } else {
-                                NotificationService.showSuccess(context, 'Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ₺${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!');
+                                NotificationService.showSuccess(context, 'Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!');
                               }
                             }
                           },

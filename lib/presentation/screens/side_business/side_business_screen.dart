@@ -117,7 +117,7 @@ class SideBusinessScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '₺${CurrencyFormatter.formatShort(totalDailyIncome)} / gün',
+                              '${CurrencyFormatter.formatShort(totalDailyIncome)} / gün',
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                             ),
                           ],
@@ -143,7 +143,7 @@ class SideBusinessScreen extends ConsumerWidget {
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                     ),
                     Text(
-                      '₺${CurrencyFormatter.format(totalLifetimeEarned)}',
+                      CurrencyFormatter.format(totalLifetimeEarned),
                       style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
                     ),
                   ],
@@ -255,7 +255,7 @@ class SideBusinessScreen extends ConsumerWidget {
                               style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                             ),
                             Text(
-                              '₺${CurrencyFormatter.formatShort(isOwned ? business.effectiveDailyIncome : business.dailyIncome)} / gün',
+                              '${CurrencyFormatter.formatShort(isOwned ? business.effectiveDailyIncome : business.dailyIncome)} / gün',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w900,
@@ -266,7 +266,7 @@ class SideBusinessScreen extends ConsumerWidget {
                         ),
                         if (!isOwned)
                           NeoBrutalButton(
-                            label: 'SATIN AL (₺${CurrencyFormatter.formatShort(business.cost)})',
+                            label: 'SATIN AL (${CurrencyFormatter.formatShort(business.cost)})',
                             icon: Icons.shopping_cart_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,

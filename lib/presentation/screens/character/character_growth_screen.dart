@@ -100,7 +100,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Sermaye: ₺${CurrencyFormatter.formatShort(game.balance)}',
+                            'Sermaye: ${CurrencyFormatter.formatShort(game.balance)}',
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                           ),
                         ],
@@ -297,7 +297,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Ödül: ₺${CurrencyFormatter.formatShort(item.rewardMoney.toDouble())} + ${item.rewardSkillPoints} SP',
+                            'Ödül: ${CurrencyFormatter.formatShort(item.rewardMoney.toDouble())} + ${item.rewardSkillPoints} SP',
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                           ),
                         ],

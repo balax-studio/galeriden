@@ -425,7 +425,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(width: 10),
               Text(
-                'Toplam Kâr: ₺${CurrencyFormatter.formatShort(totalProfit)}',
+                'Toplam Kâr: ${CurrencyFormatter.formatShort(totalProfit)}',
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w800,
@@ -514,7 +514,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
                 NotificationService.showSuccess(
                   context,
-                  '₺${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!',
+                  '${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!',
                 );
               },
             ),
@@ -1093,7 +1093,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '₺${CurrencyFormatter.formatShort(listing.askingPrice)}',
+                            CurrencyFormatter.formatShort(listing.askingPrice),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
@@ -1101,7 +1101,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ),
                           ),
                           Text(
-                            'Piyasa: ₺${CurrencyFormatter.formatShort(car.baseMarketValue)}',
+                            'Piyasa: ${CurrencyFormatter.formatShort(car.baseMarketValue)}',
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w700,
@@ -1301,7 +1301,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ),
                           ),
                           NeoBrutalBadge(
-                            text: '+₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} • +${mission.rewardXP}XP',
+                            text: '+${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} • +${mission.rewardXP}XP',
                             backgroundColor: const Color(0xFFFFDE59),
                             textColor: Colors.black,
                             fontSize: 9.5,
@@ -1350,7 +1350,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       );
                       NotificationService.showSuccess(
                         context,
-                        '${mission.title} Tamamlandı! ₺${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.',
+                        '${mission.title} Tamamlandı! ${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.',
                       );
                     },
                   ),
@@ -1413,7 +1413,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const SizedBox(height: 2),
                   Text(
                     activeLoans.isNotEmpty
-                        ? 'Kalan Borç: ₺${CurrencyFormatter.formatShort(totalLoanDebt)}'
+                        ? 'Kalan Borç: ${CurrencyFormatter.formatShort(totalLoanDebt)}'
                         : 'İhtiyaç anında ₺500.000 limitli kredi çek',
                     style: TextStyle(
                       fontSize: 10.5,

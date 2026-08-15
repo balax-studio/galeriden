@@ -87,7 +87,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                               style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                             ),
                             Text(
-                              '₺${CurrencyFormatter.formatShort(game.balance * 0.15)}',
+                              CurrencyFormatter.formatShort(game.balance * 0.15),
                               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                             ),
                           ],
@@ -172,7 +172,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         _depositController.clear();
                         NotificationService.showSuccess(
                           context,
-                          '₺${CurrencyFormatter.formatShort(amount)} Vadeli Mevduat Hesabına Yatırıldı!',
+                          '${CurrencyFormatter.formatShort(amount)} Vadeli Mevduat Hesabına Yatırıldı!',
                         );
                       },
                     ),

@@ -162,9 +162,9 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatColumn('Net Günlük Kâr', '₺${CurrencyFormatter.formatShort(business.effectiveDailyIncome)}', AppColors.brutalGreen),
+                        _buildStatColumn('Net Günlük Kâr', CurrencyFormatter.formatShort(business.effectiveDailyIncome), AppColors.brutalGreen),
                         Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
-                        _buildStatColumn('Biriken Kazanç', '₺${CurrencyFormatter.formatShort(business.totalEarned)}', AppColors.brutalYellow),
+                        _buildStatColumn('Biriken Kazanç', CurrencyFormatter.formatShort(business.totalEarned), AppColors.brutalYellow),
                         Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
                         _buildStatColumn('Amorti', '${business.roiDays} Gün', const Color(0xFF06B6D4)),
                       ],
@@ -180,7 +180,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                         ),
                         Text(
-                          '₺${CurrencyFormatter.format(business.totalInvested)}',
+                          CurrencyFormatter.format(business.totalInvested),
                           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
                         ),
                       ],
@@ -241,7 +241,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           const SizedBox(height: 2),
                           Text(
                             business.hasManager
-                                ? 'Müdür atandı. Günlük Maaş: ₺${business.managerSalary.toInt()}'
+                                ? 'Müdür atandı. Günlük Maaş: ${business.managerSalary.toInt()}'
                                 : 'İşletmenin başına müdür atayarak geliri %30 artırın.',
                             style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
@@ -258,7 +258,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       )
                     else
                       NeoBrutalButton(
-                        label: 'İŞE AL (₺${CurrencyFormatter.formatShort(business.managerCost)})',
+                        label: 'İŞE AL (${CurrencyFormatter.formatShort(business.managerCost)})',
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10.5,
@@ -331,7 +331,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       )
                     else
                       NeoBrutalButton(
-                        label: 'YÜKSELT (₺${CurrencyFormatter.formatShort(nextLevelCost)})',
+                        label: 'YÜKSELT (${CurrencyFormatter.formatShort(nextLevelCost)})',
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10.5,
@@ -398,7 +398,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    '+₺${CurrencyFormatter.formatShort(upgrade.bonusDailyIncome)}/g',
+                                    '+${CurrencyFormatter.formatShort(upgrade.bonusDailyIncome)}/g',
                                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                                   ),
                                 ],
@@ -421,7 +421,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           )
                         else
                           NeoBrutalButton(
-                            label: '₺${CurrencyFormatter.formatShort(upgrade.cost)}',
+                            label: CurrencyFormatter.formatShort(upgrade.cost),
                             backgroundColor: const Color(0xFFA855F7),
                             textColor: Colors.white,
                             fontSize: 10.5,

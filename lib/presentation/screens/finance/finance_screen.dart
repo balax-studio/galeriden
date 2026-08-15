@@ -259,11 +259,11 @@ class FinanceScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Tahsil: ₺${CurrencyFormatter.formatShort(contract.paidAmount)}',
+                  'Tahsil: ${CurrencyFormatter.formatShort(contract.paidAmount)}',
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                 ),
                 Text(
-                  'Kalan: ₺${CurrencyFormatter.formatShort(contract.totalAmount - contract.paidAmount)}',
+                  'Kalan: ${CurrencyFormatter.formatShort(contract.totalAmount - contract.paidAmount)}',
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.brutalOrange),
                 ),
               ],
@@ -289,7 +289,7 @@ class FinanceScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              '${contract.paidInstallments}/${contract.totalInstallments} Taksit Ödendi (Aylık: ₺${CurrencyFormatter.formatShort(contract.installmentAmount)})',
+              '${contract.paidInstallments}/${contract.totalInstallments} Taksit Ödendi (Aylık: ${CurrencyFormatter.formatShort(contract.installmentAmount)})',
               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
             ),
           ],
@@ -330,7 +330,7 @@ class FinanceScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Tutar: ₺${CurrencyFormatter.formatShort(cheque.amount)}',
+                    'Tutar: ${CurrencyFormatter.formatShort(cheque.amount)}',
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                   ),
                 ],

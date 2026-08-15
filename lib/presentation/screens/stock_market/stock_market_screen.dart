@@ -56,7 +56,7 @@ class StockMarketScreen extends ConsumerWidget {
                               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                             ),
                             Text(
-                              'Birim Fiyat: ₺${CurrencyFormatter.formatShort(stock.currentPrice)}',
+                              'Birim Fiyat: ${CurrencyFormatter.formatShort(stock.currentPrice)}',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -146,7 +146,7 @@ class StockMarketScreen extends ConsumerWidget {
                         children: [
                           const Text('Toplam Tutar:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                           Text(
-                            '₺${CurrencyFormatter.formatShort(totalCost)}',
+                            CurrencyFormatter.formatShort(totalCost),
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                           ),
                         ],
@@ -323,7 +323,7 @@ class StockMarketScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '₺${CurrencyFormatter.formatShort(totalPortfolioValue)}',
+                        CurrencyFormatter.formatShort(totalPortfolioValue),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
@@ -332,7 +332,7 @@ class StockMarketScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       NeoBrutalBadge(
-                        text: 'Kâr/Zarar: ${isOverallProfitable ? '+' : ''}₺${CurrencyFormatter.formatShort(totalProfitLoss)}',
+                        text: 'Kâr/Zarar: ${isOverallProfitable ? '+' : ''}${CurrencyFormatter.formatShort(totalProfitLoss)}',
                         backgroundColor: isOverallProfitable ? AppColors.brutalGreen : AppColors.errorRed,
                         textColor: isOverallProfitable ? Colors.black : Colors.white,
                         fontSize: 10.5,
@@ -409,7 +409,7 @@ class StockMarketScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '₺${CurrencyFormatter.formatShort(stock.currentPrice)}',
+                              CurrencyFormatter.formatShort(stock.currentPrice),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
@@ -444,7 +444,7 @@ class StockMarketScreen extends ConsumerWidget {
                               style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
                             ),
                             Text(
-                              'Değer: ₺${CurrencyFormatter.formatShort(sharesOwned * stock.currentPrice)}',
+                              'Değer: ${CurrencyFormatter.formatShort(sharesOwned * stock.currentPrice)}',
                               style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                             ),
                           ],

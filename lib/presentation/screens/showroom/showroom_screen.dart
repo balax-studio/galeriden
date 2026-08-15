@@ -488,7 +488,7 @@ class ShowroomScreen extends ConsumerWidget {
                                                 ),
                                                 content: Text(
                                                   '${fraudResult.description}\n\n'
-                                                  'Tazminat Cezası: ₺${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
+                                                  'Tazminat Cezası: ${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
                                                   'İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
                                                   style: AppTypography.bodyMedium(p.isDark),
                                                 ),
