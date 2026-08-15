@@ -206,6 +206,13 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         carColor = p.primaryColor;
                       }
 
+                      // Estimated net profit & ROI calculation
+                      final estimatedRepairCost = (100 - exp.engineCondition) * 150 +
+                          (100 - exp.transmissionCondition) * 120 +
+                          exp.bodyParts.values.where((s) => s == PartStatus.damaged).length * 800;
+                      final estNetProfit = car.estimatedRealValue - item.askingPrice - estimatedRepairCost;
+                      final estRoi = (estNetProfit / item.askingPrice) * 100;
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: NeoBrutalCard(
@@ -327,7 +334,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                               ),
                               const SizedBox(height: 10),
 
-                              // Color-Coded Stat Badges (KM, Engine, Tramer)
+                              // Color-Coded Stat Badges (KM, Engine, Tramer, Profit Margin)
                               Wrap(
                                 spacing: 6,
                                 runSpacing: 6,
@@ -355,6 +362,24 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                     borderColor: StatColors.getEngineColor(exp.engineCondition),
                                     fontSize: 10,
                                   ),
+                                  if (estNetProfit > 0)
+                                    NeoBrutalBadge(
+                                      text: 'Kâr: +${CurrencyFormatter.formatShort(estNetProfit)} (%${estRoi.toStringAsFixed(0)} ROI)',
+                                      backgroundColor: estRoi >= 15
+                                          ? const Color(0xFF00E575).withValues(alpha: 0.2)
+                                          : const Color(0xFFFFDE59).withValues(alpha: 0.2),
+                                      textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      borderColor: estRoi >= 15 ? const Color(0xFF00E575) : const Color(0xFFFFDE59),
+                                      fontSize: 10,
+                                    )
+                                  else
+                                    NeoBrutalBadge(
+                                      text: 'Düşük Marj (${CurrencyFormatter.formatShort(estNetProfit)})',
+                                      backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                                      textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      borderColor: const Color(0xFFEF4444),
+                                      fontSize: 10,
+                                    ),
                                   if (exp.isMileageTampered && item.isExpertiseCompleted)
                                     const NeoBrutalBadge(
                                       text: 'ŞÜPHELİ KM!',

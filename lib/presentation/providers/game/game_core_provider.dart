@@ -25,6 +25,13 @@ class GameCoreNotifier extends GameBaseNotifier
         GameTimeMixin {
   
   Timer? _saveDebounceTimer;
+  Map<String, dynamic>? pendingOfflineRecap;
+
+  Map<String, dynamic>? consumePendingOfflineRecap() {
+    final recap = pendingOfflineRecap;
+    pendingOfflineRecap = null;
+    return recap;
+  }
 
   GameCoreNotifier() : super(DealershipModel.initial()) {
     _loadState();
@@ -72,6 +79,17 @@ class GameCoreNotifier extends GameBaseNotifier
           lastLoginDate: now,
           hasStreakFreeze: freezeConsumed ? false : updated.hasStreakFreeze,
         );
+
+        final offlineHours = offlineResult['offlineHours'] as int? ?? 0;
+        if (offlineHours > 0) {
+          pendingOfflineRecap = PsychologyEngine.getOfflineRecapSummary(
+            offlineHours: offlineHours,
+            earnedIncome: offlineResult['earnedIncome'] as double? ?? 0.0,
+            partsArrivedCount: offlineResult['partsArrivedCount'] as int? ?? 0,
+            newOffersCount: offlineResult['newOffersCount'] as int? ?? 0,
+            streakDays: streak,
+          );
+        }
 
         state = updated;
         syncRentalState();
@@ -140,6 +158,21 @@ class GameCoreNotifier extends GameBaseNotifier
           break;
         case 'streak_7':
           unlock = state.loginStreak >= 7;
+          break;
+        case 'expert_master':
+          unlock = state.skills.eyeForDetail >= 2 || state.carsSold >= 3;
+          break;
+        case 'restoration_king':
+          unlock = state.ownedCars.any((c) =>
+              c.expertise.engineCondition >= 99 &&
+              c.expertise.transmissionCondition >= 99 &&
+              (c.isDetailedCleaned || (c.isWashed && c.isPolished)));
+          break;
+        case 'restoration_5':
+          final restoredCount = state.ownedCars.where((c) =>
+              c.expertise.engineCondition >= 95 &&
+              c.expertise.transmissionCondition >= 95).length + (state.carsSold >= 5 ? 3 : 0);
+          unlock = restoredCount >= 5;
           break;
       }
       if (unlock) {

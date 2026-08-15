@@ -1,4 +1,5 @@
 import '../../../data/models/loan_model.dart';
+import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
 
 mixin GameFinanceMixin on GameBaseNotifier {
@@ -13,7 +14,11 @@ mixin GameFinanceMixin on GameBaseNotifier {
   bool takeBankLoan({required String bankName, required double amount, required int months}) {
     if (state.activeLoans.length >= 3) return false; // Max 3 active loans
 
-    final interestRate = months == 3 ? 0.10 : (months == 6 ? 0.18 : 0.28);
+    final baseInterestRate = months == 3 ? 0.10 : (months == 6 ? 0.18 : 0.28);
+    final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);
+    final eventDiscount = weeklyEvent.id == 'credit_ease_monday' ? weeklyEvent.discountMultiplier : 1.0;
+    final skillDiscount = 1.0 - state.skills.financeInterestDiscount;
+    final interestRate = baseInterestRate * eventDiscount * skillDiscount;
     final totalRepayment = amount * (1.0 + interestRate);
     final monthlyPayment = totalRepayment / months;
 

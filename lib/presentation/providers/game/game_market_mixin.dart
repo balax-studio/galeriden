@@ -17,6 +17,7 @@ import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
+import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
 
 mixin GameMarketMixin on GameBaseNotifier {
@@ -369,6 +370,43 @@ mixin GameMarketMixin on GameBaseNotifier {
       ));
     }
 
+    // Generate Customer Review & Reputation Adjustment
+    double reviewRating = 4.5;
+    String reviewComment = 'Güvenilir esnaf, söylediği neyse o çıktı. Tavsiye ederim.';
+    int reputationChange = 3;
+
+    final isClean = car.isWashed || car.isDetailedCleaned;
+    final isGoodEngine = car.expertise.engineCondition >= 80;
+
+    if (car.declarationType == ListingDeclarationType.honest) {
+      if (isClean && isGoodEngine) {
+        reviewRating = 5.0;
+        reviewComment = 'Aracı pırıl pırıl teslim aldım. Ekspertizde sürpriz çıkmadı, elinize sağlık!';
+        reputationChange = 5;
+      } else {
+        reviewRating = 4.0;
+        reviewComment = 'Dürüst satıcı, ufak tefek masraflarını baştan belirtti. Teşekkürler.';
+        reputationChange = 2;
+      }
+    } else {
+      // Fraudulent / misleading listing
+      reviewRating = 2.0;
+      reviewComment = 'İlanda yazmayan boya ve mekanik kusurlar çıktı. Pek memnun kalmadım.';
+      reputationChange = -4;
+    }
+
+    final review = CustomerReviewModel(
+      id: 'rev_${DateTime.now().millisecondsSinceEpoch}',
+      reviewerName: offer.buyerName,
+      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}',
+      rating: reviewRating,
+      comment: reviewComment,
+      createdAt: DateTime.now(),
+    );
+
+    final updatedReviews = [review, ...state.customerReviews];
+    final newReputation = (state.reputationScore + reputationChange).clamp(0, 200);
+
     state = state.copyWith(
       balance: state.balance + cashReceived,
       ownedCars: updatedCars,
@@ -380,6 +418,8 @@ mixin GameMarketMixin on GameBaseNotifier {
       carsSold: newCarsSold,
       salesHistory: [record, ...state.salesHistory],
       loyalCustomerNames: updatedLoyals,
+      customerReviews: updatedReviews,
+      reputationScore: newReputation,
     );
 
     addXP(100 + (profit > 0 ? (profit / 1000).round() : 0));
@@ -451,14 +491,18 @@ mixin GameMarketMixin on GameBaseNotifier {
     required double cost,
     required int deliveryDurationSeconds,
   }) {
-    if (state.balance < cost) return false;
+    final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);
+    final isPartsDay = weeklyEvent.id == 'wednesday_parts_supply';
+    final effectiveCost = isPartsDay ? (cost * weeklyEvent.discountMultiplier) : cost;
+
+    if (state.balance < effectiveCost) return false;
 
     final newOrder = PartOrderModel(
       id: 'order_${DateTime.now().millisecondsSinceEpoch}',
       carId: carId,
       partName: partName,
       orderType: orderType,
-      cost: cost,
+      cost: effectiveCost,
       orderedAt: DateTime.now(),
       deliveryDurationSeconds: deliveryDurationSeconds,
     );
@@ -466,7 +510,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)..add(newOrder);
 
     state = state.copyWith(
-      balance: state.balance - cost,
+      balance: state.balance - effectiveCost,
       pendingOrders: updatedOrders,
     );
     saveState();

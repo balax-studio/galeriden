@@ -9,6 +9,7 @@ import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/mission_model.dart';
+import '../../../data/models/staff_model.dart';
 import 'game_base_notifier.dart';
 
 mixin GameInventoryMixin on GameBaseNotifier {
@@ -375,6 +376,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
     updateCarListingDetails(carId, declaration: declaration);
   }
 
+  /// Updates only the listing price
+  void updateCarListingPrice(String carId, double customPrice) {
+    updateCarListingDetails(carId, customPrice: customPrice);
+  }
+
   /// Updates car's custom listing price and/or declaration status
   void updateCarListingDetails(String carId, {double? customPrice, ListingDeclarationType? declaration}) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
@@ -676,10 +682,40 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Wash and polish all cars in garage in one batch
+  bool washAllCars() {
+    if (state.ownedCars.isEmpty) return false;
+    final hasWasher = state.hiredStaff.any((s) => s.role == StaffRole.washer);
+    final unwashedCars = state.ownedCars.where((c) => !c.isWashed || !c.isPolished || !c.isDetailedCleaned).toList();
+    if (unwashedCars.isEmpty) return false;
+
+    final totalCost = hasWasher ? 0.0 : (unwashedCars.length * 600.0);
+    if (state.balance < totalCost) return false;
+
+    final updatedCars = state.ownedCars.map((c) {
+      return c.copyWith(
+        isWashed: true,
+        isPolished: true,
+        isDetailedCleaned: true,
+      );
+    }).toList();
+
+    state = state.copyWith(
+      balance: state.balance - totalCost,
+      ownedCars: updatedCars,
+    );
+    addXP(20 * unwashedCars.length);
+    saveState();
+    return true;
+  }
+
   /// Emergency Bailout: Dede Mirası Can Suyu (₺50.000)
   bool claimEmergencyBailout() {
-    final totalLiquidAssets = state.balance + state.bankDepositBalance;
-    if (totalLiquidAssets > 15000 || state.ownedCars.isNotEmpty) return false;
+    final totalAssets = state.balance +
+        state.bankDepositBalance +
+        state.ownedCars.fold<double>(0.0, (s, c) => s + c.estimatedRealValue);
+    if (totalAssets > 15000) return false;
+
     state = state.copyWith(
       balance: state.balance + 50000.0,
     );
@@ -705,4 +741,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     saveState();
     return true;
   }
+
+  /// Alias for doDailyScrapyardSideGig
+  bool workScrapyardSideGig() => doDailyScrapyardSideGig();
 }

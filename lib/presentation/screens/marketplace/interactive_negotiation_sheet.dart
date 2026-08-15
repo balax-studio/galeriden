@@ -33,6 +33,11 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
   String? _sellerResponse;
   bool _isAccepted = false;
   bool _isProcessing = false;
+  bool _isThinking = false;
+  String _thinkingText = '';
+  int _counterOfferCount = 0;
+  bool _isNearMiss = false;
+  bool _isLockedOut = false;
   late CustomerModel _customer;
   late String _fomoText;
 
@@ -182,28 +187,60 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                   ],
                 ),
                 const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF7A00).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFFFF7A00).withValues(alpha: 0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.local_fire_department_rounded, size: 14, color: Color(0xFFFF7A00)),
-                      const SizedBox(width: 4),
-                      Text(
-                        _fomoText,
-                        style: const TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFFFF7A00),
-                        ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF7A00).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFFFF7A00).withValues(alpha: 0.3)),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.local_fire_department_rounded, size: 14, color: Color(0xFFFF7A00)),
+                          const SizedBox(width: 4),
+                          Text(
+                            _fomoText,
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFFF7A00),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text('Pazarlık:', style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 10.5)),
+                        const SizedBox(width: 4),
+                        ...List.generate(3, (index) {
+                          final isLeft = index < (3 - _counterOfferCount);
+                          return Container(
+                            margin: const EdgeInsets.only(left: 3),
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isLeft ? p.primaryColor : (p.isDark ? Colors.white24 : Colors.black26),
+                            ),
+                          );
+                        }),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${3 - _counterOfferCount}/3',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900,
+                            color: _counterOfferCount >= 3 ? p.errorColor : p.primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -253,7 +290,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
             divisions: 50,
             activeColor: p.primaryColor,
             inactiveColor: p.surfaceBorderColor,
-            onChanged: _sellerResponse != null
+            onChanged: (_sellerResponse != null || _isThinking || _isLockedOut)
                 ? null
                 : (val) {
                     setState(() {
@@ -261,7 +298,35 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     });
                   },
           ),
-          if (_sellerResponse == null) ...[
+          if (_isThinking) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: p.primaryColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: p.primaryColor),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    _thinkingText,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: p.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (_sellerResponse == null) ...[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               child: Text(
@@ -306,6 +371,52 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     '${_customer.name}: "${_sellerResponse!}"',
                     style: AppTypography.bodyMedium(p.isDark).copyWith(fontStyle: FontStyle.italic),
                   ),
+                  if (_isNearMiss && !_isAccepted && !_isLockedOut) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFF59E0B)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.near_me_rounded, size: 14, color: Color(0xFFD97706)),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Çok yaklaştın! Satıcı kararsız kaldı ama fiyatı biraz daha yükseltmen gerek.',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (_isLockedOut) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFEF4444)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.block_rounded, size: 14, color: Color(0xFFEF4444)),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              '3 pazarlık hakkın tükendi! Satıcı bu araç için tekliflere kapandı.',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -490,14 +601,26 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     fontWeight: FontWeight.w900,
                     fullWidth: true,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    onPressed: _isProcessing
+                    onPressed: (_isProcessing || _isThinking || _isLockedOut)
                         ? null
-                        : () {
-                            setState(() => _isProcessing = true);
+                        : () async {
+                            setState(() {
+                              _isProcessing = true;
+                              _isThinking = true;
+                              _thinkingText = PsychologyEngine.getSuspenseNegotiationText();
+                              _counterOfferCount++;
+                            });
+
+                            await Future.delayed(const Duration(milliseconds: 850));
+                            if (!mounted) return;
+
                             final roll = Random().nextInt(100) + 1;
                             if (roll <= chancePercent) {
                               setState(() {
+                                _isThinking = false;
+                                _isProcessing = false;
                                 _isAccepted = true;
+                                _isNearMiss = false;
                                 switch (_customer.archetype) {
                                   case CustomerArchetype.skepticalOfficial:
                                     _sellerResponse = 'Teklifiniz makul. Beyefendi/Hanımefendi gibi anlaştık. Hayırlı olsun.';
@@ -512,26 +635,34 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                     _sellerResponse = 'Ortada buluştuk diyelim, aileye gidecek araba sonuçta. Hayırlı uğurlu olsun.';
                                     break;
                                 }
-                                _isProcessing = false;
                               });
                             } else {
+                              final isNear = roll <= chancePercent + 15;
+                              final isLocked = _counterOfferCount >= 3;
                               setState(() {
-                                _isAccepted = false;
-                                switch (_customer.archetype) {
-                                  case CustomerArchetype.skepticalOfficial:
-                                    _sellerResponse = 'Maalesef bu fiyat aracımın değerini yansıtmıyor. İyi günler dilerim.';
-                                    break;
-                                  case CustomerArchetype.impatientYouth:
-                                    _sellerResponse = 'O fiyata bedava vereyim istersen? Yok kardeşim, kurtarmaz.';
-                                    break;
-                                  case CustomerArchetype.greedyFlipper:
-                                    _sellerResponse = 'Bizi mi koparıyorsun ustam? O fiyata ölüsü bile verilmez, biraz daha yukarı çık.';
-                                    break;
-                                  case CustomerArchetype.familyMan:
-                                    _sellerResponse = 'Kusura bakmayın, o fiyata verirsem aile bütçemiz çok sarsılır. Biraz daha yükseltmeniz lazım.';
-                                    break;
-                                }
+                                _isThinking = false;
                                 _isProcessing = false;
+                                _isAccepted = false;
+                                _isNearMiss = isNear;
+                                _isLockedOut = isLocked;
+                                if (isLocked) {
+                                  _sellerResponse = '3 kere pazarlık yaptık, anlaşamıyoruz. Daha fazla vaktimi harcama!';
+                                } else {
+                                  switch (_customer.archetype) {
+                                    case CustomerArchetype.skepticalOfficial:
+                                      _sellerResponse = 'Maalesef bu fiyat aracımın değerini yansıtmıyor. İyi günler dilerim.';
+                                      break;
+                                    case CustomerArchetype.impatientYouth:
+                                      _sellerResponse = 'O fiyata bedava vereyim istersen? Yok kardeşim, kurtarmaz.';
+                                      break;
+                                    case CustomerArchetype.greedyFlipper:
+                                      _sellerResponse = 'Bizi mi koparıyorsun ustam? O fiyata ölüsü bile verilmez, biraz daha yukarı çık.';
+                                      break;
+                                    case CustomerArchetype.familyMan:
+                                      _sellerResponse = 'Kusura bakmayın, o fiyata verirsem aile bütçemiz çok sarsılır. Biraz daha yükseltmeniz lazım.';
+                                      break;
+                                  }
+                                }
                               });
                             }
                           },
@@ -622,10 +753,10 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                           },
                   ),
                 )
-              else
+              else if (!_isLockedOut)
                 Expanded(
                   child: NeoBrutalButton(
-                    label: 'TEKLİFİ REVİZE ET',
+                    label: 'TEKLİFİ REVİZE ET (${3 - _counterOfferCount} Hak Kaldı)',
                     icon: Icons.refresh_rounded,
                     backgroundColor: p.surfaceColor,
                     textColor: p.textPrimaryColor,
@@ -637,8 +768,24 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                       setState(() {
                         _sellerResponse = null;
                         _isProcessing = false;
+                        _isThinking = false;
+                        _isNearMiss = false;
                       });
                     },
+                  ),
+                )
+              else
+                Expanded(
+                  child: NeoBrutalButton(
+                    label: 'MASADAN AYRIL',
+                    icon: Icons.close_rounded,
+                    backgroundColor: const Color(0xFFEF4444),
+                    textColor: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ),
             ],
