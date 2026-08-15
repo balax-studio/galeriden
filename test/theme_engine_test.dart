@@ -8,9 +8,9 @@ void main() {
   SharedPreferences.setMockInitialValues({});
 
   group('Tycoon Theme Engine Tests', () {
-    test('ThemePaletteModel contains 6 curated preset palettes with prices', () {
+    test('ThemePaletteModel contains 2 curated preset palettes with prices', () {
       final palettes = ThemePaletteModel.defaultPalettes;
-      expect(palettes.length, equals(6));
+      expect(palettes.length, equals(2));
 
       final freePalette = palettes.firstWhere((p) => p.id == 'sanayi_ciragi_light');
       expect(freePalette.price, equals(0));

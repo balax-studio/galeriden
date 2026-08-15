@@ -149,8 +149,8 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
     _loadThemeState();
   }
 
-  static const String _storageKey = 'theme_palettes_v2';
-  static const String _activeIdKey = 'active_palette_id_v2';
+  static const String _storageKey = 'theme_palettes_v3';
+  static const String _activeIdKey = 'active_palette_id_v3';
 
   Future<void> _loadThemeState() async {
     final prefs = await SharedPreferences.getInstance();

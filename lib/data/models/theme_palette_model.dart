@@ -92,7 +92,7 @@ class ThemePaletteModel {
         errorColor: errorColor,
       );
 
-  // Pre-defined Preset Palettes for In-Game Store (3 Light + 3 Dark Curated)
+  // Pre-defined Preset Palettes for In-Game Store (1 Light + 1 Dark Curated)
   static const List<ThemePaletteModel> defaultPalettes = [
     // 1. Light - Sanayi Çırağı (Default Free)
     ThemePaletteModel(
@@ -130,82 +130,6 @@ class ThemePaletteModel {
       successColor: Color(0xFF22C55E),
       warningColor: Color(0xFFF59E0B),
       errorColor: Color(0xFFEF4444),
-    ),
-
-    // 3. Light - Miras Galeri (₺150.000)
-    ThemePaletteModel(
-      id: 'miras_galeri_light',
-      name: 'Miras Galeri (Aydınlık)',
-      price: 150000,
-      isUnlocked: false,
-      isDark: false,
-      primaryColor: Color(0xFFEA580C),
-      secondaryColor: Color(0xFF0D9488),
-      backgroundColor: Color(0xFFFEF3C7),
-      surfaceColor: Color(0xFFFFFFFF),
-      surfaceBorderColor: Color(0xFF1C1917),
-      textPrimaryColor: Color(0xFF1C1917),
-      textSecondaryColor: Color(0xFF57534E),
-      successColor: Color(0xFF15803D),
-      warningColor: Color(0xFFB45309),
-      errorColor: Color(0xFFB91C1C),
-    ),
-
-    // 4. Dark - Yeraltı Garajı (₺500.000)
-    ThemePaletteModel(
-      id: 'yeralti_garaji_dark',
-      name: 'Yeraltı Garajı (Karanlık)',
-      price: 500000,
-      isUnlocked: false,
-      isDark: true,
-      primaryColor: Color(0xFFE11D48),
-      secondaryColor: Color(0xFF8B5CF6),
-      backgroundColor: Color(0xFF090A0F),
-      surfaceColor: Color(0xFF13151F),
-      surfaceBorderColor: Color(0xFF272A3D),
-      textPrimaryColor: Color(0xFFF1F5F9),
-      textSecondaryColor: Color(0xFF94A3B8),
-      successColor: Color(0xFF10B981),
-      warningColor: Color(0xFFF59E0B),
-      errorColor: Color(0xFFF43F5E),
-    ),
-
-    // 5. Light - Plaza Baronu (₺1.500.000)
-    ThemePaletteModel(
-      id: 'plaza_baronu_light',
-      name: 'Plaza Baronu (Aydınlık)',
-      price: 1500000,
-      isUnlocked: false,
-      isDark: false,
-      primaryColor: Color(0xFF0284C7),
-      secondaryColor: Color(0xFF6366F1),
-      backgroundColor: Color(0xFFF0F9FF),
-      surfaceColor: Color(0xFFFFFFFF),
-      surfaceBorderColor: Color(0xFF0C4A6E),
-      textPrimaryColor: Color(0xFF082F49),
-      textSecondaryColor: Color(0xFF0369A1),
-      successColor: Color(0xFF059669),
-      warningColor: Color(0xFFD97706),
-      errorColor: Color(0xFFDC2626),
-    ),
-
-    // 6. Dark - Kraliyet Siyahı & Altın (₺5.000.000)
-    ThemePaletteModel(
-      id: 'kraliyet_altin_dark',
-      name: 'Kraliyet Siyahı & Altın (Karanlık)',
-      price: 5000000,
-      isUnlocked: false,
-      isDark: true,
-      primaryColor: Color(0xFFF59E0B),
-      secondaryColor: Color(0xFFE0E7FF),
-      backgroundColor: Color(0xFF000000),
-      surfaceColor: Color(0xFF111111),
-      surfaceBorderColor: Color(0xFF333333),
-      textPrimaryColor: Color(0xFFFFFBEB),
-      textSecondaryColor: Color(0xFFD4D4D8),
-      successColor: Color(0xFF34D399),
-      warningColor: Color(0xFFFBBF24),
-      errorColor: Color(0xFFF87171),
     ),
   ];
 }
