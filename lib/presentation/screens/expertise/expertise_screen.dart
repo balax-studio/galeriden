@@ -110,21 +110,31 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 16),
-                  NeoBrutalButton(
-                    label: 'EKSPERTİZ YAPTIR (₺1.500)',
-                    icon: Icons.fact_check_rounded,
-                    backgroundColor: AppColors.brutalYellow,
-                    textColor: Colors.black,
-                    fontSize: 12.5,
-                    fullWidth: true,
-                    onPressed: game.balance < 1500
-                        ? null
-                        : () {
-                            ref.read(marketProvider.notifier).markExpertiseCompleted(widget.listing.id);
-                            setState(() {
-                              _isInspected = true;
-                            });
-                          },
+                  Builder(
+                    builder: (context) {
+                      final discount = game.skills.expertiseCostDiscount;
+                      final fee = (1500.0 * (1.0 - discount)).roundToDouble();
+                      final feeFormatted = CurrencyFormatter.format(fee);
+                      return NeoBrutalButton(
+                        label: 'EKSPERTİZ YAPTIR ($feeFormatted)',
+                        icon: Icons.fact_check_rounded,
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 12.5,
+                        fullWidth: true,
+                        onPressed: game.balance < fee
+                            ? null
+                            : () {
+                                final success = ref.read(gameProvider.notifier).performMarketExpertise(fee);
+                                if (success) {
+                                  ref.read(marketProvider.notifier).markExpertiseCompleted(widget.listing.id);
+                                  setState(() {
+                                    _isInspected = true;
+                                  });
+                                }
+                              },
+                      );
+                    },
                   ),
                 ],
               ),

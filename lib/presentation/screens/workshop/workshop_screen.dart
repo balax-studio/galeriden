@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
+import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import 'widgets/animated_order_card.dart';
 import 'widgets/workshop_equipment_tile.dart';
 import 'widgets/workshop_repair_tile.dart';
 
@@ -244,8 +247,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                   Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Mevcut Değer: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • Model Yılı: ${_selectedCar!.modelYear}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                    'Piyasa Değeri: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} (Kusursuz: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)}) • ${_selectedCar!.modelYear}',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                                   ),
                                 ],
                               ),
@@ -297,6 +300,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
                   cost: 18500.0,
                   bonusText: 'Motor %100 & +%10 Değer',
+                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(18500.0, _selectedCar!.estimatedRealValue * 0.10) : null,
                   badgeColor: const Color(0xFF00E575),
                   isDark: isDark,
                   onRepair: () => _applyRepair(
@@ -312,6 +316,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
                   cost: 12000.0,
                   bonusText: 'Şanzıman %100 & +%8 Değer',
+                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(12000.0, _selectedCar!.estimatedRealValue * 0.08) : null,
                   badgeColor: const Color(0xFF38BDF8),
                   isDark: isDark,
                   onRepair: () => _applyRepair(
@@ -327,6 +332,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
                   cost: 4500.0,
                   bonusText: 'Gizli Kusurlar Silinir',
+                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(4500.0, _selectedCar!.estimatedRealValue * 0.05) : null,
                   badgeColor: const Color(0xFFA855F7),
                   isDark: isDark,
                   onRepair: () => _applyRepair(
@@ -342,6 +348,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
                   cost: 22000.0 * paintCostMultiplier,
                   bonusText: hasPaintBooth ? '+%15 Değer (Boya Fırını %50 İndirimi!)' : '+%15 Değer Artışı',
+                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(22000.0 * paintCostMultiplier, _selectedCar!.estimatedRealValue * 0.15) : null,
                   badgeColor: const Color(0xFFFFDE59),
                   isDark: isDark,
                   onRepair: () => _applyRepair(
@@ -357,6 +364,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
                   cost: 45000.0,
                   bonusText: hasChassisBench ? '+%20 Süper Değer (Şasi Tezgahı Bonusu!)' : '+%20 Değer',
+                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(45000.0, _selectedCar!.estimatedRealValue * 0.20) : null,
                   badgeColor: const Color(0xFFEF4444),
                   isDark: isDark,
                   onRepair: () => _applyRepair(
@@ -366,6 +374,43 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // 4.1 Pending Part Orders & Fast Delivery
+                if (game.pendingOrders.isNotEmpty) ...[
+                  Text(
+                    'BEKLEYEN PARÇA SİPARİŞLERİ (${game.pendingOrders.length})',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...game.pendingOrders.map((order) {
+                    return AnimatedOrderCard(
+                      order: order,
+                      p: p,
+                      onInstall: () {
+                        final success = ref.read(gameProvider.notifier).installDeliveredPart(order.id);
+                        if (success) {
+                          NotificationService.showSuccess(context, '${order.partName} montajı tamamlandı!');
+                          setState(() {});
+                        }
+                      },
+                      onFastDeliverWithAd: () {
+                        AdService.instance.showRewardedAd(
+                          onRewardEarned: () {
+                            ref.read(gameProvider.notifier).instantDeliverPartOrder(order.id);
+                            NotificationService.showReward(context, '⚡ Kargo hızlandırıldı! Parça teslim edildi.');
+                            setState(() {});
+                          },
+                        );
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                ],
 
                 // 5. Salvaged Parts Installation Section (Hurdalık Çıkma Parçaları)
                 if (game.salvagedParts.isNotEmpty) ...[
@@ -548,6 +593,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       return;
     }
 
+    final oldVal = _selectedCar!.estimatedRealValue;
+
     final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
       _selectedCar!.id,
       repairType: type,
@@ -555,8 +602,17 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     );
 
     if (success) {
-      NotificationService.showSuccess(context, successMsg);
-      setState(() {});
+      final updatedCar = ref.read(gameProvider).ownedCars.firstWhere(
+        (c) => c.id == _selectedCar!.id,
+        orElse: () => _selectedCar!,
+      );
+      final newVal = updatedCar.estimatedRealValue;
+      final delta = newVal - oldVal;
+      final deltaText = delta > 0 ? ' (+${CurrencyFormatter.format(delta)} Değer Artışı!)' : '';
+      NotificationService.showSuccess(context, '$successMsg$deltaText');
+      setState(() {
+        _selectedCar = updatedCar;
+      });
     }
   }
 

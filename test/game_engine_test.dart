@@ -265,5 +265,118 @@ void main() {
       expect(container.read(gameProvider).dealershipName, equals('Aslanlar Motors'));
       expect(container.read(gameProvider).logoEmblemId, equals('shield'));
     });
+
+    test('Bank deposit, withdrawal, and interest accumulation operate properly', () async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final initialBalance = container.read(gameProvider).balance;
+      expect(container.read(gameProvider).bankDepositBalance, equals(0.0));
+
+      // 1. Deposit 20,000 to bank
+      final depositSuccess = notifier.depositToBank(20000.0);
+      expect(depositSuccess, isTrue);
+      expect(container.read(gameProvider).balance, equals(initialBalance - 20000.0));
+      expect(container.read(gameProvider).bankDepositBalance, equals(20000.0));
+
+      // 2. Advance game day and check interest
+      notifier.advanceGameDay();
+      expect(container.read(gameProvider).bankDepositBalance, greaterThan(20000.0));
+
+      // 3. Withdraw 10,000 from bank
+      final bankBalanceBeforeWithdraw = container.read(gameProvider).bankDepositBalance;
+      final walletBeforeWithdraw = container.read(gameProvider).balance;
+      final withdrawSuccess = notifier.withdrawFromBank(10000.0);
+      expect(withdrawSuccess, isTrue);
+      expect(container.read(gameProvider).bankDepositBalance, equals(bankBalanceBeforeWithdraw - 10000.0));
+      expect(container.read(gameProvider).balance, equals(walletBeforeWithdraw + 10000.0));
+    });
+
+    test('Staff Academy course purchase persists in state', () async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      expect(container.read(gameProvider).purchasedAcademyCourses, isEmpty);
+
+      final initialBalance = container.read(gameProvider).balance;
+      final courseCost = 12000.0;
+      final courseId = 'course_sales_master';
+
+      final success = notifier.purchaseAcademyCourse(courseId, courseCost);
+      expect(success, isTrue);
+      expect(container.read(gameProvider).balance, equals(initialBalance - courseCost));
+      expect(container.read(gameProvider).purchasedAcademyCourses, contains(courseId));
+
+      // Duplicate purchase should fail
+      final duplicateSuccess = notifier.purchaseAcademyCourse(courseId, courseCost);
+      expect(duplicateSuccess, isFalse);
+    });
+
+    test('Stock Market applies 0.2% commission on buy and sell operations', () async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final initialBalance = container.read(gameProvider).balance;
+      final stock = container.read(gameProvider).marketStocks.first;
+      final sharesToBuy = 10;
+      final rawCost = stock.currentPrice * sharesToBuy;
+      final expectedCommission = rawCost * 0.002;
+      final totalExpectedCost = rawCost + expectedCommission;
+
+      final buySuccess = notifier.buyStock(stock.symbol, sharesToBuy);
+      expect(buySuccess, isTrue);
+      expect(container.read(gameProvider).balance, closeTo(initialBalance - totalExpectedCost, 0.01));
+      
+      final owned = container.read(gameProvider).ownedStocks.firstWhere((s) => s.symbol == stock.symbol);
+      expect(owned.quantity, equals(sharesToBuy));
+
+      final balanceBeforeSell = container.read(gameProvider).balance;
+      final rawRevenue = stock.currentPrice * sharesToBuy;
+      final sellCommission = rawRevenue * 0.002;
+      final netExpectedRevenue = rawRevenue - sellCommission;
+
+      final sellSuccess = notifier.sellStock(stock.symbol, sharesToBuy);
+      expect(sellSuccess, isTrue);
+      expect(container.read(gameProvider).balance, closeTo(balanceBeforeSell + netExpectedRevenue, 0.01));
+      expect(container.read(gameProvider).ownedStocks.any((s) => s.symbol == stock.symbol), isFalse);
+    });
+
+    test('Instant part delivery completes pending order immediately', () async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final car = container.read(gameProvider).ownedCars.first;
+      final orderSuccess = notifier.orderPart(
+        carId: car.id,
+        partName: 'Kaput',
+        cost: 1500.0,
+        deliveryDurationSeconds: 60,
+        orderType: OrderType.newOemPart,
+      );
+      expect(orderSuccess, isTrue);
+      expect(container.read(gameProvider).pendingOrders.length, equals(1));
+
+      final orderId = container.read(gameProvider).pendingOrders.first.id;
+      notifier.instantDeliverPartOrder(orderId);
+
+      final updatedOrder = container.read(gameProvider).pendingOrders.first;
+      expect(updatedOrder.isDelivered, isTrue);
+      expect(updatedOrder.remainingSeconds, equals(0));
+    });
+
+    test('RepairEngine differentiates painted vs OEM original part status', () {
+      final car = DealershipModel.initial().ownedCars.first;
+      final masterRepairedCar = RepairEngine.applyInstalledPart(car, 'Kaput', OrderType.masterRepair);
+      expect(masterRepairedCar.expertise.bodyParts['Kaput'], equals(PartStatus.painted));
+      expect(masterRepairedCar.expertise.partConditions['Kaput'], equals(95.0));
+
+      final oemCar = RepairEngine.applyInstalledPart(car, 'Kaput', OrderType.newOemPart);
+      expect(oemCar.expertise.bodyParts['Kaput'], equals(PartStatus.original));
+      expect(oemCar.expertise.partConditions['Kaput'], equals(100.0));
+    });
   });
 }

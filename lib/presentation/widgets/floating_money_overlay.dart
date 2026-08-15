@@ -69,15 +69,49 @@ class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay> with TickerP
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        widget.child,
+        RepaintBoundary(child: widget.child),
         ..._particles.map((p) => _buildAnimatedParticle(p)),
       ],
     );
   }
 
   Widget _buildAnimatedParticle(_ParticleItem item) {
+    final staticContent = RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.85),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.laserGreen, width: 1.5),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.laserGreen,
+              blurRadius: 12,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.add_circle_rounded, color: AppColors.laserGreen, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              '+${CurrencyFormatter.formatShort(item.amount)} ${item.label}',
+              style: const TextStyle(
+                color: AppColors.laserGreen,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
     return AnimatedBuilder(
       animation: item.controller,
+      child: staticContent,
       builder: (context, child) {
         final progress = item.controller.value;
         final offsetY = item.position.dy - (progress * 70.0);
@@ -91,36 +125,7 @@ class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay> with TickerP
             opacity: opacity,
             child: Transform.scale(
               scale: scale,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.laserGreen, width: 1.5),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: AppColors.laserGreen,
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.add_circle_rounded, color: AppColors.laserGreen, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      '+${CurrencyFormatter.formatShort(item.amount)} ${item.label}',
-                      style: const TextStyle(
-                        color: AppColors.laserGreen,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: child,
             ),
           ),
         );

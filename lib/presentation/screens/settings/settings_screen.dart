@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -223,99 +224,101 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 14),
 
-          // 5. Developer Test Panel (GOD MODE)
-          NeoBrutalCard(
-            padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF161528) : const Color(0xFFF5F3FF),
-            borderColor: const Color(0xFF8B5CF6),
-            borderWidth: 2.2,
-            borderRadius: 14,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.bolt_rounded, color: Color(0xFF8B5CF6), size: 20),
-                        SizedBox(width: 6),
-                        Text(
-                          'GELİŞTİRİCİ PANELİ (GOD MODE)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF8B5CF6),
+          // 5. Developer / Cheats Card (Only in debug mode)
+          if (kDebugMode) ...[
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(14),
+              backgroundColor: isDark ? const Color(0xFF1B182B) : const Color(0xFFF5F3FF),
+              borderColor: const Color(0xFF8B5CF6),
+              borderWidth: 2.2,
+              borderRadius: 14,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.bolt_rounded, color: Color(0xFF8B5CF6), size: 20),
+                          SizedBox(width: 6),
+                          Text(
+                            'GELİŞTİRİCİ PANELİ (GOD MODE)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF8B5CF6),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    NeoBrutalBadge(
-                      text: 'DEV TEST',
-                      backgroundColor: const Color(0xFF8B5CF6),
-                      textColor: Colors.white,
-                      fontSize: 9.5,
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Hızlı mekanik doğrulaması ve tüm mülk/modül testleri için tek tıkla sermaye ve seviye hilesi uygula.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: NeoBrutalButton(
-                        label: '+₺100.000.000',
-                        icon: Icons.attach_money_rounded,
-                        backgroundColor: const Color(0xFF10B981),
-                        textColor: Colors.black,
-                        fontSize: 11,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        onPressed: () {
-                          ref.read(gameProvider.notifier).addCheatFunds(100000000.0);
-                          NotificationService.showSuccess(context, '⚡ ₺100.000.000 Hile Sermayesi Eklendi!');
-                        },
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: NeoBrutalButton(
-                        label: 'SEVİYE 4 & FULL AÇ',
-                        icon: Icons.workspace_premium_rounded,
+                      NeoBrutalBadge(
+                        text: 'DEV TEST',
                         backgroundColor: const Color(0xFF8B5CF6),
                         textColor: Colors.white,
-                        fontSize: 10.5,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        onPressed: () {
-                          ref.read(gameProvider.notifier).unlockAllPropertiesAndMaxLevel();
-                          NotificationService.showSuccess(context, '🏛️ Seviye 4 (Mega Otomotiv Kalesi) ve Tüm Özellikler Açıldı!');
-                        },
+                        fontSize: 9.5,
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                NeoBrutalButton(
-                  label: 'GARAJI TEMİZLE (BOŞALT)',
-                  icon: Icons.cleaning_services_rounded,
-                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? Colors.white70 : const Color(0xFF334155),
-                  fontSize: 10.5,
-                  fullWidth: true,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  onPressed: () {
-                    ref.read(gameProvider.notifier).clearGarage();
-                    NotificationService.showInfo(context, '🧹 Garaj temizlendi.');
-                  },
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Hızlı mekanik doğrulaması ve tüm mülk/modül testleri için tek tıkla sermaye ve seviye hilesi uygula.',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: NeoBrutalButton(
+                          label: '+₺100.000.000',
+                          icon: Icons.attach_money_rounded,
+                          backgroundColor: const Color(0xFF10B981),
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          onPressed: () {
+                            ref.read(gameProvider.notifier).addCheatFunds(100000000.0);
+                            NotificationService.showSuccess(context, '⚡ ₺100.000.000 Hile Sermayesi Eklendi!');
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: NeoBrutalButton(
+                          label: 'SEVİYE 4 & FULL AÇ',
+                          icon: Icons.workspace_premium_rounded,
+                          backgroundColor: const Color(0xFF8B5CF6),
+                          textColor: Colors.white,
+                          fontSize: 10.5,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          onPressed: () {
+                            ref.read(gameProvider.notifier).unlockAllPropertiesAndMaxLevel();
+                            NotificationService.showSuccess(context, '🏛️ Seviye 4 (Mega Otomotiv Kalesi) ve Tüm Özellikler Açıldı!');
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  NeoBrutalButton(
+                    label: 'GARAJI TEMİZLE (BOŞALT)',
+                    icon: Icons.cleaning_services_rounded,
+                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    textColor: isDark ? Colors.white70 : const Color(0xFF334155),
+                    fontSize: 10.5,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    onPressed: () {
+                      ref.read(gameProvider.notifier).clearGarage();
+                      NotificationService.showInfo(context, '🧹 Garaj temizlendi.');
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
+          ],
 
           // 6. Danger Zone
           NeoBrutalCard(

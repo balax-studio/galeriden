@@ -71,4 +71,45 @@ mixin GameFinanceMixin on GameBaseNotifier {
     state = state.copyWith(balance: state.balance + rewardAmount);
     saveState();
   }
+
+  /// Deposit cash into bank time deposit
+  bool depositToBank(double amount) {
+    if (amount <= 0 || state.balance < amount) return false;
+    state = state.copyWith(
+      balance: state.balance - amount,
+      bankDepositBalance: state.bankDepositBalance + amount,
+    );
+    saveState();
+    return true;
+  }
+
+  /// Withdraw cash from bank time deposit
+  bool withdrawFromBank(double amount) {
+    if (amount <= 0 || state.bankDepositBalance < amount) return false;
+    state = state.copyWith(
+      balance: state.balance + amount,
+      bankDepositBalance: state.bankDepositBalance - amount,
+    );
+    saveState();
+    return true;
+  }
+
+  /// Upgrade bank credit limit
+  bool upgradeCreditLimit({required double newLimit, required double fee}) {
+    if (state.balance < fee) return false;
+    state = state.copyWith(
+      balance: state.balance - fee,
+      bankCreditLimit: newLimit,
+    );
+    saveState();
+    return true;
+  }
+
+  /// Perform New Game+ Prestige
+  bool performPrestige() {
+    if (state.level < 5 && state.totalProfit < 3000000) return false;
+    state = state.performPrestigeReset();
+    saveState();
+    return true;
+  }
 }

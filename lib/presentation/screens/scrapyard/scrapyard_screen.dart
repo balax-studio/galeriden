@@ -168,65 +168,73 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
         controller: _tabController,
         children: [
           // Tab 1: Pert Hurda Araçlar
-          ListView(
-            padding: const EdgeInsets.all(14),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              // Monolithic Info Card
-              NeoBrutalCard(
+          Builder(
+            builder: (context) {
+              final activeScrapCars = scrapCars.where((c) => !c.isPurchased).toList();
+              return ListView.builder(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                borderRadius: 14,
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.brutalOrange,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black, width: 1.5),
+                physics: const BouncingScrollPhysics(),
+                itemCount: activeScrapCars.isEmpty ? 2 : activeScrapCars.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: NeoBrutalCard(
+                        padding: const EdgeInsets.all(14),
+                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                        borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                        borderRadius: 14,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.brutalOrange,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.black, width: 1.5),
+                              ),
+                              child: const Icon(Icons.car_crash_rounded, color: Colors.black, size: 24),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'KAZALI & PERT ARAÇ SÖKÜMÜ',
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Pert araçları satın alıp sağlam parçalarını sökün. Pazarda satın veya atölyede araçlarınıza takın!',
+                                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: const Icon(Icons.car_crash_rounded, color: Colors.black, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'KAZALI & PERT ARAÇ SÖKÜMÜ',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Pert araçları satın alıp sağlam parçalarını sökün. Pazarda satın veya atölyede araçlarınıza takın!',
-                            style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
+                    );
+                  }
 
-              if (scrapCars.isEmpty || scrapCars.every((c) => c.isPurchased))
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(24),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 14,
-                  child: const Center(
-                    child: Text(
-                      'Hurdalıkta şu an satılık pert araç kalmadı. Yeni hurda araçlar 3 gün içinde gelecek!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                )
-              else
-                ...scrapCars.where((c) => !c.isPurchased).map((car) {
+                  if (activeScrapCars.isEmpty) {
+                    return NeoBrutalCard(
+                      padding: const EdgeInsets.all(24),
+                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      borderRadius: 14,
+                      child: const Center(
+                        child: Text(
+                          'Hurdalıkta şu an satılık pert araç kalmadı. Yeni hurda araçlar 3 gün içinde gelecek!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final car = activeScrapCars[index - 1];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: NeoBrutalCard(
@@ -358,28 +366,34 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                       ),
                     ),
                   );
-                }),
-            ],
+                },
+              );
+            },
           ),
 
           // Tab 2: Sökülen Parçalar Stoğu
-          ListView(
+          ListView.builder(
             padding: const EdgeInsets.all(14),
             physics: const BouncingScrollPhysics(),
-            children: [
-              Text(
-                'ÇIKMA YEDEK PARÇA DEPOSU (${salvagedParts.length} Parça)',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                ),
-              ),
-              const SizedBox(height: 10),
+            itemCount: salvagedParts.isEmpty ? 2 : salvagedParts.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    'ÇIKMA YEDEK PARÇA DEPOSU (${salvagedParts.length} Parça)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                    ),
+                  ),
+                );
+              }
 
-              if (salvagedParts.isEmpty)
-                NeoBrutalCard(
+              if (salvagedParts.isEmpty) {
+                return NeoBrutalCard(
                   padding: const EdgeInsets.all(28),
                   backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                   borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
@@ -400,92 +414,92 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                       ),
                     ],
                   ),
-                )
-              else
-                ...salvagedParts.map((part) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: NeoBrutalCard(
-                      padding: const EdgeInsets.all(12),
-                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                      borderRadius: 12,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                );
+              }
+
+              final part = salvagedParts[index - 1];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(12),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  part.name,
-                                  style: TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                  ),
-                                ),
+                          Expanded(
+                            child: Text(
+                              part.name,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
                               ),
-                              NeoBrutalBadge(
-                                text: part.tierName,
-                                backgroundColor: _getTierColor(part.tier),
-                                textColor: Colors.white,
-                                fontSize: 9.5,
-                              ),
-                            ],
+                            ),
                           ),
-                          const SizedBox(height: 4),
+                          NeoBrutalBadge(
+                            text: part.tierName,
+                            backgroundColor: _getTierColor(part.tier),
+                            textColor: Colors.white,
+                            fontSize: 9.5,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Model: ${part.carModelName} • Kondisyon: %${part.conditionPercent}',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           Text(
-                            'Model: ${part.carModelName} • Kondisyon: %${part.conditionPercent}',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            CurrencyFormatter.formatShort(part.estimatedValue),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                           ),
-                          const SizedBox(height: 10),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                CurrencyFormatter.formatShort(part.estimatedValue),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                              NeoBrutalButton(
+                                label: 'ARACA TAK',
+                                icon: Icons.handyman_rounded,
+                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                textColor: isDark ? Colors.white : Colors.black,
+                                fontSize: 10.5,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                onPressed: () => _showInstallPartDialog(context, part),
                               ),
-                              Row(
-                                children: [
-                                  NeoBrutalButton(
-                                    label: 'ARACA TAK',
-                                    icon: Icons.handyman_rounded,
-                                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                    textColor: isDark ? Colors.white : Colors.black,
-                                    fontSize: 10.5,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    onPressed: () => _showInstallPartDialog(context, part),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  NeoBrutalButton(
-                                    label: 'PAZARDA SAT',
-                                    icon: Icons.attach_money_rounded,
-                                    backgroundColor: AppColors.brutalGreen,
-                                    textColor: Colors.black,
-                                    fontSize: 10.5,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    onPressed: () {
-                                      final success = ref.read(gameProvider.notifier).sellSalvagedPart(part.id);
-                                      if (success) {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          '${part.name} ${CurrencyFormatter.formatShort(part.estimatedValue)} karşılığı satıldı!',
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ],
+                              const SizedBox(width: 6),
+                              NeoBrutalButton(
+                                label: 'PAZARDA SAT',
+                                icon: Icons.attach_money_rounded,
+                                backgroundColor: AppColors.brutalGreen,
+                                textColor: Colors.black,
+                                fontSize: 10.5,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                onPressed: () {
+                                  final success = ref.read(gameProvider.notifier).sellSalvagedPart(part.id);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${part.name} ${CurrencyFormatter.formatShort(part.estimatedValue)} karşılığı satıldı!',
+                                    );
+                                  }
+                                },
                               ),
                             ],
                           ),
                         ],
                       ),
-                    ),
-                  );
-                }),
-            ],
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

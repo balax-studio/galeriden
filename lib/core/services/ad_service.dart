@@ -40,7 +40,7 @@ class AdService {
 
   /// Preload Rewarded Ad
   void loadRewardedAd() {
-    if (kIsWeb || _isAdLoading || _rewardedAd != null) return;
+    if (kIsWeb || !_isInitialized || _isAdLoading || _rewardedAd != null) return;
 
     _isAdLoading = true;
     try {

@@ -641,42 +641,46 @@ class _IsometricWorldMapState extends ConsumerState<IsometricWorldMap>
             child: SizedBox(
               width: IsoWorld.worldWidth,
               height: IsoWorld.worldHeight,
-              child: AnimatedBuilder(
-                animation: _anim,
-                builder: (context, _) {
-                  return GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTapUp: (d) => _handleTapUp(d, game, p),
-                    child: Stack(
-                      children: [
-                        // Sky / skyline backdrop.
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: ParallaxSkylinePainter(
-                              cameraOffset: Offset(_anim.value * 120, 0),
-                              parallaxFactor: 0.25,
-                              hour: hour,
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _anim,
+                  builder: (context, _) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTapUp: (d) => _handleTapUp(d, game, p),
+                      child: Stack(
+                        children: [
+                          // Sky / skyline backdrop.
+                          Positioned.fill(
+                            child: RepaintBoundary(
+                              child: CustomPaint(
+                                painter: ParallaxSkylinePainter(
+                                  cameraOffset: Offset(_anim.value * 120, 0),
+                                  parallaxFactor: 0.25,
+                                  hour: hour,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        // The living isometric world with custom architectural models.
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: _WorldPainter(
-                              ownedCars: game.ownedCars,
-                              maxSlots: game.maxGarageSlots,
-                              dealershipName: game.dealershipName,
-                              hour: hour,
-                              anim: _anim.value,
-                              p: p,
-                              game: game,
+                          // The living isometric world with custom architectural models.
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: _WorldPainter(
+                                ownedCars: game.ownedCars,
+                                maxSlots: game.maxGarageSlots,
+                                dealershipName: game.dealershipName,
+                                hour: hour,
+                                anim: _anim.value,
+                                p: p,
+                                game: game,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),

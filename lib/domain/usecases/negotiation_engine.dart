@@ -167,34 +167,44 @@ class NegotiationEngine {
     'Kardeşim acil nakit lazımsa hemen geleyim, üstüne bir kuruş çıkamam.',
   ];
 
-  /// Generates a realistic buyer offer (strictly capped at seller's custom listing price)
+  /// Generates a realistic buyer offer with 4-tier long-tail distribution (VR2)
   static OfferModel generateBuyerOffer(CarModel car, double listingPrice) {
     final realVal = car.estimatedRealValue;
-    final askingPrice = car.listingPrice;
-    final isLowball = _random.nextDouble() < 0.25;
+    final askingPrice = car.listingPrice > 0 ? car.listingPrice : realVal;
+    final distRoll = _random.nextDouble();
 
     double baseOffer;
     String message;
+    String buyerName = buyerNames[_random.nextInt(buyerNames.length)];
+    bool isLowball = false;
 
-    if (isLowball) {
-      // Ölücü Teklif (%50 - %72 piyasa değeri, kesinlikle isteğin üstüne çıkamaz)
-      baseOffer = (min(realVal, askingPrice) * (0.50 + (_random.nextDouble() * 0.22))).roundToDouble();
+    if (distRoll < 0.02) {
+      // 1) Collector Jackpot (%2 chance): +20% to +40% over asking/real price
+      baseOffer = (max(realVal, askingPrice) * (1.20 + (_random.nextDouble() * 0.20))).roundToDouble();
+      buyerName = 'Koleksiyoner $buyerName';
+      message = 'Tam aradığım temizlikte özel bir araç! Kaçırmamak için liste fiyatının da üzerinde ₺${baseOffer.round()} nakit teklif ediyorum!';
+    } else if (distRoll < 0.10) {
+      // 2) Asking Price Match (%8 chance): Exactly 100% of asking price
+      baseOffer = askingPrice;
+      message = 'Fiyat çok makul, pazarlıksız ilandaki ₺${askingPrice.round()} fiyata hemen notere geçelim.';
+    } else if (distRoll < 0.30) {
+      // 3) Lowball / Ölücü (%20 chance): %55 - %75 of asking/real price
+      isLowball = true;
+      baseOffer = (min(realVal, askingPrice) * (0.55 + (_random.nextDouble() * 0.20))).roundToDouble();
       if (baseOffer >= askingPrice) {
         baseOffer = (askingPrice * 0.70).roundToDouble();
       }
       message = lowballMessages[_random.nextInt(lowballMessages.length)];
     } else {
-      // Normal Teklif (%88 - %99 isteğin üstüne çıkamaz)
-      final maxAllowed = min(realVal * 1.05, askingPrice);
-      final minAllowed = min(realVal * 0.85, askingPrice * 0.82);
-      baseOffer = (minAllowed + (_random.nextDouble() * (maxAllowed - minAllowed))).roundToDouble();
+      // 4) Standard Normal Offer (%70 chance): %88 - %98 of asking price
+      final maxAllowed = min(realVal * 1.02, askingPrice * 0.98);
+      final minAllowed = min(realVal * 0.88, askingPrice * 0.88);
+      baseOffer = (minAllowed + (_random.nextDouble() * max(1000.0, maxAllowed - minAllowed))).roundToDouble();
       if (baseOffer > askingPrice) {
         baseOffer = askingPrice;
       }
       message = buyerMessages[_random.nextInt(buyerMessages.length)];
     }
-
-    final buyerName = buyerNames[_random.nextInt(buyerNames.length)];
 
     // Credit score generation
     int creditScore;
@@ -342,6 +352,28 @@ class NegotiationEngine {
       responseMessage: '₺${playerTargetPrice.round()} biraz yüksek ama bütçemi zorlayıp ₺${buyerNewOffer.round()} verebilirim.',
       isAccepted: false,
       isWalkaway: false,
+    );
+  }
+
+  /// Generates a bonus offer from a loyal returning customer (CRM feature)
+  static OfferModel generateLoyalCustomerOffer({
+    required CarModel car,
+    required String customerName,
+  }) {
+    final realVal = car.estimatedRealValue;
+    final askingPrice = car.listingPrice > 0 ? car.listingPrice : realVal;
+    // Loyal customers offer between 98% and 106% of asking/real value
+    final offerAmount = (max(realVal, askingPrice) * (0.98 + (_random.nextDouble() * 0.08))).roundToDouble();
+
+    return OfferModel(
+      id: 'loyal_${DateTime.now().millisecondsSinceEpoch}_${_random.nextInt(1000)}',
+      carId: car.id,
+      buyerName: customerName,
+      offeredAmount: offerAmount,
+      buyerMessage: 'Tekrar merhaba! Senden daha önce aldığım araçtan çok memnun kaldım. Bu aracı da ₺${offerAmount.round()} nakit fiyata almak isterim.',
+      createdAt: DateTime.now(),
+      customerCreditScore: 95,
+      offerType: OfferType.cash,
     );
   }
 }

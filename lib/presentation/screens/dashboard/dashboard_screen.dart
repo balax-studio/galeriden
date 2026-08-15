@@ -7,6 +7,8 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/dealership_model.dart';
+import '../../../data/models/contract_model.dart';
+import '../../../data/models/car_model.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
@@ -138,6 +140,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         _buildProfileBanner(context, game, p, isDark),
         const SizedBox(height: 14),
 
+        // 1.1 First-Day Quest Guide Banner (if player has not completed their first sale)
+        if (game.carsSold == 0) ...[
+          _buildFirstDayQuestBanner(context, game, p, isDark),
+          const SizedBox(height: 14),
+        ],
+
         // 2. Daily Streak Reward Block (if available)
         _buildDailyStreakBanner(context, game, p, isDark),
 
@@ -189,7 +197,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         _buildMissionsList(context, game, p, isDark),
         const SizedBox(height: 18),
 
-        // 7. Hızlı Finansal Durum Kartı
+        // 7. VIP Aranan Araç Siparişleri (Sözleşmeler)
+        _buildWantedContractsSection(context, game, p, isDark),
+
+        // 8. Hızlı Finansal Durum Kartı
         DashboardQuickFinanceCard(game: game, palette: p),
       ],
     );
@@ -435,6 +446,106 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 1.1 First-Day Quest Guide Banner for New Players
+  Widget _buildFirstDayQuestBanner(
+    BuildContext context,
+    DealershipModel game,
+    ThemePaletteModel p,
+    bool isDark,
+  ) {
+    String questTitle;
+    String questSubtitle;
+    IconData questIcon;
+    VoidCallback onQuestTap;
+
+    if (game.ownedCars.isNotEmpty) {
+      final hasListedCar = game.ownedCars.any((c) => c.isListed);
+      if (!hasListedCar) {
+        questTitle = '1. HEDEF: Dede Yadigarı Aracı Vitrine Çıkar!';
+        questSubtitle = 'Showroom\'a gir, Murat 124\'e fiyat biç ve ilana koy.';
+        questIcon = Icons.storefront_rounded;
+        onQuestTap = () => setState(() => _selectedIndex = 1);
+      } else {
+        questTitle = '2. HEDEF: Gelen Teklifleri İncele & İlk Satışını Yap!';
+        questSubtitle = 'Showroom\'da müşterilerle pazarlık yap, kârını cebe koy.';
+        questIcon = Icons.handshake_rounded;
+        onQuestTap = () => setState(() => _selectedIndex = 1);
+      }
+    } else {
+      questTitle = '1. HEDEF: Pazardan İlk Kelepir Aracını Satın Al!';
+      questSubtitle = 'Pazara göz at, ekspertiz raporunu incele ve ilk arabanı al.';
+      questIcon = Icons.shopping_cart_rounded;
+      onQuestTap = () => context.push('/marketplace');
+    }
+
+    return NeoBrutalCard(
+      onTap: onQuestTap,
+      padding: const EdgeInsets.all(12),
+      backgroundColor: const Color(0xFFFEF3C7),
+      borderColor: Colors.black,
+      borderRadius: 12,
+      borderWidth: 2.0,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFDE59),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.black, width: 1.8),
+            ),
+            child: Icon(questIcon, color: Colors.black, size: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const NeoBrutalBadge(
+                      text: 'BAŞLANGIÇ GÖREVİ',
+                      backgroundColor: Colors.black,
+                      textColor: Color(0xFFFFDE59),
+                      fontSize: 9,
+                    ),
+                    const Spacer(),
+                    const Text(
+                      'Hemen Git ➔',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  questTitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  questSubtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1335,7 +1446,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ],
                   ),
                 ),
-                if (progressRatio >= 1.0) ...[
+                if (mission.isClaimed) ...[
+                  const SizedBox(width: 10),
+                  const NeoBrutalBadge(
+                    text: 'ALINDI',
+                    backgroundColor: Color(0xFF10B981),
+                    textColor: Colors.white,
+                    fontSize: 10,
+                  ),
+                ] else if (progressRatio >= 1.0) ...[
                   const SizedBox(width: 10),
                   NeoBrutalButton(
                     label: 'AL',
@@ -1345,15 +1464,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     fontSize: 11,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     onPressed: () {
-                      ref.read(gameProvider.notifier).claimMissionReward(mission.id);
-                      FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
-                        mission.rewardMoney.toDouble(),
-                        label: 'Görev Tamam!',
-                      );
-                      NotificationService.showSuccess(
-                        context,
-                        '${mission.title} Tamamlandı! ${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.',
-                      );
+                      final success = ref.read(gameProvider.notifier).claimMissionReward(mission.id);
+                      if (success) {
+                        FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                          mission.rewardMoney.toDouble(),
+                          label: 'Görev Tamam!',
+                        );
+                        NotificationService.showSuccess(
+                          context,
+                          '${mission.title} Tamamlandı! ${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.',
+                        );
+                      }
                     },
                   ),
                 ],
@@ -1362,6 +1483,201 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  /// 7. VIP Wanted Car Orders (Sözleşmeler)
+  Widget _buildWantedContractsSection(
+    BuildContext context,
+    DealershipModel game,
+    ThemePaletteModel p,
+    bool isDark,
+  ) {
+    if (game.activeContracts.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          title: 'VIP ARANAN ARAÇ SİPARİŞLERİ',
+          subtitle: 'Müşteriler için özel araç temin et, prim kazan',
+          badgeText: '${game.activeContracts.length} SİPARİŞ',
+          badgeColor: const Color(0xFFFF7A00),
+          isDark: isDark,
+          p: p,
+        ),
+        const SizedBox(height: 10),
+        ...game.activeContracts.map((contract) {
+          final matchingCars = game.ownedCars.where((car) {
+            if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase()) return false;
+            if (contract.targetBodyType != null && car.bodyType != contract.targetBodyType) return false;
+            if (car.modelYear < contract.minYear) return false;
+            if (car.expertise.mileage > contract.maxMileage) return false;
+            if (car.isLockedInShowcase) return false;
+            return true;
+          }).toList();
+
+          final totalPayout = contract.budget + contract.rewardBonus;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(12),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: const Color(0xFFFF7A00),
+                        child: Text(
+                          contract.clientName.isNotEmpty ? contract.clientName[0] : 'V',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              contract.clientName,
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            ),
+                            Text(
+                              'Aranan: ${contract.targetBrand} • Min. ${contract.minYear} • Max. ${contract.maxMileage ~/ 1000}k km',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      NeoBrutalBadge(
+                        text: '${contract.deadlineDays} GÜN',
+                        backgroundColor: contract.deadlineDays <= 2 ? const Color(0xFFEF4444) : const Color(0xFFFFDE59),
+                        textColor: Colors.black,
+                        fontSize: 9.5,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Toplam Ödeme',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            ),
+                          ),
+                          Text(
+                            '${CurrencyFormatter.formatShort(totalPayout)} (+${CurrencyFormatter.formatShort(contract.rewardBonus)} Prim)',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
+                          ),
+                        ],
+                      ),
+                      if (matchingCars.isNotEmpty)
+                        NeoBrutalButton(
+                          label: 'TESLİM ET (${matchingCars.length})',
+                          icon: Icons.local_shipping_rounded,
+                          backgroundColor: const Color(0xFF00E575),
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          onPressed: () => _showFulfillContractDialog(context, contract, matchingCars),
+                        )
+                      else
+                        NeoBrutalButton(
+                          label: 'PAZARDA BUL',
+                          icon: Icons.search_rounded,
+                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          textColor: isDark ? Colors.white : Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          onPressed: () => context.push('/marketplace'),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 18),
+      ],
+    );
+  }
+
+  void _showFulfillContractDialog(
+    BuildContext context,
+    WantedCarContract contract,
+    List<CarModel> matchingCars,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Color(0xFF0F172A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${contract.clientName} İçin Teslim Edilecek Aracı Seç',
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
+              ),
+              const SizedBox(height: 12),
+              ...matchingCars.map((car) {
+                final profit = (contract.budget + contract.rewardBonus) - car.currentPurchasePrice;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    tileColor: const Color(0xFF1E2330),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    title: Text('${car.brand} ${car.modelName} (${car.modelYear})', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                    subtitle: Text('Alış: ${CurrencyFormatter.formatShort(car.currentPurchasePrice)} • Tahmini Kâr: +${CurrencyFormatter.formatShort(profit)}', style: const TextStyle(color: Color(0xFF00E575), fontSize: 11)),
+                    trailing: ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E575)),
+                      child: const Text('TESLİM ET', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        final success = ref.read(gameProvider.notifier).fulfillWantedCarContract(contract.id, car.id);
+                        if (success) {
+                          FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                            contract.budget + contract.rewardBonus,
+                            label: 'Sözleşme Tamamlandı!',
+                          );
+                          NotificationService.showSuccess(
+                            context,
+                            '${contract.clientName} aracını teslim aldı! ${CurrencyFormatter.formatShort(contract.budget + contract.rewardBonus)} kazandın.',
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 

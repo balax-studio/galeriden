@@ -27,8 +27,10 @@ class StockMarketScreen extends ConsumerWidget {
         return StatefulBuilder(
           builder: (dialogCtx, setDialogState) {
             final int lotAmount = int.tryParse(lotController.text) ?? 0;
-            final double totalCost = lotAmount * stock.currentPrice;
-            final int maxBuyable = (game.balance / stock.currentPrice).floor();
+            final double grossCost = lotAmount * stock.currentPrice;
+            final double commission = grossCost * 0.002;
+            final double totalCost = grossCost + commission;
+            final int maxBuyable = (game.balance / (stock.currentPrice * 1.002)).floor();
             final int sharesOwned = owned?.quantity ?? 0;
 
             return Padding(
@@ -142,13 +144,33 @@ class StockMarketScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.black, width: 1.5),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
                         children: [
-                          const Text('Toplam Tutar:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-                          Text(
-                            CurrencyFormatter.formatShort(totalCost),
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Hisse Tutarı:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                              Text(CurrencyFormatter.formatShort(grossCost), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Borsa Komisyonu (%0.2):', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                              Text(CurrencyFormatter.formatShort(commission), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                            ],
+                          ),
+                          const Divider(height: 12, thickness: 1),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Toplam Tutar:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+                              Text(
+                                CurrencyFormatter.formatShort(totalCost),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                              ),
+                            ],
                           ),
                         ],
                       ),

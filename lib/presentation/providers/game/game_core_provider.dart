@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,13 +24,15 @@ class GameCoreNotifier extends GameBaseNotifier
         GameStaffMixin,
         GameTimeMixin {
   
+  Timer? _saveDebounceTimer;
+
   GameCoreNotifier() : super(DealershipModel.initial()) {
     _loadState();
-    startPeriodicOrganicOfferTimer();
   }
 
   @override
   void dispose() {
+    _saveDebounceTimer?.cancel();
     stopPeriodicOrganicOfferTimer();
     super.dispose();
   }
@@ -45,15 +48,18 @@ class GameCoreNotifier extends GameBaseNotifier
         final Map<String, dynamic> decoded = jsonDecode(jsonString);
         final loaded = DealershipModel.fromJson(decoded);
 
-        // Calculate login streak
+        // Calculate calendar-day login streak & freeze consumption
         final now = DateTime.now();
-        int streak = loaded.loginStreak;
-        final diffDays = now.difference(loaded.lastLoginDate).inDays;
-        if (diffDays == 1) {
-          streak += 1;
-        } else if (diffDays > 1) {
-          streak = 1;
-        }
+        final streak = PsychologyEngine.calculateLoginStreak(
+          lastLoginDate: loaded.lastLoginDate,
+          currentStreak: loaded.loginStreak,
+          now: now,
+          hasStreakFreeze: loaded.hasStreakFreeze,
+        );
+        final calDays = DateTime(now.year, now.month, now.day).difference(
+          DateTime(loaded.lastLoginDate.year, loaded.lastLoginDate.month, loaded.lastLoginDate.day),
+        ).inDays;
+        final bool freezeConsumed = loaded.hasStreakFreeze && (calDays > 1);
 
         // Filter expired offers
         final activeOffers = loaded.incomingOffers.where((o) => !o.isExpired).toList();
@@ -61,10 +67,15 @@ class GameCoreNotifier extends GameBaseNotifier
         // Process offline time progression
         final offlineResult = OfflineProgression.processOfflineTime(loaded.copyWith(incomingOffers: activeOffers));
         DealershipModel updated = offlineResult['updatedDealership'] as DealershipModel;
-        updated = updated.copyWith(loginStreak: streak, lastLoginDate: now);
+        updated = updated.copyWith(
+          loginStreak: streak,
+          lastLoginDate: now,
+          hasStreakFreeze: freezeConsumed ? false : updated.hasStreakFreeze,
+        );
 
         state = updated;
         syncRentalState();
+        startPeriodicOrganicOfferTimer();
         saveState();
         return;
       } catch (e) {
@@ -74,15 +85,28 @@ class GameCoreNotifier extends GameBaseNotifier
     }
 
     state = DealershipModel.initial();
+    startPeriodicOrganicOfferTimer();
     saveState();
   }
 
   @override
-  Future<void> saveState() async {
+  void saveState() {
     if (!mounted) return;
     _checkAchievementsInternal();
+    
+    _saveDebounceTimer?.cancel();
+    _saveDebounceTimer = Timer(const Duration(milliseconds: 350), () async {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final jsonString = jsonEncode(state.toJson());
+      await prefs.setString(_storageKey, jsonString);
+    });
+  }
+
+  /// Forces an immediate save to disk
+  Future<void> flushSaveNow() async {
+    _saveDebounceTimer?.cancel();
     final prefs = await SharedPreferences.getInstance();
-    if (!mounted) return;
     final jsonString = jsonEncode(state.toJson());
     await prefs.setString(_storageKey, jsonString);
   }

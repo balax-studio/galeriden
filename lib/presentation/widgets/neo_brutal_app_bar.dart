@@ -58,74 +58,84 @@ class NeoBrutalAppBar extends StatelessWidget implements PreferredSizeWidget {
             Container(
               height: kToolbarHeight,
               padding: const EdgeInsets.symmetric(horizontal: 14.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  // Far-left: Strict Leading Back Button with Tactile Haptics
-                  if (showLeading) ...[
-                    InkWell(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        if (onLeadingPressed != null) {
-                          onLeadingPressed!();
-                        } else if (context.canPop()) {
-                          context.pop();
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: borderColor,
-                            width: 2.0,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: borderColor,
-                              offset: const Offset(2, 2),
-                              blurRadius: 0,
+                  // Middle / Centered Title section
+                  Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                      child: titleWidget ??
+                          Text(
+                            title.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.8,
+                              color: textColor,
                             ),
-                          ],
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.arrow_back_rounded,
-                          size: 20,
-                          color: textColor,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                    ),
+                  ),
+
+                  // Far-left: Strict Leading Back Button with expanded hit area
+                  if (showLeading)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          if (onLeadingPressed != null) {
+                            onLeadingPressed!();
+                          } else if (context.canPop()) {
+                            context.pop();
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4.0), // increased hit area
+                          child: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: borderColor,
+                                width: 2.0,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: borderColor,
+                                  offset: const Offset(2, 2),
+                                  blurRadius: 0,
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.arrow_back_rounded,
+                              size: 20,
+                              color: textColor,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                  ],
-
-                  // Middle / Title section
-                  Expanded(
-                    child: titleWidget ??
-                        Text(
-                          title.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.8,
-                            color: textColor,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                  ),
 
                   // Far-right: Action items
-                  if (actions != null && actions!.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: actions!,
+                  if (actions != null && actions!.isNotEmpty)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: actions!,
+                      ),
                     ),
-                  ],
                 ],
               ),
             ),

@@ -25,6 +25,8 @@ class CarModel {
   final List<String> appliedDetailingOptionIds;
   final bool isRented;
   final bool isDoped;
+  final bool isChassisRepaired;
+  final bool isLockedInShowcase;
 
   CarModel({
     required this.id,
@@ -45,6 +47,8 @@ class CarModel {
     this.appliedDetailingOptionIds = const [],
     this.isRented = false,
     this.isDoped = false,
+    this.isChassisRepaired = false,
+    this.isLockedInShowcase = false,
   });
 
   /// Alias for currentPurchasePrice to prevent runtime NoSuchMethodError
@@ -74,11 +78,32 @@ class CarModel {
     double factor = (expertise.engineCondition / 100.0) * 0.4 +
         (expertise.transmissionCondition / 100.0) * 0.3;
 
-    int changedOrDamagedCount = expertise.bodyParts.values
-        .where((s) => s == PartStatus.changed || s == PartStatus.damaged)
-        .length;
+    final totalParts = expertise.bodyParts.length;
+    final damageRatio = totalParts == 0
+        ? 0.0
+        : expertise.bodyParts.values
+                .where((s) => s == PartStatus.changed || s == PartStatus.damaged)
+                .length /
+            totalParts;
+    final paintedRatio = totalParts == 0
+        ? 0.0
+        : expertise.bodyParts.values
+                .where((s) => s == PartStatus.painted)
+                .length /
+            totalParts;
 
-    factor += (1.0 - (changedOrDamagedCount * 0.08)).clamp(0.1, 0.3);
+    double structuralPenalty = 0.0;
+    for (final key in const ['Tavan', 'Şasi/Podye', 'Podye']) {
+      final st = expertise.bodyParts[key];
+      if (st == PartStatus.changed || st == PartStatus.damaged) {
+        structuralPenalty += 0.06;
+      } else if (st == PartStatus.painted) {
+        structuralPenalty += 0.03;
+      }
+    }
+
+    factor += (0.30 - damageRatio * 0.25 - paintedRatio * 0.10 - structuralPenalty)
+        .clamp(0.05, 0.30);
 
     if (isDetailedCleaned || (isWashed && isPolished)) {
       factor += 0.08;
@@ -116,6 +141,8 @@ class CarModel {
       'appliedDetailingOptionIds': appliedDetailingOptionIds,
       'isRented': isRented,
       'isDoped': isDoped,
+      'isChassisRepaired': isChassisRepaired,
+      'isLockedInShowcase': isLockedInShowcase,
     };
   }
 
@@ -146,6 +173,8 @@ class CarModel {
       appliedDetailingOptionIds: (json['appliedDetailingOptionIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       isRented: json['isRented'] as bool? ?? false,
       isDoped: json['isDoped'] as bool? ?? false,
+      isChassisRepaired: json['isChassisRepaired'] as bool? ?? false,
+      isLockedInShowcase: json['isLockedInShowcase'] as bool? ?? false,
     );
   }
 
@@ -159,9 +188,12 @@ class CarModel {
     ExpertiseReport? expertise,
     ListingDeclarationType? declarationType,
     double? customListingPrice,
+    bool clearListingPrice = false,
     List<String>? appliedDetailingOptionIds,
     bool? isRented,
     bool? isDoped,
+    bool? isChassisRepaired,
+    bool? isLockedInShowcase,
   }) {
     return CarModel(
       id: id,
@@ -178,10 +210,12 @@ class CarModel {
       isRare: isRare ?? this.isRare,
       expertise: expertise ?? this.expertise,
       declarationType: declarationType ?? this.declarationType,
-      customListingPrice: customListingPrice ?? this.customListingPrice,
+      customListingPrice: clearListingPrice ? null : (customListingPrice ?? this.customListingPrice),
       appliedDetailingOptionIds: appliedDetailingOptionIds ?? this.appliedDetailingOptionIds,
       isRented: isRented ?? this.isRented,
       isDoped: isDoped ?? this.isDoped,
+      isChassisRepaired: isChassisRepaired ?? this.isChassisRepaired,
+      isLockedInShowcase: isLockedInShowcase ?? this.isLockedInShowcase,
     );
   }
 }

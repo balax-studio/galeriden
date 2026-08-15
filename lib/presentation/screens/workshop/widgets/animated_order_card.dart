@@ -9,12 +9,14 @@ class AnimatedOrderCard extends StatefulWidget {
   final PartOrderModel order;
   final ThemePaletteModel p;
   final VoidCallback onInstall;
+  final VoidCallback? onFastDeliverWithAd;
 
   const AnimatedOrderCard({
     super.key,
     required this.order,
     required this.p,
     required this.onInstall,
+    this.onFastDeliverWithAd,
   });
 
   @override
@@ -132,6 +134,37 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                   ),
                 ),
                 const SizedBox(width: 8),
+                if (!isReady && widget.onFastDeliverWithAd != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: InkWell(
+                      onTap: widget.onFastDeliverWithAd,
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFDE59),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.black, width: 1.5),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.bolt_rounded, size: 14, color: Colors.black),
+                            SizedBox(width: 2),
+                            Text(
+                              'Hızlandır',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isReady ? p.successColor : p.surfaceBorderColor,

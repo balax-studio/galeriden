@@ -37,60 +37,62 @@ class _IsometricHydraulicLiftWidgetState extends State<IsometricHydraulicLiftWid
     final carColor = Color(int.parse(widget.car.colorHex.replaceFirst('#', '0xff')));
     final p = widget.p;
 
-    return AnimatedBuilder(
-      animation: _animController,
-      builder: (context, child) {
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 12),
-          height: 110,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: AppColors.isometricGridDark,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.neonCyan.withValues(alpha: 0.08 + (_animController.value * 0.08)),
-                blurRadius: 10,
-                spreadRadius: 1,
-              ),
-            ],
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      height: 110,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.isometricGridDark,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.neonCyan.withValues(alpha: 0.12),
+            blurRadius: 10,
+            spreadRadius: 1,
           ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Isometric Hydraulic Lift Stand with Animated Sparks
-              CustomPaint(
-                size: const Size(double.infinity, 110),
-                painter: _LiftPainter(
-                  primaryColor: p.primaryColor,
-                  carColor: carColor,
-                  animProgress: _animController.value,
-                ),
-              ),
-              Positioned(
-                top: 10,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.neonCyan.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.neonCyan, width: 1),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Isometric Hydraulic Lift Stand with Animated Sparks
+          RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _animController,
+              builder: (context, child) {
+                return CustomPaint(
+                  size: const Size(double.infinity, 110),
+                  painter: _LiftPainter(
+                    primaryColor: p.primaryColor,
+                    carColor: carColor,
+                    animProgress: _animController.value,
                   ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.build_circle_rounded, color: AppColors.neonCyan, size: 12),
-                      SizedBox(width: 4),
-                      Text('LİFTTE', style: TextStyle(color: AppColors.neonCyan, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+                );
+              },
+            ),
           ),
-        );
-      },
+          Positioned(
+            top: 10,
+            right: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.neonCyan.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: AppColors.neonCyan, width: 1),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.build_circle_rounded, color: AppColors.neonCyan, size: 12),
+                  SizedBox(width: 4),
+                  Text('LİFTTE', style: TextStyle(color: AppColors.neonCyan, fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

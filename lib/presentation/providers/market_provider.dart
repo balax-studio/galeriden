@@ -6,19 +6,20 @@ import '../../domain/usecases/market_engine.dart';
 import 'game_provider.dart';
 
 final marketProvider = StateNotifierProvider<MarketNotifier, List<ListingModel>>((ref) {
-  final playerLevel = ref.watch(gameProvider.select((s) => s.level));
-  return MarketNotifier(playerLevel);
+  return MarketNotifier(ref);
 });
 
 class MarketNotifier extends StateNotifier<List<ListingModel>> {
-  final int playerLevel;
+  final Ref _ref;
   Timer? _autoRefreshTimer;
   final Random _random = Random();
 
-  MarketNotifier(this.playerLevel) : super([]) {
+  MarketNotifier(this._ref) : super([]) {
     refreshMarket();
     _startAutoRefreshTimer();
   }
+
+  int get playerLevel => _ref.read(gameProvider).level;
 
   void _startAutoRefreshTimer() {
     _autoRefreshTimer?.cancel();
@@ -32,6 +33,8 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
   void refreshMarket() {
     state = MarketEngine.generateRandomListings(count: 7, playerLevel: playerLevel);
   }
+
+  void refreshListings() => refreshMarket();
 
   /// Partially refresh market (some cars get sold, new ones appear)
   void partialRefresh() {

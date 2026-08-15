@@ -1,3 +1,4 @@
+import 'dart:math';
 import '../../../data/models/branch_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/detailing_model.dart';
@@ -6,10 +7,59 @@ import '../../../data/models/rental_agreement_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
+import '../../../data/models/contract_model.dart';
 import '../../../data/models/mission_model.dart';
 import 'game_base_notifier.dart';
 
 mixin GameInventoryMixin on GameBaseNotifier {
+  /// Fulfill a VIP Wanted Car Contract
+  bool fulfillWantedCarContract(String contractId, String carId) {
+    final contractIndex = state.activeContracts.indexWhere((c) => c.id == contractId);
+    if (contractIndex == -1) return false;
+    final contract = state.activeContracts[contractIndex];
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+    final car = state.ownedCars[carIndex];
+
+    // Validate requirements
+    if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase()) return false;
+    if (contract.targetBodyType != null && car.bodyType != contract.targetBodyType) return false;
+    if (car.modelYear < contract.minYear) return false;
+    if (car.expertise.mileage > contract.maxMileage) return false;
+
+    final totalPayout = contract.budget + contract.rewardBonus;
+    final profit = totalPayout - car.currentPurchasePrice;
+
+    final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(carIndex);
+    final updatedContracts = List<WantedCarContract>.from(state.activeContracts)..removeAt(contractIndex);
+
+    state = state.copyWith(
+      balance: state.balance + totalPayout,
+      totalProfit: state.totalProfit + profit,
+      carsSold: state.carsSold + 1,
+      ownedCars: updatedCars,
+      activeContracts: updatedContracts,
+    );
+
+    addXP(200);
+    checkAchievement('first_sale');
+    updateMissionProgress(MissionType.sellCars, 1);
+    if (profit > 0) updateMissionProgress(MissionType.earnProfit, profit.toInt());
+    saveState();
+    return true;
+  }
+  /// Perform market expertise on a vehicle
+  bool performMarketExpertise(double cost) {
+    if (state.balance < cost) return false;
+    state = state.copyWith(balance: state.balance - cost);
+    addXP(25);
+    checkAchievement('expert_master');
+    updateMissionProgress(MissionType.doExpertise, 1);
+    saveState();
+    return true;
+  }
+
   /// Purchase a car from market with RiskEngine check
   PurchaseRiskOutcome? buyCar(CarModel car, double purchasePrice, {bool isExpertiseCompleted = false}) {
     if (state.balance < purchasePrice) return null;
@@ -31,10 +81,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     final purchasedCar = outcome.updatedCar;
     final updatedCars = [...state.ownedCars, purchasedCar];
+    final modelKey = '${purchasedCar.brand}_${purchasedCar.modelName}'.toLowerCase().replaceAll(' ', '_');
+    final updatedAlbum = <String>{...state.discoveredCarModelIds, modelKey}.toList();
 
     state = state.copyWith(
       balance: updatedBalance,
       ownedCars: updatedCars,
+      discoveredCarModelIds: updatedAlbum,
     );
 
     addXP(50);
@@ -44,12 +97,61 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return outcome;
   }
 
+  /// Toggle Showcase Lock for rare/classic vehicles
+  bool toggleShowcaseLock(String carId) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedCar = car.copyWith(isLockedInShowcase: !car.isLockedInShowcase);
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(ownedCars: updatedCars);
+    saveState();
+    return true;
+  }
+
+  /// Upgrade Prestige Branch Tier
+  bool upgradePrestigeBranch(int targetTier) {
+    double cost = 350000.0;
+    int extraSlots = 2;
+    String tierKey = 'property_tier_2';
+
+    if (targetTier == 3) {
+      cost = 1250000.0;
+      extraSlots = 4;
+      tierKey = 'property_tier_3';
+    } else if (targetTier == 4) {
+      cost = 4500000.0;
+      extraSlots = 6;
+      tierKey = 'property_tier_4';
+    }
+
+    if (state.balance < cost) return false;
+    if (state.unlockedBuildings.contains(tierKey)) return false;
+
+    final updatedBuildings = Set<String>.from(state.unlockedBuildings)..add(tierKey);
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      maxGarageSlots: state.maxGarageSlots + extraSlots,
+      unlockedBuildings: updatedBuildings,
+    );
+
+    addXP(500);
+    saveState();
+    return true;
+  }
+
   /// Sell a car from garage
   bool sellCar(String carId, double sellingPrice) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isLockedInShowcase) return false;
+
     final profit = sellingPrice - car.currentPurchasePrice;
 
     final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(carIndex);
@@ -73,9 +175,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (state.balance < price) return false;
     if (state.ownedCars.length >= state.maxGarageSlots) return false;
     final finalCar = car.copyWith(currentPurchasePrice: price);
+    final modelKey = '${finalCar.brand}_${finalCar.modelName}'.toLowerCase().replaceAll(' ', '_');
+    final updatedAlbum = <String>{...state.discoveredCarModelIds, modelKey}.toList();
+
     state = state.copyWith(
       balance: state.balance - price,
       ownedCars: [...state.ownedCars, finalCar],
+      discoveredCarModelIds: updatedAlbum,
     );
     addXP(30);
     checkAchievement('first_buy');
@@ -102,10 +208,16 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (state.balance < branch.requiredBalance) return false;
 
     final newLevel = branch.targetLevel > state.level ? branch.targetLevel : state.level;
+    final updatedBuildings = Set<String>.from(state.unlockedBuildings);
+    if (branch.targetLevel >= 3) updatedBuildings.add('property_tier_2');
+    if (branch.targetLevel >= 4) updatedBuildings.add('property_tier_3');
+    if (branch.targetLevel >= 5) updatedBuildings.add('property_tier_4');
+
     state = state.copyWith(
       balance: state.balance - branch.requiredBalance,
       maxGarageSlots: branch.maxGarageSlots,
       level: newLevel,
+      unlockedBuildings: updatedBuildings,
     );
     addXP(250);
     checkAchievement('garage_expand');
@@ -543,9 +655,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
         break;
     }
 
+    final initialCarValue = max(100000.0, car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue);
+    final maxAllowedValue = initialCarValue * 1.35;
+
     final updatedCar = car.copyWith(
       expertise: updatedExp,
-      baseMarketValue: (car.baseMarketValue * valueBoost).clamp(car.baseMarketValue * 0.5, car.baseMarketValue * 1.35),
+      baseMarketValue: (car.baseMarketValue * valueBoost).clamp(car.baseMarketValue * 0.5, maxAllowedValue),
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -563,7 +678,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Emergency Bailout: Dede Mirası Can Suyu (₺50.000)
   bool claimEmergencyBailout() {
-    if (state.balance > 15000 && state.ownedCars.isNotEmpty) return false;
+    final totalLiquidAssets = state.balance + state.bankDepositBalance;
+    if (totalLiquidAssets > 15000 || state.ownedCars.isNotEmpty) return false;
     state = state.copyWith(
       balance: state.balance + 50000.0,
     );
@@ -572,10 +688,18 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Daily Scrapyard Side Gig: Hurdalıkta Günlük Çıraklık (₺5.000)
+  /// Daily Scrapyard Side Gig: Hurdalıkta Günlük Çıraklık (₺5.000) - Günde 1 kez yapılabilir
   bool doDailyScrapyardSideGig() {
+    final now = DateTime.now();
+    if (state.lastScrapyardGigDate != null) {
+      final diff = now.difference(state.lastScrapyardGigDate!);
+      if (diff.inHours < 20) {
+        return false;
+      }
+    }
     state = state.copyWith(
       balance: state.balance + 5000.0,
+      lastScrapyardGigDate: now,
     );
     addXP(25);
     saveState();

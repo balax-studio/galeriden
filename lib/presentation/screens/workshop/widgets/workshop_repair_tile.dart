@@ -11,6 +11,7 @@ class WorkshopRepairTile extends StatelessWidget {
   final String description;
   final double cost;
   final String bonusText;
+  final String? netRoiText;
   final Color badgeColor;
   final bool isDark;
   final VoidCallback onRepair;
@@ -21,6 +22,7 @@ class WorkshopRepairTile extends StatelessWidget {
     required this.description,
     required this.cost,
     required this.bonusText,
+    this.netRoiText,
     required this.badgeColor,
     required this.isDark,
     required this.onRepair,
@@ -66,6 +68,13 @@ class WorkshopRepairTile extends StatelessWidget {
                   'Onarım Bedeli: ${CurrencyFormatter.format(cost)}',
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: Color(0xFFFF7A00)),
                 ),
+                if (netRoiText != null && netRoiText!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    netRoiText!,
+                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF00C853)),
+                  ),
+                ],
               ],
             ),
           ),

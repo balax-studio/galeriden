@@ -215,10 +215,12 @@ class RepairEngine {
           updatedConditions[partName] = 75.0;
           break;
         case OrderType.masterRepair:
-          updatedParts[partName] = PartStatus.original;
-          updatedConditions[partName] = 90.0;
+          // Usta işçiliğiyle kusursuz boyandı ve onarıldı (%95 kondisyon, boyalı statüsü)
+          updatedParts[partName] = PartStatus.painted;
+          updatedConditions[partName] = 95.0;
           break;
         case OrderType.newOemPart:
+          // Sıfır orijinal fabrika parçası montajı ile %100 orijinal kondisyona döner
           updatedParts[partName] = PartStatus.original;
           updatedConditions[partName] = 100.0;
           break;

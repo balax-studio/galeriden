@@ -81,4 +81,71 @@ class CustomerModel {
     archetypes.shuffle();
     return archetypes.first;
   }
+
+  static CustomerModel generateSellerFromListing(String sellerName) {
+    final lower = sellerName.toLowerCase();
+    
+    if (lower.contains('doktor')) {
+      return CustomerModel(
+        id: 'seller_doc',
+        name: sellerName,
+        archetype: CustomerArchetype.skepticalOfficial,
+        archetypeTitle: 'Titiz Doktor',
+        avatarType: 'shield',
+        personalityDescription: 'Aracına gözü gibi bakmış, pazarlığı pek sevmez, saygı bekler.',
+        preferredDialogueTrait: 'Saygı & Şeffaflık',
+      );
+    } else if (lower.contains('memur') || lower.contains('öğretmen')) {
+      return CustomerModel(
+        id: 'seller_memur',
+        name: sellerName,
+        archetype: CustomerArchetype.skepticalOfficial,
+        archetypeTitle: 'Düzenli Memur',
+        avatarType: 'shield',
+        personalityDescription: 'Tüm bakımları yetkili serviste yapmış, her şeyin kaydı var.',
+        preferredDialogueTrait: 'Güven & Şeffaflık',
+      );
+    } else if (lower.contains('al-sat') || lower.contains('galeri')) {
+      return CustomerModel(
+        id: 'seller_alsat',
+        name: sellerName,
+        archetype: CustomerArchetype.greedyFlipper,
+        archetypeTitle: 'Oto Al-Satçı',
+        avatarType: 'craftsman',
+        personalityDescription: 'Piyasayı iyi bilir, ucuza bırakmaz ama peşin paraya zaafı vardır.',
+        preferredDialogueTrait: 'Hızlı Nakit',
+      );
+    } else if (lower.contains('genç') || lower.contains('yazılımcı')) {
+      return CustomerModel(
+        id: 'seller_genc',
+        name: sellerName,
+        archetype: CustomerArchetype.impatientYouth,
+        archetypeTitle: 'Sabırsız Genç',
+        avatarType: 'flash',
+        personalityDescription: 'Acil paraya sıkışmış, modeli yükseltmek için hızlıca elden çıkarmak istiyor.',
+        preferredDialogueTrait: 'Hızlı İşlem',
+      );
+    } else if (lower.contains('aile') || lower.contains('emekli')) {
+      return CustomerModel(
+        id: 'seller_aile',
+        name: sellerName,
+        archetype: CustomerArchetype.familyMan,
+        archetypeTitle: 'Aile Babası',
+        avatarType: 'rare',
+        personalityDescription: 'Araç hep kılıflarla kullanılmış, sigara içilmemiş, gözü gibi bakılmış.',
+        preferredDialogueTrait: 'Samimiyet',
+      );
+    }
+    
+    // Default fallback
+    return CustomerModel(
+      id: 'seller_def',
+      name: sellerName,
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Bireysel Satıcı',
+      avatarType: 'rare',
+      personalityDescription: 'Aracını satmak isteyen normal bir vatandaş.',
+      preferredDialogueTrait: 'Karşılıklı Pazarlık',
+    );
+  }
 }

@@ -122,7 +122,15 @@ class ShowroomScreen extends ConsumerWidget {
                                             fontSize: 9.5,
                                           ),
                                         ],
-                                        if (car.isRare) ...[
+                                        if (car.isLockedInShowcase) ...[
+                                          const SizedBox(width: 6),
+                                          const NeoBrutalBadge(
+                                            text: '🏆 KOLEKSİYONDA',
+                                            backgroundColor: Color(0xFFA855F7),
+                                            textColor: Colors.white,
+                                            fontSize: 9.5,
+                                          ),
+                                        ] else if (car.isRare) ...[
                                           const SizedBox(width: 6),
                                           const NeoBrutalBadge(
                                             text: 'NADİR',
@@ -319,6 +327,33 @@ class ShowroomScreen extends ConsumerWidget {
                                   ),
                                 ],
                               ),
+                              if (car.isRare || car.isLockedInShowcase) ...[
+                                const SizedBox(height: 8),
+                                NeoBrutalButton(
+                                  label: car.isLockedInShowcase
+                                      ? 'Koleksiyon Vitrininden Çıkar (Satışa Aç)'
+                                      : '🏆 Koleksiyon Vitrinine Kilitle (+%5 İtibar)',
+                                  icon: car.isLockedInShowcase ? Icons.lock_open_rounded : Icons.lock_rounded,
+                                  backgroundColor: car.isLockedInShowcase
+                                      ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                                      : const Color(0xFFA855F7),
+                                  textColor: car.isLockedInShowcase ? (isDark ? Colors.white : Colors.black) : Colors.white,
+                                  fontSize: 11,
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  fullWidth: true,
+                                  onPressed: () {
+                                    final success = ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
+                                    if (success) {
+                                      NotificationService.showSuccess(
+                                        context,
+                                        car.isLockedInShowcase
+                                            ? '${car.brand} ${car.modelName} vitrinden çıkarıldı.'
+                                            : '🏆 ${car.brand} ${car.modelName} koleksiyon vitrinine kilitlendi!',
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
                             ],
                           ),
                         ),

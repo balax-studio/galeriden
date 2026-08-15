@@ -17,4 +17,17 @@ mixin GameStaffMixin on GameBaseNotifier {
     );
     saveState();
   }
+
+  /// Purchase an academy certificate course for all staff
+  bool purchaseAcademyCourse(String courseId, double cost) {
+    if (state.purchasedAcademyCourses.contains(courseId)) return false;
+    if (state.balance < cost) return false;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      purchasedAcademyCourses: [...state.purchasedAcademyCourses, courseId],
+    );
+    saveState();
+    return true;
+  }
 }

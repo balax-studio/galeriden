@@ -15,6 +15,10 @@ import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/story_card_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/contract_model.dart';
+import '../../../data/models/mission_model.dart';
+import '../../../data/models/offer_model.dart';
+import '../../../domain/usecases/mission_factory.dart';
 
 import 'game_base_notifier.dart';
 
@@ -48,12 +52,12 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     // 1. Deduct daily property fixed overhead / burn-rate
     double propertyDailyBurn = 500.0;
-    if (state.level == 2) {
-      propertyDailyBurn = 4500.0;
-    } else if (state.level == 3) {
-      propertyDailyBurn = 32000.0;
-    } else if (state.level >= 4) {
-      propertyDailyBurn = 240000.0;
+    if (state.unlockedBuildings.contains('property_tier_4')) {
+      propertyDailyBurn = 45000.0;
+    } else if (state.unlockedBuildings.contains('property_tier_3')) {
+      propertyDailyBurn = 12000.0;
+    } else if (state.unlockedBuildings.contains('property_tier_2')) {
+      propertyDailyBurn = 3000.0;
     }
     newBalance -= propertyDailyBurn;
 
@@ -219,8 +223,10 @@ mixin GameTimeMixin on GameBaseNotifier {
     }
 
     // 7. Bailout (İflas Kurtarma Mekanizması)
-    // Eğer oyuncu kredi taksiti sonrası eksiye düştüyse ve satacak arabası yoksa soft-lock olur.
-    if (newBalance < 0 && currentCars.isEmpty && state.pendingOrders.isEmpty) {
+    // Eğer oyuncu kredi taksiti sonrası eksiye düştüyse ve satılabilir varlıkları borcu karşılamıyorsa kurtar.
+    double liquidatableValue = currentCars.fold(0.0, (s, c) => s + c.estimatedRealValue * 0.70) +
+        state.bankDepositBalance;
+    if (newBalance < 0 && (liquidatableValue + newBalance) < 25000.0) {
       newBalance = 25000.0; // Devlet hibesi / başlangıç sermayesi
       updatedLoans.clear(); // Borçlar silinir
     }
@@ -247,7 +253,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       
       double newPrice = (stock.currentPrice * (1.0 + changePercent)).roundToDouble();
       if (newPrice < 1.0) newPrice = 1.0; 
-      
+
       List<double> history = List.from(stock.priceHistory);
       history.add(newPrice);
       if (history.length > 30) {
@@ -260,7 +266,7 @@ mixin GameTimeMixin on GameBaseNotifier {
         priceHistory: history,
       );
     }
-    
+
     // Keep only last 50 events
     if (newEvents.length > 50) {
       newEvents = newEvents.sublist(0, 50);
@@ -287,15 +293,41 @@ mixin GameTimeMixin on GameBaseNotifier {
       currentBlackCars = _generateRandomBlackMarketCars(nextDay);
     }
 
-    // 13. Story-Driven Rewarded Encounter Engine (Every 7-21 in-game days)
+    // 13. Check Story Ad Trigger (every 7-21 days)
     int updatedDaysSinceStoryAd = state.daysSinceLastStoryAd + 1;
-    StoryCardModel? nextStoryCard = state.pendingStoryCard;
     int nextTargetDays = state.nextStoryAdTargetDays;
+    StoryCardModel? nextStoryCard = state.pendingStoryCard;
 
     if (updatedDaysSinceStoryAd >= nextTargetDays && nextStoryCard == null) {
       nextStoryCard = selectNextStoryCard();
       updatedDaysSinceStoryAd = 0;
       nextTargetDays = 7 + random.nextInt(15); // Random range: 7..21
+    }
+
+    // 14. Bank Deposit Daily Interest Accrual (~43% APY => ~0.12% daily)
+    double updatedBankDeposit = state.bankDepositBalance;
+    if (updatedBankDeposit > 0) {
+      final double dailyInterest = (updatedBankDeposit * 0.0012).roundToDouble();
+      updatedBankDeposit += (dailyInterest > 0 ? dailyInterest : 1.0);
+    }
+
+    // 15. Daily Missions Rotation (if all claimed or every 3 in-game days)
+    List<MissionModel> updatedMissions = List.from(state.activeMissions);
+    if (updatedMissions.isEmpty || updatedMissions.every((m) => m.isClaimed) || nextDay % 3 == 0) {
+      updatedMissions = MissionFactory.generateDailyMissions(state.level);
+    }
+
+    // 16. VIP Wanted Vehicle Contracts Progression
+    List<WantedCarContract> updatedContracts = [];
+    for (final c in state.activeContracts) {
+      if (c.isFulfilled) continue;
+      final remaining = c.deadlineDays - 1;
+      if (remaining > 0) {
+        updatedContracts.add(c.copyWith(deadlineDays: remaining));
+      }
+    }
+    if (updatedContracts.length < 2 && random.nextDouble() < 0.40) {
+      updatedContracts.add(MissionFactory.generateWantedCarContract(level: state.level));
     }
 
     state = state.copyWith(
@@ -316,6 +348,9 @@ mixin GameTimeMixin on GameBaseNotifier {
       daysSinceLastStoryAd: updatedDaysSinceStoryAd,
       nextStoryAdTargetDays: nextTargetDays,
       pendingStoryCard: nextStoryCard,
+      bankDepositBalance: updatedBankDeposit,
+      activeMissions: updatedMissions,
+      activeContracts: updatedContracts,
     );
 
     refreshMarketTrends();
@@ -346,20 +381,27 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     double newBalance = state.balance;
     List<CarModel> updatedCars = List.from(state.ownedCars);
+    List<OfferModel> updatedOffers = List.from(state.incomingOffers);
 
     if (accepted) {
       switch (card.rewardType) {
         case StoryAdRewardType.instantExpertise:
           if (updatedCars.isNotEmpty) {
-            final targetCar = updatedCars.first;
-            updatedCars[0] = targetCar.copyWith(
+            // Find first car that needs repair/expertise or target first car
+            final targetIndex = updatedCars.indexWhere((c) => c.expertise.engineCondition < 100 || c.expertise.transmissionCondition < 100);
+            final idx = targetIndex != -1 ? targetIndex : 0;
+            final targetCar = updatedCars[idx];
+            updatedCars[idx] = targetCar.copyWith(
+              isDetailedCleaned: true,
+              isWashed: true,
               expertise: targetCar.expertise.copyWith(
                 engineCondition: 100.0,
                 transmissionCondition: 100.0,
               ),
             );
+            newBalance += 10000.0;
           } else {
-            newBalance += 25000.0;
+            newBalance += 35000.0;
           }
           break;
 
@@ -399,27 +441,67 @@ mixin GameTimeMixin on GameBaseNotifier {
 
         case StoryAdRewardType.expressDetailing:
           if (updatedCars.isNotEmpty) {
-            final targetCar = updatedCars.first;
-            updatedCars[0] = targetCar.copyWith(
-              isWashed: true,
-              isPolished: true,
-              isDetailedCleaned: true,
-              baseMarketValue: targetCar.baseMarketValue * 1.15,
-              expertise: targetCar.expertise.copyWith(
-                partConditions: targetCar.expertise.partConditions.map((k, v) => MapEntry(k, 100.0)),
-              ),
-            );
+            for (int i = 0; i < updatedCars.length; i++) {
+              final c = updatedCars[i];
+              updatedCars[i] = c.copyWith(
+                isWashed: true,
+                isPolished: true,
+                isDetailedCleaned: true,
+                baseMarketValue: (c.baseMarketValue * 1.15).roundToDouble(),
+              );
+            }
           } else {
-            newBalance += 25000.0;
+            newBalance += 30000.0;
           }
           break;
 
         case StoryAdRewardType.bonusSaleBoost:
-          newBalance += 30000.0;
+          // Hüsnü Bey: Spawns an immediate offer with +10% over listing price / value
+          final listedCars = updatedCars.where((c) => c.isListed && !c.isRented).toList();
+          if (listedCars.isNotEmpty) {
+            final targetCar = listedCars.first;
+            final bonusOfferPrice = ((targetCar.listingPrice > 0 ? targetCar.listingPrice : targetCar.estimatedRealValue) * 1.10).roundToDouble();
+            final husnuOffer = OfferModel(
+              id: 'offer_husnu_${DateTime.now().millisecondsSinceEpoch}',
+              carId: targetCar.id,
+              buyerName: 'Hüsnü Bey (İkramlı Müşteri)',
+              offeredAmount: bonusOfferPrice,
+              buyerMessage: 'Kahve ve ikramlar için teşekkürler, bu fiyata el sıkışalım!',
+              offerType: OfferType.cash,
+              createdAt: DateTime.now(),
+              expiresAt: DateTime.now().add(const Duration(minutes: 15)),
+            );
+            updatedOffers.add(husnuOffer);
+          } else {
+            newBalance += 40000.0;
+          }
           break;
 
         case StoryAdRewardType.viralBuyerOffers:
-          newBalance += 40000.0;
+          // Vlogger Berk: Spawns 3 viral buyer offers
+          final listedCars = updatedCars.where((c) => c.isListed && !c.isRented).toList();
+          if (listedCars.isNotEmpty) {
+            final targetCar = listedCars.first;
+            final basePrice = targetCar.listingPrice > 0 ? targetCar.listingPrice : targetCar.estimatedRealValue;
+            final names = ['Berk Takipçisi Can', 'Reels Alıcısı Murat', 'Vlog İzleyicisi Sarp'];
+            for (int i = 0; i < names.length; i++) {
+              final mult = 0.98 + (i * 0.05); // 0.98, 1.03, 1.08
+              updatedOffers.add(
+                OfferModel(
+                  id: 'offer_viral_${i}_${DateTime.now().millisecondsSinceEpoch}',
+                  carId: targetCar.id,
+                  buyerName: names[i],
+                  offeredAmount: (basePrice * mult).roundToDouble(),
+                  buyerMessage: 'Vlogger Berk’in videosunda gördüm, aracı hemen almak istiyorum!',
+                  offerType: OfferType.cash,
+                  createdAt: DateTime.now(),
+                  expiresAt: DateTime.now().add(Duration(minutes: 10 + i * 5)),
+                ),
+              );
+            }
+          } else {
+            newBalance += 45000.0;
+          }
           break;
 
         case StoryAdRewardType.auctionMarginReport:
@@ -439,6 +521,7 @@ mixin GameTimeMixin on GameBaseNotifier {
     state = state.copyWith(
       balance: newBalance,
       ownedCars: updatedCars,
+      incomingOffers: updatedOffers,
       seenStoryCardIds: updatedSeen,
       clearPendingStoryCard: true,
     );

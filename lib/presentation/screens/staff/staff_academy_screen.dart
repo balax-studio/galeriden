@@ -107,18 +107,18 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                   child: const Icon(Icons.school_rounded, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'KURUMSAL PERSONEL AKADEMİSİ',
                         style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        'Ustalarını ve danışmanlarını akredite sertifika programlarına göndererek kârını katla.',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        'Ustalarını ve danışmanlarını akredite sertifika programlarına göndererek kârını katla (${game.purchasedAcademyCourses.length}/${_courses.length} Tamamlandı).',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -201,12 +201,14 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
           const SizedBox(height: 10),
 
           ..._courses.map((course) {
+            final isPurchased = game.purchasedAcademyCourses.contains(course.id);
+
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
                 backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderColor: isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,6 +234,13 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             ),
                           ],
                         ),
+                        if (isPurchased)
+                          const NeoBrutalBadge(
+                            text: 'SERTİFİKALI',
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -244,28 +253,36 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          CurrencyFormatter.formatShort(course.cost),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                          isPurchased ? 'TAMAMLANDI' : CurrencyFormatter.formatShort(course.cost),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: isPurchased ? const Color(0xFF64748B) : AppColors.brutalGreen,
+                          ),
                         ),
                         NeoBrutalButton(
-                          label: 'EĞİTİME GÖNDER',
-                          icon: Icons.school_rounded,
-                          backgroundColor: course.color,
-                          textColor: Colors.black,
+                          label: isPurchased ? 'SERTİFİKA ALINDI' : 'EĞİTİME GÖNDER',
+                          icon: isPurchased ? Icons.check_circle_rounded : Icons.school_rounded,
+                          backgroundColor: isPurchased ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : course.color,
+                          textColor: isPurchased ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          onPressed: () {
-                            if (game.balance < course.cost) {
-                              NotificationService.showError(context, 'Yetersiz Bakiye!');
-                              return;
-                            }
+                          onPressed: isPurchased
+                              ? null
+                              : () {
+                                  if (game.balance < course.cost) {
+                                    NotificationService.showError(context, 'Yetersiz Bakiye!');
+                                    return;
+                                  }
 
-                            ref.read(gameProvider.notifier).deductBalance(course.cost);
-                            NotificationService.showSuccess(
-                              context,
-                              '${course.title} Tamamlandı! Personellerine Sertifika Tanımlandı.',
-                            );
-                          },
+                                  final success = ref.read(gameProvider.notifier).purchaseAcademyCourse(course.id, course.cost);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${course.title} Tamamlandı! Personellerine Kalıcı Sertifika Tanımlandı.',
+                                    );
+                                  }
+                                },
                         ),
                       ],
                     ),

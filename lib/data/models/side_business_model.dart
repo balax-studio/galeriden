@@ -132,12 +132,12 @@ class SideBusinessModel {
   double get effectiveDailyIncome {
     if (!isOwned) return 0.0;
     final net = grossDailyIncome - dailyMaintenanceExpense;
-    return net.clamp(0.0, double.infinity);
+    return net;
   }
 
   double get nextLevelUpgradeCost {
     if (level >= 5) return 0.0;
-    return cost * 1.20 * level;
+    return cost * 1.20 * (level * level);
   }
 
   double get totalInvested {

@@ -2,12 +2,14 @@ import 'package:galeriden/core/utils/notification_service.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
+import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/app_vector_icons.dart';
@@ -30,13 +32,16 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
   late double _offeredPrice;
   String? _sellerResponse;
   bool _isAccepted = false;
+  bool _isProcessing = false;
   late CustomerModel _customer;
+  late String _fomoText;
 
   @override
   void initState() {
     super.initState();
     _offeredPrice = (widget.listing.askingPrice * 0.90).roundToDouble();
-    _customer = CustomerModel.generateRandomCustomer();
+    _customer = CustomerModel.generateSellerFromListing(widget.listing.sellerName);
+    _fomoText = PsychologyEngine.getRandomFomoText();
   }
 
   /// Calculates success probability based on player negotiation skill and discount percentage requested
@@ -154,27 +159,56 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: p.surfaceBorderColor),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(widget.listing.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                    Text(widget.listing.sellerCity, style: AppTypography.labelSmall(p.isDark)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.listing.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                        Text(widget.listing.sellerCity, style: AppTypography.labelSmall(p.isDark)),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('Satıcı İlan Fiyatı', style: AppTypography.labelSmall(p.isDark)),
+                        Text(CurrencyFormatter.format(asking), style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 16)),
+                      ],
+                    ),
                   ],
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text('Satıcı İlan Fiyatı', style: AppTypography.labelSmall(p.isDark)),
-                    Text(CurrencyFormatter.format(asking), style: AppTypography.moneyMedium(p.isDark).copyWith(fontSize: 16)),
-                  ],
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF7A00).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFFF7A00).withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.local_fire_department_rounded, size: 14, color: Color(0xFFFF7A00)),
+                      const SizedBox(width: 4),
+                      Text(
+                        _fomoText,
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFFF7A00),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Offer Slider & Live Probability Gauge
           Text('SENİN TEKLİFİN', style: AppTypography.labelSmall(p.isDark)),
@@ -227,18 +261,30 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     });
                   },
           ),
+          if (_sellerResponse == null) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: Text(
+                PsychologyEngine.getSuspenseNegotiationText(),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w600,
+                  color: p.isDark ? Colors.white60 : const Color(0xFF64748B),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
 
           // Dialogue Outcome Display
           if (_sellerResponse != null) ...[
-            Container(
-              width: double.infinity,
+            NeoBrutalCard(
+              backgroundColor: _isAccepted ? p.successColor.withValues(alpha: 0.15) : p.errorColor.withValues(alpha: 0.15),
+              borderColor: _isAccepted ? p.successColor : p.errorColor,
+              borderWidth: 2,
+              borderRadius: 14,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: _isAccepted ? p.successColor.withValues(alpha: 0.15) : p.errorColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: _isAccepted ? p.successColor : p.errorColor),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -256,19 +302,111 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('"${_sellerResponse!}"', style: AppTypography.bodyMedium(p.isDark).copyWith(fontStyle: FontStyle.italic)),
+                  Text(
+                    '${_customer.name}: "${_sellerResponse!}"',
+                    style: AppTypography.bodyMedium(p.isDark).copyWith(fontStyle: FontStyle.italic),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
           ],
 
-          // Discrepancy Bargaining Leverage Card
-          if (_sellerResponse == null) ...[
+          // Discrepancy Bargaining Leverage Card OR Bluff Mechanic
+          if (_sellerResponse == null && widget.listing.isExpertiseCompleted) ...[
             Builder(
               builder: (context) {
                 final disc = NegotiationEngine.detectExpertiseDiscrepancy(widget.listing.car);
-                if (!disc.hasDiscrepancy) return const SizedBox.shrink();
+                
+                if (!disc.hasDiscrepancy) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: NeoBrutalCard(
+                      padding: const EdgeInsets.all(12),
+                      backgroundColor: p.surfaceColor,
+                      borderColor: Colors.black,
+                      borderWidth: 2,
+                      borderRadius: 12,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.masks_rounded, color: Colors.purple, size: 20),
+                              const SizedBox(width: 6),
+                              const Expanded(
+                                child: Text(
+                                  'BLÖF FIRSATI: Satıcıyı Kandır',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Araçta sorun görünmüyor ama satıcıyı yalan söyleyerek manipüle edebilirsin. (Başarısız olursa teklifi reddedebilir!)',
+                            style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11),
+                          ),
+                          const SizedBox(height: 10),
+                          NeoBrutalButton(
+                            label: 'Blöf Yap (-%15 İndirim İste)',
+                            icon: Icons.psychology_alt_rounded,
+                            backgroundColor: Colors.purple,
+                            textColor: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            fullWidth: true,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            onPressed: () {
+                              final roll = Random().nextInt(100);
+                              final bluffChance = game.skills.negotiationLevel * 5; // 5% to 50% success
+                              
+                              if (roll < bluffChance) {
+                                final targetDiscPrice = (asking * 0.85).roundToDouble();
+                                setState(() {
+                                  _offeredPrice = targetDiscPrice;
+                                  _isAccepted = true;
+                                  switch (_customer.archetype) {
+                                    case CustomerArchetype.skepticalOfficial:
+                                      _sellerResponse = 'Gerçekten mi? Raporu o kadar dikkatli okumamıştım. Peki o zaman, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun.';
+                                      break;
+                                    case CustomerArchetype.impatientYouth:
+                                      _sellerResponse = 'Öyle mi diyorsun? Uğraşamayacağım şimdi, al senin dediğin fiyat ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun geç.';
+                                      break;
+                                    case CustomerArchetype.greedyFlipper:
+                                      _sellerResponse = 'Vay be, gözümden kaçmış demek. Nakit vereceksen ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum, yoksa iptal.';
+                                      break;
+                                    case CustomerArchetype.familyMan:
+                                      _sellerResponse = 'Yaa, öyle miymiş... Ben hiç fark etmedim. Neyse tamam, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun o zaman.';
+                                      break;
+                                  }
+                                });
+                              } else {
+                                setState(() {
+                                  _isAccepted = false;
+                                  switch (_customer.archetype) {
+                                    case CustomerArchetype.skepticalOfficial:
+                                      _sellerResponse = 'Ben aracımın her şeyini bilirim, evraklarım tam! Kimi kandırıyorsun, seninle işim olmaz!';
+                                      break;
+                                    case CustomerArchetype.impatientYouth:
+                                      _sellerResponse = 'Kardeşim sen beni kopardın mı sanıyorsun? Raporda her şey yazıyor, hadi işine!';
+                                      break;
+                                    case CustomerArchetype.greedyFlipper:
+                                      _sellerResponse = 'Hoppala! Kimi yiyorsun sen? O raporu ben kendi ustama da gösterdim, uza buradan.';
+                                      break;
+                                    case CustomerArchetype.familyMan:
+                                      _sellerResponse = 'Ayıptır, biz burada dürüstçe iş yapıyoruz. Ekspertiz raporu ortada, sana araç falan satmıyorum.';
+                                      break;
+                                  }
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 14),
@@ -313,7 +451,20 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             setState(() {
                               _offeredPrice = targetDiscPrice;
                               _isAccepted = true;
-                              _sellerResponse = 'Usta yakaladın beni, haklısın... Gizli kusuru kabul ediyorum. Teklifin olan ${CurrencyFormatter.formatShort(targetDiscPrice)} fiyata hemen veriyorum!';
+                              switch (_customer.archetype) {
+                                case CustomerArchetype.skepticalOfficial:
+                                  _sellerResponse = 'Haklısınız, bu detay gözümden kaçmış. Titiz biriyimdir ama hata benim, ${CurrencyFormatter.formatShort(targetDiscPrice)} fiyatı kabul ediyorum.';
+                                  break;
+                                case CustomerArchetype.impatientYouth:
+                                  _sellerResponse = 'Tamam tamam, uzatma. Zaten acil satmam lazım, ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a al git.';
+                                  break;
+                                case CustomerArchetype.greedyFlipper:
+                                  _sellerResponse = 'Usta yakaladın beni, helal olsun... Neyse zararın neresinden dönsek kârdır, ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a veriyorum!';
+                                  break;
+                                case CustomerArchetype.familyMan:
+                                  _sellerResponse = 'Haklısınız, mahcup oldum şimdi... Size karşı dürüst olmak isterim, teklifiniz olan ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum.';
+                                  break;
+                              }
                             });
                           },
                         ),
@@ -331,28 +482,59 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
               if (_sellerResponse == null)
                 Expanded(
                   child: NeoBrutalButton(
-                    label: 'TEKLİFİ GÖNDER',
-                    icon: Icons.send_rounded,
-                    backgroundColor: p.primaryColor,
+                    label: '${CurrencyFormatter.formatShort(_offeredPrice)} TEKLİF ET',
+                    icon: Icons.handshake_rounded,
+                    backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w900,
                     fullWidth: true,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    onPressed: () {
-                      final roll = Random().nextInt(100) + 1;
-                      if (roll <= chancePercent) {
-                        setState(() {
-                          _isAccepted = true;
-                          _sellerResponse = 'Tamam arkadaşım, dediğin fiyata veriyorum. Hayırlı olsun!';
-                        });
-                      } else {
-                        setState(() {
-                          _isAccepted = false;
-                          _sellerResponse = 'Kusura bakma bu fiyata imkanı yok kurtarmaz. Biraz daha yukarı çıkman lazım.';
-                        });
-                      }
-                    },
+                    onPressed: _isProcessing
+                        ? null
+                        : () {
+                            setState(() => _isProcessing = true);
+                            final roll = Random().nextInt(100) + 1;
+                            if (roll <= chancePercent) {
+                              setState(() {
+                                _isAccepted = true;
+                                switch (_customer.archetype) {
+                                  case CustomerArchetype.skepticalOfficial:
+                                    _sellerResponse = 'Teklifiniz makul. Beyefendi/Hanımefendi gibi anlaştık. Hayırlı olsun.';
+                                    break;
+                                  case CustomerArchetype.impatientYouth:
+                                    _sellerResponse = 'Süper, hızını sevdim! Ver elini, hayırlı olsun.';
+                                    break;
+                                  case CustomerArchetype.greedyFlipper:
+                                    _sellerResponse = 'Tamam arkadaşım, nakit hazırsa hemen notere geçiyoruz. Dediğin fiyata veriyorum.';
+                                    break;
+                                  case CustomerArchetype.familyMan:
+                                    _sellerResponse = 'Ortada buluştuk diyelim, aileye gidecek araba sonuçta. Hayırlı uğurlu olsun.';
+                                    break;
+                                }
+                                _isProcessing = false;
+                              });
+                            } else {
+                              setState(() {
+                                _isAccepted = false;
+                                switch (_customer.archetype) {
+                                  case CustomerArchetype.skepticalOfficial:
+                                    _sellerResponse = 'Maalesef bu fiyat aracımın değerini yansıtmıyor. İyi günler dilerim.';
+                                    break;
+                                  case CustomerArchetype.impatientYouth:
+                                    _sellerResponse = 'O fiyata bedava vereyim istersen? Yok kardeşim, kurtarmaz.';
+                                    break;
+                                  case CustomerArchetype.greedyFlipper:
+                                    _sellerResponse = 'Bizi mi koparıyorsun ustam? O fiyata ölüsü bile verilmez, biraz daha yukarı çık.';
+                                    break;
+                                  case CustomerArchetype.familyMan:
+                                    _sellerResponse = 'Kusura bakmayın, o fiyata verirsem aile bütçemiz çok sarsılır. Biraz daha yükseltmeniz lazım.';
+                                    break;
+                                }
+                                _isProcessing = false;
+                              });
+                            }
+                          },
                   ),
                 )
               else if (_isAccepted)
@@ -366,9 +548,10 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     fontWeight: FontWeight.w900,
                     fullWidth: true,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    onPressed: game.balance < _offeredPrice
+                    onPressed: (game.balance < _offeredPrice || _isProcessing)
                         ? null
                         : () {
+                            setState(() => _isProcessing = true);
                             final outcome = ref.read(gameProvider.notifier).buyCar(
                                   widget.listing.car,
                                   _offeredPrice,
@@ -385,36 +568,56 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                               if (outcome.isTrapped) {
                                 showDialog(
                                   context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    backgroundColor: p.surfaceColor,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    title: Row(
-                                      children: [
-                                        Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 28),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            outcome.title,
-                                            style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 18),
+                                  builder: (ctx) => Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    child: NeoBrutalCard(
+                                      backgroundColor: p.surfaceColor,
+                                      borderColor: Colors.black,
+                                      borderWidth: 3,
+                                      borderRadius: 16,
+                                      padding: const EdgeInsets.all(20),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 32),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Text(
+                                                  outcome.title,
+                                                  style: TextStyle(color: p.errorColor, fontWeight: FontWeight.w900, fontSize: 18),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    content: Text(
-                                      outcome.description,
-                                      style: TextStyle(color: p.textPrimaryColor, fontSize: 14),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(ctx),
-                                        child: Text('Anladım', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold)),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            outcome.description,
+                                            style: TextStyle(color: p.textPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500),
+                                          ),
+                                          const SizedBox(height: 24),
+                                          NeoBrutalButton(
+                                            label: 'Anladım',
+                                            icon: Icons.check_circle_outline,
+                                            backgroundColor: AppColors.brutalYellow,
+                                            textColor: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w900,
+                                            fullWidth: true,
+                                            onPressed: () => Navigator.pop(ctx),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 );
                               } else {
                                 NotificationService.showSuccess(context, 'Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!');
                               }
+                            }
+                            if (mounted) {
+                              setState(() => _isProcessing = false);
                             }
                           },
                   ),
@@ -433,6 +636,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     onPressed: () {
                       setState(() {
                         _sellerResponse = null;
+                        _isProcessing = false;
                       });
                     },
                   ),

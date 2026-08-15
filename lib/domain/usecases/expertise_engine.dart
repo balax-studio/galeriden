@@ -26,6 +26,13 @@ class ExpertiseEngine {
     });
 
     double damagePercentage = (changedCount * 12.0) + (damagedCount * 20.0) + (paintedCount * 5.0);
+    
+    // Tavan veya Şasi boyalı/değişen ise Türk pazarında özel takla/ağır hasar algısı oluşur
+    final roofStatus = exp.bodyParts['Tavan'];
+    if (roofStatus != null && roofStatus != PartStatus.original) {
+      damagePercentage += (roofStatus == PartStatus.painted ? 10.0 : 20.0);
+    }
+
     damagePercentage += (100.0 - exp.engineCondition) * 0.4;
     damagePercentage += (100.0 - exp.transmissionCondition) * 0.3;
 

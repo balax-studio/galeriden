@@ -68,9 +68,8 @@ class MarketEngine {
     MarketTrendModel? trend,
   }) {
     final activeTrend = trend ?? generateMarketTrend();
-    final actualCount = 8 + _random.nextInt(8); // 8 - 15 listings
     List<ListingModel> listings = [];
-    for (int i = 0; i < actualCount; i++) {
+    for (int i = 0; i < count; i++) {
       listings.add(_generateSingleListing(playerLevel, activeTrend));
     }
     return listings;

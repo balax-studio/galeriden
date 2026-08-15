@@ -205,12 +205,8 @@ class _AppTactileButtonState extends State<AppTactileButton> with SingleTickerPr
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        ),
+      child: ScaleTransition(
+        scale: _scaleAnimation,
         child: Container(
           padding: widget.padding,
           decoration: effectiveDecoration,

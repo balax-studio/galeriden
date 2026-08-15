@@ -20,6 +20,7 @@ import 'market_news_model.dart';
 import 'scrapyard_model.dart';
 import 'black_market_car_model.dart';
 import 'story_card_model.dart';
+import 'contract_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -73,6 +74,23 @@ class DealershipModel {
   final int daysSinceLastStoryAd;
   final int nextStoryAdTargetDays;
   final StoryCardModel? pendingStoryCard;
+
+  // Banka ve Personel Akademisi Kalıcı Durum Alanları
+  final double bankDepositBalance;
+  final double bankCreditLimit;
+  final List<String> purchasedAcademyCourses;
+  final DateTime? lastScrapyardGigDate;
+  final List<Map<String, dynamic>> pendingDopedOffers;
+  final List<WantedCarContract> activeContracts;
+
+  // Retention, Prestige & Collection Album Fields
+  final bool hasStreakFreeze;
+  final int prestigeLevel;
+  final double prestigeMultiplier;
+  final List<String> discoveredCarModelIds;
+  final List<String> loyalCustomerNames;
+
+  int get emblemIndex => int.tryParse(logoEmblemId.replaceAll(RegExp(r'\D'), '')) ?? 0;
 
   double get money => balance;
   List<CarModel> get myCars => ownedCars;
@@ -165,6 +183,17 @@ class DealershipModel {
     this.daysSinceLastStoryAd = 0,
     this.nextStoryAdTargetDays = 14,
     this.pendingStoryCard,
+    this.bankDepositBalance = 0.0,
+    this.bankCreditLimit = 250000.0,
+    this.purchasedAcademyCourses = const [],
+    this.lastScrapyardGigDate,
+    this.pendingDopedOffers = const [],
+    this.activeContracts = const [],
+    this.hasStreakFreeze = false,
+    this.prestigeLevel = 0,
+    this.prestigeMultiplier = 1.0,
+    this.discoveredCarModelIds = const [],
+    this.loyalCustomerNames = const [],
   });
 
   factory DealershipModel.initial() {
@@ -463,6 +492,7 @@ class DealershipModel {
       recentEvents: const [],
       dailyTaxRate: 150.0,
       unlockedBuildings: const {'/marketplace', '/workshop'},
+      pendingDopedOffers: const [],
     );
   }
 
@@ -512,6 +542,17 @@ class DealershipModel {
       'daysSinceLastStoryAd': daysSinceLastStoryAd,
       'nextStoryAdTargetDays': nextStoryAdTargetDays,
       'pendingStoryCard': pendingStoryCard?.toJson(),
+      'bankDepositBalance': bankDepositBalance,
+      'bankCreditLimit': bankCreditLimit,
+      'purchasedAcademyCourses': purchasedAcademyCourses,
+      'lastScrapyardGigDate': lastScrapyardGigDate?.toIso8601String(),
+      'pendingDopedOffers': pendingDopedOffers,
+      'activeContracts': activeContracts.map((c) => c.toJson()).toList(),
+      'hasStreakFreeze': hasStreakFreeze,
+      'prestigeLevel': prestigeLevel,
+      'prestigeMultiplier': prestigeMultiplier,
+      'discoveredCarModelIds': discoveredCarModelIds,
+      'loyalCustomerNames': loyalCustomerNames,
     };
   }
 
@@ -567,6 +608,7 @@ class DealershipModel {
       currentDay: json['currentDay'] as int? ?? 1,
       playerName: json['playerName'] as String? ?? 'Kaptan',
       dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
+      logoEmblemId: json['logoEmblemId'] as String? ?? 'crown',
       lastRewardClaimDate: json['lastRewardClaimDate'] != null ? DateTime.tryParse(json['lastRewardClaimDate'] as String) : null,
       sideBusinesses: _parseAndMergeSideBusinesses(parseList(json['sideBusinesses'] as List<dynamic>?, SideBusinessModel.fromJson)),
       marketStocks: parseList(json['marketStocks'] as List<dynamic>?, StockModel.fromJson).isNotEmpty
@@ -584,6 +626,17 @@ class DealershipModel {
       daysSinceLastStoryAd: (json['daysSinceLastStoryAd'] as num?)?.toInt() ?? 0,
       nextStoryAdTargetDays: (json['nextStoryAdTargetDays'] as num?)?.toInt() ?? 14,
       pendingStoryCard: json['pendingStoryCard'] != null ? StoryCardModel.fromJson(Map<String, dynamic>.from(json['pendingStoryCard'] as Map)) : null,
+      bankDepositBalance: (json['bankDepositBalance'] as num?)?.toDouble() ?? 0.0,
+      bankCreditLimit: (json['bankCreditLimit'] as num?)?.toDouble() ?? 250000.0,
+      purchasedAcademyCourses: (json['purchasedAcademyCourses'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      lastScrapyardGigDate: json['lastScrapyardGigDate'] != null ? DateTime.tryParse(json['lastScrapyardGigDate'] as String) : null,
+      pendingDopedOffers: (json['pendingDopedOffers'] as List<dynamic>?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? const [],
+      activeContracts: parseList(json['activeContracts'] as List<dynamic>?, WantedCarContract.fromJson),
+      hasStreakFreeze: json['hasStreakFreeze'] as bool? ?? false,
+      prestigeLevel: json['prestigeLevel'] as int? ?? 0,
+      prestigeMultiplier: (json['prestigeMultiplier'] as num?)?.toDouble() ?? 1.0,
+      discoveredCarModelIds: (json['discoveredCarModelIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      loyalCustomerNames: (json['loyalCustomerNames'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
     );
   }
 
@@ -645,6 +698,7 @@ class DealershipModel {
     String? playerName,
     String? dealershipName,
     String? logoEmblemId,
+    int? emblemIndex,
     DateTime? lastRewardClaimDate,
     List<SideBusinessModel>? sideBusinesses,
     List<StockModel>? marketStocks,
@@ -661,6 +715,17 @@ class DealershipModel {
     int? nextStoryAdTargetDays,
     StoryCardModel? pendingStoryCard,
     bool clearPendingStoryCard = false,
+    double? bankDepositBalance,
+    double? bankCreditLimit,
+    List<String>? purchasedAcademyCourses,
+    DateTime? lastScrapyardGigDate,
+    List<Map<String, dynamic>>? pendingDopedOffers,
+    List<WantedCarContract>? activeContracts,
+    bool? hasStreakFreeze,
+    int? prestigeLevel,
+    double? prestigeMultiplier,
+    List<String>? discoveredCarModelIds,
+    List<String>? loyalCustomerNames,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -691,7 +756,7 @@ class DealershipModel {
       currentDay: currentDay ?? this.currentDay,
       playerName: playerName ?? this.playerName,
       dealershipName: dealershipName ?? this.dealershipName,
-      logoEmblemId: logoEmblemId ?? this.logoEmblemId,
+      logoEmblemId: emblemIndex != null ? 'emblem_$emblemIndex' : (logoEmblemId ?? this.logoEmblemId),
       lastRewardClaimDate: lastRewardClaimDate ?? this.lastRewardClaimDate,
       sideBusinesses: sideBusinesses ?? this.sideBusinesses,
       marketStocks: marketStocks ?? this.marketStocks,
@@ -707,6 +772,37 @@ class DealershipModel {
       daysSinceLastStoryAd: daysSinceLastStoryAd ?? this.daysSinceLastStoryAd,
       nextStoryAdTargetDays: nextStoryAdTargetDays ?? this.nextStoryAdTargetDays,
       pendingStoryCard: clearPendingStoryCard ? null : (pendingStoryCard ?? this.pendingStoryCard),
+      bankDepositBalance: bankDepositBalance ?? this.bankDepositBalance,
+      bankCreditLimit: bankCreditLimit ?? this.bankCreditLimit,
+      purchasedAcademyCourses: purchasedAcademyCourses ?? this.purchasedAcademyCourses,
+      lastScrapyardGigDate: lastScrapyardGigDate ?? this.lastScrapyardGigDate,
+      pendingDopedOffers: pendingDopedOffers ?? this.pendingDopedOffers,
+      activeContracts: activeContracts ?? this.activeContracts,
+      hasStreakFreeze: hasStreakFreeze ?? this.hasStreakFreeze,
+      prestigeLevel: prestigeLevel ?? this.prestigeLevel,
+      prestigeMultiplier: prestigeMultiplier ?? this.prestigeMultiplier,
+      discoveredCarModelIds: discoveredCarModelIds ?? this.discoveredCarModelIds,
+      loyalCustomerNames: loyalCustomerNames ?? this.loyalCustomerNames,
+    );
+  }
+
+  /// Perform New Game+ Prestige Reset
+  DealershipModel performPrestigeReset() {
+    final nextPrestigeLevel = prestigeLevel + 1;
+    final nextMultiplier = 1.0 + (nextPrestigeLevel * 0.15);
+
+    return copyWith(
+      balance: 150000.0,
+      level: 1,
+      ownedCars: [],
+      incomingOffers: [],
+      activeLoans: [],
+      pendingOrders: [],
+      activeCheques: [],
+      activeInstallments: [],
+      activeRentals: [],
+      prestigeLevel: nextPrestigeLevel,
+      prestigeMultiplier: nextMultiplier,
     );
   }
 

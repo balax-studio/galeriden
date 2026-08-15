@@ -16,6 +16,7 @@ class MissionModel {
   final int rewardMoney;
   final int rewardXP;
   final bool isCompleted;
+  final bool isClaimed;
 
   MissionModel({
     required this.id,
@@ -27,6 +28,7 @@ class MissionModel {
     required this.rewardMoney,
     required this.rewardXP,
     this.isCompleted = false,
+    this.isClaimed = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -40,6 +42,7 @@ class MissionModel {
       'rewardMoney': rewardMoney,
       'rewardXP': rewardXP,
       'isCompleted': isCompleted,
+      'isClaimed': isClaimed,
     };
   }
 
@@ -57,12 +60,14 @@ class MissionModel {
       rewardMoney: json['rewardMoney'] as int? ?? 5000,
       rewardXP: json['rewardXP'] as int? ?? 100,
       isCompleted: json['isCompleted'] as bool? ?? false,
+      isClaimed: json['isClaimed'] as bool? ?? false,
     );
   }
 
   MissionModel copyWith({
     int? currentProgress,
     bool? isCompleted,
+    bool? isClaimed,
   }) {
     return MissionModel(
       id: id,
@@ -74,6 +79,7 @@ class MissionModel {
       rewardMoney: rewardMoney,
       rewardXP: rewardXP,
       isCompleted: isCompleted ?? this.isCompleted,
+      isClaimed: isClaimed ?? this.isClaimed,
     );
   }
 }

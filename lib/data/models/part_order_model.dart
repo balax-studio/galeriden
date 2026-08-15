@@ -68,16 +68,23 @@ class PartOrderModel {
   }
 
   PartOrderModel copyWith({
+    String? id,
+    String? carId,
+    String? partName,
+    OrderType? orderType,
+    double? cost,
+    DateTime? orderedAt,
+    int? deliveryDurationSeconds,
     bool? isInstalled,
   }) {
     return PartOrderModel(
-      id: id,
-      carId: carId,
-      partName: partName,
-      orderType: orderType,
-      cost: cost,
-      orderedAt: orderedAt,
-      deliveryDurationSeconds: deliveryDurationSeconds,
+      id: id ?? this.id,
+      carId: carId ?? this.carId,
+      partName: partName ?? this.partName,
+      orderType: orderType ?? this.orderType,
+      cost: cost ?? this.cost,
+      orderedAt: orderedAt ?? this.orderedAt,
+      deliveryDurationSeconds: deliveryDurationSeconds ?? this.deliveryDurationSeconds,
       isInstalled: isInstalled ?? this.isInstalled,
     );
   }

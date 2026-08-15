@@ -121,10 +121,15 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Buy stocks
+  static const double stockCommissionRate = 0.002; // %0.2 BIST işlem komisyonu
+
+  /// Buy stocks with realistic %0.2 commission
   bool buyStock(String symbol, int amount) {
+    if (amount <= 0) return false;
     final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol, orElse: () => throw Exception('Hisse bulunamadı'));
-    double totalCost = stock.currentPrice * amount;
+    double grossCost = stock.currentPrice * amount;
+    double commission = grossCost * stockCommissionRate;
+    double totalCost = grossCost + commission;
     
     if (state.balance < totalCost) return false;
 
@@ -154,13 +159,13 @@ mixin GameMarketMixin on GameBaseNotifier {
       ownedStocks: updatedOwned,
     );
     
-    addXP(10);
+    addXP((grossCost / 50000.0).clamp(0, 25).round());
     saveState();
     return true;
   }
-
-  /// Sell stocks
+  /// Sell stocks with realistic %0.2 commission
   bool sellStock(String symbol, int amount) {
+    if (amount <= 0) return false;
     List<PlayerStockModel> updatedOwned = List.from(state.ownedStocks);
     final existingIndex = updatedOwned.indexWhere((s) => s.symbol == symbol);
     
@@ -170,7 +175,11 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (existing.quantity < amount) return false;
     
     final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol);
-    double revenue = stock.currentPrice * amount;
+    double grossRevenue = stock.currentPrice * amount;
+    double commission = grossRevenue * stockCommissionRate;
+    double netRevenue = grossRevenue - commission;
+    double costBasis = existing.averageCost * amount;
+    double netProfit = netRevenue - costBasis;
 
     if (existing.quantity == amount) {
       updatedOwned.removeAt(existingIndex);
@@ -181,11 +190,13 @@ mixin GameMarketMixin on GameBaseNotifier {
     }
 
     state = state.copyWith(
-      balance: state.balance + revenue,
+      balance: state.balance + netRevenue,
+      totalProfit: state.totalProfit + netProfit,
       ownedStocks: updatedOwned,
     );
     
-    addXP(10);
+    if (state.totalProfit >= 250000) checkAchievement('dealer_baron');
+    addXP((grossRevenue / 50000.0).clamp(0, 25).round());
     saveState();
     return true;
   }
@@ -238,7 +249,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
       if (currentOffers >= 3) return;
-      final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
+      final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.08);
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
       saveState();
     });
@@ -252,11 +263,19 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (state.ownedCars.isEmpty) return;
 
     // Sadece İLANA KONULMUŞ, kiralanmamış ve üzerinde 3'ten az aktif teklif olan araçlara organik teklif gelsin
-    final eligibleCars = state.ownedCars.where((car) {
-      if (!car.isListed || car.isRented) return false;
+    final eligibleCars = <CarModel>[];
+    for (final car in state.ownedCars) {
+      if (!car.isListed || car.isRented) continue;
       int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
-      return activeOffers < 3;
-    }).toList();
+      if (activeOffers < 3) {
+        eligibleCars.add(car);
+        // Dopingli araçlara 3 kat daha yüksek seçilme şansı
+        if (car.isDoped) {
+          eligibleCars.add(car);
+          eligibleCars.add(car);
+        }
+      }
+    }
 
     if (eligibleCars.isEmpty) return;
 
@@ -300,13 +319,18 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (carIndex == -1) return;
 
     final car = state.ownedCars[carIndex];
-    final profit = offer.offeredAmount - car.currentPurchasePrice;
+    final baseProfit = offer.offeredAmount - car.currentPurchasePrice;
+    final multiplier = state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
+    final profit = (baseProfit * multiplier).roundToDouble();
 
     final updatedCars = state.ownedCars.where((c) => c.id != car.id).toList();
     final updatedOffers = state.incomingOffers.where((o) => o.carId != car.id).toList();
     final updatedPendingOrders = state.pendingOrders.where((o) => o.carId != car.id).toList();
 
     int newCarsSold = state.carsSold + 1;
+
+    final cleanBuyerName = offer.buyerName.replaceAll(RegExp(r'^(Koleksiyoner|Ölücü)\s+'), '');
+    final updatedLoyals = <String>{...state.loyalCustomerNames, cleanBuyerName}.toList();
 
     final record = SaleRecordModel(
       id: 'sale_${DateTime.now().millisecondsSinceEpoch}',
@@ -355,6 +379,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       totalProfit: state.totalProfit + profit,
       carsSold: newCarsSold,
       salesHistory: [record, ...state.salesHistory],
+      loyalCustomerNames: updatedLoyals,
     );
 
     addXP(100 + (profit > 0 ? (profit / 1000).round() : 0));
@@ -501,15 +526,33 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Instant deliver part order (e.g. after watching a rewarded ad)
+  bool instantDeliverPartOrder(String orderId) {
+    final orderIndex = state.pendingOrders.indexWhere((o) => o.id == orderId);
+    if (orderIndex == -1) return false;
+
+    final order = state.pendingOrders[orderIndex];
+    final deliveredOrder = order.copyWith(
+      orderedAt: DateTime.now().subtract(Duration(seconds: order.deliveryDurationSeconds + 1)),
+    );
+
+    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders);
+    updatedOrders[orderIndex] = deliveredOrder;
+
+    state = state.copyWith(pendingOrders: updatedOrders);
+    saveState();
+    return true;
+  }
+
   /// Claim Mission Reward
   bool claimMissionReward(String missionId) {
     final missionIndex = state.activeMissions.indexWhere((m) => m.id == missionId);
     if (missionIndex == -1) return false;
 
     final mission = state.activeMissions[missionIndex];
-    if (mission.currentProgress < mission.targetGoal || mission.isCompleted) return false;
+    if (mission.currentProgress < mission.targetGoal || mission.isClaimed) return false;
 
-    final updatedMission = mission.copyWith(isCompleted: true);
+    final updatedMission = mission.copyWith(isCompleted: true, isClaimed: true);
     final updatedMissions = List<MissionModel>.from(state.activeMissions);
     updatedMissions[missionIndex] = updatedMission;
 

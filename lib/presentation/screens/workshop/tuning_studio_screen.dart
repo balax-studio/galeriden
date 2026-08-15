@@ -251,12 +251,14 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             const SizedBox(height: 10),
 
             ..._tuningOptions.map((opt) {
+              final isApplied = _selectedCar!.appliedDetailingOptionIds.contains(opt.id);
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(14),
                   backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderColor: isApplied ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
                   borderRadius: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,11 +284,26 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                               ),
                             ],
                           ),
-                          NeoBrutalBadge(
-                            text: '+%${((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)} Değer',
-                            backgroundColor: AppColors.brutalGreen,
-                            textColor: Colors.black,
-                            fontSize: 10,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isApplied)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 6),
+                                  child: NeoBrutalBadge(
+                                    text: 'UYGULANDI',
+                                    backgroundColor: AppColors.brutalGreen,
+                                    textColor: Colors.black,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              NeoBrutalBadge(
+                                text: '+%${((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)} Değer',
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 10,
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -300,35 +317,44 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            CurrencyFormatter.formatShort(opt.cost),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalOrange),
+                            isApplied ? 'TAMAMLANDI' : CurrencyFormatter.formatShort(opt.cost),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              color: isApplied ? const Color(0xFF64748B) : AppColors.brutalOrange,
+                            ),
                           ),
                           NeoBrutalButton(
-                            label: 'UYGULA',
-                            icon: Icons.flash_on_rounded,
-                            backgroundColor: opt.color,
-                            textColor: Colors.black,
+                            label: isApplied ? 'UYGULANDI' : 'UYGULA',
+                            icon: isApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
+                            backgroundColor: isApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : opt.color,
+                            textColor: isApplied ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                             fontSize: 11.5,
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            onPressed: () {
-                              if (game.balance < opt.cost) {
-                                NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
-                                return;
-                              }
+                            onPressed: isApplied
+                                ? null
+                                : () {
+                                    if (game.balance < opt.cost) {
+                                      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
+                                      return;
+                                    }
 
-                              final newMarketValue = _selectedCar!.baseMarketValue * opt.valueMultiplier;
-                              final updatedCar = _selectedCar!.copyWith(baseMarketValue: newMarketValue);
-                              ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
+                                    final newMarketValue = _selectedCar!.baseMarketValue * opt.valueMultiplier;
+                                    final updatedCar = _selectedCar!.copyWith(
+                                      baseMarketValue: newMarketValue,
+                                      appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, opt.id],
+                                    );
+                                    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
 
-                              setState(() {
-                                _selectedCar = updatedCar;
-                              });
+                                    setState(() {
+                                      _selectedCar = updatedCar;
+                                    });
 
-                              NotificationService.showSuccess(
-                                context,
-                                '${opt.title} uygulandı! Yeni Pazar Değeri: ${CurrencyFormatter.formatShort(newMarketValue)}',
-                              );
-                            },
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${opt.title} uygulandı! Yeni Pazar Değeri: ${CurrencyFormatter.formatShort(newMarketValue)}',
+                                    );
+                                  },
                           ),
                         ],
                       ),
