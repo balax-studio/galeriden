@@ -22,6 +22,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
+import '../../widgets/neo_brutal_dramatic_dialog.dart';
 
 class ShowroomScreen extends ConsumerStatefulWidget {
   const ShowroomScreen({super.key});
@@ -37,6 +38,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
   @override
   void initState() {
     super.initState();
+    // Schedule periodic tick for active countdown displays (doped offers, etc.)
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {});
@@ -63,6 +65,15 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             NeoBrutalStoryAdDialog.show(context, next.pendingStoryCard!);
+          }
+        });
+      }
+
+      // Listen for dramatic dilemma cards
+      if (next.pendingDramaticCard != null && (previous?.pendingDramaticCard?.id != next.pendingDramaticCard?.id)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            NeoBrutalDramaticDialog.show(context, next.pendingDramaticCard!);
           }
         });
       }

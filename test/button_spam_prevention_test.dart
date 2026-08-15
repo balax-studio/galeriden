@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:galeriden/data/models/car_model.dart';
-import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

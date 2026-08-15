@@ -25,6 +25,8 @@ import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_story_ad_dialog.dart';
+import '../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../auction/auction_screen.dart';
 import '../showroom/showroom_screen.dart';
 import 'widgets/dashboard_office_view.dart';
@@ -66,6 +68,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    // Listen for story ad encounters & dramatic decision cards
+    ref.listen<DealershipModel>(gameProvider, (previous, next) {
+      if (next.pendingStoryCard != null && (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            NeoBrutalStoryAdDialog.show(context, next.pendingStoryCard!);
+          }
+        });
+      }
+
+      if (next.pendingDramaticCard != null && (previous?.pendingDramaticCard?.id != next.pendingDramaticCard?.id)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            NeoBrutalDramaticDialog.show(context, next.pendingDramaticCard!);
+          }
+        });
+      }
+    });
 
     return PopScope(
       canPop: false,

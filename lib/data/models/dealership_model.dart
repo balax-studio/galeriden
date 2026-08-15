@@ -20,6 +20,7 @@ import 'market_news_model.dart';
 import 'scrapyard_model.dart';
 import 'black_market_car_model.dart';
 import 'story_card_model.dart';
+import 'dramatic_card_model.dart';
 import 'contract_model.dart';
 
 class DealershipModel {
@@ -75,6 +76,12 @@ class DealershipModel {
   final int nextStoryAdTargetDays;
   final StoryCardModel? pendingStoryCard;
 
+  // Dramatic Decision Dilemma Cards Engine Fields
+  final List<String> seenDramaticCardIds;
+  final int daysSinceLastDramaticCard;
+  final int nextDramaticCardTargetDays;
+  final DramaticCardModel? pendingDramaticCard;
+
   // Banka ve Personel Akademisi Kalıcı Durum Alanları
   final double bankDepositBalance;
   final double bankCreditLimit;
@@ -93,6 +100,8 @@ class DealershipModel {
   int get emblemIndex => int.tryParse(logoEmblemId.replaceAll(RegExp(r'\D'), '')) ?? 0;
 
   double get money => balance;
+  int get reputation => reputationScore;
+  int get experience => skills.xp;
   List<CarModel> get myCars => ownedCars;
 
   DateTime get inGameTime => DateTime.now();
@@ -183,6 +192,10 @@ class DealershipModel {
     this.daysSinceLastStoryAd = 0,
     this.nextStoryAdTargetDays = 14,
     this.pendingStoryCard,
+    this.seenDramaticCardIds = const [],
+    this.daysSinceLastDramaticCard = 0,
+    this.nextDramaticCardTargetDays = 20,
+    this.pendingDramaticCard,
     this.bankDepositBalance = 0.0,
     this.bankCreditLimit = 250000.0,
     this.purchasedAcademyCourses = const [],
@@ -521,6 +534,10 @@ class DealershipModel {
       'daysSinceLastStoryAd': daysSinceLastStoryAd,
       'nextStoryAdTargetDays': nextStoryAdTargetDays,
       'pendingStoryCard': pendingStoryCard?.toJson(),
+      'seenDramaticCardIds': seenDramaticCardIds,
+      'daysSinceLastDramaticCard': daysSinceLastDramaticCard,
+      'nextDramaticCardTargetDays': nextDramaticCardTargetDays,
+      'pendingDramaticCard': pendingDramaticCard?.toJson(),
       'bankDepositBalance': bankDepositBalance,
       'bankCreditLimit': bankCreditLimit,
       'purchasedAcademyCourses': purchasedAcademyCourses,
@@ -605,6 +622,10 @@ class DealershipModel {
       daysSinceLastStoryAd: (json['daysSinceLastStoryAd'] as num?)?.toInt() ?? 0,
       nextStoryAdTargetDays: (json['nextStoryAdTargetDays'] as num?)?.toInt() ?? 14,
       pendingStoryCard: json['pendingStoryCard'] != null ? StoryCardModel.fromJson(Map<String, dynamic>.from(json['pendingStoryCard'] as Map)) : null,
+      seenDramaticCardIds: (json['seenDramaticCardIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      daysSinceLastDramaticCard: (json['daysSinceLastDramaticCard'] as num?)?.toInt() ?? 0,
+      nextDramaticCardTargetDays: (json['nextDramaticCardTargetDays'] as num?)?.toInt() ?? 20,
+      pendingDramaticCard: json['pendingDramaticCard'] != null ? DramaticCardModel.fromJson(Map<String, dynamic>.from(json['pendingDramaticCard'] as Map)) : null,
       bankDepositBalance: (json['bankDepositBalance'] as num?)?.toDouble() ?? 0.0,
       bankCreditLimit: (json['bankCreditLimit'] as num?)?.toDouble() ?? 250000.0,
       purchasedAcademyCourses: (json['purchasedAcademyCourses'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
@@ -694,6 +715,11 @@ class DealershipModel {
     int? nextStoryAdTargetDays,
     StoryCardModel? pendingStoryCard,
     bool clearPendingStoryCard = false,
+    List<String>? seenDramaticCardIds,
+    int? daysSinceLastDramaticCard,
+    int? nextDramaticCardTargetDays,
+    DramaticCardModel? pendingDramaticCard,
+    bool clearPendingDramaticCard = false,
     double? bankDepositBalance,
     double? bankCreditLimit,
     List<String>? purchasedAcademyCourses,
@@ -751,6 +777,10 @@ class DealershipModel {
       daysSinceLastStoryAd: daysSinceLastStoryAd ?? this.daysSinceLastStoryAd,
       nextStoryAdTargetDays: nextStoryAdTargetDays ?? this.nextStoryAdTargetDays,
       pendingStoryCard: clearPendingStoryCard ? null : (pendingStoryCard ?? this.pendingStoryCard),
+      seenDramaticCardIds: seenDramaticCardIds ?? this.seenDramaticCardIds,
+      daysSinceLastDramaticCard: daysSinceLastDramaticCard ?? this.daysSinceLastDramaticCard,
+      nextDramaticCardTargetDays: nextDramaticCardTargetDays ?? this.nextDramaticCardTargetDays,
+      pendingDramaticCard: clearPendingDramaticCard ? null : (pendingDramaticCard ?? this.pendingDramaticCard),
       bankDepositBalance: bankDepositBalance ?? this.bankDepositBalance,
       bankCreditLimit: bankCreditLimit ?? this.bankCreditLimit,
       purchasedAcademyCourses: purchasedAcademyCourses ?? this.purchasedAcademyCourses,

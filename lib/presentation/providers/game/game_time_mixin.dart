@@ -14,11 +14,13 @@ import '../../../data/models/market_news_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/story_card_model.dart';
+import '../../../data/models/dramatic_card_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
+import '../../../domain/usecases/dramatic_card_engine.dart';
 
 import 'game_base_notifier.dart';
 
@@ -304,6 +306,17 @@ mixin GameTimeMixin on GameBaseNotifier {
       nextTargetDays = 7 + random.nextInt(15); // Random range: 7..21
     }
 
+    // 13.5. Check Dramatic Decision Dilemma Cards Trigger (every 15-30 days)
+    int updatedDaysSinceDramatic = state.daysSinceLastDramaticCard + 1;
+    int nextDramaticTargetDays = state.nextDramaticCardTargetDays;
+    DramaticCardModel? nextDramaticCard = state.pendingDramaticCard;
+
+    if (updatedDaysSinceDramatic >= nextDramaticTargetDays && nextDramaticCard == null) {
+      nextDramaticCard = DramaticCardEngine.selectNextCard(state, randomInstance: random);
+      updatedDaysSinceDramatic = 0;
+      nextDramaticTargetDays = 15 + random.nextInt(16); // Random range: 15..30 days
+    }
+
     // 14. Bank Deposit Daily Interest Accrual (~43% APY => ~0.12% daily)
     double updatedBankDeposit = state.bankDepositBalance;
     if (updatedBankDeposit > 0) {
@@ -348,6 +361,9 @@ mixin GameTimeMixin on GameBaseNotifier {
       daysSinceLastStoryAd: updatedDaysSinceStoryAd,
       nextStoryAdTargetDays: nextTargetDays,
       pendingStoryCard: nextStoryCard,
+      daysSinceLastDramaticCard: updatedDaysSinceDramatic,
+      nextDramaticCardTargetDays: nextDramaticTargetDays,
+      pendingDramaticCard: nextDramaticCard,
       bankDepositBalance: updatedBankDeposit,
       activeMissions: updatedMissions,
       activeContracts: updatedContracts,
@@ -531,6 +547,29 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   void dismissPendingStoryCard() {
     state = state.copyWith(clearPendingStoryCard: true);
+  }
+
+  /// Resolves the dramatic dilemma card choice outcome and mutates dealership state
+  DramaticResolutionResult resolveDramaticCardChoice({
+    required DramaticCardModel card,
+    required DramaticChoiceModel choice,
+    double? fixedRoll,
+  }) {
+    final result = DramaticCardEngine.resolveChoice(
+      state,
+      card,
+      choice,
+      fixedRoll: fixedRoll,
+      randomInstance: random,
+    );
+    state = result.updatedState;
+    saveState();
+    return result;
+  }
+
+  /// Dismisses a pending dramatic card without making a choice
+  void dismissPendingDramaticCard() {
+    state = state.copyWith(clearPendingDramaticCard: true);
   }
 
   List<ScrapyardCar> _generateRandomScrapyardCars(int day) {
