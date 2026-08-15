@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import '../data/models/listing_model.dart';
 import '../presentation/screens/dashboard/dashboard_screen.dart';
@@ -30,124 +31,136 @@ import '../presentation/screens/branch/showroom_decor_screen.dart';
 import '../presentation/screens/scrapyard/scrapyard_screen.dart';
 import '../presentation/screens/black_market/black_market_screen.dart';
 
+Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
+  return CupertinoPage(
+    key: state.pageKey,
+    name: state.uri.toString(),
+    child: child,
+  );
+}
+
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
   errorBuilder: (context, state) => const DashboardScreen(),
   routes: [
     GoRoute(
+      path: '/dashboard',
+      pageBuilder: (context, state) => _buildCupertinoPage(const DashboardScreen(), state),
+    ),
+    GoRoute(
       path: '/scrapyard',
-      builder: (context, state) => const ScrapyardScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const ScrapyardScreen(), state),
     ),
     GoRoute(
       path: '/black-market',
-      builder: (context, state) => const BlackMarketScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const BlackMarketScreen(), state),
     ),
     GoRoute(
       path: '/tuning-studio',
-      builder: (context, state) => const TuningStudioScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const TuningStudioScreen(), state),
     ),
     GoRoute(
       path: '/bank-investments',
-      builder: (context, state) => const BankInvestmentsScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const BankInvestmentsScreen(), state),
     ),
     GoRoute(
       path: '/staff-academy',
-      builder: (context, state) => const StaffAcademyScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const StaffAcademyScreen(), state),
     ),
     GoRoute(
       path: '/showroom-decor',
-      builder: (context, state) => const ShowroomDecorScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const ShowroomDecorScreen(), state),
     ),
     GoRoute(
       path: '/side-businesses',
-      builder: (context, state) => const SideBusinessScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const SideBusinessScreen(), state),
     ),
     GoRoute(
       path: '/stock-market',
-      builder: (context, state) => const StockMarketScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const StockMarketScreen(), state),
     ),
     GoRoute(
       path: '/history',
-      builder: (context, state) => const SalesHistoryScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const SalesHistoryScreen(), state),
     ),
     GoRoute(
       path: '/onboarding',
-      builder: (context, state) => const OnboardingScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const OnboardingScreen(), state),
     ),
     GoRoute(
       path: '/staff',
-      builder: (context, state) => const StaffScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const StaffScreen(), state),
     ),
     GoRoute(
       path: '/car-wash',
-      builder: (context, state) => const CarWashScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const CarWashScreen(), state),
     ),
     GoRoute(
       path: '/reviews',
-      builder: (context, state) => const CustomerReviewsScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const CustomerReviewsScreen(), state),
     ),
     GoRoute(
       path: '/finance',
-      builder: (context, state) => const FinanceScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const FinanceScreen(), state),
     ),
     GoRoute(
       path: '/rent-a-car',
-      builder: (context, state) => const RentACarScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const RentACarScreen(), state),
     ),
     GoRoute(
       path: '/dealership-identity',
-      builder: (context, state) => const DealershipIdentityScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const DealershipIdentityScreen(), state),
     ),
     GoRoute(
       path: '/theme-store',
-      builder: (context, state) => const ThemeStoreScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const ThemeStoreScreen(), state),
     ),
     GoRoute(
       path: '/character-growth',
-      builder: (context, state) => const CharacterGrowthScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const CharacterGrowthScreen(), state),
     ),
     GoRoute(
       path: '/auction',
-      builder: (context, state) => const AuctionScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const AuctionScreen(), state),
     ),
     GoRoute(
       path: '/branches',
-      builder: (context, state) => const BranchScreen(),
-    ),
-    GoRoute(
-      path: '/dashboard',
-      builder: (context, state) => const DashboardScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const BranchScreen(), state),
     ),
     GoRoute(
       path: '/marketplace',
-      builder: (context, state) => const MarketplaceScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const MarketplaceScreen(), state),
     ),
     GoRoute(
       path: '/expertise',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final listing = state.extra as ListingModel?;
-        if (listing == null) return const MarketplaceScreen();
-        return ExpertiseScreen(listing: listing);
+        if (listing == null) {
+          return _buildCupertinoPage(const MarketplaceScreen(), state);
+        }
+        return _buildCupertinoPage(ExpertiseScreen(listing: listing), state);
       },
     ),
     GoRoute(
       path: '/workshop',
-      builder: (context, state) => const WorkshopScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const WorkshopScreen(), state),
     ),
     GoRoute(
       path: '/showroom',
-      builder: (context, state) => const ShowroomScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const ShowroomScreen(), state),
     ),
     GoRoute(
       path: '/settings',
-      builder: (context, state) => const SettingsScreen(),
+      pageBuilder: (context, state) => _buildCupertinoPage(const SettingsScreen(), state),
     ),
     GoRoute(
       path: '/listing-detail',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final listing = state.extra as ListingModel?;
-        if (listing == null) return const MarketplaceScreen();
-        return ListingDetailScreen(listing: listing);
+        if (listing == null) {
+          return _buildCupertinoPage(const MarketplaceScreen(), state);
+        }
+        return _buildCupertinoPage(ListingDetailScreen(listing: listing), state);
       },
     ),
   ],

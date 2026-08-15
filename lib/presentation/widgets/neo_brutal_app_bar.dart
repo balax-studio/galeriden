@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme_extension.dart';
 
-/// Standard Neo-Brutal App Bar with tactile back button, thick borders and solid typography
+/// Standard Neo-Brutal App Bar with tactile back button strictly aligned to the left,
+/// solid typography, and responsive action buttons.
 class NeoBrutalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final Widget? titleWidget;
@@ -53,70 +55,78 @@ class NeoBrutalAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            Container(
               height: kToolbarHeight,
-              child: NavigationToolbar(
-                leading: showLeading
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
-                        child: Center(
-                          child: InkWell(
-                            onTap: onLeadingPressed ?? () {
-                              if (context.canPop()) {
-                                context.pop();
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: borderColor,
-                                  width: 2.0,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: borderColor,
-                                    offset: const Offset(2, 2),
-                                    blurRadius: 0,
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.arrow_back_rounded,
-                                size: 18,
-                                color: textColor,
-                              ),
-                            ),
+              padding: const EdgeInsets.symmetric(horizontal: 14.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Far-left: Strict Leading Back Button with Tactile Haptics
+                  if (showLeading) ...[
+                    InkWell(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        if (onLeadingPressed != null) {
+                          onLeadingPressed!();
+                        } else if (context.canPop()) {
+                          context.pop();
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: borderColor,
+                            width: 2.0,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: borderColor,
+                              offset: const Offset(2, 2),
+                              blurRadius: 0,
+                            ),
+                          ],
                         ),
-                      )
-                    : null,
-                middle: titleWidget ??
-                    Text(
-                      title.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.8,
-                        color: textColor,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.arrow_back_rounded,
+                          size: 20,
+                          color: textColor,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                trailing: actions != null && actions!.isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 12.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: actions!,
+                    const SizedBox(width: 12),
+                  ],
+
+                  // Middle / Title section
+                  Expanded(
+                    child: titleWidget ??
+                        Text(
+                          title.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.8,
+                            color: textColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      )
-                    : null,
-                centerMiddle: true,
+                  ),
+
+                  // Far-right: Action items
+                  if (actions != null && actions!.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: actions!,
+                    ),
+                  ],
+                ],
               ),
             ),
             ?bottom,
@@ -141,7 +151,7 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(48.0);
+  Size get preferredSize => const Size.fromHeight(48);
 
   @override
   Widget build(BuildContext context) {
@@ -150,47 +160,54 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
     final isDark = p?.isDark ?? Theme.of(context).brightness == Brightness.dark;
 
     final borderColor = p?.surfaceBorderColor ?? (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A));
-    final activeColor = p?.primaryColor ?? const Color(0xFFEAB308);
-    final unselectedTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Container(
       height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0B0E14) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: borderColor,
+          width: 2.0,
+        ),
+      ),
       child: TabBar(
         controller: controller,
-        onTap: onTap,
-        splashFactory: NoSplash.splashFactory,
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
-        dividerColor: Colors.transparent,
+        onTap: (index) {
+          HapticFeedback.selectionClick();
+          if (onTap != null) onTap!(index);
+        },
+        padding: const EdgeInsets.all(4),
         indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
         indicator: BoxDecoration(
-          color: activeColor,
-          borderRadius: BorderRadius.circular(8),
+          color: p?.primaryColor ?? const Color(0xFFFFD000),
+          borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: borderColor,
-            width: 2.0,
+            width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
               color: borderColor,
-              offset: const Offset(2, 2),
+              offset: const Offset(1.5, 1.5),
               blurRadius: 0,
             ),
           ],
         ),
         labelColor: const Color(0xFF0F172A),
-        unselectedLabelColor: unselectedTextColor,
+        unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
         labelStyle: const TextStyle(
           fontWeight: FontWeight.w900,
-          fontSize: 13,
-          letterSpacing: 0.3,
+          fontSize: 12,
+          letterSpacing: 0.5,
         ),
         unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 13,
-          letterSpacing: 0.3,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
         ),
-        tabs: tabs.map((tabText) => Tab(text: tabText)).toList(),
+        tabs: tabs.map((t) => Tab(text: t.toUpperCase())).toList(),
       ),
     );
   }

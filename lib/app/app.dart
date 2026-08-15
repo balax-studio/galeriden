@@ -1,7 +1,26 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../presentation/providers/theme_provider.dart';
 import 'router.dart';
+
+/// Universal mobile gesture scroll behavior with bouncing physics & multi-device drag support
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.trackpad,
+      };
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  }
+}
 
 class GaleridenApp extends ConsumerWidget {
   const GaleridenApp({super.key});
@@ -15,6 +34,7 @@ class GaleridenApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: themeState.buildThemeData(),
       routerConfig: appRouter,
+      scrollBehavior: const AppScrollBehavior(),
       builder: (context, child) {
         final mediaQuery = MediaQuery.of(context);
         final clampedScaler = mediaQuery.textScaler.clamp(
