@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_theme_extension.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../providers/game_provider.dart';
-import 'app_glass_container.dart';
 
 /// Floating Game HUD overlay widget - Neo-Brutalist Monolithic Stats Bar
 class GameHudHeaderWidget extends ConsumerWidget {
@@ -161,103 +159,6 @@ class GameHudHeaderWidget extends ConsumerWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Floating Tycoon Quick Dock Bar Widget
-class GameHudDockWidget extends StatelessWidget {
-  const GameHudDockWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
-
-    return AppGlassContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      borderRadius: 24.0,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildDockButton(
-            context,
-            icon: Icons.storefront_rounded,
-            label: 'Showroom',
-            color: p.primaryColor,
-            onTap: () => context.push('/showroom'),
-          ),
-          _buildDockButton(
-            context,
-            icon: Icons.shopping_bag_rounded,
-            label: 'Pazaryeri',
-            color: Colors.lightBlueAccent,
-            onTap: () => context.push('/marketplace'),
-          ),
-          _buildDockButton(
-            context,
-            icon: Icons.build_circle_rounded,
-            label: 'Atölye',
-            color: Colors.orangeAccent,
-            onTap: () => context.push('/workshop'),
-          ),
-          _buildDockButton(
-            context,
-            icon: Icons.people_alt_rounded,
-            label: 'Kadrom',
-            color: Colors.purpleAccent,
-            onTap: () => context.push('/staff'),
-          ),
-          _buildDockButton(
-            context,
-            icon: Icons.palette_rounded,
-            label: 'Tema',
-            color: p.secondaryColor,
-            onTap: () => context.push('/theme-store'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDockButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-                border: Border.all(color: color.withValues(alpha: 0.4)),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white70 : Colors.black87,
-              ),
-            ),
-          ],
         ),
       ),
     );

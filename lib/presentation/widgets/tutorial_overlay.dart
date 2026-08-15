@@ -4,8 +4,8 @@ import '../../core/theme/app_theme_extension.dart';
 import '../../core/theme/app_typography.dart';
 import '../providers/game_provider.dart';
 import '../providers/tutorial_provider.dart';
-import 'app_glass_container.dart';
 import 'app_vector_icons.dart';
+import 'neo_brutal_card.dart';
 
 class TutorialOverlayBanner extends ConsumerWidget {
   const TutorialOverlayBanner({super.key});
@@ -26,9 +26,11 @@ class TutorialOverlayBanner extends ConsumerWidget {
       bottom: 16,
       left: 16,
       right: 16,
-      child: AppGlassContainer(
+      child: NeoBrutalCard(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        borderColor: p.primaryColor.withValues(alpha: 0.5),
+        backgroundColor: p.isDark ? const Color(0xFF141721) : Colors.white,
+        borderColor: p.primaryColor,
+        borderRadius: 12,
         child: Row(
           children: [
             Container(
@@ -77,7 +79,7 @@ class TutorialOverlayBanner extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: p.isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
