@@ -41,26 +41,52 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
   }
 
   void refreshMarket() {
-    state = MarketEngine.generateRandomListings(count: 7, playerLevel: playerLevel);
+    final trend = _ref.read(gameProvider).marketTrend;
+    state = MarketEngine.generateRandomListings(
+      playerLevel: playerLevel,
+      trend: trend,
+    );
   }
 
   void refreshListings() => refreshMarket();
 
-  /// Partially refresh market (some cars get sold, new ones appear)
+  /// Partially refresh market (some cars get sold, new ones appear with organic pool fluctuation)
   void partialRefresh() {
     if (state.isEmpty) {
       refreshMarket();
       return;
     }
-    // Remove 1-2 random listings and add 1-2 new ones
+
+    final trend = _ref.read(gameProvider).marketTrend;
+    final targetCount = MarketEngine.calculateDynamicListingCount(
+      playerLevel: playerLevel,
+      trend: trend,
+      randomOverride: _random,
+    );
+
     var current = List<ListingModel>.from(state);
-    int removeCount = 1 + _random.nextInt(2);
+
+    // Remove 1-3 random listings
+    int removeCount = 1 + _random.nextInt(min(3, current.length));
     for (int i = 0; i < removeCount && current.isNotEmpty; i++) {
       current.removeAt(_random.nextInt(current.length));
     }
 
-    final newListings = MarketEngine.generateRandomListings(count: removeCount, playerLevel: playerLevel);
-    state = [...current, ...newListings];
+    // Add dynamic number of listings to naturally expand/contract pool toward targetCount
+    int addCount = (targetCount - current.length).clamp(1, 4);
+    if (current.length + addCount < 4) {
+      addCount = 4 - current.length;
+    }
+
+    final newListings = MarketEngine.generateRandomListings(
+      count: addCount,
+      playerLevel: playerLevel,
+      trend: trend,
+    );
+
+    final updatedList = [...current, ...newListings];
+    // Keep within safe operational bounds (4-14)
+    state = updatedList.take(14).toList();
   }
 
   void markExpertiseCompleted(String listingId) {

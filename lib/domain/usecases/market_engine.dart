@@ -62,14 +62,58 @@ class MarketEngine {
     );
   }
 
+  /// Calculates dynamic market listing capacity based on player level and active market trends
+  static int calculateDynamicListingCount({
+    int playerLevel = 1,
+    MarketTrendModel? trend,
+    Random? randomOverride,
+  }) {
+    final rng = randomOverride ?? _random;
+    int minCount;
+    int maxCount;
+
+    if (playerLevel <= 1) {
+      minCount = 4;
+      maxCount = 8;
+    } else if (playerLevel == 2) {
+      minCount = 5;
+      maxCount = 10;
+    } else if (playerLevel == 3) {
+      minCount = 6;
+      maxCount = 11;
+    } else if (playerLevel == 4) {
+      minCount = 6;
+      maxCount = 12;
+    } else {
+      minCount = 7;
+      maxCount = 14;
+    }
+
+    // Adjust based on market trend sentiments
+    if (trend != null) {
+      final headline = trend.headline.toLowerCase();
+      if (headline.contains('durgunluk') || headline.contains('düşüş') || headline.contains('azalma')) {
+        minCount = max(4, minCount - 1);
+        maxCount = max(minCount + 2, maxCount - 2);
+      } else if (headline.contains('yükseliş') || headline.contains('talep') || headline.contains('hareket') || headline.contains('patladı')) {
+        minCount = min(12, minCount + 1);
+        maxCount = min(14, maxCount + 2);
+      }
+    }
+
+    final count = minCount + rng.nextInt(maxCount - minCount + 1);
+    return count.clamp(4, 14);
+  }
+
   static List<ListingModel> generateRandomListings({
-    int count = 10,
+    int? count,
     int playerLevel = 1,
     MarketTrendModel? trend,
   }) {
     final activeTrend = trend ?? generateMarketTrend();
+    final actualCount = count ?? calculateDynamicListingCount(playerLevel: playerLevel, trend: activeTrend);
     List<ListingModel> listings = [];
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < actualCount; i++) {
       listings.add(_generateSingleListing(playerLevel, activeTrend));
     }
     return listings;
