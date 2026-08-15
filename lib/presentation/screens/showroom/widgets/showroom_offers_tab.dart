@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/game_sound_haptic_service.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
@@ -215,8 +217,8 @@ class ShowroomOffersTab extends ConsumerWidget {
                       carTitle: '${car.brand} ${car.modelName}',
                       rating: isHonest ? (4.0 + (offer.offeredAmount >= car.listingPrice ? 1.0 : 0.0)) : 1.0,
                       comment: isHonest
-                          ? 'Harika dürüst bir galerici! Araç tam ekspertizdeki gibi çıktı, çok memnunum.'
-                          : 'Göz göre göre gizli kusurlu araç sattılar! Kesinlikle tavsiye etmiyorum.',
+                          ? 'Harika dürüst bir galerici! ${game.dealershipName} ve ${game.playerName} bey/hanım çok ilgiliydi. Araç ekspertizdeki gibi çıktı.'
+                          : '${game.dealershipName} galerisinde göz göre göre gizli kusurlu araç sattılar! Kesinlikle tavsiye etmiyorum.',
                       createdAt: DateTime.now(),
                     );
                     ref.read(gameProvider.notifier).addCustomerReview(review);
@@ -224,7 +226,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     if (context.mounted) {
                       NotificationService.showSuccess(
                         context,
-                        '${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı!',
+                        '${game.dealershipName} bünyesinde ${CurrencyFormatter.format(offer.offeredAmount)} tutarında noter satışı tamamlandı!',
                       );
                     }
                   }
@@ -251,12 +253,14 @@ class ShowroomOffersTab extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${car.brand} ${car.modelName}',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        Expanded(
+                          child: Text(
+                            '${car.brand} ${car.modelName}',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            ),
                           ),
                         ),
                         Text(
@@ -269,15 +273,109 @@ class ShowroomOffersTab extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Teklif Veren: ${offer.buyerName}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Piyasa Değeri: ${CurrencyFormatter.formatShort(car.estimatedRealValue)}',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          ),
+                        ),
+                        Text(
+                          'İlan Fiyatı: ${CurrencyFormatter.formatShort(car.listingPrice > 0 ? car.listingPrice : car.estimatedRealValue)}',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          'Alıcı: ${offer.buyerName}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          ),
+                        ),
+                        if (offer.buyerCustomer != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFDE59),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.black, width: 1.0),
+                            ),
+                            child: Text(
+                              offer.buyerCustomer!.archetypeTitle,
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        if (offer.offerType != OfferType.cash)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: offer.offerType == OfferType.installment ? const Color(0xFF38BDF8) : const Color(0xFFA855F7),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.black, width: 1.0),
+                            ),
+                            child: Text(
+                              offer.offerType == OfferType.installment
+                                  ? '${offer.installmentMonths} Ay Senetli (${offer.riskLevel})'
+                                  : 'Çekli Teklif',
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (offer.requestedTestDrive && offer.testDriveResult != null) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF0F291E) : const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: const Color(0xFF00E575),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.speed_rounded, size: 14, color: Color(0xFF00E575)),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                offer.testDriveResult!,
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     if (offer.buyerMessage.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Container(
@@ -336,7 +434,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                               fontSize: 11,
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               onPressed: () {
-                                final customer = CustomerModel.generateRandomCustomer();
+                                GameSoundHapticService.playNotarySignature();
+                                GameSoundHapticService.playCashSuccess();
+                                final customer = offer.buyerCustomer ?? CustomerModel.generateRandomCustomer();
                                 final fraudResult = ref.read(gameProvider.notifier).acceptOfferWithFraudCheck(offer, customer);
 
                                 if (fraudResult != null && fraudResult.caughtFraud) {
@@ -376,6 +476,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                                     ),
                                   );
                                 } else {
+                                  final isCollector = offer.buyerName.startsWith('Koleksiyoner') || offer.offeredAmount > car.estimatedRealValue * 1.18;
                                   final isHonest = car.declarationType == ListingDeclarationType.honest;
                                   final review = CustomerReviewModel(
                                     id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -383,16 +484,97 @@ class ShowroomOffersTab extends ConsumerWidget {
                                     carTitle: '${car.brand} ${car.modelName}',
                                     rating: isHonest ? (4.0 + (offer.offeredAmount >= car.listingPrice ? 1.0 : 0.0)) : 1.0,
                                     comment: isHonest
-                                        ? 'Harika dürüst bir galerici! Araç tam ekspertizdeki gibi çıktı, çok memnunum.'
-                                        : 'Göz göre göre gizli kusurlu araç sattılar! Kesinlikle tavsiye etmiyorum.',
+                                        ? 'Harika dürüst bir galerici! ${game.dealershipName} ve ${game.playerName} bey/hanım çok ilgiliydi. Araç ekspertizdeki gibi çıktı.'
+                                        : '${game.dealershipName} galerisinde göz göre göre gizli kusurlu araç sattılar! Kesinlikle tavsiye etmiyorum.',
                                     createdAt: DateTime.now(),
                                   );
                                   ref.read(gameProvider.notifier).addCustomerReview(review);
 
-                                  NotificationService.showSuccess(
-                                    context,
-                                    '${CurrencyFormatter.format(offer.offeredAmount)} tutarında araç satışı yapıldı!',
-                                  );
+                                  // Cascading Reward Modal (§1.4 Ödül Zincirleme)
+                                  if (context.mounted) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          side: const BorderSide(color: Color(0xFF00E575), width: 2.0),
+                                        ),
+                                        title: Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF00E575),
+                                                borderRadius: BorderRadius.circular(8),
+                                                border: Border.all(color: Colors.black, width: 1.5),
+                                              ),
+                                              child: const Icon(Icons.check_circle_rounded, color: Colors.black, size: 24),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                isCollector ? '🌟 KOLEKSİYONER SATIŞI!' : 'NOTER SATIŞI ONAYLANDI!',
+                                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${car.brand} ${car.modelName} aracı ${CurrencyFormatter.format(offer.offeredAmount)} bedelle ${offer.buyerName} adlı alıcıya devredildi.',
+                                              style: TextStyle(
+                                                fontSize: 12.5,
+                                                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
+                                                borderRadius: BorderRadius.circular(10),
+                                                border: Border.all(color: const Color(0xFF3B82F6), width: 1.2),
+                                              ),
+                                              child: const Row(
+                                                children: [
+                                                  Icon(Icons.bolt_rounded, color: Color(0xFF3B82F6), size: 20),
+                                                  SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      'Yeni kelepir ilanlar pazara düştü! Hemen yeni araç toplayarak kasanı katla.',
+                                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          NeoBrutalButton(
+                                            label: 'Galeride Kal',
+                                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                            textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                                            onPressed: () => Navigator.pop(ctx),
+                                          ),
+                                          NeoBrutalButton(
+                                            label: 'Pazara Git',
+                                            icon: Icons.storefront_rounded,
+                                            backgroundColor: const Color(0xFFFFDE59),
+                                            textColor: Colors.black,
+                                            onPressed: () {
+                                              Navigator.pop(ctx);
+                                              context.push('/marketplace');
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                             ),

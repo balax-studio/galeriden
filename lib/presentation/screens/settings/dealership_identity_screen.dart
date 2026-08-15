@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
+import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 
@@ -21,6 +23,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
   late TextEditingController _nameController;
   late TextEditingController _galleryController;
   late String _selectedEmblem;
+  late CharacterOrigin _selectedOrigin;
 
   final List<Map<String, String>> _emblems = const [
     {'id': 'crown', 'name': 'Taç'},
@@ -33,6 +36,41 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
     {'id': 'vintage', 'name': 'Klasik'},
   ];
 
+  final List<Map<String, dynamic>> _origins = const [
+    {
+      'origin': CharacterOrigin.sanayiCiragi,
+      'title': 'Sanayi Çırağı',
+      'icon': Icons.build_circle_rounded,
+      'color': Color(0xFFF97316),
+      'desc': 'Atölye ve tamirhane tozunu yutarak yetiştin.',
+      'perk': 'Tamir ve Parça Montajında %15 Maliyet İndirimi',
+    },
+    {
+      'origin': CharacterOrigin.tuccarTorunu,
+      'title': 'Tüccar Torunu',
+      'icon': Icons.handshake_rounded,
+      'color': AppColors.brutalGreen,
+      'desc': 'Pazarlık masalarında ve açık artırmalarda büyüdün.',
+      'perk': 'Araç Alımlarında %8 İndirim & Pazarlık Avantajı',
+    },
+    {
+      'origin': CharacterOrigin.sehirliYatirimci,
+      'title': 'Şehirli Yatırımcı',
+      'icon': Icons.account_balance_rounded,
+      'color': Color(0xFF3B82F6),
+      'desc': 'Finans ve bankacılık sermayesiyle sektöre adım attın.',
+      'perk': 'Banka Kredilerinde %20 Faiz İndirimi & Yüksek Likidite',
+    },
+    {
+      'origin': CharacterOrigin.koleksiyoncuYegeni,
+      'title': 'Koleksiyoncu Yeğeni',
+      'icon': Icons.auto_awesome_rounded,
+      'color': Color(0xFFA855F7),
+      'desc': 'Nadir klasikler ve garaj yadigârlarıyla yetiştin.',
+      'perk': 'Hurdalık ve Kelepir Koleksiyon Araç Bulma Şansı +%20',
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +78,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
     _nameController = TextEditingController(text: state.playerName);
     _galleryController = TextEditingController(text: state.dealershipName);
     _selectedEmblem = state.logoEmblemId;
+    _selectedOrigin = state.characterOrigin;
   }
 
   @override
@@ -57,9 +96,10 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
       playerName: newPlayerName,
       dealershipName: newGalleryName,
       logoEmblemId: _selectedEmblem,
+      characterOrigin: _selectedOrigin,
     );
 
-    NotificationService.showSuccess(context, 'Galeri ve profil bilgileri başarıyla kaydedildi!');
+    NotificationService.showSuccess(context, 'Galeri ve profil kimliği başarıyla güncellendi!');
 
     if (context.canPop()) {
       context.pop();
@@ -70,6 +110,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
@@ -77,7 +118,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: const NeoBrutalAppBar(
-        title: 'GALERİ & PROFİL KİMLİĞİ',
+        title: 'GALERİ & KARAKTER KİMLİĞİ',
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -116,9 +157,18 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Oyuncu: ${_nameController.text.trim().isEmpty ? 'Kaptan' : _nameController.text.trim()}',
+                        '${state.rpgTitle} • ${_nameController.text.trim().isEmpty ? 'Kaptan' : _nameController.text.trim()}',
                         style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                       ),
+                      if (state.dynastyGeneration > 1) ...[
+                        const SizedBox(height: 4),
+                        NeoBrutalBadge(
+                          text: '${state.dynastyGeneration}. Kuşak Miras Galeri',
+                          backgroundColor: const Color(0xFFA855F7),
+                          textColor: Colors.white,
+                          fontSize: 9.5,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -144,7 +194,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
             onChanged: (_) => setState(() {}),
             style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
             decoration: InputDecoration(
-              labelText: 'Oyuncu Adı (Unvan)',
+              labelText: 'Oyuncu Adı',
               filled: true,
               fillColor: isDark ? const Color(0xFF141721) : Colors.white,
               border: OutlineInputBorder(
@@ -189,7 +239,100 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
           ),
           const SizedBox(height: 18),
 
-          // 3. Emblem Selector
+          // 3. Character Origin Selector (§2.1)
+          Text(
+            'KARAKTER KÖKENİ & BAŞLANGIÇ YETENEĞİ',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          Column(
+            children: _origins.map((item) {
+              final CharacterOrigin orig = item['origin'] as CharacterOrigin;
+              final isSelected = _selectedOrigin == orig;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: InkWell(
+                  onTap: () => setState(() => _selectedOrigin = orig),
+                  borderRadius: BorderRadius.circular(12),
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(12),
+                    backgroundColor: isSelected
+                        ? (isDark ? const Color(0xFF1E2638) : const Color(0xFFFEF9C3))
+                        : (isDark ? const Color(0xFF141721) : Colors.white),
+                    borderColor: isSelected
+                        ? AppColors.brutalYellow
+                        : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                    borderRadius: 12,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: item['color'] as Color,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black, width: 1.5),
+                          ),
+                          child: Icon(item['icon'] as IconData, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    item['title'] as String,
+                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                                  ),
+                                  const Spacer(),
+                                  if (isSelected)
+                                    const NeoBrutalBadge(
+                                      text: 'SEÇİLİ',
+                                      backgroundColor: AppColors.brutalGreen,
+                                      textColor: Colors.black,
+                                      fontSize: 10,
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item['desc'] as String,
+                                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.black12),
+                                ),
+                                child: Text(
+                                  item['perk'] as String,
+                                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+
+          // 4. Emblem Selector
           Text(
             'AMBLEM & LOGO TERCİHİ',
             style: TextStyle(
@@ -242,7 +385,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
           ),
           const SizedBox(height: 24),
 
-          // 4. Save Button
+          // 5. Save Button
           NeoBrutalButton(
             label: 'KİMLİK BİLGİLERİNİ KAYDET',
             icon: Icons.check_circle_rounded,
@@ -252,6 +395,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
             fullWidth: true,
             onPressed: _saveIdentity,
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );

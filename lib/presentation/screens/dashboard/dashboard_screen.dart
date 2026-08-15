@@ -14,6 +14,7 @@ import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
 import '../../widgets/neo_brutal_dramatic_dialog.dart';
+import '../../widgets/neo_brutal_random_event_dialog.dart';
 import '../auction/auction_screen.dart';
 import '../showroom/showroom_screen.dart';
 import 'widgets/dashboard_banners.dart';
@@ -44,6 +45,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         return;
       }
 
+      // Check Reciprocity Starter Gift (§4.3)
+      final hasSeenReciprocity = prefs.getBool('has_seen_reciprocity_gift') ?? false;
+      if (!hasSeenReciprocity && game.currentDay <= 1) {
+        await prefs.setBool('has_seen_reciprocity_gift', true);
+        if (mounted) {
+          DashboardRetentionModals.showReciprocityStarterGiftModal(context, ref);
+        }
+      }
+
       // Check Offline Progression Recap
       final recap = ref.read(gameProvider.notifier).consumePendingOfflineRecap();
       if (recap != null && mounted) {
@@ -60,8 +70,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    // Listen for story ad encounters & dramatic decision cards
+    // Listen for level-ups, story ad encounters, dramatic decision cards & random events
     ref.listen<DealershipModel>(gameProvider, (previous, next) {
+      if (previous != null && next.level > previous.level) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            DashboardRetentionModals.showLevelUpModal(
+              context,
+              next.level,
+              onExplore: () => context.push('/character-growth'),
+            );
+          }
+        });
+      }
+
       if (next.pendingStoryCard != null && (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
@@ -74,6 +96,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             NeoBrutalDramaticDialog.show(context, next.pendingDramaticCard!);
+          }
+        });
+      }
+
+      if (next.pendingRandomEvent != null && (previous?.pendingRandomEvent?.id != next.pendingRandomEvent?.id)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            NeoBrutalRandomEventDialog.show(context, next.pendingRandomEvent!);
           }
         });
       }

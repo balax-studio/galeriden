@@ -112,15 +112,21 @@ class DashboardRetentionModals {
     );
   }
 
-  /// Exit Hook Dialog
+  /// Exit Hook Dialog with Peak-End Rule & Open Loops (§1.5 & §2.1)
   static void showExitHookDialog(BuildContext context, DealershipModel game) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final isDark = themeExt.palette.isDark;
+
+    String? peakHighlight;
+    if (game.carsSold > 0) {
+      peakHighlight = '${game.dealershipName} bünyesinde ${game.carsSold} başarılı satışla toplam ${CurrencyFormatter.formatShort(game.totalProfit)} kâr elde ettin.';
+    }
 
     final openLoops = PsychologyEngine.getOpenLoopsSummary(
       pendingOrdersCount: game.pendingOrders.length,
       showroomListedCarsCount: game.ownedCars.where((c) => c.isListed).length,
       currentStreak: game.loginStreak,
+      peakSaleHighlight: peakHighlight,
     );
 
     showDialog(
@@ -172,6 +178,184 @@ class DashboardRetentionModals {
             onPressed: () {
               Navigator.pop(ctx);
               Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Reciprocity Starter Welcome Gift Dialog (§4.3)
+  static void showReciprocityStarterGiftModal(BuildContext context, WidgetRef ref) {
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final isDark = themeExt.palette.isDark;
+    final gift = PsychologyEngine.getReciprocityStarterGift();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFFFDE59), width: 2.5),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFDE59),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.black, width: 1.5),
+              ),
+              child: const Icon(Icons.card_giftcard_rounded, color: Colors.black, size: 22),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                gift['title'] as String,
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF9C3),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFFFDE59), width: 1.2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    gift['sender'] as String,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFFD97706)),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '"${gift['message']}"',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontStyle: FontStyle.italic,
+                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Hediye İçeriği:',
+              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            const Text('• ₺15.000 Dükkan Açılış Hibe Desteği', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00E575))),
+            const Text('• 1 Adet Ücretsiz Tam Kapsamlı Ekspertiz Çeki', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF38BDF8))),
+          ],
+        ),
+        actions: [
+          NeoBrutalButton(
+            label: 'Hediyeyi Kabul Et & Başla',
+            icon: Icons.check_circle_rounded,
+            backgroundColor: const Color(0xFFFFDE59),
+            textColor: Colors.black,
+            fullWidth: true,
+            onPressed: () {
+              ref.read(gameProvider.notifier).addMoney(gift['bonusMoney'] as double);
+              ref.read(gameProvider.notifier).addXP(100);
+              Navigator.pop(ctx);
+              FloatingMoneyOverlay.of(context)?.showMoneyPopUp(gift['bonusMoney'] as double, label: 'Haydar Usta Hibesi!');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Level-Up Celebration Modal (§1.4 & §5.5)
+  static void showLevelUpModal(BuildContext context, int newLevel, {VoidCallback? onExplore}) {
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final isDark = themeExt.palette.isDark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: Color(0xFFFFDE59), width: 2.5),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFDE59),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.black, width: 1.5),
+              ),
+              child: const Icon(Icons.military_tech_rounded, color: Colors.black, size: 28),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('SEVİYE ATLADIN!', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFF59E0B))),
+                  Text('SEVİYE $newLevel', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tebrikler! Galericilik kariyerinde Seviye $newLevel kademesine ulaştın. Yeni iş kolları, yetenek puanı ve prestijli araç fırsatları açıldı!',
+              style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF00E575), width: 1.2),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.star_rounded, color: Color(0xFF00E575), size: 18),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      '+1 Yetenek Puanı & Yeni Binalar Kullanıma Hazır!',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          NeoBrutalButton(
+            label: 'ŞİMDİ KEŞFET',
+            icon: Icons.rocket_launch_rounded,
+            backgroundColor: const Color(0xFFFFDE59),
+            textColor: Colors.black,
+            fullWidth: true,
+            onPressed: () {
+              Navigator.pop(ctx);
+              onExplore?.call();
             },
           ),
         ],

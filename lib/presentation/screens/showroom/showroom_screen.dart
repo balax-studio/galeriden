@@ -8,15 +8,12 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
-import '../../../data/models/dealership_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
-import '../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
-import '../../widgets/neo_brutal_story_ad_dialog.dart';
 import 'widgets/showroom_car_card.dart';
 import 'widgets/showroom_offers_tab.dart';
 
@@ -54,24 +51,6 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    // Listen for story ad encounters triggered by game progression
-    ref.listen<DealershipModel>(gameProvider, (previous, next) {
-      if (next.pendingStoryCard != null && (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            NeoBrutalStoryAdDialog.show(context, next.pendingStoryCard!);
-          }
-        });
-      }
-
-      if (next.pendingDramaticCard != null && (previous?.pendingDramaticCard?.id != next.pendingDramaticCard?.id)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            NeoBrutalDramaticDialog.show(context, next.pendingDramaticCard!);
-          }
-        });
-      }
-    });
 
     final hasWasher = game.hiredStaff.any((s) => s.role == StaffRole.washer);
     final hasSalesman = game.hiredStaff.any((s) => s.role == StaffRole.salesman);

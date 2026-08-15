@@ -207,6 +207,9 @@ class MarketEngine {
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
     final isFlashDeal = _random.nextDouble() < 0.12;
 
+    // 4% chance of Barn Find (Samanlık Kelepiri)
+    final isBarnFind = (isClassicModel || _random.nextDouble() < 0.04) && _random.nextDouble() < 0.40;
+
     final carTemp = CarModel(
       id: id,
       brand: brandData.name,
@@ -216,16 +219,40 @@ class MarketEngine {
       colorHex: _getRandomColorHex(),
       baseMarketValue: baseValue,
       currentPurchasePrice: baseValue,
-      isRare: isRare,
-      expertise: expertise,
+      isRare: isRare || isBarnFind,
+      isBarnFind: isBarnFind,
+      expertise: isBarnFind
+          ? ExpertiseReport(
+              engineCondition: (25.0 + _random.nextInt(20)).toDouble(),
+              transmissionCondition: (20.0 + _random.nextInt(25)).toDouble(),
+              tramerAmount: 0,
+              mileage: 45000 + _random.nextInt(90000),
+              isMileageTampered: false,
+              bodyParts: {
+                'Kaput': PartStatus.painted,
+                'Tavan': PartStatus.original,
+                'Sol Ön Çamurluk': PartStatus.changed,
+                'Sağ Ön Çamurluk': PartStatus.painted,
+                'Sol Arka Çamurluk': PartStatus.painted,
+                'Sağ Arka Çamurluk': PartStatus.original,
+                'Sol Ön Kapı': PartStatus.painted,
+                'Sağ Ön Kapı': PartStatus.original,
+                'Sol Arka Kapı': PartStatus.original,
+                'Sağ Arka Kapı': PartStatus.painted,
+                'Bagaj': PartStatus.original,
+                'Şasi/Podye': PartStatus.original,
+              },
+            )
+          : expertise,
     );
 
     // Realistic seller asking price between 70% and 130% of fair market value
     double randomMarginFactor = 0.70 + (_random.nextDouble() * 0.60); // 0.70 to 1.30
     if (isFlashDeal) randomMarginFactor = 0.65 + (_random.nextDouble() * 0.15); // 0.65 to 0.80
+    if (isBarnFind) randomMarginFactor = 0.35 + (_random.nextDouble() * 0.20); // 0.35 to 0.55 (Dirt cheap kelepir!)
 
     double askingPrice = (carTemp.estimatedRealValue * randomMarginFactor).roundToDouble();
-    if (askingPrice < 50000) askingPrice = 50000;
+    if (askingPrice < 35000) askingPrice = 35000;
 
     final car = carTemp.copyWith(currentPurchasePrice: askingPrice);
 
@@ -233,19 +260,27 @@ class MarketEngine {
     final sellerCity = cities[_random.nextInt(cities.length)];
 
     String title = '$year ${brandData.name} $modelName';
-    if (isRare) title = '[KOLEKSİYON] $title';
+    if (isBarnFind) {
+      title = '[SAMANLIK KELEPİRİ] $title';
+    } else if (isRare) {
+      title = '[KOLEKSİYON] $title';
+    }
 
-    String description = isFlashDeal
-        ? 'ACİL SATILIK KELEPİR FİYAT! İlk arayan alır, pazarlık sünnettir.'
-        : (isRare
-            ? 'Garaj arabası, düşük km, özenle saklanmış koleksiyonluk nadide araç!'
-            : 'Bakımları yetkili serviste yapılmıştır. Masrafsız, nakit veya mantıklı takasa uygundur.');
+    String description = isBarnFind
+        ? 'Köydeki dede yadigarı garajdan/samanlıktan yeni çıkarıldı! 15 yıldır çalıştırılmadı, restorasyon yapacak usta arıyor.'
+        : (isFlashDeal
+            ? 'ACİL SATILIK KELEPİR FİYAT! İlk arayan alır, pazarlık sünnettir.'
+            : (isRare
+                ? 'Garaj arabası, düşük km, özenle saklanmış koleksiyonluk nadide araç!'
+                : 'Bakımları yetkili serviste yapılmıştır. Masrafsız, nakit veya mantıklı takasa uygundur.'));
 
     return ListingModel(
       id: 'listing_$id',
       car: car,
       sellerName: '${sellerProfile['name']} (${_getRandomSellerName()})',
-      sellerTrait: isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!),
+      sellerTrait: isBarnFind
+          ? 'Terk Edilmiş Kelepir Araç'
+          : (isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!)),
       sellerCity: sellerCity,
       title: title,
       description: description,

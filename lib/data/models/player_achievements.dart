@@ -65,7 +65,7 @@ class AchievementItem {
 class PlayerAchievements {
   static List<AchievementItem> get initialList => [
         // --- Satış & Ticaret Başarımları (Tier 1-3) ---
-        AchievementItem(id: 'first_buy', title: 'İlk Adım (Tier I)', description: 'Pazardan ilk arabanı satın al', rewardMoney: 2500, rewardXP: 50, rewardSkillPoints: 1, tier: 1),
+        AchievementItem(id: 'first_buy', title: 'İlk Adım (Tier I)', description: 'Dede mirası ilk arabanı teslim al', rewardMoney: 2500, rewardXP: 50, rewardSkillPoints: 1, tier: 1, isUnlocked: true),
         AchievementItem(id: 'first_sale', title: 'Siftah (Tier I)', description: 'İlk arabanı kârla sat', rewardMoney: 5000, rewardXP: 100, rewardSkillPoints: 1, tier: 1),
         AchievementItem(id: 'sales_10', title: 'Galeri Tüccarı (Tier II)', description: 'Toplam 10 araç satışı yap', rewardMoney: 15000, rewardXP: 250, rewardSkillPoints: 2, tier: 2),
         AchievementItem(id: 'sales_50', title: 'Otomotiv İmparatoru (Tier III)', description: 'Toplam 50 araç satışı yap', rewardMoney: 75000, rewardXP: 1000, rewardSkillPoints: 3, tier: 3),

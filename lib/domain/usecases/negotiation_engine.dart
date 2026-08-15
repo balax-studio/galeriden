@@ -167,26 +167,52 @@ class NegotiationEngine {
     'Kardeşim acil nakit lazımsa hemen geleyim, üstüne bir kuruş çıkamam.',
   ];
 
-  /// Generates a realistic buyer offer with 4-tier long-tail distribution (VR2)
-  static OfferModel generateBuyerOffer(CarModel car, double listingPrice) {
-    final realVal = car.estimatedRealValue;
+  /// Generates a realistic buyer offer with customer archetype and test drive request
+  static OfferModel generateBuyerOffer(
+    CarModel car,
+    double listingPrice, {
+    double seasonMultiplier = 1.0,
+  }) {
+    final realVal = car.estimatedRealValue * seasonMultiplier;
     final askingPrice = car.listingPrice > 0 ? car.listingPrice : realVal;
     final distRoll = _random.nextDouble();
+
+    // Listing Quality Factor
+    double listingQualityBonus = 1.0;
+    if (car.listingPhotoLocation == 'studio') {
+      listingQualityBonus += 0.05;
+    } else if (car.listingPhotoLocation == 'scenic') {
+      listingQualityBonus += 0.03;
+    }
+    if (car.listingPhotoCount >= 8) {
+      listingQualityBonus += 0.04;
+    } else if (car.listingPhotoCount >= 4) {
+      listingQualityBonus += 0.02;
+    }
+    if (car.listingTone == 'vip') {
+      listingQualityBonus += 0.03;
+    }
 
     double baseOffer;
     String message;
     String buyerName = buyerNames[_random.nextInt(buyerNames.length)];
     bool isLowball = false;
 
+    // Archetype assignment
+    final archetypes = CustomerArchetype.values;
+    final assignedArchetype = archetypes[_random.nextInt(archetypes.length)];
+    final customer = CustomerModel.generate(assignedArchetype);
+    buyerName = customer.name;
+
     if (distRoll < 0.02) {
       // 1) Collector Jackpot (%2 chance): +20% to +40% over asking/real price
-      baseOffer = (max(realVal, askingPrice) * (1.20 + (_random.nextDouble() * 0.20))).roundToDouble();
+      baseOffer = (max(realVal, askingPrice) * (1.20 + (_random.nextDouble() * 0.20)) * listingQualityBonus).roundToDouble();
       buyerName = 'Koleksiyoner $buyerName';
       message = 'Tam aradığım temizlikte özel bir araç! Kaçırmamak için liste fiyatının da üzerinde ₺${baseOffer.round()} nakit teklif ediyorum!';
     } else if (distRoll < 0.10) {
       // 2) Asking Price Match (%8 chance): Exactly 100% of asking price
-      baseOffer = askingPrice;
-      message = 'Fiyat çok makul, pazarlıksız ilandaki ₺${askingPrice.round()} fiyata hemen notere geçelim.';
+      baseOffer = (askingPrice * listingQualityBonus).roundToDouble();
+      message = 'Fiyat çok makul, pazarlıksız ilandaki ₺${baseOffer.round()} fiyata hemen notere geçelim.';
     } else if (distRoll < 0.30) {
       // 3) Lowball / Ölücü (%20 chance): %55 - %75 of asking/real price
       isLowball = true;
@@ -199,7 +225,7 @@ class NegotiationEngine {
       // 4) Standard Normal Offer (%70 chance): %88 - %98 of asking price
       final maxAllowed = min(realVal * 1.02, askingPrice * 0.98);
       final minAllowed = min(realVal * 0.88, askingPrice * 0.88);
-      baseOffer = (minAllowed + (_random.nextDouble() * max(1000.0, maxAllowed - minAllowed))).roundToDouble();
+      baseOffer = ((minAllowed + (_random.nextDouble() * max(1000.0, maxAllowed - minAllowed))) * listingQualityBonus).roundToDouble();
       if (baseOffer > askingPrice) {
         baseOffer = askingPrice;
       }
@@ -224,7 +250,7 @@ class NegotiationEngine {
     int installments = 0;
     final typeRoll = _random.nextDouble();
 
-    if (typeRoll < 0.30) {
+    if (typeRoll < 0.30 || (car.allowsInstallments && typeRoll < 0.55)) {
       chosenOfferType = OfferType.installment;
       installments = _random.nextBool() ? 6 : 12;
       final premium = 1.15 + (_random.nextDouble() * 0.15); // +15% to +30% price premium
@@ -238,6 +264,20 @@ class NegotiationEngine {
       message = 'Ticari 45 gün vadeli banka onaylı çekim var. Kabul edersen ₺${baseOffer.round()} fiyata anlaşalım.';
     }
 
+    // Test Drive Request (%35 chance for serious buyers)
+    bool wantsTestDrive = !isLowball && _random.nextDouble() < 0.35;
+    String? testResult;
+    if (wantsTestDrive) {
+      final engineCond = (car.expertise.engineCondition + car.expertise.transmissionCondition) / 200.0;
+      if (engineCond >= 0.85) {
+        testResult = 'Test sürüşü kusursuz geçti! Motorun ve yürüyen aksamın sesine hayran kaldı (+%5 Memnuniyet).';
+      } else if (engineCond < 0.60) {
+        testResult = 'Test sürüşünde motordan gelen tıkırtıyı duydu ve tedirgin oldu!';
+      } else {
+        testResult = 'Test sürüşünü başarıyla tamamladı, genel sürüşü beğendi.';
+      }
+    }
+
     return OfferModel(
       id: 'offer_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}',
       carId: car.id,
@@ -249,21 +289,57 @@ class NegotiationEngine {
       offerType: chosenOfferType,
       customerCreditScore: creditScore,
       installmentMonths: installments,
+      buyerCustomer: customer,
+      requestedTestDrive: wantsTestDrive,
+      testDriveResult: testResult,
     );
   }
 
-  /// Process counter-offer from player to buyer
+  /// Process counter-offer from player to buyer with 4 strategic approaches
   static NegotiationOutcome evaluateCounterOffer({
     required OfferModel currentOffer,
     required double playerTargetPrice,
     required CarModel car,
     required int negotiationSkillLevel,
+    String? strategy, // 'ikna_et', 'duyguya_oyna', 'sert_dur', 'hizli_kapat'
   }) {
     final double previousOffer = currentOffer.offeredAmount;
     final double carRealValue = car.estimatedRealValue;
+    final customer = currentOffer.buyerCustomer;
+
+    // Strategy Bonus Modifier
+    double strategyBonus = 0.0;
+    double walkawayModifier = 0.0;
+
+    if (strategy == 'ikna_et') {
+      // Transparency & Expertise focus
+      if (car.declarationType == ListingDeclarationType.honest) {
+        strategyBonus += 0.20;
+      } else {
+        strategyBonus -= 0.10;
+        walkawayModifier += 0.15;
+      }
+    } else if (strategy == 'duyguya_oyna') {
+      // Warm Esnaf Tea & Empathy
+      if (customer?.archetype == CustomerArchetype.familyMan || customer?.archetype == CustomerArchetype.skepticalOfficial) {
+        strategyBonus += 0.18;
+      } else if (customer?.archetype == CustomerArchetype.impatientYouth) {
+        strategyBonus += 0.05;
+      }
+    } else if (strategy == 'sert_dur') {
+      // Confident Tok Satıcı
+      if (customer?.archetype == CustomerArchetype.impatientYouth) {
+        strategyBonus += 0.15;
+      } else {
+        walkawayModifier += 0.20;
+      }
+    } else if (strategy == 'hizli_kapat') {
+      // Fast closure discount
+      strategyBonus += 0.22;
+    }
 
     // Skill boost: +3% acceptance probability per skill level
-    double skillBonus = (negotiationSkillLevel - 1) * 0.03;
+    double skillBonus = ((negotiationSkillLevel - 1) * 0.03) + strategyBonus;
 
     // Difference ratio between player target and buyer's previous offer
     double diffRatio = (playerTargetPrice - previousOffer) / previousOffer;
@@ -275,6 +351,7 @@ class NegotiationEngine {
         updatedOffer: currentOffer.copyWith(
           offeredAmount: playerTargetPrice,
           status: OfferStatus.accepted,
+          counterStrategy: strategy,
         ),
         responseMessage: 'Harika! Bu teklifi memnuniyetle kabul ediyorum. Noterde buluşalım.',
         isAccepted: true,
@@ -289,6 +366,7 @@ class NegotiationEngine {
           updatedOffer: currentOffer.copyWith(
             offeredAmount: playerTargetPrice,
             status: OfferStatus.accepted,
+            counterStrategy: strategy,
           ),
           responseMessage: 'Anlaştık usta! ₺${playerTargetPrice.round()} benim için uygundur.',
           isAccepted: true,
@@ -297,23 +375,24 @@ class NegotiationEngine {
       }
     }
 
-    // Check walkaway threshold (asking way above real value or huge counter)
-    // 1) Hard Walkaway for ridiculous offers (No skill can save this)
+    final nearMissDiff = (playerTargetPrice - previousOffer).abs().toInt();
+    final diffFormatted = '₺${nearMissDiff.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
+
+    // Check walkaway threshold
     if (diffRatio > 0.40 || playerTargetPrice > carRealValue * 1.30) {
       return NegotiationOutcome(
-        updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected),
-        responseMessage: 'Dalga mı geçiyorsun usta? Bu paraya bayiden sıfırını alırım! Hadi eyvallah.',
+        updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
+        responseMessage: 'Alıcı $diffFormatted fark yüzünden masadan kalktı! ("Bu paraya bayiden sıfırını alırım")',
         isAccepted: false,
         isWalkaway: true,
       );
     }
 
-    // 2) Soft Walkaway for high offers (Can be saved by skill)
-    if (diffRatio > 0.25 || playerTargetPrice > carRealValue * 1.15) {
+    if (diffRatio > (0.25 - walkawayModifier) || playerTargetPrice > carRealValue * 1.15) {
       if (_random.nextDouble() > (0.15 + skillBonus)) {
         return NegotiationOutcome(
-          updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected),
-          responseMessage: 'Yok usta bu fiyat beni çok aşar, ben başka ilanlara bakayım. Kolay gelsin.',
+          updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
+          responseMessage: 'Alıcı $diffFormatted farkla masadan kalktı! ("Bütçemi aştı, başka ilanlara bakacağım")',
           isAccepted: false,
           isWalkaway: true,
         );
@@ -336,6 +415,7 @@ class NegotiationEngine {
           offeredAmount: buyerNewOffer,
           counterCount: newCount,
           status: OfferStatus.countered,
+          counterStrategy: strategy,
         ),
         responseMessage: 'Usta son sözüm ₺${buyerNewOffer.round()}. Üstüne çıkamam, kabul ediyorsan hayırlı olsun.',
         isAccepted: false,
@@ -348,6 +428,7 @@ class NegotiationEngine {
         offeredAmount: buyerNewOffer,
         counterCount: newCount,
         status: OfferStatus.countered,
+        counterStrategy: strategy,
       ),
       responseMessage: '₺${playerTargetPrice.round()} biraz yüksek ama bütçemi zorlayıp ₺${buyerNewOffer.round()} verebilirim.',
       isAccepted: false,
@@ -374,6 +455,15 @@ class NegotiationEngine {
       createdAt: DateTime.now(),
       customerCreditScore: 95,
       offerType: OfferType.cash,
+      buyerCustomer: CustomerModel(
+        id: 'loyal_${customerName.hashCode}',
+        name: customerName,
+        archetype: CustomerArchetype.familyMan,
+        archetypeTitle: 'Sadık Müşteri',
+        avatarType: 'star',
+        personalityDescription: 'Daha önce alışveriş yapmış ve memnun kalmış daimi müşteri.',
+        preferredDialogueTrait: 'Vefa & Samimiyet',
+      ),
     );
   }
 }

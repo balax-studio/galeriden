@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
@@ -89,6 +90,54 @@ class ShowroomCarCard extends ConsumerWidget {
                         textColor: car.isListed ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                         fontSize: 9.5,
                       ),
+                      if (car.isHeroShowcase) ...[
+                        const SizedBox(width: 6),
+                        const NeoBrutalBadge(
+                          text: 'VİTRİN BAŞKÖŞESİ (+%30)',
+                          icon: Icons.star_rounded,
+                          backgroundColor: Color(0xFFFFDE59),
+                          textColor: Colors.black,
+                          fontSize: 9.5,
+                        ),
+                      ],
+                      if (car.isStaleListing) ...[
+                        const SizedBox(width: 6),
+                        const NeoBrutalBadge(
+                          text: 'ESKİ İLAN (-%40)',
+                          icon: Icons.warning_amber_rounded,
+                          backgroundColor: Color(0xFFEF4444),
+                          textColor: Colors.white,
+                          fontSize: 9.5,
+                        ),
+                      ],
+                      if (car.isBarnFindRestored) ...[
+                        const SizedBox(width: 6),
+                        const NeoBrutalBadge(
+                          text: 'RESTORE EDİLDİ (+%45)',
+                          icon: Icons.auto_awesome_rounded,
+                          backgroundColor: Color(0xFF10B981),
+                          textColor: Colors.black,
+                          fontSize: 9.5,
+                        ),
+                      ] else if (car.isBarnFind) ...[
+                        const SizedBox(width: 6),
+                        const NeoBrutalBadge(
+                          text: 'SAMANLIK KELEPİRİ',
+                          icon: Icons.handyman_rounded,
+                          backgroundColor: Color(0xFFD97706),
+                          textColor: Colors.white,
+                          fontSize: 9.5,
+                        ),
+                      ],
+                      if (car.hasNonOriginalParts) ...[
+                        const SizedBox(width: 6),
+                        const NeoBrutalBadge(
+                          text: 'YAN SANAYİ PARÇA',
+                          backgroundColor: Color(0xFF64748B),
+                          textColor: Colors.white,
+                          fontSize: 9.5,
+                        ),
+                      ],
                       if (car.isDoped) ...[
                         const SizedBox(width: 6),
                         const NeoBrutalBadge(
@@ -275,6 +324,40 @@ class ShowroomCarCard extends ConsumerWidget {
                             );
                           },
                         ),
+                        const SizedBox(width: 6),
+                        // Quick Wait Action: Social Media Share (§2.5)
+                        InkWell(
+                          onTap: () {
+                            ref.read(gameProvider.notifier).triggerOrganicOffers();
+                            NotificationService.showSuccess(
+                              context,
+                              'İlan ${game.dealershipName} sosyal medya hesaplarında paylaşıldı! Yeni ziyaretçiler akın ediyor.',
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF3B82F6),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.share_rounded, size: 11, color: Colors.white),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Paylaş & Çağır',
+                                  style: TextStyle(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -459,10 +542,63 @@ class ShowroomCarCard extends ConsumerWidget {
                 ),
               ],
             ),
-            if (car.isRare || car.isLockedInShowcase) ...[
+            if (car.isStaleListing) ...[
               const SizedBox(height: 8),
               NeoBrutalButton(
-                label: car.isLockedInShowcase
+                label: 'İlanı Güncelle & Yenile (₺1.500)',
+                icon: Icons.refresh_rounded,
+                backgroundColor: const Color(0xFFEF4444),
+                textColor: Colors.white,
+                fontSize: 11,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                fullWidth: true,
+                onPressed: () {
+                  final ok = ref.read(gameProvider.notifier).refreshStaleListing(car.id);
+                  if (ok) {
+                    NotificationService.showSuccess(
+                      context,
+                      '${car.brand} ${car.modelName} ilanı güncellendi ve tekrar en tepeye taşındı!',
+                    );
+                  } else {
+                    NotificationService.showError(
+                      context,
+                      'İlanı yenilemek için ₺1.500 bakiye gereklidir.',
+                    );
+                  }
+                },
+              ),
+            ],
+            if (car.isListed) ...[
+              const SizedBox(height: 8),
+              NeoBrutalButton(
+                label: car.isHeroShowcase
+                    ? 'Vitrin Başköşesinden İndir'
+                    : 'Vitrin Başköşesine Koy (+%30 Müşteri Trafiği)',
+                icon: car.isHeroShowcase ? Icons.star_border_rounded : Icons.star_rounded,
+                backgroundColor: car.isHeroShowcase
+                    ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                    : const Color(0xFFFFDE59),
+                textColor: Colors.black,
+                fontSize: 11,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                fullWidth: true,
+                onPressed: () {
+                  final ok = ref.read(gameProvider.notifier).toggleHeroShowcase(car.id);
+                  if (ok) {
+                    NotificationService.showSuccess(
+                      context,
+                      car.isHeroShowcase
+                          ? '${car.brand} ${car.modelName} vitrin başköşesinden alındı.'
+                          : '${car.brand} ${car.modelName} vitrin başköşesine yerleştirildi! Trafik +%30',
+                    );
+                  }
+                },
+              ),
+            ],
+            // Koleksiyon Vitrinine Kilitleme (Her araç için mülkiyet & yadigâr hakkı)
+            const SizedBox(height: 8),
+            NeoBrutalButton(
+              label: car.isLockedInShowcase
                     ? 'Koleksiyon Vitrininden Çıkar (Satışa Aç)'
                     : 'Koleksiyon Vitrinine Kilitle (+%5 İtibar)',
                 icon: car.isLockedInShowcase ? Icons.lock_open_rounded : Icons.workspace_premium_rounded,
@@ -474,18 +610,51 @@ class ShowroomCarCard extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 fullWidth: true,
                 onPressed: () {
-                  final success = ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
-                  if (success) {
-                    NotificationService.showSuccess(
-                      context,
-                      car.isLockedInShowcase
-                          ? '${car.brand} ${car.modelName} vitrinden çıkarıldı.'
-                          : '${car.brand} ${car.modelName} koleksiyon vitrinine kilitlendi!',
+                  if (car.isLockedInShowcase) {
+                    showDialog(
+                      context: context,
+                      builder: (dCtx) => AlertDialog(
+                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: const BorderSide(color: Colors.black, width: 2),
+                        ),
+                        title: const Text('VİTRİNDEN ÇIKARILSIN MI?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                        content: const Text(
+                          'Bu araç galeri yadigârı olarak kilitli. Vitrinden çıkarırsan satışa açılacak ve devir (prestij) sırasında aktarılmayacaktır. Emin misin?',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dCtx),
+                            child: const Text('İPTAL', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF64748B))),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.errorRed,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(dCtx);
+                              ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
+                              NotificationService.showSuccess(context, '${car.brand} ${car.modelName} vitrinden çıkarıldı.');
+                            },
+                            child: const Text('KİLİDİ AÇ', style: TextStyle(fontWeight: FontWeight.w900)),
+                          ),
+                        ],
+                      ),
                     );
+                  } else {
+                    final success = ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
+                    if (success) {
+                      NotificationService.showSuccess(
+                        context,
+                        '${car.brand} ${car.modelName} koleksiyon vitrinine kilitlendi! +5 Esnaf İtibarı kazanıldı.',
+                      );
+                    }
                   }
                 },
               ),
-            ],
           ],
         ),
       ),

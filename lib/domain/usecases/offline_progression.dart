@@ -19,9 +19,13 @@ class OfflineProgression {
       return {
         'elapsedMinutes': elapsedMinutes,
         'hoursAway': hoursAway,
+        'offlineHours': hoursAway,
         'daysElapsed': 0,
         'passiveIncome': 0.0,
+        'earnedIncome': 0.0,
         'expensesPaid': 0.0,
+        'netEarned': 0.0,
+        'partsArrivedCount': 0,
         'newOffersCount': 0,
         'updatedDealership': dealership.copyWith(lastActiveTime: now),
       };
@@ -46,7 +50,7 @@ class OfflineProgression {
     }
 
     // 3. Staff Salaries
-    double totalDailySalaries = dealership.hiredStaff.fold(0.0, (sum, s) => sum + s.role.dailySalary);
+    double totalDailySalaries = dealership.hiredStaff.fold(0.0, (sum, s) => sum + s.dailySalary);
 
     // 4. Side businesses passive income
     double totalDailyPassive = dealership.sideBusinesses
@@ -71,6 +75,23 @@ class OfflineProgression {
       }
     }
 
+    if (newBalance < 0) newBalance = 0;
+
+    // Organic offers during absence
+    int repLevel = dealership.skills.reputation;
+    int minutesPerOffer = 90;
+    if (repLevel >= 3) minutesPerOffer = 60;
+    if (repLevel >= 4) minutesPerOffer = 35;
+
+    int maxOffersLimit = 8;
+    if (dealership.unlockedBuildings.contains('property_tier_3')) maxOffersLimit = 12;
+    if (dealership.unlockedBuildings.contains('property_tier_4')) maxOffersLimit = 16;
+
+    int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(1, 8);
+
+    var updatedOffers = List<OfferModel>.from(dealership.incomingOffers);
+    int newOffersGenerated = 0;
+
     // 5. Staff Auto-Actions during offline time
     List<CarModel> updatedCars = List.from(dealership.ownedCars);
     final hasWasher = dealership.hiredStaff.any((s) => s.role == StaffRole.washer);
@@ -93,15 +114,6 @@ class OfflineProgression {
       }).toList();
     }
 
-    // 6. Generate Incoming Offers
-    int repLevel = dealership.skills.reputation;
-    int maxOffersLimit = 8 + repLevel;
-    int minutesPerOffer = (15 - (repLevel * 0.8).round()).clamp(5, 15);
-    int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(1, 8);
-
-    var updatedOffers = List<OfferModel>.from(dealership.incomingOffers);
-    int newOffersGenerated = 0;
-
     for (int i = 0; i < potentialOffers; i++) {
       if (updatedCars.isNotEmpty && updatedOffers.length < maxOffersLimit) {
         final car = updatedCars[i % updatedCars.length];
@@ -123,10 +135,13 @@ class OfflineProgression {
     return {
       'elapsedMinutes': elapsedMinutes,
       'hoursAway': hoursAway,
+      'offlineHours': hoursAway,
       'daysElapsed': simulatedDays,
       'passiveIncome': totalPassiveEarned,
+      'earnedIncome': totalPassiveEarned,
       'expensesPaid': totalExpenses,
       'netEarned': totalPassiveEarned - totalExpenses,
+      'partsArrivedCount': 0,
       'newOffersCount': newOffersGenerated,
       'updatedDealership': updatedDealership,
     };

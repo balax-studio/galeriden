@@ -18,57 +18,142 @@ class ShowroomListingModal {
     final p = themeExt.palette;
     final isDark = p.isDark;
     double targetPrice = (offer.offeredAmount * 1.08).roundToDouble();
+    String selectedStrategy = 'ikna_et';
+
+    final remainingCounters = offer.maxCounters - offer.counterCount;
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('KARŞI TEKLİF SUN', style: AppTypography.titleLarge(p.isDark)),
-                  const SizedBox(height: 4),
-                  Text('${offer.buyerName} kişisine karşı fiyat öner:', style: AppTypography.labelSmall(p.isDark)),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Alıcının Teklifi: ${CurrencyFormatter.formatShort(offer.offeredAmount)}', style: AppTypography.labelSmall(p.isDark)),
-                      Text('Önerin: ${CurrencyFormatter.format(targetPrice)}', style: AppTypography.moneyMedium(p.isDark).copyWith(color: p.primaryColor)),
-                    ],
-                  ),
-                  Slider(
-                    value: targetPrice,
-                    min: offer.offeredAmount,
-                    max: (car.estimatedRealValue * 1.25).roundToDouble(),
-                    divisions: 40,
-                    activeColor: p.primaryColor,
-                    onChanged: (val) {
-                      setState(() {
-                        targetPrice = val.roundToDouble();
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  NeoBrutalButton(
-                    label: 'Karşı Teklifi İlet',
-                    icon: Icons.send_rounded,
-                    backgroundColor: const Color(0xFFFFDE59),
-                    textColor: Colors.black,
-                    fullWidth: true,
-                    onPressed: () {
-                      Navigator.pop(context);
-                      final outcome = ref.read(gameProvider.notifier).counterOffer(offer.id, targetPrice);
-                      NotificationService.showSuccess(context, outcome.responseMessage);
-                    },
-                  ),
-                ],
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('KARŞI TEKLİF SUN', style: AppTypography.titleLarge(p.isDark)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: remainingCounters <= 1 ? const Color(0xFFEF4444) : const Color(0xFFFFDE59),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.black, width: 1.4),
+                          ),
+                          child: Text(
+                            'Kalan Hak: $remainingCounters / ${offer.maxCounters}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text('${offer.buyerName} kişisine karşı fiyat ve strateji öner:', style: AppTypography.labelSmall(p.isDark)),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Alıcının Teklifi: ${CurrencyFormatter.formatShort(offer.offeredAmount)}', style: AppTypography.labelSmall(p.isDark)),
+                        Text('Önerin: ${CurrencyFormatter.format(targetPrice)}', style: AppTypography.moneyMedium(p.isDark).copyWith(color: p.primaryColor)),
+                      ],
+                    ),
+                    Slider(
+                      value: targetPrice,
+                      min: offer.offeredAmount,
+                      max: (car.estimatedRealValue * 1.25).roundToDouble(),
+                      divisions: 40,
+                      activeColor: p.primaryColor,
+                      onChanged: (val) {
+                        setState(() {
+                          targetPrice = val.roundToDouble();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    Text('PAZARLIK YAKLAŞIMI / STRATEJİSİ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: p.primaryColor)),
+                    const SizedBox(height: 8),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildStrategyButton(
+                            label: '🔍 Şeffaflık',
+                            subtitle: '+%20 İkna Bonusu',
+                            isSelected: selectedStrategy == 'ikna_et',
+                            onTap: () => setState(() => selectedStrategy = 'ikna_et'),
+                            isDark: isDark,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildStrategyButton(
+                            label: '☕ Çay İkramı',
+                            subtitle: 'Esnaf Sıcaklığı',
+                            isSelected: selectedStrategy == 'duyguya_oyna',
+                            onTap: () => setState(() => selectedStrategy = 'duyguya_oyna'),
+                            isDark: isDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildStrategyButton(
+                            label: '💼 Tok Satıcı',
+                            subtitle: 'Gençleri Etkiler',
+                            isSelected: selectedStrategy == 'sert_dur',
+                            onTap: () => setState(() => selectedStrategy = 'sert_dur'),
+                            isDark: isDark,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildStrategyButton(
+                            label: '⚡ Hızlı Kapat',
+                            subtitle: 'Nakit İndirimi',
+                            isSelected: selectedStrategy == 'hizli_kapat',
+                            onTap: () => setState(() => selectedStrategy = 'hizli_kapat'),
+                            isDark: isDark,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+                    NeoBrutalButton(
+                      label: 'Karşı Teklifi İlet',
+                      icon: Icons.send_rounded,
+                      backgroundColor: const Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      fullWidth: true,
+                      onPressed: () {
+                        Navigator.pop(context);
+                        final outcome = ref.read(gameProvider.notifier).counterOffer(
+                              offer.id,
+                              targetPrice,
+                              strategy: selectedStrategy,
+                            );
+                        NotificationService.showSuccess(context, outcome.responseMessage);
+                      },
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -77,13 +162,62 @@ class ShowroomListingModal {
     );
   }
 
+  static Widget _buildStrategyButton({
+    required String label,
+    required String subtitle,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFFFDE59) : (isDark ? const Color(0xFF141721) : Colors.white),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? Colors.black : (isDark ? const Color(0xFF2A3142) : Colors.grey.shade400),
+            width: isSelected ? 1.8 : 1.0,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 9.5,
+                color: isSelected ? Colors.black87 : (isDark ? Colors.grey : Colors.grey.shade600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   static void showListingEditSheet(BuildContext context, WidgetRef ref, CarModel car) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    double selectedPrice = car.listingPrice;
+    double selectedPrice = car.listingPrice > 0 ? car.listingPrice : (car.estimatedRealValue * 1.20).roundToDouble();
     ListingDeclarationType selectedDeclaration = car.declarationType;
+    String selectedPhotoLocation = car.listingPhotoLocation;
+    int selectedPhotoCount = car.listingPhotoCount;
+    String selectedTone = car.listingTone;
+    bool hideDamagedPhotos = car.hideDamagedPhotos;
+    bool allowsInstallments = car.allowsInstallments;
 
     final double minPrice = (car.currentPurchasePrice * 0.8).clamp(10000.0, car.estimatedRealValue);
     final double maxPrice = (car.estimatedRealValue * 1.6).roundToDouble();
@@ -160,6 +294,20 @@ class ShowroomListingModal {
                                   fontWeight: FontWeight.w900,
                                   color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
                                 ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Piyasa Ekspertiz Değeri: ${CurrencyFormatter.formatShort(car.estimatedRealValue)}',
+                                style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: p.textSecondaryColor),
+                              ),
+                              Text(
+                                'Çapa: %${((selectedPrice / car.estimatedRealValue) * 100).toInt()}',
+                                style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: p.primaryColor),
                               ),
                             ],
                           ),
@@ -272,7 +420,112 @@ class ShowroomListingModal {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
+
+                    // Fotoğraf Çekim Lokasyonu & Kalitesi
+                    Text(
+                      'FOTOĞRAF ÇEKİMİ & SUNUM SANATI',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? const Color(0xFF00F0FF) : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildChoiceCard(
+                            title: 'Galeri Önü',
+                            subtitle: 'Ücretsiz',
+                            isSelected: selectedPhotoLocation == 'dealership',
+                            onTap: () => setState(() => selectedPhotoLocation = 'dealership'),
+                            isDark: isDark,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildChoiceCard(
+                            title: 'Manzaralı',
+                            subtitle: '-₺800 (+%3 İlgi)',
+                            isSelected: selectedPhotoLocation == 'scenic',
+                            onTap: () => setState(() => selectedPhotoLocation = 'scenic'),
+                            isDark: isDark,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildChoiceCard(
+                            title: 'VIP Stüdyo',
+                            subtitle: '-₺1.500 (+%5 İlgi)',
+                            isSelected: selectedPhotoLocation == 'studio',
+                            onTap: () => setState(() => selectedPhotoLocation = 'studio'),
+                            isDark: isDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Fotoğraf Adedi & İlan Tonu
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            initialValue: selectedPhotoCount,
+                            decoration: InputDecoration(
+                              labelText: 'Fotoğraf Sayısı',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: 4, child: Text('4 Fotoğraf')),
+                              DropdownMenuItem(value: 8, child: Text('8 Fotoğraf (+%2 İlgi)')),
+                              DropdownMenuItem(value: 12, child: Text('12 Detaylı Foto (+%4)')),
+                            ],
+                            onChanged: (val) => setState(() => selectedPhotoCount = val ?? 4),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            initialValue: selectedTone,
+                            decoration: InputDecoration(
+                              labelText: 'İlan Tonu',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: 'standard', child: Text('Standart')),
+                              DropdownMenuItem(value: 'friendly', child: Text('Samimi Esnaf')),
+                              DropdownMenuItem(value: 'vip', child: Text('VIP / Kurumsal')),
+                            ],
+                            onChanged: (val) => setState(() => selectedTone = val ?? 'standard'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Senetle Satış & Hasar Gizleme Toggles
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Senetle / Taksitli Satışa Aç', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      subtitle: const Text('Taksitli ve senetli alıcıların teklif vermesine izin ver (%20 vade farkı)', style: TextStyle(fontSize: 11)),
+                      value: allowsInstallments,
+                      activeThumbColor: const Color(0xFF00E575),
+                      onChanged: (val) => setState(() => allowsInstallments = val),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Hasarlı Açıları Fotoğrafta Gizle', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      subtitle: const Text('Kusurlu bölgeleri kadraj dışı bırak (Ekspertizde yakalanma riski taşır)', style: TextStyle(fontSize: 11)),
+                      value: hideDamagedPhotos,
+                      activeThumbColor: const Color(0xFFFF7A00),
+                      onChanged: (val) => setState(() => hideDamagedPhotos = val),
+                    ),
+
+                    const SizedBox(height: 16),
 
                     // Declaration Selector Section
                     Text(
@@ -315,6 +568,56 @@ class ShowroomListingModal {
                       isDark: isDark,
                     ),
 
+                    if (car.provenanceLog.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'ARAÇ KÜNYESİ & GEÇMİŞİ',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? const Color(0xFF00F0FF) : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF141721) : Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF2A3142) : Colors.grey.shade400,
+                            width: 1.2,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: car.provenanceLog.map((log) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.history_edu_rounded, size: 16, color: Color(0xFFFFDE59)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      log,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white70 : const Color(0xFF334155),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 24),
                     NeoBrutalButton(
                       label: 'İlanı Güncelle & Kaydet',
@@ -327,6 +630,11 @@ class ShowroomListingModal {
                               car.id,
                               customPrice: selectedPrice,
                               declaration: selectedDeclaration,
+                              listingPhotoLocation: selectedPhotoLocation,
+                              listingPhotoCount: selectedPhotoCount,
+                              listingTone: selectedTone,
+                              hideDamagedPhotos: hideDamagedPhotos,
+                              allowsInstallments: allowsInstallments,
                             );
                         Navigator.pop(context);
                         NotificationService.showSuccess(context, '${car.brand} ${car.modelName} ilanı güncellendi!');
@@ -339,6 +647,51 @@ class ShowroomListingModal {
           },
         );
       },
+    );
+  }
+
+  static Widget _buildChoiceCard({
+    required String title,
+    required String subtitle,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFFFDE59) : (isDark ? const Color(0xFF141721) : Colors.white),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? Colors.black : (isDark ? const Color(0xFF2A3142) : Colors.grey.shade400),
+            width: isSelected ? 1.8 : 1.0,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 9.5,
+                color: isSelected ? Colors.black87 : (isDark ? Colors.grey : Colors.grey.shade600),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

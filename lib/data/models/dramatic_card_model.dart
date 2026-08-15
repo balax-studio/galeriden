@@ -404,7 +404,7 @@ class DramaticCardModel {
       id: 'B1',
       category: DramaticCategory.betrayal,
       severity: DramaticSeverity.extreme,
-      minPlayerLevel: 2,
+      minPlayerLevel: 3,
       requiresCarInGarage: true,
       title: 'Gece Yarısı Telefonu',
       characterName: 'Gece Bekçisi Şükrü Amca',

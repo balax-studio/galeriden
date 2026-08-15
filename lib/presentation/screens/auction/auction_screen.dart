@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -100,6 +101,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       // Process rival bot bid
       final updated = AuctionEngine.processRivalBid(_auction);
       if (updated != null) {
+        GameSoundHapticService.playAuctionBid();
         setState(() {
           _auction = updated;
           _bidLogs.insert(0, '${updated.highestBidderName} teklif yükseltti: ${CurrencyFormatter.formatShort(updated.currentBid)}');
@@ -122,6 +124,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       return;
     }
 
+    GameSoundHapticService.playAuctionBid();
     setState(() {
       _hasPlayerEnteredBid = true;
       _auction = _auction.copyWith(
@@ -160,6 +163,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     }
 
     if (_auction.isPlayerHighestBidder) {
+      GameSoundHapticService.playCashSuccess();
       ref.read(gameProvider.notifier).buyCarDirectly(_auction.car, _auction.currentBid);
 
       showDialog(
@@ -262,7 +266,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'İhaleyi ${_auction.highestBidderName} ${CurrencyFormatter.formatShort(_auction.currentBid)} teklifle kazandı.',
+                    '${_auction.highestBidderName} seni ${CurrencyFormatter.formatShort(_auction.currentBid)} teklifle sadece kıl payı geçti!\nBir sonraki turda fırsatı kaçırma.',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),

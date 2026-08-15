@@ -4,6 +4,7 @@ import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/dramatic_card_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
+import 'package:galeriden/data/models/staff_model.dart';
 import 'package:galeriden/domain/usecases/dramatic_card_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -217,6 +218,129 @@ void main() {
       expect(notifier.state.pendingDramaticCard, isNotNull);
       expect(notifier.state.daysSinceLastDramaticCard, 0);
       expect(notifier.state.nextDramaticCardTargetDays, inInclusiveRange(15, 30));
+    });
+
+    test('D1 Aile Yadigarı choice locks Murat 124 in showcase and clears listing', () {
+      final cardD1 = DramaticCardModel.defaultCards.firstWhere((c) => c.id == 'D1');
+      final choiceKeep = cardD1.choices.first; // Miras Olarak Kilitle
+
+      final heirloomCar = CarModel(
+        id: 'heirloom_1',
+        brand: 'Tofaş',
+        modelName: 'Murat 124 Dede Mirası',
+        modelYear: 1974,
+        bodyType: 'Klasik',
+        colorHex: 'FFB703',
+        currentPurchasePrice: 35000.0,
+        baseMarketValue: 90000.0,
+        customListingPrice: 100000.0,
+        isLockedInShowcase: false,
+        expertise: ExpertiseReport(
+          engineCondition: 85.0,
+          transmissionCondition: 85.0,
+          tramerAmount: 0,
+          mileage: 180000,
+          isMileageTampered: false,
+          bodyParts: const {},
+        ),
+      );
+
+      final state = DealershipModel.initial().copyWith(
+        ownedCars: [heirloomCar],
+      );
+
+      final result = DramaticCardEngine.resolveChoice(state, cardD1, choiceKeep);
+      expect(result.outcome.makeFamilyHeirloom, isTrue);
+      expect(result.updatedState.ownedCars.first.isLockedInShowcase, isTrue);
+      expect(result.updatedState.ownedCars.first.isListed, isFalse);
+    });
+
+    test('B1 Theft protects locked showcase heirloom cars from being stolen', () {
+      final cardB1 = DramaticCardModel.defaultCards.firstWhere((c) => c.id == 'B1');
+      final choiceInvestigate = cardB1.choices.first;
+
+      final lockedHeirloom = CarModel(
+        id: 'locked_murat',
+        brand: 'Tofaş',
+        modelName: 'Murat 124',
+        modelYear: 1974,
+        bodyType: 'Klasik',
+        colorHex: 'FFB703',
+        currentPurchasePrice: 35000.0,
+        baseMarketValue: 500000.0, // Highest value
+        isLockedInShowcase: true,
+        expertise: ExpertiseReport(
+          engineCondition: 90.0,
+          transmissionCondition: 90.0,
+          tramerAmount: 0,
+          mileage: 150000,
+          isMileageTampered: false,
+          bodyParts: const {},
+        ),
+      );
+
+      final normalCar = CarModel(
+        id: 'normal_bmw',
+        brand: 'BMW',
+        modelName: '320i',
+        modelYear: 2018,
+        bodyType: 'Sedan',
+        colorHex: '000000',
+        currentPurchasePrice: 200000.0,
+        baseMarketValue: 300000.0,
+        isLockedInShowcase: false,
+        expertise: ExpertiseReport(
+          engineCondition: 90.0,
+          transmissionCondition: 90.0,
+          tramerAmount: 0,
+          mileage: 80000,
+          isMileageTampered: false,
+          bodyParts: const {},
+        ),
+      );
+
+      final state = DealershipModel.initial().copyWith(
+        ownedCars: [lockedHeirloom, normalCar],
+      );
+
+      // Roll 0.90 -> total loss
+      final result = DramaticCardEngine.resolveChoice(state, cardB1, choiceInvestigate, fixedRoll: 0.90);
+      expect(result.updatedState.ownedCars.length, 1);
+      expect(result.updatedState.ownedCars.first.id, 'locked_murat', reason: 'Locked heirloom must survive theft');
+    });
+
+    test('B2 Raise choice multiplies hired staff salary multiplier accurately', () {
+      final cardB2 = DramaticCardModel.defaultCards.firstWhere((c) => c.id == 'B2');
+      final choiceRaise = cardB2.choices.first; // Zammı Kabul Et (+%40)
+
+      final mechanic = StaffModel(
+        id: 'staff_1',
+        name: 'Haydar Usta',
+        role: StaffRole.masterMechanic,
+        hiredAt: DateTime.now(),
+        salaryMultiplier: 1.0,
+      );
+
+      final state = DealershipModel.initial().copyWith(
+        hiredStaff: [mechanic],
+      );
+
+      final result = DramaticCardEngine.resolveChoice(state, cardB2, choiceRaise);
+      expect(result.updatedState.hiredStaff.first.salaryMultiplier, closeTo(1.40, 0.001));
+      expect(result.updatedState.hiredStaff.first.dailySalary, closeTo(3500 * 1.40, 0.001));
+    });
+
+    test('Dramatic card upfront cost is clamped defensively if player balance is low', () {
+      final cardA1 = DramaticCardModel.defaultCards.firstWhere((c) => c.id == 'A1'); // Upfront 40k
+      final choice1 = cardA1.choices.first;
+
+      final state = DealershipModel.initial().copyWith(
+        balance: 10000.0, // Less than 40k
+      );
+
+      final result = DramaticCardEngine.resolveChoice(state, cardA1, choice1, fixedRoll: 0.80); // Loss
+      expect(result.updatedState.balance, greaterThanOrEqualTo(0.0));
+      expect(result.updatedState.balance, 0.0);
     });
   });
 }

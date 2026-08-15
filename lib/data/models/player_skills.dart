@@ -19,10 +19,13 @@ class PlayerSkills {
     this.bonusSkillPoints = 0,
   });
 
-  /// Exponential math for Level calculation: NextLevelXP = 1000 * (1.25 ^ (level - 1))
+  /// Calibrated early win progression (Report §5.5): Level 1 -> 2 in first 5-8 mins
   static int requiredXpForLevel(int level) {
-    if (level <= 1) return 1000;
-    return (1000 * pow(1.25, level - 1)).round();
+    if (level <= 1) return 250;
+    if (level == 2) return 500;
+    if (level == 3) return 850;
+    if (level == 4) return 1300;
+    return (1300 * pow(1.25, level - 4)).round();
   }
 
   /// Calculates level based on accumulated total XP

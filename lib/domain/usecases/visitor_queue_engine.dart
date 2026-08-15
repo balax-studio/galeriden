@@ -34,6 +34,11 @@ class VisitorQueueEngine {
       factor *= 0.35;
     }
 
+    // Showcase Hero bonus (+30% traffic)
+    if (car.isHeroShowcase) {
+      factor *= 0.70;
+    }
+
     // 4. Salesman / Staff presence bonus
     if (hasSalesman) {
       factor *= 0.70;

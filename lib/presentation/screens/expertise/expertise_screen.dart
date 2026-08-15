@@ -113,10 +113,12 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   Builder(
                     builder: (context) {
                       final discount = game.skills.expertiseCostDiscount;
-                      final fee = (1500.0 * (1.0 - discount)).roundToDouble();
+                      final haydarFactor = game.hasHighNpcTrust('haydar_usta') ? 0.50 : 1.0;
+                      final fee = (1500.0 * (1.0 - discount) * haydarFactor).roundToDouble();
                       final feeFormatted = CurrencyFormatter.format(fee);
+                      final perkLabel = game.hasHighNpcTrust('haydar_usta') ? ' (Haydar Usta %50 Dost İndirimi)' : '';
                       return NeoBrutalButton(
-                        label: 'EKSPERTİZ YAPTIR ($feeFormatted)',
+                        label: 'EKSPERTİZ YAPTIR ($feeFormatted)$perkLabel',
                         icon: Icons.fact_check_rounded,
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,

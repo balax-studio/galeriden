@@ -90,7 +90,7 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('GameHudHeaderWidget renders all 5 status pills and Garaj pill sets tab to 1', (tester) async {
+    testWidgets('GameHudHeaderWidget renders all status pills and Garaj pill sets tab to 1', (tester) async {
       final container = ProviderContainer();
 
       await tester.pumpWidget(
@@ -126,6 +126,7 @@ void main() {
       expect(container.read(dashboardTabProvider), equals(1));
 
       // Tap Görev pill to open daily missions modal
+      await tester.ensureVisible(find.textContaining('GÖREV'));
       await tester.tap(find.textContaining('GÖREV'));
       await tester.pumpAndSettle();
 

@@ -83,7 +83,7 @@ class ListingDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // FOMO Viewer Counter
+                  // FOMO Viewer Counter & Social Proof (§5.3)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -94,6 +94,23 @@ class ListingDetailScreen extends ConsumerWidget {
                         style: AppTypography.labelSmall(p.isDark).copyWith(color: p.textSecondaryColor, fontSize: 12),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFDE59).withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFFFFDE59), width: 1),
+                    ),
+                    child: Text(
+                      PsychologyEngine.getRandomFomoText(),
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: p.isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:galeriden/data/models/car_model.dart';
+import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,6 +50,7 @@ void main() {
       notifier.state = notifier.state.copyWith(
         balance: 500000.0,
         ownedCars: [car],
+        characterOrigin: CharacterOrigin.sehirliYatirimci,
       );
 
       // Attempt to repair engine when already 100%

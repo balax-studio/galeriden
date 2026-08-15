@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../data/models/dealership_model.dart';
 import '../../data/models/theme_palette_model.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/game_provider.dart';
@@ -36,6 +37,33 @@ class GameHudHeaderWidget extends ConsumerWidget {
             onTap: () {
               HapticFeedback.lightImpact();
               context.push('/history');
+            },
+            isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+
+          // MEVSİM Pill (Interactive -> Season Details & Market Multipliers)
+          _buildPill(
+            context,
+            icon: game.currentSeason == GameSeason.spring
+                ? Icons.local_florist_rounded
+                : (game.currentSeason == GameSeason.summer
+                    ? Icons.wb_sunny_rounded
+                    : (game.currentSeason == GameSeason.autumn
+                        ? Icons.park_rounded
+                        : Icons.ac_unit_rounded)),
+            accentColor: game.currentSeason == GameSeason.spring
+                ? const Color(0xFF10B981)
+                : (game.currentSeason == GameSeason.summer
+                    ? const Color(0xFFF59E0B)
+                    : (game.currentSeason == GameSeason.autumn
+                        ? const Color(0xFFEA580C)
+                        : const Color(0xFF38BDF8))),
+            title: game.currentSeasonName.toUpperCase(),
+            value: '${game.daysRemainingInSeason}g',
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _showSeasonInfo(context, game, isDark);
             },
             isDark: isDark,
           ),
@@ -114,6 +142,21 @@ class GameHudHeaderWidget extends ConsumerWidget {
             onTap: () {
               HapticFeedback.lightImpact();
               _showMissionsModal(context, isDark, p);
+            },
+            isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+
+          // SEVİYE & XP Pill (Goal Gradient §2.2)
+          _buildPill(
+            context,
+            icon: Icons.military_tech_rounded,
+            accentColor: const Color(0xFFFF7A00),
+            title: 'SEVİYE ${game.level}',
+            value: '${(game.skills.currentLevelTargetXp - game.skills.xpInCurrentLevel).clamp(0, game.skills.currentLevelTargetXp)} XP',
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/character-growth');
             },
             isDark: isDark,
           ),
@@ -255,6 +298,69 @@ class GameHudHeaderWidget extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showSeasonInfo(BuildContext context, dynamic game, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          '28 Günlük Mevsim Döngüsü (${game.currentSeasonName})',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Her mevsim 7 gün sürer. Mevsimsel koşullar araç türlerinin piyasa talebini ve fiyatlarını doğrudan etkiler:',
+              style: TextStyle(fontSize: 12, color: isDark ? Colors.grey.shade300 : Colors.grey.shade800),
+            ),
+            const SizedBox(height: 12),
+            _buildSeasonDemandRow('🌸 İlkbahar', 'Sedan & Hatchback: +%15 Talep', isDark),
+            _buildSeasonDemandRow('☀️ Yaz', 'Spor, Klasik & Cabrio: +%30 Değer', isDark),
+            _buildSeasonDemandRow('🍂 Sonbahar', 'Aile Sedanları: +%15 Talep', isDark),
+            _buildSeasonDemandRow('❄️ Kış', 'SUV & 4x4: +%35 Talep / Spor: -%25', isDark),
+            const SizedBox(height: 12),
+            Text(
+              'Kalan Mevsim Süresi: ${game.daysRemainingInSeason} gün',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF00E575)),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Anladım', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFFDE59))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSeasonDemandRow(String title, String desc, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              desc,
+              style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : Colors.black87),
+            ),
+          ),
+        ],
       ),
     );
   }

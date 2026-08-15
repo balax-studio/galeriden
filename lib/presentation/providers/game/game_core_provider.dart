@@ -91,13 +91,19 @@ class GameCoreNotifier extends GameBaseNotifier
           hasStreakFreeze: freezeConsumed ? false : updated.hasStreakFreeze,
         );
 
-        final offlineHours = offlineResult['offlineHours'] as int? ?? 0;
-        if (offlineHours > 0) {
+        final offlineHours = (offlineResult['hoursAway'] as int?) ?? (offlineResult['offlineHours'] as int? ?? 0);
+        final elapsedMinutes = (offlineResult['elapsedMinutes'] as int?) ?? 0;
+        final earnedIncome = (offlineResult['earnedIncome'] as double?) ??
+            (offlineResult['passiveIncome'] as double? ?? 0.0);
+        final partsArrivedCount = offlineResult['partsArrivedCount'] as int? ?? 0;
+        final newOffersCount = offlineResult['newOffersCount'] as int? ?? 0;
+
+        if (offlineHours > 0 || elapsedMinutes >= 30) {
           pendingOfflineRecap = PsychologyEngine.getOfflineRecapSummary(
-            offlineHours: offlineHours,
-            earnedIncome: offlineResult['earnedIncome'] as double? ?? 0.0,
-            partsArrivedCount: offlineResult['partsArrivedCount'] as int? ?? 0,
-            newOffersCount: offlineResult['newOffersCount'] as int? ?? 0,
+            offlineHours: offlineHours > 0 ? offlineHours : 1,
+            earnedIncome: earnedIncome,
+            partsArrivedCount: partsArrivedCount,
+            newOffersCount: newOffersCount,
             streakDays: streak,
           );
         }
@@ -216,9 +222,13 @@ class GameCoreNotifier extends GameBaseNotifier
     final calculatedLevel = updatedSkills.currentLevel;
     final newLevel = calculatedLevel > state.level ? calculatedLevel : state.level;
     
+    // Level 3 milestone grants Streak Freeze reward (§3.3)
+    final grantFreeze = newLevel >= 3 && !state.hasStreakFreeze;
+
     state = state.copyWith(
       skills: updatedSkills,
       level: newLevel,
+      hasStreakFreeze: grantFreeze ? true : state.hasStreakFreeze,
     );
     checkAndUnlockFeatures();
     saveState();
@@ -300,17 +310,25 @@ class GameCoreNotifier extends GameBaseNotifier
     saveState();
   }
 
-  /// Update player identity, gallery title and logo emblem
+  /// Update player identity, gallery title, logo emblem and character origin
   void updateDealershipIdentity({
     String? playerName,
     String? dealershipName,
     String? logoEmblemId,
+    CharacterOrigin? characterOrigin,
   }) {
     state = state.copyWith(
       playerName: playerName ?? state.playerName,
       dealershipName: dealershipName ?? state.dealershipName,
       logoEmblemId: logoEmblemId ?? state.logoEmblemId,
+      characterOrigin: characterOrigin ?? state.characterOrigin,
     );
+    saveState();
+  }
+
+  /// Perform Dynasty Season Reset (§2.7)
+  void performDynastySeasonReset({CharacterOrigin? newOrigin}) {
+    state = state.performPrestigeReset(newOrigin: newOrigin);
     saveState();
   }
 

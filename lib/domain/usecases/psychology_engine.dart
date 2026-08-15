@@ -88,28 +88,54 @@ class PsychologyEngine {
     return 200000 + ((streakDays - 30) * 10000);
   }
 
-  /// Open loops summary for exit hook / idle dialog
+  /// Open loops summary for exit hook / idle dialog with Peak-End Rule (§1.5 & §2.1)
   static Map<String, dynamic> getOpenLoopsSummary({
     required int pendingOrdersCount,
     required int showroomListedCarsCount,
     required int currentStreak,
+    String? peakSaleHighlight,
   }) {
     final tomorrowStreak = currentStreak + 1;
     final tomorrowReward = getStreakReward(tomorrowStreak);
     final items = <String>[];
+
+    if (peakSaleHighlight != null && peakSaleHighlight.isNotEmpty) {
+      items.add('🌟 Günün En Kârlı Zirve Anı: $peakSaleHighlight');
+    }
     if (pendingOrdersCount > 0) {
-      items.add('$pendingOrdersCount parça siparişi yolda, kargolar ulaşıyor.');
+      items.add('📦 $pendingOrdersCount parça siparişi yolda, kargolar ulaşıyor.');
     }
     if (showroomListedCarsCount > 0) {
-      items.add('$showroomListedCarsCount vitrin aracı için potansiyel alıcılar sırada.');
+      items.add('🚗 $showroomListedCarsCount vitrin aracı için potansiyel alıcılar sırada.');
     }
-    items.add('Yarın giriş yaparsan $tomorrowStreak. Gün Serisi: ₺$tomorrowReward hazır.');
+    items.add('🔥 Yarın giriş yaparsan $tomorrowStreak. Gün Serisi: ₺$tomorrowReward hazır.');
 
     return {
       'title': 'DÖNÜŞÜNÜ BEKLEYENLER',
       'items': items,
       'tomorrowReward': tomorrowReward,
       'tomorrowStreak': tomorrowStreak,
+      'peakSale': peakSaleHighlight,
+    };
+  }
+
+  /// In-Session Continuous Play Multiplier (§3.3)
+  /// Active play grants +5% XP & negotiation momentum every 5 minutes up to 1.25x
+  static double calculateSessionMultiplier(int playMinutes) {
+    if (playMinutes <= 0) return 1.0;
+    final bonus = (playMinutes / 5) * 0.05;
+    return (1.0 + bonus).clamp(1.0, 1.25);
+  }
+
+  /// Reciprocity starter welcome gift from Haydar Usta (§4.3)
+  static Map<String, dynamic> getReciprocityStarterGift() {
+    return {
+      'title': 'HAYDAR USTA\'NIN HOŞGELDİN HEDİYESİ',
+      'sender': 'Dedenin Kadim Dostu Haydar Usta',
+      'message': 'Dedenin emaneti bu dükkanı ayağa kaldıracağını biliyorum evlat. İlk ekspertizin ve dükkan açılış masrafların benden!',
+      'bonusMoney': 15000.0,
+      'freeExpertiseCount': 1,
+      'freePaintCount': 1,
     };
   }
 

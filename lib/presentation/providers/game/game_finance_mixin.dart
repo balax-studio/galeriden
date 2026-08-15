@@ -1,3 +1,4 @@
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/loan_model.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
@@ -10,15 +11,24 @@ mixin GameFinanceMixin on GameBaseNotifier {
     saveState();
   }
 
+  /// Add cash / bonus to dealership capital
+  void addMoney(double amount) {
+    if (amount <= 0) return;
+    state = state.copyWith(balance: state.balance + amount);
+    saveState();
+  }
+
   /// Take bank loan
   bool takeBankLoan({required String bankName, required double amount, required int months}) {
     if (state.activeLoans.length >= 3) return false; // Max 3 active loans
+    if (amount <= 0 || amount > state.bankCreditLimit) return false; // Must be within approved credit limit
 
     final baseInterestRate = months == 3 ? 0.10 : (months == 6 ? 0.18 : 0.28);
     final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);
     final eventDiscount = weeklyEvent.id == 'credit_ease_monday' ? weeklyEvent.discountMultiplier : 1.0;
     final skillDiscount = 1.0 - state.skills.financeInterestDiscount;
-    final interestRate = baseInterestRate * eventDiscount * skillDiscount;
+    final originDiscount = state.characterOrigin == CharacterOrigin.sehirliYatirimci ? 0.80 : 1.0;
+    final interestRate = baseInterestRate * eventDiscount * skillDiscount * originDiscount;
     final totalRepayment = amount * (1.0 + interestRate);
     final monthlyPayment = totalRepayment / months;
 

@@ -1,3 +1,5 @@
+import 'customer_model.dart';
+
 enum OfferStatus { pending, accepted, rejected, countered, expired }
 enum OfferType { cash, installment, cheque }
 
@@ -15,6 +17,10 @@ class OfferModel {
   final OfferType offerType;
   final int customerCreditScore; // 0 - 100
   final int installmentMonths;    // e.g. 6 or 12
+  final CustomerModel? buyerCustomer;
+  final bool requestedTestDrive;
+  final String? testDriveResult;
+  final String? counterStrategy;
 
   OfferModel({
     required this.id,
@@ -30,6 +36,10 @@ class OfferModel {
     this.offerType = OfferType.cash,
     this.customerCreditScore = 85,
     this.installmentMonths = 0,
+    this.buyerCustomer,
+    this.requestedTestDrive = false,
+    this.testDriveResult,
+    this.counterStrategy,
   }) : expiresAt = expiresAt ?? createdAt.add(const Duration(hours: 12));
 
   bool get isExpired => DateTime.now().isAfter(expiresAt);
@@ -65,6 +75,10 @@ class OfferModel {
       'offerType': offerType.name,
       'customerCreditScore': customerCreditScore,
       'installmentMonths': installmentMonths,
+      'buyerCustomer': buyerCustomer?.toJson(),
+      'requestedTestDrive': requestedTestDrive,
+      'testDriveResult': testDriveResult,
+      'counterStrategy': counterStrategy,
     };
   }
 
@@ -90,6 +104,12 @@ class OfferModel {
       ),
       customerCreditScore: json['customerCreditScore'] as int? ?? 85,
       installmentMonths: json['installmentMonths'] as int? ?? 0,
+      buyerCustomer: json['buyerCustomer'] != null
+          ? CustomerModel.fromJson(Map<String, dynamic>.from(json['buyerCustomer'] as Map))
+          : null,
+      requestedTestDrive: json['requestedTestDrive'] as bool? ?? false,
+      testDriveResult: json['testDriveResult'] as String?,
+      counterStrategy: json['counterStrategy'] as String?,
     );
   }
 
@@ -102,6 +122,10 @@ class OfferModel {
     OfferType? offerType,
     int? customerCreditScore,
     int? installmentMonths,
+    CustomerModel? buyerCustomer,
+    bool? requestedTestDrive,
+    String? testDriveResult,
+    String? counterStrategy,
   }) {
     return OfferModel(
       id: id,
@@ -117,6 +141,10 @@ class OfferModel {
       offerType: offerType ?? this.offerType,
       customerCreditScore: customerCreditScore ?? this.customerCreditScore,
       installmentMonths: installmentMonths ?? this.installmentMonths,
+      buyerCustomer: buyerCustomer ?? this.buyerCustomer,
+      requestedTestDrive: requestedTestDrive ?? this.requestedTestDrive,
+      testDriveResult: testDriveResult ?? this.testDriveResult,
+      counterStrategy: counterStrategy ?? this.counterStrategy,
     );
   }
 }

@@ -15,12 +15,14 @@ import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/story_card_model.dart';
 import '../../../data/models/dramatic_card_model.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/dramatic_card_engine.dart';
+import '../../../domain/usecases/random_event_engine.dart';
 
 import 'game_base_notifier.dart';
 
@@ -66,7 +68,11 @@ mixin GameTimeMixin on GameBaseNotifier {
     // 2. Deduct daily salaries for hired staff
     double totalSalaries = 0.0;
     for (var staff in state.hiredStaff) {
-      totalSalaries += staff.role.dailySalary;
+      totalSalaries += staff.dailySalary;
+    }
+    // Boss Specialization Perk: -20% staff salary
+    if (state.specializationPath == SpecializationPath.boss) {
+      totalSalaries *= 0.80;
     }
     
     // Eğer maaşı ödeyecek para yoksa personel işi bırakır
@@ -205,14 +211,15 @@ mixin GameTimeMixin on GameBaseNotifier {
       }
     }
 
-    // 6. Cheques mechanics
+    // 6. Cheques mechanics with FinanceSense perk
     List<Cheque> updatedCheques = List.from(state.activeCheques);
+    final double chequeBounceRisk = (0.05 - state.skills.chequeRiskReduction).clamp(0.005, 0.05);
     for (int i = updatedCheques.length - 1; i >= 0; i--) {
       final cheque = updatedCheques[i];
       int remainingDays = cheque.daysUntilDue - 1;
       
       if (remainingDays <= 0) {
-        if (random.nextDouble() < 0.05) {
+        if (random.nextDouble() < chequeBounceRisk) {
           newBalance += cheque.amount * 0.5; 
           updatedCheques.removeAt(i);
         } else {
@@ -235,10 +242,11 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     // 8. Side Businesses (Pasif Gelir)
     List<SideBusinessModel> updatedBusinesses = List.from(state.sideBusinesses);
+    final double businessMultiplier = state.specializationPath == SpecializationPath.boss ? 1.30 : 1.0;
     for (int i = 0; i < updatedBusinesses.length; i++) {
       final b = updatedBusinesses[i];
       if (b.isOwned) {
-        final income = b.effectiveDailyIncome;
+        final income = b.effectiveDailyIncome * businessMultiplier;
         newBalance += income;
         updatedBusinesses[i] = b.copyWith(totalEarned: b.totalEarned + income);
       }
@@ -269,13 +277,25 @@ mixin GameTimeMixin on GameBaseNotifier {
       );
     }
 
+    // 10. Daily Tax
+    newBalance -= state.dailyTaxRate;
+
+    // Daily closing summary event (§5.5)
+    final double netDayChange = newBalance - state.balance;
+    final summaryEvent = GameEventModel(
+      id: 'day_summary_$nextDay',
+      title: 'Gün $nextDay Kapanış Özeti',
+      description: 'Giderler, personel maaşları ve pasif gelirler hesaplandı. Net günlük değişim: ${netDayChange >= 0 ? "+₺${netDayChange.round()}" : "-₺${netDayChange.abs().round()}"}.',
+      type: netDayChange >= 0 ? GameEventType.income : GameEventType.expense,
+      amount: netDayChange,
+      date: DateTime.now(),
+    );
+    newEvents.insert(0, summaryEvent);
+
     // Keep only last 50 events
     if (newEvents.length > 50) {
       newEvents = newEvents.sublist(0, 50);
     }
-
-    // 10. Daily Tax
-    newBalance -= state.dailyTaxRate;
 
     // 11. Market News Event Rotation (Every 5 days or if null)
     MarketNewsModel? currentNews = state.activeNews;
@@ -317,6 +337,27 @@ mixin GameTimeMixin on GameBaseNotifier {
       nextDramaticTargetDays = 15 + random.nextInt(16); // Random range: 15..30 days
     }
 
+    // 13.6. Check Contextual Random Events (every 5-10 days)
+    int updatedDaysSinceRandomEvent = state.daysSinceLastRandomEvent + 1;
+    int nextRandomEventTargetDays = state.nextRandomEventTargetDays;
+    GameEventModel? nextRandomEvent = state.pendingRandomEvent;
+    List<String> seenRandomEventIds = List.from(state.seenRandomEventIds);
+
+    if (updatedDaysSinceRandomEvent >= nextRandomEventTargetDays && nextRandomEvent == null) {
+      nextRandomEvent = RandomEventEngine.getFilteredRandomEvent(state);
+      if (nextRandomEvent != null) {
+        seenRandomEventIds.add(nextRandomEvent.id);
+        if (seenRandomEventIds.length > 6) {
+          seenRandomEventIds.removeAt(0);
+        }
+        updatedDaysSinceRandomEvent = 0;
+        nextRandomEventTargetDays = 5 + random.nextInt(6); // 5..10 days
+      }
+    }
+
+    // 13.7. Advance daysListed for all currently listed vehicles
+    currentCars = currentCars.map((c) => c.isListed ? c.copyWith(daysListed: c.daysListed + 1) : c).toList();
+
     // 14. Bank Deposit Daily Interest Accrual (~43% APY => ~0.12% daily)
     double updatedBankDeposit = state.bankDepositBalance;
     if (updatedBankDeposit > 0) {
@@ -324,9 +365,9 @@ mixin GameTimeMixin on GameBaseNotifier {
       updatedBankDeposit += (dailyInterest > 0 ? dailyInterest : 1.0);
     }
 
-    // 15. Daily Missions Rotation (if all claimed or every 3 in-game days)
+    // 15. Daily Missions Rotation (rotate only when all active missions are claimed or empty)
     List<MissionModel> updatedMissions = List.from(state.activeMissions);
-    if (updatedMissions.isEmpty || updatedMissions.every((m) => m.isClaimed) || nextDay % 3 == 0) {
+    if (updatedMissions.isEmpty || updatedMissions.every((m) => m.isClaimed)) {
       updatedMissions = MissionFactory.generateDailyMissions(state.level);
     }
 
@@ -364,12 +405,33 @@ mixin GameTimeMixin on GameBaseNotifier {
       daysSinceLastDramaticCard: updatedDaysSinceDramatic,
       nextDramaticCardTargetDays: nextDramaticTargetDays,
       pendingDramaticCard: nextDramaticCard,
+      daysSinceLastRandomEvent: updatedDaysSinceRandomEvent,
+      nextRandomEventTargetDays: nextRandomEventTargetDays,
+      pendingRandomEvent: nextRandomEvent,
+      seenRandomEventIds: seenRandomEventIds,
       bankDepositBalance: updatedBankDeposit,
       activeMissions: updatedMissions,
       activeContracts: updatedContracts,
     );
 
     refreshMarketTrends();
+  }
+
+  /// Resolves the contextual random event choice outcome and mutates state
+  void resolveRandomEvent(GameEventChoice choice) {
+    final newBalance = (state.balance + choice.balanceChange).clamp(0.0, double.infinity);
+    final newReputation = (state.reputationScore + choice.reputationChange).clamp(0, 100);
+    state = state.copyWith(
+      balance: newBalance,
+      reputationScore: newReputation,
+      clearPendingRandomEvent: true,
+    );
+    saveState();
+  }
+
+  /// Dismisses a pending random event without making a choice
+  void dismissPendingRandomEvent() {
+    state = state.copyWith(clearPendingRandomEvent: true);
   }
 
   /// Selects the next available narrative card from the pool, preventing repeats until cycle completes

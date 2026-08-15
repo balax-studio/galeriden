@@ -8,6 +8,7 @@ import '../../../data/models/scrapyard_model.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
 import '../../../data/models/contract_model.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/staff_model.dart';
 import 'game_base_notifier.dart';
@@ -54,6 +55,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
   bool performMarketExpertise(double cost) {
     if (state.balance < cost) return false;
     state = state.copyWith(balance: state.balance - cost);
+    adjustNpcRelationship('haydar_usta', 2);
     addXP(25);
     checkAchievement('expert_master');
     updateMissionProgress(MissionType.doExpertise, 1);
@@ -63,10 +65,24 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Purchase a car from market with RiskEngine check
   PurchaseRiskOutcome? buyCar(CarModel car, double purchasePrice, {bool isExpertiseCompleted = false}) {
-    if (state.balance < purchasePrice) return null;
+    double finalPurchasePrice = purchasePrice;
+    // Skill Perk: Pazarlık Gücü - negotiationMultiplier (up to 18% discount)
+    if (state.skills.negotiationMultiplier > 0) {
+      finalPurchasePrice *= (1.0 - state.skills.negotiationMultiplier);
+    }
+    // Origin Perk: Tüccar Torunu -%8 alım indirimi
+    if (state.characterOrigin == CharacterOrigin.tuccarTorunu) {
+      finalPurchasePrice *= 0.92;
+    }
+    // Specialization Perk: Pazar Kurdu (Trader) -%10 alım indirimi
+    if (state.specializationPath == SpecializationPath.trader) {
+      finalPurchasePrice *= 0.90;
+    }
+
+    if (state.balance < finalPurchasePrice) return null;
     if (state.ownedCars.length >= state.maxGarageSlots) return null;
 
-    final updatedBalance = state.balance - purchasePrice;
+    final updatedBalance = state.balance - finalPurchasePrice;
     
     PurchaseRiskOutcome outcome;
     if (!isExpertiseCompleted) {
@@ -80,7 +96,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
       );
     }
 
-    final purchasedCar = outcome.updatedCar;
+    final logEntry = 'Gün ${state.currentDay}: Piyasadan ₺${finalPurchasePrice.round()} bedelle galeri stoklarına katıldı.';
+    final purchasedCar = outcome.updatedCar.copyWith(
+      currentPurchasePrice: finalPurchasePrice,
+      provenanceLog: [...outcome.updatedCar.provenanceLog, logEntry],
+    );
     final updatedCars = [...state.ownedCars, purchasedCar];
     final modelKey = '${purchasedCar.brand}_${purchasedCar.modelName}'.toLowerCase().replaceAll(' ', '_');
     final updatedAlbum = <String>{...state.discoveredCarModelIds, modelKey}.toList();
@@ -98,19 +118,54 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return outcome;
   }
 
-  /// Toggle Showcase Lock for rare/classic vehicles
+  /// Toggle Showcase Lock for rare/classic vehicles (§1.5, §2.6)
   bool toggleShowcaseLock(String carId) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    final updatedCar = car.copyWith(isLockedInShowcase: !car.isLockedInShowcase);
+    final bool newLocked = !car.isLockedInShowcase;
+    final updatedCar = car.copyWith(isLockedInShowcase: newLocked);
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
 
-    state = state.copyWith(ownedCars: updatedCars);
+    int newRep = state.reputationScore;
+    if (newLocked) {
+      newRep = (state.reputationScore + 5).clamp(0, 100);
+      addXP(50);
+    }
+
+    state = state.copyWith(
+      ownedCars: updatedCars,
+      reputationScore: newRep,
+    );
     saveState();
     return true;
+  }
+
+  /// Select permanent Specialization Path at level >= 4 (§2.2)
+  bool chooseSpecialization(SpecializationPath path) {
+    if (state.level < 4) return false;
+    state = state.copyWith(specializationPath: path);
+    addXP(200);
+    saveState();
+    return true;
+  }
+
+  /// Mutate NPC relationship by key (0 to 100) (§2.4)
+  void adjustNpcRelationship(String npcId, int delta) {
+    final current = state.npcRelationships[npcId] ?? 50;
+    final newRelation = (current + delta).clamp(0, 100);
+    final updated = Map<String, int>.from(state.npcRelationships);
+    updated[npcId] = newRelation;
+    state = state.copyWith(npcRelationships: updated);
+    saveState();
+  }
+
+  /// Change character origin (§2.1)
+  void setCharacterOrigin(CharacterOrigin origin) {
+    state = state.copyWith(characterOrigin: origin);
+    saveState();
   }
 
   /// Upgrade Prestige Branch Tier
@@ -175,7 +230,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
   bool buyCarDirectly(CarModel car, double price) {
     if (state.balance < price) return false;
     if (state.ownedCars.length >= state.maxGarageSlots) return false;
-    final finalCar = car.copyWith(currentPurchasePrice: price);
+    final logEntry = 'Gün ${state.currentDay}: ₺${price.round()} bedelle doğrudan satın alındı.';
+    final finalCar = car.copyWith(
+      currentPurchasePrice: price,
+      provenanceLog: [...car.provenanceLog, logEntry],
+    );
     final modelKey = '${finalCar.brand}_${finalCar.modelName}'.toLowerCase().replaceAll(' ', '_');
     final updatedAlbum = <String>{...state.discoveredCarModelIds, modelKey}.toList();
 
@@ -405,20 +464,83 @@ mixin GameInventoryMixin on GameBaseNotifier {
   }
 
   /// Updates car's custom listing price and/or declaration status
-  void updateCarListingDetails(String carId, {double? customPrice, ListingDeclarationType? declaration}) {
+  void updateCarListingDetails(
+    String carId, {
+    double? customPrice,
+    ListingDeclarationType? declaration,
+    String? listingPhotoLocation,
+    int? listingPhotoCount,
+    String? listingTone,
+    bool? hideDamagedPhotos,
+    bool? allowsInstallments,
+  }) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return;
 
     final existing = state.ownedCars[carIndex];
+    double photoCost = 0.0;
+    if (listingPhotoLocation != null && listingPhotoLocation != existing.listingPhotoLocation) {
+      if (listingPhotoLocation == 'studio') photoCost += 1500.0;
+      if (listingPhotoLocation == 'scenic') photoCost += 800.0;
+    }
+
     final updatedCar = existing.copyWith(
       customListingPrice: customPrice,
       declarationType: declaration ?? existing.declarationType,
+      listingPhotoLocation: listingPhotoLocation ?? existing.listingPhotoLocation,
+      listingPhotoCount: listingPhotoCount ?? existing.listingPhotoCount,
+      listingTone: listingTone ?? existing.listingTone,
+      hideDamagedPhotos: hideDamagedPhotos ?? existing.hideDamagedPhotos,
+      allowsInstallments: allowsInstallments ?? existing.allowsInstallments,
     );
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
 
+    state = state.copyWith(
+      balance: (state.balance - photoCost).clamp(0.0, double.infinity),
+      ownedCars: updatedCars,
+    );
+    saveState();
+  }
+
+  /// Toggle Hero / Vitrin Star Slot (+30% traffic)
+  bool toggleHeroShowcase(String carId) {
+    final index = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (index == -1) return false;
+
+    final isCurrentlyHero = state.ownedCars[index].isHeroShowcase;
+    final updatedCars = state.ownedCars.map((c) {
+      if (c.id == carId) {
+        return c.copyWith(isHeroShowcase: !isCurrentlyHero);
+      } else {
+        return c.isHeroShowcase ? c.copyWith(isHeroShowcase: false) : c;
+      }
+    }).toList();
+
     state = state.copyWith(ownedCars: updatedCars);
     saveState();
+    return true;
+  }
+
+  /// Refresh stale listing to reset days listed and boost visibility
+  bool refreshStaleListing(String carId) {
+    const refreshCost = 1500.0;
+    if (state.balance < refreshCost) return false;
+
+    final index = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (index == -1) return false;
+
+    final car = state.ownedCars[index];
+    final updatedCar = car.copyWith(daysListed: 0);
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[index] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - refreshCost,
+      ownedCars: updatedCars,
+    );
+    saveState();
+    return true;
   }
 
   /// Rent a Car with strict market rate validation and state sync
@@ -504,7 +626,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (scrapIndex == -1) return false;
 
     final scrapCar = state.scrapyardCars[scrapIndex];
-    if (state.balance < scrapCar.scrapPrice) return false;
+    double effectivePrice = scrapCar.scrapPrice;
+    if (state.hasHighNpcTrust('cikmaci_ibo')) {
+      effectivePrice = (effectivePrice * 0.75).roundToDouble(); // Çıkmacı İbo dost indirimi -%25!
+    }
+    if (state.balance < effectivePrice) return false;
 
     final generatedParts = scrapCar.parts.isNotEmpty
         ? scrapCar.parts
@@ -513,11 +639,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars)..removeAt(scrapIndex);
 
     state = state.copyWith(
-      balance: state.balance - scrapCar.scrapPrice,
+      balance: state.balance - effectivePrice,
       salvagedParts: [...state.salvagedParts, ...generatedParts],
       scrapyardCars: updatedScrapCars,
     );
 
+    adjustNpcRelationship('cikmaci_ibo', 2);
     addXP(60);
     checkAchievement('first_scrap');
     saveState();
@@ -551,25 +678,61 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final part = state.salvagedParts[partIndex];
     final car = state.ownedCars[carIndex];
 
+    // Brand compatibility check
+    final isBrandMatch = part.carModelName.toLowerCase().contains(car.brand.toLowerCase());
+    final compMultiplier = isBrandMatch ? 1.0 : 0.60;
+
     // Calculate boost depending on part category and condition
     double engineBoost = 0.0;
     double transBoost = 0.0;
 
     if (part.category == 'engine' || part.category == 'turbo' || part.category == 'ecu' || part.category == 'radiator') {
-      engineBoost = (part.conditionPercent * 0.35).clamp(10.0, 45.0);
+      engineBoost = (part.conditionPercent * 0.35 * compMultiplier).clamp(10.0, 45.0);
     } else if (part.category == 'transmission' || part.category == 'brakes' || part.category == 'suspension') {
-      transBoost = (part.conditionPercent * 0.35).clamp(10.0, 45.0);
+      transBoost = (part.conditionPercent * 0.35 * compMultiplier).clamp(10.0, 45.0);
     }
 
     final newEngineCond = (car.expertise.engineCondition + engineBoost).clamp(0.0, 100.0);
     final newTransCond = (car.expertise.transmissionCondition + transBoost).clamp(0.0, 100.0);
 
+    // Barn Find Restoration Check
+    bool isRestored = car.isBarnFindRestored;
+    bool isRare = car.isRare;
+    List<String> newProvenance = List.from(car.provenanceLog);
+
+    if (car.isBarnFind && !isRestored && newEngineCond >= 95.0 && newTransCond >= 95.0) {
+      isRestored = true;
+      isRare = true;
+      newProvenance.add('Gün ${state.currentDay}: Hurdalıktan kurtarılan klasik tam restorasyondan geçti! Değeri katlandı.');
+      checkAchievement('collector_king');
+    }
+
     final updatedCar = car.copyWith(
+      isBarnFindRestored: isRestored,
+      isRare: isRare,
+      hasNonOriginalParts: car.hasNonOriginalParts || !isBrandMatch,
+      provenanceLog: newProvenance,
       expertise: car.expertise.copyWith(
         engineCondition: newEngineCond,
         transmissionCondition: newTransCond,
       ),
     );
+
+    // Staff mastery progression
+    List<StaffModel> updatedStaff = List.from(state.hiredStaff);
+    for (int i = 0; i < updatedStaff.length; i++) {
+      if (updatedStaff[i].role == StaffRole.masterMechanic) {
+        final staff = updatedStaff[i];
+        final nextTasks = staff.tasksCompleted + 1;
+        int nextLevel = staff.masteryLevel;
+        if (nextTasks >= 25 && nextLevel < 3) {
+          nextLevel = 3;
+        } else if (nextTasks >= 10 && nextLevel < 2) {
+          nextLevel = 2;
+        }
+        updatedStaff[i] = staff.copyWith(tasksCompleted: nextTasks, masteryLevel: nextLevel);
+      }
+    }
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
@@ -578,6 +741,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     state = state.copyWith(
       ownedCars: updatedCars,
       salvagedParts: updatedParts,
+      hiredStaff: updatedStaff,
     );
 
     addXP(45);
@@ -647,7 +811,17 @@ mixin GameInventoryMixin on GameBaseNotifier {
     required String repairType,
     required double cost,
   }) {
-    if (state.balance < cost) return false;
+    double finalCost = cost;
+    // Origin Perk: Sanayi Çırağı -%15 tamir indirimi
+    if (state.characterOrigin == CharacterOrigin.sanayiCiragi) {
+      finalCost *= 0.85;
+    }
+    // Specialization Perk: Restoratör Usta -%20 tamir indirimi
+    if (state.specializationPath == SpecializationPath.restorer) {
+      finalCost *= 0.80;
+    }
+
+    if (state.balance < finalCost) return false;
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
 
@@ -713,7 +887,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     updatedCars[carIndex] = updatedCar;
 
     state = state.copyWith(
-      balance: state.balance - cost,
+      balance: state.balance - finalCost,
       ownedCars: updatedCars,
     );
 

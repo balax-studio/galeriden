@@ -27,6 +27,17 @@ class CarModel {
   final bool isDoped;
   final bool isChassisRepaired;
   final bool isLockedInShowcase;
+  final int daysListed;
+  final bool isHeroShowcase;
+  final bool isBarnFind;
+  final bool isBarnFindRestored;
+  final List<String> provenanceLog;
+  final bool allowsInstallments;
+  final String listingPhotoLocation;
+  final int listingPhotoCount;
+  final String listingTone;
+  final bool hideDamagedPhotos;
+  final bool hasNonOriginalParts;
 
   CarModel({
     required this.id,
@@ -49,7 +60,21 @@ class CarModel {
     this.isDoped = false,
     this.isChassisRepaired = false,
     this.isLockedInShowcase = false,
+    this.daysListed = 0,
+    this.isHeroShowcase = false,
+    this.isBarnFind = false,
+    this.isBarnFindRestored = false,
+    this.provenanceLog = const [],
+    this.allowsInstallments = false,
+    this.listingPhotoLocation = 'sanayi',
+    this.listingPhotoCount = 3,
+    this.listingTone = 'honest',
+    this.hideDamagedPhotos = false,
+    this.hasNonOriginalParts = false,
   });
+
+  /// True if car is listed for 10 or more days without selling
+  bool get isStaleListing => isListed && daysListed >= 10;
 
   /// Alias for currentPurchasePrice to prevent runtime NoSuchMethodError
   @pragma('vm:entry-point')
@@ -118,7 +143,17 @@ class CarModel {
       factor += 0.15;
     }
 
-    return (baseMarketValue * factor).clamp(baseMarketValue * 0.4, baseMarketValue * 2.2);
+    if (hasNonOriginalParts) {
+      factor -= 0.05;
+    }
+
+    if (isBarnFind && !isBarnFindRestored) {
+      factor = factor.clamp(0.20, 0.45);
+    } else if (isBarnFind && isBarnFindRestored) {
+      factor += 0.40; // Restored classic gem
+    }
+
+    return (baseMarketValue * factor).clamp(baseMarketValue * 0.2, baseMarketValue * 2.5);
   }
 
   Map<String, dynamic> toJson() {
@@ -143,6 +178,17 @@ class CarModel {
       'isDoped': isDoped,
       'isChassisRepaired': isChassisRepaired,
       'isLockedInShowcase': isLockedInShowcase,
+      'daysListed': daysListed,
+      'isHeroShowcase': isHeroShowcase,
+      'isBarnFind': isBarnFind,
+      'isBarnFindRestored': isBarnFindRestored,
+      'provenanceLog': provenanceLog,
+      'allowsInstallments': allowsInstallments,
+      'listingPhotoLocation': listingPhotoLocation,
+      'listingPhotoCount': listingPhotoCount,
+      'listingTone': listingTone,
+      'hideDamagedPhotos': hideDamagedPhotos,
+      'hasNonOriginalParts': hasNonOriginalParts,
     };
   }
 
@@ -175,6 +221,17 @@ class CarModel {
       isDoped: json['isDoped'] as bool? ?? false,
       isChassisRepaired: json['isChassisRepaired'] as bool? ?? false,
       isLockedInShowcase: json['isLockedInShowcase'] as bool? ?? false,
+      daysListed: json['daysListed'] as int? ?? 0,
+      isHeroShowcase: json['isHeroShowcase'] as bool? ?? false,
+      isBarnFind: json['isBarnFind'] as bool? ?? false,
+      isBarnFindRestored: json['isBarnFindRestored'] as bool? ?? false,
+      provenanceLog: (json['provenanceLog'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      allowsInstallments: json['allowsInstallments'] as bool? ?? false,
+      listingPhotoLocation: json['listingPhotoLocation'] as String? ?? 'sanayi',
+      listingPhotoCount: json['listingPhotoCount'] as int? ?? 3,
+      listingTone: json['listingTone'] as String? ?? 'honest',
+      hideDamagedPhotos: json['hideDamagedPhotos'] as bool? ?? false,
+      hasNonOriginalParts: json['hasNonOriginalParts'] as bool? ?? false,
     );
   }
 
@@ -194,6 +251,17 @@ class CarModel {
     bool? isDoped,
     bool? isChassisRepaired,
     bool? isLockedInShowcase,
+    int? daysListed,
+    bool? isHeroShowcase,
+    bool? isBarnFind,
+    bool? isBarnFindRestored,
+    List<String>? provenanceLog,
+    bool? allowsInstallments,
+    String? listingPhotoLocation,
+    int? listingPhotoCount,
+    String? listingTone,
+    bool? hideDamagedPhotos,
+    bool? hasNonOriginalParts,
   }) {
     return CarModel(
       id: id,
@@ -216,6 +284,17 @@ class CarModel {
       isDoped: isDoped ?? this.isDoped,
       isChassisRepaired: isChassisRepaired ?? this.isChassisRepaired,
       isLockedInShowcase: isLockedInShowcase ?? this.isLockedInShowcase,
+      daysListed: daysListed ?? this.daysListed,
+      isHeroShowcase: isHeroShowcase ?? this.isHeroShowcase,
+      isBarnFind: isBarnFind ?? this.isBarnFind,
+      isBarnFindRestored: isBarnFindRestored ?? this.isBarnFindRestored,
+      provenanceLog: provenanceLog ?? this.provenanceLog,
+      allowsInstallments: allowsInstallments ?? this.allowsInstallments,
+      listingPhotoLocation: listingPhotoLocation ?? this.listingPhotoLocation,
+      listingPhotoCount: listingPhotoCount ?? this.listingPhotoCount,
+      listingTone: listingTone ?? this.listingTone,
+      hideDamagedPhotos: hideDamagedPhotos ?? this.hideDamagedPhotos,
+      hasNonOriginalParts: hasNonOriginalParts ?? this.hasNonOriginalParts,
     );
   }
 }

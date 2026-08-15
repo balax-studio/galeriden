@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -370,40 +371,368 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                NeoBrutalButton(
-                  label: isMaxCreditLimit
-                      ? 'MAKSİMUM KREDİ LİMİTİNDESİNİZ (₺25.000.000)'
-                      : 'LİMİTİ ₺25.000.000 SEVİYESİNE YÜKSELT (Ücret: ₺50.000)',
-                  icon: isMaxCreditLimit ? Icons.check_circle_rounded : Icons.trending_up_rounded,
-                  backgroundColor: isMaxCreditLimit ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
-                  textColor: isMaxCreditLimit ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
-                  fontSize: 11,
-                  fullWidth: true,
-                  onPressed: isMaxCreditLimit
-                      ? null
-                      : () {
-                          if (game.balance < 50000.0) {
-                            NotificationService.showError(context, 'Yetersiz bakiye! İşlem için ₺50,000 gereklidir.');
-                            return;
-                          }
+                Row(
+                  children: [
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: isMaxCreditLimit
+                            ? 'LİMİT MAKSİMUM'
+                            : 'LİMİTİ ₺25M YAP (₺50.000)',
+                        icon: isMaxCreditLimit ? Icons.check_circle_rounded : Icons.trending_up_rounded,
+                        backgroundColor: isMaxCreditLimit ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
+                        textColor: isMaxCreditLimit ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                        fontSize: 10.5,
+                        onPressed: isMaxCreditLimit
+                            ? null
+                            : () {
+                                if (game.balance < 50000.0) {
+                                  NotificationService.showError(context, 'Yetersiz bakiye! İşlem için ₺50,000 gereklidir.');
+                                  return;
+                                }
 
-                          final success = ref.read(gameProvider.notifier).upgradeCreditLimit(
-                            newLimit: 25000000.0,
-                            fee: 50000.0,
-                          );
+                                final success = ref.read(gameProvider.notifier).upgradeCreditLimit(
+                                  newLimit: 25000000.0,
+                                  fee: 50000.0,
+                                );
 
-                          if (success) {
-                            NotificationService.showSuccess(
-                              context,
-                              'Tebrikler! Kredi Limitin Başarıyla ₺25,000,000 Seviyesine Yükseltildi.',
-                            );
-                          }
-                        },
+                                if (success) {
+                                  NotificationService.showSuccess(
+                                    context,
+                                    'Tebrikler! Kredi Limitin Başarıyla ₺25,000,000 Seviyesine Yükseltildi.',
+                                  );
+                                }
+                              },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: 'KREDİ KULLAN',
+                        icon: Icons.attach_money_rounded,
+                        backgroundColor: AppColors.brutalGreen,
+                        textColor: Colors.black,
+                        fontSize: 10.5,
+                        onPressed: game.activeLoans.length >= 3
+                            ? () => NotificationService.showError(context, 'En fazla 3 aktif kredi kullanabilirsiniz!')
+                            : () => _showTakeLoanSheet(context, game, isDark),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          const SizedBox(height: 16),
+
+          // 5. Active Bank Loans Section
+          Text(
+            'AKTİF BANKA KREDİLERİ & BORÇLAR (${game.activeLoans.length}/3)',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          if (game.activeLoans.isEmpty)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(16),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
+              child: const Center(
+                child: Text(
+                  'Aktif banka krediniz bulunmuyor. Acil nakit ihtiyacında kredi kullanabilirsiniz.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+              ),
+            )
+          else
+            ...game.activeLoans.map((loan) {
+              final progress = (1.0 - (loan.remainingAmount / loan.totalRepayment)).clamp(0.0, 1.0);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.account_balance_rounded, size: 18, color: Color(0xFF38BDF8)),
+                              const SizedBox(width: 6),
+                              Text(
+                                loan.bankName,
+                                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                              ),
+                            ],
+                          ),
+                          NeoBrutalBadge(
+                            text: '${loan.remainingInstallments}/${loan.totalInstallments} Taksit Kaldı',
+                            backgroundColor: AppColors.brutalOrange,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Kalan Borç: ${CurrencyFormatter.formatShort(loan.remainingAmount)}',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFEF4444)),
+                          ),
+                          Text(
+                            'Aylık Taksit: ${CurrencyFormatter.formatShort(loan.monthlyPayment)}',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 6,
+                          backgroundColor: isDark ? Colors.white12 : Colors.black12,
+                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.brutalGreen),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Faiz: %${(loan.interestRate * 100).toStringAsFixed(1)} • Anapara: ${CurrencyFormatter.formatShort(loan.principalAmount)}',
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          ),
+                          NeoBrutalButton(
+                            label: 'TAKSİT ÖDE',
+                            icon: Icons.payments_rounded,
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            onPressed: () {
+                              if (game.balance < loan.monthlyPayment) {
+                                NotificationService.showError(
+                                  context,
+                                  'Yetersiz Bakiye! ${CurrencyFormatter.format(loan.monthlyPayment)} gerekli.',
+                                );
+                                return;
+                              }
+
+                              final success = ref.read(gameProvider.notifier).payLoanInstallment(loan.id);
+                              if (success) {
+                                NotificationService.showSuccess(
+                                  context,
+                                  '${loan.bankName} taksiti başarıyla ödendi!',
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
         ],
+      ),
+    );
+  }
+
+  void _showTakeLoanSheet(BuildContext context, DealershipModel game, bool isDark) {
+    double selectedAmount = 100000.0.clamp(10000.0, game.bankCreditLimit);
+    int selectedMonths = 6;
+    String selectedBank = 'Galeri Finansbank';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final baseInterestRate = selectedMonths == 3 ? 0.10 : (selectedMonths == 6 ? 0.18 : 0.28);
+            final totalRepayment = selectedAmount * (1.0 + baseInterestRate);
+            final monthlyPayment = totalRepayment / selectedMonths;
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 18,
+                right: 18,
+                top: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'BANKA KREDİSİ KULLAN',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Kredi Tutarı: ${CurrencyFormatter.format(selectedAmount)}',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF38BDF8)),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [50000.0, 100000.0, 250000.0, 500000.0, 1000000.0]
+                        .where((amt) => amt <= game.bankCreditLimit)
+                        .map((amt) {
+                      final isSel = selectedAmount == amt;
+                      return InkWell(
+                        onTap: () => setSheetState(() => selectedAmount = amt),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.black, width: 1.4),
+                          ),
+                          child: Text(
+                            CurrencyFormatter.formatShort(amt),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: isSel ? Colors.black : (isDark ? Colors.white : Colors.black87),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Vade Seçimi:',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _buildMonthOption(3, '3 Ay (%10 Faiz)', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      const SizedBox(width: 8),
+                      _buildMonthOption(6, '6 Ay (%18 Faiz)', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      const SizedBox(width: 8),
+                      _buildMonthOption(12, '12 Ay (%28 Faiz)', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Aylık Ödeme:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                            Text(CurrencyFormatter.format(monthlyPayment), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Toplam Geri Ödeme:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                            Text(CurrencyFormatter.format(totalRepayment), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFFEF4444))),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  NeoBrutalButton(
+                    label: 'KREDİYİ KULLAN (${CurrencyFormatter.formatShort(selectedAmount)})',
+                    icon: Icons.check_circle_rounded,
+                    backgroundColor: AppColors.brutalGreen,
+                    textColor: Colors.black,
+                    fullWidth: true,
+                    onPressed: () {
+                      final success = ref.read(gameProvider.notifier).takeBankLoan(
+                        bankName: selectedBank,
+                        amount: selectedAmount,
+                        months: selectedMonths,
+                      );
+                      Navigator.pop(ctx);
+                      if (success) {
+                        NotificationService.showSuccess(
+                          context,
+                          '₺${CurrencyFormatter.format(selectedAmount)} kredi hesabınıza aktarıldı!',
+                        );
+                      } else {
+                        NotificationService.showError(
+                          context,
+                          'Kredi kullanılamadı! Limit aşıldı veya maksimum kredi sayısına ulaşıldı.',
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMonthOption(int months, String label, int selectedMonths, bool isDark, Function(int) onSelect) {
+    final isSel = selectedMonths == months;
+    return Expanded(
+      child: InkWell(
+        onTap: () => onSelect(months),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSel ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.black, width: 1.4),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '$months Ay',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              color: isSel ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+            ),
+          ),
+        ),
       ),
     );
   }

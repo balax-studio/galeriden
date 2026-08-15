@@ -23,6 +23,27 @@ import 'story_card_model.dart';
 import 'dramatic_card_model.dart';
 import 'contract_model.dart';
 
+enum GameSeason {
+  spring, // İlkbahar (Days 1-7, 29-35...)
+  summer, // Yaz (Days 8-14, 36-42...)
+  autumn, // Sonbahar (Days 15-21, 43-49...)
+  winter, // Kış (Days 22-28, 50-56...)
+}
+
+enum CharacterOrigin {
+  sanayiCiragi,     // Sanayi Çırağı: Onarım maliyetleri -%15, +2 Ekspertiz Sezgisi, Başlangıç Sermayesi ₺50.000
+  tuccarTorunu,     // Tüccar Torunu: Alım fiyatlarında -%8, +2 Pazarlık, Atölye kilitli (Lv3'e kadar)
+  sehirliYatirimci, // Şehirli Yatırımcı: Başlangıç ₺150.000, Banka faizi -%20, Ekspertiz Sezgisi tavanı 7
+  koleksiyoncuYegeni, // Koleksiyoncu Yeğeni: Miras nadir araç ile başlar, Nadir araç değeri +%20, Sabit gider +%25
+}
+
+enum SpecializationPath {
+  none,     // Henüz uzmanlaşma seçilmedi
+  restorer, // Restoratör: Kaporta onarımı %100 başarı, Restore araçlarda +%25 değer, Hurdalıkta nadir parça şansı ×2
+  trader,   // Tüccar: Pazarlıkta +2 hak, Müşteri arketipini önceden bilme, Alımda -%10 ek indirim
+  boss,     // Patron: Yan işletme geliri +%30, Personel maaşı -%20, +2 Garaj slotu
+}
+
 class DealershipModel {
   final double balance;
   final int level;
@@ -54,6 +75,13 @@ class DealershipModel {
   final String dealershipName;
   final String logoEmblemId;
   final DateTime? lastRewardClaimDate;
+
+  // RPG Kimlik, Köken, Uzmanlık ve NPC İlişkileri
+  final CharacterOrigin characterOrigin;
+  final SpecializationPath specializationPath;
+  final Map<String, int> npcRelationships;
+  final int dynastyGeneration;
+  final List<String> dynastyHistoryLog;
   
   // Yeni Pasif Gelir ve Ekonomi Alanları
   final List<SideBusinessModel> sideBusinesses;
@@ -82,6 +110,12 @@ class DealershipModel {
   final int nextDramaticCardTargetDays;
   final DramaticCardModel? pendingDramaticCard;
 
+  // Random Event Engine Fields
+  final List<String> seenRandomEventIds;
+  final int daysSinceLastRandomEvent;
+  final int nextRandomEventTargetDays;
+  final GameEventModel? pendingRandomEvent;
+
   // Banka ve Personel Akademisi Kalıcı Durum Alanları
   final double bankDepositBalance;
   final double bankCreditLimit;
@@ -106,6 +140,142 @@ class DealershipModel {
   List<CarModel> get myCars => ownedCars;
 
   DateTime get inGameTime => DateTime.now();
+
+  /// Dynamic 28-day seasonal cycle
+  GameSeason get currentSeason {
+    final dayInCycle = ((currentDay - 1) % 28) + 1;
+    if (dayInCycle <= 7) return GameSeason.spring;
+    if (dayInCycle <= 14) return GameSeason.summer;
+    if (dayInCycle <= 21) return GameSeason.autumn;
+    return GameSeason.winter;
+  }
+
+  String get currentSeasonName {
+    switch (currentSeason) {
+      case GameSeason.spring:
+        return 'İlkbahar';
+      case GameSeason.summer:
+        return 'Yaz';
+      case GameSeason.autumn:
+        return 'Sonbahar';
+      case GameSeason.winter:
+        return 'Kış';
+    }
+  }
+
+  int get daysRemainingInSeason {
+    final dayInCycle = ((currentDay - 1) % 28) + 1;
+    final dayInSeason = ((dayInCycle - 1) % 7) + 1;
+    return 7 - dayInSeason + 1;
+  }
+
+  /// Dynamic RPG Title combining Level and Esnaf Rep Score (§1.3, §2.3)
+  String get rpgTitle {
+    if (level <= 2) {
+      if (reputationScore >= 80) return 'Dürüst Çırak';
+      if (reputationScore >= 40) return 'Sanayi Çırağı';
+      return 'Kurnaz Çırak';
+    } else if (level <= 4) {
+      if (reputationScore >= 80) return 'Güvenilir Esnaf';
+      if (reputationScore >= 40) return 'Sanayi Esnafı';
+      return 'Açıkgöz Galerici';
+    } else if (level <= 7) {
+      if (reputationScore >= 80) return 'Sanayinin Namuslu Adamı';
+      if (reputationScore >= 40) return 'Usta Galerici';
+      return 'Piyasa Kurdu';
+    } else if (level <= 11) {
+      if (reputationScore >= 80) return 'Duayen Galerici';
+      if (reputationScore >= 40) return 'Oto Plaza Sahibi';
+      return 'Oto Tüccarı';
+    } else {
+      if (reputationScore >= 80) return 'Galeriler Şahı';
+      if (reputationScore >= 40) return 'Otomotiv Baronu';
+      return 'Piyasa Hakimi';
+    }
+  }
+
+  String get originTitle {
+    switch (characterOrigin) {
+      case CharacterOrigin.sanayiCiragi:
+        return 'Sanayi Çırağı';
+      case CharacterOrigin.tuccarTorunu:
+        return 'Tüccar Torunu';
+      case CharacterOrigin.sehirliYatirimci:
+        return 'Şehirli Yatırımcı';
+      case CharacterOrigin.koleksiyoncuYegeni:
+        return 'Koleksiyoncu Yeğeni';
+    }
+  }
+
+  String get originBonusDescription {
+    switch (characterOrigin) {
+      case CharacterOrigin.sanayiCiragi:
+        return 'Onarım maliyetleri -%15, +2 Başlangıç Ekspertiz Sezgisi.';
+      case CharacterOrigin.tuccarTorunu:
+        return 'Araç alım fiyatlarında -%8, +2 Başlangıç Pazarlık Gücü.';
+      case CharacterOrigin.sehirliYatirimci:
+        return 'Başlangıç sermayesi ₺150.000, Banka faizlerinde -%20 avantaj.';
+      case CharacterOrigin.koleksiyoncuYegeni:
+        return 'Miras nadir koleksiyon aracı, Nadir araç piyasa değeri +%20.';
+    }
+  }
+
+  String get specializationTitle {
+    switch (specializationPath) {
+      case SpecializationPath.none:
+        return 'Genel Galericilik';
+      case SpecializationPath.restorer:
+        return 'Restoratör & Usta';
+      case SpecializationPath.trader:
+        return 'Pazar Kurdu & Tüccar';
+      case SpecializationPath.boss:
+        return 'Oto Baronu & Patron';
+    }
+  }
+
+  String get specializationDescription {
+    switch (specializationPath) {
+      case SpecializationPath.none:
+        return 'Seviye 4 veya 5\'e ulaştığında uzmanlık sınıfı seçebilirsin.';
+      case SpecializationPath.restorer:
+        return 'Kaporta & Mekanik onarımında %100 başarı, Restore araçlarda +%25 değer, Hurdalıkta nadir parça şansı ×2.';
+      case SpecializationPath.trader:
+        return 'Pazarlıkta +2 ek teklif hakkı, Müşteri niyetini anında bilme, Araç alımlarında -%10 ek indirim.';
+      case SpecializationPath.boss:
+        return 'Yan işletme gelirleri +%30, Personel maaşları -%20, +2 Bedava Garaj Slotu.';
+    }
+  }
+
+  int getNpcRelation(String npcId) {
+    return npcRelationships[npcId] ?? 50;
+  }
+
+  bool hasHighNpcTrust(String npcId) {
+    return getNpcRelation(npcId) >= 70;
+  }
+
+  /// Season-based market demand modifier by car body type
+  double getSeasonBodyTypeMultiplier(String bodyType) {
+    final b = bodyType.toLowerCase();
+    switch (currentSeason) {
+      case GameSeason.spring:
+        if (b.contains('hatchback') || b.contains('sedan')) return 1.15;
+        if (b.contains('suv')) return 0.90;
+        return 1.0;
+      case GameSeason.summer:
+        if (b.contains('spor') || b.contains('klasik') || b.contains('cabrio')) return 1.30;
+        if (b.contains('suv') || b.contains('van')) return 0.85;
+        return 1.0;
+      case GameSeason.autumn:
+        if (b.contains('sedan')) return 1.15;
+        if (b.contains('spor')) return 0.85;
+        return 1.0;
+      case GameSeason.winter:
+        if (b.contains('suv') || b.contains('4x4')) return 1.35;
+        if (b.contains('spor')) return 0.75;
+        return 1.0;
+    }
+  }
 
   static int getRequiredLevel(String route) {
     switch (route) {
@@ -197,6 +367,10 @@ class DealershipModel {
     this.daysSinceLastDramaticCard = 0,
     this.nextDramaticCardTargetDays = 20,
     this.pendingDramaticCard,
+    this.seenRandomEventIds = const [],
+    this.daysSinceLastRandomEvent = 0,
+    this.nextRandomEventTargetDays = 7,
+    this.pendingRandomEvent,
     this.bankDepositBalance = 0.0,
     this.bankCreditLimit = 250000.0,
     this.purchasedAcademyCourses = const [],
@@ -209,6 +383,18 @@ class DealershipModel {
     this.prestigeMultiplier = 1.0,
     this.discoveredCarModelIds = const [],
     this.loyalCustomerNames = const [],
+    this.characterOrigin = CharacterOrigin.sanayiCiragi,
+    this.specializationPath = SpecializationPath.none,
+    this.npcRelationships = const {
+      'haydar_usta': 50,
+      'cikmaci_ibo': 50,
+      'golge_ibrahim': 50,
+      'vlogger_berk': 50,
+      'necati': 50,
+      'usta_selim': 50,
+    },
+    this.dynastyGeneration = 1,
+    this.dynastyHistoryLog = const [],
   });
 
   factory DealershipModel.initial() {
@@ -486,6 +672,7 @@ class DealershipModel {
       recentEvents: const [],
       dailyTaxRate: 150.0,
       unlockedBuildings: const {'/marketplace', '/workshop'},
+      discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 (Dede Mirası)'],
       pendingDopedOffers: const [],
     );
   }
@@ -540,6 +727,10 @@ class DealershipModel {
       'daysSinceLastDramaticCard': daysSinceLastDramaticCard,
       'nextDramaticCardTargetDays': nextDramaticCardTargetDays,
       'pendingDramaticCard': pendingDramaticCard?.toJson(),
+      'seenRandomEventIds': seenRandomEventIds,
+      'daysSinceLastRandomEvent': daysSinceLastRandomEvent,
+      'nextRandomEventTargetDays': nextRandomEventTargetDays,
+      'pendingRandomEvent': pendingRandomEvent?.toJson(),
       'bankDepositBalance': bankDepositBalance,
       'bankCreditLimit': bankCreditLimit,
       'purchasedAcademyCourses': purchasedAcademyCourses,
@@ -552,6 +743,11 @@ class DealershipModel {
       'prestigeMultiplier': prestigeMultiplier,
       'discoveredCarModelIds': discoveredCarModelIds,
       'loyalCustomerNames': loyalCustomerNames,
+      'characterOrigin': characterOrigin.name,
+      'specializationPath': specializationPath.name,
+      'npcRelationships': npcRelationships,
+      'dynastyGeneration': dynastyGeneration,
+      'dynastyHistoryLog': dynastyHistoryLog,
     };
   }
 
@@ -629,6 +825,10 @@ class DealershipModel {
       daysSinceLastDramaticCard: (json['daysSinceLastDramaticCard'] as num?)?.toInt() ?? 0,
       nextDramaticCardTargetDays: (json['nextDramaticCardTargetDays'] as num?)?.toInt() ?? 20,
       pendingDramaticCard: json['pendingDramaticCard'] != null ? DramaticCardModel.fromJson(Map<String, dynamic>.from(json['pendingDramaticCard'] as Map)) : null,
+      seenRandomEventIds: (json['seenRandomEventIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      daysSinceLastRandomEvent: (json['daysSinceLastRandomEvent'] as num?)?.toInt() ?? 0,
+      nextRandomEventTargetDays: (json['nextRandomEventTargetDays'] as num?)?.toInt() ?? 7,
+      pendingRandomEvent: json['pendingRandomEvent'] != null ? GameEventModel.fromJson(Map<String, dynamic>.from(json['pendingRandomEvent'] as Map)) : null,
       bankDepositBalance: (json['bankDepositBalance'] as num?)?.toDouble() ?? 0.0,
       bankCreditLimit: (json['bankCreditLimit'] as num?)?.toDouble() ?? 250000.0,
       purchasedAcademyCourses: (json['purchasedAcademyCourses'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
@@ -641,6 +841,27 @@ class DealershipModel {
       prestigeMultiplier: (json['prestigeMultiplier'] as num?)?.toDouble() ?? 1.0,
       discoveredCarModelIds: (json['discoveredCarModelIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       loyalCustomerNames: (json['loyalCustomerNames'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      characterOrigin: CharacterOrigin.values.firstWhere(
+        (e) => e.name == json['characterOrigin'],
+        orElse: () => CharacterOrigin.sanayiCiragi,
+      ),
+      specializationPath: SpecializationPath.values.firstWhere(
+        (e) => e.name == json['specializationPath'],
+        orElse: () => SpecializationPath.none,
+      ),
+      npcRelationships: (json['npcRelationships'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k, (v as num).toInt()),
+          ) ??
+          const {
+            'haydar_usta': 50,
+            'cikmaci_ibo': 50,
+            'golge_ibrahim': 50,
+            'vlogger_berk': 50,
+            'necati': 50,
+            'usta_selim': 50,
+          },
+      dynastyGeneration: (json['dynastyGeneration'] as num?)?.toInt() ?? 1,
+      dynastyHistoryLog: (json['dynastyHistoryLog'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
     );
   }
 
@@ -724,6 +945,11 @@ class DealershipModel {
     int? nextDramaticCardTargetDays,
     DramaticCardModel? pendingDramaticCard,
     bool clearPendingDramaticCard = false,
+    List<String>? seenRandomEventIds,
+    int? daysSinceLastRandomEvent,
+    int? nextRandomEventTargetDays,
+    GameEventModel? pendingRandomEvent,
+    bool clearPendingRandomEvent = false,
     double? bankDepositBalance,
     double? bankCreditLimit,
     List<String>? purchasedAcademyCourses,
@@ -736,6 +962,11 @@ class DealershipModel {
     double? prestigeMultiplier,
     List<String>? discoveredCarModelIds,
     List<String>? loyalCustomerNames,
+    CharacterOrigin? characterOrigin,
+    SpecializationPath? specializationPath,
+    Map<String, int>? npcRelationships,
+    int? dynastyGeneration,
+    List<String>? dynastyHistoryLog,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -786,6 +1017,10 @@ class DealershipModel {
       daysSinceLastDramaticCard: daysSinceLastDramaticCard ?? this.daysSinceLastDramaticCard,
       nextDramaticCardTargetDays: nextDramaticCardTargetDays ?? this.nextDramaticCardTargetDays,
       pendingDramaticCard: clearPendingDramaticCard ? null : (pendingDramaticCard ?? this.pendingDramaticCard),
+      seenRandomEventIds: seenRandomEventIds ?? this.seenRandomEventIds,
+      daysSinceLastRandomEvent: daysSinceLastRandomEvent ?? this.daysSinceLastRandomEvent,
+      nextRandomEventTargetDays: nextRandomEventTargetDays ?? this.nextRandomEventTargetDays,
+      pendingRandomEvent: clearPendingRandomEvent ? null : (pendingRandomEvent ?? this.pendingRandomEvent),
       bankDepositBalance: bankDepositBalance ?? this.bankDepositBalance,
       bankCreditLimit: bankCreditLimit ?? this.bankCreditLimit,
       purchasedAcademyCourses: purchasedAcademyCourses ?? this.purchasedAcademyCourses,
@@ -798,18 +1033,29 @@ class DealershipModel {
       prestigeMultiplier: prestigeMultiplier ?? this.prestigeMultiplier,
       discoveredCarModelIds: discoveredCarModelIds ?? this.discoveredCarModelIds,
       loyalCustomerNames: loyalCustomerNames ?? this.loyalCustomerNames,
+      characterOrigin: characterOrigin ?? this.characterOrigin,
+      specializationPath: specializationPath ?? this.specializationPath,
+      npcRelationships: npcRelationships ?? this.npcRelationships,
+      dynastyGeneration: dynastyGeneration ?? this.dynastyGeneration,
+      dynastyHistoryLog: dynastyHistoryLog ?? this.dynastyHistoryLog,
     );
   }
 
-  /// Perform New Game+ Prestige Reset
-  DealershipModel performPrestigeReset() {
+  /// Perform New Game+ Prestige / Dynasty Reset
+  DealershipModel performPrestigeReset({CharacterOrigin? newOrigin}) {
     final nextPrestigeLevel = prestigeLevel + 1;
     final nextMultiplier = 1.0 + (nextPrestigeLevel * 0.15);
+    final nextDynastyGen = dynastyGeneration + 1;
+    final newHistory = List<String>.from(dynastyHistoryLog);
+    newHistory.add('$dynastyGeneration. Nesil ($rpgTitle): $carsSold araç satıldı, ₺${totalProfit.round()} kâr ile $dealershipName devredildi.');
+
+    // Keep cars that are locked in showcase (§2.6, §2.7)
+    final preservedShowcaseCars = ownedCars.where((c) => c.isLockedInShowcase).toList();
 
     return copyWith(
       balance: 150000.0,
       level: 1,
-      ownedCars: [],
+      ownedCars: preservedShowcaseCars,
       incomingOffers: [],
       activeLoans: [],
       pendingOrders: [],
@@ -818,6 +1064,10 @@ class DealershipModel {
       activeRentals: [],
       prestigeLevel: nextPrestigeLevel,
       prestigeMultiplier: nextMultiplier,
+      dynastyGeneration: nextDynastyGen,
+      dynastyHistoryLog: newHistory,
+      characterOrigin: newOrigin ?? characterOrigin,
+      specializationPath: SpecializationPath.none,
     );
   }
 

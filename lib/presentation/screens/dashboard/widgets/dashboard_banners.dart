@@ -5,7 +5,6 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/expertise_model.dart';
-import '../../../../data/models/staff_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/weekly_event_engine.dart';
 import '../../../providers/game_provider.dart';
@@ -30,11 +29,14 @@ class DashboardProfileBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = palette.isDark;
     final carsSold = game.carsSold;
-    final totalProfit = game.totalProfit;
-    final xpProgress = ((carsSold % 5) / 5.0).clamp(0.0, 1.0);
+    final xpInCurrent = game.skills.xpInCurrentLevel;
+    final targetXp = game.skills.currentLevelTargetXp;
+    final remainingXp = (targetXp - xpInCurrent).clamp(0, targetXp);
+    final xpProgress = (xpInCurrent / targetXp).clamp(0.0, 1.0);
+    final collectionCount = game.discoveredCarModelIds.length;
 
     return NeoBrutalCard(
-      onTap: () => context.push('/settings'),
+      onTap: () => context.push('/character-growth'),
       padding: const EdgeInsets.all(14),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
@@ -102,7 +104,7 @@ class DashboardProfileBanner extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${game.playerName} • Toplam Satış: $carsSold Araç',
+                      '${game.playerName} • Koleksiyon: $collectionCount/30 • Satış: $carsSold Araç',
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
@@ -126,15 +128,15 @@ class DashboardProfileBanner extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Level Progress Bar
+          // Level Progress Bar (Goal Gradient §2.2)
           Row(
             children: [
               Expanded(
                 child: Container(
-                  height: 10,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                       width: 1.4,
@@ -146,7 +148,7 @@ class DashboardProfileBanner extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: palette.primaryColor,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(5),
                       ),
                     ),
                   ),
@@ -154,11 +156,11 @@ class DashboardProfileBanner extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'Toplam Kâr: ${CurrencyFormatter.formatShort(totalProfit)}',
+                'Seviye ${game.level + 1}\'e $remainingXp XP',
                 style: TextStyle(
                   fontSize: 10.5,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFD97706),
                 ),
               ),
             ],
@@ -908,7 +910,7 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
     );
     final dailySalaries = game.hiredStaff.fold<double>(
       0.0,
-      (sum, s) => sum + (s.role.dailySalary),
+      (sum, s) => sum + (s.dailySalary),
     );
     final dailyLoanPayment = game.activeLoans.fold<double>(
       0.0,

@@ -19,6 +19,7 @@ import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
+import '../../../domain/usecases/mission_factory.dart';
 import 'game_base_notifier.dart';
 
 mixin GameMarketMixin on GameBaseNotifier {
@@ -473,7 +474,7 @@ mixin GameMarketMixin on GameBaseNotifier {
   }
 
   /// Counter offer
-  NegotiationOutcome counterOffer(String offerId, double playerTargetPrice) {
+  NegotiationOutcome counterOffer(String offerId, double playerTargetPrice, {String? strategy}) {
     final offerIndex = state.incomingOffers.indexWhere((o) => o.id == offerId);
     if (offerIndex == -1) {
       throw Exception('Teklif bulunamadı');
@@ -491,6 +492,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       playerTargetPrice: playerTargetPrice,
       car: car,
       negotiationSkillLevel: state.skills.negotiationLevel,
+      strategy: strategy,
     );
 
     List<OfferModel> updatedOffers = List.from(state.incomingOffers);
@@ -610,7 +612,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Claim Mission Reward
+  /// Claim Mission Reward with Cascading Mission Chain (§1.4 & §2.4)
   bool claimMissionReward(String missionId) {
     final missionIndex = state.activeMissions.indexWhere((m) => m.id == missionId);
     if (missionIndex == -1) return false;
@@ -621,6 +623,17 @@ mixin GameMarketMixin on GameBaseNotifier {
     final updatedMission = mission.copyWith(isCompleted: true, isClaimed: true);
     final updatedMissions = List<MissionModel>.from(state.activeMissions);
     updatedMissions[missionIndex] = updatedMission;
+
+    // Chained campaign progression (§1.4 & §2.4)
+    if (mission.id.startsWith('chain_1_')) {
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 2, level: state.level));
+    } else if (mission.id.startsWith('chain_2_')) {
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 3, level: state.level));
+    } else if (mission.id.startsWith('chain_3_')) {
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 4, level: state.level));
+    } else if (mission.id == 'm_heritage_1') {
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 1, level: state.level));
+    }
 
     state = state.copyWith(
       balance: state.balance + mission.rewardMoney,

@@ -320,11 +320,135 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 14),
           ],
 
-          // 6. Danger Zone
+          // 6. Dynasty & Season Reset (Prestige Miras Döngüsü §2.7)
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF161F30) : const Color(0xFFFAF5FF),
+            borderColor: const Color(0xFFA855F7),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'SEZON DEVİR & KUŞAK MİRASI',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFFA855F7)),
+                    ),
+                    NeoBrutalBadge(
+                      text: '${game.dynastyGeneration}. KUŞAK',
+                      backgroundColor: const Color(0xFFA855F7),
+                      textColor: Colors.white,
+                      fontSize: 10,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Galeri bayrağını sonraki nesle devreder. Koleksiyon vitrinine kilitlediğin yadigâr araçlar (${game.ownedCars.where((c) => c.isLockedInShowcase).length} adet) ve unvan mirası sonraki kuşağa aynen aktarılır.',
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                if (game.dynastyHistoryLog.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F1118) : Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('SOY VE MİRAS GEÇMİŞİ:', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                        const SizedBox(height: 4),
+                        ...game.dynastyHistoryLog.reversed.take(3).map((log) => Text('• $log', style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700))),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                NeoBrutalButton(
+                  label: 'GALERİYİ YENİ NESLE DEVRET (DEVİR)',
+                  icon: Icons.auto_awesome_rounded,
+                  backgroundColor: (game.level >= 5 || game.balance >= 1000000) ? const Color(0xFFA855F7) : const Color(0xFF64748B),
+                  textColor: Colors.white,
+                  fontSize: 11.5,
+                  fullWidth: true,
+                  onPressed: (game.level >= 5 || game.balance >= 1000000)
+                      ? () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => Dialog(
+                              backgroundColor: Colors.transparent,
+                              child: NeoBrutalCard(
+                                padding: const EdgeInsets.all(20),
+                                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                borderColor: const Color(0xFFA855F7),
+                                borderRadius: 16,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.workspace_premium_rounded, color: Color(0xFFA855F7), size: 44),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      'KUŞAK DEVİR ONAYI',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'Mevcut ${game.dynastyGeneration}. Kuşak galeriniz tamamlanacak. Vitrindeki yadigâr araçlarınız korunarak ${game.dynastyGeneration + 1}. Kuşak olarak yeni köken ve prestijle başlayacaksınız. Devam edilsin mi?',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: 18),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: NeoBrutalButton(
+                                            label: 'VAZGEÇ',
+                                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                            textColor: isDark ? Colors.white : Colors.black,
+                                            onPressed: () => Navigator.pop(ctx),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: NeoBrutalButton(
+                                            label: 'DEVRET',
+                                            backgroundColor: const Color(0xFFA855F7),
+                                            textColor: Colors.white,
+                                            onPressed: () {
+                                              Navigator.pop(ctx);
+                                              ref.read(gameProvider.notifier).performDynastySeasonReset();
+                                              NotificationService.showSuccess(context, 'Tebrikler! ${game.dynastyGeneration + 1}. Kuşak Miras Galeri dönemi başladı.');
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                      : () {
+                          NotificationService.showWarning(context, 'Kuşak Devri için Seviye 5 veya ₺1.000.000 sermaye gereklidir.');
+                        },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // 7. Reset Game
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: AppColors.errorRed,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,38 +533,10 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           Center(
-            child: Column(
-              children: [
-                Container(
-                  width: 54,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                        offset: const Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Image.asset(
-                    'assets/images/app_logo.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  '${GameConstants.appName} v${GameConstants.appVersion}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
-                ),
-              ],
+            child: Text(
+              '${GameConstants.appName} v${GameConstants.appVersion}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
             ),
           ),
         ],

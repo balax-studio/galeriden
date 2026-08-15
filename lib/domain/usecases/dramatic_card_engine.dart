@@ -3,6 +3,7 @@ import '../../data/models/car_model.dart';
 import '../../data/models/dealership_model.dart';
 import '../../data/models/dramatic_card_model.dart';
 import '../../data/models/expertise_model.dart';
+import '../../data/models/staff_model.dart';
 
 class DramaticResolutionResult {
   final DramaticCardModel card;
@@ -98,7 +99,9 @@ class DramaticCardEngine {
     }
 
     // 2. Mutate Dealership State
-    double newBalance = state.balance - choice.upfrontCost + selectedOutcome.moneyDelta;
+    // Defensive check: Clamp upfront cost so player balance cannot be manipulated
+    final double actualUpfrontCost = choice.upfrontCost <= state.balance ? choice.upfrontCost : state.balance;
+    double newBalance = state.balance - actualUpfrontCost + selectedOutcome.moneyDelta;
     if (newBalance < 0) newBalance = 0;
 
     int newReputation = (state.reputation + selectedOutcome.reputationDelta).clamp(0, 100);
@@ -106,17 +109,51 @@ class DramaticCardEngine {
 
     List<CarModel> updatedCars = List.from(state.ownedCars);
 
-    // Handle vehicle loss / damage
+    // Handle vehicle loss / damage (heirloom / locked cars are protected from theft)
     if (selectedOutcome.loseTargetCar && updatedCars.isNotEmpty) {
-      // Lose the most valuable car
-      updatedCars.sort((a, b) => b.estimatedRealValue.compareTo(a.estimatedRealValue));
-      updatedCars.removeAt(0);
+      final candidateCars = updatedCars.where((c) => !c.isLockedInShowcase).toList();
+      if (candidateCars.isNotEmpty) {
+        candidateCars.sort((a, b) => b.estimatedRealValue.compareTo(a.estimatedRealValue));
+        final carToLose = candidateCars.first;
+        updatedCars.removeWhere((c) => c.id == carToLose.id);
+      }
     } else if (selectedOutcome.recoverCarValueMultiplier != null && updatedCars.isNotEmpty) {
-      updatedCars.sort((a, b) => b.estimatedRealValue.compareTo(a.estimatedRealValue));
-      final car = updatedCars.first;
-      updatedCars[0] = car.copyWith(
-        baseMarketValue: car.baseMarketValue * selectedOutcome.recoverCarValueMultiplier!,
+      final candidateCars = updatedCars.where((c) => !c.isLockedInShowcase).toList();
+      final targetList = candidateCars.isNotEmpty ? candidateCars : updatedCars;
+      targetList.sort((a, b) => b.estimatedRealValue.compareTo(a.estimatedRealValue));
+      final car = targetList.first;
+      final idx = updatedCars.indexWhere((c) => c.id == car.id);
+      if (idx != -1) {
+        updatedCars[idx] = car.copyWith(
+          baseMarketValue: car.baseMarketValue * selectedOutcome.recoverCarValueMultiplier!,
+        );
+      }
+    }
+
+    // Handle family heirloom status locking
+    if (selectedOutcome.makeFamilyHeirloom && updatedCars.isNotEmpty) {
+      final heirloomIndex = updatedCars.indexWhere((c) =>
+          c.brand.toLowerCase().contains('tofaş') ||
+          c.modelName.toLowerCase().contains('murat 124') ||
+          c.modelName.toLowerCase().contains('124') ||
+          c.isRare);
+      final targetIndex = heirloomIndex != -1 ? heirloomIndex : 0;
+      final targetCar = updatedCars[targetIndex];
+      updatedCars[targetIndex] = targetCar.copyWith(
+        isLockedInShowcase: true,
+        clearListingPrice: true,
       );
+    }
+
+    // Handle staff salary multiplier
+    List<StaffModel> updatedStaff = List.from(state.hiredStaff);
+    if (selectedOutcome.staffSalaryMultiplier != null && updatedStaff.isNotEmpty) {
+      updatedStaff = updatedStaff.map((s) {
+        if (s.role == StaffRole.masterMechanic || s.role == StaffRole.apprentice) {
+          return s.copyWith(salaryMultiplier: s.salaryMultiplier * selectedOutcome.staffSalaryMultiplier!);
+        }
+        return s;
+      }).toList();
     }
 
     // Handle spawn bargain car
@@ -148,11 +185,38 @@ class DramaticCardEngine {
       updatedSeenIds.add(card.id);
     }
 
+    // Mutate NPC relationships dynamically based on choices (§2.4)
+    final updatedNpc = Map<String, int>.from(state.npcRelationships);
+    final charLower = card.characterName.toLowerCase();
+    if (charLower.contains('necati')) {
+      if (choice.id.contains('give') || choice.id.contains('accept')) {
+        updatedNpc['necati'] = selectedOutcome.isSuccess
+            ? ((updatedNpc['necati'] ?? 50) + 35).clamp(0, 100)
+            : 0;
+      } else {
+        updatedNpc['necati'] = ((updatedNpc['necati'] ?? 50) - 30).clamp(0, 100);
+      }
+    } else if (charLower.contains('berk') || charLower.contains('vlogger')) {
+      if (choice.id.contains('sponsor') || choice.id.contains('accept') || choice.id.contains('give')) {
+        updatedNpc['vlogger_berk'] = ((updatedNpc['vlogger_berk'] ?? 50) + 25).clamp(0, 100);
+      } else {
+        updatedNpc['vlogger_berk'] = ((updatedNpc['vlogger_berk'] ?? 50) - 15).clamp(0, 100);
+      }
+    } else if (charLower.contains('gölge') || charLower.contains('ibrahim')) {
+      if (selectedOutcome.isSuccess) {
+        updatedNpc['golge_ibrahim'] = ((updatedNpc['golge_ibrahim'] ?? 50) + 20).clamp(0, 100);
+      }
+    } else if (charLower.contains('haydar')) {
+      updatedNpc['haydar_usta'] = ((updatedNpc['haydar_usta'] ?? 50) + (selectedOutcome.isSuccess ? 15 : -10)).clamp(0, 100);
+    }
+
     final updatedState = state.copyWith(
       balance: newBalance,
       reputationScore: newReputation,
       skills: state.skills.copyWith(xp: newXP),
       ownedCars: updatedCars,
+      hiredStaff: updatedStaff,
+      npcRelationships: updatedNpc,
       seenDramaticCardIds: updatedSeenIds,
       clearPendingDramaticCard: true,
     );

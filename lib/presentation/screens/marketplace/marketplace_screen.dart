@@ -357,7 +357,15 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                         borderColor: p.secondaryColor,
                                         fontSize: 9.5,
                                       ),
-                                      if (car.isRare) ...[
+                                      if (car.isBarnFind) ...[
+                                        const SizedBox(width: 6),
+                                        const NeoBrutalBadge(
+                                          text: 'SAMANLIK KELEPİRİ',
+                                          backgroundColor: Color(0xFFD97706),
+                                          textColor: Colors.white,
+                                          fontSize: 9.5,
+                                        ),
+                                      ] else if (car.isRare) ...[
                                         const SizedBox(width: 6),
                                         const NeoBrutalBadge(
                                           text: 'NADİR KOLEKSİYON',

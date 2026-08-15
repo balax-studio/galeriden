@@ -220,4 +220,39 @@ class RandomEventEngine {
     final templates = allEventTemplates;
     return templates[_random.nextInt(templates.length)];
   }
+
+  /// Context-aware event picker based on current dealership state
+  static GameEventModel? getFilteredRandomEvent(dynamic state) {
+    var candidates = List<GameEventModel>.from(allEventTemplates);
+
+    try {
+      final ownedCars = state.ownedCars as List? ?? [];
+      final hiredStaff = state.hiredStaff as List? ?? [];
+      final seenIds = (state.seenRandomEventIds as List? ?? []).cast<String>();
+
+      if (ownedCars.isEmpty) {
+        candidates.removeWhere((e) =>
+            e.id == 'event_sel' ||
+            e.id == 'event_marti' ||
+            e.id == 'event_kedi' ||
+            e.id == 'event_olucu_usta' ||
+            e.id == 'event_hayalet_tofas');
+      }
+
+      if (hiredStaff.isEmpty) {
+        candidates.removeWhere((e) => e.id == 'event_cirak');
+      }
+
+      // Filter out last 6 seen events to avoid repeats
+      final recentSeen = seenIds.length > 6 ? seenIds.sublist(seenIds.length - 6) : seenIds;
+      final unseen = candidates.where((e) => !recentSeen.contains(e.id)).toList();
+
+      if (unseen.isNotEmpty) {
+        return unseen[_random.nextInt(unseen.length)];
+      }
+    } catch (_) {}
+
+    if (candidates.isEmpty) return null;
+    return candidates[_random.nextInt(candidates.length)];
+  }
 }

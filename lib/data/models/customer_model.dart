@@ -82,6 +82,51 @@ class CustomerModel {
     return archetypes.first;
   }
 
+  static CustomerModel generate(CustomerArchetype archetype) {
+    switch (archetype) {
+      case CustomerArchetype.skepticalOfficial:
+        return CustomerModel(
+          id: 'cust_official_${DateTime.now().microsecondsSinceEpoch}',
+          name: 'Mustafa Bey',
+          archetype: CustomerArchetype.skepticalOfficial,
+          archetypeTitle: 'Şüpheci Emekli Memur',
+          avatarType: 'shield',
+          personalityDescription: 'Aracın en ufak çizik ve ekspertiz detayına takılır. Dürüstlük ve şeffaflık ister.',
+          preferredDialogueTrait: 'Şeffaflık & Güven',
+        );
+      case CustomerArchetype.impatientYouth:
+        return CustomerModel(
+          id: 'cust_youth_${DateTime.now().microsecondsSinceEpoch}',
+          name: 'Mertcan',
+          archetype: CustomerArchetype.impatientYouth,
+          archetypeTitle: 'Sabırsız Genç Sürücü',
+          avatarType: 'flash',
+          personalityDescription: 'Beygir gücü ve karizmaya bakar. Bütçesi esnektir, beğendiyse %15 fazla öder!',
+          preferredDialogueTrait: 'Performans & Karizma',
+        );
+      case CustomerArchetype.greedyFlipper:
+        return CustomerModel(
+          id: 'cust_flipper_${DateTime.now().microsecondsSinceEpoch}',
+          name: 'Çakal Selim',
+          archetype: CustomerArchetype.greedyFlipper,
+          archetypeTitle: 'Açgözlü Oto Al-Satçı',
+          avatarType: 'craftsman',
+          personalityDescription: 'Ölücü teklifler verir ama anında nakit kapatmak ister.',
+          preferredDialogueTrait: 'Hızlı Nakit Kapatma',
+        );
+      case CustomerArchetype.familyMan:
+        return CustomerModel(
+          id: 'cust_family_${DateTime.now().microsecondsSinceEpoch}',
+          name: 'Ahmet Bey',
+          archetype: CustomerArchetype.familyMan,
+          archetypeTitle: 'Hassas Aile Babası',
+          avatarType: 'rare',
+          personalityDescription: 'Bagaj hacmi, tramer temizliği ve aile güvenliği arar.',
+          preferredDialogueTrait: 'Aile Güvenliği & Konfor',
+        );
+    }
+  }
+
   static CustomerModel generateSellerFromListing(String sellerName) {
     final lower = sellerName.toLowerCase();
     
@@ -146,6 +191,48 @@ class CustomerModel {
       avatarType: 'rare',
       personalityDescription: 'Aracını satmak isteyen normal bir vatandaş.',
       preferredDialogueTrait: 'Karşılıklı Pazarlık',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'archetype': archetype.name,
+        'archetypeTitle': archetypeTitle,
+        'avatarType': avatarType,
+        'personalityDescription': personalityDescription,
+        'preferredDialogueTrait': preferredDialogueTrait,
+      };
+
+  factory CustomerModel.fromJson(Map<String, dynamic> json) => CustomerModel(
+        id: json['id'] as String? ?? 'cust_${DateTime.now().millisecondsSinceEpoch}',
+        name: json['name'] as String? ?? 'Müşteri',
+        archetype: CustomerArchetype.values.firstWhere(
+          (e) => e.name == json['archetype'],
+          orElse: () => CustomerArchetype.familyMan,
+        ),
+        archetypeTitle: json['archetypeTitle'] as String? ?? 'Müşteri',
+        avatarType: json['avatarType'] as String? ?? 'shield',
+        personalityDescription: json['personalityDescription'] as String? ?? '',
+        preferredDialogueTrait: json['preferredDialogueTrait'] as String? ?? '',
+      );
+
+  CustomerModel copyWith({
+    String? name,
+    CustomerArchetype? archetype,
+    String? archetypeTitle,
+    String? avatarType,
+    String? personalityDescription,
+    String? preferredDialogueTrait,
+  }) {
+    return CustomerModel(
+      id: id,
+      name: name ?? this.name,
+      archetype: archetype ?? this.archetype,
+      archetypeTitle: archetypeTitle ?? this.archetypeTitle,
+      avatarType: avatarType ?? this.avatarType,
+      personalityDescription: personalityDescription ?? this.personalityDescription,
+      preferredDialogueTrait: preferredDialogueTrait ?? this.preferredDialogueTrait,
     );
   }
 }
