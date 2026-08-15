@@ -373,6 +373,7 @@ class DashboardRetentionModals {
       playerDealership: game,
       currentDay: game.currentDay,
     );
+    final nearMissInfo = RivalLeaderboardEngine.getNearMissInfo(leaderboard);
 
     showModalBottomSheet(
       context: context,
@@ -410,7 +411,45 @@ class DashboardRetentionModals {
                 'Bölgedeki 5 rakip galeriye karşı ciro, itibar ve satış performansın',
                 style: AppTypography.labelSmall(p.isDark),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+
+              // Near-Miss / Leader Motivation Banner
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: nearMissInfo.isLeader
+                      ? (isDark ? const Color(0xFF2A2412) : const Color(0xFFFEF9C3))
+                      : (isDark ? const Color(0xFF13231B) : const Color(0xFFECFDF5)),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: nearMissInfo.isLeader ? const Color(0xFFFFDE59) : const Color(0xFF00E575),
+                    width: 1.4,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      nearMissInfo.isLeader ? Icons.workspace_premium_rounded : Icons.trending_up_rounded,
+                      color: nearMissInfo.isLeader ? const Color(0xFFFFDE59) : const Color(0xFF00E575),
+                      size: 22,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        nearMissInfo.motivationMessage,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
               ...leaderboard.asMap().entries.map((entry) {
                 final rank = entry.key + 1;
                 final item = entry.value;
@@ -433,6 +472,7 @@ class DashboardRetentionModals {
                   ),
                   child: Row(
                     children: [
+                      // Rank Badge
                       Container(
                         width: 28,
                         height: 28,
@@ -453,21 +493,67 @@ class DashboardRetentionModals {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
+
+                      // Rank Trend (▲ / ▼ / —)
+                      SizedBox(
+                        width: 32,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (item.rankChange > 0) ...[
+                              const Icon(Icons.arrow_drop_up_rounded, color: Color(0xFF00E575), size: 18),
+                              Text(
+                                '+${item.rankChange}',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF00E575),
+                                ),
+                              ),
+                            ] else if (item.rankChange < 0) ...[
+                              const Icon(Icons.arrow_drop_down_rounded, color: Color(0xFFFF4D4D), size: 18),
+                              Text(
+                                '${item.rankChange}',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFFFF4D4D),
+                                ),
+                              ),
+                            ] else ...[
+                              Text(
+                                '—',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white38 : Colors.black38,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+
+                      // Name & Details
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Text(
-                                  item.name,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 13,
-                                    color: isPlayer
-                                        ? (isDark ? const Color(0xFFFFDE59) : const Color(0xFF0F172A))
-                                        : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                Flexible(
+                                  child: Text(
+                                    item.name,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 13,
+                                      color: isPlayer
+                                          ? (isDark ? const Color(0xFFFFDE59) : const Color(0xFF0F172A))
+                                          : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                    ),
                                   ),
                                 ),
                                 if (isPlayer) ...[
@@ -483,15 +569,18 @@ class DashboardRetentionModals {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${item.carsSold} Araç • İtibar: ${item.reputation}',
+                              '${item.tagline.isNotEmpty ? "${item.tagline} • " : ""}${item.carsSold} Araç • İtibar: ${item.reputation}',
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 10.5,
+                                fontSize: 10,
                                 color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                               ),
                             ),
                           ],
                         ),
                       ),
+
+                      // Turnover Score
                       Text(
                         CurrencyFormatter.formatShort(item.turnoverScore),
                         style: TextStyle(
