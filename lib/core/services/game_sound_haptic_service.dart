@@ -4,6 +4,13 @@ import 'package:flutter/services.dart';
 class GameSoundHapticService {
   GameSoundHapticService._();
 
+  /// Play subtle tactile tap on global screen touch
+  static Future<void> playTapImpact() async {
+    try {
+      await HapticFeedback.lightImpact();
+    } catch (_) {}
+  }
+
   /// Play light click haptic for buttons & tabs
   static Future<void> playClick() async {
     try {

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../presentation/providers/theme_provider.dart';
+import '../presentation/widgets/neo_brutal_touch_feedback_overlay.dart';
 import 'router.dart';
 
 /// Universal mobile gesture scroll behavior with bouncing physics & multi-device drag support
@@ -43,7 +44,9 @@ class GaleridenApp extends ConsumerWidget {
         );
         return MediaQuery(
           data: mediaQuery.copyWith(textScaler: clampedScaler),
-          child: child ?? const SizedBox.shrink(),
+          child: NeoBrutalTouchFeedbackOverlay(
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );
