@@ -31,7 +31,7 @@ class _ThreeJsCityViewState extends ConsumerState<ThreeJsCityView> {
   void _initWebViewController() {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xFF0B1120))
+      ..setBackgroundColor(Colors.transparent)
       ..addJavaScriptChannel(
         'FlutterBridge',
         onMessageReceived: (JavaScriptMessage message) {

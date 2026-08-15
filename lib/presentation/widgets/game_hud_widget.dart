@@ -18,7 +18,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       child: Row(
         children: [
           // GÜN Pill
@@ -31,7 +31,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
             onTap: () {},
             isDark: isDark,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
 
           // KASA Pill (Interactive -> Finance)
           _buildPill(
@@ -44,7 +44,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
             onTap: () => context.push('/finance'),
             isDark: isDark,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
 
           // GARAJ STOK Pill (Interactive -> Showroom)
           _buildPill(
@@ -56,7 +56,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
             onTap: () => context.push('/showroom'),
             isDark: isDark,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
 
           // İTİBAR Pill (Interactive -> Branch Empire)
           _buildPill(
@@ -68,7 +68,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
             onTap: () => context.push('/branch'),
             isDark: isDark,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
 
           // GÖREV Pill
           _buildPill(
@@ -99,29 +99,25 @@ class GameHudHeaderWidget extends ConsumerWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        splashColor: accentColor.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(12),
+        splashColor: accentColor.withValues(alpha: 0.15),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
           decoration: BoxDecoration(
             color: isDark
-                ? const Color(0xEE0F172A)
-                : const Color(0xF7FFFFFF),
-            borderRadius: BorderRadius.circular(14),
+                ? const Color(0xCC0F172A)
+                : const Color(0xEEFFFFFF),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: accentColor.withValues(alpha: isDark ? 0.45 : 0.6),
-              width: 1.2,
+              color: isDark
+                  ? accentColor.withValues(alpha: 0.35)
+                  : accentColor.withValues(alpha: 0.45),
+              width: 1.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: accentColor.withValues(alpha: 0.15),
-                blurRadius: 10,
-                spreadRadius: 0,
-                offset: const Offset(0, 3),
-              ),
-              BoxShadow(
-                color: isDark ? Colors.black38 : Colors.black12,
-                blurRadius: 6,
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
@@ -130,28 +126,28 @@ class GameHudHeaderWidget extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(3.5),
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(8),
+                  color: accentColor.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                child: Icon(icon, size: 13, color: accentColor),
+                child: Icon(icon, size: 12, color: accentColor),
               ),
-              const SizedBox(width: 7),
+              const SizedBox(width: 6),
               Text(
                 '$title ',
                 style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.6,
-                  color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                 ),
               ),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: bold ? FontWeight.w900 : FontWeight.bold,
+                  fontSize: 11,
+                  fontWeight: bold ? FontWeight.w900 : FontWeight.w800,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),

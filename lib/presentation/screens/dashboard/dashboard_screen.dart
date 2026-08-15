@@ -55,41 +55,76 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       backgroundColor: p.isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: FloatingMoneyOverlay(
-        child: Column(
+        child: Stack(
           children: [
-            if (_selectedIndex == 0)
-              AppHeroHeader(
-                game: game,
-                onSettingsTap: () => context.push('/settings'),
-                onProfileTap: () => context.push('/character-growth'),
-              ),
-            Expanded(
+            // Full-screen tab views
+            Positioned.fill(
               child: IndexedStack(
                 index: _selectedIndex,
                 children: [
                   // Tab 0: Full-Screen Isometric Tycoon World (Ana Ekran)
                   _buildWorldTab(context, game, p),
 
-            // Tab 1: Showroom (Galeri)
-            const ShowroomScreen(),
+                  // Tab 1: Showroom (Galeri)
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 54, bottom: 84),
+                      child: const ShowroomScreen(),
+                    ),
+                  ),
 
-            // Tab 2: İhale (Live Auctions)
-            const AuctionScreen(),
+                  // Tab 2: İhale (Live Auctions)
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 54, bottom: 84),
+                      child: const AuctionScreen(),
+                    ),
+                  ),
 
                   // Tab 3: Ofis (Unified Operations)
-                  _buildOfficeTab(context, game, p),
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 54, bottom: 84),
+                      child: _buildOfficeTab(context, game, p),
+                    ),
+                  ),
                 ],
               ),
             ),
-            AppFloatingDock(
-              currentIndex: _selectedIndex,
-              onTap: (index) => setState(() => _selectedIndex = index),
-              items: const [
-                FloatingDockItem(icon: Icons.dashboard_rounded, label: 'Ana Ekran'),
-                FloatingDockItem(icon: Icons.storefront_rounded, label: 'Galeri'),
-                FloatingDockItem(icon: Icons.gavel_rounded, label: 'İhale'),
-                FloatingDockItem(icon: Icons.business_center_rounded, label: 'Ofis'),
-              ],
+
+            // Top Floating Glassmorphic HUD Bar
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: AppHeroHeader(
+                game: game,
+                onSettingsTap: () => context.push('/settings'),
+                onProfileTap: () => context.push('/character-growth'),
+              ),
+            ),
+
+            // Bottom Floating Glass Dock Navigation
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                top: false,
+                child: AppFloatingDock(
+                  currentIndex: _selectedIndex,
+                  onTap: (index) => setState(() => _selectedIndex = index),
+                  items: const [
+                    FloatingDockItem(icon: Icons.dashboard_rounded, label: 'Ana Ekran'),
+                    FloatingDockItem(icon: Icons.storefront_rounded, label: 'Galeri'),
+                    FloatingDockItem(icon: Icons.gavel_rounded, label: 'İhale'),
+                    FloatingDockItem(icon: Icons.business_center_rounded, label: 'Ofis'),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -105,44 +140,63 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Stack(
       children: [
-        // The pannable / zoomable 3D Infinitown city.
+        // The pannable / zoomable 3D Infinitown city (True edge-to-edge).
         const Positioned.fill(child: ThreeJsCityView()),
 
-        // Top market-trend ribbon.
+        // Top market-trend ribbon (Floating seamlessly beneath HUD).
         Positioned(
-          top: 10,
+          top: 54,
           left: 12,
           right: 12,
-          child: IgnorePointer(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.55),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      trend.headline,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-                    ),
+          child: SafeArea(
+            bottom: false,
+            child: IgnorePointer(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: p.isDark
+                      ? const Color(0xCC0F172A)
+                      : const Color(0xEEFFFFFF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: p.primaryColor.withValues(alpha: p.isDark ? 0.35 : 0.45),
+                    width: 1.0,
                   ),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: p.isDark ? 0.35 : 0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.trending_up_rounded, color: p.primaryColor, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        trend.headline,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: p.isDark ? Colors.white : const Color(0xFF0F172A),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
 
-        // Floating right-side quick actions (Görevler & Ödüller, Ipucu).
+        // Floating right-side quick actions (Görevler & Galeri).
         Positioned(
           right: 12,
-          bottom: 20,
+          bottom: 84,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -162,29 +216,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 onTap: () => context.push('/showroom'),
               ),
             ],
-          ),
-        ),
-
-        // Pan hint.
-        Positioned(
-          left: 12,
-          bottom: 20,
-          child: IgnorePointer(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.pan_tool_alt_rounded, color: Colors.white70, size: 14),
-                  SizedBox(width: 6),
-                  Text('Kaydır · Yakınlaştır · Binaya dokun', style: TextStyle(color: Colors.white70, fontSize: 10.5)),
-                ],
-              ),
-            ),
           ),
         ),
       ],

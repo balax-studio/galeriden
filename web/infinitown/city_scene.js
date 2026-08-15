@@ -39,19 +39,31 @@
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputEncoding = THREE.sRGBEncoding;
 
-  // OrbitControls with tuned bounds
+  // OrbitControls with tuned bounds for smooth free panning & exploration
   const controls = new THREE.OrbitControls(camera, canvas);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.07;
+  controls.dampingFactor = 0.08;
   controls.target.set(0, 0, 0);
-  controls.minDistance = 32;
-  controls.maxDistance = 140;
-  controls.minPolarAngle = Math.PI / 6; // ~30 deg
-  controls.maxPolarAngle = Math.PI / 2.3; // ~78 deg
+  controls.minDistance = 20;
+  controls.maxDistance = 170;
+  controls.minPolarAngle = Math.PI / 7; // ~25 deg
+  controls.maxPolarAngle = Math.PI / 2.25; // ~80 deg
   controls.enablePan = true;
-  controls.panSpeed = 0.8;
-  controls.rotateSpeed = 0.6;
-  controls.zoomSpeed = 0.85;
+  controls.screenSpacePanning = false; // Pan smoothly along ground plane (X/Z)
+  controls.panSpeed = 1.1;
+  controls.rotateSpeed = 0.7;
+  controls.zoomSpeed = 0.9;
+
+  // Left click / 1-finger drags & pans the city smoothly; Right click rotates angle
+  controls.mouseButtons = {
+    LEFT: THREE.MOUSE.PAN,
+    MIDDLE: THREE.MOUSE.DOLLY,
+    RIGHT: THREE.MOUSE.ROTATE,
+  };
+  controls.touches = {
+    ONE: THREE.TOUCH.PAN,
+    TWO: THREE.TOUCH.DOLLY_ROTATE,
+  };
 
   // --- 2. Lighting System ---
   const ambientLight = new THREE.AmbientLight(0xfffbeb, 0.65);
@@ -1141,7 +1153,16 @@
     updateCityTags();
   };
 
+  let pointerDownPos = { x: 0, y: 0 };
+  let hasDragged = false;
+
+  canvas.addEventListener('pointerdown', (e) => {
+    pointerDownPos = { x: e.clientX, y: e.clientY };
+    hasDragged = false;
+  }, false);
+
   function onPointerClick(e) {
+    if (hasDragged) return;
     if (controls.state !== -1) return;
 
     const rect = canvas.getBoundingClientRect();
@@ -1160,8 +1181,42 @@
     }
   }
 
-  canvas.addEventListener('mousemove', onPointerMove, false);
+  canvas.addEventListener('mousemove', (e) => {
+    const dx = e.clientX - pointerDownPos.x;
+    const dy = e.clientY - pointerDownPos.y;
+    if (dx * dx + dy * dy > 36) {
+      hasDragged = true;
+    }
+    onPointerMove(e);
+  }, false);
+
   canvas.addEventListener('click', onPointerClick, false);
+
+  // Smooth recenter to Showroom / Center Plaza
+  window.recenterCityView = function () {
+    const startCamPos = camera.position.clone();
+    const startTarget = controls.target.clone();
+    const destTarget = new THREE.Vector3(0, 0, 0);
+    const offset = new THREE.Vector3(72, 68, 72);
+    const destCamPos = destTarget.clone().add(offset);
+    const startTime = performance.now();
+    const duration = 600;
+
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1.0);
+      const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+
+      camera.position.lerpVectors(startCamPos, destCamPos, ease);
+      controls.target.lerpVectors(startTarget, destTarget, ease);
+      controls.update();
+
+      if (progress < 1.0) {
+        requestAnimationFrame(step);
+      }
+    }
+    requestAnimationFrame(step);
+  };
 
   // --- 13. Flutter <-> JS Bridge (postMessage) ---
   window.addEventListener('message', function (event) {
@@ -1283,9 +1338,9 @@
       item.tagEl.style.top = `${screenY}px`;
     });
 
-    // Clamp camera target
-    controls.target.x = THREE.MathUtils.clamp(controls.target.x, -28, 28);
-    controls.target.z = THREE.MathUtils.clamp(controls.target.z, -28, 28);
+    // Clamp camera target across the city bounds
+    controls.target.x = THREE.MathUtils.clamp(controls.target.x, -80, 80);
+    controls.target.z = THREE.MathUtils.clamp(controls.target.z, -80, 80);
 
     renderer.render(scene, camera);
   }
