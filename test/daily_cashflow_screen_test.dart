@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
-import 'package:galeriden/data/models/side_business_model.dart';
 import 'package:galeriden/data/models/staff_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/screens/finance/daily_cashflow_screen.dart';

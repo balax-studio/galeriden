@@ -155,13 +155,13 @@ class RepairEngine {
     );
   }
 
-  /// Restores engine & transmission to 100% with craftsman tier
+  /// Restores engine to 100% with craftsman tier (does NOT touch transmission)
   static RepairResult repairEngine(CarModel car, RepairTier tier) {
     if (car.expertise.engineCondition >= 100.0) {
       return RepairResult(
         updatedCar: car,
         isSuccess: false,
-        message: 'Motor ve Şanzıman zaten %100 kusursuz, tamir gerekmiyor!',
+        message: 'Motor zaten %100 kusursuz, rektefiye gerekmiyor!',
         costPaid: 0.0,
       );
     }
@@ -181,19 +181,52 @@ class RepairEngine {
       );
     }
 
-    final updatedExpertise = ExpertiseReport(
+    final updatedExpertise = car.expertise.copyWith(
       engineCondition: 100.0,
-      transmissionCondition: 100.0,
-      tramerAmount: car.expertise.tramerAmount,
-      mileage: car.expertise.mileage,
-      isMileageTampered: car.expertise.isMileageTampered,
-      bodyParts: car.expertise.bodyParts,
     );
 
     return RepairResult(
       updatedCar: car.copyWith(expertise: updatedExpertise),
       isSuccess: true,
-      message: 'Motor ve Şanzıman saat gibi %100 kondisyona ulaştırıldı!',
+      message: 'Motor saat gibi %100 kondisyona ulaştırıldı!',
+      costPaid: actualCost,
+    );
+  }
+
+  /// Restores transmission to 100% with craftsman tier (does NOT touch engine)
+  static RepairResult repairTransmission(CarModel car, RepairTier tier) {
+    if (car.expertise.transmissionCondition >= 100.0) {
+      return RepairResult(
+        updatedCar: car,
+        isSuccess: false,
+        message: 'Şanzıman ve baskı balata zaten %100 kusursuz, tamir gerekmiyor!',
+        costPaid: 0.0,
+      );
+    }
+
+    double needed = 100.0 - car.expertise.transmissionCondition;
+    double baseCost = needed * baseEngineCostPerPercent * 0.85;
+    double actualCost = (baseCost * getCostMultiplier(tier)).roundToDouble();
+
+    bool success = _random.nextDouble() < getSuccessRate(tier);
+
+    if (!success) {
+      return RepairResult(
+        updatedCar: car,
+        isSuccess: false,
+        message: 'Şanzıman montajı sırasında senkromeç oturmadı. Usta tekrar bakmalı!',
+        costPaid: actualCost,
+      );
+    }
+
+    final updatedExpertise = car.expertise.copyWith(
+      transmissionCondition: 100.0,
+    );
+
+    return RepairResult(
+      updatedCar: car.copyWith(expertise: updatedExpertise),
+      isSuccess: true,
+      message: 'Şanzıman ve baskı balata %100 kusursuz kondisyona getirildi!',
       costPaid: actualCost,
     );
   }

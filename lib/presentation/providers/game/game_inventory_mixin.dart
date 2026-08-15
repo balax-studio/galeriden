@@ -453,6 +453,24 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return result;
   }
 
+  /// Repair Transmission with tier
+  RepairResult repairTransmissionWithTier(CarModel car, RepairTier tier) {
+    final result = RepairEngine.repairTransmission(car, tier);
+    if (state.balance >= result.costPaid) {
+      final updatedCars = state.ownedCars.map((c) => c.id == car.id ? result.updatedCar : c).toList();
+      state = state.copyWith(
+        balance: state.balance - result.costPaid,
+        ownedCars: updatedCars,
+      );
+      if (result.isSuccess) {
+        addXP(30);
+        updateMissionProgress(MissionType.repairParts, 1);
+      }
+      saveState();
+    }
+    return result;
+  }
+
   /// Updates car's listing declaration status
   void updateCarListingDeclaration(String carId, ListingDeclarationType declaration) {
     updateCarListingDetails(carId, declaration: declaration);
@@ -843,33 +861,32 @@ mixin GameInventoryMixin on GameBaseNotifier {
         valueBoost = 1.08;
         break;
       case 'ecu':
-        final isClean = exp.engineCondition >= 95.0 &&
-            exp.transmissionCondition >= 95.0 &&
-            !exp.bodyParts.values.any((v) => v == PartStatus.damaged);
-        if (isClean) return false;
-        updatedExp = exp.copyWith(engineCondition: (exp.engineCondition + 15).clamp(0.0, 100.0));
+        if (exp.isEcuCleaned) return false;
+        updatedExp = exp.copyWith(
+          isEcuCleaned: true,
+          engineCondition: (exp.engineCondition + 15).clamp(0.0, 100.0),
+        );
         valueBoost = 1.05;
         break;
       case 'bodywork':
         final hasDamagedOrChanged = exp.bodyParts.values.any((v) => v != PartStatus.original);
         if (!hasDamagedOrChanged) return false;
         final repairedParts = Map<String, PartStatus>.from(exp.bodyParts);
+        final repairedConditions = Map<String, double>.from(exp.partConditions);
         repairedParts.forEach((key, value) {
-          if (value == PartStatus.changed || value == PartStatus.painted || value == PartStatus.damaged) {
-            repairedParts[key] = PartStatus.original;
-          }
+          repairedParts[key] = PartStatus.original;
+          repairedConditions[key] = 100.0;
         });
-        updatedExp = exp.copyWith(bodyParts: repairedParts);
+        updatedExp = exp.copyWith(
+          bodyParts: repairedParts,
+          partConditions: repairedConditions,
+        );
         valueBoost = 1.15;
         break;
       case 'chassis':
-        final isPristine = exp.engineCondition >= 99.5 &&
-            exp.transmissionCondition >= 99.5 &&
-            !exp.bodyParts.values.any((v) => v != PartStatus.original);
-        if (isPristine) return false;
+        if (exp.isChassisAligned) return false;
         updatedExp = exp.copyWith(
-          engineCondition: 100.0,
-          transmissionCondition: 100.0,
+          isChassisAligned: true,
         );
         valueBoost = 1.20;
         break;

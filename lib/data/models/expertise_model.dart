@@ -8,6 +8,8 @@ class ExpertiseReport {
   final bool isMileageTampered;
   final Map<String, PartStatus> bodyParts; // e.g. 'Kaput', 'Tavan', 'Sol Kapı'
   final Map<String, double> partConditions; // 0 - 100% condition score per part
+  final bool isEcuCleaned;
+  final bool isChassisAligned;
 
   ExpertiseReport({
     required this.engineCondition,
@@ -17,6 +19,8 @@ class ExpertiseReport {
     required this.isMileageTampered,
     required this.bodyParts,
     Map<String, double>? partConditions,
+    this.isEcuCleaned = false,
+    this.isChassisAligned = false,
   }) : partConditions = partConditions ?? _defaultConditions(bodyParts);
 
   static Map<String, double> _defaultConditions(Map<String, PartStatus> parts) {
@@ -43,6 +47,8 @@ class ExpertiseReport {
       'isMileageTampered': isMileageTampered,
       'bodyParts': bodyParts.map((key, value) => MapEntry(key, value.name)),
       'partConditions': partConditions,
+      'isEcuCleaned': isEcuCleaned,
+      'isChassisAligned': isChassisAligned,
     };
   }
 
@@ -69,6 +75,8 @@ class ExpertiseReport {
       isMileageTampered: json['isMileageTampered'] as bool? ?? false,
       bodyParts: bodyPartsMap,
       partConditions: conditionsMap,
+      isEcuCleaned: json['isEcuCleaned'] as bool? ?? false,
+      isChassisAligned: json['isChassisAligned'] as bool? ?? false,
     );
   }
 
@@ -80,6 +88,8 @@ class ExpertiseReport {
     bool? isMileageTampered,
     Map<String, PartStatus>? bodyParts,
     Map<String, double>? partConditions,
+    bool? isEcuCleaned,
+    bool? isChassisAligned,
   }) {
     return ExpertiseReport(
       engineCondition: engineCondition ?? this.engineCondition,
@@ -89,6 +99,8 @@ class ExpertiseReport {
       isMileageTampered: isMileageTampered ?? this.isMileageTampered,
       bodyParts: bodyParts ?? Map.from(this.bodyParts),
       partConditions: partConditions ?? Map.from(this.partConditions),
+      isEcuCleaned: isEcuCleaned ?? this.isEcuCleaned,
+      isChassisAligned: isChassisAligned ?? this.isChassisAligned,
     );
   }
 }

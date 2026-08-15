@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -344,11 +345,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     final exp = _selectedCar?.expertise;
                     final isEngineRepaired = (exp?.engineCondition ?? 100.0) >= 99.5;
                     final isTransmissionRepaired = (exp?.transmissionCondition ?? 100.0) >= 99.5;
-                    final isEcuRepaired = (exp?.engineCondition ?? 100.0) >= 95.0 &&
-                        (exp?.transmissionCondition ?? 100.0) >= 95.0 &&
-                        !(exp?.bodyParts.values.any((v) => v == PartStatus.damaged) ?? false);
+                    final isEcuRepaired = exp?.isEcuCleaned ?? false;
                     final isBodyworkRepaired = !(exp?.bodyParts.values.any((v) => v != PartStatus.original) ?? false);
-                    final isChassisRepaired = isEngineRepaired && isTransmissionRepaired && isBodyworkRepaired;
+                    final isChassisRepaired = exp?.isChassisAligned ?? false;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -830,6 +829,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     }
 
     if (repairType == 'engine') {
+      if (car.expertise.engineCondition >= 99.5) {
+        NotificationService.showInfo(context, 'Motor zaten kusursuz durumda!');
+        return;
+      }
       final result = ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
       if (result.isSuccess) {
         NotificationService.showSuccess(context, result.message);
@@ -839,8 +842,21 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       } else {
         NotificationService.showError(context, result.message);
       }
+    } else if (repairType == 'transmission') {
+      if (car.expertise.transmissionCondition >= 99.5) {
+        NotificationService.showInfo(context, 'Şanzıman ve baskı balata zaten kusursuz durumda!');
+        return;
+      }
+      final result = ref.read(gameProvider.notifier).repairTransmissionWithTier(car, tier);
+      if (result.isSuccess) {
+        NotificationService.showSuccess(context, result.message);
+        setState(() {
+          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+        });
+      } else {
+        NotificationService.showError(context, result.message);
+      }
     } else if (repairType == 'bodywork') {
-      // Bodywork
       final nonOriginalParts = car.expertise.bodyParts.entries
           .where((e) => e.value != PartStatus.original)
           .map((e) => e.key)
@@ -851,39 +867,68 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         return;
       }
 
-      RepairResult? lastResult;
-      for (final part in nonOriginalParts) {
-        lastResult = ref.read(gameProvider.notifier).repairBodyPartWithTier(car, part, tier);
-      }
-
-      if (lastResult != null && lastResult.isSuccess) {
-        NotificationService.showSuccess(context, 'Kaporta parçaları başarıyla onarıldı!');
-      } else if (lastResult != null) {
-        NotificationService.showError(context, lastResult.message);
-      }
-
-      setState(() {
-        _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
-      });
-    } else {
-      // Transmission, ECU, Chassis tiered probability
-      final double successRate = tier == RepairTier.apprentice ? 0.68 : (tier == RepairTier.journeyman ? 0.88 : 1.0);
-      final isSuccess = (DateTime.now().millisecond / 1000.0) <= successRate;
-
+      final double successRate = RepairEngine.getSuccessRate(tier);
+      final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
-        ref.read(gameProvider.notifier).deductBalance(cost * 0.4); // Partial expense for materials
-        NotificationService.showError(context, 'İşlem başarısız oldu! Ayar tutturulamadı, ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
+        NotificationService.showError(context, 'Boya fırınında renk dalgalanması oldu! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
         return;
       }
 
       final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
         car.id,
-        repairType: repairType,
+        repairType: 'bodywork',
         cost: cost,
       );
 
       if (success) {
-        NotificationService.showSuccess(context, 'Onarım başarıyla tamamlandı!');
+        NotificationService.showSuccess(context, 'Tüm kaporta parçaları başarıyla onarıldı ve fırın boya tamamlandı!');
+        setState(() {
+          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+        });
+      }
+    } else if (repairType == 'ecu') {
+      if (car.expertise.isEcuCleaned) {
+        NotificationService.showInfo(context, 'OBD-II Beyin arıza tespiti zaten yapılmış, sistem kusursuz!');
+        return;
+      }
+      final double successRate = RepairEngine.getSuccessRate(tier);
+      final isSuccess = Random().nextDouble() <= successRate;
+      if (!isSuccess) {
+        ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
+        NotificationService.showError(context, 'ECU haberleşme protokolü kurulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        return;
+      }
+      final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
+        car.id,
+        repairType: 'ecu',
+        cost: cost,
+      );
+      if (success) {
+        NotificationService.showSuccess(context, 'Tüm sensör ve arıza kodları OBD-II ile başarıyla temizlendi!');
+        setState(() {
+          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+        });
+      }
+    } else if (repairType == 'chassis') {
+      if (car.expertise.isChassisAligned) {
+        NotificationService.showInfo(context, 'Lazerli şasi doğrultma zaten yapılmış, şasi kusursuz!');
+        return;
+      }
+      final double successRate = RepairEngine.getSuccessRate(tier);
+      final isSuccess = Random().nextDouble() <= successRate;
+      if (!isSuccess) {
+        ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
+        NotificationService.showError(context, 'Lazerli şasi tezgahında sıfır tolerans tutturulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        return;
+      }
+      final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
+        car.id,
+        repairType: 'chassis',
+        cost: cost,
+      );
+      if (success) {
+        NotificationService.showSuccess(context, 'Lazerli şasi düzeltme ve rot-balans kusursuz tamamlandı!');
         setState(() {
           _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
         });

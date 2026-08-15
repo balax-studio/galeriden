@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
+import 'package:galeriden/domain/usecases/repair_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -101,6 +102,79 @@ void main() {
       );
       expect(secondRepairResult, isFalse, reason: 'Second immediate repair must be rejected without charging money');
       expect(notifier.state.balance, initialBalance - 18500.0);
+    });
+
+    test('Repair stations operate independently without cross-station side effects', () {
+      final notifier = container.read(gameProvider.notifier);
+
+      final car = CarModel(
+        id: 'test_car_2',
+        brand: 'Renault',
+        modelName: 'Megane',
+        modelYear: 2020,
+        bodyType: 'Sedan',
+        colorHex: 'FFFFFF',
+        currentPurchasePrice: 100000.0,
+        baseMarketValue: 120000.0,
+        expertise: ExpertiseReport(
+          engineCondition: 60.0,
+          transmissionCondition: 50.0,
+          tramerAmount: 5000,
+          mileage: 80000,
+          isMileageTampered: false,
+          isEcuCleaned: false,
+          isChassisAligned: false,
+          bodyParts: {
+            'frontBumper': PartStatus.damaged,
+            'hood': PartStatus.painted,
+            'roof': PartStatus.original,
+          },
+        ),
+      );
+
+      notifier.state = notifier.state.copyWith(
+        balance: 500000.0,
+        ownedCars: [car],
+        characterOrigin: CharacterOrigin.sehirliYatirimci,
+      );
+
+      // 1. Repair Engine -> ONLY engineCondition should become 100%, transmission should STAY 50%
+      final engineResult = notifier.repairEngineWithTier(car, RepairTier.master);
+      expect(engineResult.isSuccess, isTrue);
+      expect(notifier.state.ownedCars.first.expertise.engineCondition, 100.0);
+      expect(notifier.state.ownedCars.first.expertise.transmissionCondition, 50.0,
+          reason: 'Repairing engine must NOT automatically repair transmission!');
+
+      // 2. Repair Transmission -> ONLY transmissionCondition should become 100%
+      final currentCar = notifier.state.ownedCars.first;
+      final transResult = notifier.repairTransmissionWithTier(currentCar, RepairTier.master);
+      expect(transResult.isSuccess, isTrue);
+      expect(notifier.state.ownedCars.first.expertise.transmissionCondition, 100.0);
+
+      // 3. ECU Repair -> First run succeeds, sets isEcuCleaned to true
+      final ecu1 = notifier.performWorkshopStationRepair(car.id, repairType: 'ecu', cost: 4500.0);
+      expect(ecu1, isTrue);
+      expect(notifier.state.ownedCars.first.expertise.isEcuCleaned, isTrue);
+
+      // Duplicate ECU spam must be rejected
+      final ecu2 = notifier.performWorkshopStationRepair(car.id, repairType: 'ecu', cost: 4500.0);
+      expect(ecu2, isFalse, reason: 'Duplicate ECU repair must be rejected');
+
+      // 4. Bodywork Repair -> All parts become original, duplicate spam rejected
+      final body1 = notifier.performWorkshopStationRepair(car.id, repairType: 'bodywork', cost: 22000.0);
+      expect(body1, isTrue);
+      expect(notifier.state.ownedCars.first.expertise.bodyParts.values.every((v) => v == PartStatus.original), isTrue);
+
+      final body2 = notifier.performWorkshopStationRepair(car.id, repairType: 'bodywork', cost: 22000.0);
+      expect(body2, isFalse, reason: 'Duplicate bodywork repair on original parts must be rejected');
+
+      // 5. Chassis Repair -> First run succeeds, sets isChassisAligned to true
+      final chassis1 = notifier.performWorkshopStationRepair(car.id, repairType: 'chassis', cost: 45000.0);
+      expect(chassis1, isTrue);
+      expect(notifier.state.ownedCars.first.expertise.isChassisAligned, isTrue);
+
+      final chassis2 = notifier.performWorkshopStationRepair(car.id, repairType: 'chassis', cost: 45000.0);
+      expect(chassis2, isFalse, reason: 'Duplicate chassis alignment must be rejected');
     });
 
     test('performWashService prevents duplicate wash charges when already applied', () {
