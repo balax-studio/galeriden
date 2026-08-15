@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
@@ -13,6 +15,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_dramatic_dialog.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
 import 'widgets/showroom_car_card.dart';
 import 'widgets/showroom_offers_tab.dart';
@@ -120,130 +123,145 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
           children: [
             // Tab 1: Owned Cars & Publish Listing
             game.ownedCars.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        'Galerinizde şu an araç bulunmuyor. İkinci el pazarından araç alarak satışa çıkarabilirsiniz.',
-                        textAlign: TextAlign.center,
-                        style: AppTypography.bodyMedium(p.isDark),
-                      ),
-                    ),
-                  )
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
-                    physics: const BouncingScrollPhysics(),
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                     children: [
-                      // Top Action & Filter Row
-                      if (unwashedCount > 0) ...[
-                        NeoBrutalCard(
-                          padding: const EdgeInsets.all(10),
-                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
-                          borderColor: const Color(0xFF3B82F6),
-                          borderRadius: 10,
-                          child: Row(
-                            children: [
-                              const Icon(Icons.local_car_wash_rounded, color: Color(0xFF3B82F6), size: 22),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  hasWasher
-                                      ? '$unwashedCount araç yıkama bekliyor (Yıkamacı personeli ücretsiz yıkar)'
-                                      : '$unwashedCount araç kirli (Toplu yıkama: ₺${unwashedCount * 600})',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : const Color(0xFF1E3A8A),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              NeoBrutalButton(
-                                label: 'Tümünü Yıka',
-                                icon: Icons.local_car_wash_rounded,
-                                backgroundColor: const Color(0xFF3B82F6),
-                                textColor: Colors.white,
-                                fontSize: 10,
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                onPressed: () {
-                                  final success = ref.read(gameProvider.notifier).washAllCars();
-                                  if (success) {
-                                    NotificationService.showSuccess(context, 'Tüm araçlar yıkandı ve parlatıldı!');
-                                  } else {
-                                    NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-
-                      // Filter chips
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Row(
-                          children: [
-                            'Tümü',
-                            'Teklif Var',
-                            'İlanda',
-                            'İlana Hazır',
-                            'Onarım Bekliyor',
-                          ].map((filter) {
-                            final isSelected = _selectedFilter == filter;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: ChoiceChip(
-                                label: Text(
-                                  filter,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    color: isSelected
-                                        ? Colors.black
-                                        : (isDark ? Colors.white70 : const Color(0xFF334155)),
-                                  ),
-                                ),
-                                selected: isSelected,
-                                selectedColor: const Color(0xFFFFDE59),
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                side: BorderSide(
-                                  color: isSelected
-                                      ? const Color(0xFF0F172A)
-                                      : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
-                                  width: 1.4,
-                                ),
-                                onSelected: (sel) {
-                                  if (sel) setState(() => _selectedFilter = filter);
-                                },
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                      const SizedBox(height: 40),
+                      NeoBrutalEmptyState(
+                        icon: Icons.directions_car_filled_rounded,
+                        badgeText: 'VİTRİN BOŞ',
+                        title: 'Galerinde Satılık Araç Yok',
+                        description: 'Galerini doldurmak ve kâr elde etmek için ikinci el pazarından veya ihale salonundan fırsat araçları satın alabilirsin.',
+                        actionLabel: 'Pazara Git',
+                        actionIcon: Icons.storefront_rounded,
+                        onActionPressed: () => context.push('/marketplace'),
                       ),
-                      const SizedBox(height: 12),
-
-                      // Filtered cars list
-                      if (filteredCars.isEmpty)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Text(
-                              'Bu filtreye uygun araç bulunamadı.',
-                              style: AppTypography.bodyMedium(p.isDark),
+                    ],
+                  )
+                : RefreshIndicator(
+                    color: Colors.black,
+                    backgroundColor: const Color(0xFFFFDE59),
+                    strokeWidth: 2.5,
+                    onRefresh: () async {
+                      HapticFeedback.mediumImpact();
+                      await Future.delayed(const Duration(milliseconds: 400));
+                      ref.read(gameProvider.notifier).triggerOrganicOffers();
+                    },
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
+                      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                      children: [
+                        // Top Action & Filter Row
+                        if (unwashedCount > 0) ...[
+                          NeoBrutalCard(
+                            padding: const EdgeInsets.all(10),
+                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
+                            borderColor: const Color(0xFF3B82F6),
+                            borderRadius: 10,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.local_car_wash_rounded, color: Color(0xFF3B82F6), size: 22),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    hasWasher
+                                        ? '$unwashedCount araç yıkama bekliyor (Yıkamacı personeli ücretsiz yıkar)'
+                                        : '$unwashedCount araç kirli (Toplu yıkama: ₺${unwashedCount * 600})',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                NeoBrutalButton(
+                                  label: 'Tümünü Yıka',
+                                  icon: Icons.local_car_wash_rounded,
+                                  backgroundColor: const Color(0xFF3B82F6),
+                                  textColor: Colors.white,
+                                  fontSize: 10,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  onPressed: () {
+                                    final success = ref.read(gameProvider.notifier).washAllCars();
+                                    if (success) {
+                                      NotificationService.showSuccess(context, 'Tüm araçlar yıkandı ve parlatıldı!');
+                                    } else {
+                                      NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                        )
-                      else
-                        ...filteredCars.map((car) => ShowroomCarCard(
-                              car: car,
-                              game: game,
-                              palette: p,
-                              hasSalesman: hasSalesman,
-                            )),
-                    ],
+                          const SizedBox(height: 10),
+                        ],
+
+                        // Filter chips
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: [
+                              'Tümü',
+                              'Teklif Var',
+                              'İlanda',
+                              'İlana Hazır',
+                              'Onarım Bekliyor',
+                            ].map((filter) {
+                              final isSelected = _selectedFilter == filter;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: ChoiceChip(
+                                  label: Text(
+                                    filter,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: isSelected
+                                          ? Colors.black
+                                          : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                                    ),
+                                  ),
+                                  selected: isSelected,
+                                  selectedColor: const Color(0xFFFFDE59),
+                                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                  side: BorderSide(
+                                    color: isSelected
+                                        ? const Color(0xFF0F172A)
+                                        : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+                                    width: 1.4,
+                                  ),
+                                  onSelected: (sel) {
+                                    if (sel) setState(() => _selectedFilter = filter);
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Filtered cars list
+                        if (filteredCars.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                'Bu filtreye uygun araç bulunamadı.',
+                                style: AppTypography.bodyMedium(p.isDark),
+                              ),
+                            ),
+                          )
+                        else
+                          ...filteredCars.map((car) => ShowroomCarCard(
+                                car: car,
+                                game: game,
+                                palette: p,
+                                hasSalesman: hasSalesman,
+                              )),
+                      ],
+                    ),
                   ),
 
             // Tab 2: Incoming Negotiation Offers

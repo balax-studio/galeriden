@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,6 +18,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_skeleton.dart';
 import 'interactive_negotiation_sheet.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
@@ -27,6 +30,28 @@ class MarketplaceScreen extends ConsumerStatefulWidget {
 
 class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   String _selectedFilter = 'all'; // 'all', 'bargain', 'clean', 'affordable'
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
+  bool _isRefreshing = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 250), () {
+      if (mounted) {
+        setState(() {
+          _searchQuery = query.trim().toLowerCase();
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +64,16 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final marketSenseLevel = game.skills.marketSense;
     final trend = game.marketTrend;
 
-    // Filter listings based on active chip filter
+    // Filter listings based on active chip filter and search query
     final listings = allListings.where((item) {
+      if (_searchQuery.isNotEmpty) {
+        final matchBrand = item.car.brand.toLowerCase().contains(_searchQuery);
+        final matchModel = item.car.modelName.toLowerCase().contains(_searchQuery);
+        final matchBody = item.car.bodyType.toLowerCase().contains(_searchQuery);
+        final matchYear = item.car.modelYear.toString().contains(_searchQuery);
+        if (!matchBrand && !matchModel && !matchBody && !matchYear) return false;
+      }
+
       if (_selectedFilter == 'bargain') {
         return item.sellerTrait.contains('Fırsat') || item.askingPrice < item.car.estimatedRealValue * 0.88;
       } else if (_selectedFilter == 'clean') {
@@ -59,18 +92,77 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Pazarı Yenile',
-            onPressed: () {
+            onPressed: () async {
+              HapticFeedback.lightImpact();
+              setState(() => _isRefreshing = true);
               ref.read(gameProvider.notifier).refreshMarketTrends();
               ref.read(marketProvider.notifier).refreshMarket();
+              await Future.delayed(const Duration(milliseconds: 400));
+              if (mounted) setState(() => _isRefreshing = false);
             },
           ),
         ],
       ),
       body: Column(
         children: [
+          // Search Input Bar with Real-Time Debounce and Clear Button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF141721) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  width: 1.6,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark ? Colors.black : const Color(0xFF0F172A),
+                    offset: const Offset(2, 2),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Marka, model veya kasa tipi ara...',
+                  hintStyle: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    size: 20,
+                    color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                  ),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          onPressed: () {
+                            _searchController.clear();
+                            _onSearchChanged('');
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                ),
+              ),
+            ),
+          ),
+
           // Market Trend & Skill Intel Banner (Neo-Brutal Card)
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+            padding: const EdgeInsets.fromLTRB(14, 6, 14, 4),
             child: NeoBrutalCard(
               padding: const EdgeInsets.all(12),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
@@ -129,7 +221,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           // Quick Filter Chips Bar (Monolithic Buttons)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             child: Row(
               children: [
                 _buildFilterChip('all', 'Tüm İlanlar (${allListings.length})', Icons.directions_car_rounded, p, isDark),
@@ -178,19 +270,43 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             ),
           ),
 
-          // Listings Scrollable List
+          // Listings Scrollable List with Pull-To-Refresh and Skeleton Loading
           Expanded(
-            child: listings.isEmpty
-                ? Center(
-                    child: Text(
-                      'Aranan kriterde araç bulunamadı.',
-                      style: AppTypography.bodyMedium(p.isDark),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: listings.length,
+            child: RefreshIndicator(
+              color: Colors.black,
+              backgroundColor: const Color(0xFFFFDE59),
+              strokeWidth: 2.5,
+              onRefresh: () async {
+                HapticFeedback.mediumImpact();
+                setState(() => _isRefreshing = true);
+                await Future.delayed(const Duration(milliseconds: 450));
+                ref.read(gameProvider.notifier).refreshMarketTrends();
+                ref.read(marketProvider.notifier).refreshMarket();
+                if (mounted) setState(() => _isRefreshing = false);
+              },
+              child: _isRefreshing
+                  ? const SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                      padding: EdgeInsets.fromLTRB(14, 8, 14, 24),
+                      child: NeoBrutalSkeletonList(itemCount: 4),
+                    )
+                  : listings.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                          children: [
+                            const SizedBox(height: 80),
+                            Center(
+                              child: Text(
+                                'Aranan kriterde araç bulunamadı.',
+                                style: AppTypography.bodyMedium(p.isDark),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
+                          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                          itemCount: listings.length,
                     itemBuilder: (context, index) {
                       final item = listings[index];
                       final car = item.car;
@@ -457,10 +573,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     },
                   ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildFilterChip(
     String key,

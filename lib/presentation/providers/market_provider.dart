@@ -30,6 +30,16 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
     });
   }
 
+  /// Cancels auto refresh timer when app goes to background
+  void onAppPaused() {
+    _autoRefreshTimer?.cancel();
+  }
+
+  /// Restarts auto refresh timer when app returns to foreground
+  void onAppResumed() {
+    _startAutoRefreshTimer();
+  }
+
   void refreshMarket() {
     state = MarketEngine.generateRandomListings(count: 7, playerLevel: playerLevel);
   }

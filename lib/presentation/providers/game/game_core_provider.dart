@@ -44,6 +44,17 @@ class GameCoreNotifier extends GameBaseNotifier
     super.dispose();
   }
 
+  /// Freezes background timers and flushes save to disk when app is paused
+  void onAppPaused() {
+    stopPeriodicOrganicOfferTimer();
+    flushSaveNow();
+  }
+
+  /// Resumes background periodic timers when app is resumed
+  void onAppResumed() {
+    startPeriodicOrganicOfferTimer();
+  }
+
   static const String _storageKey = 'dealership_state_v2';
 
   Future<void> _loadState() async {

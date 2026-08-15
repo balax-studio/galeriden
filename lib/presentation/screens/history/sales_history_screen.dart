@@ -9,6 +9,7 @@ import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 
 class SalesHistoryScreen extends ConsumerStatefulWidget {
   const SalesHistoryScreen({super.key});
@@ -187,23 +188,13 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
           // 3. Sales History List
           if (filteredHistory.isEmpty)
-            NeoBrutalCard(
-              padding: const EdgeInsets.all(24),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 14,
-              child: const Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.directions_car_outlined, size: 36, color: Color(0xFF64748B)),
-                    SizedBox(height: 8),
-                    Text(
-                      'Henüz bu filtrede kayıtlı satış bulunmuyor.',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
-                    ),
-                  ],
-                ),
-              ),
+            const NeoBrutalEmptyState(
+              icon: Icons.receipt_long_rounded,
+              accentColor: AppColors.brutalGreen,
+              badgeText: 'KAYIT BULUNAMADI',
+              title: 'Henüz Satış Kaydı Yok',
+              description: 'Galeri vitrininden araç satışı gerçekleştirdiğinde kâr/zarar analizleri, fatura detayları ve net kazançlar burada listelenecek.',
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             )
           else
             ...filteredHistory.map((sale) {

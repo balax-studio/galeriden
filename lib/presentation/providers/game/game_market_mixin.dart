@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/customer_model.dart';
@@ -123,6 +124,27 @@ mixin GameMarketMixin on GameBaseNotifier {
   }
 
   static const double stockCommissionRate = 0.002; // %0.2 BIST işlem komisyonu
+
+  /// Refresh stock prices with realistic intraday micro-fluctuations
+  void refreshStockMarket() {
+    final random = math.Random();
+    List<StockModel> updatedStocks = state.marketStocks.map((stock) {
+      // Small intraday movement between -1.5% and +1.5%
+      double intradayChange = (random.nextDouble() * 0.03) - 0.015;
+      double newPrice = (stock.currentPrice * (1.0 + intradayChange)).clamp(stock.previousPrice * 0.5, stock.previousPrice * 2.0);
+      List<double> newHistory = List.from(stock.priceHistory)..add(newPrice);
+      if (newHistory.length > 7) newHistory.removeAt(0);
+
+      return stock.copyWith(
+        currentPrice: double.parse(newPrice.toStringAsFixed(2)),
+        previousPrice: stock.currentPrice,
+        priceHistory: newHistory,
+      );
+    }).toList();
+
+    state = state.copyWith(marketStocks: updatedStocks);
+    saveState();
+  }
 
   /// Buy stocks with realistic %0.2 commission
   bool buyStock(String symbol, int amount) {

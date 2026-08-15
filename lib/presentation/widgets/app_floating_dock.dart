@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_theme_extension.dart';
 
 class FloatingDockItem {
@@ -74,7 +75,10 @@ class AppFloatingDock extends StatelessWidget {
               final inactiveColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
               return GestureDetector(
-                onTap: () => onTap(index),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onTap(index);
+                },
                 behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),

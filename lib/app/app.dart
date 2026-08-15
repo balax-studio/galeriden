@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../presentation/providers/game_provider.dart';
+import '../presentation/providers/market_provider.dart';
 import '../presentation/providers/theme_provider.dart';
 import '../presentation/widgets/neo_brutal_touch_feedback_overlay.dart';
 import 'router.dart';
@@ -23,11 +25,39 @@ class AppScrollBehavior extends MaterialScrollBehavior {
   }
 }
 
-class GaleridenApp extends ConsumerWidget {
+class GaleridenApp extends ConsumerStatefulWidget {
   const GaleridenApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GaleridenApp> createState() => _GaleridenAppState();
+}
+
+class _GaleridenAppState extends ConsumerState<GaleridenApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      ref.read(gameProvider.notifier).onAppPaused();
+      ref.read(marketProvider.notifier).onAppPaused();
+    } else if (state == AppLifecycleState.resumed) {
+      ref.read(gameProvider.notifier).onAppResumed();
+      ref.read(marketProvider.notifier).onAppResumed();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
 
     return MaterialApp.router(

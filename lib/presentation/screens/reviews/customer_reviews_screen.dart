@@ -6,6 +6,7 @@ import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 
 class CustomerReviewsScreen extends ConsumerWidget {
   const CustomerReviewsScreen({super.key});
@@ -105,24 +106,13 @@ class CustomerReviewsScreen extends ConsumerWidget {
 
           // 2. Reviews List
           if (reviews.isEmpty)
-            NeoBrutalCard(
-              padding: const EdgeInsets.all(24),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 14,
-              child: const Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.rate_review_outlined, size: 36, color: Color(0xFF64748B)),
-                    SizedBox(height: 8),
-                    Text(
-                      'Henüz müşteri yorumu yok. Araç satışı yaptıkça alıcılar buraya puan bırakacak!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                    ),
-                  ],
-                ),
-              ),
+            const NeoBrutalEmptyState(
+              icon: Icons.rate_review_outlined,
+              accentColor: AppColors.brutalYellow,
+              badgeText: 'İLK YORUM BEKLENİYOR',
+              title: 'Henüz Müşteri Yorumu Yok',
+              description: 'Galeri vitrininden araç satışı yaptıkça ve müşterilerini memnun ettikçe dükkan puanın ve gerçekçi geri bildirimler burada birikecek.',
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             )
           else
             ...reviews.map((r) {

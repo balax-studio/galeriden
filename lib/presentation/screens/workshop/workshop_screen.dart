@@ -14,6 +14,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 import 'widgets/animated_order_card.dart';
 import 'widgets/workshop_equipment_tile.dart';
 import 'widgets/workshop_repair_tile.dart';
@@ -57,41 +58,15 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         title: 'TAMİR, KAPORTA & ATÖLYE',
       ),
       body: game.ownedCars.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(24),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 16,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.build_circle_rounded, size: 44, color: Color(0xFFFF7A00)),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Garajında Onarılacak Araç Yok!',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Pazardan veya hurdalıktan kelepir araç satın alarak burada toplayabilir ve değerini ikiye katlayabilirsin.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 16),
-                      NeoBrutalButton(
-                        label: 'İLANLARA GİT',
-                        icon: Icons.storefront_rounded,
-                        backgroundColor: AppColors.brutalYellow,
-                        textColor: Colors.black,
-                        onPressed: () => context.push('/marketplace'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+          ? NeoBrutalEmptyState(
+              icon: Icons.build_circle_rounded,
+              accentColor: const Color(0xFFFF7A00),
+              badgeText: 'ATÖLYE BOŞ',
+              title: 'Garajında Onarılacak Araç Yok!',
+              description: 'Pazardan veya hurdalıktan kelepir araç satın alarak burada toplayabilir ve değerini ikiye katlayabilirsin.',
+              actionLabel: 'İLANLARA GİT',
+              actionIcon: Icons.storefront_rounded,
+              onActionPressed: () => context.push('/marketplace'),
             )
           : ListView(
               padding: const EdgeInsets.all(14),

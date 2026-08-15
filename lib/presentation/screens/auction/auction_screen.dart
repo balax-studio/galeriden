@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -694,14 +695,27 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     final seconds = _closedCountdown % 60;
     final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: NeoBrutalCard(
-          padding: const EdgeInsets.all(22),
-          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-          borderRadius: 16,
+    return RefreshIndicator(
+      color: Colors.black,
+      backgroundColor: AppColors.brutalYellow,
+      strokeWidth: 2.5,
+      onRefresh: () async {
+        HapticFeedback.mediumImpact();
+        await Future.delayed(const Duration(milliseconds: 350));
+        setState(() {
+          _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
+          _isWindowOpen = AuctionEngine.isAuctionActiveNow();
+        });
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(22),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 16,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -878,6 +892,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

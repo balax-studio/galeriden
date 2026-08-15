@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -291,11 +292,23 @@ class StockMarketScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
-          // 1. Monolithic Portfolio Card
+      body: RefreshIndicator(
+        color: Colors.black,
+        backgroundColor: AppColors.brutalYellow,
+        strokeWidth: 2.5,
+        onRefresh: () async {
+          HapticFeedback.mediumImpact();
+          await Future.delayed(const Duration(milliseconds: 400));
+          ref.read(gameProvider.notifier).refreshStockMarket();
+          if (context.mounted) {
+            NotificationService.showInfo(context, 'Borsa ve hisse fiyatları güncellendi.');
+          }
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          children: [
+            // 1. Monolithic Portfolio Card
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
@@ -478,6 +491,7 @@ class StockMarketScreen extends ConsumerWidget {
           }),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

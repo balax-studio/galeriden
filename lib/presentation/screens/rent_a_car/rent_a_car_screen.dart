@@ -12,6 +12,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 
 class RentACarScreen extends ConsumerWidget {
   const RentACarScreen({super.key});
@@ -91,17 +92,13 @@ class RentACarScreen extends ConsumerWidget {
           const SizedBox(height: 10),
 
           if (game.activeRentals.isEmpty)
-            NeoBrutalCard(
-              padding: const EdgeInsets.all(20),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 14,
-              child: const Center(
-                child: Text(
-                  'Şu anda kirada çalışan aracınız bulunmuyor.',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                ),
-              ),
+            const NeoBrutalEmptyState(
+              icon: Icons.car_rental_rounded,
+              accentColor: Color(0xFF3B82F6),
+              badgeText: 'KİRADA ARAÇ YOK',
+              title: 'Şu Anda Kirada Çalışan Aracın Yok',
+              description: 'Galerindeki sağlam araçları kurumsal müşterilere kiralayarak düzenli günlük pasif nakit akışı oluşturabilirsin.',
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             )
           else
             ...game.activeRentals.map((rental) => _buildRentalCard(context, ref, rental, game, isDark)),

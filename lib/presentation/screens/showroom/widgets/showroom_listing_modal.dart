@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme_extension.dart';
@@ -169,11 +170,78 @@ class ShowroomListingModal {
                             divisions: 100,
                             activeColor: p.primaryColor,
                             onChanged: (val) {
+                              HapticFeedback.selectionClick();
                               setState(() {
                                 selectedPrice = (val / 1000).round() * 1000.0;
                               });
                             },
                           ),
+
+                          // Real-Time Inline Market Valuation & Buyer Interest Badge
+                          Builder(
+                            builder: (context) {
+                              final double diffRatio = (selectedPrice - car.estimatedRealValue) / car.estimatedRealValue;
+                              final double diffPct = diffRatio * 100;
+                              Color badgeColor;
+                              Color textColor;
+                              IconData badgeIcon;
+                              String badgeText;
+
+                              if (diffPct <= -10) {
+                                badgeColor = const Color(0xFF00E575);
+                                textColor = Colors.black;
+                                badgeIcon = Icons.bolt_rounded;
+                                badgeText = '-%${diffPct.abs().toStringAsFixed(0)} FIRSAT FİYAT (Çok Hızlı Teklif Gelir)';
+                              } else if (diffPct <= 5) {
+                                badgeColor = const Color(0xFFFFDE59);
+                                textColor = Colors.black;
+                                badgeIcon = Icons.balance_rounded;
+                                badgeText = 'PİYASA DENGESİNDE (Normal Satış Hızı)';
+                              } else if (diffPct <= 20) {
+                                badgeColor = const Color(0xFFFF7A00);
+                                textColor = Colors.black;
+                                badgeIcon = Icons.hourglass_bottom_rounded;
+                                badgeText = '+%${diffPct.toStringAsFixed(0)} YÜKSEK FİYAT (Yavaş Satış / Tok Satıcı)';
+                              } else {
+                                badgeColor = const Color(0xFFEF4444);
+                                textColor = Colors.white;
+                                badgeIcon = Icons.warning_amber_rounded;
+                                badgeText = '+%${diffPct.toStringAsFixed(0)} RİSKLİ FİYAT (Alıcılar Pas Geçebilir)';
+                              }
+
+                              return Container(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: badgeColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.black, width: 1.4),
+                                  boxShadow: const [
+                                    BoxShadow(color: Colors.black, offset: Offset(1.5, 1.5)),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(badgeIcon, size: 16, color: textColor),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        badgeText,
+                                        style: TextStyle(
+                                          color: textColor,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+
+                          const SizedBox(height: 6),
                           Wrap(
                             spacing: 6,
                             runSpacing: 6,
@@ -181,18 +249,21 @@ class ShowroomListingModal {
                               ActionChip(
                                 label: const Text('Piyasa Değeri', style: TextStyle(fontSize: 11)),
                                 onPressed: () {
+                                  HapticFeedback.selectionClick();
                                   setState(() => selectedPrice = car.estimatedRealValue.roundToDouble());
                                 },
                               ),
                               ActionChip(
                                 label: const Text('+%10 Kâr', style: TextStyle(fontSize: 11)),
                                 onPressed: () {
+                                  HapticFeedback.selectionClick();
                                   setState(() => selectedPrice = (car.estimatedRealValue * 1.10).roundToDouble());
                                 },
                               ),
                               ActionChip(
                                 label: const Text('+%20 Tok Satıcı', style: TextStyle(fontSize: 11)),
                                 onPressed: () {
+                                  HapticFeedback.selectionClick();
                                   setState(() => selectedPrice = (car.estimatedRealValue * 1.20).roundToDouble());
                                 },
                               ),
