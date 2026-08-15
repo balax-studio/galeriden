@@ -12,6 +12,7 @@ import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/car_icons.dart';
+import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -52,11 +53,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: AppBar(
-        title: const Text(
-          'İKİNCİ EL PAZARI',
-          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
-        ),
+      appBar: NeoBrutalAppBar(
+        title: 'İKİNCİ EL PAZARI',
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),

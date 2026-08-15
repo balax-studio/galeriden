@@ -6,6 +6,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -153,45 +154,13 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'HURDALIK & SÖKÜM TESİSİ',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.8,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-          ),
-        ),
-        bottom: TabBar(
+      appBar: NeoBrutalAppBar(
+        title: 'HURDALIK & SÖKÜM TESİSİ',
+        bottom: NeoBrutalTabBar(
           controller: _tabController,
-          labelColor: Colors.black,
-          unselectedLabelColor: isDark ? Colors.white60 : Colors.black54,
-          indicator: BoxDecoration(
-            color: AppColors.brutalYellow,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.black, width: 1.5),
-          ),
-          indicatorPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           tabs: [
-            Tab(
-              child: Text(
-                'PERT ARAÇLAR (${scrapCars.where((c) => !c.isPurchased).length})',
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11.5),
-              ),
-            ),
-            Tab(
-              child: Text(
-                'ÇIKMA PARÇALAR (${salvagedParts.length})',
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11.5),
-              ),
-            ),
+            'PERT ARAÇLAR (${scrapCars.where((c) => !c.isPurchased).length})',
+            'ÇIKMA PARÇALAR (${salvagedParts.length})',
           ],
         ),
       ),

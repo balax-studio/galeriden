@@ -42,6 +42,49 @@ class ThemeState {
         elevation: 0,
         centerTitle: true,
         scrolledUnderElevation: 0,
+        titleTextStyle: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.8,
+          color: activePalette.textPrimaryColor,
+        ),
+        shape: Border(
+          bottom: BorderSide(
+            color: activePalette.surfaceBorderColor,
+            width: 2.0,
+          ),
+        ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+          color: activePalette.primaryColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: activePalette.surfaceBorderColor,
+            width: 2.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: activePalette.surfaceBorderColor,
+              offset: const Offset(2, 2),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        labelColor: const Color(0xFF0F172A),
+        unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.w900,
+          fontSize: 13,
+          letterSpacing: 0.3,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w800,
+          fontSize: 13,
+          letterSpacing: 0.3,
+        ),
       ),
       cardTheme: CardThemeData(
         color: activePalette.surfaceColor,

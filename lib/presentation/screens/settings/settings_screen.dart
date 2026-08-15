@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -24,22 +25,8 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'AYARLAR & PROFİL',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.8,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-          ),
-        ),
+      appBar: const NeoBrutalAppBar(
+        title: 'AYARLAR & PROFİL',
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

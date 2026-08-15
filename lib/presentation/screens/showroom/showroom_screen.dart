@@ -13,6 +13,7 @@ import '../../../data/models/offer_model.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
+import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -31,21 +32,12 @@ class ShowroomScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: AppBar(
-          title: const Text(
-            'SHOWROOM VE İLANLARIM',
-            style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
-          ),
-          bottom: TabBar(
-            indicatorColor: p.primaryColor,
-            indicatorWeight: 3.0,
-            labelColor: isDark ? p.primaryColor : const Color(0xFF0F172A),
-            unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-            labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+        appBar: NeoBrutalAppBar(
+          title: 'SHOWROOM VE İLANLARIM',
+          bottom: NeoBrutalTabBar(
             tabs: [
-              Tab(text: 'Galerideki Araçlar (${game.ownedCars.length})'),
-              Tab(text: 'Gelen Teklifler (${game.incomingOffers.length})'),
+              'Galerideki Araçlar (${game.ownedCars.length})',
+              'Gelen Teklifler (${game.incomingOffers.length})',
             ],
           ),
         ),

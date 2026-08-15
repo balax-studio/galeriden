@@ -6,6 +6,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/stock_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -252,22 +253,8 @@ class StockMarketScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'BORSA & YATIRIM (BİST-OTO)',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.8,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-          ),
-        ),
+      appBar: NeoBrutalAppBar(
+        title: 'BORSA & YATIRIM (BİST-OTO)',
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),

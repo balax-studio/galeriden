@@ -12,6 +12,7 @@ import '../../../domain/usecases/psychology_engine.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/car_icons.dart';
+import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_button.dart';
 import 'expertise_report_sheet.dart';
 import 'interactive_negotiation_sheet.dart';
@@ -40,8 +41,8 @@ class ListingDetailScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${car.brand} ${car.modelName}', style: AppTypography.titleLarge(p.isDark)),
+      appBar: NeoBrutalAppBar(
+        title: '${car.brand} ${car.modelName}',
         actions: [
           IconButton(
             icon: const Icon(Icons.share_rounded),

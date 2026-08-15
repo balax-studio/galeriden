@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -9,6 +8,7 @@ import '../../../data/models/car_model.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/rental_agreement_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -27,22 +27,8 @@ class RentACarScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : Colors.black, size: 18),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'RENT A CAR MÜDÜRLÜĞÜ',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.8,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-          ),
-        ),
+      appBar: const NeoBrutalAppBar(
+        title: 'RENT A CAR MÜDÜRLÜĞÜ',
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
