@@ -591,6 +591,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+
+    if (setDetailed && car.isDetailedCleaned) return false;
+    if (setPolished && !setDetailed && car.isPolished) return false;
+    if (!setPolished && !setDetailed && car.isWashed) return false;
+
     final newValue = car.baseMarketValue * (1.0 + valueBoostPercent);
 
     final updatedCar = car.copyWith(
@@ -631,18 +636,26 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     switch (repairType) {
       case 'engine':
+        if (exp.engineCondition >= 99.5) return false;
         updatedExp = exp.copyWith(engineCondition: 100.0);
         valueBoost = 1.10;
         break;
       case 'transmission':
+        if (exp.transmissionCondition >= 99.5) return false;
         updatedExp = exp.copyWith(transmissionCondition: 100.0);
         valueBoost = 1.08;
         break;
       case 'ecu':
+        final isClean = exp.engineCondition >= 95.0 &&
+            exp.transmissionCondition >= 95.0 &&
+            !exp.bodyParts.values.any((v) => v == PartStatus.damaged);
+        if (isClean) return false;
         updatedExp = exp.copyWith(engineCondition: (exp.engineCondition + 15).clamp(0.0, 100.0));
         valueBoost = 1.05;
         break;
       case 'bodywork':
+        final hasDamagedOrChanged = exp.bodyParts.values.any((v) => v != PartStatus.original);
+        if (!hasDamagedOrChanged) return false;
         final repairedParts = Map<String, PartStatus>.from(exp.bodyParts);
         repairedParts.forEach((key, value) {
           if (value == PartStatus.changed || value == PartStatus.painted || value == PartStatus.damaged) {
@@ -653,6 +666,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
         valueBoost = 1.15;
         break;
       case 'chassis':
+        final isPristine = exp.engineCondition >= 99.5 &&
+            exp.transmissionCondition >= 99.5 &&
+            !exp.bodyParts.values.any((v) => v != PartStatus.original);
+        if (isPristine) return false;
         updatedExp = exp.copyWith(
           engineCondition: 100.0,
           transmissionCondition: 100.0,

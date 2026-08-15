@@ -91,6 +91,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   }
 
   void _placePlayerBid(double increment) {
+    if (_auction.isPlayerHighestBidder) {
+      NotificationService.showInfo(context, 'En yüksek teklif zaten senin! Rakip teklif bekleniyor.');
+      return;
+    }
+
     final game = ref.read(gameProvider);
     final nextBid = _auction.currentBid + increment;
 
@@ -496,13 +501,31 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'HIZLI TEKLİF VER',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'HIZLI TEKLİF VER',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          if (_auction.isPlayerHighestBidder)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.brutalGreen,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.black, width: 1.5),
+                              ),
+                              child: const Text(
+                                '👑 LİDER SENSİN',
+                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.black),
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 10),
                       Row(
@@ -510,33 +533,45 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           Expanded(
                             child: NeoBrutalButton(
                               label: '+₺5.000',
-                              backgroundColor: AppColors.brutalYellow,
-                              textColor: Colors.black,
+                              backgroundColor: _auction.isPlayerHighestBidder
+                                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                                  : AppColors.brutalYellow,
+                              textColor: _auction.isPlayerHighestBidder
+                                  ? (isDark ? Colors.white54 : Colors.black54)
+                                  : Colors.black,
                               fontSize: 12,
                               padding: const EdgeInsets.symmetric(vertical: 10),
-                              onPressed: () => _placePlayerBid(5000),
+                              onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(5000),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: NeoBrutalButton(
                               label: '+₺15.000',
-                              backgroundColor: AppColors.brutalOrange,
-                              textColor: Colors.black,
+                              backgroundColor: _auction.isPlayerHighestBidder
+                                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                                  : AppColors.brutalOrange,
+                              textColor: _auction.isPlayerHighestBidder
+                                  ? (isDark ? Colors.white54 : Colors.black54)
+                                  : Colors.black,
                               fontSize: 12,
                               padding: const EdgeInsets.symmetric(vertical: 10),
-                              onPressed: () => _placePlayerBid(15000),
+                              onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(15000),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: NeoBrutalButton(
                               label: '+₺30.000',
-                              backgroundColor: AppColors.brutalGreen,
-                              textColor: Colors.black,
+                              backgroundColor: _auction.isPlayerHighestBidder
+                                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                                  : AppColors.brutalGreen,
+                              textColor: _auction.isPlayerHighestBidder
+                                  ? (isDark ? Colors.white54 : Colors.black54)
+                                  : Colors.black,
                               fontSize: 12,
                               padding: const EdgeInsets.symmetric(vertical: 10),
-                              onPressed: () => _placePlayerBid(30000),
+                              onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(30000),
                             ),
                           ),
                         ],

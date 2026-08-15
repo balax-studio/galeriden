@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -295,83 +296,112 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                WorkshopRepairTile(
-                  title: '1. Motor Rektifiye & Subap Ayarı',
-                  description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
-                  cost: 18500.0,
-                  bonusText: 'Motor %100 & +%10 Değer',
-                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(18500.0, _selectedCar!.estimatedRealValue * 0.10) : null,
-                  badgeColor: const Color(0xFF00E575),
-                  isDark: isDark,
-                  onRepair: () => _applyRepair(
-                    type: 'engine',
-                    cost: 18500.0,
-                    successMsg: 'Motor rektifiye edildi! Performans ve kondisyon %100 oldu.',
-                  ),
-                ),
-                const SizedBox(height: 8),
+                // Condition checks for repair stations
+                Builder(
+                  builder: (context) {
+                    final exp = _selectedCar?.expertise;
+                    final isEngineRepaired = (exp?.engineCondition ?? 100.0) >= 99.5;
+                    final isTransmissionRepaired = (exp?.transmissionCondition ?? 100.0) >= 99.5;
+                    final isEcuRepaired = (exp?.engineCondition ?? 100.0) >= 95.0 &&
+                        (exp?.transmissionCondition ?? 100.0) >= 95.0 &&
+                        !(exp?.bodyParts.values.any((v) => v == PartStatus.damaged) ?? false);
+                    final isBodyworkRepaired = !(exp?.bodyParts.values.any((v) => v != PartStatus.original) ?? false);
+                    final isChassisRepaired = isEngineRepaired && isTransmissionRepaired && isBodyworkRepaired;
 
-                WorkshopRepairTile(
-                  title: '2. Şanzıman & Baskı Balata Yenileme',
-                  description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
-                  cost: 12000.0,
-                  bonusText: 'Şanzıman %100 & +%8 Değer',
-                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(12000.0, _selectedCar!.estimatedRealValue * 0.08) : null,
-                  badgeColor: const Color(0xFF38BDF8),
-                  isDark: isDark,
-                  onRepair: () => _applyRepair(
-                    type: 'transmission',
-                    cost: 12000.0,
-                    successMsg: 'Şanzıman ve baskı balata sıfırlandı!',
-                  ),
-                ),
-                const SizedBox(height: 8),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        WorkshopRepairTile(
+                          title: '1. Motor Rektifiye & Subap Ayarı',
+                          description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
+                          cost: 18500.0,
+                          bonusText: 'Motor %100 & +%10 Değer',
+                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(18500.0, _selectedCar!.estimatedRealValue * 0.10) : null,
+                          badgeColor: const Color(0xFF00E575),
+                          isDark: isDark,
+                          isRepaired: isEngineRepaired,
+                          disabledLabel: 'KUSURSUZ',
+                          onRepair: () => _applyRepair(
+                            type: 'engine',
+                            cost: 18500.0,
+                            successMsg: 'Motor rektifiye edildi! Performans ve kondisyon %100 oldu.',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
 
-                WorkshopRepairTile(
-                  title: '3. Bilgisayarlı OBD-II Beyin (ECU) Arıza Tespiti',
-                  description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
-                  cost: 4500.0,
-                  bonusText: 'Gizli Kusurlar Silinir',
-                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(4500.0, _selectedCar!.estimatedRealValue * 0.05) : null,
-                  badgeColor: const Color(0xFFA855F7),
-                  isDark: isDark,
-                  onRepair: () => _applyRepair(
-                    type: 'ecu',
-                    cost: 4500.0,
-                    successMsg: 'Elektronik beyin taraması yapıldı, tüm arıza lambaları söndü!',
-                  ),
-                ),
-                const SizedBox(height: 8),
+                        WorkshopRepairTile(
+                          title: '2. Şanzıman & Baskı Balata Yenileme',
+                          description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
+                          cost: 12000.0,
+                          bonusText: 'Şanzıman %100 & +%8 Değer',
+                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(12000.0, _selectedCar!.estimatedRealValue * 0.08) : null,
+                          badgeColor: const Color(0xFF38BDF8),
+                          isDark: isDark,
+                          isRepaired: isTransmissionRepaired,
+                          disabledLabel: 'KUSURSUZ',
+                          onRepair: () => _applyRepair(
+                            type: 'transmission',
+                            cost: 12000.0,
+                            successMsg: 'Şanzıman ve baskı balata sıfırlandı!',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
 
-                WorkshopRepairTile(
-                  title: '4. Kaporta Çekiçleme & Fırın Boya',
-                  description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
-                  cost: 22000.0 * paintCostMultiplier,
-                  bonusText: hasPaintBooth ? '+%15 Değer (Boya Fırını %50 İndirimi!)' : '+%15 Değer Artışı',
-                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(22000.0 * paintCostMultiplier, _selectedCar!.estimatedRealValue * 0.15) : null,
-                  badgeColor: const Color(0xFFFFDE59),
-                  isDark: isDark,
-                  onRepair: () => _applyRepair(
-                    type: 'bodywork',
-                    cost: 22000.0 * paintCostMultiplier,
-                    successMsg: 'Kaporta düzeltildi ve fırın boyası çekildi! Orijinal görünüme kavuştu.',
-                  ),
-                ),
-                const SizedBox(height: 8),
+                        WorkshopRepairTile(
+                          title: '3. Bilgisayarlı OBD-II Beyin (ECU) Arıza Tespiti',
+                          description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
+                          cost: 4500.0,
+                          bonusText: 'Gizli Kusurlar Silinir',
+                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(4500.0, _selectedCar!.estimatedRealValue * 0.05) : null,
+                          badgeColor: const Color(0xFFA855F7),
+                          isDark: isDark,
+                          isRepaired: isEcuRepaired,
+                          disabledLabel: 'ARIZA YOK',
+                          onRepair: () => _applyRepair(
+                            type: 'ecu',
+                            cost: 4500.0,
+                            successMsg: 'Elektronik beyin taraması yapıldı, tüm arıza lambaları söndü!',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
 
-                WorkshopRepairTile(
-                  title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
-                  description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
-                  cost: 45000.0,
-                  bonusText: hasChassisBench ? '+%20 Süper Değer (Şasi Tezgahı Bonusu!)' : '+%20 Değer',
-                  netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(45000.0, _selectedCar!.estimatedRealValue * 0.20) : null,
-                  badgeColor: const Color(0xFFEF4444),
-                  isDark: isDark,
-                  onRepair: () => _applyRepair(
-                    type: 'chassis',
-                    cost: 45000.0,
-                    successMsg: 'Lazerli şasi doğrultma tamamlandı! Araç fabrikasyon dengesine ulaştı.',
-                  ),
+                        WorkshopRepairTile(
+                          title: '4. Kaporta Çekiçleme & Fırın Boya',
+                          description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
+                          cost: 22000.0 * paintCostMultiplier,
+                          bonusText: hasPaintBooth ? '+%15 Değer (Boya Fırını %50 İndirimi!)' : '+%15 Değer Artışı',
+                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(22000.0 * paintCostMultiplier, _selectedCar!.estimatedRealValue * 0.15) : null,
+                          badgeColor: const Color(0xFFFFDE59),
+                          isDark: isDark,
+                          isRepaired: isBodyworkRepaired,
+                          disabledLabel: 'KUSURSUZ',
+                          onRepair: () => _applyRepair(
+                            type: 'bodywork',
+                            cost: 22000.0 * paintCostMultiplier,
+                            successMsg: 'Kaporta düzeltildi ve fırın boyası çekildi! Orijinal görünüme kavuştu.',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        WorkshopRepairTile(
+                          title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
+                          description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
+                          cost: 45000.0,
+                          bonusText: hasChassisBench ? '+%20 Süper Değer (Şasi Tezgahı Bonusu!)' : '+%20 Değer',
+                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(45000.0, _selectedCar!.estimatedRealValue * 0.20) : null,
+                          badgeColor: const Color(0xFFEF4444),
+                          isDark: isDark,
+                          isRepaired: isChassisRepaired,
+                          disabledLabel: 'ŞASİ DÜZGÜN',
+                          onRepair: () => _applyRepair(
+                            type: 'chassis',
+                            cost: 45000.0,
+                            successMsg: 'Lazerli şasi doğrultma tamamlandı! Araç fabrikasyon dengesine ulaştı.',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -587,6 +617,21 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     required String successMsg,
   }) {
     if (_selectedCar == null) return;
+    final exp = _selectedCar!.expertise;
+
+    if (type == 'engine' && exp.engineCondition >= 99.5) {
+      NotificationService.showInfo(context, 'Motor zaten %100 kusursuz durumda!');
+      return;
+    }
+    if (type == 'transmission' && exp.transmissionCondition >= 99.5) {
+      NotificationService.showInfo(context, 'Şanzıman ve baskı balata zaten kusursuz durumda!');
+      return;
+    }
+    if (type == 'bodywork' && !exp.bodyParts.values.any((v) => v != PartStatus.original)) {
+      NotificationService.showInfo(context, 'Kaportada boyanacak veya değişecek hasarlı parça yok!');
+      return;
+    }
+
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
       NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');

@@ -14,6 +14,8 @@ class WorkshopRepairTile extends StatelessWidget {
   final String? netRoiText;
   final Color badgeColor;
   final bool isDark;
+  final bool isRepaired;
+  final String? disabledLabel;
   final VoidCallback onRepair;
 
   const WorkshopRepairTile({
@@ -25,6 +27,8 @@ class WorkshopRepairTile extends StatelessWidget {
     this.netRoiText,
     required this.badgeColor,
     required this.isDark,
+    this.isRepaired = false,
+    this.disabledLabel,
     required this.onRepair,
   });
 
@@ -33,7 +37,7 @@ class WorkshopRepairTile extends StatelessWidget {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(12),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+      borderColor: isRepaired ? const Color(0xFF00E575) : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
       borderRadius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,8 +55,8 @@ class WorkshopRepairTile extends StatelessWidget {
                       ),
                     ),
                     NeoBrutalBadge(
-                      text: bonusText,
-                      backgroundColor: badgeColor,
+                      text: isRepaired ? 'KUSURSUZ' : bonusText,
+                      backgroundColor: isRepaired ? const Color(0xFF00E575) : badgeColor,
                       textColor: Colors.black,
                       fontSize: 9,
                     ),
@@ -65,10 +69,14 @@ class WorkshopRepairTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Onarım Bedeli: ${CurrencyFormatter.format(cost)}',
-                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: Color(0xFFFF7A00)),
+                  isRepaired ? 'Onarım Gerekmiyor' : 'Onarım Bedeli: ${CurrencyFormatter.format(cost)}',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w900,
+                    color: isRepaired ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
+                  ),
                 ),
-                if (netRoiText != null && netRoiText!.isNotEmpty) ...[
+                if (!isRepaired && netRoiText != null && netRoiText!.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(
                     netRoiText!,
@@ -80,13 +88,15 @@ class WorkshopRepairTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           NeoBrutalButton(
-            label: 'ONAR',
-            icon: Icons.build_circle_rounded,
-            backgroundColor: AppColors.brutalYellow,
-            textColor: Colors.black,
+            label: isRepaired ? (disabledLabel ?? 'ONARILDI') : 'ONAR',
+            icon: isRepaired ? Icons.check_circle_rounded : Icons.build_circle_rounded,
+            backgroundColor: isRepaired
+                ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                : AppColors.brutalYellow,
+            textColor: isRepaired ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
             fontSize: 11,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            onPressed: onRepair,
+            onPressed: isRepaired ? null : onRepair,
           ),
         ],
       ),

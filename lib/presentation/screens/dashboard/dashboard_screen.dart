@@ -1982,27 +1982,38 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Row(
             children: [
               // 1. Scrapyard Gig
-              Expanded(
-                child: NeoBrutalButton(
-                  label: 'Hurdalık Çıraklığı (+₺5.000)',
-                  icon: Icons.handyman_rounded,
-                  backgroundColor: const Color(0xFFFFDE59),
-                  textColor: Colors.black,
-                  fontSize: 10.5,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  onPressed: () {
-                    final success = ref.read(gameProvider.notifier).workScrapyardSideGig();
-                    if (success) {
-                      FloatingMoneyOverlay.of(context)?.showMoneyPopUp(5000, label: 'Çıraklık Yevmiyesi!');
-                      NotificationService.showSuccess(
-                        context,
-                        'Hurdalıkta akşama kadar çıraklık yaptın. ₺5.000 yevmiye kasana girdi!',
-                      );
-                    } else {
-                      NotificationService.showWarning(context, 'Bugün zaten çıraklık yaptın! Yarın tekrar gel.');
-                    }
-                  },
-                ),
+              Builder(
+                builder: (context) {
+                  final bool canWorkGig = game.lastScrapyardGigDate == null ||
+                      DateTime.now().difference(game.lastScrapyardGigDate!).inHours >= 20;
+
+                  return Expanded(
+                    child: NeoBrutalButton(
+                      label: canWorkGig ? 'Hurdalık Çıraklığı (+₺5.000)' : 'Çıraklık (Tamamlandı)',
+                      icon: canWorkGig ? Icons.handyman_rounded : Icons.check_circle_rounded,
+                      backgroundColor: canWorkGig
+                          ? const Color(0xFFFFDE59)
+                          : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                      textColor: canWorkGig ? Colors.black : (isDark ? Colors.white54 : Colors.black54),
+                      fontSize: 10.5,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      onPressed: canWorkGig
+                          ? () {
+                              final success = ref.read(gameProvider.notifier).workScrapyardSideGig();
+                              if (success) {
+                                FloatingMoneyOverlay.of(context)?.showMoneyPopUp(5000, label: 'Çıraklık Yevmiyesi!');
+                                NotificationService.showSuccess(
+                                  context,
+                                  'Hurdalıkta akşama kadar çıraklık yaptın. ₺5.000 yevmiye kasana girdi!',
+                                );
+                              } else {
+                                NotificationService.showWarning(context, 'Bugün zaten çıraklık yaptın! Yarın tekrar gel.');
+                              }
+                            }
+                          : null,
+                    ),
+                  );
+                },
               ),
               if (canClaimBailout) ...[
                 const SizedBox(width: 8),

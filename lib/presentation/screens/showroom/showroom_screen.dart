@@ -362,59 +362,94 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                           ),
                                           Row(
                                             children: [
-                                              // Quick Wait Action: Share to Social (-%50 wait)
-                                              InkWell(
-                                                onTap: () {
-                                                  final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
-                                                  if (success) {
-                                                    NotificationService.showSuccess(
-                                                      context,
-                                                      '📱 ${car.brand} ${car.modelName} sosyal medyada öne çıkarıldı!',
-                                                    );
-                                                  } else {
-                                                    NotificationService.showInfo(
-                                                      context,
-                                                      'İlan sosyal medyada paylaşıldı, ilgi arttı!',
-                                                    );
-                                                  }
-                                                },
-                                                borderRadius: BorderRadius.circular(6),
-                                                child: Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(0xFF3B82F6),
-                                                    borderRadius: BorderRadius.circular(6),
-                                                  ),
-                                                  child: const Text(
-                                                    '📱 Paylaş (-%50)',
-                                                    style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.white),
-                                                  ),
-                                                ),
-                                              ),
+                                               // Quick Wait Action: Share to Social (-%50 wait)
+                                               Builder(
+                                                 builder: (context) {
+                                                   final bool isDoped = car.isDoped;
+                                                   return InkWell(
+                                                     onTap: isDoped
+                                                         ? null
+                                                         : () {
+                                                             final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
+                                                             if (success) {
+                                                               NotificationService.showSuccess(
+                                                                 context,
+                                                                 '📱 ${car.brand} ${car.modelName} sosyal medyada öne çıkarıldı!',
+                                                               );
+                                                             } else {
+                                                               NotificationService.showInfo(
+                                                                 context,
+                                                                 'İlan sosyal medyada zaten paylaşıldı!',
+                                                               );
+                                                             }
+                                                           },
+                                                     borderRadius: BorderRadius.circular(6),
+                                                     child: Container(
+                                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                                       decoration: BoxDecoration(
+                                                         color: isDoped
+                                                             ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFCBD5E1))
+                                                             : const Color(0xFF3B82F6),
+                                                         borderRadius: BorderRadius.circular(6),
+                                                       ),
+                                                       child: Text(
+                                                         isDoped ? '📱 Paylaşıldı' : '📱 Paylaş (-%50)',
+                                                         style: TextStyle(
+                                                           fontSize: 9.5,
+                                                           fontWeight: FontWeight.bold,
+                                                           color: isDoped
+                                                               ? (isDark ? Colors.white54 : Colors.black54)
+                                                               : Colors.white,
+                                                         ),
+                                                       ),
+                                                     ),
+                                                   );
+                                                 },
+                                               ),
                                               const SizedBox(width: 6),
                                               // Quick Wait Action: Cut Price (-%5, 2x Arrival Speed)
-                                              InkWell(
-                                                onTap: () {
-                                                  final discountedPrice = (car.listingPrice * 0.95).roundToDouble();
-                                                  ref.read(gameProvider.notifier).updateCarListingPrice(car.id, discountedPrice);
-                                                  NotificationService.showSuccess(
-                                                    context,
-                                                    '🏷️ Fiyat ${CurrencyFormatter.formatShort(discountedPrice)} seviyesine çekildi! Müşteriler hızlandı.',
-                                                  );
-                                                },
-                                                borderRadius: BorderRadius.circular(6),
-                                                child: Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(0xFFEF4444),
-                                                    borderRadius: BorderRadius.circular(6),
-                                                  ),
-                                                  child: const Text(
-                                                    '🏷️ Fiyat Kır (-%5)',
-                                                    style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.white),
-                                                  ),
-                                                ),
-                                              ),
+                                               Builder(
+                                                 builder: (context) {
+                                                   final double minFloorPrice = (car.currentPurchasePrice > 0
+                                                           ? car.currentPurchasePrice * 0.85
+                                                           : car.estimatedRealValue * 0.70)
+                                                       .roundToDouble();
+                                                   final bool canCutPrice = car.listingPrice > minFloorPrice;
+
+                                                   return InkWell(
+                                                     onTap: !canCutPrice
+                                                         ? null
+                                                         : () {
+                                                             final discountedPrice = (car.listingPrice * 0.95).roundToDouble();
+                                                             ref.read(gameProvider.notifier).updateCarListingPrice(car.id, discountedPrice);
+                                                             NotificationService.showSuccess(
+                                                               context,
+                                                               '🏷️ Fiyat ${CurrencyFormatter.formatShort(discountedPrice)} seviyesine çekildi! Müşteriler hızlandı.',
+                                                             );
+                                                           },
+                                                     borderRadius: BorderRadius.circular(6),
+                                                     child: Container(
+                                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                                       decoration: BoxDecoration(
+                                                         color: !canCutPrice
+                                                             ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFCBD5E1))
+                                                             : const Color(0xFFEF4444),
+                                                         borderRadius: BorderRadius.circular(6),
+                                                       ),
+                                                       child: Text(
+                                                         !canCutPrice ? '🏷️ Dip Fiyat' : '🏷️ Fiyat Kır (-%5)',
+                                                         style: TextStyle(
+                                                           fontSize: 9.5,
+                                                           fontWeight: FontWeight.bold,
+                                                           color: !canCutPrice
+                                                               ? (isDark ? Colors.white54 : Colors.black54)
+                                                               : Colors.white,
+                                                         ),
+                                                       ),
+                                                     ),
+                                                   );
+                                                 },
+                                               ),
                                             ],
                                           ),
                                         ],

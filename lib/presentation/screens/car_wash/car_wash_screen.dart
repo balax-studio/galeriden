@@ -489,13 +489,15 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
           ),
           const SizedBox(width: 10),
           NeoBrutalButton(
-            label: isCompleted ? 'YENİLE' : 'UYGULA',
-            icon: Icons.cleaning_services_rounded,
-            backgroundColor: isCompleted ? const Color(0xFF94A3B8) : AppColors.brutalYellow,
-            textColor: Colors.black,
+            label: isCompleted ? 'UYGULANDI' : 'UYGULA',
+            icon: isCompleted ? Icons.check_circle_rounded : Icons.cleaning_services_rounded,
+            backgroundColor: isCompleted
+                ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                : AppColors.brutalYellow,
+            textColor: isCompleted ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
             fontSize: 11,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            onPressed: onApply,
+            onPressed: isCompleted ? null : onApply,
           ),
         ],
       ),
@@ -593,6 +595,20 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
     required String successMsg,
   }) {
     if (_selectedCar == null) return;
+
+    if (setDetailed && _selectedCar!.isDetailedCleaned) {
+      NotificationService.showInfo(context, 'VIP Seramik kaplama zaten uygulanmış!');
+      return;
+    }
+    if (setPolished && !setDetailed && _selectedCar!.isPolished) {
+      NotificationService.showInfo(context, 'Pasta cila zaten uygulanmış!');
+      return;
+    }
+    if (!setPolished && !setDetailed && _selectedCar!.isWashed) {
+      NotificationService.showInfo(context, 'Araç zaten tertemiz!');
+      return;
+    }
+
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
       NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
