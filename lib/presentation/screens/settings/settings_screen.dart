@@ -406,10 +406,38 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           Center(
-            child: Text(
-              '${GameConstants.appName} v${GameConstants.appVersion}\nNeo-Brutalism & Monolithic Blocks Design System',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+            child: Column(
+              children: [
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                        offset: const Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    'assets/images/app_logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${GameConstants.appName} v${GameConstants.appVersion}\nNeo-Brutalism & Monolithic Blocks Design System',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                ),
+              ],
             ),
           ),
         ],

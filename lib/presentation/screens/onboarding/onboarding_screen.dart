@@ -95,16 +95,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        width: 38,
+                        height: 38,
                         decoration: BoxDecoration(
-                          color: AppColors.brutalYellow,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                             width: 2,
                           ),
                         ),
-                        child: const Icon(Icons.car_repair_rounded, color: Colors.black, size: 20),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          'assets/images/app_logo.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Column(
