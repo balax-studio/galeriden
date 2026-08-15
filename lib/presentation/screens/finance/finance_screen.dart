@@ -88,6 +88,61 @@ class FinanceScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
 
+          // 1.1 Daily Cashflow Breakdown Nav Banner
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFDE59),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black, width: 1.5),
+                        ),
+                        child: const Icon(Icons.receipt_long_rounded, color: Colors.black, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Günlük Net Nakit Akışı',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Gelir-Gider Dökümü, Maaşlar & Sabit Masraflar',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                NeoBrutalButton(
+                  label: 'İNCELE',
+                  backgroundColor: const Color(0xFFFFDE59),
+                  textColor: Colors.black,
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  onPressed: () => context.push('/finance/daily-cashflow'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // 2. Summary Receivables & Liabilities Cards
           _buildSummary(isDark, game),
           const SizedBox(height: 16),
@@ -109,11 +164,11 @@ class FinanceScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Günlük Kurumsal Vergi Oranı',
+                          'Günlük Kurumsal & Belediye Vergisi',
                           style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
                         ),
                         Text(
-                          'Günlük ciro ve varlık üzerinden otomatik kesilir (%${(game.dailyTaxRate * 100).toStringAsFixed(1)})',
+                          'Günlük gece devrinde otomatik kesilir (${CurrencyFormatter.format(game.dailyTaxRate)}/gün)',
                           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                         ),
                       ],
@@ -121,7 +176,7 @@ class FinanceScreen extends ConsumerWidget {
                   ],
                 ),
                 NeoBrutalBadge(
-                  text: '%${(game.dailyTaxRate * 100).toStringAsFixed(1)} / Gün',
+                  text: '${CurrencyFormatter.format(game.dailyTaxRate)} / Gün',
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 10,

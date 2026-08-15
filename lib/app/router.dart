@@ -21,6 +21,7 @@ import '../presentation/screens/car_wash/car_wash_screen.dart';
 import '../presentation/screens/reviews/customer_reviews_screen.dart';
 import '../presentation/screens/history/sales_history_screen.dart';
 import '../presentation/screens/finance/finance_screen.dart';
+import '../presentation/screens/finance/daily_cashflow_screen.dart';
 import '../presentation/screens/rent_a_car/rent_a_car_screen.dart';
 import '../presentation/screens/side_business/side_business_screen.dart';
 import '../presentation/screens/stock_market/stock_market_screen.dart';
@@ -102,6 +103,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/finance',
       pageBuilder: (context, state) => _buildCupertinoPage(const FinanceScreen(), state),
+    ),
+    GoRoute(
+      path: '/finance/daily-cashflow',
+      pageBuilder: (context, state) => _buildCupertinoPage(const DailyCashflowScreen(), state),
     ),
     GoRoute(
       path: '/rent-a-car',

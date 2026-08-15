@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -919,6 +920,10 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
     final netDailyFlow = dailyPassiveIncome - dailySalaries - dailyLoanPayment;
 
     return NeoBrutalCard(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        context.push('/finance/daily-cashflow');
+      },
       padding: const EdgeInsets.all(12),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
@@ -947,13 +952,23 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                '${netDailyFlow >= 0 ? '+' : ''}${CurrencyFormatter.formatShort(netDailyFlow)}/gün',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  color: netDailyFlow >= 0 ? const Color(0xFF00E575) : const Color(0xFFEF4444),
-                ),
+              Row(
+                children: [
+                  Text(
+                    '${netDailyFlow >= 0 ? '+' : ''}${CurrencyFormatter.formatShort(netDailyFlow)}/gün',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: netDailyFlow >= 0 ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 16,
+                    color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                  ),
+                ],
               ),
             ],
           ),
