@@ -8,6 +8,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/customer_review_model.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/models/theme_palette_model.dart';
@@ -17,6 +18,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_story_ad_dialog.dart';
 
 class ShowroomScreen extends ConsumerWidget {
   const ShowroomScreen({super.key});
@@ -27,6 +29,17 @@ class ShowroomScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    // Listen for story ad encounters triggered by game progression
+    ref.listen<DealershipModel>(gameProvider, (previous, next) {
+      if (next.pendingStoryCard != null && (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            NeoBrutalStoryAdDialog.show(context, next.pendingStoryCard!);
+          }
+        });
+      }
+    });
 
     return DefaultTabController(
       length: 2,

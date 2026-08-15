@@ -13,6 +13,8 @@ import '../../../data/models/game_event_model.dart';
 import '../../../data/models/market_news_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/black_market_car_model.dart';
+import '../../../data/models/story_card_model.dart';
+import '../../../data/models/expertise_model.dart';
 
 import 'game_base_notifier.dart';
 
@@ -285,6 +287,17 @@ mixin GameTimeMixin on GameBaseNotifier {
       currentBlackCars = _generateRandomBlackMarketCars(nextDay);
     }
 
+    // 13. Story-Driven Rewarded Encounter Engine (Every 7-21 in-game days)
+    int updatedDaysSinceStoryAd = state.daysSinceLastStoryAd + 1;
+    StoryCardModel? nextStoryCard = state.pendingStoryCard;
+    int nextTargetDays = state.nextStoryAdTargetDays;
+
+    if (updatedDaysSinceStoryAd >= nextTargetDays && nextStoryCard == null) {
+      nextStoryCard = selectNextStoryCard();
+      updatedDaysSinceStoryAd = 0;
+      nextTargetDays = 7 + random.nextInt(15); // Random range: 7..21
+    }
+
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
@@ -300,9 +313,141 @@ mixin GameTimeMixin on GameBaseNotifier {
       activeNews: currentNews,
       scrapyardCars: currentScrapCars,
       blackMarketCars: currentBlackCars,
+      daysSinceLastStoryAd: updatedDaysSinceStoryAd,
+      nextStoryAdTargetDays: nextTargetDays,
+      pendingStoryCard: nextStoryCard,
     );
 
     refreshMarketTrends();
+  }
+
+  /// Selects the next available narrative card from the pool, preventing repeats until cycle completes
+  StoryCardModel? selectNextStoryCard() {
+    final allCards = StoryCardModel.defaultCards;
+    List<StoryCardModel> availableCards = allCards.where((c) => !state.seenStoryCardIds.contains(c.id)).toList();
+
+    // If all cards in current cycle have been seen, reset cycle
+    if (availableCards.isEmpty) {
+      state = state.copyWith(seenStoryCardIds: const []);
+      availableCards = List.from(allCards);
+    }
+
+    if (availableCards.isEmpty) return null;
+    final selected = availableCards[random.nextInt(availableCards.length)];
+    return selected;
+  }
+
+  /// Resolves the story card outcome (accepted with reward or declined) and marks it as seen
+  void resolveStoryCard({required StoryCardModel card, required bool accepted}) {
+    final updatedSeen = List<String>.from(state.seenStoryCardIds);
+    if (!updatedSeen.contains(card.id)) {
+      updatedSeen.add(card.id);
+    }
+
+    double newBalance = state.balance;
+    List<CarModel> updatedCars = List.from(state.ownedCars);
+
+    if (accepted) {
+      switch (card.rewardType) {
+        case StoryAdRewardType.instantExpertise:
+          if (updatedCars.isNotEmpty) {
+            final targetCar = updatedCars.first;
+            updatedCars[0] = targetCar.copyWith(
+              expertise: targetCar.expertise.copyWith(
+                engineCondition: 100.0,
+                transmissionCondition: 100.0,
+              ),
+            );
+          } else {
+            newBalance += 25000.0;
+          }
+          break;
+
+        case StoryAdRewardType.bargainCarSpawn:
+          // Spawns a collector car or bargain car
+          final bargainCar = CarModel(
+            id: 'car_sofor_bargain_${DateTime.now().millisecondsSinceEpoch}',
+            brand: 'Bemeve',
+            modelName: 'Bemeve E36 Coupe (Koleksiyon / Kelepir)',
+            modelYear: 1993,
+            bodyType: 'Klasik',
+            colorHex: '0xFF1E3A8A',
+            baseMarketValue: 600000.0,
+            currentPurchasePrice: 280000.0, // ~50% discount
+            isRare: true,
+            expertise: ExpertiseReport(
+              engineCondition: 95.0,
+              transmissionCondition: 90.0,
+              tramerAmount: 0,
+              mileage: 110000,
+              isMileageTampered: false,
+              bodyParts: const {
+                'Kaput': PartStatus.original,
+                'Tavan': PartStatus.original,
+                'Sol Kapı': PartStatus.original,
+                'Sağ Kapı': PartStatus.original,
+                'Bagaj': PartStatus.original,
+              },
+            ),
+          );
+          if (updatedCars.length < state.maxGarageSlots) {
+            updatedCars.add(bargainCar);
+          } else {
+            newBalance += 60000.0;
+          }
+          break;
+
+        case StoryAdRewardType.expressDetailing:
+          if (updatedCars.isNotEmpty) {
+            final targetCar = updatedCars.first;
+            updatedCars[0] = targetCar.copyWith(
+              isWashed: true,
+              isPolished: true,
+              isDetailedCleaned: true,
+              baseMarketValue: targetCar.baseMarketValue * 1.15,
+              expertise: targetCar.expertise.copyWith(
+                partConditions: targetCar.expertise.partConditions.map((k, v) => MapEntry(k, 100.0)),
+              ),
+            );
+          } else {
+            newBalance += 25000.0;
+          }
+          break;
+
+        case StoryAdRewardType.bonusSaleBoost:
+          newBalance += 30000.0;
+          break;
+
+        case StoryAdRewardType.viralBuyerOffers:
+          newBalance += 40000.0;
+          break;
+
+        case StoryAdRewardType.auctionMarginReport:
+          newBalance += 30000.0;
+          break;
+
+        case StoryAdRewardType.partsDiscountCredit:
+          newBalance += 35000.0;
+          break;
+
+        case StoryAdRewardType.scrapyardFreeTowCredit:
+          newBalance += 25000.0;
+          break;
+      }
+    }
+
+    state = state.copyWith(
+      balance: newBalance,
+      ownedCars: updatedCars,
+      seenStoryCardIds: updatedSeen,
+      clearPendingStoryCard: true,
+    );
+
+    saveState();
+  }
+
+  void dismissPendingStoryCard() {
+    state = state.copyWith(clearPendingStoryCard: true);
   }
 
   List<ScrapyardCar> _generateRandomScrapyardCars(int day) {

@@ -19,6 +19,7 @@ import 'game_event_model.dart';
 import 'market_news_model.dart';
 import 'scrapyard_model.dart';
 import 'black_market_car_model.dart';
+import 'story_card_model.dart';
 
 class DealershipModel {
   final double balance;
@@ -66,6 +67,15 @@ class DealershipModel {
   final List<BlackMarketCarModel> blackMarketCars;
 
   final Set<String> unlockedBuildings;
+
+  // Story-Driven Rewarded Encounter Engine Fields
+  final List<String> seenStoryCardIds;
+  final int daysSinceLastStoryAd;
+  final int nextStoryAdTargetDays;
+  final StoryCardModel? pendingStoryCard;
+
+  double get money => balance;
+  List<CarModel> get myCars => ownedCars;
 
   DateTime get inGameTime => DateTime.now();
 
@@ -151,6 +161,10 @@ class DealershipModel {
     this.scrapyardCars = const [],
     this.blackMarketCars = const [],
     this.unlockedBuildings = const {},
+    this.seenStoryCardIds = const [],
+    this.daysSinceLastStoryAd = 0,
+    this.nextStoryAdTargetDays = 14,
+    this.pendingStoryCard,
   });
 
   factory DealershipModel.initial() {
@@ -494,6 +508,10 @@ class DealershipModel {
       'scrapyardCars': scrapyardCars.map((c) => c.toJson()).toList(),
       'blackMarketCars': blackMarketCars.map((c) => c.toJson()).toList(),
       'unlockedBuildings': unlockedBuildings.toList(),
+      'seenStoryCardIds': seenStoryCardIds,
+      'daysSinceLastStoryAd': daysSinceLastStoryAd,
+      'nextStoryAdTargetDays': nextStoryAdTargetDays,
+      'pendingStoryCard': pendingStoryCard?.toJson(),
     };
   }
 
@@ -562,6 +580,10 @@ class DealershipModel {
       scrapyardCars: parseList(json['scrapyardCars'] as List<dynamic>?, ScrapyardCar.fromJson),
       blackMarketCars: parseList(json['blackMarketCars'] as List<dynamic>?, BlackMarketCarModel.fromJson),
       unlockedBuildings: (json['unlockedBuildings'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {'/marketplace', '/workshop'},
+      seenStoryCardIds: (json['seenStoryCardIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      daysSinceLastStoryAd: (json['daysSinceLastStoryAd'] as num?)?.toInt() ?? 0,
+      nextStoryAdTargetDays: (json['nextStoryAdTargetDays'] as num?)?.toInt() ?? 14,
+      pendingStoryCard: json['pendingStoryCard'] != null ? StoryCardModel.fromJson(Map<String, dynamic>.from(json['pendingStoryCard'] as Map)) : null,
     );
   }
 
@@ -634,6 +656,11 @@ class DealershipModel {
     List<ScrapyardCar>? scrapyardCars,
     List<BlackMarketCarModel>? blackMarketCars,
     Set<String>? unlockedBuildings,
+    List<String>? seenStoryCardIds,
+    int? daysSinceLastStoryAd,
+    int? nextStoryAdTargetDays,
+    StoryCardModel? pendingStoryCard,
+    bool clearPendingStoryCard = false,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -676,6 +703,10 @@ class DealershipModel {
       scrapyardCars: scrapyardCars ?? this.scrapyardCars,
       blackMarketCars: blackMarketCars ?? this.blackMarketCars,
       unlockedBuildings: unlockedBuildings ?? this.unlockedBuildings,
+      seenStoryCardIds: seenStoryCardIds ?? this.seenStoryCardIds,
+      daysSinceLastStoryAd: daysSinceLastStoryAd ?? this.daysSinceLastStoryAd,
+      nextStoryAdTargetDays: nextStoryAdTargetDays ?? this.nextStoryAdTargetDays,
+      pendingStoryCard: clearPendingStoryCard ? null : (pendingStoryCard ?? this.pendingStoryCard),
     );
   }
 

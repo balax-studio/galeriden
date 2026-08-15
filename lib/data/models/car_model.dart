@@ -52,6 +52,12 @@ class CarModel {
   double get purchasePrice => currentPurchasePrice;
 
   @pragma('vm:entry-point')
+  double get price => currentPurchasePrice;
+
+  @pragma('vm:entry-point')
+  double get currentValue => estimatedRealValue;
+
+  @pragma('vm:entry-point')
   String get carTitle => '$brand $modelName';
 
   @pragma('vm:entry-point')
