@@ -25,7 +25,11 @@ class BranchModel {
     this.isUnlocked = false,
   });
 
-  static List<BranchModel> getAllBranches({int currentSlotCount = 3, int currentLevel = 1}) {
+  static List<BranchModel> getAllBranches({
+    int currentSlotCount = 3,
+    int currentLevel = 1,
+    Set<String> unlockedBuildings = const {},
+  }) {
     return [
       BranchModel(
         id: 'branch_1',
@@ -51,7 +55,7 @@ class BranchModel {
         profitMultiplier: 1.25,
         vectorIcon: 'workshop',
         unlockedSummary: 'Atölye & Tamirhane, Tuning Stüdyosu, Personel Kadrosu',
-        isUnlocked: currentSlotCount >= 6,
+        isUnlocked: currentSlotCount >= 6 || unlockedBuildings.contains('property_tier_2'),
       ),
       BranchModel(
         id: 'branch_3',
@@ -63,8 +67,8 @@ class BranchModel {
         targetLevel: 3,
         profitMultiplier: 1.60,
         vectorIcon: 'shield',
-        unlockedSummary: 'Canlı İhale, Finans Masası, Borsa & Yatırım',
-        isUnlocked: currentSlotCount >= 10,
+        unlockedSummary: 'Canlı İhale, Finans Masası, Borsa & Yatırım, Müşteri Yorumları, Mimari Dekorasyon',
+        isUnlocked: currentSlotCount >= 10 || unlockedBuildings.contains('property_tier_3'),
       ),
       BranchModel(
         id: 'branch_4',
@@ -76,8 +80,8 @@ class BranchModel {
         targetLevel: 4,
         profitMultiplier: 2.20,
         vectorIcon: 'rare',
-        unlockedSummary: 'Hurdalık & Parça, Rent-a-Car Filosu, Karaborsa, Holding İşletmeleri',
-        isUnlocked: currentSlotCount >= 16,
+        unlockedSummary: 'Hurdalık & Parça, Rent-a-Car Filosu, Karaborsa, Yan İşletmeler',
+        isUnlocked: currentSlotCount >= 16 || unlockedBuildings.contains('property_tier_4'),
       ),
     ];
   }

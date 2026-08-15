@@ -20,7 +20,11 @@ class BranchScreen extends ConsumerWidget {
     final p = themeExt.palette;
     final isDark = p.isDark;
     final game = ref.watch(gameProvider);
-    final branches = BranchModel.getAllBranches(currentSlotCount: game.maxGarageSlots, currentLevel: game.level);
+    final branches = BranchModel.getAllBranches(
+      currentSlotCount: game.maxGarageSlots,
+      currentLevel: game.level,
+      unlockedBuildings: game.unlockedBuildings,
+    );
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),

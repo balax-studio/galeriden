@@ -312,10 +312,22 @@ class DealershipModel {
     }
   }
 
+  static String getRequiredBranchName(String route) {
+    final reqLvl = getRequiredLevel(route);
+    switch (reqLvl) {
+      case 2:
+        return 'İkitelli Sanayi Şubesi (Seviye 2)';
+      case 3:
+        return 'Maslak Otomotiv Plazası (Seviye 3)';
+      case 4:
+        return 'Levent Mega Holding Plazası (Seviye 4)';
+      default:
+        return 'Başlangıç Garajı';
+    }
+  }
+
   bool isFeatureUnlocked(String route) {
-    if (unlockedBuildings.contains(route)) return true;
-    final req = getRequiredLevel(route);
-    return level >= req;
+    return unlockedBuildings.contains(route);
   }
 
   DealershipModel({
@@ -671,7 +683,17 @@ class DealershipModel {
       ownedStocks: const [],
       recentEvents: const [],
       dailyTaxRate: 150.0,
-      unlockedBuildings: const {'/marketplace', '/workshop'},
+      unlockedBuildings: const {
+        '/marketplace',
+        '/showroom',
+        '/expertise',
+        '/car-wash',
+        '/character-growth',
+        '/settings',
+        '/dealership-identity',
+        '/theme-store',
+        '/branches',
+      },
       discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 (Dede Mirası)'],
       pendingDopedOffers: const [],
     );
@@ -816,7 +838,17 @@ class DealershipModel {
       salvagedParts: parseList(json['salvagedParts'] as List<dynamic>?, SalvagedPart.fromJson),
       scrapyardCars: parseList(json['scrapyardCars'] as List<dynamic>?, ScrapyardCar.fromJson),
       blackMarketCars: parseList(json['blackMarketCars'] as List<dynamic>?, BlackMarketCarModel.fromJson),
-      unlockedBuildings: (json['unlockedBuildings'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {'/marketplace', '/workshop'},
+      unlockedBuildings: (json['unlockedBuildings'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {
+        '/marketplace',
+        '/showroom',
+        '/expertise',
+        '/car-wash',
+        '/character-growth',
+        '/settings',
+        '/dealership-identity',
+        '/theme-store',
+        '/branches',
+      },
       seenStoryCardIds: (json['seenStoryCardIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       daysSinceLastStoryAd: (json['daysSinceLastStoryAd'] as num?)?.toInt() ?? 0,
       nextStoryAdTargetDays: (json['nextStoryAdTargetDays'] as num?)?.toInt() ?? 14,

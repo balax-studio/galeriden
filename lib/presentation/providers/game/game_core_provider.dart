@@ -235,26 +235,22 @@ class GameCoreNotifier extends GameBaseNotifier
   }
 
   void checkAndUnlockFeatures() {
-    final currentLvl = state.level;
-    final Set<String> updatedBuildings = Set.from(state.unlockedBuildings);
+    final baseRoutes = {
+      '/marketplace',
+      '/showroom',
+      '/expertise',
+      '/car-wash',
+      '/character-growth',
+      '/settings',
+      '/dealership-identity',
+      '/theme-store',
+      '/branches',
+    };
     
-    // Check all routes and auto-unlock based on level
-    final allRoutes = [
-      '/marketplace', '/showroom', '/workshop', '/expertise', '/car-wash',
-      '/reviews', '/history', '/staff', '/staff-academy', '/showroom-decor',
-      '/auction', '/tuning-studio', '/finance', '/bank-investments',
-      '/stock-market', '/scrapyard', '/rent-a-car', '/black-market',
-      '/side-businesses', '/branches',
-    ];
-
-    for (final route in allRoutes) {
-      if (currentLvl >= DealershipModel.getRequiredLevel(route)) {
-        updatedBuildings.add(route);
-      }
-    }
-
-    if (updatedBuildings.length != state.unlockedBuildings.length) {
-      state = state.copyWith(unlockedBuildings: updatedBuildings);
+    if (!state.unlockedBuildings.containsAll(baseRoutes)) {
+      state = state.copyWith(
+        unlockedBuildings: {...state.unlockedBuildings, ...baseRoutes},
+      );
     }
   }
 

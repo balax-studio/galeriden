@@ -243,9 +243,9 @@ class DashboardServicesGrid extends ConsumerWidget {
           if (isUnlocked) {
             context.push(item.route);
           } else {
-            NotificationService.showWarning(
+            NotificationService.showInfo(
               context,
-              'Kilitli Alan! Bu özellik Seviye $reqLevel mülküne geçince açılır. (Mevcut: Seviye ${game.level})',
+              'Kilitli Alan! Bu özellik ${DealershipModel.getRequiredBranchName(item.route)} satın alındığında açılır. Şubeler ekranından inceleyebilirsin.',
             );
           }
         },
@@ -356,7 +356,7 @@ class DashboardServicesGrid extends ConsumerWidget {
           } else {
             NotificationService.showInfo(
               context,
-              'Kilitli Önizleme: Bu özellik Seviye $reqLevel mülkünü (Şube) açtığınızda kullanıma sunulacaktır.',
+              'Kilitli Önizleme: Bu özellik ${DealershipModel.getRequiredBranchName(item.route)} satın alındığında açılır.',
             );
           }
         },

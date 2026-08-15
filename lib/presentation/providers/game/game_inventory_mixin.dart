@@ -263,20 +263,46 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Purchase & Upgrade Branch (Advances Dealership Level directly)
+  /// Purchase & Upgrade Branch (Dual-Gate: Level Requirement + Capital Investment)
   bool upgradeBranch(BranchModel branch) {
     if (state.balance < branch.requiredBalance) return false;
+    if (state.level < branch.targetLevel) return false;
 
-    final newLevel = branch.targetLevel > state.level ? branch.targetLevel : state.level;
     final updatedBuildings = Set<String>.from(state.unlockedBuildings);
-    if (branch.targetLevel >= 3) updatedBuildings.add('property_tier_2');
-    if (branch.targetLevel >= 4) updatedBuildings.add('property_tier_3');
-    if (branch.targetLevel >= 5) updatedBuildings.add('property_tier_4');
+    if (branch.targetLevel >= 2) {
+      updatedBuildings.addAll({
+        'property_tier_2',
+        '/workshop',
+        '/tuning-studio',
+        '/staff',
+        '/staff-academy',
+        '/history',
+      });
+    }
+    if (branch.targetLevel >= 3) {
+      updatedBuildings.addAll({
+        'property_tier_3',
+        '/auction',
+        '/finance',
+        '/bank-investments',
+        '/stock-market',
+        '/reviews',
+        '/showroom-decor',
+      });
+    }
+    if (branch.targetLevel >= 4) {
+      updatedBuildings.addAll({
+        'property_tier_4',
+        '/scrapyard',
+        '/rent-a-car',
+        '/black-market',
+        '/side-businesses',
+      });
+    }
 
     state = state.copyWith(
       balance: state.balance - branch.requiredBalance,
       maxGarageSlots: branch.maxGarageSlots,
-      level: newLevel,
       unlockedBuildings: updatedBuildings,
     );
     addXP(250);
