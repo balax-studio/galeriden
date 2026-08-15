@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Neo-Brutalist Monolithic Card Widget
 /// Features high-contrast solid borders, hard offset shadows, and tactile press animation.
@@ -81,7 +82,10 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
 
     if (widget.onTap != null) {
       result = GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapDown: (_) {
+          HapticFeedback.lightImpact();
+          setState(() => _isPressed = true);
+        },
         onTapUp: (_) => setState(() => _isPressed = false),
         onTapCancel: () => setState(() => _isPressed = false),
         onTap: widget.onTap,

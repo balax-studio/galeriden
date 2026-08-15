@@ -43,8 +43,17 @@ class WorkshopEquipmentTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2),
-              boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 0)],
+              border: Border.all(
+                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                width: 2.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+                  offset: const Offset(2, 2),
+                  blurRadius: 0,
+                ),
+              ],
             ),
             child: Icon(icon, color: Colors.black, size: 22),
           ),

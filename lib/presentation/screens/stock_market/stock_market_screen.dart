@@ -43,7 +43,10 @@ class StockMarketScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF141721) : Colors.white,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  border: Border.all(color: Colors.black, width: 2.5),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.5,
+                  ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -97,41 +100,53 @@ class StockMarketScreen extends ConsumerWidget {
                         fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.black, width: 2),
+                          borderSide: BorderSide(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.black, width: 2),
+                          borderSide: BorderSide(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.5),
                         ),
                         suffixText: 'LOT',
-                        suffixStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+                        suffixStyle: const TextStyle(fontWeight: FontWeight.w900),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
-                      onChanged: (val) => setDialogState(() {}),
+                      onChanged: (val) {
+                        setDialogState(() {});
+                      },
                     ),
                     const SizedBox(height: 10),
-                    // Quick amount chips
                     Row(
                       children: [
                         _buildQuickChip('+10', () {
+                          HapticFeedback.lightImpact();
                           lotController.text = (lotAmount + 10).toString();
                           setDialogState(() {});
                         }, isDark),
                         const SizedBox(width: 6),
                         _buildQuickChip('+50', () {
+                          HapticFeedback.lightImpact();
                           lotController.text = (lotAmount + 50).toString();
                           setDialogState(() {});
                         }, isDark),
                         const SizedBox(width: 6),
                         _buildQuickChip('+100', () {
+                          HapticFeedback.lightImpact();
                           lotController.text = (lotAmount + 100).toString();
                           setDialogState(() {});
                         }, isDark),
                         const SizedBox(width: 6),
                         _buildQuickChip('MAX AL ($maxBuyable)', () {
+                          HapticFeedback.lightImpact();
                           lotController.text = maxBuyable.toString();
                           setDialogState(() {});
                         }, isDark),
@@ -143,7 +158,10 @@ class StockMarketScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black, width: 1.5),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
                       ),
                       child: Column(
                         children: [
@@ -162,7 +180,7 @@ class StockMarketScreen extends ConsumerWidget {
                               Text(CurrencyFormatter.formatShort(commission), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                             ],
                           ),
-                          const Divider(height: 12, thickness: 1),
+                          Divider(height: 12, thickness: 1, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -236,14 +254,20 @@ class StockMarketScreen extends ConsumerWidget {
   static Widget _buildQuickChip(String label, VoidCallback onTap, bool isDark) {
     return Expanded(
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 6),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: Colors.black, width: 1.2),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 1.5,
+            ),
           ),
           child: Text(
             label,
@@ -321,7 +345,10 @@ class StockMarketScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: isOverallProfitable ? AppColors.brutalGreen : AppColors.errorRed,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black, width: 2),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: Icon(
                     isOverallProfitable ? Icons.trending_up_rounded : Icons.trending_down_rounded,

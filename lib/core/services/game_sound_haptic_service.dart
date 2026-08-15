@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-/// Centralized Haptic & Sound Effects Manager for Galerisinden Tycoon
+/// Centralized Haptic & Sound Effects Manager for Galeriden Tycoon
 class GameSoundHapticService {
   GameSoundHapticService._();
 

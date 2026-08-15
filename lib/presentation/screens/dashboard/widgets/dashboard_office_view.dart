@@ -45,7 +45,10 @@ class DashboardOfficeView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFDE59),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black, width: 1.2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
                 ),
                 child: const Icon(Icons.star_rounded, color: Colors.black, size: 24),
               ),
@@ -170,7 +173,10 @@ class DashboardOfficeView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black, width: 1.2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
                 ),
                 child: Icon(icon, size: 20, color: Colors.black),
               ),

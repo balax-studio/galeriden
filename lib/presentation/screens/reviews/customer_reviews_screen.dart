@@ -45,7 +45,10 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black, width: 2),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: Column(
                     children: [

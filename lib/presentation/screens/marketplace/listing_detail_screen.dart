@@ -9,7 +9,6 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
-import '../../widgets/app_vector_icons.dart';
 import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/car_icons.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -101,7 +100,7 @@ class ListingDetailScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFDE59).withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFFFDE59), width: 1),
+                      border: Border.all(color: const Color(0xFFFFDE59), width: 1.5),
                     ),
                     child: Text(
                       PsychologyEngine.getRandomFomoText(),
@@ -124,7 +123,7 @@ class ListingDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: p.surfaceColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: p.surfaceBorderColor),
+                border: Border.all(color: p.surfaceBorderColor, width: 2.0),
               ),
               child: Column(
                 children: [
@@ -147,9 +146,14 @@ class ListingDetailScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('KAPORTA & EKSPERTİZ RAPORU', style: AppTypography.labelSmall(p.isDark)),
-                TextButton.icon(
-                  icon: VectorIconWidget(type: 'expertise', color: p.primaryColor, size: 16),
-                  label: Text('Detaylı Rapor', style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                NeoBrutalButton(
+                  label: 'DETAYLI RAPOR',
+                  icon: Icons.assignment_outlined,
+                  backgroundColor: p.primaryColor,
+                  textColor: Colors.black,
+                  borderColor: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
@@ -161,7 +165,7 @@ class ListingDetailScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             CarDamageSchemaWidget(bodyParts: exp.bodyParts),
             const SizedBox(height: 24),
 
@@ -174,7 +178,7 @@ class ListingDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: p.surfaceColor,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: p.surfaceBorderColor),
+                border: Border.all(color: p.surfaceBorderColor, width: 2.0),
               ),
               child: Text(
                 '"${listing.description}"',

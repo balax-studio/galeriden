@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
@@ -199,15 +200,21 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
               fillColor: isDark ? const Color(0xFF141721) : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                borderSide: BorderSide(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                borderSide: BorderSide(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2),
+                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.0),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
@@ -224,15 +231,21 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
               fillColor: isDark ? const Color(0xFF141721) : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                borderSide: BorderSide(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                borderSide: BorderSide(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2),
+                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.0),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
@@ -277,7 +290,10 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                           decoration: BoxDecoration(
                             color: item['color'] as Color,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.black, width: 1.5),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
                           ),
                           child: Icon(item['icon'] as IconData, color: Colors.white, size: 24),
                         ),
@@ -313,7 +329,10 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                                 decoration: BoxDecoration(
                                   color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
                                   borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: Colors.black12),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                                    width: 1.5,
+                                  ),
                                 ),
                                 child: Text(
                                   item['perk'] as String,
@@ -350,7 +369,10 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
             children: _emblems.map((e) {
               final isSelected = _selectedEmblem == e['id'];
               return InkWell(
-                onTap: () => setState(() => _selectedEmblem = e['id']!),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _selectedEmblem = e['id']!);
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
@@ -358,7 +380,10 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                         ? AppColors.brutalYellow
                         : (isDark ? const Color(0xFF141721) : Colors.white),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black, width: isSelected ? 2.2 : 1.2),
+                    border: Border.all(
+                      color: isSelected ? const Color(0xFF0F172A) : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+                      width: 2.0,
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

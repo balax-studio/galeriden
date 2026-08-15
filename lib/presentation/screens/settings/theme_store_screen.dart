@@ -14,14 +14,17 @@ import '../../widgets/neo_brutal_card.dart';
 class ThemeStoreScreen extends ConsumerWidget {
   const ThemeStoreScreen({super.key});
 
-  Widget _buildColorDot(Color color) {
+  Widget _buildColorDot(Color color, bool isDark) {
     return Container(
       width: 14,
       height: 14,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.black, width: 1.2),
+        border: Border.all(
+          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          width: 1.8,
+        ),
       ),
     );
   }
@@ -97,18 +100,18 @@ class ThemeStoreScreen extends ConsumerWidget {
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
                 backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isActive ? AppColors.brutalYellow : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
-                borderWidth: isActive ? 2.5 : 1.5,
+                borderColor: isActive ? AppColors.brutalYellow : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+                borderWidth: isActive ? 2.5 : 2.0,
                 borderRadius: 14,
                 child: Row(
                   children: [
                     Row(
                       children: [
-                        _buildColorDot(palette.primaryColor),
+                        _buildColorDot(palette.primaryColor, isDark),
                         const SizedBox(width: 4),
-                        _buildColorDot(palette.secondaryColor),
+                        _buildColorDot(palette.secondaryColor, isDark),
                         const SizedBox(width: 4),
-                        _buildColorDot(palette.backgroundColor),
+                        _buildColorDot(palette.backgroundColor, isDark),
                       ],
                     ),
                     const SizedBox(width: 12),

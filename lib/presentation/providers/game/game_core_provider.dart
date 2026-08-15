@@ -59,6 +59,7 @@ class GameCoreNotifier extends GameBaseNotifier
 
   Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final jsonString = prefs.getString(_storageKey);
 
     if (jsonString != null) {
@@ -142,6 +143,7 @@ class GameCoreNotifier extends GameBaseNotifier
   Future<void> flushSaveNow() async {
     _saveDebounceTimer?.cancel();
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final jsonString = jsonEncode(state.toJson());
     await prefs.setString(_storageKey, jsonString);
   }

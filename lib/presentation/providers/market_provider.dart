@@ -41,10 +41,13 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
   }
 
   void refreshMarket() {
-    final trend = _ref.read(gameProvider).marketTrend;
+    final game = _ref.read(gameProvider);
+    final trend = game.marketTrend;
+    final balance = game.balance;
     state = MarketEngine.generateRandomListings(
       playerLevel: playerLevel,
       trend: trend,
+      playerBalance: balance,
     );
   }
 
@@ -57,7 +60,9 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
       return;
     }
 
-    final trend = _ref.read(gameProvider).marketTrend;
+    final game = _ref.read(gameProvider);
+    final trend = game.marketTrend;
+    final balance = game.balance;
     final targetCount = MarketEngine.calculateDynamicListingCount(
       playerLevel: playerLevel,
       trend: trend,
@@ -82,6 +87,7 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
       count: addCount,
       playerLevel: playerLevel,
       trend: trend,
+      playerBalance: balance,
     );
 
     final updatedList = [...current, ...newListings];

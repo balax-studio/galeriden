@@ -17,6 +17,8 @@ class GameConstants {
 
   static const String appName = 'Galeriden';
   static const String appVersion = '1.2.0';
+  static const String privacyPolicyUrl =
+      'https://docs.google.com/document/d/e/2PACX-1vSIja6S76xfAAy2wwWh12Mi0rEdjiMailne09VQj5gbPnhDTSpFVU5SKmwb2AdeuqO41L3EjjSI0kfd/pub';
 
   // Economy Defaults
   static const double startingBalance = 50000.0;
@@ -36,12 +38,12 @@ class GameConstants {
       segment: 'efsane',
       popularityWeight: 26,
       models: [
-        'Tofaşk Şahin-S Yanlama',
-        'Tofaşk Doğan Görünümlü SLX',
-        'Tofaşk Kartal Bagajlı',
-        'Tofaşk Hacı Murat 124 (Dede Mirası)',
-        'Tofaşk Serçe Çıtır Şehirli',
-        'Tofaşk Murat 131 Nostalji Kralı',
+        'Şahin-S Yanlama',
+        'Doğan Görünümlü SLX',
+        'Kartal Bagajlı',
+        'Hacı Murat 124 (Dede Mirası)',
+        'Serçe Çıtır Şehirli',
+        'Murat 131 Nostalji Kralı',
       ],
     ),
     CarBrandData(
@@ -49,10 +51,10 @@ class GameConstants {
       segment: 'klasik',
       popularityWeight: 10,
       models: [
-        'Anadolum A-Bir Nostalji',
-        'Anadolum STC-16 Canavarı',
-        'Anadolum Böcek Sahil Çılgını',
-        'Anadolum SV-1600 Aile Klasiği',
+        'A-Bir Nostalji',
+        'STC-16 Canavarı',
+        'Böcek Sahil Çılgını',
+        'SV-1600 Aile Klasiği',
       ],
     ),
 
@@ -62,11 +64,11 @@ class GameConstants {
       segment: 'lüks',
       popularityWeight: 22,
       models: [
-        'Merso E-250 Gözlüklü',
-        'Merso C-200 Makam AMG',
-        'Merso G-63 Tuğla V8',
-        'Merso S-400 Patron Long',
-        'Merso W-124 Taksici Efsanesi',
+        'E-250 Gözlüklü',
+        'C-200 Makam AMG',
+        'G-63 Tuğla V8',
+        'S-400 Patron Long',
+        'W-124 Taksici Efsanesi',
       ],
     ),
     CarBrandData(
@@ -74,11 +76,11 @@ class GameConstants {
       segment: 'premium',
       popularityWeight: 24,
       models: [
-        'Bemeve 3.20d Yanlama E-90',
-        'Bemeve 5.20d Otoban Canavarı',
-        'Bemeve E-30 Yanlama Paketi',
-        'Bemeve M-Dört Pist Fırtınası',
-        'Bemeve X-Beş Dağ Keçisi',
+        '3.20d Yanlama E-90',
+        '5.20d Otoban Canavarı',
+        'E-30 Yanlama Paketi',
+        'M-Dört Pist Fırtınası',
+        'X-Beş Dağ Keçisi',
       ],
     ),
     CarBrandData(
@@ -86,11 +88,11 @@ class GameConstants {
       segment: 'halk',
       popularityWeight: 25,
       models: [
-        'Vosgen Pas-At 2.0 TDi Aşiret',
-        'Vosgen Golf Sekiz R-Line',
-        'Vosgen Polo Şehir Faresi',
-        'Vosgen Trans-Portakal Van',
-        'Vosgen Art-Karizma 2.0 TDI',
+        'Pas-At 2.0 TDi Aşiret',
+        'Golf Sekiz R-Line',
+        'Polo Şehir Faresi',
+        'Trans-Portakal Van',
+        'Art-Karizma 2.0 TDI',
       ],
     ),
     CarBrandData(
@@ -98,10 +100,10 @@ class GameConstants {
       segment: 'premium',
       popularityWeight: 18,
       models: [
-        'Avdi A-Üç Sedan S-Hattı',
-        'Avdi A-Altı 2.0 TDI Kuatro',
-        'Avdi RS-Altı Canavar',
-        'Avdi TT-Kupa Hızlı Çizgi',
+        'A-Üç Sedan S-Hattı',
+        'A-Altı 2.0 TDI Kuatro',
+        'RS-Altı Canavar',
+        'TT-Kupa Hızlı Çizgi',
       ],
     ),
     CarBrandData(
@@ -109,10 +111,10 @@ class GameConstants {
       segment: 'süperspor',
       popularityWeight: 8,
       models: [
-        'Porş 9-1-2 Kurbağa Turbo',
-        'Porş Pana-Mera 4S',
-        'Porş Mekan GTS',
-        'Porş Kaynana Turbo GT',
+        '9-1-2 Kurbağa Turbo',
+        'Pana-Mera 4S',
+        'Mekan GTS',
+        'Kaynana Turbo GT',
       ],
     ),
     CarBrandData(
@@ -120,10 +122,10 @@ class GameConstants {
       segment: 'halk',
       popularityWeight: 16,
       models: [
-        'Opelyus Astrolog K Dinamik',
-        'Opelyus Korsan F Şehirli',
-        'Opelyus Vektör B 2.0 CD',
-        'Opelyus İnsinya Gran Spor',
+        'Astrolog K Dinamik',
+        'Korsan F Şehirli',
+        'Vektör B 2.0 CD',
+        'İnsinya Gran Spor',
       ],
     ),
 
@@ -133,11 +135,11 @@ class GameConstants {
       segment: 'halk',
       popularityWeight: 23,
       models: [
-        'Reno Klio Beş RS',
-        'Reno Megan Dört Sedan',
-        'Reno Toros Dağ Aslanı SW',
-        'Reno Brodvey 1.4 Yaylı',
-        'Reno Tılsım 2.0 dCi',
+        'Klio Beş RS',
+        'Megan Dört Sedan',
+        'Toros Dağ Aslanı SW',
+        'Brodvey 1.4 Yaylı',
+        'Tılsım 2.0 dCi',
       ],
     ),
     CarBrandData(
@@ -145,11 +147,11 @@ class GameConstants {
       segment: 'ekonomi',
       popularityWeight: 24,
       models: [
-        'Fiyasko Ege-Paket 1.3 Multijet',
-        'Fiyasko Doblo Enişte Combi',
-        'Fiyasko Lineer Dizel',
-        'Fiyasko Uno Turbo Çılgın',
-        'Fiyasko Temprament 2.0 SX',
+        'Ege-Paket 1.3 Multijet',
+        'Doblo Enişte Combi',
+        'Lineer Dizel',
+        'Uno Turbo Çılgın',
+        'Temprament 2.0 SX',
       ],
     ),
     CarBrandData(
@@ -157,10 +159,10 @@ class GameConstants {
       segment: 'popüler',
       popularityWeight: 17,
       models: [
-        'Pöjo İkiYüzSekiz GT',
-        'Pöjo ÜçBinSekiz Aslan SUV',
-        'Pöjo BeşYüzSekiz Karizma',
-        'Pöjo İkiYüzAltı RC Roket',
+        'İkiYüzSekiz GT',
+        'ÜçBinSekiz Aslan SUV',
+        'BeşYüzSekiz Karizma',
+        'İkiYüzAltı RC Roket',
       ],
     ),
     CarBrandData(
@@ -168,10 +170,10 @@ class GameConstants {
       segment: 'ekonomi',
       popularityWeight: 14,
       models: [
-        'Sitroen C-Üç Havalı Kros',
-        'Sitroen Berlingoz Usta',
-        'Sitroen C-Elize Eko',
-        'Sitroen C-Dört X Parlak',
+        'C-Üç Havalı Kros',
+        'Berlingoz Usta',
+        'C-Elize Eko',
+        'C-Dört X Parlak',
       ],
     ),
 
@@ -181,10 +183,10 @@ class GameConstants {
       segment: 'güvenilir',
       popularityWeight: 20,
       models: [
-        'Hondam Civciv 1.5 VTEC',
-        'Hondam Civciv Type-R Vututu',
-        'Hondam S-İkiBin Rüzgarı',
-        'Hondam CR-Vututu SUV',
+        'Civciv 1.5 VTEC',
+        'Civciv Type-R Vututu',
+        'S-İkiBin Rüzgarı',
+        'CR-Vututu SUV',
       ],
     ),
     CarBrandData(
@@ -192,10 +194,10 @@ class GameConstants {
       segment: 'güvenilir',
       popularityWeight: 22,
       models: [
-        'Toyo To-Yıkılmaz Hilaks 4x4',
-        'Toyo Korola 1.8 Hibrit Eko',
-        'Toyo Yarışçı 1.5 Kompakt',
-        'Toyo Süper-Supra MK4 TwinTurbo',
+        'To-Yıkılmaz Hilaks 4x4',
+        'Korola 1.8 Hibrit Eko',
+        'Yarışçı 1.5 Kompakt',
+        'Süper-Supra MK4 TwinTurbo',
       ],
     ),
     CarBrandData(
@@ -203,11 +205,11 @@ class GameConstants {
       segment: 'halk',
       popularityWeight: 19,
       models: [
-        'Fort Fokus-At 1.5 Dizel',
-        'Fort Trans-İt 100T Pazar Servisi',
-        'Fort Müstang V8 Vahşi At',
-        'Fort Kurye-Van Ticari',
-        'Fort Fiyesta ST',
+        'Fokus-At 1.5 Dizel',
+        'Trans-İt 100T Pazar Servisi',
+        'Müstang V8 Vahşi At',
+        'Kurye-Van Ticari',
+        'Fiyesta ST',
       ],
     ),
 
@@ -217,9 +219,9 @@ class GameConstants {
       segment: 'egzotik',
       popularityWeight: 4,
       models: [
-        'Lambo Hura-Can V10',
-        'Lambo Uruz 4.0 Çöl Boğası',
-        'Lambo Aven-Tador V12',
+        'Hura-Can V10',
+        'Uruz 4.0 Çöl Boğası',
+        'Aven-Tador V12',
       ],
     ),
     CarBrandData(
@@ -227,9 +229,9 @@ class GameConstants {
       segment: 'egzotik',
       popularityWeight: 4,
       models: [
-        'Ferro Dört-Beş-Sekiz İtalyano',
-        'Ferro F-Sekiz Haraççı',
-        'Ferro SF-Doksan Hibrit',
+        'Dört-Beş-Sekiz İtalyano',
+        'F-Sekiz Haraççı',
+        'SF-Doksan Hibrit',
       ],
     ),
     CarBrandData(
@@ -237,10 +239,10 @@ class GameConstants {
       segment: 'güvenlik',
       popularityWeight: 12,
       models: [
-        'Çelikvolvo XK-Doksan Çelik Zırh',
-        'Çelikvolvo S-Altmış R-Stil',
-        'Çelikvolvo V-Kırk Köy Kasaba',
-        'Çelikvolvo XK-Altmış Prestij',
+        'XK-Doksan Çelik Zırh',
+        'S-Altmış R-Stil',
+        'V-Kırk Köy Kasaba',
+        'XK-Altmış Prestij',
       ],
     ),
     CarBrandData(
@@ -248,9 +250,9 @@ class GameConstants {
       segment: 'elektrikli',
       popularityWeight: 10,
       models: [
-        'Teslo Model-Üç Pilli',
-        'Teslo Model-Y Aile Roketi',
-        'Teslo Model-S Pled Uzay Mekiği',
+        'Model-Üç Pilli',
+        'Model-Y Aile Roketi',
+        'Model-S Pled Uzay Mekiği',
       ],
     ),
     CarBrandData(
@@ -258,8 +260,8 @@ class GameConstants {
       segment: 'yerli',
       popularityWeight: 16,
       models: [
-        'Milli T-Oniks 10X Akıllı SUV',
-        'Milli T-Sekiz Sedan Prototip',
+        '10X Akıllı SUV',
+        'T-Sekiz Sedan Prototip',
       ],
     ),
   ];

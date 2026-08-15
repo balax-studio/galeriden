@@ -80,14 +80,14 @@ class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay> with TickerP
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.85),
+          color: Colors.black.withValues(alpha: 0.90),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.laserGreen, width: 1.5),
+          border: Border.all(color: AppColors.laserGreen, width: 2.0),
           boxShadow: const [
             BoxShadow(
               color: AppColors.laserGreen,
-              blurRadius: 12,
-              spreadRadius: 1,
+              offset: Offset(2, 2),
+              blurRadius: 0,
             ),
           ],
         ),

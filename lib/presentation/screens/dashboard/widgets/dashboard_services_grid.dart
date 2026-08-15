@@ -228,8 +228,8 @@ class DashboardServicesGrid extends ConsumerWidget {
     final isUnlocked = game.isFeatureUnlocked(item.route);
     final reqLevel = DealershipModel.getRequiredLevel(item.route);
 
-    return SizedBox(
-      height: 96,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 96),
       child: NeoBrutalCard(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         backgroundColor: isUnlocked

@@ -140,8 +140,8 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                   color: isDark ? const Color(0xFF1B202D) : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF2C3545) : const Color(0xFFCBD5E1),
-                    width: 1.4,
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+                    width: 2.0,
                   ),
                 ),
                 child: Text(
@@ -198,8 +198,8 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                         color: choiceBg,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333D4F) : const Color(0xFF0F172A),
-                          width: 1.5,
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.0,
                         ),
                         boxShadow: const [
                           BoxShadow(color: Colors.black, offset: Offset(2, 2)),

@@ -53,7 +53,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: AppColors.brutalYellow,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.black, width: 2),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
                       ),
                       child: const Icon(Icons.military_tech_rounded, color: Colors.black, size: 32),
                     ),
@@ -132,7 +135,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.black, width: 1.4),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: FractionallySizedBox(
                     alignment: Alignment.centerLeft,
@@ -266,7 +272,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: item.isUnlocked ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.black, width: 1.2),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
                       ),
                       child: Icon(
                         item.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
@@ -439,7 +448,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: Icon(icon, color: Colors.white, size: 20),
                 ),
@@ -471,7 +483,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.black12),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0),
+                  width: 1.5,
+                ),
               ),
               child: Text(
                 perks,
@@ -563,7 +578,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: npc['color'] as Color,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.black, width: 1.2),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         child: Icon(npc['icon'] as IconData, color: Colors.white, size: 20),
                       ),
@@ -598,7 +616,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.black12),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        width: 1.5,
+                      ),
                     ),
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
@@ -713,7 +734,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Colors.black12),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                  width: 1.5,
+                ),
               ),
               child: Text(
                 perk,

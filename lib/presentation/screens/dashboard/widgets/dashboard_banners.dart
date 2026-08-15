@@ -287,6 +287,7 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     String questTitle;
     String questSubtitle;
     IconData questIcon;
@@ -326,7 +327,10 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFFFFDE59),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 1.8),
+              border: Border.all(
+                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                width: 2.0,
+              ),
             ),
             child: Icon(questIcon, color: Colors.black, size: 24),
           ),

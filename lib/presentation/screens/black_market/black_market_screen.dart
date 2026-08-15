@@ -9,6 +9,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 
 class BlackMarketScreen extends ConsumerWidget {
   const BlackMarketScreen({super.key});
@@ -43,7 +44,10 @@ class BlackMarketScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.errorRed,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
                 ),
@@ -82,24 +86,12 @@ class BlackMarketScreen extends ConsumerWidget {
 
           // 2. Black Market Vehicles List
           if (bmCars.isEmpty || bmCars.every((c) => c.isPurchased))
-            NeoBrutalCard(
-              padding: const EdgeInsets.all(24),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 14,
-              child: const Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.nightlight_round, size: 36, color: Color(0xFF64748B)),
-                    SizedBox(height: 8),
-                    Text(
-                      'Karaborsada şu an satılık araç yok. Gece yarısı devriyesiyle yeni ilanlar düşecek!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                    ),
-                  ],
-                ),
-              ),
+            const NeoBrutalEmptyState(
+              icon: Icons.nightlight_round,
+              accentColor: AppColors.errorRed,
+              badgeText: 'GECE DEVRİYESİ BEKLENİYOR',
+              title: 'Karaborsada Satılık Araç Yok',
+              description: 'Karaborsada şu an satılık soruşturmalı araç kalmadı. Gece yarısı devriyesiyle yeni gizli ilanlar piyasaya düşecek.',
             )
           else
             ...bmCars.where((c) => !c.isPurchased).map((car) {

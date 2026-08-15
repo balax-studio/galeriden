@@ -160,18 +160,16 @@ class ExpertiseReportSheet extends StatelessWidget {
               ),
               const SizedBox(height: 10),
             ],
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: p.textPrimaryColor,
-                  side: BorderSide(color: p.surfaceBorderColor),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Raporu Kapat', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
+            NeoBrutalButton(
+              label: 'RAPORU KAPAT',
+              backgroundColor: p.isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+              textColor: p.textPrimaryColor,
+              borderColor: p.surfaceBorderColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              fullWidth: true,
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              onPressed: () => Navigator.pop(context),
             ),
           ],
         ),

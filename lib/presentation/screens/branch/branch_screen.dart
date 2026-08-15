@@ -80,7 +80,10 @@ class BranchScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFF06B6D4),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.palette_rounded, color: Colors.black, size: 22),
                 ),
@@ -138,7 +141,7 @@ class BranchScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(14),
                 backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                 borderColor: isCurrent ? AppColors.brutalYellow : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
-                borderWidth: isCurrent ? 2.5 : 1.5,
+                borderWidth: isCurrent ? 2.5 : 2.0,
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +157,10 @@ class BranchScreen extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   color: (isCurrent || b.isUnlocked) ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.black, width: 1.2),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    width: 2.0,
+                                  ),
                                 ),
                                 child: const Icon(Icons.storefront_rounded, color: Colors.black, size: 22),
                               ),
@@ -221,7 +227,10 @@ class BranchScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: isDark ? const Color(0xFF202636) : const Color(0xFFCBD5E1), width: 1),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -260,7 +269,10 @@ class BranchScreen extends ConsumerWidget {
                                       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        side: const BorderSide(color: Colors.black, width: 2.5),
+                                        side: BorderSide(
+                                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                          width: 2.5,
+                                        ),
                                       ),
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
@@ -270,7 +282,10 @@ class BranchScreen extends ConsumerWidget {
                                             decoration: BoxDecoration(
                                               color: AppColors.brutalYellow,
                                               shape: BoxShape.circle,
-                                              border: Border.all(color: Colors.black, width: 2),
+                                              border: Border.all(
+                                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                                width: 2.0,
+                                              ),
                                             ),
                                             child: const Icon(Icons.stars_rounded, size: 40, color: Colors.black),
                                           ),

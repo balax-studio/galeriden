@@ -92,8 +92,8 @@ class AppFloatingDock extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     border: isSelected
                         ? Border.all(
-                            color: isDark ? Colors.black38 : const Color(0xFF0F172A),
-                            width: 1.6,
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
                           )
                         : null,
                   ),

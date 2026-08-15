@@ -44,12 +44,12 @@ class _IsometricHydraulicLiftWidgetState extends State<IsometricHydraulicLiftWid
       decoration: BoxDecoration(
         color: AppColors.isometricGridDark,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: p.primaryColor.withValues(alpha: 0.4)),
+        border: Border.all(color: p.primaryColor, width: 2.0),
         boxShadow: [
           BoxShadow(
-            color: AppColors.neonCyan.withValues(alpha: 0.12),
-            blurRadius: 10,
-            spreadRadius: 1,
+            color: p.isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+            offset: const Offset(3.0, 3.0),
+            blurRadius: 0,
           ),
         ],
       ),

@@ -89,7 +89,10 @@ class SideBusinessScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: AppColors.brutalGreen,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.black, width: 1.5),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
                           ),
                           child: const Icon(Icons.monetization_on_rounded, color: Colors.black, size: 24),
                         ),
@@ -176,7 +179,10 @@ class SideBusinessScreen extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   color: isOwned ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.black, width: 1.4),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    width: 2.0,
+                                  ),
                                 ),
                                 child: Icon(iconData, color: isOwned ? Colors.black : const Color(0xFF64748B), size: 22),
                               ),

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/services/ad_service.dart';
@@ -93,7 +94,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               decoration: BoxDecoration(
                                 color: AppColors.brutalYellow,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.black, width: 1.5),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  width: 2.0,
+                                ),
                               ),
                               child: const Icon(Icons.speed_rounded, color: Colors.black, size: 20),
                             ),
@@ -158,12 +162,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 : (isDark ? const Color(0xFF141721) : Colors.white),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : Colors.black),
-                              width: isSelected ? 2.5 : 1.5,
+                              color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                              width: isSelected ? 2.5 : 2.0,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black,
+                                color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
                                 offset: isSelected ? const Offset(3, 3) : const Offset(1.5, 1.5),
                                 blurRadius: 0,
                               ),
@@ -214,8 +218,17 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFF7A00),
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.black, width: 2),
-                                boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 0)],
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  width: 2.0,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+                                    offset: const Offset(2, 2),
+                                    blurRadius: 0,
+                                  ),
+                                ],
                               ),
                               child: const Icon(Icons.car_repair_rounded, color: Colors.black, size: 24),
                             ),
@@ -515,7 +528,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               decoration: BoxDecoration(
                                 color: const Color(0xFF64748B),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.black, width: 1.5),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  width: 2.0,
+                                ),
                               ),
                               child: const Icon(Icons.settings_suggest_rounded, color: Colors.white, size: 20),
                             ),
@@ -622,7 +638,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.black, width: 1.5),
+        border: Border.all(
+          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          width: 2.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -779,7 +798,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 1.5),
+          border: Border.all(
+            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            width: 2.0,
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -998,7 +1020,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.black, width: 1.4),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
@@ -1056,7 +1081,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.black, width: 1.4),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1126,14 +1154,20 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     final isSel = type == selected;
     return Expanded(
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
         borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
           decoration: BoxDecoration(
             color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.black, width: 1.4),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: isSel ? 2.0 : 1.5,
+            ),
           ),
           child: Column(
             children: [

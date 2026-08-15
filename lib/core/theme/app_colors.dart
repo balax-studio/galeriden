@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// 2026 "Quiet Luxury" Color Palette for Galerisinden
+/// 2026 "Quiet Luxury" Color Palette for Galeriden
 class AppColors {
   AppColors._();
 

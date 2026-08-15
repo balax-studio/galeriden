@@ -207,7 +207,10 @@ class DashboardRetentionModals {
               decoration: BoxDecoration(
                 color: const Color(0xFFFFDE59),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.black, width: 1.5),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
+                ),
               ),
               child: const Icon(Icons.card_giftcard_rounded, color: Colors.black, size: 22),
             ),
@@ -229,7 +232,7 @@ class DashboardRetentionModals {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF9C3),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFFFDE59), width: 1.2),
+                border: Border.all(color: const Color(0xFFFFDE59), width: 2.0),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +302,10 @@ class DashboardRetentionModals {
               decoration: BoxDecoration(
                 color: const Color(0xFFFFDE59),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.black, width: 1.5),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
+                ),
               ),
               child: const Icon(Icons.military_tech_rounded, color: Colors.black, size: 28),
             ),
@@ -329,7 +335,7 @@ class DashboardRetentionModals {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF00E575), width: 1.2),
+                border: Border.all(color: const Color(0xFF00E575), width: 2.0),
               ),
               child: const Row(
                 children: [

@@ -20,7 +20,7 @@ class CarWashScreen extends ConsumerStatefulWidget {
 }
 
 class _CarWashScreenState extends ConsumerState<CarWashScreen> {
-  CarModel? _selectedCar;
+  String? _selectedCarId;
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +29,56 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    if (game.ownedCars.isNotEmpty && _selectedCar == null) {
-      _selectedCar = game.ownedCars.first;
-    } else if (game.ownedCars.isNotEmpty && _selectedCar != null) {
-      _selectedCar = game.ownedCars.firstWhere(
-        (c) => c.id == _selectedCar!.id,
-        orElse: () => game.ownedCars.first,
+    if (game.ownedCars.isEmpty) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(
+          title: 'OTO YIKAMA & DETAILING',
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(24),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 16,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.local_car_wash_rounded, size: 44, color: Color(0xFF38BDF8)),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Garajında Araç Yok!',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Yıkamak ve parlatmak için önce pazardan araç satın almalısın.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 16),
+                  NeoBrutalButton(
+                    label: 'İLANLARA GİT',
+                    icon: Icons.storefront_rounded,
+                    backgroundColor: AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    onPressed: () => context.push('/marketplace'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       );
     }
+
+    final selectedCar = game.ownedCars.firstWhere(
+      (c) => c.id == _selectedCarId,
+      orElse: () => game.ownedCars.first,
+    );
+    _selectedCarId = selectedCar.id;
 
     final hasHotWaterGun = game.unlockedBuildings.contains('wash_eq_hot_water');
     final hasFoamPump = game.unlockedBuildings.contains('wash_eq_foam_pump');
@@ -110,9 +152,9 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                     separatorBuilder: (context, index) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
                       final car = game.ownedCars[index];
-                      final isSelected = _selectedCar?.id == car.id;
+                      final isSelected = selectedCar.id == car.id;
                       return GestureDetector(
-                        onTap: () => setState(() => _selectedCar = car),
+                        onTap: () => setState(() => _selectedCarId = car.id),
                         child: Container(
                           width: 170,
                           padding: const EdgeInsets.all(10),
@@ -186,81 +228,92 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 const SizedBox(height: 16),
 
                 // 2. Active Wash Bay Interactive Visual
-                if (_selectedCar != null)
-                  NeoBrutalCard(
-                    padding: const EdgeInsets.all(16),
-                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                    borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                    borderRadius: 14,
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00F0FF),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.black, width: 2),
-                                boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 0)],
+                NeoBrutalCard(
+                  padding: const EdgeInsets.all(16),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 14,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00F0FF),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
                               ),
-                              child: const Icon(Icons.water_drop_rounded, color: Colors.black, size: 24),
+                              boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 0)],
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${_selectedCar!.brand} ${_selectedCar!.modelName}',
-                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Piyasa Değeri: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • Yıl: ${_selectedCar!.modelYear}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                                  ),
-                                ],
-                              ),
+                            child: const Icon(Icons.water_drop_rounded, color: Colors.black, size: 24),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${selectedCar.brand} ${selectedCar.modelName}',
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Piyasa Değeri: ${CurrencyFormatter.formatShort(selectedCar.baseMarketValue)} • Yıl: ${selectedCar.modelYear}',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
 
-                        // Status indicators
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildWashStatusPill(
-                                title: 'Köpüklü Yıkama',
-                                isDone: _selectedCar!.isWashed,
-                                color: const Color(0xFF00E575),
-                                isDark: isDark,
-                              ),
+                      // Status indicators
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildWashStatusPill(
+                              title: 'Köpüklü',
+                              isDone: selectedCar.isWashed,
+                              color: const Color(0xFF00E575),
+                              isDark: isDark,
                             ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: _buildWashStatusPill(
-                                title: 'Pasta Cila',
-                                isDone: _selectedCar!.isPolished,
-                                color: const Color(0xFFFFDE59),
-                                isDark: isDark,
-                              ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: _buildWashStatusPill(
+                              title: 'İç Temizlik',
+                              isDone: selectedCar.isInteriorCleaned,
+                              color: const Color(0xFF38BDF8),
+                              isDark: isDark,
                             ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: _buildWashStatusPill(
-                                title: 'Nano Seramik',
-                                isDone: _selectedCar!.isDetailedCleaned,
-                                color: const Color(0xFFA855F7),
-                                isDark: isDark,
-                              ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: _buildWashStatusPill(
+                              title: 'Pasta Cila',
+                              isDone: selectedCar.isPolished,
+                              color: const Color(0xFFFFDE59),
+                              isDark: isDark,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: _buildWashStatusPill(
+                              title: 'Nano Seramik',
+                              isDone: selectedCar.isDetailedCleaned,
+                              color: const Color(0xFFA855F7),
+                              isDark: isDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                ),
                 const SizedBox(height: 18),
 
                 // 3. Wash & Detailing Service Packages
@@ -281,11 +334,14 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   cost: 350.0 * discountMultiplier,
                   bonusText: '+%20 Temizlik',
                   badgeColor: const Color(0xFF00E575),
-                  isCompleted: _selectedCar?.isWashed ?? false,
+                  isCompleted: selectedCar.isWashed,
                   isDark: isDark,
                   onApply: () => _applyWashService(
+                    car: selectedCar,
                     cost: 350.0 * discountMultiplier,
                     valueBoost: 0.01,
+                    setWashed: true,
+                    setInterior: false,
                     setPolished: false,
                     setDetailed: false,
                     successMsg: 'Köpüklü yıkama tamamlandı! Araç pırıl pırıl parlıyor.',
@@ -299,11 +355,14 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   cost: 1200.0 * discountMultiplier,
                   bonusText: '+%3 Satış Değeri Artışı',
                   badgeColor: const Color(0xFF38BDF8),
-                  isCompleted: _selectedCar?.isWashed ?? false,
+                  isCompleted: selectedCar.isInteriorCleaned,
                   isDark: isDark,
                   onApply: () => _applyWashService(
+                    car: selectedCar,
                     cost: 1200.0 * discountMultiplier,
                     valueBoost: 0.03,
+                    setWashed: true,
+                    setInterior: true,
                     setPolished: false,
                     setDetailed: false,
                     successMsg: 'Detaylı iç-dış yıkama bitti! Araç değeri %3 arttı.',
@@ -317,11 +376,14 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   cost: 3500.0 * discountMultiplier,
                   bonusText: hasPolisher ? '+%8 Satış Değeri (Polisaj Bonusu!)' : '+%6 Satış Değeri',
                   badgeColor: const Color(0xFFFFDE59),
-                  isCompleted: _selectedCar?.isPolished ?? false,
+                  isCompleted: selectedCar.isPolished,
                   isDark: isDark,
                   onApply: () => _applyWashService(
+                    car: selectedCar,
                     cost: 3500.0 * discountMultiplier,
                     valueBoost: hasPolisher ? 0.08 : 0.06,
+                    setWashed: true,
+                    setInterior: false,
                     setPolished: true,
                     setDetailed: false,
                     successMsg: 'Pasta cila çekildi! Kaporta ayna gibi parlıyor.',
@@ -335,11 +397,14 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   cost: 8500.0 * discountMultiplier,
                   bonusText: '+%12 Süper Değer Artışı & 2x Hızlı Satış',
                   badgeColor: const Color(0xFFA855F7),
-                  isCompleted: _selectedCar?.isDetailedCleaned ?? false,
+                  isCompleted: selectedCar.isDetailedCleaned,
                   isDark: isDark,
                   onApply: () => _applyWashService(
+                    car: selectedCar,
                     cost: 8500.0 * discountMultiplier,
                     valueBoost: 0.12,
+                    setWashed: true,
+                    setInterior: false,
                     setPolished: true,
                     setDetailed: true,
                     successMsg: 'VIP Seramik kaplama uygulandı! Araç vitrinde hemen alıcı bulacak.',
@@ -412,7 +477,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
       decoration: BoxDecoration(
         color: isDone ? color : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.black, width: 1.8),
+        border: Border.all(
+          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          width: 2.0,
+        ),
       ),
       child: Column(
         children: [
@@ -588,24 +656,29 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
   }
 
   void _applyWashService({
+    required CarModel car,
     required double cost,
     required double valueBoost,
-    required bool setPolished,
-    required bool setDetailed,
+    bool setWashed = false,
+    bool setInterior = false,
+    bool setPolished = false,
+    bool setDetailed = false,
     required String successMsg,
   }) {
-    if (_selectedCar == null) return;
-
-    if (setDetailed && _selectedCar!.isDetailedCleaned) {
+    if (setDetailed && car.isDetailedCleaned) {
       NotificationService.showInfo(context, 'VIP Seramik kaplama zaten uygulanmış!');
       return;
     }
-    if (setPolished && !setDetailed && _selectedCar!.isPolished) {
+    if (setPolished && !setDetailed && car.isPolished) {
       NotificationService.showInfo(context, 'Pasta cila zaten uygulanmış!');
       return;
     }
-    if (!setPolished && !setDetailed && _selectedCar!.isWashed) {
-      NotificationService.showInfo(context, 'Araç zaten tertemiz!');
+    if (setInterior && car.isInteriorCleaned) {
+      NotificationService.showInfo(context, 'Detaylı iç-dış yıkama zaten uygulanmış!');
+      return;
+    }
+    if (setWashed && !setInterior && !setPolished && !setDetailed && car.isWashed) {
+      NotificationService.showInfo(context, 'Köpüklü standart yıkama zaten yapılmış!');
       return;
     }
 
@@ -616,16 +689,20 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
     }
 
     final success = ref.read(gameProvider.notifier).performWashService(
-      _selectedCar!.id,
+      car.id,
       cost: cost,
       valueBoostPercent: valueBoost,
+      setWashed: setWashed,
+      setInterior: setInterior,
       setPolished: setPolished,
       setDetailed: setDetailed,
     );
 
     if (success) {
       NotificationService.showSuccess(context, successMsg);
-      setState(() {});
+      setState(() {
+        _selectedCarId = car.id;
+      });
     }
   }
 

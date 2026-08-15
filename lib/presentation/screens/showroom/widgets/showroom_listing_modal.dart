@@ -14,8 +14,8 @@ import '../../../widgets/neo_brutal_button.dart';
 
 class ShowroomListingModal {
   static void showCounterOfferSheet(BuildContext context, WidgetRef ref, OfferModel offer, CarModel car) {
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
     double targetPrice = (offer.offeredAmount * 1.08).roundToDouble();
     String selectedStrategy = 'ikna_et';
@@ -51,7 +51,10 @@ class ShowroomListingModal {
                           decoration: BoxDecoration(
                             color: remainingCounters <= 1 ? const Color(0xFFEF4444) : const Color(0xFFFFDE59),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.black, width: 1.4),
+                            border: Border.all(
+                              color: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
                           ),
                           child: Text(
                             'Kalan Hak: $remainingCounters / ${offer.maxCounters}',
@@ -207,15 +210,21 @@ class ShowroomListingModal {
   }
 
   static void showListingEditSheet(BuildContext context, WidgetRef ref, CarModel car) {
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
 
     double selectedPrice = car.listingPrice > 0 ? car.listingPrice : (car.estimatedRealValue * 1.20).roundToDouble();
     ListingDeclarationType selectedDeclaration = car.declarationType;
-    String selectedPhotoLocation = car.listingPhotoLocation;
-    int selectedPhotoCount = car.listingPhotoCount;
-    String selectedTone = car.listingTone;
+    String selectedPhotoLocation = (car.listingPhotoLocation == 'dealership' || car.listingPhotoLocation == 'scenic' || car.listingPhotoLocation == 'studio')
+        ? car.listingPhotoLocation
+        : 'dealership';
+    int selectedPhotoCount = (car.listingPhotoCount == 4 || car.listingPhotoCount == 8 || car.listingPhotoCount == 12)
+        ? car.listingPhotoCount
+        : 4;
+    String selectedTone = (car.listingTone == 'standard' || car.listingTone == 'friendly' || car.listingTone == 'vip')
+        ? car.listingTone
+        : 'standard';
     bool hideDamagedPhotos = car.hideDamagedPhotos;
     bool allowsInstallments = car.allowsInstallments;
 
@@ -363,9 +372,12 @@ class ShowroomListingModal {
                                 decoration: BoxDecoration(
                                   color: badgeColor,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.black, width: 1.4),
+                                  border: Border.all(
+                                    color: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    width: 2.0,
+                                  ),
                                   boxShadow: const [
-                                    BoxShadow(color: Colors.black, offset: Offset(1.5, 1.5)),
+                                    BoxShadow(color: Colors.black, offset: Offset(2, 2)),
                                   ],
                                 ),
                                 child: Row(
@@ -473,15 +485,16 @@ class ShowroomListingModal {
                         Expanded(
                           child: DropdownButtonFormField<int>(
                             initialValue: selectedPhotoCount,
+                            isExpanded: true,
                             decoration: InputDecoration(
                               labelText: 'Fotoğraf Sayısı',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                             ),
                             items: const [
-                              DropdownMenuItem(value: 4, child: Text('4 Fotoğraf')),
-                              DropdownMenuItem(value: 8, child: Text('8 Fotoğraf (+%2 İlgi)')),
-                              DropdownMenuItem(value: 12, child: Text('12 Detaylı Foto (+%4)')),
+                              DropdownMenuItem(value: 4, child: Text('4 Fotoğraf', style: TextStyle(fontSize: 12))),
+                              DropdownMenuItem(value: 8, child: Text('8 Fotoğraf (+%2)', style: TextStyle(fontSize: 12))),
+                              DropdownMenuItem(value: 12, child: Text('12 Detaylı (+%4)', style: TextStyle(fontSize: 12))),
                             ],
                             onChanged: (val) => setState(() => selectedPhotoCount = val ?? 4),
                           ),
@@ -490,15 +503,16 @@ class ShowroomListingModal {
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             initialValue: selectedTone,
+                            isExpanded: true,
                             decoration: InputDecoration(
                               labelText: 'İlan Tonu',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                             ),
                             items: const [
-                              DropdownMenuItem(value: 'standard', child: Text('Standart')),
-                              DropdownMenuItem(value: 'friendly', child: Text('Samimi Esnaf')),
-                              DropdownMenuItem(value: 'vip', child: Text('VIP / Kurumsal')),
+                              DropdownMenuItem(value: 'standard', child: Text('Standart', style: TextStyle(fontSize: 12))),
+                              DropdownMenuItem(value: 'friendly', child: Text('Samimi', style: TextStyle(fontSize: 12))),
+                              DropdownMenuItem(value: 'vip', child: Text('VIP / Kurumsal', style: TextStyle(fontSize: 12))),
                             ],
                             onChanged: (val) => setState(() => selectedTone = val ?? 'standard'),
                           ),

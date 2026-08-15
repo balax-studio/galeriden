@@ -189,7 +189,7 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(48);
+  Size get preferredSize => const Size.fromHeight(56);
 
   @override
   Widget build(BuildContext context) {
@@ -224,12 +224,12 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: borderColor,
-            width: 1.5,
+            width: 2.0,
           ),
           boxShadow: [
             BoxShadow(
               color: borderColor,
-              offset: const Offset(1.5, 1.5),
+              offset: const Offset(2.0, 2.0),
               blurRadius: 0,
             ),
           ],

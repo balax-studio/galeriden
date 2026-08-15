@@ -82,7 +82,10 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFDE59),
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.black, width: 1),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 1.5,
+                            ),
                           ),
                           child: Text(
                             '${car.modelYear}',
@@ -221,7 +224,10 @@ class DashboardMarketTrendCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFF3B82F6),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: Colors.black, width: 1.2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
                 ),
                 child: const Icon(
                   Icons.trending_up_rounded,

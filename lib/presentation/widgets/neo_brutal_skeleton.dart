@@ -62,7 +62,7 @@ class _NeoBrutalSkeletonBoxState extends State<NeoBrutalSkeletonBox>
           decoration: BoxDecoration(
             shape: widget.isCircle ? BoxShape.circle : BoxShape.rectangle,
             borderRadius: widget.isCircle ? null : BorderRadius.circular(widget.borderRadius),
-            border: Border.all(color: borderColor, width: 1.5),
+            border: Border.all(color: borderColor, width: 2.0),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -76,7 +76,7 @@ class _NeoBrutalSkeletonBoxState extends State<NeoBrutalSkeletonBox>
             boxShadow: [
               BoxShadow(
                 color: borderColor,
-                offset: const Offset(1.5, 1.5),
+                offset: const Offset(2.0, 2.0),
                 blurRadius: 0,
               ),
             ],

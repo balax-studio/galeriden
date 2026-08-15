@@ -1,6 +1,7 @@
 import 'package:galeriden/core/utils/notification_service.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -102,7 +103,12 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
               Text('PAZARLIK MASASI', style: AppTypography.titleLarge(p.isDark)),
               IconButton(
                 icon: Icon(Icons.close, color: p.textPrimaryColor),
-                onPressed: () => Navigator.pop(context),
+                padding: const EdgeInsets.all(10),
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.pop(context);
+                },
               ),
             ],
           ),
@@ -225,7 +231,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             height: 8,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isLeft ? p.primaryColor : (p.isDark ? Colors.white24 : Colors.black26),
+                              color: isLeft ? p.primaryColor : (p.isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
                             ),
                           );
                         }),

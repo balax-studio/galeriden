@@ -247,7 +247,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       borderRadius: BorderRadius.circular(3),
                       border: Border.all(
                         color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                        width: 1.4,
+                        width: 2.0,
                       ),
                     ),
                   ),

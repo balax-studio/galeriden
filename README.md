@@ -1,17 +1,18 @@
-# galerisinden
+# Galeriden - Car Dealer Tycoon
 
-A new Flutter project.
+Neo-Brutalist stilde geliştirilmiş otomobil alım satım, ekspertiz, modifiye, oto yıkama ve galericilik simülasyon oyunu.
 
-## Getting Started
+## Özellikler
+- 🚗 **Geniş Araç Pazarı:** Efsane yerli klasiklerden lüks süper sporlara kadar geniş araç yelpazesi.
+- 🔍 **Ekspertiz ve Boya/Değişen:** Detaylı ekspertiz raporu ve parça bazlı hasar tespiti.
+- 🔧 **Tamirhane & Oto Yıkama:** 4 kademeli oto yıkama ve usta çırak mekaniği.
+- 🏢 **Şube & Vitrin:** Galeri genişletme, vitrin bonusları ve personel yönetimi.
+- 📜 **Kuşak Devri & Miras:** Hanedanlık sistemi ve prestij seviyeleri.
+- 🎨 **Neo-Brutalist Tasarım:** Yüksek kontrastlı, modern ve dinamik arayüz.
 
-This project is a starting point for a Flutter application.
+## Platform Desteği
+- Android (`com.balax.galeriden`)
+- iOS (`com.balax.galeriden`)
+- Web & Desktop
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Developed with ❤️ by **Balax Studio**.

@@ -814,8 +814,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
     String carId, {
     required double cost,
     required double valueBoostPercent,
-    required bool setPolished,
-    required bool setDetailed,
+    bool setWashed = false,
+    bool setInterior = false,
+    bool setPolished = false,
+    bool setDetailed = false,
   }) {
     if (state.balance < cost) return false;
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
@@ -823,17 +825,32 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     final car = state.ownedCars[carIndex];
 
+    final isStandardWash = setWashed || (!setInterior && !setPolished && !setDetailed);
+
     if (setDetailed && car.isDetailedCleaned) return false;
     if (setPolished && !setDetailed && car.isPolished) return false;
-    if (!setPolished && !setDetailed && car.isWashed) return false;
+    if (setInterior && car.isInteriorCleaned) return false;
+    if (isStandardWash && !setInterior && !setPolished && !setDetailed && car.isWashed) return false;
 
     final newValue = car.baseMarketValue * (1.0 + valueBoostPercent);
 
+    final updatedDetailing = List<String>.from(car.appliedDetailingOptionIds);
+    if (setInterior && !updatedDetailing.contains('interior_detailing')) {
+      updatedDetailing.add('interior_detailing');
+    }
+    if (setPolished && !updatedDetailing.contains('paint_polish')) {
+      updatedDetailing.add('paint_polish');
+    }
+    if (setDetailed && !updatedDetailing.contains('ceramic_coating')) {
+      updatedDetailing.add('ceramic_coating');
+    }
+
     final updatedCar = car.copyWith(
       baseMarketValue: newValue,
-      isWashed: true,
+      isWashed: (isStandardWash || setInterior) ? true : car.isWashed,
       isPolished: setPolished ? true : car.isPolished,
       isDetailedCleaned: setDetailed ? true : car.isDetailedCleaned,
+      appliedDetailingOptionIds: updatedDetailing,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);

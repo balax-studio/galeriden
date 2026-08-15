@@ -226,54 +226,100 @@ class DashboardWantedContractsSection extends ConsumerWidget {
   ) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(
             color: Color(0xFF0F172A),
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            border: Border(
+              top: BorderSide(color: Color(0xFF333B4F), width: 2.0),
+              left: BorderSide(color: Color(0xFF333B4F), width: 2.0),
+              right: BorderSide(color: Color(0xFF333B4F), width: 2.0),
+            ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${contract.clientName} İçin Teslim Edilecek Aracı Seç',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
-              ),
-              const SizedBox(height: 12),
-              ...matchingCars.map((car) {
-                final profit = (contract.budget + contract.rewardBonus) - car.currentPurchasePrice;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    tileColor: const Color(0xFF1E2330),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    title: Text('${car.brand} ${car.modelName} (${car.modelYear})', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                    subtitle: Text('Alış: ${CurrencyFormatter.formatShort(car.currentPurchasePrice)} • Tahmini Kâr: +${CurrencyFormatter.formatShort(profit)}', style: const TextStyle(color: Color(0xFF00E575), fontSize: 11)),
-                    trailing: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E575)),
-                      child: const Text('TESLİM ET', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        final success = ref.read(gameProvider.notifier).fulfillWantedCarContract(contract.id, car.id);
-                        if (success) {
-                          FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
-                            contract.budget + contract.rewardBonus,
-                            label: 'Sözleşme Tamamlandı!',
-                          );
-                          NotificationService.showSuccess(
-                            context,
-                            '${contract.clientName} aracını teslim aldı! ${CurrencyFormatter.formatShort(contract.budget + contract.rewardBonus)} kazandın.',
-                          );
-                        }
-                      },
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${contract.clientName} İçin Teslim Edilecek Aracı Seç',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
+                      ),
                     ),
-                  ),
-                );
-              }),
-            ],
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ...matchingCars.map((car) {
+                  final profit = (contract.budget + contract.rewardBonus) - car.currentPurchasePrice;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: NeoBrutalCard(
+                      padding: const EdgeInsets.all(12),
+                      backgroundColor: const Color(0xFF1E2330),
+                      borderColor: const Color(0xFF333B4F),
+                      borderRadius: 10,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${car.brand} ${car.modelName} (${car.modelYear})',
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Alış: ${CurrencyFormatter.formatShort(car.currentPurchasePrice)} • Kâr: +${CurrencyFormatter.formatShort(profit)}',
+                                  style: const TextStyle(color: Color(0xFF00E575), fontWeight: FontWeight.w800, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          NeoBrutalButton(
+                            label: 'TESLİM ET',
+                            backgroundColor: const Color(0xFF00E575),
+                            textColor: Colors.black,
+                            fontSize: 11,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              final success = ref.read(gameProvider.notifier).fulfillWantedCarContract(contract.id, car.id);
+                              if (success) {
+                                FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                                  contract.budget + contract.rewardBonus,
+                                  label: 'Sözleşme Tamamlandı!',
+                                );
+                                NotificationService.showSuccess(
+                                  context,
+                                  '${contract.clientName} aracını teslim aldı! ${CurrencyFormatter.formatShort(contract.budget + contract.rewardBonus)} kazandın.',
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
         );
       },

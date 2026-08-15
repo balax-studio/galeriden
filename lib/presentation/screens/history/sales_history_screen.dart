@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
@@ -242,7 +243,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      const Divider(height: 1),
+                      Divider(height: 1, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -277,7 +278,10 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
   Widget _buildFilterBtn(String label, int index, bool isDark) {
     final isSelected = _selectedFilterIndex == index;
     return InkWell(
-      onTap: () => setState(() => _selectedFilterIndex = index),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedFilterIndex = index);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
@@ -285,7 +289,10 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               ? AppColors.brutalYellow
               : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.black, width: isSelected ? 1.8 : 1.0),
+          border: Border.all(
+            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            width: isSelected ? 2.0 : 1.5,
+          ),
         ),
         child: Text(
           label,

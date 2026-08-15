@@ -115,7 +115,10 @@ class ShowroomOffersTab extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFF00E575),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black, width: 2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
                   boxShadow: const [
                     BoxShadow(color: Colors.black, offset: Offset(2, 2)),
                   ],
@@ -142,7 +145,10 @@ class ShowroomOffersTab extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black, width: 2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
                   boxShadow: const [
                     BoxShadow(color: Colors.black, offset: Offset(2, 2)),
                   ],
@@ -314,7 +320,10 @@ class ShowroomOffersTab extends ConsumerWidget {
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFDE59),
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.black, width: 1.0),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 1.8,
+                              ),
                             ),
                             child: Text(
                               offer.buyerCustomer!.archetypeTitle,
@@ -331,7 +340,10 @@ class ShowroomOffersTab extends ConsumerWidget {
                             decoration: BoxDecoration(
                               color: offer.offerType == OfferType.installment ? const Color(0xFF38BDF8) : const Color(0xFFA855F7),
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.black, width: 1.0),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 1.8,
+                              ),
                             ),
                             child: Text(
                               offer.offerType == OfferType.installment
@@ -507,7 +519,10 @@ class ShowroomOffersTab extends ConsumerWidget {
                                               decoration: BoxDecoration(
                                                 color: const Color(0xFF00E575),
                                                 borderRadius: BorderRadius.circular(8),
-                                                border: Border.all(color: Colors.black, width: 1.5),
+                                                border: Border.all(
+                                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                                  width: 2.0,
+                                                ),
                                               ),
                                               child: const Icon(Icons.check_circle_rounded, color: Colors.black, size: 24),
                                             ),
@@ -537,7 +552,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                                               decoration: BoxDecoration(
                                                 color: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
                                                 borderRadius: BorderRadius.circular(10),
-                                                border: Border.all(color: const Color(0xFF3B82F6), width: 1.2),
+                                                border: Border.all(color: const Color(0xFF3B82F6), width: 2.0),
                                               ),
                                               child: const Row(
                                                 children: [

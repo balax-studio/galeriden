@@ -178,7 +178,7 @@ class CarDamageSchemaWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: statusColor,
-          width: isHighlight ? 1.8 : 1.0,
+          width: isHighlight ? 2.2 : 1.5,
         ),
       ),
       child: Center(

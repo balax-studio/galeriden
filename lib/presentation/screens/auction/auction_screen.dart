@@ -187,7 +187,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     decoration: BoxDecoration(
                       color: AppColors.brutalGreen,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 2),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
                     child: const Icon(Icons.emoji_events_rounded, color: Colors.black, size: 40),
                   ),
@@ -252,7 +255,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     decoration: BoxDecoration(
                       color: AppColors.errorRed,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 2),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
                     child: const Icon(Icons.gavel_rounded, color: Colors.white, size: 36),
                   ),
@@ -346,7 +352,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             decoration: BoxDecoration(
                               color: isLastSeconds ? AppColors.errorRed : AppColors.brutalYellow,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.black, width: 1.4),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
                             ),
                             child: Icon(
                               Icons.timer_rounded,
@@ -728,7 +737,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
                 ),
                 child: const Icon(Icons.lock_clock_rounded, color: AppColors.brutalOrange, size: 38),
               ),
@@ -766,7 +778,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         decoration: BoxDecoration(
                           color: AppColors.brutalYellow,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.black, width: 1.2),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         child: const Icon(Icons.support_agent_rounded, color: Colors.black, size: 20),
                       ),
@@ -809,7 +824,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                               decoration: BoxDecoration(
                                 color: AppColors.brutalYellow,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.black, width: 1.5),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  width: 2.0,
+                                ),
                               ),
                               child: const Icon(Icons.support_agent_rounded, size: 36, color: Colors.black),
                             ),

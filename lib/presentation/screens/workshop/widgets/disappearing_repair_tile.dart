@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../widgets/neo_brutal_button.dart';
+import '../../../widgets/neo_brutal_card.dart';
 
 class DisappearingRepairTile extends StatefulWidget {
   final String partName;
@@ -66,26 +68,50 @@ class _DisappearingRepairTileState extends State<DisappearingRepairTile> with Si
         opacity: Tween<double>(begin: 1.0, end: 0.0).animate(_fadeAnimation),
         child: ScaleTransition(
           scale: _scaleAnimation,
-          child: Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              title: Text('${widget.partName} Restorasyonu', style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
-              subtitle: Text(widget.status == PartStatus.damaged 
-                  ? 'Durum: Hasarlı (Onarım Gerekli)' 
-                  : widget.status == PartStatus.painted 
-                      ? 'Durum: Boyalı (Orijinale Çevrilebilir)' 
-                      : 'Durum: Değişen (Orijinale Çevrilebilir)'),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
+          child: NeoBrutalCard(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(12),
+            backgroundColor: p.isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: p.isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 12,
+            borderWidth: 2.0,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${widget.partName} Restorasyonu',
+                        style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        widget.status == PartStatus.damaged
+                            ? 'Durum: Hasarlı (Onarım Gerekli)'
+                            : widget.status == PartStatus.painted
+                                ? 'Durum: Boyalı (Orijinale Çevrilebilir)'
+                                : 'Durum: Değişen (Orijinale Çevrilebilir)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: p.isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                NeoBrutalButton(
+                  label: 'USTA SEÇ & ONAR',
                   backgroundColor: p.secondaryColor,
-                  foregroundColor: Colors.white,
+                  textColor: Colors.white,
+                  borderColor: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  onPressed: _isAnimatingOut ? null : () => widget.onOpenOptions(_handleSuccess),
                 ),
-                onPressed: _isAnimatingOut ? null : () => widget.onOpenOptions(_handleSuccess),
-                child: const FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text('Usta Seç & Onar'),
-                ),
-              ),
+              ],
             ),
           ),
         ),

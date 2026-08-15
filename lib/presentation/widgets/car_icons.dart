@@ -35,23 +35,9 @@ class CarSilhouetteWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            effectiveColor.withValues(alpha: 0.25),
-            effectiveColor.withValues(alpha: 0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: effectiveColor.withValues(alpha: 0.4), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: effectiveColor.withValues(alpha: 0.15),
-            blurRadius: 10,
-            spreadRadius: 1,
-          ),
-        ],
+        color: effectiveColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: effectiveColor, width: 2.0),
       ),
       child: content,
     );

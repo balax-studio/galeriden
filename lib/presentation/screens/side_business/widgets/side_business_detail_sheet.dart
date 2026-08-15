@@ -101,7 +101,12 @@ class SideBusinessDetailSheet extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            width: 2.0,
+          ),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: SafeArea(
@@ -170,7 +175,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const Divider(height: 1),
+                    Divider(height: 1, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -214,7 +219,10 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: business.hasManager ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.black, width: 1.2),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
                       ),
                       child: Icon(Icons.badge_rounded, color: business.hasManager ? Colors.black : const Color(0xFF64748B), size: 22),
                     ),
@@ -301,7 +309,10 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: AppColors.brutalYellow,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.black, width: 1.2),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
                       ),
                       child: const Icon(Icons.bolt_rounded, color: Colors.black, size: 22),
                     ),
@@ -331,8 +342,8 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       )
                     else
                       NeoBrutalButton(
-                        label: 'YÜKSELT (${CurrencyFormatter.formatShort(nextLevelCost)})',
-                        backgroundColor: AppColors.brutalGreen,
+                        label: 'GELİŞTİR (${CurrencyFormatter.formatShort(nextLevelCost)})',
+                        backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 10.5,
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -380,7 +391,10 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.black, width: 1.2),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
                           ),
                           child: Icon(iconData, color: isPurchased ? Colors.black : const Color(0xFF64748B), size: 18),
                         ),

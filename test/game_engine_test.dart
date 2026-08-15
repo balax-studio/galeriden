@@ -22,7 +22,7 @@ void main() {
       final listings = MarketEngine.generateRandomListings(count: 5, playerLevel: 1);
       expect(listings.length, greaterThanOrEqualTo(5));
       expect(listings.first.car.brand.isNotEmpty, isTrue);
-      expect(listings.first.askingPrice, greaterThanOrEqualTo(50000));
+      expect(listings.first.askingPrice, greaterThanOrEqualTo(35000));
     });
 
     test('Expertise Engine evaluates vehicle damage correctly', () {

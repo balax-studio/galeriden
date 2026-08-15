@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/stat_colors.dart';
@@ -62,7 +63,10 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.directions_car_rounded, color: Colors.black, size: 26),
                 ),
@@ -424,7 +428,10 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
             borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: Colors.black, width: 1.2),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 1.5,
+            ),
           ),
           child: FractionallySizedBox(
             alignment: Alignment.centerLeft,
@@ -526,6 +533,7 @@ class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
               final isSelected = _selectedPart == e.key;
               return InkWell(
                 onTap: () {
+                  HapticFeedback.selectionClick();
                   setState(() {
                     _selectedPart = e.key;
                     _measuredMicrons = _calculateMicrons(e.value);
@@ -538,7 +546,10 @@ class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
                         ? AppColors.brutalYellow
                         : (widget.isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black, width: isSelected ? 1.8 : 1.0),
+                    border: Border.all(
+                      color: isSelected ? const Color(0xFF0F172A) : (widget.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+                      width: 2.0,
+                    ),
                   ),
                   child: Text(
                     e.key,

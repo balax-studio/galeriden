@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.galerisinden" "\0"
-            VALUE "FileDescription", "galerisinden" "\0"
+            VALUE "CompanyName", "com.balax.galeriden" "\0"
+            VALUE "FileDescription", "galeriden" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "galerisinden" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.galerisinden. All rights reserved." "\0"
-            VALUE "OriginalFilename", "galerisinden.exe" "\0"
-            VALUE "ProductName", "galerisinden" "\0"
+            VALUE "InternalName", "galeriden" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.balax.galeriden. All rights reserved." "\0"
+            VALUE "OriginalFilename", "galeriden.exe" "\0"
+            VALUE "ProductName", "galeriden" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

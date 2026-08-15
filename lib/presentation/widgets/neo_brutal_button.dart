@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Neo-Brutalist Tactile Button Widget
 /// Features high-contrast borders, solid offset shadow, and instant mechanical feedback.
@@ -125,7 +126,10 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
     }
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapDown: (_) {
+        HapticFeedback.lightImpact();
+        setState(() => _isPressed = true);
+      },
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
       onTap: widget.onPressed,

@@ -43,7 +43,10 @@ class StaffScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.people_alt_rounded, color: Colors.black, size: 24),
                 ),
@@ -86,7 +89,10 @@ class StaffScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: const Color(0xFFA855F7),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black, width: 1.5),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
                       ),
@@ -205,7 +211,7 @@ class StaffScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 1.0,
+                            width: 2.0,
                           ),
                         ),
                         child: Row(
@@ -218,7 +224,10 @@ class StaffScreen extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFFDE59),
                                     borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(color: Colors.black, width: 1.0),
+                                    border: Border.all(
+                                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                      width: 1.5,
+                                    ),
                                   ),
                                   child: Text(
                                     hired.masteryTitle,

@@ -38,7 +38,10 @@ class DashboardQuickFinanceCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: activeLoans.isNotEmpty ? const Color(0xFFFF7A00) : const Color(0xFF00E575),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black, width: 1.2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
                 ),
                 child: Icon(
                   activeLoans.isNotEmpty ? Icons.account_balance_rounded : Icons.savings_rounded,

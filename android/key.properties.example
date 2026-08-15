@@ -1,0 +1,6 @@
+# Google Play Release Keystore Config Template
+# Bu dosyayı 'key.properties' olarak kopyalayıp kendi keystore bilgilerinizi giriniz:
+# keyAlias=galeriden_key
+# keyPassword=your_key_password
+# storeFile=../upload-keystore.jks
+# storePassword=your_store_password

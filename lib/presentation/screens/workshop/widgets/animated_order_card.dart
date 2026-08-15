@@ -4,6 +4,7 @@ import '../../../../data/models/part_order_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../widgets/app_vector_icons.dart';
+import '../../../widgets/neo_brutal_button.dart';
 
 class AnimatedOrderCard extends StatefulWidget {
   final PartOrderModel order;
@@ -93,7 +94,7 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: _isInstalling ? p.successColor : p.surfaceBorderColor,
-                width: _isInstalling ? 2 : 1,
+                width: 2.0,
               ),
             ),
             child: Row(
@@ -110,7 +111,7 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                     children: [
                       Text(
                         '${order.partName} (${order.orderType == OrderType.quickPatch ? 'Geçici' : order.orderType == OrderType.masterRepair ? 'Usta Tamiri' : 'Yeni Parça'})',
-                        style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14),
+                        style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 4),
                       ClipRRect(
@@ -128,6 +129,7 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                         style: AppTypography.labelSmall(p.isDark).copyWith(
                           color: isReady ? p.successColor : p.warningColor,
                           fontSize: 11,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -145,7 +147,10 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFDE59),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.black, width: 1.5),
+                          border: Border.all(
+                            color: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 1.5,
+                          ),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
@@ -165,17 +170,14 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                       ),
                     ),
                   ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isReady ? p.successColor : p.surfaceBorderColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  ),
+                NeoBrutalButton(
+                  label: isReady ? (_isInstalling ? '...' : 'MONTAJ ET') : 'BEKLENİYOR',
+                  backgroundColor: isReady ? p.successColor : (p.isDark ? const Color(0xFF1E2330) : const Color(0xFFCBD5E1)),
+                  textColor: isReady ? Colors.black : (p.isDark ? Colors.white60 : Colors.black54),
+                  borderColor: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  fontSize: 10.5,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   onPressed: (isReady && !_isInstalling) ? _triggerInstallation : null,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(isReady ? (_isInstalling ? '...' : 'Montaj Et') : 'Bekleniyor'),
-                  ),
                 ),
               ],
             ),

@@ -1,4 +1,4 @@
-/// 4px Grid Spacing System for Galerisinden Tycoon
+/// 4px Grid Spacing System for Galeriden Tycoon
 class AppSpacing {
   AppSpacing._();
 

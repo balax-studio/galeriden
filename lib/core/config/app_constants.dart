@@ -1,4 +1,4 @@
-/// Centralized Game Constants & Config for Galerisinden Tycoon
+/// Centralized Game Constants & Config for Galeriden Tycoon
 class AppConstants {
   AppConstants._();
 

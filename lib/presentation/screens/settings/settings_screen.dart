@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
@@ -49,7 +50,10 @@ class SettingsScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppColors.brutalYellow,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.black, width: 1.5),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
                     child: const Icon(Icons.badge_rounded, color: Colors.black, size: 22),
                   ),
@@ -92,7 +96,10 @@ class SettingsScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFFA855F7),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.black, width: 1.5),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
                     child: const Icon(Icons.palette_rounded, color: Colors.white, size: 22),
                   ),
@@ -357,7 +364,10 @@ class SettingsScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF0F1118) : Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black12),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        width: 2.0,
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,16 +540,234 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 14),
+
+          // 8. Legal & Privacy Policy Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'YASAL & GİZLİLİK',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                    ),
+                    NeoBrutalBadge(
+                      text: 'GDPR / KVKK UYUMLU',
+                      backgroundColor: const Color(0xFF00E575),
+                      textColor: Colors.black,
+                      fontSize: 9,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Oyun verileriniz yalnızca cihazınızda yerel olarak saklanır. İsteğe bağlı ödüllü reklamlar dışında kişisel veri işlenmez.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: 'GİZLİLİK POLİTİKASI',
+                        icon: Icons.shield_outlined,
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                        fontSize: 10.5,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        onPressed: () => _showPrivacyPolicyDialog(context, isDark),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: 'KULLANIM ŞARTLARI',
+                        icon: Icons.description_outlined,
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                        fontSize: 10.5,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        onPressed: () => _showTermsDialog(context, isDark),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 20),
 
           Center(
             child: Text(
-              '${GameConstants.appName} v${GameConstants.appVersion}',
+              '${GameConstants.appName} v${GameConstants.appVersion} • Balax Studio',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showPrivacyPolicyDialog(BuildContext context, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(20),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderRadius: 16,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'GİZLİLİK POLİTİKASI',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const Divider(height: 16),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 340),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Text(
+                    'GİZLİLİK POLİTİKASI (PRIVACY POLICY)\n\n'
+                    'Son Güncelleme: 16 Ağustos 2026\n'
+                    'Geliştirici: Balax Studio\n'
+                    'Uygulama: Galeriden (Car Dealer Tycoon)\n\n'
+                    '1. VERİ TOPLAMA VE KULLANIMI\n'
+                    'Galeriden oyunu, kullanıcıların kişisel olarak tanımlanabilir bilgilerini (ad, e-posta, telefon, konum vb.) toplamaz veya harici sunucularda depolamaz. Oyun içi ilerleme, bakiye, sahip olunan araçlar ve ayarlar yalnızca kullanıcının kendi cihazında yerel (Hive veritabanı) olarak saklanır.\n\n'
+                    '2. ÜÇÜNCÜ TARAF REKLAM SERVİSLERİ (GOOGLE ADMOB)\n'
+                    'Uygulama, isteğe bağlı ödüllü video reklamlar sunmak amacıyla Google AdMob SDK kullanmaktadır. Google AdMob, reklam sunumu, sıklık sınırlandırması ve sahtekarlık tespiti amacıyla cihaz tanımlayıcıları (IDFA/GAID) gibi anonim teknik verileri işleyebilir. Bu veriler Google Gizlilik Politikası uyarınca yönetilir.\n\n'
+                    '3. ÇOCUKLARIN GİZLİLİĞİ (COPPA / GDPR-K)\n'
+                    'Oyunumuz 13 yaşın altındaki çocuklardan bilerek herhangi bir kişisel veri toplamaz. Ebeveynler istedikleri zaman yerel kayıtları oyun içi "İlerlemeyi Sıfırla" butonuyla tamamen silebilir.\n\n'
+                    '4. İLETİŞİM\n'
+                    'Gizlilik politikamız veya oyun içi haklarınızla ilgili her türlü soru için destek ekibimize ulaşabilirsiniz: support@balaxstudio.com',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      height: 1.45,
+                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: 'WEB\'DE AÇ',
+                      icon: Icons.open_in_browser_rounded,
+                      backgroundColor: const Color(0xFF00E575),
+                      textColor: Colors.black,
+                      fontSize: 11,
+                      onPressed: () async {
+                        final uri = Uri.parse(GameConstants.privacyPolicyUrl);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: 'KAPAT',
+                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white : Colors.black,
+                      fontSize: 11,
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTermsDialog(BuildContext context, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(20),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderRadius: 16,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'KULLANIM KOŞULLARI',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const Divider(height: 16),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 300),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Text(
+                    'KULLANIM ŞARTLARI VE LİSANS SÖZLEŞMESİ\n\n'
+                    '1. GENEL KULLANIM\n'
+                    'Galeriden oyunu bir sanal ticaret ve galericilik simülasyonudur. Oyundaki para birimleri, araçlar, hisseler ve kazançlar tamamen kurgusaldır ve gerçek dünyada hiçbir maddi/nakdi karşılığı bulunmamaktadır.\n\n'
+                    '2. FİKRİ MÜLKİYET\n'
+                    'Oyundaki tüm görsel tasarımlar, logolar, Neo-Brutalist bileşenler ve kod tabanı Balax Studio mülkiyetindedir.\n\n'
+                    '3. SORUMLULUK SINIRLAMASI\n'
+                    'Oyun eğlence amaçlı sunulmaktadır. Cihaz sıfırlama veya uygulamanın silinmesi durumunda yerel verilerin kaybından kullanıcı sorumludur.',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      height: 1.45,
+                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              NeoBrutalButton(
+                label: 'KAPAT',
+                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                textColor: isDark ? Colors.white : Colors.black,
+                fontSize: 11.5,
+                fullWidth: true,
+                onPressed: () => Navigator.pop(ctx),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -50,7 +50,10 @@ class FinanceScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: AppColors.brutalGreen,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black, width: 1.5),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         child: const Icon(Icons.account_balance_rounded, color: Colors.black, size: 22),
                       ),
@@ -105,7 +108,10 @@ class FinanceScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFDE59),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black, width: 1.5),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         child: const Icon(Icons.receipt_long_rounded, color: Colors.black, size: 22),
                       ),
@@ -503,7 +509,10 @@ class FinanceScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF0F1118) : const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.black, width: 1),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 1.5,
+                ),
               ),
               child: FractionallySizedBox(
                 alignment: Alignment.centerLeft,
@@ -544,7 +553,10 @@ class FinanceScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: AppColors.brutalOrange,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.black, width: 1.5),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
+                ),
               ),
               child: const Icon(Icons.receipt_rounded, color: Colors.black, size: 22),
             ),

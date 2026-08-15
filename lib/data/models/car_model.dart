@@ -42,7 +42,7 @@ class CarModel {
   CarModel({
     required this.id,
     required this.brand,
-    required this.modelName,
+    required String modelName,
     required this.modelYear,
     required this.bodyType,
     required this.colorHex,
@@ -66,15 +66,32 @@ class CarModel {
     this.isBarnFindRestored = false,
     this.provenanceLog = const [],
     this.allowsInstallments = false,
-    this.listingPhotoLocation = 'sanayi',
-    this.listingPhotoCount = 3,
-    this.listingTone = 'honest',
+    this.listingPhotoLocation = 'dealership',
+    this.listingPhotoCount = 4,
+    this.listingTone = 'standard',
     this.hideDamagedPhotos = false,
     this.hasNonOriginalParts = false,
-  });
+  }) : modelName = sanitizeModelName(brand, modelName);
+
+  /// Strips redundant brand name prefixes if present (e.g. 'Merso G-63' with brand 'Merso' -> 'G-63')
+  static String sanitizeModelName(String brand, String rawModelName) {
+    final trimmedBrand = brand.trim();
+    final trimmedModel = rawModelName.trim();
+    if (trimmedBrand.isNotEmpty &&
+        trimmedModel.toLowerCase().startsWith(trimmedBrand.toLowerCase())) {
+      final stripped = trimmedModel.substring(trimmedBrand.length).trim();
+      if (stripped.isNotEmpty) {
+        return stripped;
+      }
+    }
+    return trimmedModel;
+  }
 
   /// True if car is listed for 10 or more days without selling
   bool get isStaleListing => isListed && daysListed >= 10;
+
+  /// True if vehicle has received interior and upholstery steam detailing
+  bool get isInteriorCleaned => appliedDetailingOptionIds.contains('interior_detailing');
 
   /// Alias for currentPurchasePrice to prevent runtime NoSuchMethodError
   @pragma('vm:entry-point')
@@ -227,9 +244,9 @@ class CarModel {
       isBarnFindRestored: json['isBarnFindRestored'] as bool? ?? false,
       provenanceLog: (json['provenanceLog'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       allowsInstallments: json['allowsInstallments'] as bool? ?? false,
-      listingPhotoLocation: json['listingPhotoLocation'] as String? ?? 'sanayi',
-      listingPhotoCount: json['listingPhotoCount'] as int? ?? 3,
-      listingTone: json['listingTone'] as String? ?? 'honest',
+      listingPhotoLocation: json['listingPhotoLocation'] as String? ?? 'dealership',
+      listingPhotoCount: json['listingPhotoCount'] as int? ?? 4,
+      listingTone: json['listingTone'] as String? ?? 'standard',
       hideDamagedPhotos: json['hideDamagedPhotos'] as bool? ?? false,
       hasNonOriginalParts: json['hasNonOriginalParts'] as bool? ?? false,
     );

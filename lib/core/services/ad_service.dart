@@ -6,22 +6,25 @@ class AdService {
   static final AdService instance = AdService._internal();
   AdService._internal();
 
-  /// User provided AdMob Rewarded Ad Unit ID
-  static const String _productionRewardedAdUnitId = 'ca-app-pub-2626843024156194/9140182901';
+  /// Production AdMob Rewarded Ad Unit IDs
+  static const String _androidProductionRewardedAdUnitId = 'ca-app-pub-2626843024156194/9140182901';
+  static const String _iosProductionRewardedAdUnitId = 'ca-app-pub-2626843024156194/6070487811';
 
-  /// Standard Google Test Rewarded Ad Unit ID for Android Debugging
-  static const String _testRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  /// Standard Google Test Rewarded Ad Unit IDs
+  static const String _androidTestRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  static const String _iosTestRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313';
 
   RewardedAd? _rewardedAd;
   bool _isAdLoading = false;
   bool _isInitialized = false;
 
   String get rewardedAdUnitId {
+    final bool isIOS = defaultTargetPlatform == TargetPlatform.iOS;
     if (kDebugMode) {
-      // Use test unit ID in debug to prevent AdMob policy violations during development
-      return _testRewardedAdUnitId;
+      // Use official Google test unit IDs in debug to prevent AdMob policy violations
+      return isIOS ? _iosTestRewardedAdUnitId : _androidTestRewardedAdUnitId;
     }
-    return _productionRewardedAdUnitId;
+    return isIOS ? _iosProductionRewardedAdUnitId : _androidProductionRewardedAdUnitId;
   }
 
   /// Initialize Google Mobile Ads SDK safely

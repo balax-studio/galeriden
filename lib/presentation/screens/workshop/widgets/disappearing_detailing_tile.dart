@@ -4,6 +4,7 @@ import '../../../../data/models/theme_palette_model.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../widgets/app_vector_icons.dart';
+import '../../../widgets/neo_brutal_button.dart';
 
 class DisappearingDetailingTile extends StatefulWidget {
   final DetailingOption opt;
@@ -79,6 +80,7 @@ class _DisappearingDetailingTileState extends State<DisappearingDetailingTile> w
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: opt.isRisky ? p.secondaryColor : p.surfaceBorderColor,
+                width: 2.0,
               ),
             ),
             child: Row(
@@ -98,27 +100,21 @@ class _DisappearingDetailingTileState extends State<DisappearingDetailingTile> w
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14)),
+                      Text(opt.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 2),
                       Text(opt.description, style: AppTypography.labelSmall(p.isDark).copyWith(fontSize: 11)),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: opt.isRisky ? p.secondaryColor : p.primaryColor,
-                    foregroundColor: opt.isRisky ? Colors.white : Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
+                NeoBrutalButton(
+                  label: CurrencyFormatter.formatShort(opt.cost),
+                  backgroundColor: opt.isRisky ? p.secondaryColor : p.primaryColor,
+                  textColor: opt.isRisky ? Colors.white : Colors.black,
+                  borderColor: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   onPressed: widget.canAfford && !_isAnimatingOut ? _handleApply : null,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      CurrencyFormatter.formatShort(opt.cost),
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ),
                 ),
               ],
             ),

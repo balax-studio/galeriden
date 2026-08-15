@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -48,7 +49,10 @@ class RentACarScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black, width: 2),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.car_rental_rounded, color: Colors.black, size: 28),
                 ),
@@ -285,7 +289,12 @@ class RentACarScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF141721) : Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                border: const Border(top: BorderSide(color: Colors.black, width: 2)),
+                border: Border(
+                  top: BorderSide(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
+                ),
               ),
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -340,6 +349,7 @@ class RentACarScreen extends ConsumerWidget {
                       IconButton(
                         icon: const Icon(Icons.remove_circle, color: AppColors.errorRed, size: 28),
                         onPressed: () {
+                          HapticFeedback.selectionClick();
                           setState(() {
                             if (currentRate > 200) currentRate -= 100;
                           });
@@ -356,6 +366,7 @@ class RentACarScreen extends ConsumerWidget {
                       IconButton(
                         icon: const Icon(Icons.add_circle, color: AppColors.brutalGreen, size: 28),
                         onPressed: () {
+                          HapticFeedback.selectionClick();
                           setState(() {
                             if (currentRate + 100 <= maxAllowedRate) currentRate += 100;
                           });

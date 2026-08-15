@@ -1,7 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:galeriden/core/theme/app_theme.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
+import 'package:galeriden/presentation/screens/showroom/widgets/showroom_listing_modal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -107,6 +111,48 @@ void main() {
       // Doping on car with 3 offers should also be rejected
       final dopingOnFull = gameNotifier.boostListingDoping(listedCar.id);
       expect(dopingOnFull, false, reason: 'Doping should be rejected when car has max 3 active offers');
+    });
+
+    testWidgets('showListingEditSheet renders safely with legacy car values (photoCount: 3, tone: honest)', (tester) async {
+      final legacyCar = CarModel(
+        id: 'car_legacy',
+        brand: 'Fiat',
+        modelName: 'Egea',
+        modelYear: 2020,
+        bodyType: 'Sedan',
+        colorHex: '#333333',
+        baseMarketValue: 600000,
+        currentPurchasePrice: 500000,
+        listingPhotoCount: 3, // Legacy non-matching value
+        listingTone: 'honest', // Legacy non-matching value
+        listingPhotoLocation: 'sanayi', // Legacy non-matching value
+        expertise: dummyExpertise,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: AppTheme.darkTheme,
+            home: Scaffold(
+              body: Consumer(
+                builder: (context, ref, _) {
+                  return ElevatedButton(
+                    onPressed: () => ShowroomListingModal.showListingEditSheet(context, ref, legacyCar),
+                    child: const Text('Open Modal'),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open Modal'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('İLAN AYARLARI'), findsOneWidget);
+      expect(find.text('Fotoğraf Sayısı'), findsOneWidget);
+      expect(find.text('İlan Tonu'), findsOneWidget);
     });
   });
 }

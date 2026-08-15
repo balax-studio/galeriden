@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
@@ -9,6 +10,7 @@ import '../../data/models/theme_palette_model.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/game_provider.dart';
 import '../screens/dashboard/widgets/dashboard_missions_section.dart';
+import 'neo_brutal_button.dart';
 
 /// Floating Game HUD overlay widget - Neo-Brutalist Monolithic Stats Bar
 class GameHudHeaderWidget extends ConsumerWidget {
@@ -189,7 +191,10 @@ class GameHudHeaderWidget extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFA855F7),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black, width: 1.2),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.task_alt_rounded, color: Colors.black, size: 20),
                 ),
@@ -201,10 +206,13 @@ class GameHudHeaderWidget extends ConsumerWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, size: 20),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () => Navigator.pop(ctx),
+                  icon: const Icon(Icons.close_rounded, size: 22),
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.pop(ctx);
+                  },
                 ),
               ],
             ),
@@ -238,7 +246,10 @@ class GameHudHeaderWidget extends ConsumerWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
         borderRadius: BorderRadius.circular(8),
         child: Container(
           decoration: BoxDecoration(
@@ -258,7 +269,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: borderColor,
-                width: 1.6,
+                width: 2.0,
               ),
             ),
             child: Row(
@@ -270,8 +281,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
                     color: accentColor,
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                      color: isDark ? Colors.black38 : const Color(0xFF0F172A),
-                      width: 1.0,
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 1.5,
                     ),
                   ),
                   child: Icon(icon, size: 12, color: Colors.black),
@@ -307,13 +318,19 @@ class GameHudHeaderWidget extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            width: 2.0,
+          ),
+        ),
         title: Text(
           '28 Günlük Mevsim Döngüsü (${game.currentSeasonName})',
           style: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.w900,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
         content: Column(
@@ -322,7 +339,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
           children: [
             Text(
               'Her mevsim 7 gün sürer. Mevsimsel koşullar araç türlerinin piyasa talebini ve fiyatlarını doğrudan etkiler:',
-              style: TextStyle(fontSize: 12, color: isDark ? Colors.grey.shade300 : Colors.grey.shade800),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? Colors.grey.shade300 : Colors.grey.shade800),
             ),
             const SizedBox(height: 12),
             _buildSeasonDemandRow('🌸 İlkbahar', 'Sedan & Hatchback: +%15 Talep', isDark),
@@ -332,14 +349,18 @@ class GameHudHeaderWidget extends ConsumerWidget {
             const SizedBox(height: 12),
             Text(
               'Kalan Mevsim Süresi: ${game.daysRemainingInSeason} gün',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF00E575)),
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.brutalGreen),
             ),
           ],
         ),
         actions: [
-          TextButton(
+          NeoBrutalButton(
+            label: 'ANLADIM',
+            backgroundColor: AppColors.brutalYellow,
+            textColor: Colors.black,
+            fontSize: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Anladım', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFFDE59))),
           ),
         ],
       ),

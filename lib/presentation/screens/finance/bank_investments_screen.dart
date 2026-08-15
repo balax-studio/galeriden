@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -76,7 +77,10 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.brutalGreen,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.black, width: 1.5),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
                             ),
                             child: const Icon(Icons.account_balance_rounded, color: Colors.black, size: 24),
                           ),
@@ -347,7 +351,10 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                           decoration: BoxDecoration(
                             color: const Color(0xFF3B82F6),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.black, width: 1.5),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
                           ),
                           child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 22),
                         ),
@@ -610,14 +617,20 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         .map((amt) {
                       final isSel = selectedAmount == amt;
                       return InkWell(
-                        onTap: () => setSheetState(() => selectedAmount = amt),
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setSheetState(() => selectedAmount = amt);
+                        },
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.black, width: 1.4),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
                           ),
                           child: Text(
                             CurrencyFormatter.formatShort(amt),
@@ -714,14 +727,20 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     final isSel = selectedMonths == months;
     return Expanded(
       child: InkWell(
-        onTap: () => onSelect(months),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onSelect(months);
+        },
         borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSel ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.black, width: 1.4),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 2.0,
+            ),
           ),
           alignment: Alignment.center,
           child: Text(
@@ -739,14 +758,20 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
 
   Widget _buildPercentageChip(String label, VoidCallback onTap, bool isDark) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       borderRadius: BorderRadius.circular(6),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1), width: 1.2),
+          border: Border.all(
+            color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+            width: 1.5,
+          ),
         ),
         child: Text(
           label,

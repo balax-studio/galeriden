@@ -6,6 +6,7 @@ import 'package:galeriden/data/models/theme_palette_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/providers/market_provider.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_empty_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,7 @@ void main() {
     });
 
     test('2. GameNotifier and MarketNotifier pause and resume timers on app lifecycle transitions', () {
+      SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
       final gameNotifier = container.read(gameProvider.notifier);
       final marketNotifier = container.read(marketProvider.notifier);
@@ -64,6 +66,11 @@ void main() {
       // Trigger app resumed
       expect(() => gameNotifier.onAppResumed(), returnsNormally);
       expect(() => marketNotifier.onAppResumed(), returnsNormally);
+
+      // Clean up / pause timers before test completion
+      gameNotifier.onAppPaused();
+      marketNotifier.onAppPaused();
+      container.dispose();
     });
   });
 }

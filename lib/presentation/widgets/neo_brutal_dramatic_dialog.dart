@@ -235,8 +235,8 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
             color: isDark ? const Color(0xFF161B26) : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isDark ? const Color(0xFF2A3444) : const Color(0xFFCBD5E1),
-              width: 1.8,
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+              width: 2.0,
             ),
           ),
           child: Text(
@@ -259,7 +259,7 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
             decoration: BoxDecoration(
               color: catColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: catColor.withValues(alpha: 0.4), width: 1.5),
+              border: Border.all(color: catColor.withValues(alpha: 0.5), width: 2.0),
             ),
             child: Row(
               children: [

@@ -109,6 +109,7 @@ class MarketEngine {
     int? count,
     int playerLevel = 1,
     MarketTrendModel? trend,
+    double? playerBalance,
   }) {
     final activeTrend = trend ?? generateMarketTrend();
     final actualCount = count ?? calculateDynamicListingCount(playerLevel: playerLevel, trend: activeTrend);
@@ -116,7 +117,101 @@ class MarketEngine {
     for (int i = 0; i < actualCount; i++) {
       listings.add(_generateSingleListing(playerLevel, activeTrend));
     }
+
+    // Soft-lock prevention: Always guarantee at least 1 budget-friendly starter car
+    // that the player can comfortably purchase with current balance or starting budget.
+    final effectiveBalance = (playerBalance != null && playerBalance > 0) ? playerBalance : 75000.0;
+    final maxAffordablePrice = max(35000.0, effectiveBalance * 0.90);
+
+    final hasAffordable = listings.any((l) => l.askingPrice <= maxAffordablePrice);
+    if (!hasAffordable && listings.isNotEmpty) {
+      listings[0] = _generateAffordableStarterListing(playerLevel, activeTrend, maxBudget: maxAffordablePrice);
+    }
+
     return listings;
+  }
+
+  static ListingModel _generateAffordableStarterListing(
+    int playerLevel,
+    MarketTrendModel trend, {
+    required double maxBudget,
+  }) {
+    // Pick starter friendly brands
+    final starterBrands = GameConstants.carBrands
+        .where((b) => b.segment == 'efsane' || b.segment == 'klasik' || b.segment == 'ekonomi' || b.name == 'Reno' || b.name == 'Opelyus')
+        .toList();
+    final brandData = starterBrands.isNotEmpty
+        ? starterBrands[_random.nextInt(starterBrands.length)]
+        : GameConstants.carBrands.first;
+
+    final modelName = brandData.models[_random.nextInt(brandData.models.length)];
+    final id = 'car_starter_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
+    final year = 1990 + _random.nextInt(15); // 1990 - 2005 budget years
+
+    // Budget friendly starter base value (₺35.000 - ₺65.000)
+    final budgetLimit = max(35000.0, min(maxBudget, 80000.0));
+    final baseValue = 35000.0 + _random.nextInt(max(1, (budgetLimit - 35000.0).toInt() + 1));
+
+    final engineCondition = (45.0 + _random.nextInt(40)).clamp(40.0, 90.0);
+    final transCondition = (50.0 + _random.nextInt(35)).clamp(45.0, 90.0);
+    final mileage = 120000 + _random.nextInt(160000);
+    final tramerAmount = _random.nextInt(12000);
+
+    final bodyParts = <String, PartStatus>{
+      'Kaput': _getRandomPartStatus(),
+      'Tavan': PartStatus.original,
+      'Sol Ön Çamurluk': _getRandomPartStatus(),
+      'Sağ Ön Çamurluk': _getRandomPartStatus(),
+      'Sol Arka Çamurluk': _getRandomPartStatus(),
+      'Sağ Arka Çamurluk': _getRandomPartStatus(),
+      'Sol Ön Kapı': _getRandomPartStatus(),
+      'Sağ Ön Kapı': _getRandomPartStatus(),
+      'Sol Arka Kapı': _getRandomPartStatus(),
+      'Sağ Arka Kapı': _getRandomPartStatus(),
+      'Bagaj': _getRandomPartStatus(),
+      'Şasi/Podye': PartStatus.original,
+    };
+
+    final expertise = ExpertiseReport(
+      engineCondition: engineCondition.toDouble(),
+      transmissionCondition: transCondition.toDouble(),
+      tramerAmount: tramerAmount,
+      mileage: mileage,
+      isMileageTampered: false,
+      bodyParts: bodyParts,
+    );
+
+    final targetPrice = (baseValue * (0.80 + _random.nextDouble() * 0.20)).clamp(35000.0, budgetLimit).roundToDouble();
+
+    final car = CarModel(
+      id: id,
+      brand: brandData.name,
+      modelName: modelName,
+      modelYear: year,
+      bodyType: 'Sedan',
+      colorHex: _getRandomColorHex(),
+      baseMarketValue: baseValue,
+      currentPurchasePrice: targetPrice,
+      isRare: false,
+      isBarnFind: false,
+      expertise: expertise,
+    );
+
+    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Adana', 'Konya'];
+    final sellerCity = cities[_random.nextInt(cities.length)];
+
+    return ListingModel(
+      id: 'listing_$id',
+      car: car,
+      sellerName: 'İlk Sahibinden Borçtan (${_getRandomSellerName()})',
+      sellerTrait: 'Fiyat esnek, tamire ihtiyacı var',
+      sellerCity: sellerCity,
+      title: '$year ${brandData.name} $modelName',
+      description: 'Acil nakit ihtiyacından kelepir fiyata satılık ayağı yerden kesecek başlangıç arabası!',
+      askingPrice: targetPrice,
+      isExpertiseCompleted: false,
+      createdAt: DateTime.now(),
+    );
   }
 
   static ListingModel _generateSingleListing(int playerLevel, MarketTrendModel trend) {
@@ -130,6 +225,7 @@ class MarketEngine {
     bool isClassicModel = modelName.contains('Murat') ||
         modelName.contains('Toros') ||
         modelName.contains('Broad-Vey') ||
+        modelName.contains('Brodvey') ||
         modelName.contains('A-Bir') ||
         modelName.contains('STC') ||
         modelName.contains('Böcek') ||
@@ -196,44 +292,46 @@ class MarketEngine {
     // Realistic Segment-Based Base Value Calculation
     double baseValue;
     if (isClassicModel) {
-      baseValue = isRare ? (320000.0 + _random.nextInt(480000)) : (140000.0 + _random.nextInt(190000));
+      baseValue = isRare ? (180000.0 + _random.nextInt(220000)) : (45000.0 + _random.nextInt(45000));
     } else {
       final int yearDiff = (year >= 2005) ? (year - 2005) : 0;
       switch (brandData.segment) {
         case 'efsane':
+          baseValue = isRare ? (180000.0 + _random.nextInt(220000)) : (45000.0 + _random.nextInt(45000));
+          break;
         case 'klasik':
-          baseValue = isRare ? (320000.0 + _random.nextInt(480000)) : (140000.0 + _random.nextInt(190000));
+          baseValue = isRare ? (220000.0 + _random.nextInt(260000)) : (55000.0 + _random.nextInt(45000));
           break;
         case 'ekonomi':
-          baseValue = 350000.0 + yearDiff * 28000.0;
+          baseValue = 140000.0 + yearDiff * 18000.0;
           break;
         case 'halk':
-          baseValue = 480000.0 + yearDiff * 35000.0;
+          baseValue = 240000.0 + yearDiff * 25000.0;
           break;
         case 'popüler':
         case 'güvenilir':
-          baseValue = 580000.0 + yearDiff * 42000.0;
+          baseValue = 380000.0 + yearDiff * 32000.0;
           break;
         case 'premium':
         case 'lüks':
         case 'güvenlik':
-          baseValue = 1100000.0 + yearDiff * 85000.0;
+          baseValue = 900000.0 + yearDiff * 75000.0;
           break;
         case 'elektrikli':
-          baseValue = 1800000.0 + (year >= 2018 ? (year - 2018) : 0) * 90000.0;
+          baseValue = 1500000.0 + (year >= 2018 ? (year - 2018) : 0) * 80000.0;
           break;
         case 'süperspor':
-          baseValue = 3800000.0 + (year >= 2010 ? (year - 2010) : 0) * 220000.0;
+          baseValue = 3500000.0 + (year >= 2010 ? (year - 2010) : 0) * 200000.0;
           break;
         case 'egzotik':
-          baseValue = 7500000.0 + (year >= 2015 ? (year - 2015) : 0) * 450000.0;
+          baseValue = 6500000.0 + (year >= 2015 ? (year - 2015) : 0) * 400000.0;
           break;
         default:
-          baseValue = 450000.0 + yearDiff * 35000.0;
+          baseValue = 320000.0 + yearDiff * 28000.0;
       }
     }
 
-    if (baseValue < 100000.0) baseValue = 100000.0;
+    if (baseValue < 35000.0) baseValue = 35000.0;
 
     if (bodyType == 'Spor') baseValue *= 1.25;
     if (bodyType == 'SUV') baseValue *= 1.20;

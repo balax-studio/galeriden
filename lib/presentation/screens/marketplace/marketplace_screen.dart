@@ -113,8 +113,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 color: isDark ? const Color(0xFF141721) : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  width: 1.6,
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 2.0,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -147,7 +147,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear_rounded, size: 18),
+                          padding: const EdgeInsets.all(10),
+                          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                           onPressed: () {
+                            HapticFeedback.selectionClick();
                             _searchController.clear();
                             _onSearchChanged('');
                           },
@@ -175,7 +178,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     decoration: BoxDecoration(
                       color: p.primaryColor,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black, width: 1.4),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
                     child: const Icon(Icons.insights_rounded, color: Colors.black, size: 20),
                   ),
@@ -243,8 +249,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                width: 1.4,
+                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                width: 2.0,
               ),
             ),
             child: Row(
@@ -417,7 +423,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
                                         color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                        width: 1.4,
+                                        width: 2.0,
                                       ),
                                     ),
                                     child: CarSilhouetteWidget(
@@ -600,15 +606,18 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
 
     return GestureDetector(
-      onTap: () => setState(() => _selectedFilter = key),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedFilter = key);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected ? activeBg : inactiveBg,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? const Color(0xFF0F172A) : borderColor,
-            width: 1.5,
+            color: isSelected ? (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)) : borderColor,
+            width: 2.0,
           ),
           boxShadow: isSelected
               ? const [

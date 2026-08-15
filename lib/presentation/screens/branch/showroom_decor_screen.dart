@@ -106,7 +106,10 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF06B6D4),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.storefront_rounded, color: Colors.black, size: 24),
                 ),
@@ -171,7 +174,10 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                                 decoration: BoxDecoration(
                                   color: isPurchased ? AppColors.brutalGreen : item.color,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.black, width: 1.2),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    width: 2.0,
+                                  ),
                                 ),
                                 child: Icon(
                                   isPurchased ? Icons.check_circle_rounded : item.icon,

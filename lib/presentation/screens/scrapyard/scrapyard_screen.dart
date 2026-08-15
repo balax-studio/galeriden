@@ -108,7 +108,10 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                             decoration: BoxDecoration(
                               color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.black, width: 1.2),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -191,7 +194,10 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                               decoration: BoxDecoration(
                                 color: AppColors.brutalOrange,
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.black, width: 1.5),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  width: 2.0,
+                                ),
                               ),
                               child: const Icon(Icons.car_crash_rounded, color: Colors.black, size: 24),
                             ),
@@ -279,7 +285,10 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                             decoration: BoxDecoration(
                               color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.black, width: 1.2),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

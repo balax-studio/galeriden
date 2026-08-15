@@ -132,7 +132,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.speed_rounded, color: Colors.black, size: 24),
                 ),
@@ -204,7 +207,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                             ? AppColors.brutalYellow
                             : (isDark ? const Color(0xFF141721) : Colors.white),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black, width: isSelected ? 2.5 : 1.5),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                          width: isSelected ? 2.5 : 2.0,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +279,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                                 decoration: BoxDecoration(
                                   color: opt.color,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.black, width: 1.4),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    width: 2.0,
+                                  ),
                                 ),
                                 child: Icon(opt.icon, color: Colors.black, size: 20),
                               ),

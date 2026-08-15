@@ -617,7 +617,10 @@ class ShowroomCarCard extends ConsumerWidget {
                         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
-                          side: const BorderSide(color: Colors.black, width: 2),
+                          side: BorderSide(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
                         ),
                         title: const Text('VİTRİNDEN ÇIKARILSIN MI?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
                         content: const Text(
@@ -625,21 +628,32 @@ class ShowroomCarCard extends ConsumerWidget {
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                         actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(dCtx),
-                            child: const Text('İPTAL', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF64748B))),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.errorRed,
-                              foregroundColor: Colors.white,
-                            ),
-                            onPressed: () {
-                              Navigator.pop(dCtx);
-                              ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
-                              NotificationService.showSuccess(context, '${car.brand} ${car.modelName} vitrinden çıkarıldı.');
-                            },
-                            child: const Text('KİLİDİ AÇ', style: TextStyle(fontWeight: FontWeight.w900)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              NeoBrutalButton(
+                                label: 'İPTAL',
+                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                onPressed: () => Navigator.pop(dCtx),
+                              ),
+                              const SizedBox(width: 8),
+                              NeoBrutalButton(
+                                label: 'KİLİDİ AÇ',
+                                icon: Icons.lock_open_rounded,
+                                backgroundColor: AppColors.errorRed,
+                                textColor: Colors.white,
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                onPressed: () {
+                                  Navigator.pop(dCtx);
+                                  ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
+                                  NotificationService.showSuccess(context, '${car.brand} ${car.modelName} vitrinden çıkarıldı.');
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),

@@ -102,7 +102,10 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFA855F7),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
                   ),
                   child: const Icon(Icons.school_rounded, color: Colors.white, size: 24),
                 ),
@@ -223,7 +226,10 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                               decoration: BoxDecoration(
                                 color: course.color,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.black, width: 1.4),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  width: 2.0,
+                                ),
                               ),
                               child: Icon(course.icon, color: Colors.black, size: 20),
                             ),
