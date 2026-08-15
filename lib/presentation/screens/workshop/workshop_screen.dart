@@ -432,7 +432,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         AdService.instance.showRewardedAd(
                           onRewardEarned: () {
                             ref.read(gameProvider.notifier).instantDeliverPartOrder(order.id);
-                            NotificationService.showReward(context, '⚡ Kargo hızlandırıldı! Parça teslim edildi.');
+                            NotificationService.showReward(context, 'Kargo hızlandırıldı! Parça teslim edildi.');
                             setState(() {});
                           },
                         );

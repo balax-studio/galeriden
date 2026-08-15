@@ -73,7 +73,8 @@ class ShowroomCarCard extends ConsumerWidget {
                       const SizedBox(width: 8),
                       if (hasOffer) ...[
                         const NeoBrutalBadge(
-                          text: '🔥 TEKLİF VAR',
+                          text: 'TEKLİF VAR',
+                          icon: Icons.local_fire_department_rounded,
                           backgroundColor: Color(0xFF00E575),
                           textColor: Colors.black,
                           fontSize: 9.5,
@@ -91,7 +92,8 @@ class ShowroomCarCard extends ConsumerWidget {
                       if (car.isDoped) ...[
                         const SizedBox(width: 6),
                         const NeoBrutalBadge(
-                          text: '⚡ DOPİNGLİ',
+                          text: 'DOPİNGLİ',
+                          icon: Icons.bolt_rounded,
                           backgroundColor: Color(0xFFFFDE59),
                           textColor: Colors.black,
                           fontSize: 9.5,
@@ -100,7 +102,8 @@ class ShowroomCarCard extends ConsumerWidget {
                       if (car.isLockedInShowcase) ...[
                         const SizedBox(width: 6),
                         const NeoBrutalBadge(
-                          text: '🏆 KOLEKSİYONDA',
+                          text: 'KOLEKSİYONDA',
+                          icon: Icons.workspace_premium_rounded,
                           backgroundColor: Color(0xFFA855F7),
                           textColor: Colors.white,
                           fontSize: 9.5,
@@ -109,6 +112,7 @@ class ShowroomCarCard extends ConsumerWidget {
                         const SizedBox(width: 6),
                         const NeoBrutalBadge(
                           text: 'NADİR',
+                          icon: Icons.diamond_rounded,
                           backgroundColor: Color(0xFFA855F7),
                           textColor: Colors.white,
                           fontSize: 9.5,
@@ -169,7 +173,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                       if (success) {
                                         NotificationService.showSuccess(
                                           context,
-                                          '📱 ${car.brand} ${car.modelName} sosyal medyada öne çıkarıldı!',
+                                          '${car.brand} ${car.modelName} sosyal medyada öne çıkarıldı!',
                                         );
                                       } else {
                                         NotificationService.showInfo(
@@ -187,15 +191,28 @@ class ShowroomCarCard extends ConsumerWidget {
                                       : const Color(0xFF3B82F6),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
-                                child: Text(
-                                  isDoped ? '📱 Paylaşıldı' : '📱 Paylaş (-%50)',
-                                  style: TextStyle(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDoped
-                                        ? (isDark ? Colors.white54 : Colors.black54)
-                                        : Colors.white,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.share_rounded,
+                                      size: 11,
+                                      color: isDoped
+                                          ? (isDark ? Colors.white54 : Colors.black54)
+                                          : Colors.white,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      isDoped ? 'Paylaşıldı' : 'Paylaş (-%50)',
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: isDoped
+                                            ? (isDark ? Colors.white54 : Colors.black54)
+                                            : Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
@@ -219,7 +236,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                       ref.read(gameProvider.notifier).updateCarListingPrice(car.id, discountedPrice);
                                       NotificationService.showSuccess(
                                         context,
-                                        '🏷️ Fiyat ${CurrencyFormatter.formatShort(discountedPrice)} seviyesine çekildi! Müşteriler hızlandı.',
+                                        'Fiyat ${CurrencyFormatter.formatShort(discountedPrice)} seviyesine çekildi! Müşteriler hızlandı.',
                                       );
                                     },
                               borderRadius: BorderRadius.circular(6),
@@ -231,15 +248,28 @@ class ShowroomCarCard extends ConsumerWidget {
                                       : const Color(0xFFEF4444),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
-                                child: Text(
-                                  !canCutPrice ? '🏷️ Dip Fiyat' : '🏷️ Fiyat Kır (-%5)',
-                                  style: TextStyle(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: !canCutPrice
-                                        ? (isDark ? Colors.white54 : Colors.black54)
-                                        : Colors.white,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.local_offer_rounded,
+                                      size: 11,
+                                      color: !canCutPrice
+                                          ? (isDark ? Colors.white54 : Colors.black54)
+                                          : Colors.white,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      !canCutPrice ? 'Dip Fiyat' : 'Fiyat Kır (-%5)',
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: !canCutPrice
+                                            ? (isDark ? Colors.white54 : Colors.black54)
+                                            : Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
@@ -434,8 +464,8 @@ class ShowroomCarCard extends ConsumerWidget {
               NeoBrutalButton(
                 label: car.isLockedInShowcase
                     ? 'Koleksiyon Vitrininden Çıkar (Satışa Aç)'
-                    : '🏆 Koleksiyon Vitrinine Kilitle (+%5 İtibar)',
-                icon: car.isLockedInShowcase ? Icons.lock_open_rounded : Icons.lock_rounded,
+                    : 'Koleksiyon Vitrinine Kilitle (+%5 İtibar)',
+                icon: car.isLockedInShowcase ? Icons.lock_open_rounded : Icons.workspace_premium_rounded,
                 backgroundColor: car.isLockedInShowcase
                     ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                     : const Color(0xFFA855F7),
@@ -450,7 +480,7 @@ class ShowroomCarCard extends ConsumerWidget {
                       context,
                       car.isLockedInShowcase
                           ? '${car.brand} ${car.modelName} vitrinden çıkarıldı.'
-                          : '🏆 ${car.brand} ${car.modelName} koleksiyon vitrinine kilitlendi!',
+                          : '${car.brand} ${car.modelName} koleksiyon vitrinine kilitlendi!',
                     );
                   }
                 },

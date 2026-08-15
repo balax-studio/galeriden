@@ -8,6 +8,7 @@ import '../providers/game_provider.dart';
 import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
+import 'app_vector_icons.dart';
 
 class NeoBrutalStoryAdDialog extends ConsumerWidget {
   final StoryCardModel card;
@@ -89,9 +90,10 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                       ],
                     ),
                     alignment: Alignment.center,
-                    child: Text(
-                      card.characterAvatar,
-                      style: const TextStyle(fontSize: 26),
+                    child: AvatarIconWidget(
+                      avatar: card.characterAvatar,
+                      size: 26,
+                      color: isDark ? const Color(0xFFF59E0B) : const Color(0xFF0F172A),
                     ),
                   ),
                   const SizedBox(width: 12),

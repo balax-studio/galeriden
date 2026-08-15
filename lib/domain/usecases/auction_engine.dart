@@ -4,22 +4,76 @@ import '../../domain/usecases/market_engine.dart';
 
 class AuctionEngine {
   static final Random _random = Random();
+  static DateTime? _nextSessionTime;
+  static DateTime? _currentSessionEndTime;
 
-  /// Checks if an auction window is currently active (Active 3 minutes, Closed 3 minutes)
+  /// Checks if an auction window is currently active (Dynamically randomized open/close cycles)
   static bool isAuctionActiveNow() {
-    final minute = DateTime.now().minute;
-    return (minute % 6) < 3;
+    final now = DateTime.now();
+
+    // If active session is ongoing
+    if (_currentSessionEndTime != null) {
+      if (now.isBefore(_currentSessionEndTime!)) {
+        return true;
+      } else {
+        // Session ended, schedule next random interval
+        _currentSessionEndTime = null;
+        scheduleNextRandomSession();
+        return false;
+      }
+    }
+
+    // If waiting for next scheduled session
+    if (_nextSessionTime != null) {
+      if (now.isAfter(_nextSessionTime!)) {
+        // Scheduled time reached! Open session for randomized duration (90 to 180 seconds)
+        final sessionDuration = 90 + _random.nextInt(90);
+        _currentSessionEndTime = now.add(Duration(seconds: sessionDuration));
+        _nextSessionTime = null;
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    // If uninitialized, initialize with a fresh random schedule
+    scheduleNextRandomSession();
+    return false;
   }
 
   /// Calculates remaining seconds until next auction window opens
   static int getSecondsUntilNextAuction() {
     final now = DateTime.now();
-    final minute = now.minute;
-    final second = now.second;
+    if (_nextSessionTime == null) {
+      scheduleNextRandomSession();
+    }
+    final diff = _nextSessionTime!.difference(now).inSeconds;
+    return diff > 0 ? diff : 0;
+  }
 
-    int minutesUntil = 6 - (minute % 6);
-    int totalSeconds = (minutesUntil * 60) - second;
-    return totalSeconds > 0 ? totalSeconds : 60;
+  /// Schedules next random session interval (random between 45 and 180 seconds)
+  static void scheduleNextRandomSession({int minSeconds = 45, int maxSeconds = 180}) {
+    final randomSeconds = minSeconds + _random.nextInt(maxSeconds - minSeconds + 1);
+    _nextSessionTime = DateTime.now().add(Duration(seconds: randomSeconds));
+    _currentSessionEndTime = null;
+  }
+
+  /// Force start an active auction session
+  static void openSessionImmediately({int durationSeconds = 120}) {
+    _currentSessionEndTime = DateTime.now().add(Duration(seconds: durationSeconds));
+    _nextSessionTime = null;
+  }
+
+  /// Clerk / Officer interactive dialogues
+  static String getRandomOfficerDialogue(String timeStr) {
+    final dialogues = [
+      'Gümrük ve Tasfiye İdaresi evrakları inceliyor. Bir sonraki ihale seansı yaklaşık $timeStr sonra başlayacak.',
+      'İcra dairesinden yeni hacizli araç dosyaları geldi, sisteme giriyoruz. İhale salonu $timeStr sonra açılacak.',
+      'Müzayede komisyonu araç başlangıç fiyatlarını onaylıyor. Seansın başlamasına yaklaşık $timeStr kaldı.',
+      'Ekspertiz ve muhafaza tutanakları tamamlanmak üzere. Bir sonraki araç müzayedesi $timeStr içinde başlayacak.',
+      'Salon hazırlıkları ve katılımcı listeleri düzenleniyor. Sıradaki müzayede $timeStr sonra canlı yayına geçecek.',
+    ];
+    return dialogues[_random.nextInt(dialogues.length)];
   }
 
   static AuctionModel createLiveAuction({int playerLevel = 1}) {

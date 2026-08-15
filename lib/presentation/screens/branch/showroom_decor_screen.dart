@@ -145,12 +145,17 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
 
           // 2. Options List
           ..._decorOptions.map((item) {
+            final isPurchased = game.unlockedDecorIds.contains(item.id);
+            final canAfford = game.balance >= item.cost;
+
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
                 backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderColor: isPurchased
+                    ? AppColors.brutalGreen
+                    : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,30 +163,48 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: item.color,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.black, width: 1.2),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isPurchased ? AppColors.brutalGreen : item.color,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.black, width: 1.2),
+                                ),
+                                child: Icon(
+                                  isPurchased ? Icons.check_circle_rounded : item.icon,
+                                  color: Colors.black,
+                                  size: 20,
+                                ),
                               ),
-                              child: Icon(item.icon, color: Colors.black, size: 20),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              item.title,
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  item.title,
+                                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        NeoBrutalBadge(
-                          text: '+${item.reputationBonus.toStringAsFixed(1)} İtibar',
-                          backgroundColor: AppColors.brutalGreen,
-                          textColor: Colors.black,
-                          fontSize: 10,
-                        ),
+                        const SizedBox(width: 8),
+                        if (isPurchased)
+                          const NeoBrutalBadge(
+                            text: 'AKTİF',
+                            icon: Icons.check_rounded,
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          )
+                        else
+                          NeoBrutalBadge(
+                            text: '+${item.reputationBonus.toStringAsFixed(1)} İtibar',
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -194,28 +217,51 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          CurrencyFormatter.formatShort(item.cost),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                          isPurchased ? 'İNŞA EDİLDİ' : CurrencyFormatter.formatShort(item.cost),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: isPurchased ? const Color(0xFF64748B) : AppColors.brutalGreen,
+                          ),
                         ),
                         NeoBrutalButton(
-                          label: 'İNŞA ET',
-                          icon: Icons.architecture_rounded,
-                          backgroundColor: item.color,
-                          textColor: Colors.black,
+                          label: isPurchased
+                              ? 'İNŞA EDİLDİ'
+                              : (canAfford ? 'İNŞA ET' : 'YETERSİZ BAKİYE'),
+                          icon: isPurchased
+                              ? Icons.check_circle_rounded
+                              : (canAfford ? Icons.architecture_rounded : Icons.lock_rounded),
+                          backgroundColor: isPurchased
+                              ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                              : (canAfford ? item.color : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))),
+                          textColor: isPurchased
+                              ? (isDark ? Colors.white54 : Colors.black54)
+                              : (canAfford ? Colors.black : const Color(0xFF64748B)),
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          onPressed: () {
-                            if (game.balance < item.cost) {
-                              NotificationService.showError(context, 'Yetersiz Bakiye!');
-                              return;
-                            }
+                          onPressed: isPurchased
+                              ? null
+                              : () {
+                                  if (!canAfford) {
+                                    NotificationService.showError(context, 'Yetersiz Bakiye!');
+                                    return;
+                                  }
 
-                            ref.read(gameProvider.notifier).deductBalance(item.cost);
-                            NotificationService.showSuccess(
-                              context,
-                              '${item.title} İnşa Edildi! Galeri İtibarı Artırıldı.',
-                            );
-                          },
+                                  final success = ref.read(gameProvider.notifier).purchaseShowroomDecor(
+                                        decorId: item.id,
+                                        cost: item.cost,
+                                        reputationBonus: item.reputationBonus,
+                                      );
+
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${item.title} İnşa Edildi! Galeri İtibarı Artırıldı.',
+                                    );
+                                  } else {
+                                    NotificationService.showError(context, 'Bu geliştirme zaten yapılmış veya yetersiz bakiye!');
+                                  }
+                                },
                         ),
                       ],
                     ),

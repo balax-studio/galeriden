@@ -233,10 +233,10 @@ class MarketEngine {
     final sellerCity = cities[_random.nextInt(cities.length)];
 
     String title = '$year ${brandData.name} $modelName';
-    if (isRare) title = '⭐ [KOLEKSİYON] $title';
+    if (isRare) title = '[KOLEKSİYON] $title';
 
     String description = isFlashDeal
-        ? '🔥 ACİL SATILIK KELEPİR FİYAT! İlk arayan alır, pazarlık sünnettir.'
+        ? 'ACİL SATILIK KELEPİR FİYAT! İlk arayan alır, pazarlık sünnettir.'
         : (isRare
             ? 'Garaj arabası, düşük km, özenle saklanmış koleksiyonluk nadide araç!'
             : 'Bakımları yetkili serviste yapılmıştır. Masrafsız, nakit veya mantıklı takasa uygundur.');

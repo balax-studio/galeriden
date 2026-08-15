@@ -534,7 +534,13 @@ class DashboardRetentionModals {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('🌟 Kalıcı Sezon Kazanımları:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5)),
+                  const Row(
+                    children: [
+                      Icon(Icons.workspace_premium_rounded, size: 14, color: Color(0xFFD97706)),
+                      SizedBox(width: 4),
+                      Text('Kalıcı Sezon Kazanımları:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5)),
+                    ],
+                  ),
                   const SizedBox(height: 4),
                   Text('• +%15 Kalıcı Satış Kâr Çarpanı (Mevcut: Sezon ${game.prestigeLevel})', style: const TextStyle(fontSize: 11)),
                   const Text('• ₺150.000 Başlangıç Can Suyu Kasası', style: TextStyle(fontSize: 11)),

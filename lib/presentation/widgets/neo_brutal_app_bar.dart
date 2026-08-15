@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme_extension.dart';
+import '../providers/dashboard_provider.dart';
 
 /// Standard Neo-Brutal App Bar with tactile back button strictly aligned to the left,
 /// solid typography, and responsive action buttons.
-class NeoBrutalAppBar extends StatelessWidget implements PreferredSizeWidget {
+class NeoBrutalAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final String title;
   final Widget? titleWidget;
   final List<Widget>? actions;
@@ -31,7 +33,7 @@ class NeoBrutalAppBar extends StatelessWidget implements PreferredSizeWidget {
       );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final p = themeExt?.palette;
     final isDark = p?.isDark ?? Theme.of(context).brightness == Brightness.dark;
@@ -55,47 +57,72 @@ class NeoBrutalAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              height: kToolbarHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 14.0),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Middle / Centered Title section
-                  Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 48.0),
-                      child: titleWidget ??
-                          Text(
-                            title.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.8,
-                              color: textColor,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                    ),
-                  ),
-
-                  // Far-left: Strict Leading Back Button with expanded hit area
-                  if (showLeading)
+            SizedBox(
+              height: kToolbarHeight - 2.0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Middle / Centered Title section
                     Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          if (onLeadingPressed != null) {
-                            onLeadingPressed!();
-                          } else if (context.canPop()) {
-                            context.pop();
-                          }
-                        },
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                        child: titleWidget ??
+                            Text(
+                              title.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.8,
+                                color: textColor,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                      ),
+                    ),
+
+                    // Far-left: Strict Leading Back Button with expanded hit area
+                    if (showLeading)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            if (onLeadingPressed != null) {
+                              onLeadingPressed!();
+                              return;
+                            }
+
+                            // If we are currently on a sub-tab of the bottom bar (Showroom, Auction, Office)
+                            final currentTab = ref.read(dashboardTabProvider);
+                            if (currentTab != 0) {
+                              ref.read(dashboardTabProvider.notifier).state = 0;
+                            }
+
+                            bool popped = false;
+                            try {
+                              if (context.canPop()) {
+                                context.pop();
+                                popped = true;
+                              }
+                            } catch (_) {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                                popped = true;
+                              }
+                            }
+
+                            if (!popped) {
+                              try {
+                                context.go('/dashboard');
+                              } catch (_) {}
+                            }
+                          },
                         child: Container(
                           padding: const EdgeInsets.all(4.0), // increased hit area
                           child: Container(
@@ -139,11 +166,12 @@ class NeoBrutalAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ),
             ),
-            ?bottom,
-          ],
-        ),
+          ),
+          ?bottom,
+        ],
       ),
-    );
+    ),
+  );
   }
 }
 

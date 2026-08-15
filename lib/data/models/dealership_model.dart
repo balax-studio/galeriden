@@ -86,6 +86,7 @@ class DealershipModel {
   final double bankDepositBalance;
   final double bankCreditLimit;
   final List<String> purchasedAcademyCourses;
+  final List<String> unlockedDecorIds;
   final DateTime? lastScrapyardGigDate;
   final List<Map<String, dynamic>> pendingDopedOffers;
   final List<WantedCarContract> activeContracts;
@@ -199,6 +200,7 @@ class DealershipModel {
     this.bankDepositBalance = 0.0,
     this.bankCreditLimit = 250000.0,
     this.purchasedAcademyCourses = const [],
+    this.unlockedDecorIds = const [],
     this.lastScrapyardGigDate,
     this.pendingDopedOffers = const [],
     this.activeContracts = const [],
@@ -541,6 +543,7 @@ class DealershipModel {
       'bankDepositBalance': bankDepositBalance,
       'bankCreditLimit': bankCreditLimit,
       'purchasedAcademyCourses': purchasedAcademyCourses,
+      'unlockedDecorIds': unlockedDecorIds,
       'lastScrapyardGigDate': lastScrapyardGigDate?.toIso8601String(),
       'pendingDopedOffers': pendingDopedOffers,
       'activeContracts': activeContracts.map((c) => c.toJson()).toList(),
@@ -629,6 +632,7 @@ class DealershipModel {
       bankDepositBalance: (json['bankDepositBalance'] as num?)?.toDouble() ?? 0.0,
       bankCreditLimit: (json['bankCreditLimit'] as num?)?.toDouble() ?? 250000.0,
       purchasedAcademyCourses: (json['purchasedAcademyCourses'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      unlockedDecorIds: (json['unlockedDecorIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       lastScrapyardGigDate: json['lastScrapyardGigDate'] != null ? DateTime.tryParse(json['lastScrapyardGigDate'] as String) : null,
       pendingDopedOffers: (json['pendingDopedOffers'] as List<dynamic>?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? const [],
       activeContracts: parseList(json['activeContracts'] as List<dynamic>?, WantedCarContract.fromJson),
@@ -723,6 +727,7 @@ class DealershipModel {
     double? bankDepositBalance,
     double? bankCreditLimit,
     List<String>? purchasedAcademyCourses,
+    List<String>? unlockedDecorIds,
     DateTime? lastScrapyardGigDate,
     List<Map<String, dynamic>>? pendingDopedOffers,
     List<WantedCarContract>? activeContracts,
@@ -784,6 +789,7 @@ class DealershipModel {
       bankDepositBalance: bankDepositBalance ?? this.bankDepositBalance,
       bankCreditLimit: bankCreditLimit ?? this.bankCreditLimit,
       purchasedAcademyCourses: purchasedAcademyCourses ?? this.purchasedAcademyCourses,
+      unlockedDecorIds: unlockedDecorIds ?? this.unlockedDecorIds,
       lastScrapyardGigDate: lastScrapyardGigDate ?? this.lastScrapyardGigDate,
       pendingDopedOffers: pendingDopedOffers ?? this.pendingDopedOffers,
       activeContracts: activeContracts ?? this.activeContracts,

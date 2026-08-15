@@ -45,7 +45,7 @@ class _TycoonCustomer {
   final double speed;
   final double startOffset;
   final String dialogue;
-  final String emoji;
+  final IconData icon;
 
   _TycoonCustomer({
     required this.id,
@@ -55,7 +55,7 @@ class _TycoonCustomer {
     required this.speed,
     required this.startOffset,
     required this.dialogue,
-    required this.emoji,
+    required this.icon,
   });
 }
 
@@ -82,7 +82,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
       speed: 1.0,
       startOffset: 0.0,
       dialogue: 'Ekspertiz raporu temiz mi?',
-      emoji: '💼',
+      icon: Icons.business_center_rounded,
     ),
     _TycoonCustomer(
       id: 2,
@@ -92,7 +92,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
       speed: 1.25,
       startOffset: 0.28,
       dialogue: 'Motor sesi harika!',
-      emoji: '🔥',
+      icon: Icons.local_fire_department_rounded,
     ),
     _TycoonCustomer(
       id: 3,
@@ -102,7 +102,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
       speed: 0.85,
       startOffset: 0.62,
       dialogue: 'Koleksiyonluk bir parça!',
-      emoji: '💎',
+      icon: Icons.workspace_premium_rounded,
     ),
     _TycoonCustomer(
       id: 4,
@@ -112,7 +112,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
       speed: 1.1,
       startOffset: 0.82,
       dialogue: 'Pazarlık payı var mı?',
-      emoji: '🤝',
+      icon: Icons.handshake_rounded,
     ),
   ];
 
@@ -387,7 +387,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Text('👥', style: TextStyle(fontSize: 10)),
+                                      const Icon(Icons.people_alt_rounded, size: 12, color: Colors.white70),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Ziyaretçi: ${_customers.length} Alıcı İncelemede',
@@ -407,7 +407,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Text('⚡', style: TextStyle(fontSize: 10)),
+                                      const Icon(Icons.bolt_rounded, size: 12, color: AppColors.primaryAmber),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Galeri Cazibesi: %${(85 + (math.sin(_animController.value * math.pi * 4) * 10).abs()).toInt()}',
@@ -452,7 +452,7 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
         final bayY = height * (0.28 + (targetCarIndex ~/ 3) * 0.18);
 
         final isPurchaseMoment = prog >= 0.65;
-        final bubbleText = isPurchaseMoment ? '🎉 Teklif Hazırlanıyor!' : cust.dialogue;
+        final bubbleText = isPurchaseMoment ? 'Teklif Hazırlanıyor!' : cust.dialogue;
         final bubbleColor = isPurchaseMoment ? AppColors.laserGreen : AppColors.arcadeGold;
 
         widgets.add(
@@ -472,7 +472,11 @@ class _IsometricShowroomCanvasState extends ConsumerState<IsometricShowroomCanva
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(isPurchaseMoment ? '💰' : cust.emoji, style: const TextStyle(fontSize: 10)),
+                  Icon(
+                    isPurchaseMoment ? Icons.attach_money_rounded : cust.icon,
+                    size: 11,
+                    color: bubbleColor,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '${cust.role.name.toUpperCase()}: "$bubbleText"',

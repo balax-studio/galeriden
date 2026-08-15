@@ -28,6 +28,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   late AnimationController _pulseController;
   int _closedCountdown = 0;
   bool _isWindowOpen = true;
+  bool _isOfficerConsulted = false;
+  String? _officerSpeech;
 
   @override
   void initState() {
@@ -42,8 +44,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     final game = ref.read(gameProvider);
     _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-    _bidLogs.add('🏛️ Gümrük ve Tasfiye İhale Seansı Başladı!');
-    _bidLogs.add('🏷️ Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+    _bidLogs.add('Gümrük ve Tasfiye İhale Seansı Başladı!');
+    _bidLogs.add('Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
     _startAuctionTimer();
   }
 
@@ -57,12 +59,27 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       if (windowNow != _isWindowOpen) {
         setState(() {
           _isWindowOpen = windowNow;
+          if (_isWindowOpen) {
+            final game = ref.read(gameProvider);
+            _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+            _isOfficerConsulted = false;
+            _officerSpeech = null;
+          }
         });
       }
 
       if (!_isWindowOpen) {
+        final remaining = AuctionEngine.getSecondsUntilNextAuction();
         setState(() {
-          _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
+          _closedCountdown = remaining;
+          if (remaining <= 0) {
+            AuctionEngine.openSessionImmediately();
+            _isWindowOpen = true;
+            final game = ref.read(gameProvider);
+            _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+            _isOfficerConsulted = false;
+            _officerSpeech = null;
+          }
         });
         return;
       }
@@ -84,7 +101,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       if (updated != null) {
         setState(() {
           _auction = updated;
-          _bidLogs.insert(0, '⚡ ${updated.highestBidderName} teklif yükseltti: ${CurrencyFormatter.formatShort(updated.currentBid)}');
+          _bidLogs.insert(0, '${updated.highestBidderName} teklif yükseltti: ${CurrencyFormatter.formatShort(updated.currentBid)}');
         });
       }
     });
@@ -112,7 +129,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         isPlayerHighestBidder: true,
         secondsRemaining: (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
       );
-      _bidLogs.insert(0, '🔥 SENİN TEKLİFİN: ${CurrencyFormatter.formatShort(nextBid)}');
+      _bidLogs.insert(0, 'SENİN TEKLİFİN: ${CurrencyFormatter.formatShort(nextBid)}');
     });
   }
 
@@ -123,8 +140,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     setState(() {
       _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
       _bidLogs.clear();
-      _bidLogs.add('🏛️ Yeni Araç İhale Masasında!');
-      _bidLogs.add('🏷️ Başlangıç Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      _bidLogs.add('Yeni Araç İhale Masasında!');
+      _bidLogs.add('Başlangıç Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
       _hasPlayerEnteredBid = false;
     });
     _startAuctionTimer();
@@ -133,7 +150,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   void _handleAuctionEnd() {
     if (!_hasPlayerEnteredBid && !_auction.isPlayerHighestBidder) {
       setState(() {
-        _bidLogs.insert(0, '❌ İhale sona erdi (${_auction.highestBidderName} kazandı).');
+        _bidLogs.insert(0, 'İhale sona erdi (${_auction.highestBidderName} kazandı).');
       });
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) _resetAuctionSilently();
@@ -347,7 +364,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                 ),
                               ),
                               Text(
-                                isLastSeconds ? '⚡ SON ŞANS! TEKLİF VER' : 'Süre bitince en yüksek teklif kazanır',
+                                isLastSeconds ? 'SON ŞANS! TEKLİF VER' : 'Süre bitince en yüksek teklif kazanır',
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w700,
@@ -513,17 +530,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             ),
                           ),
                           if (_auction.isPlayerHighestBidder)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.brutalGreen,
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.black, width: 1.5),
-                              ),
-                              child: const Text(
-                                '👑 LİDER SENSİN',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.black),
-                              ),
+                            const NeoBrutalBadge(
+                              text: 'LİDER SENSİN',
+                              icon: Icons.workspace_premium_rounded,
+                              backgroundColor: AppColors.brutalGreen,
+                              textColor: Colors.black,
+                              fontSize: 10,
                             ),
                         ],
                       ),
@@ -684,9 +696,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: NeoBrutalCard(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(22),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 16,
@@ -696,11 +708,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.brutalOrange,
-                  borderRadius: BorderRadius.circular(14),
+                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                  shape: BoxShape.circle,
                   border: Border.all(color: Colors.black, width: 2),
                 ),
-                child: const Icon(Icons.access_time_filled_rounded, color: Colors.black, size: 40),
+                child: const Icon(Icons.lock_clock_rounded, color: AppColors.brutalOrange, size: 38),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -713,28 +725,155 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               ),
               const SizedBox(height: 8),
               const Text(
-                'Gümrük ve icra araç ihaleleri belirli periyotlarla açılmaktadır.',
+                'Gümrük ve hacizli araç ihale seansları kapalıdır. Yeni araç listeleri görevli memurlar tarafından tanzim edilmektedir.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 16),
-              NeoBrutalBadge(
-                text: 'Sonraki Seans: $timeStr',
-                backgroundColor: AppColors.brutalYellow,
-                textColor: Colors.black,
-                fontSize: 13,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
-              const SizedBox(height: 20),
-              NeoBrutalButton(
-                label: 'GÖREVLİYE SOR & BEKLE',
-                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                textColor: isDark ? Colors.white : Colors.black,
-                fullWidth: true,
-                onPressed: () {
-                  NotificationService.showInfo(context, 'Sonraki ihale $timeStr sonra başlayacak!');
-                },
-              ),
+              if (!_isOfficerConsulted) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.brutalYellow,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 1.2),
+                        ),
+                        child: const Icon(Icons.support_agent_rounded, color: Colors.black, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text(
+                          'Müzayede görevlisine danışarak bir sonraki ihale seansı vaktini öğrenebilirsiniz.',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                NeoBrutalButton(
+                  label: 'GÖREVLİYE SOR',
+                  icon: Icons.record_voice_over_rounded,
+                  backgroundColor: AppColors.brutalYellow,
+                  textColor: Colors.black,
+                  fullWidth: true,
+                  onPressed: () {
+                    final speech = AuctionEngine.getRandomOfficerDialogue(timeStr);
+                    setState(() {
+                      _isOfficerConsulted = true;
+                      _officerSpeech = speech;
+                    });
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: Colors.black, width: 2),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.brutalYellow,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.black, width: 1.5),
+                              ),
+                              child: const Icon(Icons.support_agent_rounded, size: 36, color: Colors.black),
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'MÜZAYEDE MEMURU',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              speech,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.4),
+                            ),
+                            const SizedBox(height: 14),
+                            NeoBrutalBadge(
+                              text: 'Kalan Süre: $timeStr',
+                              icon: Icons.timer_rounded,
+                              backgroundColor: AppColors.brutalGreen,
+                              textColor: Colors.black,
+                              fontSize: 12,
+                            ),
+                            const SizedBox(height: 16),
+                            NeoBrutalButton(
+                              label: 'ANLAŞILDI & BEKLE',
+                              fullWidth: true,
+                              backgroundColor: AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              onPressed: () => Navigator.pop(ctx),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.brutalYellow, width: 1.5),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.forum_rounded, color: AppColors.brutalYellow, size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _officerSpeech ?? 'Müzayede memuru evrakları hazırlıyor...',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                NeoBrutalBadge(
+                  text: 'Sonraki Seans: $timeStr',
+                  icon: Icons.timer_rounded,
+                  backgroundColor: AppColors.brutalYellow,
+                  textColor: Colors.black,
+                  fontSize: 13,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+                const SizedBox(height: 18),
+                NeoBrutalButton(
+                  label: 'TEKRAR DANIŞ',
+                  icon: Icons.chat_bubble_outline_rounded,
+                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                  textColor: isDark ? Colors.white : Colors.black,
+                  fullWidth: true,
+                  onPressed: () {
+                    final speech = AuctionEngine.getRandomOfficerDialogue(timeStr);
+                    setState(() {
+                      _officerSpeech = speech;
+                    });
+                    NotificationService.showInfo(context, speech);
+                  },
+                ),
+              ],
             ],
           ),
         ),

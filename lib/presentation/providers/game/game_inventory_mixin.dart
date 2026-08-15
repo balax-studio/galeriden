@@ -226,6 +226,29 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Purchase & Construct Showroom Architecture Decor Upgrade
+  bool purchaseShowroomDecor({
+    required String decorId,
+    required double cost,
+    required double reputationBonus,
+  }) {
+    if (state.unlockedDecorIds.contains(decorId)) return false; // Prevent duplicate purchase / spamming
+    if (state.balance < cost) return false;
+
+    final updatedDecors = [...state.unlockedDecorIds, decorId];
+    final updatedReputation = (state.reputationScore + reputationBonus.toInt()).clamp(0, 500);
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      unlockedDecorIds: updatedDecors,
+      reputationScore: updatedReputation,
+    );
+
+    addXP(150);
+    saveState();
+    return true;
+  }
+
   /// Apply detailing option
   bool applyDetailingOption(String carId, DetailingOption option) {
     if (state.balance < option.cost) return false;

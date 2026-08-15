@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
+import '../../../widgets/neo_brutal_app_bar.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 
@@ -22,10 +23,15 @@ class DashboardOfficeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = palette.isDark;
 
-    return ListView(
-      padding: const EdgeInsets.all(14),
-      physics: const BouncingScrollPhysics(),
-      children: [
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      appBar: const NeoBrutalAppBar(
+        title: 'OFİS VE YÖNETİM',
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
         // Reputation Block
         NeoBrutalCard(
           padding: const EdgeInsets.all(14),
@@ -136,6 +142,7 @@ class DashboardOfficeView extends StatelessWidget {
           isDark: isDark,
         ),
       ],
+    ),
     );
   }
 

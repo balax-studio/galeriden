@@ -300,7 +300,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       )
                     else if (item.isClaimed)
                       const NeoBrutalBadge(
-                        text: 'ALINDI ✓',
+                        text: 'ALINDI',
+                        icon: Icons.check_rounded,
                         backgroundColor: Color(0xFF22C55E),
                         textColor: Colors.white,
                         fontSize: 10,

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/theme_palette_model.dart';
+import '../../providers/dashboard_provider.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_floating_dock.dart';
 import '../../widgets/app_hero_header.dart';
@@ -31,8 +32,6 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  int _selectedIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -56,6 +55,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
+    final selectedIndex = ref.watch(dashboardTabProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
@@ -83,6 +83,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
+        final currentTab = ref.read(dashboardTabProvider);
+        if (currentTab != 0) {
+          ref.read(dashboardTabProvider.notifier).state = 0;
+          return;
+        }
         DashboardRetentionModals.showExitHookDialog(context, game);
       },
       child: Scaffold(
@@ -104,7 +109,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     // Main Tab View
                     Expanded(
                       child: IndexedStack(
-                        index: _selectedIndex,
+                        index: selectedIndex,
                         children: [
                           // Tab 0: Sahibinden Style Neo-Brutal Monolithic Dashboard
                           _buildHomeDashboard(context, game, p),
@@ -141,8 +146,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 child: SafeArea(
                   top: false,
                   child: AppFloatingDock(
-                    currentIndex: _selectedIndex,
-                    onTap: (index) => setState(() => _selectedIndex = index),
+                    currentIndex: selectedIndex,
+                    onTap: (index) => ref.read(dashboardTabProvider.notifier).state = index,
                     items: const [
                       FloatingDockItem(icon: Icons.dashboard_rounded, label: 'Ana Sayfa'),
                       FloatingDockItem(icon: Icons.storefront_rounded, label: 'Galeri'),
@@ -181,7 +186,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (game.carsSold == 0) ...[
           DashboardFirstDayQuestBanner(
             game: game,
-            onGoToShowroom: () => setState(() => _selectedIndex = 1),
+            onGoToShowroom: () => ref.read(dashboardTabProvider.notifier).state = 1,
           ),
           const SizedBox(height: 12),
         ] else ...[
@@ -189,7 +194,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           DashboardAdvisorGuidanceBanner(
             game: game,
             palette: p,
-            onGoToShowroom: () => setState(() => _selectedIndex = 1),
+            onGoToShowroom: () => ref.read(dashboardTabProvider.notifier).state = 1,
           ),
           const SizedBox(height: 12),
         ],

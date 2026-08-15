@@ -4,6 +4,7 @@ import '../../core/utils/notification_service.dart';
 import '../../data/models/dramatic_card_model.dart';
 import '../../domain/usecases/dramatic_card_engine.dart';
 import '../providers/game_provider.dart';
+import 'app_vector_icons.dart';
 import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
@@ -191,9 +192,10 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
                 ],
               ),
               alignment: Alignment.center,
-              child: Text(
-                widget.card.characterAvatar,
-                style: const TextStyle(fontSize: 28),
+              child: AvatarIconWidget(
+                avatar: widget.card.characterAvatar,
+                size: 28,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
               ),
             ),
             const SizedBox(width: 12),

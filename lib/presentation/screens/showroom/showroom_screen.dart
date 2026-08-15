@@ -160,6 +160,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                               const SizedBox(width: 8),
                               NeoBrutalButton(
                                 label: 'Tümünü Yıka',
+                                icon: Icons.local_car_wash_rounded,
                                 backgroundColor: const Color(0xFF3B82F6),
                                 textColor: Colors.white,
                                 fontSize: 10,
@@ -167,7 +168,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                 onPressed: () {
                                   final success = ref.read(gameProvider.notifier).washAllCars();
                                   if (success) {
-                                    NotificationService.showSuccess(context, '✨ Tüm araçlar yıkandı ve parlatıldı!');
+                                    NotificationService.showSuccess(context, 'Tüm araçlar yıkandı ve parlatıldı!');
                                   } else {
                                     NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
                                   }

@@ -271,7 +271,7 @@ class BranchScreen extends ConsumerWidget {
                                             child: const Icon(Icons.stars_rounded, size: 40, color: Colors.black),
                                           ),
                                           const SizedBox(height: 14),
-                                          const Text('🎉 TEBRİKLER! ŞUBE AÇILDI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                                          const Text('TEBRİKLER! ŞUBE AÇILDI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
                                           const SizedBox(height: 6),
                                           Text(
                                             'Galeri Seviyeniz Seviye ${b.targetLevel} oldu! Yeni özellikler ve ${b.maxGarageSlots} araç slotu kullanıma açıldı.',

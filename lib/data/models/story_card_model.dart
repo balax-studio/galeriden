@@ -89,7 +89,7 @@ class StoryCardModel {
       title: 'KURNAZ EKSPERTİZ USTASI',
       characterName: 'Haydar Usta',
       characterRole: 'Sanayi Duayeni',
-      characterAvatar: '🔧',
+      characterAvatar: 'mechanic',
       icon: Icons.engineering_rounded,
       dialogue:
           '“Patron, garajdaki arabanın şasisi şüpheli duruyor. Normalde ekspertiz makinesi yarım saat sürer ama ben eski usül kulağımı kaportaya dayar ciğerini okurum. Bir çırağa çay ısmarla, sana bu araba yatırımlık mı hurdalık mı hemen fısıldayayım!”',
@@ -105,7 +105,7 @@ class StoryCardModel {
       title: 'KAPALI GARAJ İPUCU',
       characterName: 'Kadir Beyin Şoförü',
       characterRole: 'Koleksiyoner Asistanı',
-      characterAvatar: '🕶️',
+      characterAvatar: 'sunglasses',
       icon: Icons.vpn_key_rounded,
       dialogue:
           '“Selam usta. Patronum bu gece acilen yurt dışına uçuyor. Garajdaki koleksiyonluk arabayı piyasanın yarı fiyatına elden çıkaracak. Konumu sana vermem için bana ufak bir sponsorluk jesti yapman lazım...”',
@@ -121,7 +121,7 @@ class StoryCardModel {
       title: 'EKSPRES DETAILING',
       characterName: 'Çırak Taylan',
       characterRole: 'Boya & Kaporta Kalfası',
-      characterAvatar: '✨',
+      characterAvatar: 'sparkle',
       icon: Icons.format_paint_rounded,
       dialogue:
           '“Usta mesai bitti gidiyoruz ama çıraklara bir enerji içeceği ısmarlarsan gece vardiyasına kalırız! Arabaya sabaha kadar seramik kaplama ve pasta cila atarız. Yarın vitrinde iki katı fiyata parlar!”',
@@ -137,7 +137,7 @@ class StoryCardModel {
       title: 'PAZARLIK MASASI & KAHVE',
       characterName: 'Hüsnü Bey',
       characterRole: 'İnatçı Müşteri',
-      characterAvatar: '☕',
+      characterAvatar: 'coffee',
       icon: Icons.handshake_rounded,
       dialogue:
           '“Bu fiyat bana çok patron, ben masadan kalkıyorum... Dur bakalım sekreter bir orta şekerli Türk kahvesiyle ikram masasını donatırsa masaya geri oturur, istediğin fiyata el sıkışırız!”',
@@ -153,7 +153,7 @@ class StoryCardModel {
       title: 'VİRAL İLAN İNCELEMESİ',
       characterName: 'Vlogger Berk',
       characterRole: 'Oto Fenomeni',
-      characterAvatar: '📹',
+      characterAvatar: 'video',
       icon: Icons.campaign_rounded,
       dialogue:
           '“Selam patron! Galerindeki şu yatan arabayla ilgili YouTube kanalında efsane bir reels patlatabilirim. Sponsorluk bütçemi karşıla, yarım saate kapında 3 tane hazır alıcı sıraya girsin!”',
@@ -169,7 +169,7 @@ class StoryCardModel {
       title: 'SİGORTA HASAR İSTİHBARATI',
       characterName: 'Eksper Melih',
       characterRole: 'TRAMER Denetçisi',
-      characterAvatar: '📋',
+      characterAvatar: 'clipboard',
       icon: Icons.fact_check_rounded,
       dialogue:
           '“İhaledeki araçların gerçek hasar dosyalarına ve kâr analizlerine erişimim var. Bir çayımı tazelersen bir sonraki ihale için +%20 net kâr sağlayan gizli eksper dosyasını önüne sereyim.”',
@@ -185,7 +185,7 @@ class StoryCardModel {
       title: 'ÇIKMA PARÇA İNDİRİMİ',
       characterName: 'Çıkmacı İbo',
       characterRole: 'Yedek Parça Baronu',
-      characterAvatar: '🔩',
+      characterAvatar: 'bolt',
       icon: Icons.build_circle_rounded,
       dialogue:
           '“Almanya’dan tır dolusu orijinal sıfır ayarında yedek parça indirdim! Çıraklara ufak bir destek atarsan atölye masrafların için sana ₺35.000 değerinde parça kredisi hibe ediyorum!”',
@@ -201,7 +201,7 @@ class StoryCardModel {
       title: 'ÇEKİCİ LOJİSTİK DESTEĞİ',
       characterName: 'Çekici Remzi',
       characterRole: 'Ağır Vasıta Operatörü',
-      characterAvatar: '🚚',
+      characterAvatar: 'truck',
       icon: Icons.local_shipping_rounded,
       dialogue:
           '“Hurdalıktan veya sanayiden çekeceğin araçlar için boş dönüyordum. Bana bir çorba parası bırak, bir sonraki nakliye operasyonunu ve ₺25.000 lojistik bedelini şirkete yazayım!”',

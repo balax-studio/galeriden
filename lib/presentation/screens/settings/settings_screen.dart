@@ -279,7 +279,7 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).addCheatFunds(100000000.0);
-                            NotificationService.showSuccess(context, '⚡ ₺100.000.000 Hile Sermayesi Eklendi!');
+                            NotificationService.showSuccess(context, '₺100.000.000 Hile Sermayesi Eklendi!');
                           },
                         ),
                       ),
@@ -294,7 +294,7 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).unlockAllPropertiesAndMaxLevel();
-                            NotificationService.showSuccess(context, '🏛️ Seviye 4 (Mega Otomotiv Kalesi) ve Tüm Özellikler Açıldı!');
+                            NotificationService.showSuccess(context, 'Seviye 4 (Mega Otomotiv Kalesi) ve Tüm Özellikler Açıldı!');
                           },
                         ),
                       ),
@@ -311,7 +311,7 @@ class SettingsScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     onPressed: () {
                       ref.read(gameProvider.notifier).clearGarage();
-                      NotificationService.showInfo(context, '🧹 Garaj temizlendi.');
+                      NotificationService.showInfo(context, 'Garaj temizlendi.');
                     },
                   ),
                 ],
@@ -436,7 +436,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '${GameConstants.appName} v${GameConstants.appVersion}\nNeo-Brutalism & Monolithic Blocks Design System',
+                  '${GameConstants.appName} v${GameConstants.appVersion}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                 ),

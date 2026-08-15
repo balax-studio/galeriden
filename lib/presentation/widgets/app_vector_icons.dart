@@ -209,3 +209,138 @@ class _VectorIconPainter extends CustomPainter {
   bool shouldRepaint(covariant _VectorIconPainter oldDelegate) =>
       oldDelegate.type != type || oldDelegate.iconColor != iconColor;
 }
+
+class AvatarIconWidget extends StatelessWidget {
+  final String avatar;
+  final Color color;
+  final double size;
+
+  const AvatarIconWidget({
+    super.key,
+    required this.avatar,
+    required this.color,
+    this.size = 28.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Map avatar semantic key to vector icon
+    switch (avatar) {
+      case 'wrench':
+      case 'mechanic':
+      case 'workshop':
+        return VectorIconWidget(type: 'workshop', color: color, size: size);
+      case 'expert':
+      case 'magnifier':
+      case 'detective':
+      case 'detective_man':
+      case 'inspector':
+        return VectorIconWidget(type: 'expertise', color: color, size: size);
+      case 'deal':
+      case 'contract':
+      case 'briefcase':
+      case 'handshake':
+      case 'negotiation':
+        return VectorIconWidget(type: 'negotiation', color: color, size: size);
+      case 'rare':
+      case 'diamond':
+        return VectorIconWidget(type: 'rare', color: color, size: size);
+      case 'flash':
+      case 'lightning':
+      case 'bolt':
+        return VectorIconWidget(type: 'flash', color: color, size: size);
+      case 'flame':
+      case 'fire':
+      case 'streak':
+        return VectorIconWidget(type: 'streak', color: color, size: size);
+      case 'crown':
+      case 'vip':
+      case 'sunglasses':
+        return VectorIconWidget(type: 'crown', color: color, size: size);
+      case 'shield':
+      case 'security':
+      case 'flashlight':
+      case 'guard':
+        return VectorIconWidget(type: 'shield', color: color, size: size);
+      case 'star':
+      case 'trophy':
+      case 'award':
+        return VectorIconWidget(type: 'star', color: color, size: size);
+      case 'craftsman':
+      case 'hammer':
+      case 'grandpa':
+        return VectorIconWidget(type: 'craftsman', color: color, size: size);
+      case 'heritage':
+      case 'vintage':
+      case 'rose':
+        return VectorIconWidget(type: 'vintage', color: color, size: size);
+      case 'sparkles':
+      case 'sparkle':
+        return Icon(Icons.auto_awesome_rounded, color: color, size: size);
+      case 'coffee':
+        return Icon(Icons.local_cafe_rounded, color: color, size: size);
+      case 'camera':
+      case 'video':
+        return Icon(Icons.videocam_rounded, color: color, size: size);
+      case 'clipboard':
+      case 'letter':
+      case 'mail':
+        return Icon(Icons.assignment_rounded, color: color, size: size);
+      case 'parts':
+      case 'bolt_part':
+        return Icon(Icons.settings_rounded, color: color, size: size);
+      case 'truck':
+      case 'tow':
+      case 'shipping':
+        return Icon(Icons.local_shipping_rounded, color: color, size: size);
+      case 'banker':
+      case 'suit':
+      case 'bank':
+        return Icon(Icons.account_balance_rounded, color: color, size: size);
+      case 'couple':
+      case 'family':
+      case 'people':
+        return Icon(Icons.people_alt_rounded, color: color, size: size);
+      case 'elder':
+      case 'grandma':
+        return Icon(Icons.person_rounded, color: color, size: size);
+      case 'rival':
+      case 'smirk':
+        return Icon(Icons.psychology_rounded, color: color, size: size);
+      case 'dice':
+      case 'risk':
+        return Icon(Icons.casino_rounded, color: color, size: size);
+      case 'slot':
+      case 'casino':
+      case 'cash':
+      case 'money':
+        return Icon(Icons.monetization_on_rounded, color: color, size: size);
+      case 'siren':
+        return Icon(Icons.warning_amber_rounded, color: color, size: size);
+      case 'rain':
+        return Icon(Icons.water_drop_rounded, color: color, size: size);
+      case 'cat':
+      case 'dog':
+        return Icon(Icons.pets_rounded, color: color, size: size);
+      case 'pothole':
+        return Icon(Icons.construction_rounded, color: color, size: size);
+      case 'eagle':
+        return Icon(Icons.flight_rounded, color: color, size: size);
+      case 'phone':
+        return Icon(Icons.phone_android_rounded, color: color, size: size);
+      case 'party':
+        return Icon(Icons.celebration_rounded, color: color, size: size);
+      case 'clown':
+        return Icon(Icons.theater_comedy_rounded, color: color, size: size);
+      case 'ghost':
+        return Icon(Icons.auto_fix_high_rounded, color: color, size: size);
+      case 'sandwich':
+        return Icon(Icons.lunch_dining_rounded, color: color, size: size);
+      case 'megaphone':
+        return Icon(Icons.campaign_rounded, color: color, size: size);
+      default:
+        return Icon(Icons.person_rounded, color: color, size: size);
+    }
+  }
+}
+

@@ -189,5 +189,49 @@ void main() {
       expect(result, isFalse, reason: 'All cars already clean, no charge made');
       expect(notifier.state.balance, 100000.0);
     });
+
+    test('purchaseShowroomDecor prevents duplicate building & button spamming', () {
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        balance: 100000.0,
+        reputationScore: 100,
+        unlockedDecorIds: [],
+      );
+
+      // First purchase succeeds
+      final build1 = notifier.purchaseShowroomDecor(
+        decorId: 'decor_led_grid',
+        cost: 25000.0,
+        reputationBonus: 5.0,
+      );
+
+      expect(build1, isTrue);
+      expect(notifier.state.balance, 75000.0);
+      expect(notifier.state.reputationScore, 105);
+      expect(notifier.state.unlockedDecorIds.contains('decor_led_grid'), isTrue);
+
+      // Second immediate click (spamming "İNŞA ET") must be rejected without deducting money
+      final build2 = notifier.purchaseShowroomDecor(
+        decorId: 'decor_led_grid',
+        cost: 25000.0,
+        reputationBonus: 5.0,
+      );
+
+      expect(build2, isFalse, reason: 'Duplicate build must be rejected');
+      expect(notifier.state.balance, 75000.0, reason: 'Balance must not change on spam clicks');
+      expect(notifier.state.reputationScore, 105);
+      expect(notifier.state.unlockedDecorIds.length, 1);
+
+      // Insufficient balance rejection
+      notifier.state = notifier.state.copyWith(balance: 10000.0);
+      final build3 = notifier.purchaseShowroomDecor(
+        decorId: 'decor_granite_floor',
+        cost: 45000.0,
+        reputationBonus: 8.0,
+      );
+      expect(build3, isFalse, reason: 'Cannot purchase decor when funds are insufficient');
+      expect(notifier.state.balance, 10000.0);
+    });
   });
 }

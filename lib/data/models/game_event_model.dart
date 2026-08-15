@@ -46,7 +46,7 @@ class GameEventModel {
     required this.id,
     required this.title,
     required this.description,
-    this.iconEmoji = '📢',
+    this.iconEmoji = 'megaphone',
     required this.amount,
     required this.type,
     required this.date,
@@ -68,7 +68,7 @@ class GameEventModel {
         id: json['id'] as String? ?? 'event_${DateTime.now().millisecondsSinceEpoch}',
         title: json['title'] as String? ?? 'Olay',
         description: json['description'] as String? ?? '',
-        iconEmoji: json['iconEmoji'] as String? ?? '📢',
+        iconEmoji: json['iconEmoji'] as String? ?? 'megaphone',
         amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
         type: GameEventType.values.firstWhere(
           (e) => e.name == json['type'],

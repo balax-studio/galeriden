@@ -81,7 +81,6 @@ class _ThreeJsCityViewState extends ConsumerState<ThreeJsCityView> {
     final shortName = data['shortName'] as String? ?? name;
     final subtitle = data['subtitle'] as String? ?? '';
     final description = data['description'] as String? ?? '';
-    final emoji = data['emoji'] as String? ?? '🏢';
     final requiredLevel = (data['requiredLevel'] as num?)?.toInt() ?? 1;
     final unlockCost = (data['unlockCost'] as num?)?.toDouble() ?? 0.0;
 
@@ -128,7 +127,7 @@ class _ThreeJsCityViewState extends ConsumerState<ThreeJsCityView> {
                     border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.35)),
                   ),
                   alignment: Alignment.center,
-                  child: Text(emoji, style: const TextStyle(fontSize: 26)),
+                  child: const Icon(Icons.location_city_rounded, color: Color(0xFFEF4444), size: 28),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -257,7 +256,7 @@ class _ThreeJsCityViewState extends ConsumerState<ThreeJsCityView> {
                         ref.read(gameProvider.notifier).unlockBuilding(route, unlockCost);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('🎉 $shortName kilidi başarıyla açıldı!'),
+                            content: Text('$shortName kilidi başarıyla açıldı!'),
                             backgroundColor: const Color(0xFF10B981),
                           ),
                         );

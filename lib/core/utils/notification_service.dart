@@ -52,7 +52,7 @@ class NotificationService {
     _showNeoBrutalToast(
       context: context,
       message: message,
-      title: 'ARAÇ SATILDI! 🎉',
+      title: 'ARAÇ SATILDI!',
       icon: Icons.monetization_on_rounded,
       accentColor: const Color(0xFFFFDE59),
       textColor: Colors.black,

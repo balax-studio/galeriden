@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_theme_extension.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../data/models/theme_palette_model.dart';
+import '../providers/dashboard_provider.dart';
 import '../providers/game_provider.dart';
+import '../screens/dashboard/widgets/dashboard_missions_section.dart';
 
 /// Floating Game HUD overlay widget - Neo-Brutalist Monolithic Stats Bar
 class GameHudHeaderWidget extends ConsumerWidget {
@@ -11,7 +16,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
+    final isDark = p.isDark;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -19,19 +26,22 @@ class GameHudHeaderWidget extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
         children: [
-          // GÜN Pill
+          // GÜN Pill (Interactive -> Sales & Day Ledger History)
           _buildPill(
             context,
             icon: Icons.calendar_month_rounded,
             accentColor: const Color(0xFFFFB703),
             title: 'GÜN',
             value: '${game.currentDay}',
-            onTap: () {},
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/history');
+            },
             isDark: isDark,
           ),
           const SizedBox(width: 8),
 
-          // KASA Pill (Interactive -> Finance)
+          // KASA Pill (Interactive -> Finance & Banking)
           _buildPill(
             context,
             icon: Icons.account_balance_wallet_rounded,
@@ -39,46 +49,131 @@ class GameHudHeaderWidget extends ConsumerWidget {
             title: 'KASA',
             value: CurrencyFormatter.formatShort(game.balance),
             bold: true,
-            onTap: () => context.push('/finance'),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/finance');
+            },
             isDark: isDark,
           ),
           const SizedBox(width: 8),
 
-          // GARAJ STOK Pill (Interactive -> Showroom)
+          // GARAJ STOK Pill (Interactive -> Showroom / Garage)
           _buildPill(
             context,
             icon: Icons.directions_car_rounded,
             accentColor: const Color(0xFF00F0FF),
             title: 'GARAJ',
             value: '${game.ownedCars.length}/${game.maxGarageSlots}',
-            onTap: () => context.push('/showroom'),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              ref.read(dashboardTabProvider.notifier).state = 1;
+              bool popped = false;
+              try {
+                if (context.canPop()) {
+                  context.pop();
+                  popped = true;
+                }
+              } catch (_) {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                  popped = true;
+                }
+              }
+              if (!popped) {
+                try {
+                  context.go('/dashboard');
+                } catch (_) {}
+              }
+            },
             isDark: isDark,
           ),
           const SizedBox(width: 8),
 
-          // İTİBAR Pill (Interactive -> Branch Empire)
+          // İTİBAR Pill (Interactive -> Customer Reviews & Dealer Rating)
           _buildPill(
             context,
             icon: Icons.star_rounded,
             accentColor: const Color(0xFFFFDE59),
             title: 'İTİBAR',
             value: '%${game.reputationScore}',
-            onTap: () => context.push('/branch'),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/reviews');
+            },
             isDark: isDark,
           ),
           const SizedBox(width: 8),
 
-          // GÖREV Pill
+          // GÖREV Pill (Interactive -> Daily Missions Modal)
           _buildPill(
             context,
             icon: Icons.task_alt_rounded,
             accentColor: const Color(0xFFA855F7),
             title: 'GÖREV',
             value: '${game.activeMissions.where((m) => m.isCompleted).length}/${game.activeMissions.length}',
-            onTap: () {},
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _showMissionsModal(context, isDark, p);
+            },
             isDark: isDark,
           ),
         ],
+      ),
+    );
+  }
+
+  void _showMissionsModal(BuildContext context, bool isDark, ThemePaletteModel p) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Consumer(
+        builder: (context, ref, _) {
+          final game = ref.watch(gameProvider);
+          return AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                width: 2.0,
+              ),
+            ),
+            titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFA855F7),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black, width: 1.2),
+                  ),
+                  child: const Icon(Icons.task_alt_rounded, color: Colors.black, size: 20),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'GÜNLÜK GÖREVLER',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: DashboardMissionsList(game: game, palette: p),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

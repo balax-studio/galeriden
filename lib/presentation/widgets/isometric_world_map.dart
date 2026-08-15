@@ -44,7 +44,7 @@ class WorldBuilding {
   final String shortName;
   final String subtitle;
   final String description;
-  final String emoji;
+  final IconData icon;
   final Color color;
   final double row;
   final double col;
@@ -58,7 +58,7 @@ class WorldBuilding {
     required this.shortName,
     required this.subtitle,
     required this.description,
-    required this.emoji,
+    required this.icon,
     required this.color,
     required this.row,
     required this.col,
@@ -94,7 +94,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Tamirhane',
     subtitle: 'Motor & Kaporta Onarımı',
     description: 'Aracın hasarlı parçalarını onar, değerini yükselt ve satışa hazırla.',
-    emoji: '🔧',
+    icon: Icons.build_rounded,
     color: Color(0xFFF59E0B),
     row: -6.0,
     col: -7.0,
@@ -108,7 +108,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Oto Yıkama',
     subtitle: 'Pasta Cila & Detaylı Temizlik',
     description: 'Detaylı yıkama ve pasta-cila ile aracın ilk izlenimini ve cazibesini artır.',
-    emoji: '🚿',
+    icon: Icons.local_car_wash_rounded,
     color: Color(0xFF06B6D4),
     row: -3.0,
     col: -8.5,
@@ -122,7 +122,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'VIP Tuning',
     subtitle: 'Performans & Modifiye',
     description: 'Araçları modifiye et, performans ve body kit paketleriyle servet kazan.',
-    emoji: '⚡',
+    icon: Icons.bolt_rounded,
     color: Color(0xFFEAB308),
     row: -9.0,
     col: -4.0,
@@ -140,7 +140,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Oto Pazar',
     subtitle: 'Araç Alım & Pazarlık',
     description: 'Sahibinden ve esnaftan araç bul, ekspertiz iste ve sıkı pazarlıkla ucuza kapat.',
-    emoji: '🚗',
+    icon: Icons.directions_car_filled_rounded,
     color: Color(0xFF3B82F6),
     row: 3.5,
     col: -5.0,
@@ -154,7 +154,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Canlı İhale',
     subtitle: 'Açık Artırma & Fırsat',
     description: 'Rakip galericilere karşı anlık teklif artır, kelepir ve nadir araçları kap.',
-    emoji: '🔨',
+    icon: Icons.gavel_rounded,
     color: Color(0xFFEF4444),
     row: 5.5,
     col: -1.5,
@@ -168,7 +168,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Hurdalık',
     subtitle: 'Pert Araç & Yedek Parça',
     description: 'Kazalı araçları ucuza alıp parçala, değerli orijinal yedek parçaları sat.',
-    emoji: '🛞',
+    icon: Icons.settings_suggest_rounded,
     color: Color(0xFFF97316),
     row: 7.5,
     col: -7.5,
@@ -182,7 +182,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Karaborsa',
     subtitle: 'Riskli & Çalıntı Araçlar',
     description: 'Yüksek riskli, devasa kârlı gayriresmi araç ticareti. Polis baskınlarına dikkat et!',
-    emoji: '🕶️',
+    icon: Icons.visibility_off_rounded,
     color: Color(0xFF475569),
     row: 9.5,
     col: -3.5,
@@ -200,7 +200,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Banka',
     subtitle: 'Kredi · Çek · Vadeli Satış',
     description: 'Ticari kredi kullan, vadeli satış senetlerini tahsil et ve likiditeyi yönet.',
-    emoji: '🏦',
+    icon: Icons.account_balance_rounded,
     color: Color(0xFF10B981),
     row: -7.5,
     col: 4.0,
@@ -214,7 +214,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Borsa',
     subtitle: 'Hisse Senedi & Yatırım',
     description: 'Global otomotiv ve teknoloji devlerinin hisselerini al-sat, temettü topla.',
-    emoji: '📈',
+    icon: Icons.trending_up_rounded,
     color: Color(0xFF6366F1),
     row: -4.5,
     col: 8.5,
@@ -228,7 +228,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Yatırım Fonu',
     subtitle: 'Mevduat · Altın · Tahvil',
     description: 'Boşta duran nakdini vadeli faiz ve güvenli altın fonlarında büyüterek değerlendir.',
-    emoji: '💰',
+    icon: Icons.savings_rounded,
     color: Color(0xFFD97706),
     row: -8.5,
     col: 8.0,
@@ -246,7 +246,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Rent a Car',
     subtitle: 'Günlük & Aylık Kiralama',
     description: 'Boştaki araçları kiralık filoya bağla, her oyun günü düzenli pasif kira geliri kazan.',
-    emoji: '🔑',
+    icon: Icons.key_rounded,
     color: Color(0xFF14B8A6),
     row: 3.0,
     col: 5.5,
@@ -260,7 +260,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Şubeler',
     subtitle: 'Galeri Genişletme & Prestij',
     description: 'Mega showroomlar ve yeni şubeler açarak galeri vitrin kapasiteni katla.',
-    emoji: '🏢',
+    icon: Icons.apartment_rounded,
     color: Color(0xFFC9A96E),
     row: 7.0,
     col: 3.5,
@@ -274,7 +274,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Personel',
     subtitle: 'Satış Danışmanı & Usta',
     description: 'Uzman ekspertiz, usta tamirci ve yetenekli satış danışmanları işe alıp eğit.',
-    emoji: '👔',
+    icon: Icons.badge_rounded,
     color: Color(0xFFA855F7),
     row: 5.0,
     col: 9.0,
@@ -288,7 +288,7 @@ const List<WorldBuilding> kWorldBuildings = [
     shortName: 'Yan İşletme',
     subtitle: 'Otopark · Cafe · Sigorta',
     description: 'Galeri yanına otopark, kafe ve sigorta acentesi kurarak pasif kâr akışı sağla.',
-    emoji: '🏪',
+    icon: Icons.storefront_rounded,
     color: Color(0xFF8B5CF6),
     row: 9.0,
     col: 7.0,
@@ -452,7 +452,7 @@ class _IsometricWorldMapState extends ConsumerState<IsometricWorldMap>
                     border: Border.all(color: b.color.withValues(alpha: 0.5)),
                   ),
                   alignment: Alignment.center,
-                  child: Text(b.emoji, style: const TextStyle(fontSize: 26)),
+                  child: Icon(b.icon, color: b.color, size: 28),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -1297,7 +1297,15 @@ class _WorldPainter extends CustomPainter {
         Paint()..color = Colors.black.withValues(alpha: 0.55),
       );
       final lockTp = TextPainter(
-        text: const TextSpan(text: '🔒', style: TextStyle(fontSize: 22)),
+        text: TextSpan(
+          text: String.fromCharCode(Icons.lock_rounded.codePoint),
+          style: TextStyle(
+            fontSize: 22,
+            fontFamily: Icons.lock_rounded.fontFamily,
+            package: Icons.lock_rounded.fontPackage,
+            color: const Color(0xFFEF4444),
+          ),
+        ),
         textDirection: TextDirection.ltr,
       )..layout();
       lockTp.paint(canvas, Offset(center.dx - lockTp.width / 2, center.dy - 44));
@@ -1637,11 +1645,19 @@ class _WorldPainter extends CustomPainter {
     canvas.drawRRect(RRect.fromRectAndRadius(board, const Radius.circular(8)), Paint()..color = Colors.white);
     canvas.drawRRect(RRect.fromRectAndRadius(board, const Radius.circular(8)),
         Paint()..color = b.color..style = PaintingStyle.stroke..strokeWidth = 2.2);
-    final emojiTp = TextPainter(
-      text: TextSpan(text: b.emoji, style: const TextStyle(fontSize: 17)),
+    final iconTp = TextPainter(
+      text: TextSpan(
+        text: String.fromCharCode(b.icon.codePoint),
+        style: TextStyle(
+          fontSize: 16,
+          fontFamily: b.icon.fontFamily,
+          package: b.icon.fontPackage,
+          color: b.color,
+        ),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
-    emojiTp.paint(canvas, Offset(signC.dx - emojiTp.width / 2, signC.dy - emojiTp.height / 2));
+    iconTp.paint(canvas, Offset(signC.dx - iconTp.width / 2, signC.dy - iconTp.height / 2));
   }
 
   String? _buildingBadge(WorldBuilding b) {

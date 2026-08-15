@@ -131,6 +131,18 @@ void main() {
       expect(auction.car.brand.isNotEmpty, isTrue);
       expect(auction.rivals.length, greaterThanOrEqualTo(3));
       expect(auction.startingPrice, lessThan(auction.estimatedMarketValue));
+      expect(auction.secondsRemaining, greaterThanOrEqualTo(20));
+    });
+
+    test('AuctionEngine generates randomized intervals and rich officer dialogues', () {
+      AuctionEngine.scheduleNextRandomSession(minSeconds: 50, maxSeconds: 120);
+      final secondsUntil = AuctionEngine.getSecondsUntilNextAuction();
+      expect(secondsUntil, greaterThanOrEqualTo(49));
+      expect(secondsUntil, lessThanOrEqualTo(120));
+
+      final dialogue = AuctionEngine.getRandomOfficerDialogue('01:45');
+      expect(dialogue.isNotEmpty, isTrue);
+      expect(dialogue.contains('01:45'), isTrue);
     });
 
     test('CustomerModel generates valid buyer archetypes', () {

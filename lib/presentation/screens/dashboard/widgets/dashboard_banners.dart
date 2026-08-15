@@ -186,19 +186,19 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
     final event = WeeklyEventEngine.getEventForDay(game.currentDay);
     final dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
     final dayName = dayNames[(event.dayOfWeek - 1).clamp(0, 6)];
-    final icon = event.dayOfWeek == 1
-        ? '💳'
+    final IconData icon = event.dayOfWeek == 1
+        ? Icons.credit_card_rounded
         : (event.dayOfWeek == 2
-            ? '🔍'
+            ? Icons.search_rounded
             : (event.dayOfWeek == 3
-                ? '⚙️'
+                ? Icons.build_rounded
                 : (event.dayOfWeek == 4
-                    ? '🏢'
+                    ? Icons.apartment_rounded
                     : (event.dayOfWeek == 5
-                        ? '🔥'
+                        ? Icons.local_fire_department_rounded
                         : (event.dayOfWeek == 6
-                            ? '🏆'
-                            : '✨')))));
+                            ? Icons.workspace_premium_rounded
+                            : Icons.auto_awesome_rounded)))));
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(12),
@@ -214,9 +214,10 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
               color: const Color(0xFF3B82F6),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
+            child: Icon(
               icon,
-              style: const TextStyle(fontSize: 20),
+              size: 20,
+              color: Colors.white,
             ),
           ),
           const SizedBox(width: 12),
@@ -340,13 +341,20 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
                       fontSize: 9,
                     ),
                     Spacer(),
-                    Text(
-                      'Hemen Git ➔',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Hemen Git',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(width: 3),
+                        Icon(Icons.arrow_forward_rounded, size: 13, color: Colors.black),
+                      ],
                     ),
                   ],
                 ),
@@ -465,13 +473,20 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
                       fontSize: 8.5,
                     ),
                     Spacer(),
-                    Text(
-                      'İncele ➔',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF10B981),
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'İncele',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF10B981),
+                          ),
+                        ),
+                        SizedBox(width: 3),
+                        Icon(Icons.arrow_forward_rounded, size: 13, color: Color(0xFF10B981)),
+                      ],
                     ),
                   ],
                 ),

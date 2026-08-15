@@ -127,7 +127,7 @@ class DashboardServicesGrid extends ConsumerWidget {
       _ServiceItem(
         icon: Icons.reviews_rounded,
         title: 'Müşteri Yorumları',
-        subtitle: '⭐ ${game.reputationScore} İtibar',
+        subtitle: '${game.reputationScore} İtibar',
         color: const Color(0xFFF59E0B),
         route: '/reviews',
       ),
@@ -245,7 +245,7 @@ class DashboardServicesGrid extends ConsumerWidget {
           } else {
             NotificationService.showWarning(
               context,
-              '🔒 Kilitli Alan! Bu özellik Seviye $reqLevel mülküne geçince açılır. (Mevcut: Seviye ${game.level})',
+              'Kilitli Alan! Bu özellik Seviye $reqLevel mülküne geçince açılır. (Mevcut: Seviye ${game.level})',
             );
           }
         },
@@ -274,7 +274,8 @@ class DashboardServicesGrid extends ConsumerWidget {
                 ),
                 if (!isUnlocked)
                   NeoBrutalBadge(
-                    text: '🔒 Sev. $reqLevel',
+                    text: 'Sev. $reqLevel',
+                    icon: Icons.lock_outline_rounded,
                     backgroundColor: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
                     textColor: isDark ? Colors.white70 : const Color(0xFF334155),
                     borderColor: isDark ? const Color(0xFF475569) : const Color(0xFF64748B),
@@ -355,7 +356,7 @@ class DashboardServicesGrid extends ConsumerWidget {
           } else {
             NotificationService.showInfo(
               context,
-              '🔒 Kilitli Önizleme: Bu özellik Seviye $reqLevel mülkünü (Şube) açtığınızda kullanıma sunulacaktır.',
+              'Kilitli Önizleme: Bu özellik Seviye $reqLevel mülkünü (Şube) açtığınızda kullanıma sunulacaktır.',
             );
           }
         },
@@ -415,7 +416,7 @@ class DashboardServicesGrid extends ConsumerWidget {
                   Text(
                     isUnlocked
                         ? item.subtitle
-                        : '🔒 Seviye $reqLevel Şubesi (Ofis/Mülk) ile Otomatik Açılır',
+                        : 'Seviye $reqLevel Şubesi (Ofis/Mülk) ile Otomatik Açılır',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,

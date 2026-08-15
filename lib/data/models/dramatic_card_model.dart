@@ -183,7 +183,7 @@ class DramaticCardModel {
       title: json['title'] as String? ?? 'Dramatik Karar',
       characterName: json['characterName'] as String? ?? 'Misafir',
       characterRole: json['characterRole'] as String? ?? 'Ziyaretçi',
-      characterAvatar: json['characterAvatar'] as String? ?? '👤',
+      characterAvatar: json['characterAvatar'] as String? ?? 'user',
       icon: Icons.psychology_alt_rounded,
       dialogue: json['dialogue'] as String? ?? '',
       foreshadowHint: json['foreshadowHint'] as String? ?? '',
@@ -210,7 +210,7 @@ class DramaticCardModel {
       title: 'Acil Nakit İhtiyacı',
       characterName: 'Eski Ortak Necati',
       characterRole: 'Eski İş Ortağı',
-      characterAvatar: '🥀',
+      characterAvatar: 'rose',
       icon: Icons.handshake_rounded,
       dialogue:
           '"Usta... biliyorum aramız iyi değildi ama başım dertte. Kızımın acil ameliyatı var, elimde avucumda hiçbir şey kalmadı. ₺40.000 borç versen, 1 ay içinde ₺80.000 olarak öderim, namus sözü."',
@@ -272,7 +272,7 @@ class DramaticCardModel {
       title: 'Sahte Ekspertiz Teklifi',
       characterName: 'Şüpheli Ekspertizci',
       characterRole: 'Saha Temsilcisi',
-      characterAvatar: '🕵️',
+      characterAvatar: 'detective',
       icon: Icons.assignment_late_rounded,
       dialogue:
           '"Usta, o kusurlu aracına hatasız raporu basayım. ₺8.000 ateşle, kâğıt üstünde sıfır hata çıksın. Müşteri de mest olsun, sen de kârını katla."',
@@ -334,7 +334,7 @@ class DramaticCardModel {
       title: 'Vergi Denetimi Söylentisi',
       characterName: 'Muhasebeci Kemal Bey',
       characterRole: 'Mali Danışman',
-      characterAvatar: '💼',
+      characterAvatar: 'briefcase',
       icon: Icons.receipt_long_rounded,
       dialogue:
           '"Patron, vergi dairesinden kulağıma geldi; bu ay oto galericileri mercek altına alacaklar. Defterlerdeki ufak pürüzleri ₺15.000\'e tatlıya bağlayacak bir aracı var. Ne dersin?"',
@@ -409,7 +409,7 @@ class DramaticCardModel {
       title: 'Gece Yarısı Telefonu',
       characterName: 'Gece Bekçisi Şükrü Amca',
       characterRole: 'Site Güvenliği',
-      characterAvatar: '🔦',
+      characterAvatar: 'flashlight',
       icon: Icons.notification_important_rounded,
       dialogue:
           '"Patron... sabaha karşı galerinin arka camını patlatmışlar. İçeri girip vitrindeki en değerli arabanın kilidini kırmışlar, araba yok!"',
@@ -471,7 +471,7 @@ class DramaticCardModel {
       title: 'Güvenilir Çalışanın Teklifi',
       characterName: 'Baş Usta',
       characterRole: 'Kıdemli Personel',
-      characterAvatar: '🔧',
+      characterAvatar: 'wrench',
       icon: Icons.badge_rounded,
       dialogue:
           '"Patron, rakip galeriden teklif aldım; maaşımı ikiye katlıyorlar. Gitmeden müşteri defterini de getirmemi istediler. Sana sadık kalmamı istersen maaşıma %40 zam yapmalısın."',
@@ -554,7 +554,7 @@ class DramaticCardModel {
       title: 'Sahte Alıcı, Gerçek Dolandırıcı',
       characterName: 'Kibar Beyefendi',
       characterRole: 'Zengin Görünümlü Alıcı',
-      characterAvatar: '🕶️',
+      characterAvatar: 'sunglasses',
       icon: Icons.directions_car_filled_rounded,
       dialogue:
           '"Araca bayıldım, hemen nakit alıyorum. Cüzdanımı ve çek koçanımı arabamda unuttum, anahtarı verin bir sesini dinleyip geri döneyim."',
@@ -615,7 +615,7 @@ class DramaticCardModel {
       title: 'Karaborsa İhbarı',
       characterName: 'Gölge İbrahim',
       characterRole: 'Karaborsa Aracısı',
-      characterAvatar: '🕵️‍♂️',
+      characterAvatar: 'detective_man',
       icon: Icons.policy_rounded,
       dialogue:
           '"Usta, o aldığın şaibeli araç hakkında mali şube dosya açmış. Polis gelmeden ben evrakları temizlerim ama ₺25.000 bedeli var."',
@@ -677,7 +677,7 @@ class DramaticCardModel {
       title: 'Dul Kadının Arabası',
       characterName: 'Gülümser Teyze',
       characterRole: 'Yaşlı Mirasçı',
-      characterAvatar: '👵',
+      characterAvatar: 'grandma',
       icon: Icons.volunteer_activism_rounded,
       dialogue:
           '"Oğlum, rahmetli beyimin arabası garajda duruyor. Ben piyasadan anlamam, bana ₺70.000 versen yeter, ilaca harcayacağım."',
@@ -729,7 +729,7 @@ class DramaticCardModel {
       title: 'Rakibin Zor Günü',
       characterName: 'Rakip Galeri Sahibi',
       characterRole: 'Meslektaş',
-      characterAvatar: '👔',
+      characterAvatar: 'suit',
       icon: Icons.storefront_rounded,
       dialogue:
           '"Komşu... banka kredim patlamak üzere. Elimdeki kelepir arabayı zararına ₺80.000\'e veriyorum, bana nakit lazım."',
@@ -779,7 +779,7 @@ class DramaticCardModel {
       title: 'Genç Çiftin İlk Arabası',
       characterName: 'Genç Çift (Emre & Selin)',
       characterRole: 'Yeni Evliler',
-      characterAvatar: '👫',
+      characterAvatar: 'couple',
       icon: Icons.favorite_rounded,
       dialogue:
           '"Abi bu arabayı çok sevdik ama bütçemiz ₺30.000 eksik kalıyor. Düğün borçlarımız var, biraz indirim yapamaz mısın?"',
@@ -833,7 +833,7 @@ class DramaticCardModel {
       title: 'Dede\'nin Eski Çırağı',
       characterName: 'Usta Selim',
       characterRole: 'Dede Hasan\'ın Eski Çırağı',
-      characterAvatar: '👴',
+      characterAvatar: 'grandpa',
       icon: Icons.auto_awesome_rounded,
       dialogue:
           '"Evlat... Hasan Ustam o Murat 124\'ü dükkanın ilk gününde almıştı. \'Bu araba bu galerinin ruhudur, satılmaz\' derdi. Sen ne yapacaksın?"',
@@ -884,7 +884,7 @@ class DramaticCardModel {
       title: 'Eski Fotoğraf',
       characterName: 'Sarı Zarf',
       characterRole: 'Geçmişten Hatıra',
-      characterAvatar: '✉️',
+      characterAvatar: 'letter',
       icon: Icons.photo_library_rounded,
       dialogue:
           'Kapının altından eski bir sarı zarf atılmış. İçinde genç Hasan Usta\'nın ilk galerisi önünde çektirdiği siyah beyaz fotoğraf var. Arkasında el yazısı: "Bir gün torunum burayı benden daha büyük yapacak."',
@@ -916,7 +916,7 @@ class DramaticCardModel {
       title: 'Kardeşin Payı',
       characterName: 'Kuzen Tarık',
       characterRole: 'Miras Hak Sahibi',
-      characterAvatar: '😏',
+      characterAvatar: 'smirk',
       icon: Icons.account_balance_rounded,
       dialogue:
           '"Kuzen, dedemin galerisinde benim de yasal hakkım var. Mahkemeye gitmeden sulh olalım; bana ₺50.000 ver, noterden feragatnameyi imzalayayım."',
@@ -978,7 +978,7 @@ class DramaticCardModel {
       title: 'Kapalı Zarf İhalesi',
       characterName: 'Gümrük Komisyoncusu',
       characterRole: 'İhale Simsar',
-      characterAvatar: '🎲',
+      characterAvatar: 'dice',
       icon: Icons.casino_rounded,
       dialogue:
           '"Gümrükte el konulan konteynerlerden kapalı zarf araç ihalesi var. ₺50.000 veriyorsun, içinden ne çıkarsa senin oluyor. Var mısın?"',
@@ -1050,7 +1050,7 @@ class DramaticCardModel {
       title: 'Çifte veya Hiç!',
       characterName: 'Zengin Kumarbaz Alıcı',
       characterRole: 'VIP Koleksiyoner',
-      characterAvatar: '🎰',
+      characterAvatar: 'slot',
       icon: Icons.monetization_on_rounded,
       dialogue:
           '"En değerli aracını beğendim. Sana çılgın bir teklif: Yazı tura atacağız. Tura gelirse aracın değerinin %180\'ini nakit öderim. Yazı gelirse... aracı bedavaya anahtarıyla alıp giderim!"',
