@@ -10,6 +10,8 @@ import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import 'widgets/workshop_equipment_tile.dart';
+import 'widgets/workshop_repair_tile.dart';
 
 class WorkshopScreen extends ConsumerStatefulWidget {
   final int initialTabIndex;
@@ -303,7 +305,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildRepairStationTile(
+                WorkshopRepairTile(
                   title: '1. Motor Rektifiye & Subap Ayarı',
                   description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
                   cost: 18500.0,
@@ -318,7 +320,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildRepairStationTile(
+                WorkshopRepairTile(
                   title: '2. Şanzıman & Baskı Balata Yenileme',
                   description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
                   cost: 12000.0,
@@ -333,7 +335,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildRepairStationTile(
+                WorkshopRepairTile(
                   title: '3. Bilgisayarlı OBD-II Beyin (ECU) Arıza Tespiti',
                   description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
                   cost: 4500.0,
@@ -348,7 +350,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildRepairStationTile(
+                WorkshopRepairTile(
                   title: '4. Kaporta Çekiçleme & Fırın Boya',
                   description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
                   cost: 22000.0 * paintCostMultiplier,
@@ -363,7 +365,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildRepairStationTile(
+                WorkshopRepairTile(
                   title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
                   description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
                   cost: 45000.0,
@@ -459,7 +461,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildEquipmentTile(
+                WorkshopEquipmentTile(
                   id: 'workshop_eq_lift',
                   title: '4 Tonluk Hidrolik Araç Lifti',
                   description: 'Aynı anda birden fazla aracın alt takımlarını hızlıca onarabilme imkanı sağlar.',
@@ -472,7 +474,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildEquipmentTile(
+                WorkshopEquipmentTile(
                   id: 'workshop_eq_chassis_bench',
                   title: 'Lazerli Şasi Doğrultma Tezgahı',
                   description: 'Ağır kazalı pert araçların şasilerini milimetrik hassasiyetle fabrikasyon standardına çevirir.',
@@ -485,7 +487,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                _buildEquipmentTile(
+                WorkshopEquipmentTile(
                   id: 'workshop_eq_paint_booth',
                   title: 'Filtreli Endüstriyel Fırın Boya Kabini',
                   description: 'Kaporta ve boya işlemlerinde sarfiyatı azaltarak tüm boya maliyetlerini kalıcı olarak %50 düşürür.',
@@ -542,154 +544,6 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRepairStationTile({
-    required String title,
-    required String description,
-    required double cost,
-    required String bonusText,
-    required Color badgeColor,
-    required bool isDark,
-    required VoidCallback onRepair,
-  }) {
-    return NeoBrutalCard(
-      padding: const EdgeInsets.all(12),
-      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-      borderRadius: 12,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
-                      ),
-                    ),
-                    NeoBrutalBadge(
-                      text: bonusText,
-                      backgroundColor: badgeColor,
-                      textColor: Colors.black,
-                      fontSize: 9,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Onarım Bedeli: ${CurrencyFormatter.format(cost)}',
-                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: Color(0xFFFF7A00)),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          NeoBrutalButton(
-            label: 'ONAR',
-            icon: Icons.build_circle_rounded,
-            backgroundColor: AppColors.brutalYellow,
-            textColor: Colors.black,
-            fontSize: 11,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            onPressed: onRepair,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEquipmentTile({
-    required String id,
-    required String title,
-    required String description,
-    required double cost,
-    required bool isOwned,
-    required IconData icon,
-    required Color color,
-    required bool isDark,
-    required VoidCallback onBuy,
-  }) {
-    return NeoBrutalCard(
-      padding: const EdgeInsets.all(12),
-      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-      borderRadius: 12,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2),
-              boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 0)],
-            ),
-            child: Icon(icon, color: Colors.black, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
-                      ),
-                    ),
-                    if (isOwned)
-                      const NeoBrutalBadge(
-                        text: 'SAHİPSİN',
-                        backgroundColor: Color(0xFF00E575),
-                        textColor: Colors.black,
-                        fontSize: 9,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isOwned ? 'Atölyeye kuruldu' : 'Fiyat: ${CurrencyFormatter.format(cost)}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: isOwned ? const Color(0xFF64748B) : const Color(0xFFFF7A00),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (!isOwned)
-            NeoBrutalButton(
-              label: 'SATIN AL',
-              icon: Icons.shopping_cart_rounded,
-              backgroundColor: const Color(0xFF00E575),
-              textColor: Colors.black,
-              fontSize: 10.5,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              onPressed: onBuy,
-            ),
         ],
       ),
     );
