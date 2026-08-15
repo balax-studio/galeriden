@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/game_constants.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
@@ -206,8 +207,15 @@ class SettingsScreen extends ConsumerWidget {
                   fontSize: 12,
                   fullWidth: true,
                   onPressed: () {
-                    ref.read(gameProvider.notifier).claimAdReward(25000.0);
-                    NotificationService.showSuccess(context, 'Tebrikler! ₺25.000 galeri desteği sermayene eklendi.');
+                    AdService.instance.showRewardedAd(
+                      onRewardEarned: () {
+                        ref.read(gameProvider.notifier).claimAdReward(25000.0);
+                        NotificationService.showSuccess(context, 'Tebrikler! ₺25.000 sponsor ödülü kasanıza eklendi.');
+                      },
+                      onAdUnavailable: () {
+                        NotificationService.showWarning(context, 'Reklam henüz hazır değil, lütfen birkaç saniye sonra tekrar deneyin.');
+                      },
+                    );
                   },
                 ),
               ],
