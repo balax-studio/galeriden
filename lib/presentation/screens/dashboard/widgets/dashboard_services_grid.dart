@@ -175,6 +175,36 @@ class DashboardServicesGrid extends ConsumerWidget {
         color: const Color(0xFF10B981),
         route: '/side-businesses',
       ),
+      _ServiceItem(
+        icon: Icons.map_rounded,
+        title: 'Semt Hakimiyeti',
+        subtitle: 'Pazar Payı & Avantaj',
+        color: const Color(0xFF38BDF8),
+        route: '/districts',
+      ),
+      _ServiceItem(
+        icon: Icons.record_voice_over_rounded,
+        title: 'Dedikodu Hattı',
+        subtitle: 'Asimetrik İstihbarat',
+        badge: game.activeGossips.isNotEmpty ? '${game.activeGossips.length} Kulis' : null,
+        color: const Color(0xFFFFDE59),
+        route: '/gossip',
+      ),
+      _ServiceItem(
+        icon: Icons.handshake_rounded,
+        title: 'Konsinye & Emanet',
+        subtitle: 'Sıfır Sermaye Satış',
+        badge: game.consignmentOffers.isNotEmpty ? '${game.consignmentOffers.length} Teklif' : null,
+        color: const Color(0xFF00E575),
+        route: '/consignment',
+      ),
+      _ServiceItem(
+        icon: Icons.sports_score_rounded,
+        title: 'Gece Sanayisi',
+        subtitle: 'Modifiye & Drag',
+        color: const Color(0xFFF43F5E),
+        route: '/night-market',
+      ),
     ];
 
     // Progressive Disclosure: Unlocked items + NEXT single locked preview item

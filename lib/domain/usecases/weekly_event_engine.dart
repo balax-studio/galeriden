@@ -1,3 +1,16 @@
+import '../../data/models/car_model.dart';
+
+enum MacroSeason {
+  spring('İlkbahar / Sanayi Canlanması', 'Kelepir ve bakım bekleyen araçlara ilgi yüksek.'),
+  summer('Yaz / Tatil & Gezi Sezonu', 'Cabrio, SUV ve spor araç fiyatlarında prim dönemi.'),
+  autumn('Sonbahar / Filo & Şehir İçi', 'Sedan, dizel ve ekonomi sınıfı araçlara talep yoğun.'),
+  winter('Kış / Zorlu Şartlar', '4x4, SUV ve kışlık araçlar değer kazanıyor.');
+
+  final String title;
+  final String description;
+  const MacroSeason(this.title, this.description);
+}
+
 class WeeklyGameEvent {
   final String id;
   final String title;
@@ -78,5 +91,65 @@ class WeeklyEventEngine {
       (e) => e.dayOfWeek == dayOfWeek,
       orElse: () => weeklySchedule[0],
     );
+  }
+
+  /// Determines Macro Season based on In-Game Month / Day or Real-World Date (§2.1)
+  static MacroSeason getMacroSeason({int inGameDay = 1, DateTime? realDate}) {
+    final date = realDate ?? DateTime.now();
+    final month = date.month;
+
+    if (month >= 3 && month <= 5) {
+      return MacroSeason.spring;
+    } else if (month >= 6 && month <= 8) {
+      return MacroSeason.summer;
+    } else if (month >= 9 && month <= 11) {
+      return MacroSeason.autumn;
+    } else {
+      return MacroSeason.winter;
+    }
+  }
+
+  /// Returns localized season title string
+  static String getCurrentSeasonName(int inGameDay, {DateTime? realDate}) {
+    return getMacroSeason(inGameDay: inGameDay, realDate: realDate).title;
+  }
+
+  /// Calculates combined dual-layer market multiplier for a vehicle (§2.1 / §2.2)
+  static double getCombinedMarketMultiplier(int inGameDay, CarModel car, {DateTime? realDate}) {
+    final weeklyEvent = getEventForDay(inGameDay);
+    final season = getMacroSeason(inGameDay: inGameDay, realDate: realDate);
+
+    double multiplier = 1.0;
+
+    // Weekly day bonuses
+    if (weeklyEvent.id == 'collector_sunday_auction' && (car.isRare || car.isBarnFind)) {
+      multiplier *= 1.20;
+    }
+
+    // Seasonal body type modifiers
+    switch (season) {
+      case MacroSeason.summer:
+        if (car.bodyType == 'Spor' || car.bodyType == 'Cabrio' || car.bodyType == 'SUV') {
+          multiplier *= 1.12;
+        }
+        break;
+      case MacroSeason.winter:
+        if (car.bodyType == 'SUV' || car.bodyType == '4x4') {
+          multiplier *= 1.15;
+        }
+        break;
+      case MacroSeason.autumn:
+        if (car.bodyType == 'Sedan' || car.bodyType == 'Hatchback') {
+          multiplier *= 1.08;
+        }
+        break;
+      case MacroSeason.spring:
+        if (car.isBarnFind || car.expertise.engineCondition < 75) {
+          multiplier *= 1.06;
+        }
+        break;
+    }
+
+    return multiplier;
   }
 }

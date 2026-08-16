@@ -13,10 +13,12 @@ import '../../../../data/models/customer_review_model.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/offer_model.dart';
+import '../../../../data/models/trade_in_offer_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_button.dart';
+import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/neo_brutal_empty_state.dart';
 import 'showroom_listing_modal.dart';
@@ -35,7 +37,7 @@ class ShowroomOffersTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = palette.isDark;
 
-    if (game.incomingOffers.isEmpty) {
+    if (game.incomingOffers.isEmpty && game.incomingTradeInOffers.isEmpty) {
       return RefreshIndicator(
         color: Colors.black,
         backgroundColor: const Color(0xFFFFDE59),
@@ -74,35 +76,276 @@ class ShowroomOffersTab extends ConsumerWidget {
         await Future.delayed(const Duration(milliseconds: 450));
         ref.read(gameProvider.notifier).triggerOrganicOffers();
       },
-      child: ListView.builder(
+      child: ListView(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        itemCount: game.incomingOffers.length,
-        itemBuilder: (context, index) {
-          final offer = game.incomingOffers[index];
-          final car = game.ownedCars.firstWhere(
-            (c) => c.id == offer.carId,
-            orElse: () => CarModel(
-              id: '',
-              brand: 'Bilinmeyen',
-              modelName: 'Araç',
-              modelYear: 2020,
-              bodyType: 'Sedan',
-              colorHex: '#000000',
-              baseMarketValue: 0,
-              currentPurchasePrice: 0,
-              expertise: ExpertiseReport(
-                engineCondition: 100,
-                transmissionCondition: 100,
-                tramerAmount: 0,
-                mileage: 0,
-                isMileageTampered: false,
-                bodyParts: {},
+        children: [
+          // 1. Trade-in Offers Section (§4.6.2)
+          if (game.incomingTradeInOffers.isNotEmpty) ...[
+            Row(
+              children: [
+                const Icon(Icons.sync_alt_rounded, color: Color(0xFFFFDE59), size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  'ARABA TAKAS TEKLİFLERİ (${game.incomingTradeInOffers.length})',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ...game.incomingTradeInOffers.map((tradeOffer) => _buildTradeInOfferCard(context, ref, tradeOffer, isDark)),
+            const SizedBox(height: 14),
+          ],
+
+          // 2. Regular Cash Offers Section
+          if (game.incomingOffers.isNotEmpty) ...[
+            Row(
+              children: [
+                const Icon(Icons.payments_outlined, color: Color(0xFF00E575), size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  'NAKİT SATIN ALMA TEKLİFLERİ (${game.incomingOffers.length})',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ...game.incomingOffers.asMap().entries.map((entry) {
+              final index = entry.key;
+              final offer = entry.value;
+              return _buildCashOfferCard(context, ref, offer, index, isDark);
+            }),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTradeInOfferCard(
+    BuildContext context,
+    WidgetRef ref,
+    TradeInOfferModel tradeOffer,
+    bool isDark,
+  ) {
+    final targetCar = game.ownedCars.firstWhere(
+      (c) => c.id == tradeOffer.targetCarId,
+      orElse: () => CarModel(
+        id: '',
+        brand: 'Bilinmeyen',
+        modelName: 'Vitrin Aracı',
+        modelYear: 2020,
+        bodyType: 'Sedan',
+        colorHex: '#000000',
+        baseMarketValue: 0,
+        currentPurchasePrice: 0,
+        expertise: ExpertiseReport(
+          engineCondition: 100,
+          transmissionCondition: 100,
+          tramerAmount: 0,
+          mileage: 0,
+          isMileageTampered: false,
+          bodyParts: {},
+        ),
+      ),
+    );
+
+    final isCashGivenToPlayer = tradeOffer.cashDifference >= 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.all(14),
+        backgroundColor: isDark ? const Color(0xFF161922) : Colors.white,
+        borderColor: const Color(0xFFFFDE59),
+        borderRadius: 14,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFDE59),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: const Icon(Icons.swap_horiz_rounded, size: 18, color: Colors.black),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${tradeOffer.customerName} (Takas Teklifi)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      Text(
+                        'İstenen Aracın: ${targetCar.modelName}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                NeoBrutalBadge(
+                  text: isCashGivenToPlayer
+                      ? '+${CurrencyFormatter.format(tradeOffer.cashDifference)} FARK'
+                      : '-${CurrencyFormatter.format(-tradeOffer.cashDifference)} FARK',
+                  backgroundColor: isCashGivenToPlayer ? const Color(0xFF00E575) : const Color(0xFFFF9F1C),
+                  textColor: Colors.black,
+                  fontSize: 10,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Dialog speech bubble
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F1117) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                '"${tradeOffer.dialogText}"',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                ),
               ),
             ),
-          );
+            const SizedBox(height: 10),
 
-          final isCountered = offer.status == OfferStatus.countered;
+            // Offered Car Summary Box
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'TEKLİF EDİLEN ARAÇ',
+                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                      ),
+                      Text(
+                        tradeOffer.offeredCar.modelName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      Text(
+                        '${tradeOffer.offeredCar.modelYear} • ${tradeOffer.offeredCar.expertise.mileage} km • Motor: %${tradeOffer.offeredCar.expertise.engineCondition.round()}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    NeoBrutalButton(
+                      label: 'Reddet',
+                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                      onPressed: () {
+                        ref.read(gameProvider.notifier).rejectTradeInOffer(tradeOffer.id);
+                        NotificationService.showInfo(context, 'Takas teklifi reddedildi.');
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    NeoBrutalButton(
+                      label: 'Takas Yap',
+                      icon: Icons.check_circle_outline_rounded,
+                      backgroundColor: const Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      onPressed: () {
+                        final success = ref.read(gameProvider.notifier).acceptTradeInOffer(tradeOffer);
+                        if (success) {
+                          NotificationService.showSuccess(
+                            context,
+                            '${targetCar.modelName} takaslandı! Yeni araç garajına eklendi.',
+                          );
+                        } else {
+                          NotificationService.showWarning(context, 'Takas için yeterli nakdiniz yok!');
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCashOfferCard(
+    BuildContext context,
+    WidgetRef ref,
+    OfferModel offer,
+    int index,
+    bool isDark,
+  ) {
+    final car = game.ownedCars.firstWhere(
+      (c) => c.id == offer.carId,
+      orElse: () => CarModel(
+        id: '',
+        brand: 'Bilinmeyen',
+        modelName: 'Araç',
+        modelYear: 2020,
+        bodyType: 'Sedan',
+        colorHex: '#000000',
+        baseMarketValue: 0,
+        currentPurchasePrice: 0,
+        expertise: ExpertiseReport(
+          engineCondition: 100,
+          transmissionCondition: 100,
+          tramerAmount: 0,
+          mileage: 0,
+          isMileageTampered: false,
+          bodyParts: {},
+        ),
+      ),
+    );
+
+    final isCountered = offer.status == OfferStatus.countered;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -602,8 +845,5 @@ class ShowroomOffersTab extends ConsumerWidget {
               ),
             ),
           );
-        },
-      ),
-    );
   }
 }

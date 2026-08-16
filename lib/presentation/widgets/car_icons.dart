@@ -21,12 +21,14 @@ class CarSilhouetteWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveColor = color == Colors.transparent ? Colors.cyanAccent : color;
     
-    Widget content = CustomPaint(
-      size: Size(width, height),
-      painter: Isometric3DCarPainter(
-        bodyColor: effectiveColor,
-        category: bodyType,
-        isHeadlightOn: true,
+    Widget content = RepaintBoundary(
+      child: CustomPaint(
+        size: Size(width, height),
+        painter: Isometric3DCarPainter(
+          bodyColor: effectiveColor,
+          category: bodyType,
+          isHeadlightOn: true,
+        ),
       ),
     );
 

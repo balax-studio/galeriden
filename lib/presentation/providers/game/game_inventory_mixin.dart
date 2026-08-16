@@ -1,16 +1,18 @@
-import 'dart:math';
 import '../../../data/models/branch_model.dart';
 import '../../../data/models/car_model.dart';
-import '../../../data/models/detailing_model.dart';
-import '../../../data/models/expertise_model.dart';
-import '../../../data/models/rental_agreement_model.dart';
-import '../../../data/models/scrapyard_model.dart';
-import '../../../domain/usecases/repair_engine.dart';
-import '../../../domain/usecases/risk_engine.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/dealership_model.dart';
+import '../../../data/models/detailing_model.dart';
+import '../../../data/models/expertise_model.dart';
+import '../../../data/models/gossip_item_model.dart';
 import '../../../data/models/mission_model.dart';
+import '../../../data/models/rental_agreement_model.dart';
+import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/staff_model.dart';
+import '../../../data/models/trade_in_offer_model.dart';
+import '../../../domain/usecases/night_market_engine.dart';
+import '../../../domain/usecases/repair_engine.dart';
+import '../../../domain/usecases/risk_engine.dart';
 import 'game_base_notifier.dart';
 
 mixin GameInventoryMixin on GameBaseNotifier {
@@ -443,6 +445,137 @@ mixin GameInventoryMixin on GameBaseNotifier {
     saveState();
   }
 
+  /// Boosts district market share through local marketing campaign (§1.4 / Q8)
+  bool boostDistrictMarketShare(String districtKey, double amount, double cost) {
+    if (state.balance < cost) return false;
+
+    final current = state.districtMarketShare[districtKey] ?? 0.0;
+    if (current >= 1.0) return false;
+
+    final updatedMap = Map<String, double>.from(state.districtMarketShare);
+    updatedMap[districtKey] = (current + amount).clamp(0.0, 1.0);
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      districtMarketShare: updatedMap,
+    );
+
+    addXP(10);
+    saveState();
+    return true;
+  }
+
+  /// Accepts a customer vehicle trade-in offer (§4.6.2)
+  bool acceptTradeInOffer(TradeInOfferModel offer) {
+    // Verify target car exists in owned inventory
+    final targetIndex = state.ownedCars.indexWhere((c) => c.id == offer.targetCarId);
+    if (targetIndex == -1) return false;
+
+    // Check if player has enough money if cashDifference is negative
+    if (offer.cashDifference < 0 && state.balance < -offer.cashDifference) {
+      return false;
+    }
+
+    final targetCar = state.ownedCars[targetIndex];
+    final updatedOwnedCars = List<CarModel>.from(state.ownedCars);
+    updatedOwnedCars.removeAt(targetIndex);
+
+    // Add provenance note to offered car
+    final tradedCar = offer.offeredCar.copyWith(
+      provenanceLog: [
+        ...offer.offeredCar.provenanceLog,
+        '${state.currentDay}. Gün: ${targetCar.modelName} karşılığı ${offer.customerName} ile takaslandı.',
+      ],
+    );
+    updatedOwnedCars.add(tradedCar);
+
+    // Remove accepted trade offer from pending offers
+    final updatedTradeOffers = state.incomingTradeInOffers.where((t) => t.id != offer.id).toList();
+
+    // Calculate profit
+    final effectiveSalePrice = tradedCar.estimatedRealValue + offer.cashDifference;
+    final netProfit = effectiveSalePrice - targetCar.currentPurchasePrice;
+
+    state = state.copyWith(
+      balance: state.balance + offer.cashDifference,
+      ownedCars: updatedOwnedCars,
+      incomingTradeInOffers: updatedTradeOffers,
+      totalProfit: state.totalProfit + (netProfit > 0 ? netProfit : 0),
+      carsSold: state.carsSold + 1,
+      cleanSaleStreak: state.cleanSaleStreak + 1,
+    );
+
+    addXP(35);
+    updateMissionProgress(MissionType.sellCars, 1);
+    saveState();
+    return true;
+  }
+
+  /// Rejects a trade-in offer
+  void rejectTradeInOffer(String offerId) {
+    final updatedOffers = state.incomingTradeInOffers.where((t) => t.id != offerId).toList();
+    state = state.copyWith(incomingTradeInOffers: updatedOffers);
+    saveState();
+  }
+
+  /// Buys an industry gossip / asymmetric intel item (§4.6.3)
+  bool buyGossipItem(GossipItemModel gossip) {
+    if (state.balance < gossip.cost) return false;
+
+    final updatedGossips = state.activeGossips.map((g) {
+      if (g.id == gossip.id) {
+        return g.copyWith(isPurchased: true);
+      }
+      return g;
+    }).toList();
+
+    state = state.copyWith(
+      balance: state.balance - gossip.cost,
+      activeGossips: updatedGossips,
+    );
+
+    addXP(15);
+    saveState();
+    return true;
+  }
+
+  /// Accepts a consignment vehicle offer from an NPC (§4.6.1)
+  bool acceptConsignmentOffer(CarModel consignmentCar) {
+    if (state.ownedCars.length >= state.maxGarageSlots) return false;
+
+    final updatedOwnedCars = List<CarModel>.from(state.ownedCars)..add(consignmentCar);
+    final updatedConsignmentOffers = state.consignmentOffers.where((c) => c.id != consignmentCar.id).toList();
+
+    state = state.copyWith(
+      ownedCars: updatedOwnedCars,
+      consignmentOffers: updatedConsignmentOffers,
+    );
+
+    addXP(20);
+    saveState();
+    return true;
+  }
+
+  /// Enters an underground night modification street race (§4.4)
+  NightRaceResult enterNightRace(CarModel car) {
+    final result = NightMarketEngine.simulateNightRace(car);
+
+    if (result.isWon) {
+      state = state.copyWith(
+        balance: state.balance + result.prizeMoney,
+        reputationScore: (state.reputationScore + result.reputationBonus).clamp(0, 1000),
+      );
+      addXP(50);
+    } else {
+      state = state.copyWith(
+        reputationScore: (state.reputationScore + result.reputationBonus).clamp(0, 1000),
+      );
+    }
+
+    saveState();
+    return result;
+  }
+
   /// Repair body part with tier
   RepairResult repairBodyPartWithTier(CarModel car, String partName, RepairTier tier) {
     final result = RepairEngine.repairBodyPart(car, partName, tier);
@@ -832,7 +965,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (setInterior && car.isInteriorCleaned) return false;
     if (isStandardWash && !setInterior && !setPolished && !setDetailed && car.isWashed) return false;
 
-    final newValue = car.baseMarketValue * (1.0 + valueBoostPercent);
+    // Remove double-dipping: baseMarketValue stays the same, 
+    // car_model.dart's estimatedRealValue handles the price increase dynamically.
+    final newValue = car.baseMarketValue;
 
     final updatedDetailing = List<String>.from(car.appliedDetailingOptionIds);
     if (setInterior && !updatedDetailing.contains('interior_detailing')) {
@@ -890,18 +1025,15 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final exp = car.expertise;
 
     ExpertiseReport updatedExp = exp;
-    double valueBoost = 1.0;
 
     switch (repairType) {
       case 'engine':
         if (exp.engineCondition >= 99.5) return false;
         updatedExp = exp.copyWith(engineCondition: 100.0);
-        valueBoost = 1.10;
         break;
       case 'transmission':
         if (exp.transmissionCondition >= 99.5) return false;
         updatedExp = exp.copyWith(transmissionCondition: 100.0);
-        valueBoost = 1.08;
         break;
       case 'ecu':
         if (exp.isEcuCleaned) return false;
@@ -909,7 +1041,6 @@ mixin GameInventoryMixin on GameBaseNotifier {
           isEcuCleaned: true,
           engineCondition: (exp.engineCondition + 15).clamp(0.0, 100.0),
         );
-        valueBoost = 1.05;
         break;
       case 'bodywork':
         final hasDamagedOrChanged = exp.bodyParts.values.any((v) => v != PartStatus.original);
@@ -924,23 +1055,19 @@ mixin GameInventoryMixin on GameBaseNotifier {
           bodyParts: repairedParts,
           partConditions: repairedConditions,
         );
-        valueBoost = 1.15;
         break;
       case 'chassis':
         if (exp.isChassisAligned) return false;
         updatedExp = exp.copyWith(
           isChassisAligned: true,
         );
-        valueBoost = 1.20;
         break;
     }
 
-    final initialCarValue = max(100000.0, car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue);
-    final maxAllowedValue = initialCarValue * 1.35;
-
     final updatedCar = car.copyWith(
       expertise: updatedExp,
-      baseMarketValue: (car.baseMarketValue * valueBoost).clamp(car.baseMarketValue * 0.5, maxAllowedValue),
+      // Fix exponential price inflation: don't artificially scale baseMarketValue
+      baseMarketValue: car.baseMarketValue,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);

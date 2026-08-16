@@ -135,6 +135,66 @@ class SideBusinessModel {
     return net;
   }
 
+  /// Calculates the dynamic utilization multiplier (0.25 to 1.60) based on player's recent activities (§1.2)
+  double calculateUtilizationMultiplier({
+    int washedLast7Days = 0,
+    int expertisesLast7Days = 0,
+    int listedCarsCount = 0,
+    int partsRepairedLast7Days = 0,
+    int towedCarsLast7Days = 0,
+    int activeRentalsCount = 0,
+  }) {
+    switch (type) {
+      case SideBusinessType.carWash:
+        // 0 wash = 0.25, 4+ wash = 1.60
+        return (0.25 + (washedLast7Days * 0.35)).clamp(0.25, 1.60);
+      case SideBusinessType.inspectionStation:
+      case SideBusinessType.corporateExpertise:
+        // 0 expertise = 0.25, 3+ expertise = 1.60
+        return (0.25 + (expertisesLast7Days * 0.45)).clamp(0.25, 1.60);
+      case SideBusinessType.billboard:
+        // 0 listed = 0.30, 4+ listed = 1.50
+        return (0.30 + (listedCarsCount * 0.30)).clamp(0.30, 1.50);
+      case SideBusinessType.sparePartsStore:
+      case SideBusinessType.autoShop:
+        // 0 repairs = 0.25, 4+ repairs = 1.60
+        return (0.25 + (partsRepairedLast7Days * 0.35)).clamp(0.25, 1.60);
+      case SideBusinessType.towTruck:
+        // 0 towed = 0.30, 3+ towed = 1.50
+        return (0.30 + (towedCarsLast7Days * 0.40)).clamp(0.30, 1.50);
+      case SideBusinessType.carRental:
+        // 0 rentals = 0.20, 3+ rentals = 1.70
+        return (0.20 + (activeRentalsCount * 0.50)).clamp(0.20, 1.70);
+      case SideBusinessType.wrapStudio:
+        return (0.30 + (partsRepairedLast7Days * 0.30)).clamp(0.30, 1.50);
+      case SideBusinessType.evCharging:
+      case SideBusinessType.vendingMachine:
+        // Baseline operational utilization based on gallery vehicle volume
+        return (0.40 + (listedCarsCount * 0.20)).clamp(0.40, 1.50);
+    }
+  }
+
+  /// Calculates effective daily income adjusted for utilization rate
+  double effectiveIncomeWithUtilization({
+    int washedLast7Days = 0,
+    int expertisesLast7Days = 0,
+    int listedCarsCount = 0,
+    int partsRepairedLast7Days = 0,
+    int towedCarsLast7Days = 0,
+    int activeRentalsCount = 0,
+  }) {
+    if (!isOwned) return 0.0;
+    final multiplier = calculateUtilizationMultiplier(
+      washedLast7Days: washedLast7Days,
+      expertisesLast7Days: expertisesLast7Days,
+      listedCarsCount: listedCarsCount,
+      partsRepairedLast7Days: partsRepairedLast7Days,
+      towedCarsLast7Days: towedCarsLast7Days,
+      activeRentalsCount: activeRentalsCount,
+    );
+    return (effectiveDailyIncome * multiplier).roundToDouble();
+  }
+
   double get nextLevelUpgradeCost {
     if (level >= 5) return 0.0;
     return cost * 1.20 * (level * level);

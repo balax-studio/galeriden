@@ -92,49 +92,12 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
       appBar: const NeoBrutalAppBar(
         title: 'OTO YIKAMA & DETAILING',
       ),
-      body: game.ownedCars.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(24),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 16,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.local_car_wash_rounded, size: 44, color: Color(0xFF38BDF8)),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Garajında Araç Yok!',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Yıkamak ve parlatmak için önce pazardan araç satın almalısın.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 16),
-                      NeoBrutalButton(
-                        label: 'İLANLARA GİT',
-                        icon: Icons.storefront_rounded,
-                        backgroundColor: AppColors.brutalYellow,
-                        textColor: Colors.black,
-                        onPressed: () => context.push('/marketplace'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(14),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                // 1. Garage Car Selection Carousel
-                Text(
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Garage Car Selection Carousel
+          Text(
                   'YIKANACAK ARACI SEÇ (${game.ownedCars.length} Araç)',
                   style: TextStyle(
                     fontSize: 12,

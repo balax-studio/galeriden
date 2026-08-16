@@ -365,15 +365,100 @@ class ShowroomCarCard extends ConsumerWidget {
               ),
             ],
 
-            // Price Matrix Block
+            // 3-Band Vehicle Card Architecture (§1.5 / Q9)
+            // Band 1: Plaka, Renk & Kaporta Özet Bandı
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1A1F2C) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0),
+                  width: 1.0,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: car.plateRarity == 'legendary'
+                              ? const Color(0xFFFFD700)
+                              : (car.plateRarity == 'repeated' || car.plateRarity == 'symmetric'
+                                  ? const Color(0xFF38BDF8)
+                                  : (isDark ? Colors.white12 : const Color(0xFF0F172A))),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          car.plateNumber,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: car.plateRarity == 'legendary' || car.plateRarity == 'repeated' || car.plateRarity == 'symmetric'
+                                ? Colors.black
+                                : (isDark ? Colors.white : Colors.white),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        car.colorDisplayName,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white70 : const Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.build_circle_rounded,
+                        size: 13,
+                        color: car.hasNonOriginalParts ? const Color(0xFFF59E0B) : const Color(0xFF00E575),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Motor: %${car.expertise.engineCondition.round()}',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white70 : const Color(0xFF334155),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Band 2: Net Kâr & Fiyat Isı Şeridi (Profit Margin Heat Stripe §1.5)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                  width: 1.2,
+                border: Border(
+                  left: BorderSide(
+                    color: car.profitHeatStatus == 'green'
+                        ? const Color(0xFF00E575)
+                        : (car.profitHeatStatus == 'yellow'
+                            ? const Color(0xFFF59E0B)
+                            : (car.profitHeatStatus == 'orange'
+                                ? const Color(0xFFEA580C)
+                                : const Color(0xFFEF4444))),
+                    width: 4.5,
+                  ),
+                  top: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 1.2),
+                  right: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 1.2),
+                  bottom: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 1.2),
                 ),
               ),
               child: Row(
@@ -383,7 +468,7 @@ class ShowroomCarCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Maliyet',
+                        'Alış Maliyeti',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -401,10 +486,10 @@ class ShowroomCarCard extends ConsumerWidget {
                     ],
                   ),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Piyasa Değeri',
+                        'Net Tahmini Kâr',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -412,11 +497,13 @@ class ShowroomCarCard extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        CurrencyFormatter.formatShort(car.estimatedRealValue),
+                        '${car.netEstimatedProfit >= 0 ? "+" : ""}${CurrencyFormatter.formatShort(car.netEstimatedProfit)} (%${car.profitMarginPercent.round()})',
                         style: TextStyle(
                           fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          fontWeight: FontWeight.w900,
+                          color: car.netEstimatedProfit >= 0
+                              ? const Color(0xFF00E575)
+                              : const Color(0xFFEF4444),
                         ),
                       ),
                     ],
@@ -425,7 +512,7 @@ class ShowroomCarCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'İlan Satış Fiyatı',
+                        car.isListed ? 'İlan Fiyatı' : 'Piyasa Değeri',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -433,11 +520,11 @@ class ShowroomCarCard extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        CurrencyFormatter.formatShort(car.listingPrice),
+                        CurrencyFormatter.formatShort(car.isListed ? car.listingPrice : car.estimatedRealValue),
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                          color: car.isListed ? const Color(0xFF00E575) : (isDark ? Colors.white : const Color(0xFF0F172A)),
                         ),
                       ),
                     ],
@@ -445,19 +532,58 @@ class ShowroomCarCard extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
 
-            // Declaration Indicator
+            // Band 3: İlan Günü, Torpido & Beyan Durumu
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'İlan Beyanı:',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                  ),
+                Row(
+                  children: [
+                    if (car.isListed) ...[
+                      Text(
+                        'İlanda: ${car.daysListed} gün',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: car.isStaleListing ? const Color(0xFFEF4444) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    if (!car.hasGloveboxSearched) ...[
+                      InkWell(
+                        onTap: () {
+                          final result = ref.read(gameProvider.notifier).searchGlovebox(car.id);
+                          if (result['success'] == true) {
+                            NotificationService.showSuccess(
+                              context,
+                              result['message'] as String,
+                            );
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFDE59),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.black, width: 1.0),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.search_rounded, size: 11, color: Colors.black),
+                              SizedBox(width: 3),
+                              Text(
+                                'Torpido Ara',
+                                style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 NeoBrutalBadge(
                   text: car.declarationType == ListingDeclarationType.honest

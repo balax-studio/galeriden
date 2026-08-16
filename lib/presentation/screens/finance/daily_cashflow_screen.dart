@@ -8,6 +8,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/side_business_model.dart';
 import '../../../data/models/staff_model.dart';
+import '../../../domain/usecases/cashflow_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -25,77 +26,10 @@ class DailyCashflowScreen extends ConsumerWidget {
     final p = themeExt?.palette;
     final isDark = p?.isDark ?? true;
 
-    // 1. GELİR HESAPLAMALARI
-    final double businessMultiplier = game.specializationPath == SpecializationPath.boss ? 1.30 : 1.0;
-    
-    // Yan İşletme Gelirleri
+    // Domain usecase call for cashflow calculation
+    final summary = CashflowEngine.calculate(game);
     final ownedBusinesses = game.sideBusinesses.where((b) => b.isOwned).toList();
-    final double sideBusinessIncome = ownedBusinesses.fold<double>(
-      0.0,
-      (sum, b) => sum + (b.effectiveDailyIncome * businessMultiplier),
-    );
-
-    // Rent a Car Günlük Kira Gelirleri
-    final double rentalDailyIncome = game.activeRentals.fold<double>(
-      0.0,
-      (sum, r) => sum + r.dailyRate,
-    );
-
-    // Vadeli Mevduat Günlük Faiz Getirisi (%24 yıllık -> ~%0.065 günlük)
-    final double depositDailyInterest = (game.bankDepositBalance * 0.24) / 365.0;
-
-    // Borsa Günlük Temettü/Değer Artış Tahmini (Ortalama %0.15 günlük)
-    final double stockPortfolioValue = game.ownedStocks.fold<double>(
-      0.0,
-      (sum, s) {
-        final currentStock = game.marketStocks.where((m) => m.symbol == s.symbol).firstOrNull;
-        final price = currentStock?.currentPrice ?? s.averageCost;
-        return sum + (s.quantity * price);
-      },
-    );
-    final double stockDailyDividend = (stockPortfolioValue * 0.05) / 365.0;
-
-    final double totalDailyIncome = sideBusinessIncome + rentalDailyIncome + depositDailyInterest + stockDailyDividend;
-
-    // 2. GİDER HESAPLAMALARI
-    // Personel Maaşları
-    double staffSalaries = game.hiredStaff.fold<double>(
-      0.0,
-      (sum, s) => sum + s.dailySalary,
-    );
-    if (game.specializationPath == SpecializationPath.boss) {
-      staffSalaries *= 0.80; // %20 personel maaş indirimi
-    }
-
-    // Galeri Mülk Genel Giderleri / Kira (Burn-Rate)
-    double propertyDailyBurn = 500.0;
-    String propertyTierName = 'Başlangıç Garajı (Tier 1)';
-    if (game.unlockedBuildings.contains('property_tier_4')) {
-      propertyDailyBurn = 45000.0;
-      propertyTierName = 'Oto Plaza & Showroom (Tier 4)';
-    } else if (game.unlockedBuildings.contains('property_tier_3')) {
-      propertyDailyBurn = 12000.0;
-      propertyTierName = 'Büyük Galeri Kompleksi (Tier 3)';
-    } else if (game.unlockedBuildings.contains('property_tier_2')) {
-      propertyDailyBurn = 3000.0;
-      propertyTierName = 'Orta Ölçekli Galeri (Tier 2)';
-    }
-
-    // Aktif Krediler Günlük Ödeme Yükü
-    final double loanDailyPayment = game.activeLoans.fold<double>(
-      0.0,
-      (sum, l) => sum + l.monthlyPayment,
-    );
-
-    // İşletme Stopaj / Sabit Ticari Vergi
-    final double dailyTaxEstimate = game.dailyTaxRate;
-
-    final double totalDailyExpense = staffSalaries + propertyDailyBurn + loanDailyPayment + dailyTaxEstimate;
-
-    // 3. NET NAKİT AKIŞI
-    final double netDailyCashflow = totalDailyIncome - totalDailyExpense;
-    final bool isProfitable = netDailyCashflow > 0;
-    final bool isNeutral = netDailyCashflow == 0;
+    final double businessMultiplier = game.specializationPath == SpecializationPath.boss ? 1.30 : 1.0;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -110,11 +44,11 @@ class DailyCashflowScreen extends ConsumerWidget {
           _buildHeroSummaryCard(
             context: context,
             isDark: isDark,
-            totalIncome: totalDailyIncome,
-            totalExpense: totalDailyExpense,
-            netCashflow: netDailyCashflow,
-            isProfitable: isProfitable,
-            isNeutral: isNeutral,
+            totalIncome: summary.totalDailyIncome,
+            totalExpense: summary.totalDailyExpense,
+            netCashflow: summary.netDailyCashflow,
+            isProfitable: summary.isProfitable,
+            isNeutral: summary.isNeutral,
             currentDay: game.currentDay,
           ),
           const SizedBox(height: 14),
@@ -122,9 +56,9 @@ class DailyCashflowScreen extends ConsumerWidget {
           // 2. 7 Günlük Kümülatif Projeksiyon & Muhasebeci Tavsiyesi
           _buildProjectionAndAdviceCard(
             isDark: isDark,
-            netDaily: netDailyCashflow,
+            netDaily: summary.netDailyCashflow,
             hasLoans: game.activeLoans.isNotEmpty,
-            hasExcessStaff: staffSalaries > (totalDailyIncome * 0.6) && !isProfitable,
+            hasExcessStaff: summary.staffSalaries > (summary.totalDailyIncome * 0.6) && !summary.isProfitable,
             bankBalance: game.balance,
           ),
           const SizedBox(height: 16),
@@ -132,7 +66,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           // 3. Gelir Kalemleri Başlığı & Listesi
           _buildSectionHeader(
             title: 'DİNAMİK GÜNLÜK GELİRLER',
-            totalAmount: totalDailyIncome,
+            totalAmount: summary.totalDailyIncome,
             isIncome: true,
             isDark: isDark,
           ),
@@ -142,20 +76,20 @@ class DailyCashflowScreen extends ConsumerWidget {
             isDark: isDark,
             sideBusinesses: ownedBusinesses,
             businessMultiplier: businessMultiplier,
-            sideBusinessIncome: sideBusinessIncome,
+            sideBusinessIncome: summary.sideBusinessIncome,
             rentalsCount: game.activeRentals.length,
-            rentalIncome: rentalDailyIncome,
-            depositInterest: depositDailyInterest,
+            rentalIncome: summary.rentalDailyIncome,
+            depositInterest: summary.depositDailyInterest,
             depositBalance: game.bankDepositBalance,
-            stockDividend: stockDailyDividend,
-            stockPortfolioValue: stockPortfolioValue,
+            stockDividend: summary.stockDailyDividend,
+            stockPortfolioValue: summary.stockPortfolioValue,
           ),
           const SizedBox(height: 16),
 
           // 4. Gider Kalemleri Başlığı & Listesi
           _buildSectionHeader(
             title: 'DİNAMİK GÜNLÜK GİDERLER',
-            totalAmount: totalDailyExpense,
+            totalAmount: summary.totalDailyExpense,
             isIncome: false,
             isDark: isDark,
           ),
@@ -164,13 +98,13 @@ class DailyCashflowScreen extends ConsumerWidget {
             context: context,
             isDark: isDark,
             staffList: game.hiredStaff,
-            staffSalaries: staffSalaries,
+            staffSalaries: summary.staffSalaries,
             hasBossPerk: game.specializationPath == SpecializationPath.boss,
-            propertyTierName: propertyTierName,
-            propertyDailyBurn: propertyDailyBurn,
+            propertyTierName: summary.propertyTierName,
+            propertyDailyBurn: summary.propertyDailyBurn,
             activeLoans: game.activeLoans,
-            loanDailyPayment: loanDailyPayment,
-            dailyTaxEstimate: dailyTaxEstimate,
+            loanDailyPayment: summary.loanDailyPayment,
+            dailyTaxEstimate: summary.dailyTaxEstimate,
             dailyTaxRate: game.dailyTaxRate,
           ),
           const SizedBox(height: 16),

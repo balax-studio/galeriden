@@ -51,8 +51,6 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-
-    final hasWasher = game.hiredStaff.any((s) => s.role == StaffRole.washer);
     final hasSalesman = game.hiredStaff.any((s) => s.role == StaffRole.salesman);
     final unwashedCount = game.ownedCars.where((c) => !c.isWashed || !c.isPolished || !c.isDetailedCleaned).length;
 
@@ -130,51 +128,102 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                       padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
                       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                       children: [
-                        // Top Action & Filter Row
-                        if (unwashedCount > 0) ...[
-                          NeoBrutalCard(
-                            padding: const EdgeInsets.all(10),
-                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
-                            borderColor: const Color(0xFF3B82F6),
-                            borderRadius: 10,
-                            child: Row(
-                              children: [
-                                const Icon(Icons.local_car_wash_rounded, color: Color(0xFF3B82F6), size: 22),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    hasWasher
-                                        ? '$unwashedCount araç yıkama bekliyor (Yıkamacı personeli ücretsiz yıkar)'
-                                        : '$unwashedCount araç kirli (Toplu yıkama: ₺${unwashedCount * 600})',
+                        // Batch Operations Bar (§1.5 / Q10)
+                        NeoBrutalCard(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
+                          borderColor: const Color(0xFF3B82F6),
+                          borderRadius: 10,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'TOPLU VİTRİN İŞLEMLERİ',
                                     style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
+                                      color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1E3A8A),
                                     ),
                                   ),
+                                  Text(
+                                    '${game.ownedCars.length} Araç',
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                child: Row(
+                                  children: [
+                                    NeoBrutalButton(
+                                      label: unwashedCount > 0 ? 'Tümünü Yıka ($unwashedCount)' : 'Tümü Temiz',
+                                      icon: Icons.local_car_wash_rounded,
+                                      backgroundColor: unwashedCount > 0 ? const Color(0xFF3B82F6) : (isDark ? Colors.white12 : Colors.black12),
+                                      textColor: Colors.white,
+                                      fontSize: 10,
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                      onPressed: unwashedCount > 0
+                                          ? () {
+                                              final count = ref.read(gameProvider.notifier).washAllShowroomCars();
+                                              if (count > 0) {
+                                                NotificationService.showSuccess(context, '$count araç yıkandı ve parlatıldı!');
+                                              } else if (count == -1) {
+                                                NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
+                                              }
+                                            }
+                                          : null,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    NeoBrutalButton(
+                                      label: 'Tümünü İlana Koy',
+                                      icon: Icons.publish_rounded,
+                                      backgroundColor: const Color(0xFF00E575),
+                                      textColor: Colors.black,
+                                      fontSize: 10,
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                      onPressed: () {
+                                        final count = ref.read(gameProvider.notifier).listAllGarageCars();
+                                        if (count > 0) {
+                                          NotificationService.showSuccess(context, '$count yeni araç ilana çıkarıldı!');
+                                        } else {
+                                          NotificationService.showInfo(context, 'İlana konulacak boşta araç bulunamadı.');
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(width: 6),
+                                    NeoBrutalButton(
+                                      label: 'Bayat İlanları İndir',
+                                      icon: Icons.archive_rounded,
+                                      backgroundColor: const Color(0xFFEF4444),
+                                      textColor: Colors.white,
+                                      fontSize: 10,
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                      onPressed: () {
+                                        final count = ref.read(gameProvider.notifier).delistStaleListings();
+                                        if (count > 0) {
+                                          NotificationService.showSuccess(context, '$count adet 20+ günlük bayat ilan yayından kaldırıldı.');
+                                        } else {
+                                          NotificationService.showInfo(context, 'Yayında 20 günü aşmış bayat ilan yok.');
+                                        }
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                NeoBrutalButton(
-                                  label: 'Tümünü Yıka',
-                                  icon: Icons.local_car_wash_rounded,
-                                  backgroundColor: const Color(0xFF3B82F6),
-                                  textColor: Colors.white,
-                                  fontSize: 10,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  onPressed: () {
-                                    final success = ref.read(gameProvider.notifier).washAllCars();
-                                    if (success) {
-                                      NotificationService.showSuccess(context, 'Tüm araçlar yıkandı ve parlatıldı!');
-                                    } else {
-                                      NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 10),
-                        ],
+                        ),
+                        const SizedBox(height: 10),
 
                         // Filter chips
                         SingleChildScrollView(

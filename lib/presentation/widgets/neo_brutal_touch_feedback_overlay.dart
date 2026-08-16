@@ -27,7 +27,7 @@ class NeoBrutalTouchFeedbackOverlay extends StatefulWidget {
   const NeoBrutalTouchFeedbackOverlay({
     super.key,
     required this.child,
-    this.enableHaptics = true,
+    this.enableHaptics = false,
     this.enableUnfocusOnTap = true,
   });
 

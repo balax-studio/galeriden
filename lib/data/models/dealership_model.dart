@@ -22,6 +22,9 @@ import 'black_market_car_model.dart';
 import 'story_card_model.dart';
 import 'dramatic_card_model.dart';
 import 'contract_model.dart';
+import 'trade_in_offer_model.dart';
+import 'gossip_item_model.dart';
+import 'weather_model.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -132,12 +135,60 @@ class DealershipModel {
   final List<String> discoveredCarModelIds;
   final List<String> loyalCustomerNames;
 
+  // Semt Hakimiyeti & Şehir Pazar Payı (§4.1)
+  final Map<String, double> districtMarketShare;
+
+  // Son 7 Günlük Operasyonel Aktivite Sayaçları (Doluluk Katsayısı İçin - §1.2)
+  final int carsWashedLast7Days;
+  final int expertisesPerformedLast7Days;
+  final int partsRepairedLast7Days;
+  final int towedCarsLast7Days;
+  final int rentalsCountLast7Days;
+
+  // Müşteri İtibar Yankısı & Dürüst Esnaf Prestiji (§4.5)
+  final int dirtyRecordCount;
+  final int cleanSaleStreak;
+  final String? pendingDisputeNotice;
+
+  // Yeni Ekstra Mekanikler (§4.6)
+  final List<TradeInOfferModel> incomingTradeInOffers; // Araba Takas Sistemi (§4.6.2)
+  final List<GossipItemModel> activeGossips;           // Sanayi Dedikodu Hattı (§4.6.3)
+  final WeatherType currentWeather;                   // Dinamik Hava Durumu (§4.6.5)
+  final List<CarModel> consignmentOffers;             // Konsinye & Emanet Araçlar (§4.6.1)
+
   int get emblemIndex => int.tryParse(logoEmblemId.replaceAll(RegExp(r'\D'), '')) ?? 0;
 
   double get money => balance;
   int get reputation => reputationScore;
   int get experience => skills.xp;
   List<CarModel> get myCars => ownedCars;
+
+  /// Kurumsal Kademe (Prestige Tiers §1.6)
+  int get corporateTier {
+    if (level >= 13) return 5; // Galeriler Şahı
+    if (level >= 11) return 4; // Otomotiv Baronu
+    if (level >= 9) return 3;  // Plaza Sahibi
+    if (level >= 7) return 2;  // Bölge Bayii
+    if (level >= 5) return 1;  // Sanayi Esnafı
+    return 0; // Çırak & Küçük Esnaf
+  }
+
+  String get corporateTierTitle {
+    switch (corporateTier) {
+      case 5:
+        return 'Galeriler Şahı (Kademe V)';
+      case 4:
+        return 'Otomotiv Baronu (Kademe IV)';
+      case 3:
+        return 'Plaza Sahibi (Kademe III)';
+      case 2:
+        return 'Bölge Bayii (Kademe II)';
+      case 1:
+        return 'Sanayi Esnafı (Kademe I)';
+      default:
+        return 'Yerel Galeri (Başlangıç)';
+    }
+  }
 
   DateTime get inGameTime => DateTime.now();
 
@@ -307,6 +358,21 @@ class DealershipModel {
       case '/side-businesses':
       case '/branches':
         return 4;
+      case '/district-market':
+      case '/districts':
+      case '/gossip-hotline':
+        return 5;
+      case '/consignment-market':
+      case '/second-branch':
+        return 7;
+      case '/vip-appointments':
+      case '/customs-import':
+        return 9;
+      case '/guild-chamber':
+      case '/franchise':
+        return 11;
+      case '/prestige-dynasty':
+        return 13;
       default:
         return 1;
     }
@@ -321,12 +387,29 @@ class DealershipModel {
         return 'Maslak Otomotiv Plazası (Seviye 3)';
       case 4:
         return 'Levent Mega Holding Plazası (Seviye 4)';
+      case 5:
+      case 6:
+        return 'Kadıköy & İkitelli Bölge Merkezi (Seviye 5 - Sanayi Esnafı)';
+      case 7:
+      case 8:
+        return 'Marmara Bölge Distribütörlüğü (Seviye 7 - Bölge Bayii)';
+      case 9:
+      case 10:
+        return 'Boğaziçi VIP Otomotiv Plazası (Seviye 9 - Plaza Sahibi)';
+      case 11:
+      case 12:
+        return 'Türkiye Otomotiv Baronluğu (Seviye 11 - Otomotiv Baronu)';
+      case 13:
+        return 'Galeriler Şahı Sarayı (Seviye 13+)';
       default:
         return 'Başlangıç Garajı';
     }
   }
 
   bool isFeatureUnlocked(String route) {
+    if (route == '/gossip' || route == '/consignment' || route == '/night-market') {
+      return true;
+    }
     return unlockedBuildings.contains(route);
   }
 
@@ -407,6 +490,26 @@ class DealershipModel {
     },
     this.dynastyGeneration = 1,
     this.dynastyHistoryLog = const [],
+    this.districtMarketShare = const {
+      'İkitelli Sanayi': 0.05,
+      'Maslak Plaza': 0.05,
+      'Bağcılar Oto Pazarı': 0.05,
+      'Nişantaşı Vitrin': 0.02,
+      'Kadıköy Klasik Sokağı': 0.02,
+      'Ankara Kızılay Hattı': 0.05,
+    },
+    this.carsWashedLast7Days = 0,
+    this.expertisesPerformedLast7Days = 0,
+    this.partsRepairedLast7Days = 0,
+    this.towedCarsLast7Days = 0,
+    this.rentalsCountLast7Days = 0,
+    this.dirtyRecordCount = 0,
+    this.cleanSaleStreak = 0,
+    this.pendingDisputeNotice,
+    this.incomingTradeInOffers = const [],
+    this.activeGossips = const [],
+    this.currentWeather = WeatherType.sunny,
+    this.consignmentOffers = const [],
   });
 
   factory DealershipModel.initial() {
@@ -770,6 +873,19 @@ class DealershipModel {
       'npcRelationships': npcRelationships,
       'dynastyGeneration': dynastyGeneration,
       'dynastyHistoryLog': dynastyHistoryLog,
+      'districtMarketShare': districtMarketShare,
+      'carsWashedLast7Days': carsWashedLast7Days,
+      'expertisesPerformedLast7Days': expertisesPerformedLast7Days,
+      'partsRepairedLast7Days': partsRepairedLast7Days,
+      'towedCarsLast7Days': towedCarsLast7Days,
+      'rentalsCountLast7Days': rentalsCountLast7Days,
+      'dirtyRecordCount': dirtyRecordCount,
+      'cleanSaleStreak': cleanSaleStreak,
+      'pendingDisputeNotice': pendingDisputeNotice,
+      'incomingTradeInOffers': incomingTradeInOffers.map((t) => t.toJson()).toList(),
+      'activeGossips': activeGossips.map((g) => g.toJson()).toList(),
+      'currentWeather': currentWeather.name,
+      'consignmentOffers': consignmentOffers.map((c) => c.toJson()).toList(),
     };
   }
 
@@ -894,6 +1010,32 @@ class DealershipModel {
           },
       dynastyGeneration: (json['dynastyGeneration'] as num?)?.toInt() ?? 1,
       dynastyHistoryLog: (json['dynastyHistoryLog'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      districtMarketShare: (json['districtMarketShare'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k, (v as num).toDouble()),
+          ) ??
+          const {
+            'İkitelli Sanayi': 0.05,
+            'Maslak Plaza': 0.05,
+            'Bağcılar Oto Pazarı': 0.05,
+            'Nişantaşı Vitrin': 0.02,
+            'Kadıköy Klasik Sokağı': 0.02,
+            'Ankara Kızılay Hattı': 0.05,
+          },
+      carsWashedLast7Days: json['carsWashedLast7Days'] as int? ?? 0,
+      expertisesPerformedLast7Days: json['expertisesPerformedLast7Days'] as int? ?? 0,
+      partsRepairedLast7Days: json['partsRepairedLast7Days'] as int? ?? 0,
+      towedCarsLast7Days: json['towedCarsLast7Days'] as int? ?? 0,
+      rentalsCountLast7Days: json['rentalsCountLast7Days'] as int? ?? 0,
+      dirtyRecordCount: json['dirtyRecordCount'] as int? ?? 0,
+      cleanSaleStreak: json['cleanSaleStreak'] as int? ?? 0,
+      pendingDisputeNotice: json['pendingDisputeNotice'] as String?,
+      incomingTradeInOffers: parseList(json['incomingTradeInOffers'] as List<dynamic>?, TradeInOfferModel.fromJson),
+      activeGossips: parseList(json['activeGossips'] as List<dynamic>?, GossipItemModel.fromJson),
+      currentWeather: WeatherType.values.firstWhere(
+        (e) => e.name == json['currentWeather'],
+        orElse: () => WeatherType.sunny,
+      ),
+      consignmentOffers: parseList(json['consignmentOffers'] as List<dynamic>?, CarModel.fromJson),
     );
   }
 
@@ -999,6 +1141,20 @@ class DealershipModel {
     Map<String, int>? npcRelationships,
     int? dynastyGeneration,
     List<String>? dynastyHistoryLog,
+    Map<String, double>? districtMarketShare,
+    int? carsWashedLast7Days,
+    int? expertisesPerformedLast7Days,
+    int? partsRepairedLast7Days,
+    int? towedCarsLast7Days,
+    int? rentalsCountLast7Days,
+    int? dirtyRecordCount,
+    int? cleanSaleStreak,
+    String? pendingDisputeNotice,
+    bool clearPendingDisputeNotice = false,
+    List<TradeInOfferModel>? incomingTradeInOffers,
+    List<GossipItemModel>? activeGossips,
+    WeatherType? currentWeather,
+    List<CarModel>? consignmentOffers,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1070,6 +1226,19 @@ class DealershipModel {
       npcRelationships: npcRelationships ?? this.npcRelationships,
       dynastyGeneration: dynastyGeneration ?? this.dynastyGeneration,
       dynastyHistoryLog: dynastyHistoryLog ?? this.dynastyHistoryLog,
+      districtMarketShare: districtMarketShare ?? this.districtMarketShare,
+      carsWashedLast7Days: carsWashedLast7Days ?? this.carsWashedLast7Days,
+      expertisesPerformedLast7Days: expertisesPerformedLast7Days ?? this.expertisesPerformedLast7Days,
+      partsRepairedLast7Days: partsRepairedLast7Days ?? this.partsRepairedLast7Days,
+      towedCarsLast7Days: towedCarsLast7Days ?? this.towedCarsLast7Days,
+      rentalsCountLast7Days: rentalsCountLast7Days ?? this.rentalsCountLast7Days,
+      dirtyRecordCount: dirtyRecordCount ?? this.dirtyRecordCount,
+      cleanSaleStreak: cleanSaleStreak ?? this.cleanSaleStreak,
+      pendingDisputeNotice: clearPendingDisputeNotice ? null : (pendingDisputeNotice ?? this.pendingDisputeNotice),
+      incomingTradeInOffers: incomingTradeInOffers ?? this.incomingTradeInOffers,
+      activeGossips: activeGossips ?? this.activeGossips,
+      currentWeather: currentWeather ?? this.currentWeather,
+      consignmentOffers: consignmentOffers ?? this.consignmentOffers,
     );
   }
 

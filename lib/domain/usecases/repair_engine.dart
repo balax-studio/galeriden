@@ -31,41 +31,9 @@ class RepairEngine {
   static double calculatePartRepairCost(CarModel car, String partName, OrderType orderType) {
     final carValue = max(100000.0, car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue);
 
-    double partFactor;
     final normalizedPart = partName.toLowerCase();
-
-    if (normalizedPart.contains('motor') || normalizedPart.contains('şanzıman')) {
-      partFactor = 0.10;
-    } else if (normalizedPart.contains('şasi') || normalizedPart.contains('podye')) {
-      partFactor = 0.08;
-    } else if (normalizedPart.contains('tavan') || normalizedPart.contains('kaput') || normalizedPart.contains('bagaj')) {
-      partFactor = 0.045;
-    } else if (normalizedPart.contains('kapı')) {
-      partFactor = 0.035;
-    } else if (normalizedPart.contains('çamurluk')) {
-      partFactor = 0.025;
-    } else {
-      partFactor = 0.020;
-    }
-
-    double rawOemCost = carValue * partFactor;
-
-    double minFloor = 2500.0;
-    if (normalizedPart.contains('motor') || normalizedPart.contains('şanzıman')) {
-      minFloor = 18000.0;
-    } else if (normalizedPart.contains('şasi') || normalizedPart.contains('podye')) {
-      minFloor = 14000.0;
-    } else if (normalizedPart.contains('tavan') || normalizedPart.contains('kaput') || normalizedPart.contains('bagaj')) {
-      minFloor = 6500.0;
-    } else if (normalizedPart.contains('kapı')) {
-      minFloor = 4800.0;
-    } else if (normalizedPart.contains('çamurluk')) {
-      minFloor = 3800.0;
-    }
-
-    if (rawOemCost < minFloor) {
-      rawOemCost = minFloor;
-    }
+    final (partFactor, minFloor) = _getPartCostProfile(normalizedPart);
+    final rawOemCost = max(minFloor, carValue * partFactor);
 
     int seed = (car.id + partName).hashCode;
     double varianceMultiplier = 0.88 + ((seed.abs() % 25) / 100.0);
@@ -306,4 +274,24 @@ class RepairEngine {
 
     return total;
   }
+
+  static (double factor, double minFloor) _getPartCostProfile(String normalizedPart) {
+    if (normalizedPart.contains('motor') || normalizedPart.contains('şanzıman')) {
+      return (0.10, 18000.0);
+    }
+    if (normalizedPart.contains('şasi') || normalizedPart.contains('podye')) {
+      return (0.08, 14000.0);
+    }
+    if (normalizedPart.contains('tavan') || normalizedPart.contains('kaput') || normalizedPart.contains('bagaj')) {
+      return (0.045, 6500.0);
+    }
+    if (normalizedPart.contains('kapı')) {
+      return (0.035, 4800.0);
+    }
+    if (normalizedPart.contains('çamurluk')) {
+      return (0.025, 3800.0);
+    }
+    return (0.020, 2500.0);
+  }
 }
+

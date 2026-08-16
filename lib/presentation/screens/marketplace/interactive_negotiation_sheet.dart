@@ -1,4 +1,3 @@
-import 'package:galeriden/core/utils/notification_service.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
@@ -41,6 +41,10 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
   bool _isLockedOut = false;
   late CustomerModel _customer;
   late String _fomoText;
+  int _bonusChancePercent = 0;
+  bool _hasUsedTea = false;
+  bool _hasUsedCigarette = false;
+  bool _hasUsedPartner = false;
 
   @override
   void initState() {
@@ -50,20 +54,13 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
     _fomoText = PsychologyEngine.getRandomFomoText();
   }
 
-  /// Calculates success probability based on player negotiation skill and discount percentage requested
   int _calculateSuccessChance(int negotiationSkillLevel) {
-    final asking = widget.listing.askingPrice;
-    if (_offeredPrice >= asking) return 100;
-
-    final discountPercent = ((asking - _offeredPrice) / asking) * 100;
-
-    // Base success curve: 5% discount = 80%, 10% discount = 50%, 15% discount = 20%
-    double baseChance = 100.0 - (discountPercent * 5.2);
-
-    // Add bonus from player Negotiation skill (each level gives +4% success chance)
-    double skillBonus = negotiationSkillLevel * 4.0;
-
-    return (baseChance + skillBonus).clamp(5.0, 98.0).round();
+    final baseChance = NegotiationEngine.calculateMarketplaceBuyerSuccessChance(
+      askingPrice: widget.listing.askingPrice,
+      offeredPrice: _offeredPrice,
+      negotiationSkillLevel: negotiationSkillLevel,
+    );
+    return (baseChance + _bonusChancePercent).clamp(5, 95);
   }
 
   @override
@@ -71,7 +68,14 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
-    final asking = widget.listing.askingPrice;
+    
+    final listings = ref.watch(marketProvider);
+    final currentListing = listings.firstWhere(
+      (l) => l.id == widget.listing.id,
+      orElse: () => widget.listing,
+    );
+
+    final asking = currentListing.askingPrice;
 
     final chancePercent = _calculateSuccessChance(game.skills.negotiationLevel);
     final discountAmount = asking - _offeredPrice;
@@ -113,7 +117,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
             ],
           ),
           Text(
-            '${widget.listing.sellerName} ile teklifleşiyorsun.',
+            '${currentListing.sellerName} ile teklifleşiyorsun.',
             style: AppTypography.bodyMedium(p.isDark),
           ),
           const SizedBox(height: 8),
@@ -179,8 +183,8 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.listing.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
-                        Text(widget.listing.sellerCity, style: AppTypography.labelSmall(p.isDark)),
+                        Text(currentListing.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 15)),
+                        Text(currentListing.sellerCity, style: AppTypography.labelSmall(p.isDark)),
                       ],
                     ),
                     Column(
@@ -304,6 +308,180 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     });
                   },
           ),
+
+          // Esnaf Tactical Actions Bar (§2.4 / Q14)
+          if (_sellerResponse == null && !_isLockedOut) ...[
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  // Çay Söyle
+                  InkWell(
+                    onTap: _hasUsedTea
+                        ? null
+                        : () {
+                            final res = NegotiationEngine.executeEsnafAction(
+                              actionType: 'cay_soyle',
+                              currentOffer: _offeredPrice,
+                              askingPrice: asking,
+                              negotiationSkillLevel: game.skills.negotiationLevel,
+                            );
+                            setState(() {
+                              _hasUsedTea = true;
+                              _bonusChancePercent += res['bonusChance'] as int;
+                            });
+                            NotificationService.showSuccess(context, res['message'] as String);
+                          },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _hasUsedTea
+                            ? (p.isDark ? Colors.white10 : Colors.black12)
+                            : const Color(0xFFEA580C).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _hasUsedTea
+                              ? (p.isDark ? Colors.white24 : Colors.black26)
+                              : const Color(0xFFEA580C),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.local_cafe_rounded,
+                            size: 13,
+                            color: _hasUsedTea ? (p.isDark ? Colors.white38 : Colors.black38) : const Color(0xFFEA580C),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _hasUsedTea ? 'Çay İkram Edildi' : 'Çay İkram Et (+%10)',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: _hasUsedTea ? (p.isDark ? Colors.white38 : Colors.black38) : const Color(0xFFEA580C),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  // Sigara Yak
+                  InkWell(
+                    onTap: _hasUsedCigarette
+                        ? null
+                        : () {
+                            final res = NegotiationEngine.executeEsnafAction(
+                              actionType: 'sigara_yak',
+                              currentOffer: _offeredPrice,
+                              askingPrice: asking,
+                              negotiationSkillLevel: game.skills.negotiationLevel,
+                            );
+                            setState(() {
+                              _hasUsedCigarette = true;
+                              _bonusChancePercent += res['bonusChance'] as int;
+                            });
+                            NotificationService.showSuccess(context, res['message'] as String);
+                          },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _hasUsedCigarette
+                            ? (p.isDark ? Colors.white10 : Colors.black12)
+                            : const Color(0xFF64748B).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _hasUsedCigarette
+                              ? (p.isDark ? Colors.white24 : Colors.black26)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.smoking_rooms_rounded,
+                            size: 13,
+                            color: _hasUsedCigarette ? (p.isDark ? Colors.white38 : Colors.black38) : const Color(0xFF475569),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _hasUsedCigarette ? 'Sigara Yakıldı' : 'Bir Sigara Yak (+%12)',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: _hasUsedCigarette ? (p.isDark ? Colors.white38 : Colors.black38) : const Color(0xFF475569),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  // Ortağa Danış
+                  InkWell(
+                    onTap: _hasUsedPartner
+                        ? null
+                        : () {
+                            final res = NegotiationEngine.executeEsnafAction(
+                              actionType: 'ortak_arayayim',
+                              currentOffer: _offeredPrice,
+                              askingPrice: asking,
+                              negotiationSkillLevel: game.skills.negotiationLevel,
+                            );
+                            setState(() {
+                              _hasUsedPartner = true;
+                              _bonusChancePercent += res['bonusChance'] as int;
+                              if (res['priceShift'] != null) {
+                                _offeredPrice = (res['priceShift'] as double).clamp(asking * 0.75, asking);
+                              }
+                            });
+                            NotificationService.showSuccess(context, res['message'] as String);
+                          },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _hasUsedPartner
+                            ? (p.isDark ? Colors.white10 : Colors.black12)
+                            : const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _hasUsedPartner
+                              ? (p.isDark ? Colors.white24 : Colors.black26)
+                              : const Color(0xFF3B82F6),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.phone_in_talk_rounded,
+                            size: 13,
+                            color: _hasUsedPartner ? (p.isDark ? Colors.white38 : Colors.black38) : const Color(0xFF2563EB),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _hasUsedPartner ? 'Ortağa Danışıldı' : 'Ortağa Danış (Fiyatı İt)',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: _hasUsedPartner ? (p.isDark ? Colors.white38 : Colors.black38) : const Color(0xFF2563EB),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
           if (_isThinking) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -430,10 +608,10 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
           ],
 
           // Discrepancy Bargaining Leverage Card OR Bluff Mechanic
-          if (_sellerResponse == null && widget.listing.isExpertiseCompleted) ...[
+          if (_sellerResponse == null && currentListing.isExpertiseCompleted) ...[
             Builder(
               builder: (context) {
-                final disc = NegotiationEngine.detectExpertiseDiscrepancy(widget.listing.car);
+                final disc = NegotiationEngine.detectExpertiseDiscrepancy(currentListing.car);
                 
                 if (!disc.hasDiscrepancy) {
                   return Padding(
@@ -690,12 +868,12 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                         : () {
                             setState(() => _isProcessing = true);
                             final outcome = ref.read(gameProvider.notifier).buyCar(
-                                  widget.listing.car,
+                                  currentListing.car,
                                   _offeredPrice,
-                                  isExpertiseCompleted: widget.listing.isExpertiseCompleted,
+                                  isExpertiseCompleted: currentListing.isExpertiseCompleted,
                                 );
                             if (outcome != null) {
-                              ref.read(marketProvider.notifier).removeListing(widget.listing.id);
+                              ref.read(marketProvider.notifier).removeListing(currentListing.id);
                               final nav = Navigator.of(context);
                               nav.pop(); // Close sheet
                               if (nav.canPop()) {
@@ -750,7 +928,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                   ),
                                 );
                               } else {
-                                NotificationService.showSuccess(context, 'Tebrikler! ${widget.listing.car.brand} ${widget.listing.car.modelName} ${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!');
+                                NotificationService.showSuccess(context, 'Tebrikler! ${currentListing.car.brand} ${currentListing.car.modelName} ${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!');
                               }
                             }
                             if (mounted) {

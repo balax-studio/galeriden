@@ -37,8 +37,8 @@ void main() {
       expect(notifier.state.level, equals(1));
       expect(notifier.state.isFeatureUnlocked('/workshop'), isFalse);
 
-      // Add 300 XP (Crosses Level 1 threshold 250 XP -> Level 2)
-      notifier.addXP(300);
+      // Add 1300 XP (Crosses Level 1 threshold 1250 XP -> Level 2)
+      notifier.addXP(1300);
       expect(notifier.state.level, equals(2));
 
       // Workshop is STILL locked because player has not bought the Level 2 Branch yet!
@@ -71,8 +71,8 @@ void main() {
 
     test('Purchasing Level 3 Branch (Maslak Plaza) unlocks Auction, Finance, and Bank Investments', () {
       final notifier = GameNotifier();
-      // Level 3 requires total 900 XP (250 + 650)
-      notifier.addXP(1000);
+      // Level 3 requires total 4750 XP (1250 + 3500)
+      notifier.addXP(5000);
       expect(notifier.state.level, equals(3));
 
       final branch3 = BranchModel.getAllBranches().firstWhere((b) => b.id == 'branch_3');
@@ -89,18 +89,18 @@ void main() {
     });
 
     test('Calibrated XP curve adheres to non-grindy, psychologically balanced thresholds', () {
-      expect(PlayerSkills.requiredXpForLevel(1), equals(250));
-      expect(PlayerSkills.requiredXpForLevel(2), equals(650));
-      expect(PlayerSkills.requiredXpForLevel(3), equals(1400));
-      expect(PlayerSkills.requiredXpForLevel(4), equals(2800));
+      expect(PlayerSkills.requiredXpForLevel(1), equals(1250));
+      expect(PlayerSkills.requiredXpForLevel(2), equals(3500));
+      expect(PlayerSkills.requiredXpForLevel(3), equals(8000));
+      expect(PlayerSkills.requiredXpForLevel(4), equals(15000));
 
-      final skills = PlayerSkills(xp: 250);
+      final skills = PlayerSkills(xp: 1250);
       expect(skills.currentLevel, equals(2));
 
-      final skillsLv3 = PlayerSkills(xp: 250 + 650);
+      final skillsLv3 = PlayerSkills(xp: 1250 + 3500);
       expect(skillsLv3.currentLevel, equals(3));
 
-      final skillsLv4 = PlayerSkills(xp: 250 + 650 + 1400);
+      final skillsLv4 = PlayerSkills(xp: 1250 + 3500 + 8000);
       expect(skillsLv4.currentLevel, equals(4));
     });
   });

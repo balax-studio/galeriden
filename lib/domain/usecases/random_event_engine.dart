@@ -250,7 +250,10 @@ class RandomEventEngine {
       if (unseen.isNotEmpty) {
         return unseen[_random.nextInt(unseen.length)];
       }
-    } catch (_) {}
+    } catch (e) {
+      // ignore: avoid_print
+      print('RandomEventEngine error: $e');
+    }
 
     if (candidates.isEmpty) return null;
     return candidates[_random.nextInt(candidates.length)];

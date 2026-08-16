@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -115,6 +116,7 @@ class GameCoreNotifier extends GameBaseNotifier
         saveState();
         return;
       } catch (e) {
+        debugPrint('GameCoreProvider save load error: $e');
         // Fallback: Clear corrupted storage key if load fails
         await prefs.remove(_storageKey);
       }

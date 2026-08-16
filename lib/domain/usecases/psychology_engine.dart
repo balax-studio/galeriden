@@ -16,6 +16,13 @@ class PsychologyEngine {
       '5 farklı galerici bu aracı inceliyor',
       'Piyasa değerinin altında kaçırılmayacak fırsat!',
       'Bugün eklenen en kelepir araç',
+      'Telefonum hiç susmuyor, elini çabuk tut!',
+      'Az önce biri aradı, yola çıktı gelmek üzere.',
+      'Favoriye alan 50 kişi var, herkes tetikte.',
+      'Bu fiyata bu temizlikte bir daha zor bulursun.',
+      'Galericiler sitesinde bugünün en çok tıklananı.',
+      'Başka bir müşteri kredi bekliyor, nakitse hemen senin!',
+      'Şu an yan dükkandan bir usta bakmaya geldi.',
     ];
     return texts[_random.nextInt(texts.length)];
   }
@@ -24,9 +31,15 @@ class PsychologyEngine {
   static String getSuspenseNegotiationText() {
     final texts = [
       'Alıcı bütçesini zorluyor, cevap bekleniyor...',
-      'Eşiyle istişare ediyor...',
+      'Eşiyle istişare ediyor, onay çıkmak üzere...',
       'Kredi onayını bekliyor, eli kulağında!',
       'Usta ekspertiz raporunu tekrar okuyor...',
+      'Kafasındaki rakamı toparlamaya çalışıyor...',
+      'Telefonda babasıyla arabanın durumunu tartışıyor...',
+      'Diğer galerideki araçla bunu kıyaslıyor...',
+      'Son bir kez kaportayı gözden geçiriyor...',
+      'Bankayı arayıp limitini soruyor...',
+      'Biraz sessizleşti, hesap makinesinde bir şeyler hesaplıyor...',
     ];
     return texts[_random.nextInt(texts.length)];
   }

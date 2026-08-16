@@ -282,5 +282,12 @@ class GameConstants {
     {'name': 'Galeriden Takaslı', 'trait': 'Pazarlığa açık, kar marjı makul', 'urgency': 'medium'},
     {'name': 'İlk Sahibinden Borçtan', 'trait': 'Fiyat esnek, tamire ihtiyacı var', 'urgency': 'high'},
     {'name': 'Koleksiyoner', 'trait': 'Fiyatı yüksek tutar, araç temizdir', 'urgency': 'low'},
+    {'name': 'Memurdan Sigara İçilmemiş', 'trait': 'Bakımları tam, fiyatta inatçı', 'urgency': 'medium'},
+    {'name': 'Yurt Dışına Çıkacağı İçin', 'trait': 'Zamanı dar, nakit arıyor', 'urgency': 'high'},
+    {'name': 'Keyfe Keder Satılık', 'trait': 'Satmaya niyeti yok, piyasa yokluyor', 'urgency': 'low'},
+    {'name': 'Öğretmenden Servis Bakımlı', 'trait': 'Dürüst, masrafı az', 'urgency': 'medium'},
+    {'name': 'Askerden Dönüş Aciliyetli', 'trait': 'Nakit paraya sıkışmış, hızlı satış', 'urgency': 'high'},
+    {'name': 'Müteahhitten Takaslı', 'trait': 'Üste para alacağı araç arıyor', 'urgency': 'medium'},
+    {'name': 'Ev Alacağı İçin Satılık', 'trait': 'Acil peşinat lazım, fiyatta kırar', 'urgency': 'high'},
   ];
 }

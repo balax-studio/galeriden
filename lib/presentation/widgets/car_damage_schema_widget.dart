@@ -37,15 +37,16 @@ class CarDamageSchemaWidget extends StatelessWidget {
         const SizedBox(height: 14),
 
         // Interactive 2D Top-Down Vehicle Diagram Grid
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: p.surfaceColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: p.surfaceBorderColor),
-          ),
-          child: Column(
-            children: [
+        RepaintBoundary(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: p.surfaceColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: p.surfaceBorderColor),
+            ),
+            child: Column(
+              children: [
               // FRONT: Hood (Kaput) & Front Fenders
               IntrinsicHeight(
                 child: Row(
@@ -142,9 +143,10 @@ class CarDamageSchemaWidget extends StatelessWidget {
             ],
           ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   Widget _buildPartBox(String label, PartStatus? status, ThemePaletteModel p, {double minHeight = 46, bool isHighlight = false}) {
     Color statusColor;

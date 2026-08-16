@@ -53,6 +53,19 @@ class FraudInspectionResult {
 class NegotiationEngine {
   static final Random _random = Random();
 
+  /// Calculates success probability based on asking price, offered price, and player negotiation skill level
+  static int calculateMarketplaceBuyerSuccessChance({
+    required double askingPrice,
+    required double offeredPrice,
+    required int negotiationSkillLevel,
+  }) {
+    if (offeredPrice >= askingPrice) return 100;
+    final discountPercent = ((askingPrice - offeredPrice) / askingPrice) * 100;
+    final double baseChance = 100.0 - (discountPercent * 5.2);
+    final double skillBonus = negotiationSkillLevel * 4.0;
+    return (baseChance + skillBonus).clamp(5.0, 98.0).round();
+  }
+
   /// Evaluates whether a customer inspects player's listing and catches fraud/misleading claims
   static FraudInspectionResult evaluatePlayerFraudInspection({
     required CarModel car,
@@ -295,17 +308,66 @@ class NegotiationEngine {
     );
   }
 
-  /// Process counter-offer from player to buyer with 4 strategic approaches
+  /// Calculates dynamic negotiation price ceiling multiplier based on vehicle & buyer profile (§1.1)
+  static double getDynamicCeilingMultiplier(CarModel car, {OfferModel? offer}) {
+    if (car.isRare || car.isBarnFind) return 1.65;
+    if (offer?.buyerCustomer?.archetype == CustomerArchetype.impatientYouth) return 1.45;
+    if (car.plateRarity == 'legendary' || car.colorRarity == 'legendary') return 1.45;
+    if (offer?.buyerName.contains('Sözleşme') == true || offer?.buyerName.contains('İhale') == true) return 1.40;
+    if (car.isPolished && car.isWashed) return 1.30;
+    return 1.25;
+  }
+
+  /// Executes interactive esnaf tactics (§2.4 / Q14)
+  static Map<String, dynamic> executeEsnafAction({
+    required String actionType,
+    required double currentOffer,
+    required double askingPrice,
+    required int negotiationSkillLevel,
+  }) {
+    switch (actionType) {
+      case 'cay_soyle':
+        return {
+          'success': true,
+          'bonusChance': 10 + (negotiationSkillLevel * 2),
+          'message': 'Sıcak tavşankanı çay ikram edildi! Satıcının yumuşamasıyla ikna şansı +%${10 + (negotiationSkillLevel * 2)} arttı.',
+        };
+      case 'sigara_yak':
+        return {
+          'success': true,
+          'bonusChance': 12 + negotiationSkillLevel,
+          'message': 'Ağır esnaf tavrıyla sigara yakıldı. Tok duruşun sayesinde satıcının direnci kırıldı! (+%${12 + negotiationSkillLevel})',
+        };
+      case 'ortak_arayayim':
+        final shiftAmount = (askingPrice - currentOffer) * 0.40;
+        final newShiftedPrice = (currentOffer + shiftAmount).roundToDouble();
+        return {
+          'success': true,
+          'bonusChance': 15,
+          'priceShift': newShiftedPrice,
+          'message': 'Ortağa danışıldı ve "Tamamdır usta, ortak onay verdi" denildi. Teklif yukarı çekildi!',
+        };
+      default:
+        return {
+          'success': false,
+          'bonusChance': 0,
+          'message': 'Bilinmeyen esnaf taktiği.',
+        };
+    }
+  }
+
+  /// Process counter-offer from player to buyer with strategic esnaf approaches (§1.1 & §2.4)
   static NegotiationOutcome evaluateCounterOffer({
     required OfferModel currentOffer,
     required double playerTargetPrice,
     required CarModel car,
     required int negotiationSkillLevel,
-    String? strategy, // 'ikna_et', 'duyguya_oyna', 'sert_dur', 'hizli_kapat'
+    String? strategy, // 'ikna_et', 'duyguya_oyna', 'sert_dur', 'hizli_kapat', 'cay_soyle', 'sigara_yak', 'ortak_arayayim'
   }) {
     final double previousOffer = currentOffer.offeredAmount;
     final double carRealValue = car.estimatedRealValue;
     final customer = currentOffer.buyerCustomer;
+    final double maxCeiling = getDynamicCeilingMultiplier(car, offer: currentOffer);
 
     // Strategy Bonus Modifier
     double strategyBonus = 0.0;
@@ -336,6 +398,17 @@ class NegotiationEngine {
     } else if (strategy == 'hizli_kapat') {
       // Fast closure discount
       strategyBonus += 0.22;
+    } else if (strategy == 'cay_soyle') {
+      // Esnaf Çayı: +10% alıcı toleransı, masadan kalkma riskini düşürür (§2.4)
+      strategyBonus += 0.14;
+      walkawayModifier -= 0.15;
+    } else if (strategy == 'sigara_yak') {
+      // Ağırdan Al & Sigara Yak: Tok satıcı duruşu
+      strategyBonus += 0.16;
+      walkawayModifier += 0.05;
+    } else if (strategy == 'ortak_arayayim') {
+      // Ortağa Danışma: Fiyatı yukarı çeker
+      strategyBonus += 0.18;
     }
 
     // Skill boost: +3% acceptance probability per skill level
@@ -378,8 +451,8 @@ class NegotiationEngine {
     final nearMissDiff = (playerTargetPrice - previousOffer).abs().toInt();
     final diffFormatted = '₺${nearMissDiff.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
 
-    // Check walkaway threshold
-    if (diffRatio > 0.40 || playerTargetPrice > carRealValue * 1.30) {
+    // Check walkaway threshold adjusted by dynamic ceiling
+    if (diffRatio > 0.50 || playerTargetPrice > carRealValue * (maxCeiling + 0.10)) {
       return NegotiationOutcome(
         updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
         responseMessage: 'Alıcı $diffFormatted fark yüzünden masadan kalktı! ("Bu paraya bayiden sıfırını alırım")',
@@ -388,7 +461,7 @@ class NegotiationEngine {
       );
     }
 
-    if (diffRatio > (0.25 - walkawayModifier) || playerTargetPrice > carRealValue * 1.15) {
+    if (diffRatio > (0.30 - walkawayModifier) || playerTargetPrice > carRealValue * maxCeiling) {
       if (_random.nextDouble() > (0.15 + skillBonus)) {
         return NegotiationOutcome(
           updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
@@ -402,9 +475,9 @@ class NegotiationEngine {
     // Buyer makes a middle counter-offer
     double buyerNewOffer = (previousOffer + (playerTargetPrice - previousOffer) * (0.45 + _random.nextDouble() * 0.20 + skillBonus)).roundToDouble();
     
-    // HARD CAP: Buyer will NEVER offer more than 115% of the car's real value
-    if (buyerNewOffer > carRealValue * 1.15) {
-      buyerNewOffer = (carRealValue * 1.15).roundToDouble();
+    // Dynamic Ceiling constraint (§1.1)
+    if (buyerNewOffer > carRealValue * maxCeiling) {
+      buyerNewOffer = (carRealValue * maxCeiling).roundToDouble();
     }
     int newCount = currentOffer.counterCount + 1;
 

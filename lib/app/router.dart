@@ -14,6 +14,7 @@ import '../presentation/screens/auction/auction_screen.dart';
 import '../presentation/screens/branch/branch_screen.dart';
 import '../presentation/screens/character/character_growth_screen.dart';
 
+import '../presentation/screens/city_map/district_market_screen.dart';
 import '../presentation/screens/settings/dealership_identity_screen.dart';
 import '../presentation/screens/settings/theme_store_screen.dart';
 import '../presentation/screens/staff/staff_screen.dart';
@@ -31,6 +32,9 @@ import '../presentation/screens/staff/staff_academy_screen.dart';
 import '../presentation/screens/branch/showroom_decor_screen.dart';
 import '../presentation/screens/scrapyard/scrapyard_screen.dart';
 import '../presentation/screens/black_market/black_market_screen.dart';
+import '../presentation/screens/gossip/industry_gossip_screen.dart';
+import '../presentation/screens/consignment/consignment_screen.dart';
+import '../presentation/screens/night_market/night_market_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
   return CupertinoPage(
@@ -53,8 +57,24 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) => _buildCupertinoPage(const ScrapyardScreen(), state),
     ),
     GoRoute(
+      path: '/districts',
+      pageBuilder: (context, state) => _buildCupertinoPage(const DistrictMarketScreen(), state),
+    ),
+    GoRoute(
       path: '/black-market',
       pageBuilder: (context, state) => _buildCupertinoPage(const BlackMarketScreen(), state),
+    ),
+    GoRoute(
+      path: '/gossip',
+      pageBuilder: (context, state) => _buildCupertinoPage(const IndustryGossipScreen(), state),
+    ),
+    GoRoute(
+      path: '/consignment',
+      pageBuilder: (context, state) => _buildCupertinoPage(const ConsignmentScreen(), state),
+    ),
+    GoRoute(
+      path: '/night-market',
+      pageBuilder: (context, state) => _buildCupertinoPage(const NightMarketScreen(), state),
     ),
     GoRoute(
       path: '/tuning-studio',

@@ -38,6 +38,19 @@ class CarModel {
   final String listingTone;
   final bool hideDamagedPhotos;
   final bool hasNonOriginalParts;
+  final String plateNumber;
+  final String plateRarity; // 'standard', 'repeated', 'symmetric', 'legendary'
+  final String colorRarity; // 'standard', 'rare', 'legendary'
+  final String colorDisplayName;
+  final int barnFindStage; // 0..5 (5 = completely restored)
+  final bool isBarnFindOriginalParts; // All original salvage/OEM parts used
+  final bool hasGloveboxSearched;
+  final String? gloveboxItem;
+  final String carSpirit; // 'normal', 'lucky', 'cursed', 'loyal', 'cranky', 'legendary'
+  final bool isConsignment; // Consignment vehicle owned by NPC (§4.6.1)
+  final double consignmentCommissionRate; // Gallery cut percentage (e.g. 0.12 = %12)
+  final String? consignmentOwnerName;
+  final int consignmentDaysRemaining; // Expires in 14 days if not sold
 
   CarModel({
     required this.id,
@@ -71,6 +84,19 @@ class CarModel {
     this.listingTone = 'standard',
     this.hideDamagedPhotos = false,
     this.hasNonOriginalParts = false,
+    this.plateNumber = '34 GAL 1923',
+    this.plateRarity = 'standard',
+    this.colorRarity = 'standard',
+    this.colorDisplayName = 'Standart Boya',
+    this.barnFindStage = 0,
+    this.isBarnFindOriginalParts = false,
+    this.hasGloveboxSearched = false,
+    this.gloveboxItem,
+    this.carSpirit = 'normal',
+    this.isConsignment = false,
+    this.consignmentCommissionRate = 0.10,
+    this.consignmentOwnerName,
+    this.consignmentDaysRemaining = 14,
   }) : modelName = sanitizeModelName(brand, modelName);
 
   /// Strips redundant brand name prefixes if present (e.g. 'Merso G-63' with brand 'Merso' -> 'G-63')
@@ -92,6 +118,50 @@ class CarModel {
 
   /// True if vehicle has received interior and upholstery steam detailing
   bool get isInteriorCleaned => appliedDetailingOptionIds.contains('interior_detailing');
+
+  /// Net estimated profit comparing listing price (or fair value) to purchase price
+  double get netEstimatedProfit => listingPrice - currentPurchasePrice;
+
+  /// Net profit margin percentage
+  double get profitMarginPercent {
+    if (currentPurchasePrice <= 0) return 0.0;
+    return ((listingPrice - currentPurchasePrice) / currentPurchasePrice) * 100.0;
+  }
+
+  /// Profit heat color indicator status: 'green' (>25%), 'yellow' (10-25%), 'orange' (0-10%), 'red' (loss)
+  String get profitHeatStatus {
+    final margin = profitMarginPercent;
+    if (margin > 25.0) return 'green';
+    if (margin >= 10.0) return 'yellow';
+    if (margin >= 0.0) return 'orange';
+    return 'red';
+  }
+
+  /// Plate bonus multiplier
+  double get plateValueMultiplier {
+    switch (plateRarity) {
+      case 'legendary':
+        return 1.35; // +35% value
+      case 'symmetric':
+        return 1.12; // +12% value
+      case 'repeated':
+        return 1.08; // +8% value
+      default:
+        return 1.0;
+    }
+  }
+
+  /// Rare color bonus multiplier
+  double get colorValueMultiplier {
+    switch (colorRarity) {
+      case 'legendary':
+        return 1.18; // +18% value
+      case 'rare':
+        return 1.05; // +5% value
+      default:
+        return 1.0;
+    }
+  }
 
   /// Alias for currentPurchasePrice to prevent runtime NoSuchMethodError
   @pragma('vm:entry-point')
@@ -164,10 +234,19 @@ class CarModel {
       factor -= 0.05;
     }
 
+    // Plate & Color value multipliers
+    factor *= plateValueMultiplier;
+    factor *= colorValueMultiplier;
+
     if (isBarnFind && !isBarnFindRestored) {
-      factor = factor.clamp(0.20, 0.45);
+      // Partially restored bonus per stage
+      final stageFactor = 0.20 + (barnFindStage * 0.05); // 0.20 up to 0.45
+      factor = factor.clamp(0.20, stageFactor);
     } else if (isBarnFind && isBarnFindRestored) {
       factor += 0.40; // Restored classic gem
+      if (isBarnFindOriginalParts) {
+        factor += 0.25; // Numaratör Orijinal bonus (§4.3)
+      }
     }
 
     return (baseMarketValue * factor).clamp(baseMarketValue * 0.2, baseMarketValue * 2.5);
@@ -206,6 +285,19 @@ class CarModel {
       'listingTone': listingTone,
       'hideDamagedPhotos': hideDamagedPhotos,
       'hasNonOriginalParts': hasNonOriginalParts,
+      'plateNumber': plateNumber,
+      'plateRarity': plateRarity,
+      'colorRarity': colorRarity,
+      'colorDisplayName': colorDisplayName,
+      'barnFindStage': barnFindStage,
+      'isBarnFindOriginalParts': isBarnFindOriginalParts,
+      'hasGloveboxSearched': hasGloveboxSearched,
+      'gloveboxItem': gloveboxItem,
+      'carSpirit': carSpirit,
+      'isConsignment': isConsignment,
+      'consignmentCommissionRate': consignmentCommissionRate,
+      'consignmentOwnerName': consignmentOwnerName,
+      'consignmentDaysRemaining': consignmentDaysRemaining,
     };
   }
 
@@ -249,10 +341,29 @@ class CarModel {
       listingTone: json['listingTone'] as String? ?? 'standard',
       hideDamagedPhotos: json['hideDamagedPhotos'] as bool? ?? false,
       hasNonOriginalParts: json['hasNonOriginalParts'] as bool? ?? false,
+      plateNumber: json['plateNumber'] as String? ?? '34 GAL 1923',
+      plateRarity: json['plateRarity'] as String? ?? 'standard',
+      colorRarity: json['colorRarity'] as String? ?? 'standard',
+      colorDisplayName: json['colorDisplayName'] as String? ?? 'Standart Boya',
+      barnFindStage: json['barnFindStage'] as int? ?? 0,
+      isBarnFindOriginalParts: json['isBarnFindOriginalParts'] as bool? ?? false,
+      hasGloveboxSearched: json['hasGloveboxSearched'] as bool? ?? false,
+      gloveboxItem: json['gloveboxItem'] as String?,
+      carSpirit: json['carSpirit'] as String? ?? 'normal',
+      isConsignment: json['isConsignment'] as bool? ?? false,
+      consignmentCommissionRate: (json['consignmentCommissionRate'] as num?)?.toDouble() ?? 0.10,
+      consignmentOwnerName: json['consignmentOwnerName'] as String?,
+      consignmentDaysRemaining: json['consignmentDaysRemaining'] as int? ?? 14,
     );
   }
 
   CarModel copyWith({
+    String? id,
+    String? brand,
+    String? modelName,
+    int? modelYear,
+    String? bodyType,
+    String? colorHex,
     double? baseMarketValue,
     double? currentPurchasePrice,
     bool? isDetailedCleaned,
@@ -279,14 +390,27 @@ class CarModel {
     String? listingTone,
     bool? hideDamagedPhotos,
     bool? hasNonOriginalParts,
+    String? plateNumber,
+    String? plateRarity,
+    String? colorRarity,
+    String? colorDisplayName,
+    int? barnFindStage,
+    bool? isBarnFindOriginalParts,
+    bool? hasGloveboxSearched,
+    String? gloveboxItem,
+    String? carSpirit,
+    bool? isConsignment,
+    double? consignmentCommissionRate,
+    String? consignmentOwnerName,
+    int? consignmentDaysRemaining,
   }) {
     return CarModel(
-      id: id,
-      brand: brand,
-      modelName: modelName,
-      modelYear: modelYear,
-      bodyType: bodyType,
-      colorHex: colorHex,
+      id: id ?? this.id,
+      brand: brand ?? this.brand,
+      modelName: modelName ?? this.modelName,
+      modelYear: modelYear ?? this.modelYear,
+      bodyType: bodyType ?? this.bodyType,
+      colorHex: colorHex ?? this.colorHex,
       baseMarketValue: baseMarketValue ?? this.baseMarketValue,
       currentPurchasePrice: currentPurchasePrice ?? this.currentPurchasePrice,
       isDetailedCleaned: isDetailedCleaned ?? this.isDetailedCleaned,
@@ -312,6 +436,19 @@ class CarModel {
       listingTone: listingTone ?? this.listingTone,
       hideDamagedPhotos: hideDamagedPhotos ?? this.hideDamagedPhotos,
       hasNonOriginalParts: hasNonOriginalParts ?? this.hasNonOriginalParts,
+      plateNumber: plateNumber ?? this.plateNumber,
+      plateRarity: plateRarity ?? this.plateRarity,
+      colorRarity: colorRarity ?? this.colorRarity,
+      colorDisplayName: colorDisplayName ?? this.colorDisplayName,
+      barnFindStage: barnFindStage ?? this.barnFindStage,
+      isBarnFindOriginalParts: isBarnFindOriginalParts ?? this.isBarnFindOriginalParts,
+      hasGloveboxSearched: hasGloveboxSearched ?? this.hasGloveboxSearched,
+      gloveboxItem: gloveboxItem ?? this.gloveboxItem,
+      carSpirit: carSpirit ?? this.carSpirit,
+      isConsignment: isConsignment ?? this.isConsignment,
+      consignmentCommissionRate: consignmentCommissionRate ?? this.consignmentCommissionRate,
+      consignmentOwnerName: consignmentOwnerName ?? this.consignmentOwnerName,
+      consignmentDaysRemaining: consignmentDaysRemaining ?? this.consignmentDaysRemaining,
     );
   }
 }

@@ -20,26 +20,26 @@ void main() {
       container.dispose();
     });
 
-    test('1. calculateDynamicListingCount scales with player level and respects [4, 14] bounds', () {
-      // Level 1: [4, 8]
+    test('1. calculateDynamicListingCount scales with player level and respects [20, 70] bounds', () {
+      // Level 1: [20, 40]
       for (int i = 0; i < 20; i++) {
         final countLv1 = MarketEngine.calculateDynamicListingCount(playerLevel: 1);
-        expect(countLv1, greaterThanOrEqualTo(4));
-        expect(countLv1, lessThanOrEqualTo(8));
+        expect(countLv1, greaterThanOrEqualTo(20));
+        expect(countLv1, lessThanOrEqualTo(40));
       }
 
-      // Level 3: [6, 11]
+      // Level 3: [30, 55]
       for (int i = 0; i < 20; i++) {
         final countLv3 = MarketEngine.calculateDynamicListingCount(playerLevel: 3);
-        expect(countLv3, greaterThanOrEqualTo(6));
-        expect(countLv3, lessThanOrEqualTo(11));
+        expect(countLv3, greaterThanOrEqualTo(30));
+        expect(countLv3, lessThanOrEqualTo(55));
       }
 
-      // Level 5: [7, 14]
+      // Level 5: [35, 70]
       for (int i = 0; i < 20; i++) {
         final countLv5 = MarketEngine.calculateDynamicListingCount(playerLevel: 5);
-        expect(countLv5, greaterThanOrEqualTo(7));
-        expect(countLv5, lessThanOrEqualTo(14));
+        expect(countLv5, greaterThanOrEqualTo(35));
+        expect(countLv5, lessThanOrEqualTo(70));
       }
     });
 
@@ -58,19 +58,19 @@ void main() {
 
       // Slump trend should produce lower or equal min bounds
       final countSlump = MarketEngine.calculateDynamicListingCount(playerLevel: 1, trend: slumpTrend);
-      expect(countSlump, greaterThanOrEqualTo(4));
-      expect(countSlump, lessThanOrEqualTo(8));
+      expect(countSlump, greaterThanOrEqualTo(20));
+      expect(countSlump, lessThanOrEqualTo(40));
 
       // Boom trend should produce higher counts
       final countBoom = MarketEngine.calculateDynamicListingCount(playerLevel: 5, trend: boomTrend);
-      expect(countBoom, greaterThanOrEqualTo(8));
-      expect(countBoom, lessThanOrEqualTo(14));
+      expect(countBoom, greaterThanOrEqualTo(35));
+      expect(countBoom, lessThanOrEqualTo(70));
     });
 
     test('3. generateRandomListings defaults to dynamic count when count parameter is omitted', () {
       final defaultListings = MarketEngine.generateRandomListings(playerLevel: 2);
-      expect(defaultListings.length, greaterThanOrEqualTo(4));
-      expect(defaultListings.length, lessThanOrEqualTo(14));
+      expect(defaultListings.length, greaterThanOrEqualTo(20));
+      expect(defaultListings.length, lessThanOrEqualTo(70));
     });
 
     test('4. MarketNotifier refreshMarket and partialRefresh organically adapt pool size', () {
@@ -79,15 +79,15 @@ void main() {
       // Initial refresh
       notifier.refreshMarket();
       final initialCount = container.read(marketProvider).length;
-      expect(initialCount, greaterThanOrEqualTo(4));
-      expect(initialCount, lessThanOrEqualTo(14));
+      expect(initialCount, greaterThanOrEqualTo(20));
+      expect(initialCount, lessThanOrEqualTo(70));
 
       // Partial refresh shifts listings while preserving safety bounds
       for (int i = 0; i < 5; i++) {
         notifier.partialRefresh();
         final currentCount = container.read(marketProvider).length;
-        expect(currentCount, greaterThanOrEqualTo(4), reason: 'Market pool must never fall below minimum 4 listings');
-        expect(currentCount, lessThanOrEqualTo(14), reason: 'Market pool must never exceed maximum 14 listings');
+        expect(currentCount, greaterThanOrEqualTo(20), reason: 'Market pool must never fall below minimum 20 listings');
+        expect(currentCount, lessThanOrEqualTo(70), reason: 'Market pool must never exceed maximum 70 listings');
       }
     });
   });

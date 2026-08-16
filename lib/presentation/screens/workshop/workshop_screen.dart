@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/services/ad_service.dart';
@@ -9,9 +8,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
-import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
-import '../../../data/models/part_order_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../providers/game_provider.dart';
@@ -21,6 +18,9 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import 'widgets/animated_order_card.dart';
+import 'widgets/barn_find_restoration_sheet.dart';
+import 'widgets/order_parts_sheet.dart';
+import 'widgets/repair_tier_selection_sheet.dart';
 import 'widgets/workshop_equipment_tile.dart';
 import 'widgets/workshop_repair_tile.dart';
 
@@ -270,6 +270,19 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             ),
                           ],
                         ),
+                        if (_selectedCar!.isBarnFind) ...[
+                          const SizedBox(height: 10),
+                          NeoBrutalButton(
+                            label: '5-AŞAMALI RESTORASYON MERKEZİ (Aşama: ${_selectedCar!.barnFindStage}/5)',
+                            icon: Icons.auto_fix_high_rounded,
+                            backgroundColor: const Color(0xFFA855F7),
+                            textColor: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            fullWidth: true,
+                            onPressed: () => BarnFindRestorationSheet.show(context, _selectedCar!),
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         NeoBrutalButton(
                           label: 'YEDEK PARÇA SİPARİŞİ VER (OEM / Hurda / Yan Sanayi)',
@@ -278,7 +291,31 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           textColor: Colors.black,
                           fontSize: 11,
                           fullWidth: true,
-                          onPressed: () => _showOrderPartsSheet(context, _selectedCar!, game, isDark),
+                          onPressed: () => OrderPartsSheet.show(
+                            context: context,
+                            car: _selectedCar!,
+                            game: game,
+                            onOrderConfirmed: (partName, type, cost, durationSeconds) {
+                              if (game.balance < cost) {
+                                NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekli.');
+                                return;
+                              }
+                              final success = ref.read(gameProvider.notifier).orderPart(
+                                carId: _selectedCar!.id,
+                                partName: partName,
+                                orderType: type,
+                                cost: cost,
+                                deliveryDurationSeconds: durationSeconds,
+                              );
+                              if (success) {
+                                NotificationService.showSuccess(
+                                  context,
+                                  '$partName siparişi kargoya verildi! (${durationSeconds}s içinde teslim edilecek)',
+                                );
+                                setState(() {});
+                              }
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -375,11 +412,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           isDark: isDark,
                           isRepaired: isEngineRepaired,
                           disabledLabel: 'KUSURSUZ',
-                          onRepair: () => _showTierSelectionDialog(
+                          onRepair: () => RepairTierSelectionSheet.show(
                             context: context,
                             car: _selectedCar!,
                             repairType: 'engine',
                             baseCost: 18500.0,
+                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'engine', tier, cost),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -394,11 +432,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           isDark: isDark,
                           isRepaired: isTransmissionRepaired,
                           disabledLabel: 'KUSURSUZ',
-                          onRepair: () => _showTierSelectionDialog(
+                          onRepair: () => RepairTierSelectionSheet.show(
                             context: context,
                             car: _selectedCar!,
                             repairType: 'transmission',
                             baseCost: 12000.0,
+                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'transmission', tier, cost),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -413,11 +452,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           isDark: isDark,
                           isRepaired: isEcuRepaired,
                           disabledLabel: 'ARIZA YOK',
-                          onRepair: () => _showTierSelectionDialog(
+                          onRepair: () => RepairTierSelectionSheet.show(
                             context: context,
                             car: _selectedCar!,
                             repairType: 'ecu',
                             baseCost: 4500.0,
+                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'ecu', tier, cost),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -432,11 +472,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           isDark: isDark,
                           isRepaired: isBodyworkRepaired,
                           disabledLabel: 'KUSURSUZ',
-                          onRepair: () => _showTierSelectionDialog(
+                          onRepair: () => RepairTierSelectionSheet.show(
                             context: context,
                             car: _selectedCar!,
                             repairType: 'bodywork',
                             baseCost: 22000.0 * paintCostMultiplier,
+                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'bodywork', tier, cost),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -451,11 +492,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           isDark: isDark,
                           isRepaired: isChassisRepaired,
                           disabledLabel: 'ŞASİ DÜZGÜN',
-                          onRepair: () => _showTierSelectionDialog(
+                          onRepair: () => RepairTierSelectionSheet.show(
                             context: context,
                             car: _selectedCar!,
                             repairType: 'chassis',
                             baseCost: 45000.0,
+                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'chassis', tier, cost),
                           ),
                         ),
                       ],
@@ -692,156 +734,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     }
   }
 
-  void _showTierSelectionDialog({
-    required BuildContext context,
-    required CarModel car,
-    required String repairType,
-    required double baseCost,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    repairType == 'engine'
-                        ? 'MOTOR USTALIK SEVİYESİ SEÇİN'
-                        : (repairType == 'transmission'
-                            ? 'ŞANZIMAN İŞÇİLİK SEVİYESİ'
-                            : (repairType == 'ecu'
-                                ? 'OBD-II BEYİN İŞÇİLİK SEVİYESİ'
-                                : (repairType == 'chassis'
-                                    ? 'ŞASİ DOĞRULTMA İŞÇİLİK SEVİYESİ'
-                                    : 'KAPORTA İŞÇİLİK SEVİYESİ'))),
-                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _buildTierOption(
-                title: 'Çırak İşi (%68 Başarı Şansı)',
-                subtitle: 'Hızlı ve ucuz onarım, ancak ayar tutturamama riski var.',
-                cost: baseCost * 0.55,
-                successRate: '%68',
-                color: const Color(0xFFFF7A00),
-                isDark: isDark,
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _executeTierRepair(car, repairType, RepairTier.apprentice, baseCost * 0.55);
-                },
-              ),
-              const SizedBox(height: 8),
-              _buildTierOption(
-                title: 'Kalfa İşi (%88 Başarı Şansı)',
-                subtitle: 'Dengeli sanayi standardı işçilik ve kaliteli parça montajı.',
-                cost: baseCost * 1.0,
-                successRate: '%88',
-                color: const Color(0xFF38BDF8),
-                isDark: isDark,
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _executeTierRepair(car, repairType, RepairTier.journeyman, baseCost * 1.0);
-                },
-              ),
-              const SizedBox(height: 8),
-              _buildTierOption(
-                title: 'Usta İşi (%100 Kesin Başarı)',
-                subtitle: 'Kusursuz işçilik, sıfır hata toleransı ile fabrika kondisyonu.',
-                cost: baseCost * 1.75,
-                successRate: '%100',
-                color: const Color(0xFF00E575),
-                isDark: isDark,
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _executeTierRepair(car, repairType, RepairTier.master, baseCost * 1.75);
-                },
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTierOption({
-    required String title,
-    required String subtitle,
-    required double cost,
-    required String successRate,
-    required Color color,
-    required bool isDark,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-            width: 2.0,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(title, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          successRate,
-                          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Colors.black),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(subtitle, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              CurrencyFormatter.formatShort(cost),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _executeTierRepair(CarModel car, String repairType, RepairTier tier, double cost) {
     final game = ref.read(gameProvider);
@@ -958,240 +851,4 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     }
   }
 
-  void _showOrderPartsSheet(BuildContext context, CarModel car, DealershipModel game, bool isDark) {
-    final parts = [
-      'Ön Kaput',
-      'Ön Tampon',
-      'Tavan',
-      'Sol Ön Kapı',
-      'Sağ Ön Kapı',
-      'Sol Çamurluk',
-      'Sağ Çamurluk',
-      'Bagaj Kapağı',
-      'Motor Bloğu & Piston',
-      'Şanzıman & Debriyaj',
-    ];
-
-    String selectedPart = parts.first;
-    OrderType selectedType = OrderType.newOemPart;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            final cost = RepairEngine.calculatePartRepairCost(car, selectedPart, selectedType);
-            final durationSeconds = selectedType == OrderType.quickPatch ? 30 : (selectedType == OrderType.masterRepair ? 60 : 120);
-
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 18,
-                right: 18,
-                top: 20,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'YEDEK PARÇA SİPARİŞİ VER',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Text('Parça Seçin:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                        width: 2.0,
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: selectedPart,
-                        isExpanded: true,
-                        dropdownColor: isDark ? const Color(0xFF1E2330) : Colors.white,
-                        items: parts.map((p) {
-                          return DropdownMenuItem(
-                            value: p,
-                            child: Text(p, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) setSheetState(() => selectedPart = val);
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text('Tedarik / Parça Kalitesi:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _buildOrderTypeTile(
-                        title: 'Geçici Yama',
-                        time: '30 sn',
-                        type: OrderType.quickPatch,
-                        selected: selectedType,
-                        isDark: isDark,
-                        onTap: () => setSheetState(() => selectedType = OrderType.quickPatch),
-                      ),
-                      const SizedBox(width: 6),
-                      _buildOrderTypeTile(
-                        title: 'Usta / Çıkma',
-                        time: '60 sn',
-                        type: OrderType.masterRepair,
-                        selected: selectedType,
-                        isDark: isDark,
-                        onTap: () => setSheetState(() => selectedType = OrderType.masterRepair),
-                      ),
-                      const SizedBox(width: 6),
-                      _buildOrderTypeTile(
-                        title: 'Sıfır OEM',
-                        time: '120 sn',
-                        type: OrderType.newOemPart,
-                        selected: selectedType,
-                        isDark: isDark,
-                        onTap: () => setSheetState(() => selectedType = OrderType.newOemPart),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Sipariş Maliyeti', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
-                            Text(CurrencyFormatter.format(cost), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
-                          ],
-                        ),
-                        Text(
-                          'Teslimat: $durationSeconds Saniye',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalOrange),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  NeoBrutalButton(
-                    label: 'SİPARİŞİ ONAYLA VE GÖNDER',
-                    icon: Icons.shopping_cart_checkout_rounded,
-                    backgroundColor: AppColors.brutalGreen,
-                    textColor: Colors.black,
-                    fullWidth: true,
-                    onPressed: () {
-                      if (game.balance < cost) {
-                        NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekli.');
-                        return;
-                      }
-
-                      final success = ref.read(gameProvider.notifier).orderPart(
-                        carId: car.id,
-                        partName: selectedPart,
-                        orderType: selectedType,
-                        cost: cost,
-                        deliveryDurationSeconds: durationSeconds,
-                      );
-
-                      Navigator.pop(ctx);
-                      if (success) {
-                        NotificationService.showSuccess(
-                          context,
-                          '$selectedPart siparişi kargoya verildi! (${durationSeconds}s içinde teslim edilecek)',
-                        );
-                        setState(() {});
-                      }
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildOrderTypeTile({
-    required String title,
-    required String time,
-    required OrderType type,
-    required OrderType selected,
-    required bool isDark,
-    required VoidCallback onTap,
-  }) {
-    final isSel = type == selected;
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-          decoration: BoxDecoration(
-            color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-              width: isSel ? 2.0 : 1.5,
-            ),
-          ),
-          child: Column(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w900,
-                  color: isSel ? Colors.black : (isDark ? Colors.white : Colors.black87),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                time,
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: isSel ? Colors.black87 : const Color(0xFF64748B),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

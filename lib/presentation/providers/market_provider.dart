@@ -78,9 +78,9 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
     }
 
     // Add dynamic number of listings to naturally expand/contract pool toward targetCount
-    int addCount = (targetCount - current.length).clamp(1, 4);
-    if (current.length + addCount < 4) {
-      addCount = 4 - current.length;
+    int addCount = (targetCount - current.length).clamp(1, 10);
+    if (current.length + addCount < 20) {
+      addCount = 20 - current.length;
     }
 
     final newListings = MarketEngine.generateRandomListings(
@@ -91,8 +91,8 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
     );
 
     final updatedList = [...current, ...newListings];
-    // Keep within safe operational bounds (4-14)
-    state = updatedList.take(14).toList();
+    // Keep within safe operational bounds (20-70)
+    state = updatedList.take(70).toList();
   }
 
   void markExpertiseCompleted(String listingId) {

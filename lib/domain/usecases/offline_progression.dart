@@ -6,13 +6,14 @@ import '../../data/models/car_model.dart';
 import 'negotiation_engine.dart';
 
 class OfflineProgression {
-  /// Calculates offline time and generates realistic simulated economic & customer activity (max 12h)
+  /// Calculates offline time and generates realistic simulated economic & customer activity (max 16h / §3.6)
   static Map<String, dynamic> processOfflineTime(
     DealershipModel dealership, {
     DateTime? currentTime,
   }) {
     final now = currentTime ?? DateTime.now();
-    final elapsedMinutes = now.difference(dealership.lastActiveTime).inMinutes.clamp(0, 720); // max 12 hours
+    // 16 hours max cap = 960 minutes (§3.6)
+    final elapsedMinutes = now.difference(dealership.lastActiveTime).inMinutes.clamp(0, 960);
     final hoursAway = (elapsedMinutes / 60).floor();
 
     if (elapsedMinutes < 2) {
@@ -27,6 +28,7 @@ class OfflineProgression {
         'netEarned': 0.0,
         'partsArrivedCount': 0,
         'newOffersCount': 0,
+        'missedOpportunities': <String>[],
         'updatedDealership': dealership.copyWith(lastActiveTime: now),
       };
     }
@@ -36,8 +38,8 @@ class OfflineProgression {
     double totalPassiveEarned = 0.0;
     double totalExpenses = 0.0;
 
-    // 1. Calculate simulated days (1 in-game day per 30-60 offline minutes)
-    final simulatedDays = (elapsedMinutes / 30).floor().clamp(1, 12);
+    // 1. Calculate simulated days (4 offline minutes = 1 in-game day / §3.6)
+    final simulatedDays = (elapsedMinutes / 4).floor().clamp(1, 240);
 
     // 2. Property Daily Burn calculation
     double propertyDailyBurn = 500.0;
@@ -52,12 +54,22 @@ class OfflineProgression {
     // 3. Staff Salaries
     double totalDailySalaries = dealership.hiredStaff.fold(0.0, (sum, s) => sum + s.dailySalary);
 
-    // 4. Side businesses passive income
+    // 4. Side businesses passive income with 60% offline baseline efficiency (§3.6)
+    // If offline > 8 hours (480 mins), economy cools down to 30% efficiency
+    final double passiveEfficiency = elapsedMinutes > 480 ? 0.30 : 0.60;
+
     double totalDailyPassive = dealership.sideBusinesses
         .where((b) => b.isOwned)
-        .fold(0.0, (sum, b) => sum + b.effectiveDailyIncome);
+        .fold(0.0, (sum, b) => sum + b.effectiveIncomeWithUtilization(
+          washedLast7Days: dealership.carsWashedLast7Days,
+          expertisesLast7Days: dealership.expertisesPerformedLast7Days,
+          listedCarsCount: dealership.ownedCars.where((c) => c.isListed).length,
+          partsRepairedLast7Days: dealership.partsRepairedLast7Days,
+          towedCarsLast7Days: dealership.towedCarsLast7Days,
+          activeRentalsCount: dealership.activeRentals.length,
+        )) * passiveEfficiency;
 
-    for (int day = 0; day < simulatedDays; day++) {
+    for (int day = 0; day < min(simulatedDays, 60); day++) {
       nextDay++;
       // Passive earnings
       newBalance += totalDailyPassive;
@@ -69,7 +81,6 @@ class OfflineProgression {
         newBalance -= dayExpense;
         totalExpenses += dayExpense;
       } else {
-        // Partial payment if funds run low
         totalExpenses += newBalance > 0 ? newBalance : 0.0;
         newBalance = max(0.0, newBalance - dayExpense);
       }
@@ -77,17 +88,17 @@ class OfflineProgression {
 
     if (newBalance < 0) newBalance = 0;
 
-    // Organic offers during absence
+    // Organic offers during absence (100% efficiency)
     int repLevel = dealership.skills.reputation;
-    int minutesPerOffer = 90;
-    if (repLevel >= 3) minutesPerOffer = 60;
-    if (repLevel >= 4) minutesPerOffer = 35;
+    int minutesPerOffer = 60;
+    if (repLevel >= 3) minutesPerOffer = 40;
+    if (repLevel >= 4) minutesPerOffer = 25;
 
     int maxOffersLimit = 8;
     if (dealership.unlockedBuildings.contains('property_tier_3')) maxOffersLimit = 12;
     if (dealership.unlockedBuildings.contains('property_tier_4')) maxOffersLimit = 16;
 
-    int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(1, 8);
+    int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(1, 10);
 
     var updatedOffers = List<OfferModel>.from(dealership.incomingOffers);
     int newOffersGenerated = 0;
@@ -98,7 +109,7 @@ class OfflineProgression {
     final hasMechanic = dealership.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
 
     if (hasWasher) {
-      updatedCars = updatedCars.map((c) => c.copyWith(isWashed: true)).toList();
+      updatedCars = updatedCars.map((c) => c.copyWith(isWashed: true, isPolished: true)).toList();
     }
     if (hasMechanic) {
       updatedCars = updatedCars.map((c) {
@@ -124,6 +135,15 @@ class OfflineProgression {
       }
     }
 
+    // 6. Generate Contextual Missed Opportunities (fair & informative / §3.6)
+    final List<String> missedOpportunities = [];
+    if (elapsedMinutes >= 180) {
+      missedOpportunities.add('Bir VIP koleksiyoner temiz Klasik araç aradı ancak galeride bulunamadın.');
+    }
+    if (elapsedMinutes >= 360 && dealership.ownedCars.any((c) => c.isStaleListing)) {
+      missedOpportunities.add('Vitrinde bekleyen ilanına bir takas müşterisi uğradı fakat temas kurulamadı.');
+    }
+
     final updatedDealership = dealership.copyWith(
       balance: newBalance,
       currentDay: nextDay,
@@ -143,6 +163,7 @@ class OfflineProgression {
       'netEarned': totalPassiveEarned - totalExpenses,
       'partsArrivedCount': 0,
       'newOffersCount': newOffersGenerated,
+      'missedOpportunities': missedOpportunities,
       'updatedDealership': updatedDealership,
     };
   }

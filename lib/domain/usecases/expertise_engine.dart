@@ -2,14 +2,95 @@ import 'dart:math';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
 
+enum ExpertiseTier {
+  gozKarari,   // Tier 0: Ücretsiz, %40 belirsizlik riski
+  sanayiUstasi, // Tier 1: %0.4 araç bedeli, %85 doğruluk
+  kurumsal,    // Tier 2: %1.2 araç bedeli, %100 kesin rapor + tramer/şasi/km
+}
+
 class ExpertiseEngine {
   static final Random _random = Random();
+
+  /// Calculates dynamic percentage-based expertise inspection fee (§1.3 / §2.3)
+  static double calculateTierFee(CarModel car, ExpertiseTier tier) {
+    final base = car.baseMarketValue;
+    switch (tier) {
+      case ExpertiseTier.gozKarari:
+        return 0.0;
+      case ExpertiseTier.sanayiUstasi:
+        // %0.4 fee (min 500 TL)
+        return max(500.0, (base * 0.004).roundToDouble());
+      case ExpertiseTier.kurumsal:
+        // %1.2 fee (min 1.500 TL)
+        return max(1500.0, (base * 0.012).roundToDouble());
+    }
+  }
 
   /// Check if player's eyeForDetail skill detects hidden defects without full expertise
   static bool detectHiddenTampering(CarModel car, int eyeForDetailLevel) {
     if (!car.expertise.isMileageTampered) return false;
     double chance = eyeForDetailLevel * 0.10; // Level 1 = 10%, Level 10 = 100%
     return _random.nextDouble() < chance;
+  }
+
+  /// Performs tiered inspection returning accuracy-adjusted report view
+  static Map<String, dynamic> performTieredInspection({
+    required CarModel car,
+    required ExpertiseTier tier,
+    int eyeForDetailLevel = 0,
+  }) {
+    final exp = car.expertise;
+    final fee = calculateTierFee(car, tier);
+    final evaluation = evaluateVehicle(car);
+
+    switch (tier) {
+      case ExpertiseTier.gozKarari:
+        // High uncertainty: Hidden chassis/tampering might not be revealed
+        final detectedTampering = detectHiddenTampering(car, eyeForDetailLevel);
+        return {
+          'tier': tier,
+          'tierTitle': 'Göz Kararı İnceleme',
+          'fee': 0.0,
+          'accuracyPercent': 45 + (eyeForDetailLevel * 5),
+          'revealedMileage': detectedTampering ? exp.mileage : (exp.isMileageTampered ? exp.mileage - 75000 : exp.mileage),
+          'isTamperingDetected': detectedTampering,
+          'isChassisVerified': false,
+          'tramerVerified': false,
+          'confidenceMessage': 'Sadece dıştan yüzeysel bakıldı. Gizli hasar veya şasi kusuru olabilir.',
+          'evaluation': evaluation,
+        };
+
+      case ExpertiseTier.sanayiUstasi:
+        // 85% accuracy
+        final detected = exp.isMileageTampered ? _random.nextDouble() < 0.85 : false;
+        return {
+          'tier': tier,
+          'tierTitle': 'Sanayi Ustası Kontrolü',
+          'fee': fee,
+          'accuracyPercent': 85,
+          'revealedMileage': exp.mileage,
+          'isTamperingDetected': detected,
+          'isChassisVerified': true,
+          'tramerVerified': false,
+          'confidenceMessage': 'Usta motor sesini dinledi, şasiye ve kaportaya baktı. Güvenilir.',
+          'evaluation': evaluation,
+        };
+
+      case ExpertiseTier.kurumsal:
+        // 100% full accuracy + Tramer + Dyno
+        return {
+          'tier': tier,
+          'tierTitle': 'Kurumsal TSE Belgeli Ekspertiz',
+          'fee': fee,
+          'accuracyPercent': 100,
+          'revealedMileage': exp.mileage,
+          'isTamperingDetected': exp.isMileageTampered,
+          'isChassisVerified': true,
+          'tramerVerified': true,
+          'confidenceMessage': 'Dyno, lift, şasi lazer ve beyin taraması yapıldı. Rapor %100 garantili.',
+          'evaluation': evaluation,
+        };
+    }
   }
 
   /// Evaluates true market value after detailed inspection

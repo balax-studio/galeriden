@@ -1,25 +1,25 @@
 import 'dart:math' as math;
-import '../../../data/models/staff_model.dart';
+import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/cheque_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/customer_review_model.dart';
+import '../../../data/models/expertise_model.dart';
+import '../../../data/models/installment_contract_model.dart';
+import '../../../data/models/mission_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/models/part_order_model.dart';
-import '../../../data/models/player_skills.dart';
 import '../../../data/models/player_achievements.dart';
+import '../../../data/models/player_skills.dart';
 import '../../../data/models/sale_record_model.dart';
-import '../../../data/models/side_business_model.dart';
-import '../../../data/models/cheque_model.dart';
-import '../../../data/models/installment_contract_model.dart';
-import '../../../data/models/stock_model.dart';
-import '../../../data/models/mission_model.dart';
 import '../../../data/models/scrapyard_model.dart';
-import '../../../data/models/black_market_car_model.dart';
-import '../../../data/models/expertise_model.dart';
+import '../../../data/models/side_business_model.dart';
+import '../../../data/models/staff_model.dart';
+import '../../../data/models/stock_model.dart';
+import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
-import '../../../domain/usecases/mission_factory.dart';
 import 'game_base_notifier.dart';
 
 mixin GameMarketMixin on GameBaseNotifier {
@@ -367,66 +367,11 @@ mixin GameMarketMixin on GameBaseNotifier {
       saleDate: DateTime.now(),
     );
 
-    double cashReceived = 0.0;
-    List<Cheque> updatedCheques = List.from(state.activeCheques);
-    List<InstallmentContract> updatedInstallments = List.from(state.activeInstallments);
+    // 1. Process payment details (Cash, Cheque, or Installment)
+    final (cashReceived, updatedCheques, updatedInstallments) = _processPayment(offer);
 
-    if (offer.offerType == OfferType.cash) {
-      cashReceived = offer.offeredAmount;
-    } else if (offer.offerType == OfferType.cheque) {
-      updatedCheques.add(Cheque(
-        id: 'cheque_${DateTime.now().millisecondsSinceEpoch}',
-        customerName: offer.buyerName,
-        amount: offer.offeredAmount,
-        daysUntilDue: 30,
-      ));
-    } else if (offer.offerType == OfferType.installment) {
-      updatedInstallments.add(InstallmentContract(
-        id: 'inst_${DateTime.now().millisecondsSinceEpoch}',
-        customerName: offer.buyerName,
-        totalAmount: offer.offeredAmount,
-        paidAmount: 0.0,
-        installmentAmount: offer.offeredAmount / 5,
-        totalInstallments: 5,
-        paidInstallments: 0,
-        daysUntilNextPayment: 30,
-      ));
-    }
-
-    // Generate Customer Review & Reputation Adjustment
-    double reviewRating = 4.5;
-    String reviewComment = 'Güvenilir esnaf, söylediği neyse o çıktı. Tavsiye ederim.';
-    int reputationChange = 3;
-
-    final isClean = car.isWashed || car.isDetailedCleaned;
-    final isGoodEngine = car.expertise.engineCondition >= 80;
-
-    if (car.declarationType == ListingDeclarationType.honest) {
-      if (isClean && isGoodEngine) {
-        reviewRating = 5.0;
-        reviewComment = 'Aracı pırıl pırıl teslim aldım. Ekspertizde sürpriz çıkmadı, elinize sağlık!';
-        reputationChange = 5;
-      } else {
-        reviewRating = 4.0;
-        reviewComment = 'Dürüst satıcı, ufak tefek masraflarını baştan belirtti. Teşekkürler.';
-        reputationChange = 2;
-      }
-    } else {
-      // Fraudulent / misleading listing
-      reviewRating = 2.0;
-      reviewComment = 'İlanda yazmayan boya ve mekanik kusurlar çıktı. Pek memnun kalmadım.';
-      reputationChange = -4;
-    }
-
-    final review = CustomerReviewModel(
-      id: 'rev_${DateTime.now().millisecondsSinceEpoch}',
-      reviewerName: offer.buyerName,
-      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}',
-      rating: reviewRating,
-      comment: reviewComment,
-      createdAt: DateTime.now(),
-    );
-
+    // 2. Generate customer review & update reputation
+    final (review, reputationChange) = _generateCustomerReview(car, offer.buyerName);
     final updatedReviews = [review, ...state.customerReviews];
     final newReputation = (state.reputationScore + reputationChange).clamp(0, 200);
 
@@ -458,6 +403,72 @@ mixin GameMarketMixin on GameBaseNotifier {
     }
 
     saveState();
+  }
+
+  (double, List<Cheque>, List<InstallmentContract>) _processPayment(OfferModel offer) {
+    double cashReceived = 0.0;
+    List<Cheque> updatedCheques = List.from(state.activeCheques);
+    List<InstallmentContract> updatedInstallments = List.from(state.activeInstallments);
+
+    if (offer.offerType == OfferType.cash) {
+      cashReceived = offer.offeredAmount;
+    } else if (offer.offerType == OfferType.cheque) {
+      updatedCheques.add(Cheque(
+        id: 'cheque_${DateTime.now().millisecondsSinceEpoch}',
+        customerName: offer.buyerName,
+        amount: offer.offeredAmount,
+        daysUntilDue: 30,
+      ));
+    } else if (offer.offerType == OfferType.installment) {
+      updatedInstallments.add(InstallmentContract(
+        id: 'inst_${DateTime.now().millisecondsSinceEpoch}',
+        customerName: offer.buyerName,
+        totalAmount: offer.offeredAmount,
+        paidAmount: 0.0,
+        installmentAmount: offer.offeredAmount / 5,
+        totalInstallments: 5,
+        paidInstallments: 0,
+        daysUntilNextPayment: 30,
+      ));
+    }
+
+    return (cashReceived, updatedCheques, updatedInstallments);
+  }
+
+  (CustomerReviewModel, int) _generateCustomerReview(CarModel car, String buyerName) {
+    double reviewRating = 4.5;
+    String reviewComment = 'Güvenilir esnaf, söylediği neyse o çıktı. Tavsiye ederim.';
+    int reputationChange = 3;
+
+    final isClean = car.isWashed || car.isDetailedCleaned;
+    final isGoodEngine = car.expertise.engineCondition >= 80;
+
+    if (car.declarationType == ListingDeclarationType.honest) {
+      if (isClean && isGoodEngine) {
+        reviewRating = 5.0;
+        reviewComment = 'Aracı pırıl pırıl teslim aldım. Ekspertizde sürpriz çıkmadı, elinize sağlık!';
+        reputationChange = 5;
+      } else {
+        reviewRating = 4.0;
+        reviewComment = 'Dürüst satıcı, ufak tefek masraflarını baştan belirtti. Teşekkürler.';
+        reputationChange = 2;
+      }
+    } else {
+      reviewRating = 2.0;
+      reviewComment = 'İlanda yazmayan boya ve mekanik kusurlar çıktı. Pek memnun kalmadım.';
+      reputationChange = -4;
+    }
+
+    final review = CustomerReviewModel(
+      id: 'rev_${DateTime.now().millisecondsSinceEpoch}',
+      reviewerName: buyerName,
+      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}',
+      rating: reviewRating,
+      comment: reviewComment,
+      createdAt: DateTime.now(),
+    );
+
+    return (review, reputationChange);
   }
 
   /// Reject an offer

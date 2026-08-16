@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
+import '../../data/models/weather_model.dart';
 import '../../data/models/theme_palette_model.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/game_provider.dart';
@@ -23,25 +25,26 @@ class GameHudHeaderWidget extends ConsumerWidget {
     final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      child: Row(
-        children: [
-          // GÜN Pill (Interactive -> Sales & Day Ledger History)
-          _buildPill(
-            context,
-            icon: Icons.calendar_month_rounded,
-            accentColor: const Color(0xFFFFB703),
-            title: 'GÜN',
-            value: '${game.currentDay}',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.push('/history');
-            },
-            isDark: isDark,
-          ),
+    return RepaintBoundary(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Row(
+          children: [
+            // GÜN Pill (Interactive -> Sales & Day Ledger History)
+            _buildPill(
+              context,
+              icon: Icons.calendar_month_rounded,
+              accentColor: const Color(0xFFFFB703),
+              title: 'GÜN',
+              value: '${game.currentDay}',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                context.push('/history');
+              },
+              isDark: isDark,
+            ),
           const SizedBox(width: 8),
 
           // MEVSİM Pill (Interactive -> Season Details & Market Multipliers)
@@ -71,19 +74,47 @@ class GameHudHeaderWidget extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
 
-          // KASA Pill (Interactive -> Finance & Banking)
+          // HAVA DURUMU Pill (Interactive -> Dynamic Weather & Market Multipliers §4.6.5)
           _buildPill(
             context,
-            icon: Icons.account_balance_wallet_rounded,
-            accentColor: const Color(0xFF00E575),
-            title: 'KASA',
-            value: CurrencyFormatter.formatShort(game.balance),
-            bold: true,
+            icon: game.currentWeather.icon,
+            accentColor: game.currentWeather == WeatherType.sunny
+                ? const Color(0xFFFBBF24)
+                : (game.currentWeather == WeatherType.rainy
+                    ? const Color(0xFF60A5FA)
+                    : (game.currentWeather == WeatherType.snowy
+                        ? const Color(0xFFE2E8F0)
+                        : const Color(0xFF94A3B8))),
+            title: 'HAVA',
+            value: game.currentWeather.displayName,
             onTap: () {
               HapticFeedback.lightImpact();
-              context.push('/finance');
+              _showWeatherInfo(context, game, isDark);
             },
             isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+
+          // KASA Pill (Interactive -> Finance & Banking with Smooth Rolling Counter §4.2)
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: game.balance, end: game.balance),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            builder: (context, animatedBalance, _) {
+              return _buildPill(
+                context,
+                icon: Icons.account_balance_wallet_rounded,
+                accentColor: const Color(0xFF00E575),
+                title: 'KASA',
+                value: CurrencyFormatter.formatShort(animatedBalance),
+                bold: true,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  context.push('/finance');
+                },
+                isDark: isDark,
+              );
+            },
           ),
           const SizedBox(width: 8),
 
@@ -164,8 +195,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showMissionsModal(BuildContext context, bool isDark, ThemePaletteModel p) {
     showDialog(
@@ -290,16 +322,15 @@ class GameHudHeaderWidget extends ConsumerWidget {
                 const SizedBox(width: 6),
                 Text(
                   '$title ',
-                  style: TextStyle(
+                  style: AppTypography.labelSmall(isDark).copyWith(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                   ),
                 ),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: AppTypography.monoSpec(isDark).copyWith(
                     fontSize: 11.5,
                     fontWeight: bold ? FontWeight.w900 : FontWeight.w800,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -380,6 +411,64 @@ class GameHudHeaderWidget extends ConsumerWidget {
               desc,
               style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : Colors.black87),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWeatherInfo(BuildContext context, DealershipModel game, bool isDark) {
+    final w = game.currentWeather;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            width: 2.0,
+          ),
+        ),
+        title: Row(
+          children: [
+            Icon(w.icon, color: AppColors.brutalYellow, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              'Hava Durumu: ${w.displayName}',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              w.flavorDescription,
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? Colors.grey.shade300 : Colors.grey.shade800),
+            ),
+            const SizedBox(height: 12),
+            _buildSeasonDemandRow('👥 Ziyaretçi Oranı', '%${(w.visitorMultiplier * 100).round()}', isDark),
+            _buildSeasonDemandRow('🧽 Oto Yıkama Talebi', '%${(w.carWashDemandMultiplier * 100).round()}', isDark),
+            _buildSeasonDemandRow('🚙 SUV / 4x4 Talebi', '%${(w.suvDemandMultiplier * 100).round()}', isDark),
+            _buildSeasonDemandRow('🏎️ Spor Araç Talebi', '%${(w.sportCarDemandMultiplier * 100).round()}', isDark),
+            _buildSeasonDemandRow('🔍 Kusur Fark Etme', '%${(w.eyeForDetailAccuracyMultiplier * 100).round()}', isDark),
+          ],
+        ),
+        actions: [
+          NeoBrutalButton(
+            label: 'TAMAM',
+            backgroundColor: AppColors.brutalYellow,
+            textColor: Colors.black,
+            fontSize: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            onPressed: () => Navigator.pop(ctx),
           ),
         ],
       ),

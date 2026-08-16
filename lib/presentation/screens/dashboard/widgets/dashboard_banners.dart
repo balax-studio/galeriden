@@ -9,6 +9,7 @@ import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/weekly_event_engine.dart';
 import '../../../providers/game_provider.dart';
+import '../../../widgets/daily_bulletin_dialog.dart';
 import '../../../widgets/floating_money_overlay.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -204,6 +205,7 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
                             : Icons.auto_awesome_rounded)))));
 
     return NeoBrutalCard(
+      onTap: () => DailyBulletinDialog.show(context),
       padding: const EdgeInsets.all(12),
       backgroundColor: isDark ? const Color(0xFF191D2B) : const Color(0xFFEFF6FF),
       borderColor: const Color(0xFF3B82F6),
