@@ -43,10 +43,18 @@ class NightMarketEngine {
     final rivalPower = rival['power'] as int;
 
     // Player power score: based on engine condition, transmission, detailing and tuning
+    int tuningHpBoost = 0;
+    if (playerCar.appliedDetailingOptionIds.contains('tune_ecu_stg2')) tuningHpBoost += 22;
+    if (playerCar.appliedDetailingOptionIds.contains('tune_ecu_stg1')) tuningHpBoost += 12;
+    if (playerCar.appliedDetailingOptionIds.contains('tune_exhaust')) tuningHpBoost += 8;
+    if (playerCar.appliedDetailingOptionIds.contains('tune_bodykit')) tuningHpBoost += 6;
+    if (playerCar.appliedDetailingOptionIds.contains('tune_air_suspension')) tuningHpBoost += 6;
+
     final playerPower = (playerCar.expertise.engineCondition * 0.40 +
             playerCar.expertise.transmissionCondition * 0.30 +
             (playerCar.isDoped ? 15 : 0) +
             (playerCar.appliedDetailingOptionIds.length * 5) +
+            tuningHpBoost +
             _random.nextInt(15))
         .toInt();
 

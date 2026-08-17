@@ -363,6 +363,8 @@ class NegotiationEngine {
     required CarModel car,
     required int negotiationSkillLevel,
     String? strategy, // 'ikna_et', 'duyguya_oyna', 'sert_dur', 'hizli_kapat', 'cay_soyle', 'sigara_yak', 'ortak_arayayim'
+    List<String> purchasedAcademyCourses = const [],
+    bool isTraderSpecialization = false,
   }) {
     final double previousOffer = currentOffer.offeredAmount;
     final double carRealValue = car.estimatedRealValue;
@@ -372,6 +374,14 @@ class NegotiationEngine {
     // Strategy Bonus Modifier
     double strategyBonus = 0.0;
     double walkawayModifier = 0.0;
+
+    // Staff Academy & Specialization Trader Perks
+    if (purchasedAcademyCourses.contains('course_sales_master')) {
+      strategyBonus += 0.10; // Personel Akademisi Satış Ustası Bonusu
+    }
+    if (isTraderSpecialization) {
+      strategyBonus += 0.15; // Tüccar Uzmanlık Bonusu
+    }
 
     if (strategy == 'ikna_et') {
       // Transparency & Expertise focus

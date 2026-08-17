@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/game_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
@@ -108,37 +110,42 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Bu aracın kaporta, motor, tramer ve kilometre orijinalliğini görmek için ₺1.500 ödeyerek detaylı test yaptırmalısın.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                  ),
-                  const SizedBox(height: 16),
                   Builder(
                     builder: (context) {
                       final discount = game.skills.expertiseCostDiscount;
                       final haydarFactor = game.hasHighNpcTrust('haydar_usta') ? 0.50 : 1.0;
-                      final fee = (1500.0 * (1.0 - discount) * haydarFactor).roundToDouble();
+                      final fee = (GameConstants.expertiseBaseCost * (1.0 - discount) * haydarFactor).roundToDouble();
                       final feeFormatted = CurrencyFormatter.format(fee);
                       final perkLabel = game.hasHighNpcTrust('haydar_usta') ? ' (Haydar Usta %50 Dost İndirimi)' : '';
-                      return NeoBrutalButton(
-                        label: 'EKSPERTİZ YAPTIR ($feeFormatted)$perkLabel',
-                        icon: Icons.fact_check_rounded,
-                        backgroundColor: AppColors.brutalYellow,
-                        textColor: Colors.black,
-                        fontSize: 12.5,
-                        fullWidth: true,
-                        onPressed: game.balance < fee
-                            ? null
-                            : () {
-                                final success = ref.read(gameProvider.notifier).performMarketExpertise(fee);
-                                if (success) {
-                                  ref.read(marketProvider.notifier).markExpertiseCompleted(widget.listing.id);
-                                  setState(() {
-                                    _isInspected = true;
-                                  });
-                                }
-                              },
+
+                      return Column(
+                        children: [
+                          Text(
+                            'Bu aracın kaporta, motor, tramer ve kilometre orijinalliğini görmek için $feeFormatted ödeyerek detaylı test yaptırmalısın.',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          ),
+                          const SizedBox(height: 16),
+                          NeoBrutalButton(
+                            label: 'EKSPERTİZ YAPTIR ($feeFormatted)$perkLabel',
+                            icon: Icons.fact_check_rounded,
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 12.5,
+                            fullWidth: true,
+                            onPressed: game.balance < fee
+                                ? null
+                                : () {
+                                    final success = ref.read(gameProvider.notifier).performMarketExpertise(fee);
+                                    if (success) {
+                                      ref.read(marketProvider.notifier).markExpertiseCompleted(widget.listing.id);
+                                      setState(() {
+                                        _isInspected = true;
+                                      });
+                                    }
+                                  },
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -239,6 +246,66 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 ),
               ],
             ),
+            if (exp.isMileageTampered) ...[
+              const SizedBox(height: 12),
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(12),
+                backgroundColor: AppColors.errorRed.withValues(alpha: 0.12),
+                borderColor: AppColors.errorRed,
+                borderRadius: 12,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.gavel_rounded, color: AppColors.errorRed, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'HUKUKİ İHTAR VE TAZMİNAT HAKKI',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Builder(
+                      builder: (context) {
+                        final compFormatted = CurrencyFormatter.format(GameConstants.notaryFraudCompensationAmount);
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Satıcı ilanda ekspertiz veya kilometre kusurunu gizlemiştir. Noter aracılığıyla yasal ihtar çekip satıcıdan $compFormatted masraf tazminatı talep edebilirsiniz.',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : const Color(0xFF334155),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            NeoBrutalButton(
+                              label: 'NOTER İHTARI ÇEK (+$compFormatted TAZMİNAT)',
+                              icon: Icons.assignment_turned_in_rounded,
+                              backgroundColor: AppColors.errorRed,
+                              textColor: Colors.white,
+                              fullWidth: true,
+                              onPressed: () {
+                                final success = ref.read(gameProvider.notifier).claimNotaryFraudCompensation(car.id);
+                                if (success) {
+                                  NotificationService.showSuccess(context, 'Noter ihtarnamesi satıcıya tebliğ edildi! $compFormatted tazminat hesabınıza aktarıldı. (+2 İtibar)');
+                                  setState(() {});
+                                } else {
+                                  NotificationService.showError(context, 'Tazminat talebi gerçekleştirilemedi.');
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
 
             // Body Part Inspection Grid

@@ -4,6 +4,7 @@ import '../../../data/models/car_model.dart';
 import '../../../data/models/cheque_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/customer_review_model.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/installment_contract_model.dart';
 import '../../../data/models/mission_model.dart';
@@ -343,9 +344,29 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (carIndex == -1) return;
 
     final car = state.ownedCars[carIndex];
-    final baseProfit = offer.offeredAmount - car.currentPurchasePrice;
-    final multiplier = state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
-    final profit = (baseProfit * multiplier).roundToDouble();
+    final isConsignment = car.isConsignment;
+    final double profit;
+    final double cashReceived;
+    final List<Cheque> updatedCheques;
+    final List<InstallmentContract> updatedInstallments;
+
+    if (isConsignment) {
+      // Konsinye Satış: Sadece komisyon kasaya girer, kâr komisyondur (kalanı araç sahibine ödenir)
+      final commRate = car.consignmentCommissionRate > 0 ? car.consignmentCommissionRate : 0.10;
+      final commissionAmount = (offer.offeredAmount * commRate).roundToDouble();
+      profit = commissionAmount;
+      cashReceived = commissionAmount;
+      updatedCheques = state.activeCheques;
+      updatedInstallments = state.activeInstallments;
+    } else {
+      final baseProfit = offer.offeredAmount - car.currentPurchasePrice;
+      final multiplier = state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
+      profit = (baseProfit * multiplier).roundToDouble();
+      final paymentResult = _processPayment(offer);
+      cashReceived = paymentResult.$1;
+      updatedCheques = paymentResult.$2;
+      updatedInstallments = paymentResult.$3;
+    }
 
     final updatedCars = state.ownedCars.where((c) => c.id != car.id).toList();
     final updatedOffers = state.incomingOffers.where((o) => o.carId != car.id).toList();
@@ -358,20 +379,25 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final record = SaleRecordModel(
       id: 'sale_${DateTime.now().millisecondsSinceEpoch}',
-      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}',
+      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}${isConsignment ? ' (Konsinye)' : ''}',
       buyerName: offer.buyerName,
-      purchasePrice: car.currentPurchasePrice,
+      purchasePrice: isConsignment ? (offer.offeredAmount - profit) : car.currentPurchasePrice,
       salePrice: offer.offeredAmount,
       netProfit: profit,
       saleDay: state.currentDay,
       saleDate: DateTime.now(),
+      isConsignment: isConsignment,
     );
 
-    // 1. Process payment details (Cash, Cheque, or Installment)
-    final (cashReceived, updatedCheques, updatedInstallments) = _processPayment(offer);
-
     // 2. Generate customer review & update reputation
-    final (review, reputationChange) = _generateCustomerReview(car, offer.buyerName);
+    final (review, rawReputationChange) = _generateCustomerReview(car, offer.buyerName);
+    
+    // Nişantaşı Vitrin Semt Hakimiyeti (%50+ ise +%20 itibar bonusu)
+    final nisantasiShare = state.districtMarketShare['Nişantaşı Vitrin'] ?? 0.0;
+    final reputationChange = (rawReputationChange > 0 && nisantasiShare >= 0.50)
+        ? (rawReputationChange * 1.2).round()
+        : rawReputationChange;
+
     final updatedReviews = [review, ...state.customerReviews];
     final newReputation = (state.reputationScore + reputationChange).clamp(0, 200);
 
@@ -443,18 +469,23 @@ mixin GameMarketMixin on GameBaseNotifier {
     final isClean = car.isWashed || car.isDetailedCleaned;
     final isGoodEngine = car.expertise.engineCondition >= 80;
 
+    final hasVipConcierge = state.purchasedAcademyCourses.contains('course_vip_concierge');
+    final hasVipLounge = state.unlockedDecorIds.contains('decor_vip_lounge');
+
     if (car.declarationType == ListingDeclarationType.honest) {
       if (isClean && isGoodEngine) {
         reviewRating = 5.0;
         reviewComment = 'Aracı pırıl pırıl teslim aldım. Ekspertizde sürpriz çıkmadı, elinize sağlık!';
-        reputationChange = 5;
+        reputationChange = 5 + (hasVipConcierge || hasVipLounge ? 2 : 0);
       } else {
-        reviewRating = 4.0;
-        reviewComment = 'Dürüst satıcı, ufak tefek masraflarını baştan belirtti. Teşekkürler.';
-        reputationChange = 2;
+        reviewRating = (hasVipConcierge || hasVipLounge) ? 4.5 : 4.0;
+        reviewComment = (hasVipConcierge || hasVipLounge)
+            ? 'VIP karşılamaları ve samimi ikramları harikaydı. Dürüst esnaf, teşekkürler.'
+            : 'Dürüst satıcı, ufak tefek masraflarını baştan belirtti. Teşekkürler.';
+        reputationChange = 2 + (hasVipConcierge ? 1 : 0);
       }
     } else {
-      reviewRating = 2.0;
+      reviewRating = (hasVipConcierge || hasVipLounge) ? 2.5 : 2.0;
       reviewComment = 'İlanda yazmayan boya ve mekanik kusurlar çıktı. Pek memnun kalmadım.';
       reputationChange = -4;
     }
@@ -504,6 +535,8 @@ mixin GameMarketMixin on GameBaseNotifier {
       car: car,
       negotiationSkillLevel: state.skills.negotiationLevel,
       strategy: strategy,
+      purchasedAcademyCourses: state.purchasedAcademyCourses,
+      isTraderSpecialization: state.specializationPath == SpecializationPath.trader,
     );
 
     List<OfferModel> updatedOffers = List.from(state.incomingOffers);
@@ -528,9 +561,22 @@ mixin GameMarketMixin on GameBaseNotifier {
   }) {
     final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);
     final isPartsDay = weeklyEvent.id == 'wednesday_parts_supply';
-    final effectiveCost = isPartsDay ? (cost * weeklyEvent.discountMultiplier) : cost;
+    final effectiveCost = orderType == OrderType.salvagedScrap
+        ? 0.0
+        : (isPartsDay ? (cost * weeklyEvent.discountMultiplier) : cost);
 
     if (state.balance < effectiveCost) return false;
+
+    // Deduct one scrap part from inventory if using salvaged scrap
+    List<SalvagedPart> updatedScrap = List.from(state.salvagedParts);
+    if (orderType == OrderType.salvagedScrap && updatedScrap.isNotEmpty) {
+      final scrapIndex = updatedScrap.indexWhere((p) => p.name.toLowerCase() == partName.toLowerCase());
+      if (scrapIndex != -1) {
+        updatedScrap.removeAt(scrapIndex);
+      } else {
+        updatedScrap.removeLast();
+      }
+    }
 
     final newOrder = PartOrderModel(
       id: 'order_${DateTime.now().millisecondsSinceEpoch}',
@@ -547,6 +593,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     state = state.copyWith(
       balance: state.balance - effectiveCost,
       pendingOrders: updatedOrders,
+      salvagedParts: updatedScrap,
     );
     saveState();
     return true;
@@ -816,6 +863,115 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     addXP(200);
+    saveState();
+    return true;
+  }
+
+  /// Müşteri yorumuna kurumsal cevap verme (+1 İtibar)
+  bool replyToCustomerReview(String reviewId, String replyText) {
+    final index = state.customerReviews.indexWhere((r) => r.id == reviewId);
+    if (index == -1) return false;
+
+    final review = state.customerReviews[index];
+    final updatedReview = review.copyWith(reply: replyText);
+
+    List<CustomerReviewModel> updatedReviews = List.from(state.customerReviews);
+    updatedReviews[index] = updatedReview;
+
+    state = state.copyWith(
+      customerReviews: updatedReviews,
+      reputationScore: (state.reputationScore + 1).clamp(0, 1000),
+    );
+    saveState();
+    return true;
+  }
+
+  /// Memnuniyetsiz müşteriye telafi kuponu / hediye gönderme (₺500, Puanı 4 yıldıza yükseltir, +3 İtibar)
+  bool compensateCustomerReview(String reviewId) {
+    const compensationCost = 500.0;
+    if (state.balance < compensationCost) return false;
+
+    final index = state.customerReviews.indexWhere((r) => r.id == reviewId);
+    if (index == -1) return false;
+
+    final review = state.customerReviews[index];
+    if (review.isCompensated) return false;
+
+    final updatedReview = review.copyWith(
+      isCompensated: true,
+      rating: review.rating < 4 ? 4 : review.rating,
+      comment: '${review.comment}\n[Güncelleme: Galeri telafi ikramı gönderdi, mağduriyetim giderildi.]',
+    );
+
+    List<CustomerReviewModel> updatedReviews = List.from(state.customerReviews);
+    updatedReviews[index] = updatedReview;
+
+    state = state.copyWith(
+      balance: state.balance - compensationCost,
+      customerReviews: updatedReviews,
+      reputationScore: (state.reputationScore + 3).clamp(0, 1000),
+    );
+    saveState();
+    return true;
+  }
+
+  /// Sosyal medya bot/PR inceleme paketi satın alma (₺2.000, 5 Yıldız, +5 İtibar)
+  bool buyBotReview() {
+    const botCost = 2000.0;
+    if (state.balance < botCost) return false;
+
+    final botNames = [
+      'Otomobil Meraklısı Can',
+      'VIP Müşteri Burak',
+      'Filo Yöneticisi Selim',
+      'Araç Gurmesi Efe',
+      'Koleksiyoner Tayfun',
+    ];
+    final botComments = [
+      'Güler yüzlü esnaflık ve şeffaf ekspertiz için teşekkürler, herkese tavsiye ederim!',
+      'Galeriden aldığımız araç kusursuz çıktı. Satış sonrası ilgi alaka harikaydı.',
+      'Sözlerinin eri bir galeri. Noter işlemleri 10 dakikada bitti, güvenle alışveriş yapabilirsiniz.',
+      'Piyasadaki en dürüst esnaflardan biri. Çaylarını içip aracımı keyifle teslim aldım.',
+    ];
+
+    final botReview = CustomerReviewModel(
+      id: 'rev_bot_${DateTime.now().millisecondsSinceEpoch}',
+      reviewerName: botNames[random.nextInt(botNames.length)],
+      carTitle: 'VIP Satış',
+      comment: botComments[random.nextInt(botComments.length)],
+      rating: 5,
+      createdAt: DateTime.now(),
+    );
+
+    state = state.copyWith(
+      balance: state.balance - botCost,
+      customerReviews: [botReview, ...state.customerReviews],
+      reputationScore: (state.reputationScore + 5).clamp(0, 1000),
+    );
+    saveState();
+    return true;
+  }
+
+  /// Gizli km düşürme veya ekspertiz sahtekarlığı tespit edildiğinde satıcıdan noter tazminatı tahsil etme
+  bool claimNotaryFraudCompensation(String carId) {
+    final index = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (index == -1) return false;
+
+    final car = state.ownedCars[index];
+    if (!car.expertise.isMileageTampered) return false;
+
+    const compensationAmount = 3500.0;
+    final updatedExpertise = car.expertise.copyWith(isMileageTampered: false);
+    final updatedCar = car.copyWith(expertise: updatedExpertise);
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[index] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance + compensationAmount,
+      ownedCars: updatedCars,
+      reputationScore: (state.reputationScore + 2).clamp(0, 1000),
+    );
     saveState();
     return true;
   }

@@ -29,6 +29,12 @@ class GameConstants {
   static const double expertiseBaseCost = 1500.0;
   static const double repairCostMultiplier = 450.0;
   static const double detailingCost = 2500.0;
+  static const double notaryFraudCompensationAmount = 3500.0;
+  static const double nightRaceEntryFee = 5000.0;
+  static const double socialMediaPrCost = 2000.0;
+  static const double customerCompensationCost = 500.0;
+  static const double dopingCost = 2500.0;
+  static const double refreshListingCost = 1500.0;
 
   // Turkish Street Slang & Sanayi Jargonu Automotive Brands
   static const List<CarBrandData> carBrands = [

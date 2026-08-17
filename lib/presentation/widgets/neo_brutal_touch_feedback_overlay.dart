@@ -126,7 +126,7 @@ class NeoBrutalTouchFeedbackOverlayState extends State<NeoBrutalTouchFeedbackOve
       child: Stack(
         fit: StackFit.passthrough,
         children: [
-          widget.child,
+          RepaintBoundary(child: widget.child),
           if (_activeParticles.isNotEmpty)
             Positioned.fill(
               child: IgnorePointer(

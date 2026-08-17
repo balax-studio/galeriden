@@ -78,8 +78,28 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cost = RepairEngine.calculatePartRepairCost(widget.car, _selectedPart, _selectedType);
-    final durationSeconds = _selectedType == OrderType.quickPatch ? 30 : (_selectedType == OrderType.masterRepair ? 60 : 120);
+
+    // Calculate dynamic discount from perks
+    double discountFactor = 1.0;
+    if ((widget.game.districtMarketShare['İkitelli Sanayi'] ?? 0.0) >= 0.50) {
+      discountFactor *= 0.85; // İkitelli Sanayi %15 İndirim
+    }
+    if (widget.game.purchasedAcademyCourses.contains('course_mechanic_master')) {
+      discountFactor *= 0.90; // Personel Akademisi Usta İndirimi %10
+    }
+    if (widget.game.specializationPath == SpecializationPath.restorer) {
+      discountFactor *= 0.80; // Restoratör Usta Sınıf Bonusu %20
+    }
+
+    final cost = RepairEngine.calculatePartRepairCost(widget.car, _selectedPart, _selectedType, discountFactor: discountFactor);
+
+    // Duration calculation (Academy mechanic master speeds up by 30%)
+    final baseDuration = _selectedType == OrderType.quickPatch ? 30 : (_selectedType == OrderType.masterRepair ? 60 : (_selectedType == OrderType.salvagedScrap ? 20 : 120));
+    final durationSeconds = widget.game.purchasedAcademyCourses.contains('course_mechanic_master')
+        ? (baseDuration * 0.70).round()
+        : baseDuration;
+
+    final hasScrapParts = widget.game.salvagedParts.isNotEmpty;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -140,6 +160,17 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
           const SizedBox(height: 8),
           Row(
             children: [
+              if (hasScrapParts) ...[
+                _buildOrderTypeTile(
+                  title: 'Çıkma Depo',
+                  time: '$durationSeconds sn (₺0)',
+                  type: OrderType.salvagedScrap,
+                  selected: _selectedType,
+                  isDark: isDark,
+                  onTap: () => setState(() => _selectedType = OrderType.salvagedScrap),
+                ),
+                const SizedBox(width: 6),
+              ],
               _buildOrderTypeTile(
                 title: 'Geçici Yama',
                 time: '30 sn',
@@ -186,7 +217,10 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Sipariş Maliyeti', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
-                    Text(CurrencyFormatter.format(cost), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
+                    Text(
+                      _selectedType == OrderType.salvagedScrap ? '₺0 (Stoktan)' : CurrencyFormatter.format(cost),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                    ),
                   ],
                 ),
                 Text(
@@ -198,7 +232,7 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
           ),
           const SizedBox(height: 16),
           NeoBrutalButton(
-            label: 'SİPARİŞİ ONAYLA VE GÖNDER',
+            label: _selectedType == OrderType.salvagedScrap ? 'ÇIKMA PARÇAYI MONTE ET' : 'SİPARİŞİ ONAYLA VE GÖNDER',
             icon: Icons.shopping_cart_checkout_rounded,
             backgroundColor: AppColors.brutalGreen,
             textColor: Colors.black,

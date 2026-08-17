@@ -8,6 +8,7 @@ class SaleRecordModel {
   final double netProfit;
   final int saleDay;
   final DateTime saleDate;
+  final bool isConsignment;
 
   SaleRecordModel({
     required this.id,
@@ -18,6 +19,7 @@ class SaleRecordModel {
     required this.netProfit,
     required this.saleDay,
     required this.saleDate,
+    this.isConsignment = false,
   });
 
   @pragma('vm:entry-point')
@@ -34,6 +36,7 @@ class SaleRecordModel {
         'netProfit': netProfit,
         'saleDay': saleDay,
         'saleDate': saleDate.toIso8601String(),
+        'isConsignment': isConsignment,
       };
 
   factory SaleRecordModel.fromJson(Map<String, dynamic> json) => SaleRecordModel(
@@ -45,5 +48,6 @@ class SaleRecordModel {
         netProfit: (json['netProfit'] as num?)?.toDouble() ?? 0.0,
         saleDay: json['saleDay'] as int? ?? 1,
         saleDate: DateTime.tryParse(json['saleDate'] as String? ?? '') ?? DateTime.now(),
+        isConsignment: json['isConsignment'] as bool? ?? false,
       );
 }

@@ -116,6 +116,24 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     currentCars = _processListingsAmortization(currentCars);
 
+    // 1. Process Consignment Vehicle Remaining Days & Expiry Return
+    final consignmentResult = _processConsignmentDays(currentCars, newEvents);
+    currentCars = consignmentResult.$1;
+    newEvents = consignmentResult.$2;
+
+    // 2. Process Black Market Police Raid Risk
+    int currentReputation = state.reputationScore;
+    final raidResult = _processBlackMarketRaid(newBalance, currentCars, currentReputation, newEvents);
+    newBalance = raidResult.$1;
+    currentCars = raidResult.$2;
+    currentReputation = raidResult.$3;
+    newEvents = raidResult.$4;
+
+    // 3. Process Showroom Nighttime Vandalism vs Security CCTV
+    final vandalismResult = _processVandalism(currentCars, newEvents);
+    currentCars = vandalismResult.$1;
+    newEvents = vandalismResult.$2;
+
     final dispute = _processDisputes(nextDay, newBalance, state.pendingDisputeNotice, newEvents);
     newBalance = dispute.$1;
     final currentDisputeNotice = dispute.$2;
@@ -131,9 +149,18 @@ mixin GameTimeMixin on GameBaseNotifier {
     final updatedTradeOffers = _processTradeInOffers(nextDay, currentCars, List.from(state.incomingTradeInOffers));
     final updatedConsignmentOffers = _processConsignmentOffers(nextDay, List.from(state.consignmentOffers));
 
+    // Showroom Decor & District Traffic Boosts
+    final hasLedGrid = state.unlockedDecorIds.contains('decor_led_grid');
+    final hasGranite = state.unlockedDecorIds.contains('decor_granite_floor');
+    final bagcilarDominance = (state.districtMarketShare['Bağcılar Oto Pazarı'] ?? 0.0) >= 0.50;
+    if ((hasLedGrid || hasGranite || bagcilarDominance) && currentCars.any((c) => c.isListed && !c.isRented)) {
+      triggerOrganicOffers();
+    }
+
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
+      reputationScore: currentReputation,
       ownedCars: currentCars,
       hiredStaff: currentStaff,
       activeLoans: activeLoansAfterBk,
@@ -166,6 +193,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       activeGossips: dailyGossips,
       incomingTradeInOffers: updatedTradeOffers,
       consignmentOffers: updatedConsignmentOffers,
+      dailyRacesRemaining: 3, // Her gün 3 yarış hakkı yenilenir
     );
 
     refreshMarketTrends();
@@ -374,11 +402,101 @@ mixin GameTimeMixin on GameBaseNotifier {
     return (balance, businesses);
   }
 
+  (List<CarModel>, List<GameEventModel>) _processConsignmentDays(List<CarModel> cars, List<GameEventModel> events) {
+    final updated = <CarModel>[];
+    for (final car in cars) {
+      if (car.isConsignment) {
+        final daysLeft = car.consignmentDaysRemaining - 1;
+        if (daysLeft <= 0) {
+          events.insert(0, GameEventModel(
+            id: 'consignment_expired_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'Konsinye Süresi Doldu',
+            description: '${car.brand} ${car.modelName} emanet süresi dolduğu için araç sahibine iade edildi.',
+            amount: 0.0,
+            type: GameEventType.neutral,
+            date: DateTime.now(),
+          ));
+        } else {
+          updated.add(car.copyWith(consignmentDaysRemaining: daysLeft));
+        }
+      } else {
+        updated.add(car);
+      }
+    }
+    return (updated, events);
+  }
+
+  (double, List<CarModel>, int, List<GameEventModel>) _processBlackMarketRaid(
+      double balance, List<CarModel> cars, int reputation, List<GameEventModel> events) {
+    final hasGossipWarning = state.activeGossips.any((g) => g.id == 'gossip_police_raid' && g.isPurchased);
+    final bmIndex = cars.indexWhere((c) => c.modelName.contains('Karaborsa') || c.id.startsWith('bm_'));
+    if (bmIndex != -1) {
+      // 10% daily risk (or 3% if warned by gossip)
+      final chance = hasGossipWarning ? 0.03 : 0.10;
+      if (random.nextDouble() < chance) {
+        final seizedCar = cars[bmIndex];
+        cars.removeAt(bmIndex);
+        const fine = 25000.0;
+        balance = (balance - fine).clamp(0.0, double.infinity);
+        reputation = (reputation - 15).clamp(0, 200);
+        events.insert(0, GameEventModel(
+          id: 'police_raid_${DateTime.now().millisecondsSinceEpoch}',
+          title: '🚨 MALİ ŞUBE & ASAYİŞ BASKINI!',
+          description: '${seizedCar.brand} ${seizedCar.modelName} çalıntı/hacizli şüphesiyle yediemin otoparkına çekildi! ₺25.000 idari para cezası kesildi ve -15 Esnaf İtibarı kaybedildi.',
+          type: GameEventType.expense,
+          amount: -fine,
+          date: DateTime.now(),
+        ));
+      }
+    }
+    return (balance, cars, reputation, events);
+  }
+
+  (List<CarModel>, List<GameEventModel>) _processVandalism(List<CarModel> cars, List<GameEventModel> events) {
+    final hasCctv = state.unlockedDecorIds.contains('decor_security_cctv');
+    if (!hasCctv && cars.any((c) => c.isListed) && random.nextDouble() < 0.04) {
+      final listedCars = cars.where((c) => c.isListed).toList();
+      final targetCar = listedCars[random.nextInt(listedCars.length)];
+      final carIdx = cars.indexOf(targetCar);
+      if (carIdx != -1) {
+        final updatedParts = Map<String, PartStatus>.from(targetCar.expertise.bodyParts);
+        if (updatedParts.isNotEmpty) {
+          final firstKey = updatedParts.keys.first;
+          updatedParts[firstKey] = PartStatus.damaged;
+        }
+        cars[carIdx] = targetCar.copyWith(
+          expertise: targetCar.expertise.copyWith(
+            bodyParts: updatedParts,
+          ),
+        );
+        events.insert(0, GameEventModel(
+          id: 'vandalism_${DateTime.now().millisecondsSinceEpoch}',
+          title: 'Gece Park Halinde Çizilme / Vandalizm',
+          description: 'Showroom güvenlik kameranız (CCTV) olmadığı için ${targetCar.brand} ${targetCar.modelName} gece çizildi! Kaporta/boya sağlığı düştü.',
+          type: GameEventType.expense,
+          amount: 0.0,
+          date: DateTime.now(),
+        ));
+      }
+    }
+    return (cars, events);
+  }
+
   List<StockModel> _processStockMarket(List<StockModel> stocks) {
     for (int i = 0; i < stocks.length; i++) {
       final stock = stocks[i];
-      double changePercent = (random.nextDouble() * 0.20) - 0.10;
-      double newPrice = (stock.currentPrice * (1.0 + changePercent)).roundToDouble();
+      double baseChange = (random.nextDouble() * 0.20) - 0.10;
+      
+      // Makro haber etkisi (FROTO ve TOASO hisselerine direkt etki)
+      if (state.activeNews != null && (stock.symbol == 'FROTO' || stock.symbol == 'TOASO')) {
+        if (state.activeNews!.priceMultiplier > 1.0) {
+          baseChange += 0.06;
+        } else {
+          baseChange -= 0.06;
+        }
+      }
+
+      double newPrice = (stock.currentPrice * (1.0 + baseChange)).roundToDouble();
       if (newPrice < 1.0) newPrice = 1.0; 
       List<double> history = List.from(stock.priceHistory);
       history.add(newPrice);

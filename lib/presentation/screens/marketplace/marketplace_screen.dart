@@ -335,9 +335,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       final estNetProfit = car.estimatedRealValue - item.askingPrice - estimatedRepairCost;
                       final estRoi = (estNetProfit / item.askingPrice) * 100;
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: NeoBrutalCard(
+                      return RepaintBoundary(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: NeoBrutalCard(
                           padding: const EdgeInsets.all(14),
                           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                           borderColor: car.isRare
@@ -583,8 +584,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             ],
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    );
+                  },
                   ),
           ),
         ),

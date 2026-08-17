@@ -558,17 +558,66 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Enters an underground night modification street race (§4.4)
   NightRaceResult enterNightRace(CarModel car) {
-    final result = NightMarketEngine.simulateNightRace(car);
+    const entryFee = 5000.0;
+    if (state.dailyRacesRemaining <= 0) {
+      return const NightRaceResult(
+        isWon: false,
+        prizeMoney: 0,
+        reputationBonus: 0,
+        raceSummary: 'Bugünkü tüm yarış haklarınızı (3/3) kullandınız! Gece yarışları yarın tekrar açılacak.',
+        rivalName: 'Yarış Hakemleri',
+        rivalCarName: 'Pist Kapalı',
+      );
+    }
+
+    if (state.balance < entryFee) {
+      return const NightRaceResult(
+        isWon: false,
+        prizeMoney: 0,
+        reputationBonus: 0,
+        raceSummary: 'Yarışa katılmak için ₺5.000 giriş bahsi gereklidir!',
+        rivalName: 'Bahis Masası',
+        rivalCarName: 'Kasa Yetersiz',
+      );
+    }
+
+    if (car.expertise.engineCondition < 30) {
+      return const NightRaceResult(
+        isWon: false,
+        prizeMoney: 0,
+        reputationBonus: 0,
+        raceSummary: 'Motor sağlığı %30 altında olan yıpranmış araçlar piste çıkarılamaz!',
+        rivalName: 'Pist Güvenliği',
+        rivalCarName: 'Mekanik İptal',
+      );
+    }
+
+    // 1. Deduct entry fee and apply 8-12% engine & transmission wear
+    final wearAmount = 8 + random.nextInt(5);
+    final updatedExpertise = car.expertise.copyWith(
+      engineCondition: (car.expertise.engineCondition - wearAmount).clamp(5, 100),
+      transmissionCondition: (car.expertise.transmissionCondition - (wearAmount ~/ 2)).clamp(5, 100),
+    );
+    final updatedCar = car.copyWith(expertise: updatedExpertise);
+    final updatedCars = state.ownedCars.map((c) => c.id == car.id ? updatedCar : c).toList();
+
+    final result = NightMarketEngine.simulateNightRace(updatedCar);
+    final remainingRaces = (state.dailyRacesRemaining - 1).clamp(0, 3);
 
     if (result.isWon) {
       state = state.copyWith(
-        balance: state.balance + result.prizeMoney,
+        balance: state.balance - entryFee + result.prizeMoney,
         reputationScore: (state.reputationScore + result.reputationBonus).clamp(0, 1000),
+        ownedCars: updatedCars,
+        dailyRacesRemaining: remainingRaces,
       );
       addXP(50);
     } else {
       state = state.copyWith(
+        balance: state.balance - entryFee,
         reputationScore: (state.reputationScore + result.reputationBonus).clamp(0, 1000),
+        ownedCars: updatedCars,
+        dailyRacesRemaining: remainingRaces,
       );
     }
 

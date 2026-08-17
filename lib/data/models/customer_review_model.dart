@@ -5,6 +5,8 @@ class CustomerReviewModel {
   final double rating; // 1.0 to 5.0
   final String comment;
   final DateTime createdAt;
+  final String? reply;
+  final bool isCompensated;
 
   CustomerReviewModel({
     required this.id,
@@ -13,7 +15,31 @@ class CustomerReviewModel {
     required this.rating,
     required this.comment,
     required this.createdAt,
+    this.reply,
+    this.isCompensated = false,
   });
+
+  CustomerReviewModel copyWith({
+    String? id,
+    String? reviewerName,
+    String? carTitle,
+    double? rating,
+    String? comment,
+    DateTime? createdAt,
+    String? reply,
+    bool? isCompensated,
+  }) {
+    return CustomerReviewModel(
+      id: id ?? this.id,
+      reviewerName: reviewerName ?? this.reviewerName,
+      carTitle: carTitle ?? this.carTitle,
+      rating: rating ?? this.rating,
+      comment: comment ?? this.comment,
+      createdAt: createdAt ?? this.createdAt,
+      reply: reply ?? this.reply,
+      isCompensated: isCompensated ?? this.isCompensated,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -23,6 +49,8 @@ class CustomerReviewModel {
       'rating': rating,
       'comment': comment,
       'createdAt': createdAt.toIso8601String(),
+      'reply': reply,
+      'isCompensated': isCompensated,
     };
   }
 
@@ -34,6 +62,8 @@ class CustomerReviewModel {
       rating: (json['rating'] as num).toDouble(),
       comment: json['comment'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      reply: json['reply'] as String?,
+      isCompensated: json['isCompensated'] as bool? ?? false,
     );
   }
 }

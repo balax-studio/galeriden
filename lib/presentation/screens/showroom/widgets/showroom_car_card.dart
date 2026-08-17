@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/game_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
@@ -39,9 +40,10 @@ class ShowroomCarCard extends ConsumerWidget {
       marketSenseBonus: game.skills.marketSense * 0.05,
     );
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: NeoBrutalCard(
+    return RepaintBoundary(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: NeoBrutalCard(
         padding: const EdgeInsets.all(14),
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
         borderColor: hasOffer
@@ -445,25 +447,32 @@ class ShowroomCarCard extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(8),
-                border: Border(
-                  left: BorderSide(
-                    color: car.profitHeatStatus == 'green'
-                        ? const Color(0xFF00E575)
-                        : (car.profitHeatStatus == 'yellow'
-                            ? const Color(0xFFF59E0B)
-                            : (car.profitHeatStatus == 'orange'
-                                ? const Color(0xFFEA580C)
-                                : const Color(0xFFEF4444))),
-                    width: 4.5,
-                  ),
-                  top: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 1.2),
-                  right: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 1.2),
-                  bottom: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 1.2),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  width: 1.2,
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Container(
+                    width: 4.5,
+                    height: 28,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: car.profitHeatStatus == 'green'
+                          ? const Color(0xFF00E575)
+                          : (car.profitHeatStatus == 'yellow'
+                              ? const Color(0xFFF59E0B)
+                              : (car.profitHeatStatus == 'orange'
+                                  ? const Color(0xFFEA580C)
+                                  : const Color(0xFFEF4444))),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -528,6 +537,9 @@ class ShowroomCarCard extends ConsumerWidget {
                         ),
                       ),
                     ],
+                  ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -620,7 +632,7 @@ class ShowroomCarCard extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: NeoBrutalButton(
-                    label: car.isDoped ? 'Dopingli' : 'Öne Çıkar (₺2.5k)',
+                    label: car.isDoped ? 'Dopingli' : 'Öne Çıkar (${CurrencyFormatter.formatShort(GameConstants.dopingCost)})',
                     icon: Icons.bolt_rounded,
                     backgroundColor: car.isDoped
                         ? (isDark ? Colors.white12 : Colors.black12)
@@ -655,12 +667,12 @@ class ShowroomCarCard extends ConsumerWidget {
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '${car.brand} ${car.modelName} için ₺2.500 Doping Uygulandı!',
+                                '${car.brand} ${car.modelName} için ${CurrencyFormatter.format(GameConstants.dopingCost)} Doping Uygulandı!',
                               );
                             } else {
                               NotificationService.showError(
                                 context,
-                                'Doping için bakiyeniz yetersiz (₺2.500 gereklidir).',
+                                'Doping için bakiyeniz yetersiz (${CurrencyFormatter.format(GameConstants.dopingCost)} gereklidir).',
                               );
                             }
                           },
@@ -671,7 +683,7 @@ class ShowroomCarCard extends ConsumerWidget {
             if (car.isStaleListing) ...[
               const SizedBox(height: 8),
               NeoBrutalButton(
-                label: 'İlanı Güncelle & Yenile (₺1.500)',
+                label: 'İlanı Güncelle & Yenile (${CurrencyFormatter.format(GameConstants.refreshListingCost)})',
                 icon: Icons.refresh_rounded,
                 backgroundColor: const Color(0xFFEF4444),
                 textColor: Colors.white,
@@ -688,7 +700,7 @@ class ShowroomCarCard extends ConsumerWidget {
                   } else {
                     NotificationService.showError(
                       context,
-                      'İlanı yenilemek için ₺1.500 bakiye gereklidir.',
+                      'İlanı yenilemek için ${CurrencyFormatter.format(GameConstants.refreshListingCost)} bakiye gereklidir.',
                     );
                   }
                 },
@@ -798,6 +810,7 @@ class ShowroomCarCard extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

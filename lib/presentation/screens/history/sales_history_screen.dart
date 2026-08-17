@@ -38,6 +38,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     if (_selectedFilterIndex == 1) {
       filteredHistory = history.where((s) => s.netProfit > 0).toList();
     } else if (_selectedFilterIndex == 2) {
+      filteredHistory = history.where((s) => s.isConsignment).toList();
+    } else if (_selectedFilterIndex == 3) {
       filteredHistory = history.where((s) => s.netProfit <= 0).toList();
     }
 
@@ -174,14 +176,19 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                   color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                 ),
               ),
-              Row(
-                children: [
-                  _buildFilterBtn('Tümü', 0, isDark),
-                  const SizedBox(width: 6),
-                  _buildFilterBtn('Kârlı', 1, isDark),
-                  const SizedBox(width: 6),
-                  _buildFilterBtn('Zarar', 2, isDark),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildFilterBtn('Tümü', 0, isDark),
+                    const SizedBox(width: 4),
+                    _buildFilterBtn('Kârlı', 1, isDark),
+                    const SizedBox(width: 4),
+                    _buildFilterBtn('Konsinye', 2, isDark),
+                    const SizedBox(width: 4),
+                    _buildFilterBtn('Zarar', 3, isDark),
+                  ],
+                ),
               ),
             ],
           ),

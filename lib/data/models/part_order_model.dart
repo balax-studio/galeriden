@@ -1,4 +1,4 @@
-enum OrderType { quickPatch, masterRepair, newOemPart }
+enum OrderType { quickPatch, masterRepair, newOemPart, salvagedScrap }
 
 class PartOrderModel {
   final String id;

@@ -155,6 +155,7 @@ class DealershipModel {
   final List<GossipItemModel> activeGossips;           // Sanayi Dedikodu Hattı (§4.6.3)
   final WeatherType currentWeather;                   // Dinamik Hava Durumu (§4.6.5)
   final List<CarModel> consignmentOffers;             // Konsinye & Emanet Araçlar (§4.6.1)
+  final int dailyRacesRemaining;                      // Gece Yarışı Günlük Kalan Hak (Exploit Koruması)
 
   int get emblemIndex => int.tryParse(logoEmblemId.replaceAll(RegExp(r'\D'), '')) ?? 0;
 
@@ -510,6 +511,7 @@ class DealershipModel {
     this.activeGossips = const [],
     this.currentWeather = WeatherType.sunny,
     this.consignmentOffers = const [],
+    this.dailyRacesRemaining = 3,
   });
 
   factory DealershipModel.initial() {
@@ -886,6 +888,7 @@ class DealershipModel {
       'activeGossips': activeGossips.map((g) => g.toJson()).toList(),
       'currentWeather': currentWeather.name,
       'consignmentOffers': consignmentOffers.map((c) => c.toJson()).toList(),
+      'dailyRacesRemaining': dailyRacesRemaining,
     };
   }
 
@@ -1036,6 +1039,7 @@ class DealershipModel {
         orElse: () => WeatherType.sunny,
       ),
       consignmentOffers: parseList(json['consignmentOffers'] as List<dynamic>?, CarModel.fromJson),
+      dailyRacesRemaining: json['dailyRacesRemaining'] as int? ?? 3,
     );
   }
 
@@ -1155,6 +1159,7 @@ class DealershipModel {
     List<GossipItemModel>? activeGossips,
     WeatherType? currentWeather,
     List<CarModel>? consignmentOffers,
+    int? dailyRacesRemaining,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1239,6 +1244,7 @@ class DealershipModel {
       activeGossips: activeGossips ?? this.activeGossips,
       currentWeather: currentWeather ?? this.currentWeather,
       consignmentOffers: consignmentOffers ?? this.consignmentOffers,
+      dailyRacesRemaining: dailyRacesRemaining ?? this.dailyRacesRemaining,
     );
   }
 

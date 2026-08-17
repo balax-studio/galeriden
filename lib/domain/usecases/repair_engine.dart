@@ -28,7 +28,11 @@ class RepairEngine {
   static const double detailedCleanCost = 2500.0;
 
   /// Calculates realistic, dynamic repair/replacement costs based on vehicle value, part type, and order tier
-  static double calculatePartRepairCost(CarModel car, String partName, OrderType orderType) {
+  static double calculatePartRepairCost(CarModel car, String partName, OrderType orderType, {double discountFactor = 1.0}) {
+    if (orderType == OrderType.salvagedScrap) {
+      return 0.0; // Çıkma parça montajı ücretsizdir
+    }
+
     final carValue = max(100000.0, car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue);
 
     final normalizedPart = partName.toLowerCase();
@@ -50,8 +54,12 @@ class RepairEngine {
       case OrderType.newOemPart:
         finalCost = fullOemCost;
         break;
+      case OrderType.salvagedScrap:
+        finalCost = 0.0;
+        break;
     }
 
+    finalCost *= discountFactor;
     return (finalCost / 100.0).round() * 100.0;
   }
 
@@ -224,6 +232,11 @@ class RepairEngine {
           // Sıfır orijinal fabrika parçası montajı ile %100 orijinal kondisyona döner
           updatedParts[partName] = PartStatus.original;
           updatedConditions[partName] = 100.0;
+          break;
+        case OrderType.salvagedScrap:
+          // Çıkma sağlam parça montajı (%90 orijinal kondisyon)
+          updatedParts[partName] = PartStatus.original;
+          updatedConditions[partName] = 90.0;
           break;
       }
     }
