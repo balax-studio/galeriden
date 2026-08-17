@@ -334,46 +334,45 @@ class DealershipModel {
       case '/marketplace':
       case '/showroom':
       case '/expertise':
-      case '/car-wash':
+      case '/branches':
       case '/character-growth':
       case '/settings':
       case '/dealership-identity':
       case '/theme-store':
         return 1;
-      case '/workshop':
-      case '/tuning-studio':
-      case '/staff':
-      case '/staff-academy':
+      case '/car-wash':
       case '/history':
         return 2;
+      case '/workshop':
+      case '/staff':
+      case '/staff-academy':
+        return 3;
+      case '/tuning-studio':
+      case '/showroom-decor':
+        return 4;
       case '/auction':
       case '/finance':
+      case '/reviews':
+        return 5;
       case '/bank-investments':
       case '/stock-market':
-      case '/reviews':
-      case '/showroom-decor':
-        return 3;
-      case '/scrapyard':
+        return 6;
       case '/rent-a-car':
       case '/black-market':
-      case '/side-businesses':
-      case '/branches':
-        return 4;
       case '/district-market':
       case '/districts':
       case '/gossip-hotline':
-        return 5;
+        return 7;
+      case '/scrapyard':
+      case '/side-businesses':
       case '/consignment-market':
       case '/second-branch':
-        return 7;
       case '/vip-appointments':
       case '/customs-import':
-        return 9;
       case '/guild-chamber':
       case '/franchise':
-        return 11;
       case '/prestige-dynasty':
-        return 13;
+        return 8;
       default:
         return 1;
     }
@@ -382,28 +381,24 @@ class DealershipModel {
   static String getRequiredBranchName(String route) {
     final reqLvl = getRequiredLevel(route);
     switch (reqLvl) {
+      case 1:
+        return 'Kaldırım Başı Ayakçı Galerisi (Seviye 1)';
       case 2:
-        return 'İkitelli Sanayi Şubesi (Seviye 2)';
+        return 'Mahalle Tipi Açık Oto Galeri (Seviye 2)';
       case 3:
-        return 'Maslak Otomotiv Plazası (Seviye 3)';
+        return 'Sanayi Sitesi Esnaf Galerisi (Seviye 3)';
       case 4:
-        return 'Levent Mega Holding Plazası (Seviye 4)';
+        return 'Cadde Üstü Butik Oto Galeri (Seviye 4)';
       case 5:
+        return 'Oto Center Kurumsal Galeri (Seviye 5)';
       case 6:
-        return 'Kadıköy & İkitelli Bölge Merkezi (Seviye 5 - Sanayi Esnafı)';
+        return 'Premium Cam Showroom Plaza (Seviye 6)';
       case 7:
+        return 'Lüks Koleksiyoner VIP Galeri (Seviye 7)';
       case 8:
-        return 'Marmara Bölge Distribütörlüğü (Seviye 7 - Bölge Bayii)';
-      case 9:
-      case 10:
-        return 'Boğaziçi VIP Otomotiv Plazası (Seviye 9 - Plaza Sahibi)';
-      case 11:
-      case 12:
-        return 'Türkiye Otomotiv Baronluğu (Seviye 11 - Otomotiv Baronu)';
-      case 13:
-        return 'Galeriler Şahı Sarayı (Seviye 13+)';
+        return 'Mega Otomotiv Holding Plazası (Seviye 8)';
       default:
-        return 'Başlangıç Garajı';
+        return 'Kaldırım Başı Ayakçı Galerisi';
     }
   }
 
@@ -796,7 +791,6 @@ class DealershipModel {
         '/marketplace',
         '/showroom',
         '/expertise',
-        '/car-wash',
         '/character-growth',
         '/settings',
         '/dealership-identity',
@@ -965,7 +959,6 @@ class DealershipModel {
         '/marketplace',
         '/showroom',
         '/expertise',
-        '/car-wash',
         '/character-growth',
         '/settings',
         '/dealership-identity',

@@ -38,7 +38,7 @@ void main() {
       final slotsBefore = notifier.state.maxGarageSlots;
       final buyTier2 = notifier.upgradePrestigeBranch(2);
       expect(buyTier2, isTrue);
-      expect(notifier.state.maxGarageSlots, equals(slotsBefore + 2));
+      expect(notifier.state.maxGarageSlots, equals(slotsBefore + 1));
       expect(notifier.state.unlockedBuildings.contains('property_tier_2'), isTrue);
     });
   });

@@ -152,18 +152,18 @@ class BranchScreen extends ConsumerWidget {
                         Expanded(
                           child: Row(
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: (isCurrent || b.isUnlocked) ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                    width: 2.0,
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: (isCurrent || b.isUnlocked) ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                      width: 2.0,
+                                    ),
                                   ),
+                                  child: Icon(_getBranchIcon(b.vectorIcon), color: Colors.black, size: 22),
                                 ),
-                                child: const Icon(Icons.storefront_rounded, color: Colors.black, size: 22),
-                              ),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
@@ -339,5 +339,28 @@ class BranchScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  IconData _getBranchIcon(String vectorIcon) {
+    switch (vectorIcon) {
+      case 'craftsman':
+        return Icons.storefront_rounded;
+      case 'car_wash':
+        return Icons.local_car_wash_rounded;
+      case 'workshop':
+        return Icons.build_circle_rounded;
+      case 'tuning':
+        return Icons.tune_rounded;
+      case 'auction':
+        return Icons.gavel_rounded;
+      case 'shield':
+        return Icons.account_balance_rounded;
+      case 'fleet':
+        return Icons.car_rental_rounded;
+      case 'rare':
+        return Icons.domain_rounded;
+      default:
+        return Icons.apartment_rounded;
+    }
   }
 }

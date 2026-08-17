@@ -151,11 +151,11 @@ void main() {
       expect(customer.archetypeTitle.isNotEmpty, isTrue);
     });
 
-    test('BranchModel defines 4 tiers of dealership expansion', () {
+    test('BranchModel defines 8 tiers of dealership expansion', () {
       final branches = BranchModel.getAllBranches(currentSlotCount: 3, currentLevel: 1);
-      expect(branches.length, equals(4));
+      expect(branches.length, equals(8));
       expect(branches.first.maxGarageSlots, equals(3));
-      expect(branches.last.maxGarageSlots, equals(16));
+      expect(branches.last.maxGarageSlots, equals(20));
     });
 
     test('DetailingOption returns 4 detailing & tuning options', () {

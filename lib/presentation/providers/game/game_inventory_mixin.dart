@@ -172,18 +172,34 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Upgrade Prestige Branch Tier
   bool upgradePrestigeBranch(int targetTier) {
-    double cost = 350000.0;
-    int extraSlots = 2;
+    double cost = 100000.0;
+    int extraSlots = 1;
     String tierKey = 'property_tier_2';
 
     if (targetTier == 3) {
-      cost = 1250000.0;
-      extraSlots = 4;
+      cost = 350000.0;
+      extraSlots = 2;
       tierKey = 'property_tier_3';
     } else if (targetTier == 4) {
-      cost = 4500000.0;
-      extraSlots = 6;
+      cost = 900000.0;
+      extraSlots = 2;
       tierKey = 'property_tier_4';
+    } else if (targetTier == 5) {
+      cost = 2500000.0;
+      extraSlots = 2;
+      tierKey = 'property_tier_5';
+    } else if (targetTier == 6) {
+      cost = 6000000.0;
+      extraSlots = 3;
+      tierKey = 'property_tier_6';
+    } else if (targetTier == 7) {
+      cost = 14000000.0;
+      extraSlots = 3;
+      tierKey = 'property_tier_7';
+    } else if (targetTier == 8) {
+      cost = 30000000.0;
+      extraSlots = 4;
+      tierKey = 'property_tier_8';
     }
 
     if (state.balance < cost) return false;
@@ -274,31 +290,62 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (branch.targetLevel >= 2) {
       updatedBuildings.addAll({
         'property_tier_2',
-        '/workshop',
-        '/tuning-studio',
-        '/staff',
-        '/staff-academy',
+        '/car-wash',
         '/history',
       });
     }
     if (branch.targetLevel >= 3) {
       updatedBuildings.addAll({
         'property_tier_3',
-        '/auction',
-        '/finance',
-        '/bank-investments',
-        '/stock-market',
-        '/reviews',
-        '/showroom-decor',
+        '/workshop',
+        '/staff',
+        '/staff-academy',
       });
     }
     if (branch.targetLevel >= 4) {
       updatedBuildings.addAll({
         'property_tier_4',
-        '/scrapyard',
+        '/tuning-studio',
+        '/showroom-decor',
+      });
+    }
+    if (branch.targetLevel >= 5) {
+      updatedBuildings.addAll({
+        'property_tier_5',
+        '/auction',
+        '/finance',
+        '/reviews',
+      });
+    }
+    if (branch.targetLevel >= 6) {
+      updatedBuildings.addAll({
+        'property_tier_6',
+        '/bank-investments',
+        '/stock-market',
+      });
+    }
+    if (branch.targetLevel >= 7) {
+      updatedBuildings.addAll({
+        'property_tier_7',
         '/rent-a-car',
         '/black-market',
+        '/district-market',
+        '/districts',
+        '/gossip-hotline',
+      });
+    }
+    if (branch.targetLevel >= 8) {
+      updatedBuildings.addAll({
+        'property_tier_8',
+        '/scrapyard',
         '/side-businesses',
+        '/consignment-market',
+        '/second-branch',
+        '/vip-appointments',
+        '/customs-import',
+        '/guild-chamber',
+        '/franchise',
+        '/prestige-dynasty',
       });
     }
 

@@ -42,13 +42,21 @@ class OfflineProgression {
     final simulatedDays = (elapsedMinutes / 4).floor().clamp(1, 240);
 
     // 2. Property Daily Burn calculation
-    double propertyDailyBurn = 500.0;
-    if (dealership.unlockedBuildings.contains('property_tier_4')) {
-      propertyDailyBurn = 45000.0;
+    double propertyDailyBurn = 300.0;
+    if (dealership.unlockedBuildings.contains('property_tier_8')) {
+      propertyDailyBurn = 75000.0;
+    } else if (dealership.unlockedBuildings.contains('property_tier_7')) {
+      propertyDailyBurn = 40000.0;
+    } else if (dealership.unlockedBuildings.contains('property_tier_6')) {
+      propertyDailyBurn = 20000.0;
+    } else if (dealership.unlockedBuildings.contains('property_tier_5')) {
+      propertyDailyBurn = 9500.0;
+    } else if (dealership.unlockedBuildings.contains('property_tier_4')) {
+      propertyDailyBurn = 4200.0;
     } else if (dealership.unlockedBuildings.contains('property_tier_3')) {
-      propertyDailyBurn = 12000.0;
+      propertyDailyBurn = 1800.0;
     } else if (dealership.unlockedBuildings.contains('property_tier_2')) {
-      propertyDailyBurn = 3000.0;
+      propertyDailyBurn = 750.0;
     }
 
     // 3. Staff Salaries
@@ -94,9 +102,14 @@ class OfflineProgression {
     if (repLevel >= 3) minutesPerOffer = 40;
     if (repLevel >= 4) minutesPerOffer = 25;
 
-    int maxOffersLimit = 8;
-    if (dealership.unlockedBuildings.contains('property_tier_3')) maxOffersLimit = 12;
-    if (dealership.unlockedBuildings.contains('property_tier_4')) maxOffersLimit = 16;
+    int maxOffersLimit = 6;
+    if (dealership.unlockedBuildings.contains('property_tier_2')) maxOffersLimit = 8;
+    if (dealership.unlockedBuildings.contains('property_tier_3')) maxOffersLimit = 10;
+    if (dealership.unlockedBuildings.contains('property_tier_4')) maxOffersLimit = 12;
+    if (dealership.unlockedBuildings.contains('property_tier_5')) maxOffersLimit = 14;
+    if (dealership.unlockedBuildings.contains('property_tier_6')) maxOffersLimit = 16;
+    if (dealership.unlockedBuildings.contains('property_tier_7')) maxOffersLimit = 18;
+    if (dealership.unlockedBuildings.contains('property_tier_8')) maxOffersLimit = 20;
 
     int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(1, 10);
 

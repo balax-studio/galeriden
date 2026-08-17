@@ -20,10 +20,10 @@ void main() {
       expect(game.isFeatureUnlocked('/marketplace'), isTrue);
       expect(game.isFeatureUnlocked('/showroom'), isTrue);
       expect(game.isFeatureUnlocked('/expertise'), isTrue);
-      expect(game.isFeatureUnlocked('/car-wash'), isTrue);
       expect(game.isFeatureUnlocked('/branches'), isTrue);
 
       // Level 2+ buildings must be LOCKED initially
+      expect(game.isFeatureUnlocked('/car-wash'), isFalse);
       expect(game.isFeatureUnlocked('/workshop'), isFalse);
       expect(game.isFeatureUnlocked('/tuning-studio'), isFalse);
       expect(game.isFeatureUnlocked('/staff'), isFalse);
@@ -32,60 +32,58 @@ void main() {
       expect(game.isFeatureUnlocked('/scrapyard'), isFalse);
     });
 
-    test('Leveling up to Level 2 via XP qualifies for branch purchase, but does NOT auto-unlock workshop until purchased', () {
+    test('Leveling up to Level 2 via XP qualifies for branch purchase, but does NOT auto-unlock car-wash until purchased', () {
       final notifier = GameNotifier();
       expect(notifier.state.level, equals(1));
-      expect(notifier.state.isFeatureUnlocked('/workshop'), isFalse);
+      expect(notifier.state.isFeatureUnlocked('/car-wash'), isFalse);
 
       // Add 1300 XP (Crosses Level 1 threshold 1250 XP -> Level 2)
       notifier.addXP(1300);
       expect(notifier.state.level, equals(2));
 
-      // Workshop is STILL locked because player has not bought the Level 2 Branch yet!
-      expect(notifier.state.isFeatureUnlocked('/workshop'), isFalse);
+      // Car wash is STILL locked because player has not bought the Level 2 Branch yet!
+      expect(notifier.state.isFeatureUnlocked('/car-wash'), isFalse);
 
       final branch2 = BranchModel.getAllBranches().firstWhere((b) => b.id == 'branch_2');
       expect(branch2.targetLevel, equals(2));
 
-      // Cannot afford yet with low balance
-      notifier.state = notifier.state.copyWith(balance: 100000.0);
+      // Cannot afford yet with low balance (requires 100,000 TL)
+      notifier.state = notifier.state.copyWith(balance: 50000.0);
       final failedBuy = notifier.upgradeBranch(branch2);
       expect(failedBuy, isFalse);
-      expect(notifier.state.isFeatureUnlocked('/workshop'), isFalse);
+      expect(notifier.state.isFeatureUnlocked('/car-wash'), isFalse);
 
-      // Provide funds and purchase Level 2 Branch (İkitelli Sanayi)
-      notifier.state = notifier.state.copyWith(balance: 500000.0);
+      // Provide funds and purchase Level 2 Branch (Mahalle Tipi Açık Oto Galeri)
+      notifier.state = notifier.state.copyWith(balance: 150000.0);
       final successBuy = notifier.upgradeBranch(branch2);
       expect(successBuy, isTrue);
 
       // Now Level 2 buildings are unlocked!
-      expect(notifier.state.isFeatureUnlocked('/workshop'), isTrue);
-      expect(notifier.state.isFeatureUnlocked('/tuning-studio'), isTrue);
-      expect(notifier.state.isFeatureUnlocked('/staff'), isTrue);
-      expect(notifier.state.maxGarageSlots, equals(6));
+      expect(notifier.state.isFeatureUnlocked('/car-wash'), isTrue);
+      expect(notifier.state.isFeatureUnlocked('/history'), isTrue);
+      expect(notifier.state.maxGarageSlots, equals(4));
 
       // Level 3+ buildings remain locked
+      expect(notifier.state.isFeatureUnlocked('/workshop'), isFalse);
       expect(notifier.state.isFeatureUnlocked('/auction'), isFalse);
-      expect(notifier.state.isFeatureUnlocked('/finance'), isFalse);
     });
 
-    test('Purchasing Level 3 Branch (Maslak Plaza) unlocks Auction, Finance, and Bank Investments', () {
+    test('Purchasing Level 3 Branch (Sanayi Sitesi) unlocks Workshop and Staff', () {
       final notifier = GameNotifier();
       // Level 3 requires total 4750 XP (1250 + 3500)
       notifier.addXP(5000);
       expect(notifier.state.level, equals(3));
 
       final branch3 = BranchModel.getAllBranches().firstWhere((b) => b.id == 'branch_3');
-      notifier.state = notifier.state.copyWith(balance: 3000000.0);
+      notifier.state = notifier.state.copyWith(balance: 500000.0);
 
       final successBuy = notifier.upgradeBranch(branch3);
       expect(successBuy, isTrue);
 
-      expect(notifier.state.isFeatureUnlocked('/auction'), isTrue);
-      expect(notifier.state.isFeatureUnlocked('/finance'), isTrue);
-      expect(notifier.state.isFeatureUnlocked('/bank-investments'), isTrue);
-      expect(notifier.state.isFeatureUnlocked('/stock-market'), isTrue);
-      expect(notifier.state.maxGarageSlots, equals(10));
+      expect(notifier.state.isFeatureUnlocked('/workshop'), isTrue);
+      expect(notifier.state.isFeatureUnlocked('/staff'), isTrue);
+      expect(notifier.state.isFeatureUnlocked('/staff-academy'), isTrue);
+      expect(notifier.state.maxGarageSlots, equals(6));
     });
 
     test('Calibrated XP curve adheres to non-grindy, psychologically balanced thresholds', () {

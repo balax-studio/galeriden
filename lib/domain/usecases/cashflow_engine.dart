@@ -78,17 +78,29 @@ class CashflowEngine {
       staffSalaries *= 0.80; // 20% staff salary discount for Boss specialization
     }
 
-    double propertyDailyBurn = 500.0;
-    String propertyTierName = 'Başlangıç Garajı (Tier 1)';
-    if (game.unlockedBuildings.contains('property_tier_4')) {
-      propertyDailyBurn = 45000.0;
-      propertyTierName = 'Oto Plaza & Showroom (Tier 4)';
+    double propertyDailyBurn = 300.0;
+    String propertyTierName = 'Kaldırım Başı Ayakçı Galerisi (Tier 1)';
+    if (game.unlockedBuildings.contains('property_tier_8')) {
+      propertyDailyBurn = 75000.0;
+      propertyTierName = 'Mega Otomotiv Holding Plazası (Tier 8)';
+    } else if (game.unlockedBuildings.contains('property_tier_7')) {
+      propertyDailyBurn = 40000.0;
+      propertyTierName = 'Lüks Koleksiyoner VIP Galeri (Tier 7)';
+    } else if (game.unlockedBuildings.contains('property_tier_6')) {
+      propertyDailyBurn = 20000.0;
+      propertyTierName = 'Premium Cam Showroom Plaza (Tier 6)';
+    } else if (game.unlockedBuildings.contains('property_tier_5')) {
+      propertyDailyBurn = 9500.0;
+      propertyTierName = 'Oto Center Kurumsal Galeri (Tier 5)';
+    } else if (game.unlockedBuildings.contains('property_tier_4')) {
+      propertyDailyBurn = 4200.0;
+      propertyTierName = 'Cadde Üstü Butik Oto Galeri (Tier 4)';
     } else if (game.unlockedBuildings.contains('property_tier_3')) {
-      propertyDailyBurn = 12000.0;
-      propertyTierName = 'Büyük Galeri Kompleksi (Tier 3)';
+      propertyDailyBurn = 1800.0;
+      propertyTierName = 'Sanayi Sitesi Esnaf Galerisi (Tier 3)';
     } else if (game.unlockedBuildings.contains('property_tier_2')) {
-      propertyDailyBurn = 3000.0;
-      propertyTierName = 'Orta Ölçekli Galeri (Tier 2)';
+      propertyDailyBurn = 750.0;
+      propertyTierName = 'Mahalle Tipi Açık Oto Galeri (Tier 2)';
     }
 
     final double loanDailyPayment = game.activeLoans.fold<double>(

@@ -103,8 +103,8 @@ void main() {
 
       gameNotifier.advanceGameDay();
 
-      // Property burn (Level 1 = 500) + staff salaries + daily tax
-      expect(gameNotifier.state.balance, equals(startingBalance - 500.0 - totalDailySalary - dailyTax));
+      // Property burn (Level 1 = 300) + staff salaries + daily tax
+      expect(gameNotifier.state.balance, equals(startingBalance - 300.0 - totalDailySalary - dailyTax));
       expect(gameNotifier.state.currentDay, equals(2));
     });
   });

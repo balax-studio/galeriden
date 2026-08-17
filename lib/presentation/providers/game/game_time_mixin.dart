@@ -202,13 +202,21 @@ mixin GameTimeMixin on GameBaseNotifier {
   // --- Helper Methods ---
 
   double _processDailyPropertyBurn(double balance) {
-    double burn = 500.0;
-    if (state.unlockedBuildings.contains('property_tier_4')) {
-      burn = 45000.0;
+    double burn = 300.0;
+    if (state.unlockedBuildings.contains('property_tier_8')) {
+      burn = 75000.0;
+    } else if (state.unlockedBuildings.contains('property_tier_7')) {
+      burn = 40000.0;
+    } else if (state.unlockedBuildings.contains('property_tier_6')) {
+      burn = 20000.0;
+    } else if (state.unlockedBuildings.contains('property_tier_5')) {
+      burn = 9500.0;
+    } else if (state.unlockedBuildings.contains('property_tier_4')) {
+      burn = 4200.0;
     } else if (state.unlockedBuildings.contains('property_tier_3')) {
-      burn = 12000.0;
+      burn = 1800.0;
     } else if (state.unlockedBuildings.contains('property_tier_2')) {
-      burn = 3000.0;
+      burn = 750.0;
     }
     return balance - burn;
   }

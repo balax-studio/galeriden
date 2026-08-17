@@ -243,7 +243,6 @@ class GameCoreNotifier extends GameBaseNotifier
       '/marketplace',
       '/showroom',
       '/expertise',
-      '/car-wash',
       '/character-growth',
       '/settings',
       '/dealership-identity',
