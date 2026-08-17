@@ -76,20 +76,33 @@ Yapılan denetim sonucunda:
 
 ---
 
+### 2.6. İlan Ödeme Seçenekleri & Fiyat Tavanı Denetimi (`negotiation_engine.dart`)
+* **Önceki Durum:**
+  - İlanda vadeli/senetli satış kapalı (`allowsInstallments == false`) olmasına rağmen, alıcı teklif üretimindeki mantık açığı nedeniyle gelen tekliflerin %50'si senetli veya çekli vadeli teklif olarak geliyordu.
+  - Vade farkı çarpanı tavan denetimi olmadan uygulandığı ve koleksiyoner alıcı şansı liste fiyatının %20-%40 fazlasını ürettiği için ilandaki fiyatın üzerinde teklifler gelebiliyordu.
+* **Uygulanan Çözüm:**
+  - `allowsInstallments == false` olduğunda gelen tekliflerin **%100 kesinlikle sadece Peşin Nakit (`OfferType.cash`)** olması sağlandı.
+  - Nakit alıcı tekliflerinin hiçbir koşulda ilan fiyatını (`car.listingPrice`) geçemeyeceği (`min(baseOffer, askingPrice)`) kuralı garanti altına alındı.
+  - Ciddi alıcı ve koleksiyoner alıcılar fiyat artırmak yerine ilandaki fiyatı pazarlıksız (%100) nakit kabul edecek şekilde düzenlendi.
+  - `car_listing_payment_and_price_test.dart` test paketi yazılarak doğrulandı.
+
+---
+
 ## 3. TEST VE VERİFİKASYON MATRİSİ
 
 | Test Dosyası | Kapsanan Modül | Durum |
 | :--- | :--- | :---: |
+| `test/car_listing_payment_and_price_test.dart` | İlan Ödeme Seçenekleri & İlan Fiyatı Tavan Koruması | PASSED (3/3) |
 | `test/expertise_inspection_stamp_test.dart` | Ekspertiz 5 Aşamalı Mühür & Kondisyon Algoritması | PASSED (5/5) |
 | `test/maximalist_neo_brutal_design_test.dart` | Neo-Brutalist HUD, DotGrid, Damga & Kartlar | PASSED (8/8) |
 | `test/mobile_hygiene_ux_test.dart` | Pull-to-Refresh, Skeleton, Debounce Arama | PASSED (10/10) |
 | `test/story_ad_engine_test.dart` | Hikaye & Usta Karakter Döngüleri | PASSED (12/12) |
 | `test/staff_automation_test.dart` | Personel Otomasyonu & Günlük Maaş / Gider Simülasyonu | PASSED (6/6) |
 | `test/touch_feedback_and_unfocus_test.dart` | Dokunma Efektleri, Klavye Kapatma Overlay | PASSED (4/4) |
-| **Toplam Test Paketi** | **185 Test Senaryosu** | **%100 BAŞARILI** |
+| **Toplam Test Paketi** | **188 Test Senaryosu** | **%100 BAŞARILI** |
 
 ---
 
 ## 4. SONUÇ VE TAVSİYELER
 
-Galerisinden simülasyonundaki tüm metinsel ve algoritmik mantık zincirleri taranmış, kullanıcıya gösterilen tüm etiketlerin arkasında çalışan gerçek veri kaynakları oluşturulmuştur. Artık simülasyondaki her mühür, her eksper notu, her müşteri diyaloğu ve her ilan açıklaması aracın gerçek durumunu (%100 deterministik) yansıtmaktadır.
+Galerisinden simülasyonundaki tüm metinsel ve algoritmik mantık zincirleri taranmış, kullanıcıya gösterilen tüm etiketlerin arkasında çalışan gerçek veri kaynakları oluşturulmuştur. Artık simülasyondaki her mühür, her eksper notu, her müşteri diyaloğu, ilan açıklaması ve teklif motoru aracın gerçek durumunu ve oyuncunun ilan tercihlerini (%100 deterministik) yansıtmaktadır.
