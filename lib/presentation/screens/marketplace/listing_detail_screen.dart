@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -208,12 +209,7 @@ class ListingDetailScreen extends ConsumerWidget {
             fontWeight: FontWeight.w900,
             fullWidth: true,
             onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (ctx) => InteractiveNegotiationSheet(listing: listing),
-              );
+              context.push('/negotiation', extra: listing);
             },
           ),
         ),

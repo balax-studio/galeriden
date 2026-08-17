@@ -1,0 +1,91 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:galeriden/core/theme/app_theme_extension.dart';
+import 'package:galeriden/data/models/car_model.dart';
+import 'package:galeriden/data/models/expertise_model.dart';
+import 'package:galeriden/data/models/listing_model.dart';
+import 'package:galeriden/data/models/theme_palette_model.dart';
+import 'package:galeriden/presentation/providers/market_provider.dart';
+import 'package:galeriden/presentation/screens/marketplace/negotiation_screen.dart';
+
+class _TestMarketNotifier extends MarketNotifier {
+  _TestMarketNotifier(Ref ref, List<ListingModel> initialListings) : super(ref) {
+    state = initialListings;
+  }
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('NegotiationScreen renders full-screen Scaffold and deals room elements properly', (tester) async {
+    final testCar = CarModel(
+      id: 'test_car_1',
+      brand: 'Toyota',
+      modelName: 'Corolla',
+      modelYear: 2020,
+      bodyType: 'Sedan',
+      colorHex: '#FFFFFF',
+      baseMarketValue: 500000,
+      currentPurchasePrice: 480000,
+      expertise: ExpertiseReport(
+        engineCondition: 90,
+        transmissionCondition: 90,
+        tramerAmount: 0,
+        mileage: 45000,
+        isMileageTampered: false,
+        bodyParts: {},
+      ),
+    );
+
+    final testListing = ListingModel(
+      id: 'listing_1',
+      car: testCar,
+      askingPrice: 520000,
+      sellerName: 'Ahmet Bey',
+      sellerTrait: 'Tok Satıcı',
+      sellerCity: 'İstanbul',
+      title: 'Temiz Aile Arabası',
+      description: 'Hatasız boyasız',
+      createdAt: DateTime.now(),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          marketProvider.overrideWith((ref) => _TestMarketNotifier(ref, [testListing])),
+        ],
+        child: MaterialApp(
+          theme: ThemeData(
+            extensions: [
+              AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),
+            ],
+          ),
+          home: NegotiationScreen(listing: testListing),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Verify AppBar and Header
+    expect(find.text('PAZARLIK MASASI'), findsOneWidget);
+    expect(find.text('Ahmet Bey'), findsOneWidget);
+    expect(find.text('Toyota Corolla'), findsOneWidget);
+    expect(find.text('2020'), findsOneWidget);
+
+    // Verify discount chips exist (%5, %10, %15, %20)
+    expect(find.text('-%5'), findsOneWidget);
+    expect(find.text('-%10'), findsOneWidget);
+    expect(find.text('-%15'), findsOneWidget);
+    expect(find.text('-%20'), findsOneWidget);
+
+    // Verify Esnaf Tactics exist
+    expect(find.text('Çay İkram Et'), findsOneWidget);
+    expect(find.text('Bir Sigara Yak'), findsOneWidget);
+    expect(find.text('Ortağa Danış'), findsOneWidget);
+
+    // Verify CTA Button exists
+    expect(find.textContaining('TEKLİF ET'), findsOneWidget);
+  });
+}

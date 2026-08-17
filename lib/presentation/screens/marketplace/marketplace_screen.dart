@@ -577,12 +577,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                         fontSize: 11,
                                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                         onPressed: () {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (ctx) => InteractiveNegotiationSheet(listing: item),
-                                          );
+                                          context.push('/negotiation', extra: item);
                                         },
                                       ),
                                     ],

@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -150,12 +151,7 @@ class ExpertiseReportSheet extends StatelessWidget {
                 onPressed: () {
                   final targetListing = listing!;
                   Navigator.pop(context);
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (ctx) => InteractiveNegotiationSheet(listing: targetListing),
-                  );
+                  context.push('/negotiation', extra: targetListing);
                 },
               ),
               const SizedBox(height: 10),

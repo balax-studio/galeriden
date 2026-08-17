@@ -91,7 +91,7 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.showHazardHeader)
                 const HazardStripeWidget(height: 6),

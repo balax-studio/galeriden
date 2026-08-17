@@ -5,6 +5,7 @@ import '../presentation/screens/dashboard/dashboard_screen.dart';
 import '../presentation/screens/expertise/expertise_screen.dart';
 import '../presentation/screens/marketplace/listing_detail_screen.dart';
 import '../presentation/screens/marketplace/marketplace_screen.dart';
+import '../presentation/screens/marketplace/negotiation_screen.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/settings/settings_screen.dart';
 import '../presentation/screens/showroom/showroom_screen.dart';
@@ -186,6 +187,16 @@ final appRouter = GoRouter(
           return _buildCupertinoPage(const MarketplaceScreen(), state);
         }
         return _buildCupertinoPage(ListingDetailScreen(listing: listing), state);
+      },
+    ),
+    GoRoute(
+      path: '/negotiation',
+      pageBuilder: (context, state) {
+        final listing = state.extra as ListingModel?;
+        if (listing == null) {
+          return _buildCupertinoPage(const MarketplaceScreen(), state);
+        }
+        return _buildCupertinoPage(NegotiationScreen(listing: listing), state);
       },
     ),
   ],
