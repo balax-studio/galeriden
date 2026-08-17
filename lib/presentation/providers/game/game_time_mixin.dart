@@ -836,6 +836,10 @@ mixin GameTimeMixin on GameBaseNotifier {
             modelYear: 1993,
             bodyType: 'Klasik',
             colorHex: '0xFF1E3A8A',
+            colorDisplayName: 'Gece Mavisi',
+            colorRarity: 'rare',
+            plateNumber: '34 BM 1993',
+            plateRarity: 'repeated',
             baseMarketValue: 600000.0,
             currentPurchasePrice: 280000.0, // ~50% discount
             isRare: true,

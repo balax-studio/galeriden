@@ -165,6 +165,10 @@ class DramaticCardEngine {
         modelYear: 2018,
         bodyType: 'Hatchback',
         colorHex: 'D90429',
+        colorDisplayName: 'Lansman Kırmızısı',
+        colorRarity: 'rare',
+        plateNumber: '06 GTI 18',
+        plateRarity: 'legendary',
         currentPurchasePrice: 60000.0,
         baseMarketValue: 120000.0,
         expertise: ExpertiseReport(

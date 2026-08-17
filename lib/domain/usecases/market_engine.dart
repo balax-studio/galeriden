@@ -181,13 +181,22 @@ class MarketEngine {
       bodyParts: bodyParts,
     );
 
+    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Adana', 'Konya'];
+    final sellerCity = cities[_random.nextInt(cities.length)];
+    final paint = _getRandomPaintColor();
+    final plate = generateLicensePlate(city: sellerCity);
+
     final carTemp = CarModel(
       id: id,
       brand: brandData.name,
       modelName: modelName,
       modelYear: year,
       bodyType: 'Sedan',
-      colorHex: _getRandomColorHex(),
+      colorHex: paint.hex,
+      colorDisplayName: paint.name,
+      colorRarity: paint.rarity,
+      plateNumber: plate.number,
+      plateRarity: plate.rarity,
       baseMarketValue: baseValue,
       currentPurchasePrice: baseValue,
       isRare: false,
@@ -197,9 +206,6 @@ class MarketEngine {
 
     final targetPrice = (carTemp.estimatedRealValue * (0.80 + _random.nextDouble() * 0.20)).clamp(35000.0, budgetLimit).roundToDouble();
     final car = carTemp.copyWith(currentPurchasePrice: targetPrice);
-
-    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Adana', 'Konya'];
-    final sellerCity = cities[_random.nextInt(cities.length)];
 
     return ListingModel(
       id: 'listing_$id',
@@ -370,13 +376,22 @@ class MarketEngine {
     // 4% chance of Barn Find (Samanlık Kelepiri)
     final isBarnFind = (isClassicModel || _random.nextDouble() < 0.04) && _random.nextDouble() < 0.40;
 
+    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Trabzon'];
+    final sellerCity = cities[_random.nextInt(cities.length)];
+    final paint = _getRandomPaintColor();
+    final plate = generateLicensePlate(city: sellerCity);
+
     final carTemp = CarModel(
       id: id,
       brand: brandData.name,
       modelName: modelName,
       modelYear: year,
       bodyType: bodyType,
-      colorHex: _getRandomColorHex(),
+      colorHex: paint.hex,
+      colorDisplayName: paint.name,
+      colorRarity: paint.rarity,
+      plateNumber: plate.number,
+      plateRarity: plate.rarity,
       baseMarketValue: baseValue,
       currentPurchasePrice: baseValue,
       isRare: isRare || isBarnFind,
@@ -415,9 +430,6 @@ class MarketEngine {
     if (askingPrice < 35000) askingPrice = 35000;
 
     final car = carTemp.copyWith(currentPurchasePrice: askingPrice);
-
-    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Trabzon'];
-    final sellerCity = cities[_random.nextInt(cities.length)];
 
     return ListingModel(
       id: 'listing_$id',
@@ -465,9 +477,126 @@ class MarketEngine {
     return PartStatus.damaged;
   }
 
-  static String _getRandomColorHex() {
-    final colors = ['#0D0D0F', '#FFFFFF', '#C4484A', '#2C3E50', '#7F8C8D', '#D4AC0D'];
-    return colors[_random.nextInt(colors.length)];
+  /// Generates dynamic realistic Turkish license plates with city code and rarity
+  static ({String number, String rarity}) generateLicensePlate({String? city}) {
+    final cityCodeMap = {
+      'İstanbul': '34',
+      'Ankara': '06',
+      'İzmir': '35',
+      'Bursa': '16',
+      'Antalya': '07',
+      'Adana': '01',
+      'Konya': '42',
+      'Gaziantep': '27',
+      'Trabzon': '61',
+      'Samsun': '55',
+      'Eskişehir': '26',
+      'Kocaeli': '41',
+      'Balıkesir': '10',
+      'Denizli': '20',
+      'Kayseri': '38',
+      'Diyarbakır': '21',
+      'Aydın': '09',
+      'Muğla': '48',
+      'Mersin': '33',
+    };
+
+    final cityCode = city != null && cityCodeMap.containsKey(city)
+        ? cityCodeMap[city]!
+        : (['34', '06', '35', '16', '07', '01', '42', '61', '55', '26', '41', '38', '27'][_random.nextInt(13)]);
+
+    // 4% chance of Legendary Special Plate
+    if (_random.nextDouble() < 0.04) {
+      final legendaryPlates = [
+        ('$cityCode ATA 1881', 'legendary'),
+        ('$cityCode GS 1905', 'legendary'),
+        ('$cityCode FB 1907', 'legendary'),
+        ('$cityCode BJK 1903', 'legendary'),
+        ('61 TS 1967', 'legendary'),
+        ('$cityCode VIP 001', 'legendary'),
+        ('$cityCode BOSS 99', 'legendary'),
+        ('$cityCode KRL 01', 'legendary'),
+        ('$cityCode PRO 777', 'legendary'),
+        ('$cityCode M 9999', 'repeated'),
+        ('$cityCode TC 001', 'legendary'),
+        ('$cityCode GAL 1923', 'legendary'),
+      ];
+      final pick = legendaryPlates[_random.nextInt(legendaryPlates.length)];
+      return (number: pick.$1, rarity: pick.$2);
+    }
+
+    // 8% chance of Repeated / Symmetric Plate
+    if (_random.nextDouble() < 0.08) {
+      final letters2 = ['AA', 'BB', 'CC', 'DD', 'EE', 'FF', 'GG', 'HH', 'JJ', 'KK', 'LL', 'MM', 'NN', 'PP', 'RR', 'SS', 'TT', 'VV', 'YY', 'ZZ'];
+      final letter = letters2[_random.nextInt(letters2.length)];
+      final repeatedDigits = ['111', '222', '333', '444', '555', '666', '777', '888', '999', '1111', '5555', '7777', '9999'];
+      final numStr = repeatedDigits[_random.nextInt(repeatedDigits.length)];
+      return (number: '$cityCode $letter $numStr', rarity: 'repeated');
+    }
+
+    // Standard Plate: 2 or 3 letters + 2 to 4 digits
+    final use3Letters = _random.nextBool();
+    String letters;
+    if (use3Letters) {
+      final series3 = ['GAL', 'OTO', 'ALP', 'CAN', 'EGE', 'MRA', 'YSR', 'BLX', 'DEV', 'CAR', 'CEM', 'DEN', 'BER', 'KER', 'MUR', 'BUR', 'POL', 'KAS', 'HAN', 'KOC', 'TAY', 'BAK', 'YLM', 'KAP', 'YLD', 'SEN', 'AYD', 'OZK', 'DEM'];
+      letters = series3[_random.nextInt(series3.length)];
+    } else {
+      final alphabet = 'ABCDEFGHJKLMNPRSTUVYZ';
+      final l1 = alphabet[_random.nextInt(alphabet.length)];
+      final l2 = alphabet[_random.nextInt(alphabet.length)];
+      letters = '$l1$l2';
+    }
+
+    final digits = use3Letters
+        ? (10 + _random.nextInt(90)).toString()
+        : (100 + _random.nextInt(9000)).toString();
+
+    // Check symmetry like 1221, 3003
+    if (digits.length == 4 && digits[0] == digits[3] && digits[1] == digits[2]) {
+      return (number: '$cityCode $letters $digits', rarity: 'symmetric');
+    }
+
+    return (number: '$cityCode $letters $digits', rarity: 'standard');
+  }
+
+  /// Generates dynamic authentic Turkish automotive paint colors
+  static ({String hex, String name, String rarity}) _getRandomPaintColor() {
+    final colors = [
+      (hex: '#FFFFFF', name: 'Opak Beyaz', rarity: 'standard', weight: 15),
+      (hex: '#F8F9FA', name: 'Kutup Beyazı', rarity: 'standard', weight: 12),
+      (hex: '#F0F3F4', name: 'İnci Beyazı', rarity: 'rare', weight: 8),
+      (hex: '#0D0D0F', name: 'Gece Siyahı', rarity: 'standard', weight: 14),
+      (hex: '#1A1A1D', name: 'Obsidyen Siyahı', rarity: 'rare', weight: 7),
+      (hex: '#111111', name: 'Karbon Siyah', rarity: 'legendary', weight: 4),
+      (hex: '#7F8C8D', name: 'Titanyum Gri', rarity: 'standard', weight: 12),
+      (hex: '#5D6D7E', name: 'Kurşun Gri', rarity: 'standard', weight: 10),
+      (hex: '#8E9398', name: 'Nardo Gri', rarity: 'rare', weight: 8),
+      (hex: '#3E4444', name: 'Füme Gri', rarity: 'standard', weight: 10),
+      (hex: '#1B4F72', name: 'Kozmik Mavi', rarity: 'standard', weight: 8),
+      (hex: '#152238', name: 'Gece Mavisi', rarity: 'rare', weight: 6),
+      (hex: '#2874A6', name: 'Okyanus Mavisi', rarity: 'standard', weight: 6),
+      (hex: '#C0392B', name: 'Yakut Kırmızı', rarity: 'standard', weight: 7),
+      (hex: '#E74C3C', name: 'Lansman Kırmızısı', rarity: 'rare', weight: 6),
+      (hex: '#7B241C', name: 'Bordo', rarity: 'standard', weight: 7),
+      (hex: '#D4AC0D', name: 'Şampanya Sarısı', rarity: 'standard', weight: 5),
+      (hex: '#F1C40F', name: 'Safir Sarı', rarity: 'rare', weight: 4),
+      (hex: '#1E8449', name: 'Yarış Yeşili', rarity: 'rare', weight: 4),
+      (hex: '#145A32', name: 'Zümrüt Yeşil', rarity: 'standard', weight: 4),
+      (hex: '#6E2C00', name: 'Tütün Kahvesi', rarity: 'rare', weight: 3),
+      (hex: '#2C3E50', name: 'Simli Mat Füme', rarity: 'legendary', weight: 3),
+    ];
+
+    final totalWeight = colors.fold<int>(0, (sum, c) => sum + c.weight);
+    int roll = _random.nextInt(totalWeight);
+    int currentSum = 0;
+
+    for (var c in colors) {
+      currentSum += c.weight;
+      if (roll < currentSum) {
+        return (hex: c.hex, name: c.name, rarity: c.rarity);
+      }
+    }
+    return (hex: '#0D0D0F', name: 'Gece Siyahı', rarity: 'standard');
   }
 
   static String _getRandomSellerName() {

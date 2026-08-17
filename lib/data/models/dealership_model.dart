@@ -524,6 +524,10 @@ class DealershipModel {
       modelYear: 1978,
       bodyType: 'Klasik',
       colorHex: '0xFF8B4513', // Saddle Brown
+      colorDisplayName: 'Tütün Kahvesi',
+      colorRarity: 'rare',
+      plateNumber: '34 DEDE 78',
+      plateRarity: 'legendary',
       baseMarketValue: 240000.0,
       currentPurchasePrice: 0.0, // Inherited for free
       isRare: true,

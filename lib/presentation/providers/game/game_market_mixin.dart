@@ -17,6 +17,7 @@ import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/side_business_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/stock_model.dart';
+import '../../../domain/usecases/market_engine.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
@@ -839,6 +840,10 @@ mixin GameMarketMixin on GameBaseNotifier {
       modelYear: bmCar.modelYear,
       bodyType: 'Spor',
       colorHex: '0xFF111111',
+      colorDisplayName: 'Karbon Siyah',
+      colorRarity: 'legendary',
+      plateNumber: MarketEngine.generateLicensePlate().number,
+      plateRarity: 'legendary',
       baseMarketValue: bmCar.realMarketValue,
       currentPurchasePrice: bmCar.askingPrice,
       isRare: true,
