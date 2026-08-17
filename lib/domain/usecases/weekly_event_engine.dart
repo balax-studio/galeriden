@@ -71,7 +71,7 @@ class WeeklyEventEngine {
     WeeklyGameEvent(
       id: 'saturday_open_showcase',
       title: 'Hafta Sonu Açık Oto Pazarı',
-      description: 'Haftanın en yoğun günü! Vitlindeki araçlara alıcı akını yaşanır.',
+      description: 'Haftanın en yoğun günü! Vitrindeki araçlara alıcı akını yaşanır.',
       dayOfWeek: 6,
       visitorSpeedMultiplier: 1.60,
     ),

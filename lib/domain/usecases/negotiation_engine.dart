@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../../core/utils/currency_formatter.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/customer_model.dart';
 import '../../data/models/expertise_model.dart';
@@ -221,11 +222,11 @@ class NegotiationEngine {
       // 1) Collector Jackpot (%2 chance): +20% to +40% over asking/real price
       baseOffer = (max(realVal, askingPrice) * (1.20 + (_random.nextDouble() * 0.20)) * listingQualityBonus).roundToDouble();
       buyerName = 'Koleksiyoner $buyerName';
-      message = 'Tam aradığım temizlikte özel bir araç! Kaçırmamak için liste fiyatının da üzerinde ₺${baseOffer.round()} nakit teklif ediyorum!';
+      message = 'Tam aradığım temizlikte özel bir araç! Kaçırmamak için liste fiyatının da üzerinde ${CurrencyFormatter.formatShort(baseOffer)} nakit teklif ediyorum!';
     } else if (distRoll < 0.10) {
       // 2) Asking Price Match (%8 chance): Exactly 100% of asking price
       baseOffer = (askingPrice * listingQualityBonus).roundToDouble();
-      message = 'Fiyat çok makul, pazarlıksız ilandaki ₺${baseOffer.round()} fiyata hemen notere geçelim.';
+      message = 'Fiyat çok makul, pazarlıksız ilandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyata hemen notere geçelim.';
     } else if (distRoll < 0.30) {
       // 3) Lowball / Ölücü (%20 chance): %55 - %75 of asking/real price
       isLowball = true;

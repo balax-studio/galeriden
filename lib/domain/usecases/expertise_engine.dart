@@ -133,13 +133,34 @@ class ExpertiseEngine {
       overallGrade = 'D (Ağır Hasarlı / Onarım Gerekli)';
     }
 
-    final developerNotes = [
-      'Ekspertiz Notu: Motor ve şanzıman performansı iyi durumda, mekanik masrafı bulunmamaktadır.',
-      'Ekspertiz Notu: Kaporta aksamında parçalı boyalar mevcut, şasi ve podyeler tamamen orijinaldir.',
-      'Ekspertiz Notu: Hasar geçmişi nedeniyle değer kaybı mevcut, yürüyen aksam bakımı tavsiye edilir.',
-      'Ekspertiz Notu: Detaylı kaporta onarımı ve periyodik bakım sonrasında değer artışı sağlanabilir.'
-    ];
-    final note = developerNotes[_random.nextInt(developerNotes.length)];
+    final noteBuffer = StringBuffer('Ekspertiz Notu: ');
+    if (exp.isMileageTampered) {
+      noteBuffer.write('KM sayacında müdahale şüphesi tespit edilmiştir. ');
+    }
+    if (exp.tramerAmount > 50000) {
+      noteBuffer.write('Geçmiş hasar kaydı yüksek, tramer bedeli ₺${exp.tramerAmount}. ');
+    }
+    if (exp.bodyParts['Şasi/Podye'] == PartStatus.damaged || exp.bodyParts['Tavan'] == PartStatus.damaged) {
+      noteBuffer.write('Kritik iskelet (şasi/podye/tavan) hasarı mevcut! ');
+    } else if (exp.bodyParts.values.every((p) => p == PartStatus.original)) {
+      noteBuffer.write('Tüm kaporta aksamı ve şasi fabrikasyon orijinaldir. ');
+    } else {
+      final details = <String>[];
+      if (changedCount > 0) details.add('$changedCount parça değişen');
+      if (paintedCount > 0) details.add('$paintedCount parça boya');
+      if (damagedCount > 0) details.add('$damagedCount parça onarım bekleyen hasar');
+      noteBuffer.write('Kaportada ${details.join(', ')} bulunmaktadır. ');
+    }
+
+    if (exp.engineCondition >= 85 && exp.transmissionCondition >= 85) {
+      noteBuffer.write('Motor ve şanzıman mekanik performansı mükemmel seviyededir.');
+    } else if (exp.engineCondition < 60 || exp.transmissionCondition < 60) {
+      noteBuffer.write('Motor veya şanzımanda mekanik revizyon ve bakım ihtiyacı vardır.');
+    } else {
+      noteBuffer.write('Yürüyen ve motor aksamı genel kondisyona uygun durumdadır.');
+    }
+
+    final note = noteBuffer.toString();
 
     return {
       'paintedCount': paintedCount,

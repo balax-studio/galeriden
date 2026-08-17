@@ -296,17 +296,44 @@ class MarketEngine {
     return title;
   }
 
-  static String _generateDescription(bool isBarnFind, bool isFlashDeal, bool isRare) {
+  static String _generateDescription({
+    bool isBarnFind = false,
+    bool isFlashDeal = false,
+    bool isRare = false,
+  }) {
     if (isBarnFind) {
-      return 'Köydeki dede yadigarı garajdan/samanlıktan yeni çıkarıldı! 15 yıldır çalıştırılmadı, restorasyon yapacak usta arıyor.';
+      final barnDescriptions = [
+        'Köydeki dede yadigarı garajdan/samanlıktan yeni çıkarıldı! Yıllardır dokunulmadı, restorasyon projesi için bulunmaz fırsat.',
+        'Kapalı depoda uzun yıllar muhafaza edilmiş orijinal gövde. Klasik restorasyon meraklısına kelepir fiyata devredilecektir.',
+        'Samanlık buluntusu! Motor ve yürüyen elden geçmeli, gövde hatları düzgün. Proje aracı arayanlar için kaçırılmayacak fırsat.',
+      ];
+      return barnDescriptions[_random.nextInt(barnDescriptions.length)];
     }
     if (isFlashDeal) {
-      return 'ACİL SATILIK KELEPİR FİYAT! İlk arayan alır, pazarlık sünnettir.';
+      final flashDescriptions = [
+        'ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır, araç başında cüzi pazarlık olur.',
+        'Yurtdışına taşınma sebebiyle çok acil satılık! Fiyatı piyasa değerinin altında tuttum, kaçıran üzülür.',
+        'Ödemelerim sebebiyle birkaç günlüğüne bu fiyattır. Takas teklif etmeyiniz, sadece nakit satılık.',
+      ];
+      return flashDescriptions[_random.nextInt(flashDescriptions.length)];
     }
     if (isRare) {
-      return 'Garaj arabası, düşük km, özenle saklanmış koleksiyonluk nadide araç!';
+      final rareDescriptions = [
+        'Koleksiyon kondisyonunda, özenle saklanmış nadide araç! Kapalı garajda muhafaza edilmektedir.',
+        'Özel seri, düşük kilometre ve hatasız kondisyonda. Değerini bilen gerçek koleksiyonculara hayırlı olsun.',
+        'Hafta sonları keyifle binilmiş pırıl pırıl koleksiyon arabası. Tüm fabrika etiketleri ve orijinal parçaları üzerindedir.',
+      ];
+      return rareDescriptions[_random.nextInt(rareDescriptions.length)];
     }
-    return 'Bakımları yetkili serviste yapılmıştır. Masrafsız, nakit veya mantıklı takasa uygundur.';
+
+    final standardDescriptions = [
+      'Bakımları zamanında eksiksiz yapılmıştır. Yürüyen aksamı ve motoru kusursuzdur, masrafsız binilecek araçtır.',
+      'İlk sahibinden temiz aile aracı. İç döşemelerinde yanık yırtık yoktur, periyodik bakımları yeni tamamlandı.',
+      'Memurdan temiz kullanılmış, uzun yolda yorulmamış araç. Lastikleri yeni, muayenesi günceldir.',
+      'Şehir içi iş-ev arası titizlikle kullanılmıştır. Ekspertiz raporuna açıktır, alıcısına şimdiden hayırlı uğurlu olsun.',
+      'Kapalı garaj arabasıdır. Yedek anahtarı ve kitapçıkları mevcuttur. Pazarlık araç başında usulünce yapılır.',
+    ];
+    return standardDescriptions[_random.nextInt(standardDescriptions.length)];
   }
 
   static ListingModel _generateSingleListing(int playerLevel, MarketTrendModel trend) {
@@ -440,7 +467,11 @@ class MarketEngine {
           : (isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!)),
       sellerCity: sellerCity,
       title: _generateTitle(year, brandData.name, modelName, isBarnFind, isRare),
-      description: _generateDescription(isBarnFind, isFlashDeal, isRare),
+      description: _generateDescription(
+        isBarnFind: isBarnFind,
+        isFlashDeal: isFlashDeal,
+        isRare: isRare,
+      ),
       askingPrice: askingPrice,
       isExpertiseCompleted: false,
       createdAt: DateTime.now(),

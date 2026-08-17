@@ -466,7 +466,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                       carTitle: '${car.brand} ${car.modelName}',
                       rating: isHonest ? (4.0 + (offer.offeredAmount >= car.listingPrice ? 1.0 : 0.0)) : 1.0,
                       comment: isHonest
-                          ? 'Harika dürüst bir galerici! ${game.dealershipName} ve ${game.playerName} bey/hanım çok ilgiliydi. Araç ekspertizdeki gibi çıktı.'
+                          ? 'Harika ve dürüst bir galerici! ${game.dealershipName} ekibi ve ${game.playerName} çok ilgiliydi. Araç ekspertizdeki gibi tertemiz çıktı.'
                           : '${game.dealershipName} galerisinde göz göre göre gizli kusurlu araç sattılar! Kesinlikle tavsiye etmiyorum.',
                       createdAt: DateTime.now(),
                     );
@@ -739,7 +739,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                                     carTitle: '${car.brand} ${car.modelName}',
                                     rating: isHonest ? (4.0 + (offer.offeredAmount >= car.listingPrice ? 1.0 : 0.0)) : 1.0,
                                     comment: isHonest
-                                        ? 'Harika dürüst bir galerici! ${game.dealershipName} ve ${game.playerName} bey/hanım çok ilgiliydi. Araç ekspertizdeki gibi çıktı.'
+                                        ? 'Harika ve dürüst bir galerici! ${game.dealershipName} ekibi ve ${game.playerName} çok ilgiliydi. Araç ekspertizdeki gibi tertemiz çıktı.'
                                         : '${game.dealershipName} galerisinde göz göre göre gizli kusurlu araç sattılar! Kesinlikle tavsiye etmiyorum.',
                                     createdAt: DateTime.now(),
                                   );

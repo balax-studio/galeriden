@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../../core/utils/currency_formatter.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/trade_in_offer_model.dart';
 import 'market_engine.dart';
@@ -43,9 +44,9 @@ class TradeInEngine {
 
     String dialogue;
     if (cashDiff > 0) {
-      dialogue = 'Usta senin ${targetCar.modelName} tam bana göre. Benim ${offeredCar.modelName} üzerine ₺${cashDiff.toInt()} nakit vereyim, el sıkışalım.';
+      dialogue = 'Usta senin ${targetCar.modelName} tam bana göre. Benim ${offeredCar.modelName} üzerine ${CurrencyFormatter.formatShort(cashDiff)} nakit vereyim, el sıkışalım.';
     } else if (cashDiff < 0) {
-      dialogue = 'Benim ${offeredCar.modelName} daha lüks. Senin ${targetCar.modelName} ile takaslarım ama ₺${(-cashDiff).toInt()} üste para alırım.';
+      dialogue = 'Benim ${offeredCar.modelName} daha lüks. Senin ${targetCar.modelName} ile takaslarım ama ${CurrencyFormatter.formatShort(-cashDiff)} üste para alırım.';
     } else {
       dialogue = 'Kafa kafaya anahtar takası yapalım usta, iki araç da birbirine denk!';
     }

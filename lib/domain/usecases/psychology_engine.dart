@@ -169,7 +169,7 @@ class PsychologyEngine {
       bulletPoints.add('$partsArrivedCount adet yedek parça siparişin kargodan ulaştı.');
     }
     if (newOffersCount > 0) {
-      bulletPoints.add('Vitlindeki araçlar için $newOffersCount yeni alıcı teklifi geldi.');
+      bulletPoints.add('Vitrindeki araçlar için $newOffersCount yeni alıcı teklifi geldi.');
     }
     bulletPoints.add('$streakDays. gün giriş serin başarıyla korundu.');
 
