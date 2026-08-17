@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dot_grid_background.dart';
+import 'hazard_stripe_widget.dart';
 
-/// Neo-Brutalist Monolithic Card Widget
-/// Features high-contrast solid borders, hard offset shadows, and tactile press animation.
+/// Neo-Brutalist Monolithic Card Widget (Maximalist Industrial Edition)
+/// Features high-contrast solid borders, hard 0-blur offset shadows, and tactile mechanical press animation.
 class NeoBrutalCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -15,6 +17,8 @@ class NeoBrutalCard extends StatefulWidget {
   final Color? shadowColor;
   final VoidCallback? onTap;
   final bool animateOnTap;
+  final bool showHazardHeader;
+  final bool showDotGrid;
 
   const NeoBrutalCard({
     super.key,
@@ -23,12 +27,14 @@ class NeoBrutalCard extends StatefulWidget {
     this.margin,
     this.backgroundColor,
     this.borderColor,
-    this.borderWidth = 2.0,
-    this.borderRadius = 12.0,
-    this.shadowOffset = const Offset(3.5, 3.5),
+    this.borderWidth = 2.5,
+    this.borderRadius = 10.0,
+    this.shadowOffset = const Offset(4.0, 4.0),
     this.shadowColor,
     this.onTap,
     this.animateOnTap = true,
+    this.showHazardHeader = false,
+    this.showDotGrid = false,
   });
 
   @override
@@ -46,20 +52,28 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
     final effectiveBorder = widget.borderColor ??
         (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A));
     final effectiveShadow = widget.shadowColor ??
-        (isDark ? const Color(0xFF07090E) : const Color(0xFF0F172A));
+        (isDark ? const Color(0xFF000000) : const Color(0xFF0F172A));
 
     final currentOffset = (_isPressed && widget.onTap != null && widget.animateOnTap)
         ? const Offset(1.0, 1.0)
         : widget.shadowOffset;
 
+    Widget cardBody = widget.child;
+    if (widget.showDotGrid) {
+      cardBody = DotGridBackground(
+        dotColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
+        child: cardBody,
+      );
+    }
+
     Widget result = Container(
       margin: widget.margin,
       child: Transform.translate(
         offset: (_isPressed && widget.onTap != null && widget.animateOnTap)
-            ? const Offset(2.0, 2.0)
+            ? const Offset(2.5, 2.5)
             : Offset.zero,
         child: Container(
-          padding: widget.padding,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: effectiveBg,
             borderRadius: BorderRadius.circular(widget.borderRadius),
@@ -75,7 +89,18 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
               ),
             ],
           ),
-          child: widget.child,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (widget.showHazardHeader)
+                const HazardStripeWidget(height: 6),
+              Padding(
+                padding: widget.padding ?? const EdgeInsets.all(16),
+                child: cardBody,
+              ),
+            ],
+          ),
         ),
       ),
     );

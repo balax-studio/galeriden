@@ -49,29 +49,33 @@ class AppTypography {
         color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
       );
 
-  // JetBrains Mono for Currency, Numbers & Specs
+  // JetBrains Mono for Currency, Numbers & Specs with Tabular Figures
   static TextStyle moneyLarge(bool isDark) => GoogleFonts.jetBrainsMono(
         fontSize: 32,
         fontWeight: FontWeight.w800,
         letterSpacing: -0.5,
+        fontFeatures: const [FontFeature.tabularFigures()],
         color: AppColors.primaryAmber,
       );
 
   static TextStyle moneyMedium(bool isDark) => GoogleFonts.jetBrainsMono(
         fontSize: 20,
         fontWeight: FontWeight.bold,
+        fontFeatures: const [FontFeature.tabularFigures()],
         color: AppColors.primaryAmber,
       );
 
   static TextStyle statValue(bool isDark) => GoogleFonts.jetBrainsMono(
         fontSize: 16,
         fontWeight: FontWeight.w700,
+        fontFeatures: const [FontFeature.tabularFigures()],
         color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
       );
 
   static TextStyle monoSpec(bool isDark) => GoogleFonts.jetBrainsMono(
         fontSize: 13,
         fontWeight: FontWeight.w500,
+        fontFeatures: const [FontFeature.tabularFigures()],
         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
       );
 }

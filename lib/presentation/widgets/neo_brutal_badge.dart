@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Neo-Brutalist Tag / Badge Widget
-/// Compact monolithic pill with crisp borders and high-contrast styling.
+/// Neo-Brutalist Tag / Badge Widget (Maximalist Industrial Edition)
+/// Compact monolithic pill with crisp borders, optional sticker tilt, and hard offset shadow.
 class NeoBrutalBadge extends StatelessWidget {
   final String text;
   final IconData? icon;
@@ -13,6 +13,9 @@ class NeoBrutalBadge extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double fontSize;
   final FontWeight fontWeight;
+  final double angle;
+  final bool showHardShadow;
+  final Offset shadowOffset;
 
   const NeoBrutalBadge({
     super.key,
@@ -21,11 +24,14 @@ class NeoBrutalBadge extends StatelessWidget {
     this.backgroundColor,
     this.textColor,
     this.borderColor,
-    this.borderWidth = 1.5,
+    this.borderWidth = 2.0,
     this.borderRadius = 6.0,
-    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
     this.fontSize = 11.0,
-    this.fontWeight = FontWeight.w700,
+    this.fontWeight = FontWeight.w800,
+    this.angle = 0.0,
+    this.showHardShadow = false,
+    this.shadowOffset = const Offset(2.0, 2.0),
   });
 
   @override
@@ -38,7 +44,7 @@ class NeoBrutalBadge extends StatelessWidget {
     final effectiveBorder = borderColor ??
         (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A));
 
-    return Container(
+    Widget badge = Container(
       padding: padding,
       decoration: BoxDecoration(
         color: effectiveBg,
@@ -47,6 +53,15 @@ class NeoBrutalBadge extends StatelessWidget {
           color: effectiveBorder,
           width: borderWidth,
         ),
+        boxShadow: showHardShadow
+            ? [
+                BoxShadow(
+                  color: isDark ? Colors.black : const Color(0xFF0F172A),
+                  offset: shadowOffset,
+                  blurRadius: 0,
+                ),
+              ]
+            : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -61,11 +76,20 @@ class NeoBrutalBadge extends StatelessWidget {
               color: effectiveText,
               fontSize: fontSize,
               fontWeight: fontWeight,
-              letterSpacing: 0.2,
+              letterSpacing: 0.3,
             ),
           ),
         ],
       ),
     );
+
+    if (angle != 0.0) {
+      badge = Transform.rotate(
+        angle: angle,
+        child: badge,
+      );
+    }
+
+    return badge;
   }
 }

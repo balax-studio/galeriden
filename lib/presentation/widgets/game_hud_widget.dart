@@ -5,13 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
 import '../../data/models/weather_model.dart';
 import '../../data/models/theme_palette_model.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/game_provider.dart';
 import '../screens/dashboard/widgets/dashboard_missions_section.dart';
+import 'animated_rolling_counter.dart';
 import 'neo_brutal_button.dart';
 
 /// Floating Game HUD overlay widget - Neo-Brutalist Monolithic Stats Bar
@@ -96,25 +96,26 @@ class GameHudHeaderWidget extends ConsumerWidget {
           const SizedBox(width: 8),
 
           // KASA Pill (Interactive -> Finance & Banking with Smooth Rolling Counter §4.2)
-          TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: game.balance, end: game.balance),
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeOutCubic,
-            builder: (context, animatedBalance, _) {
-              return _buildPill(
-                context,
-                icon: Icons.account_balance_wallet_rounded,
-                accentColor: const Color(0xFF00E575),
-                title: 'KASA',
-                value: CurrencyFormatter.formatShort(animatedBalance),
-                bold: true,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  context.push('/finance');
-                },
-                isDark: isDark,
-              );
+          _buildPill(
+            context,
+            icon: Icons.account_balance_wallet_rounded,
+            accentColor: const Color(0xFF00E575),
+            title: 'KASA',
+            valueWidget: AnimatedRollingCounter(
+              value: game.balance,
+              isShort: true,
+              style: AppTypography.monoSpec(isDark).copyWith(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+              ),
+            ),
+            bold: true,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/finance');
             },
+            isDark: isDark,
           ),
           const SizedBox(width: 8),
 
@@ -266,7 +267,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
     required IconData icon,
     required Color accentColor,
     required String title,
-    required String value,
+    String? value,
+    Widget? valueWidget,
     required VoidCallback onTap,
     required bool isDark,
     bool bold = false,
@@ -328,14 +330,17 @@ class GameHudHeaderWidget extends ConsumerWidget {
                     letterSpacing: 0.3,
                   ),
                 ),
-                Text(
-                  value,
-                  style: AppTypography.monoSpec(isDark).copyWith(
-                    fontSize: 11.5,
-                    fontWeight: bold ? FontWeight.w900 : FontWeight.w800,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                if (valueWidget != null)
+                  valueWidget
+                else
+                  Text(
+                    value ?? '',
+                    style: AppTypography.monoSpec(isDark).copyWith(
+                      fontSize: 11.5,
+                      fontWeight: bold ? FontWeight.w900 : FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
                   ),
-                ),
               ],
             ),
           ),

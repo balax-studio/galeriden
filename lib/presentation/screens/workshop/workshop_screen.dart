@@ -154,7 +154,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       return GestureDetector(
                         onTap: () => setState(() => _selectedCar = car),
                         child: Container(
-                          width: 175,
+                          width: 190,
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: isSelected
@@ -181,14 +181,17 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               Text(car.modelName, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 4),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  NeoBrutalBadge(
-                                    text: isPerfect ? 'KUSURSUZ' : 'MOTOR %${exp.engineCondition.toInt()}',
-                                    backgroundColor: isPerfect ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
-                                    textColor: Colors.black,
-                                    fontSize: 8.5,
+                                  Flexible(
+                                    child: NeoBrutalBadge(
+                                      text: isPerfect ? 'KUSURSUZ' : 'MOTOR %${exp.engineCondition.toInt()}',
+                                      backgroundColor: isPerfect ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
+                                      textColor: Colors.black,
+                                      fontSize: 8.5,
+                                    ),
                                   ),
-                                  const Spacer(),
+                                  const SizedBox(width: 4),
                                   Text(CurrencyFormatter.formatShort(car.baseMarketValue), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900)),
                                 ],
                               ),

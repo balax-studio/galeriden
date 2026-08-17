@@ -6,11 +6,14 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/animated_rolling_counter.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/pulsing_dot.dart';
+import '../../widgets/slam_stamp_widget.dart';
 
 class NightMarketScreen extends ConsumerStatefulWidget {
   const NightMarketScreen({super.key});
@@ -70,13 +73,19 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'GECE MEZATI & DRAG YARIŞI',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        children: [
+                          PulsingDot(color: AppColors.brutalPink, size: 7.0),
+                          SizedBox(width: 6),
+                          Text(
+                            'GECE MEZATI & DRAG YARIŞI',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 2),
                       Text(
@@ -185,7 +194,11 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
       padding: const EdgeInsets.all(16),
       backgroundColor: const Color(0xFF161922),
       borderColor: AppColors.brutalPink,
-      borderRadius: 16,
+      borderRadius: 10,
+      borderWidth: 2.5,
+      shadowOffset: const Offset(4.0, 4.0),
+      showDotGrid: true,
+      showHazardHeader: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -366,6 +379,12 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                       ),
                     ),
                   ),
+                  SlamStampWidget(
+                    text: result.isWon ? 'ŞAMPİYON' : 'ELENDİ',
+                    color: result.isWon ? AppColors.brutalGreen : AppColors.errorRed,
+                    fontSize: 10,
+                    angle: result.isWon ? -0.1 : 0.08,
+                  ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -401,14 +420,28 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                     children: [
                       const Icon(Icons.stars_rounded, color: AppColors.brutalGreen, size: 20),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Ödül: +${CurrencyFormatter.format(result.prizeMoney)} & +${result.reputationBonus} İtibar',
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.brutalGreen,
-                          ),
+                      const Text(
+                        'Ödül: +',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.brutalGreen,
+                        ),
+                      ),
+                      AnimatedRollingCounter(
+                        value: result.prizeMoney,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.brutalGreen,
+                        ),
+                      ),
+                      Text(
+                        ' & +${result.reputationBonus} İtibar',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.brutalGreen,
                         ),
                       ),
                     ],

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/currency_formatter.dart';
+import '../../../widgets/animated_rolling_counter.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/pulsing_dot.dart';
 
 class WorkshopRepairTile extends StatelessWidget {
   final String title;
@@ -38,7 +39,10 @@ class WorkshopRepairTile extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isRepaired ? const Color(0xFF00E575) : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
-      borderRadius: 12,
+      borderRadius: 8,
+      borderWidth: 2.5,
+      shadowOffset: const Offset(3.5, 3.5),
+      showDotGrid: true,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -68,14 +72,38 @@ class WorkshopRepairTile extends StatelessWidget {
                   style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  isRepaired ? 'Onarım Gerekmiyor' : 'Onarım Bedeli: ${CurrencyFormatter.format(cost)}',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w900,
-                    color: isRepaired ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
+                if (isRepaired)
+                  const Text(
+                    'Onarım Gerekmiyor',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF00E575),
+                    ),
+                  )
+                else
+                  Row(
+                    children: [
+                      const PulsingDot(color: Color(0xFFFF7A00), size: 5.5),
+                      const SizedBox(width: 5),
+                      const Text(
+                        'Onarım Bedeli: ',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFFF7A00),
+                        ),
+                      ),
+                      AnimatedRollingCounter(
+                        value: cost,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFFF7A00),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
                 if (!isRepaired && netRoiText != null && netRoiText!.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(

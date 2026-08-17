@@ -13,12 +13,15 @@ import '../../../data/models/theme_palette_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
+import '../../widgets/animated_rolling_counter.dart';
 import '../../widgets/car_icons.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_skeleton.dart';
+import '../../widgets/pulsing_dot.dart';
+import '../../widgets/staggered_item_entry.dart';
 import 'interactive_negotiation_sheet.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
@@ -336,83 +339,88 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       final estRoi = (estNetProfit / item.askingPrice) * 100;
 
                       return RepaintBoundary(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: NeoBrutalCard(
-                          padding: const EdgeInsets.all(14),
-                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                          borderColor: car.isRare
-                              ? const Color(0xFFA855F7)
-                              : (isFlash
-                                  ? const Color(0xFFFF7A00)
-                                  : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
-                          borderRadius: 12,
-                          onTap: () => context.push('/listing-detail', extra: item),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Top Tag & Live Viewer FOMO
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      NeoBrutalBadge(
-                                        text: car.bodyType,
-                                        backgroundColor: p.secondaryColor.withValues(alpha: 0.2),
-                                        textColor: isDark ? p.secondaryColor : const Color(0xFF0F172A),
-                                        borderColor: p.secondaryColor,
-                                        fontSize: 9.5,
-                                      ),
-                                      if (car.isBarnFind) ...[
-                                        const SizedBox(width: 6),
-                                        const NeoBrutalBadge(
-                                          text: 'SAMANLIK KELEPİRİ',
-                                          backgroundColor: Color(0xFFD97706),
-                                          textColor: Colors.white,
+                        child: StaggeredItemEntry(
+                          index: index,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: NeoBrutalCard(
+                            padding: const EdgeInsets.all(14),
+                            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                            borderColor: car.isRare
+                                ? const Color(0xFFA855F7)
+                                : (isFlash
+                                    ? const Color(0xFFFF7A00)
+                                    : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
+                            borderRadius: 10,
+                            borderWidth: 2.5,
+                            shadowOffset: const Offset(4.0, 4.0),
+                            showDotGrid: true,
+                            showHazardHeader: isFlash || car.isBarnFind,
+                            onTap: () => context.push('/listing-detail', extra: item),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Top Tag & Live Viewer FOMO with PulsingDot
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        NeoBrutalBadge(
+                                          text: car.bodyType,
+                                          backgroundColor: p.secondaryColor.withValues(alpha: 0.2),
+                                          textColor: isDark ? p.secondaryColor : const Color(0xFF0F172A),
+                                          borderColor: p.secondaryColor,
                                           fontSize: 9.5,
                                         ),
-                                      ] else if (car.isRare) ...[
+                                        if (car.isBarnFind) ...[
+                                          const SizedBox(width: 6),
+                                          const NeoBrutalBadge(
+                                            text: 'SAMANLIK KELEPİRİ',
+                                            backgroundColor: Color(0xFFD97706),
+                                            textColor: Colors.white,
+                                            fontSize: 9.5,
+                                          ),
+                                        ] else if (car.isRare) ...[
+                                          const SizedBox(width: 6),
+                                          const NeoBrutalBadge(
+                                            text: 'NADİR KOLEKSİYON',
+                                            backgroundColor: Color(0xFFA855F7),
+                                            textColor: Colors.white,
+                                            fontSize: 9.5,
+                                          ),
+                                        ],
+                                        if (isFlash) ...[
+                                          const SizedBox(width: 6),
+                                          const NeoBrutalBadge(
+                                            text: 'KELEPİR FIRSAT',
+                                            backgroundColor: Color(0xFFFF7A00),
+                                            textColor: Colors.black,
+                                            fontSize: 9.5,
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        const PulsingDot(
+                                          color: Color(0xFF00E575),
+                                          size: 6.5,
+                                        ),
                                         const SizedBox(width: 6),
-                                        const NeoBrutalBadge(
-                                          text: 'NADİR KOLEKSİYON',
-                                          backgroundColor: Color(0xFFA855F7),
-                                          textColor: Colors.white,
-                                          fontSize: 9.5,
+                                        Text(
+                                          '$viewerCount kişi bakıyor',
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                          ),
                                         ),
                                       ],
-                                      if (isFlash) ...[
-                                        const SizedBox(width: 6),
-                                        const NeoBrutalBadge(
-                                          text: 'KELEPİR FIRSAT',
-                                          backgroundColor: Color(0xFFFF7A00),
-                                          textColor: Colors.black,
-                                          fontSize: 9.5,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.visibility_rounded,
-                                        size: 14,
-                                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '$viewerCount kişi bakıyor',
-                                        style: TextStyle(
-                                          fontSize: 10.5,
-                                          fontWeight: FontWeight.w700,
-                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
 
                               // Car Header: Silhouette Icon + Name + City
                               Row(
@@ -537,8 +545,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                           color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                                         ),
                                       ),
-                                      Text(
-                                        CurrencyFormatter.format(item.askingPrice),
+                                      AnimatedRollingCounter(
+                                        value: item.askingPrice,
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w900,
@@ -585,11 +593,12 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           ),
                         ),
                       ),
-                    );
-                  },
-                  ),
+                    ),
+                  );
+                },
+                ),
+            ),
           ),
-        ),
       ],
     ),
   );

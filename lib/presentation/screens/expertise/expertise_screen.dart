@@ -11,10 +11,14 @@ import '../../../data/models/expertise_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
+import '../../widgets/animated_rolling_counter.dart';
+import '../../widgets/dot_grid_background.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_stamp.dart';
+import '../../widgets/slam_stamp_widget.dart';
 import '../marketplace/interactive_negotiation_sheet.dart';
 
 class ExpertiseScreen extends ConsumerStatefulWidget {
@@ -48,51 +52,87 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
       appBar: const NeoBrutalAppBar(
         title: 'DETAYLI EKSPERTİZ RAPORU',
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
-          // 1. Vehicle Title Header Card
-          NeoBrutalCard(
-            padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-            borderRadius: 14,
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.brutalYellow,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                      width: 2.0,
+      body: DotGridBackground(
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
+            // 1. Vehicle Title Header Card (Official Noter / Inspection Style)
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(14),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 10,
+              borderWidth: 2.5,
+              shadowOffset: const Offset(4.0, 4.0),
+              showDotGrid: true,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.brutalYellow,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.2,
+                      ),
+                    ),
+                    child: const Icon(Icons.directions_car_rounded, color: Colors.black, size: 26),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '[RAPOR #EXP-${car.id.hashCode.abs().toString().padLeft(6, '0').substring(0, 5)}]',
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'monospace',
+                                color: Color(0xFF64748B),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            if (_isInspected) ...[
+                              NeoBrutalStamp(
+                                text: eval['overallGrade'] == 'KUSURSUZ' || (!car.hasNonOriginalParts && exp.engineCondition >= 85)
+                                    ? 'BOYASIZ'
+                                    : (exp.isMileageTampered || exp.tramerAmount > 100000
+                                        ? 'AĞIR HASAR'
+                                        : 'DEĞİŞEN VAR'),
+                                color: eval['overallGrade'] == 'KUSURSUZ' || (!car.hasNonOriginalParts && exp.engineCondition >= 85)
+                                    ? const Color(0xFF00E575)
+                                    : (exp.isMileageTampered || exp.tramerAmount > 100000
+                                        ? const Color(0xFFEF4444)
+                                        : const Color(0xFFF59E0B)),
+                                fontSize: 9.5,
+                                angle: -0.08,
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${car.brand} ${car.modelName}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${car.modelYear} • ${car.bodyType} • ${widget.listing.sellerCity}',
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Icon(Icons.directions_car_rounded, color: Colors.black, size: 26),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${car.brand} ${car.modelName}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${car.modelYear} • ${car.bodyType} • ${widget.listing.sellerCity}',
-                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
 
           if (!_isInspected) ...[
             // Locked State Card
@@ -153,28 +193,48 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
               ),
             ),
           ] else ...[
-            // Full Inspection Report Unlocked
+            // Full Inspection Report Unlocked with Slam Stamp
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'GENEL DERECELENDİRME',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'GENEL DERECELENDİRME',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    NeoBrutalBadge(
+                      text: eval['overallGrade'] as String,
+                      backgroundColor: AppColors.brutalGreen,
+                      textColor: Colors.black,
+                      fontSize: 12,
+                    ),
+                  ],
                 ),
-                NeoBrutalBadge(
-                  text: eval['overallGrade'] as String,
-                  backgroundColor: AppColors.brutalGreen,
-                  textColor: Colors.black,
-                  fontSize: 12,
+                SlamStampWidget(
+                  text: exp.isMileageTampered || exp.tramerAmount > 50000
+                      ? 'AĞIR HASARLI'
+                      : (exp.bodyParts.values.every((p) => p.name == 'original')
+                          ? 'HATASIZ BOYASIZ'
+                          : 'EKSPERTİZ ONAYLI'),
+                  color: exp.isMileageTampered || exp.tramerAmount > 50000
+                      ? AppColors.errorRed
+                      : (exp.bodyParts.values.every((p) => p.name == 'original')
+                          ? AppColors.brutalGreen
+                          : AppColors.primaryAmber),
+                  fontSize: 11,
+                  angle: -0.08,
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
             // Color-Coded Engine & Transmission Bars
             _buildProgressStat('Motor Sağlığı', exp.engineCondition, isDark),
@@ -392,8 +452,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                                 'EKSPERTİZ DEĞERİ',
                                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                               ),
-                              Text(
-                                CurrencyFormatter.format(fairValue),
+                              AnimatedRollingCounter(
+                                value: fairValue,
                                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                               ),
                             ],
@@ -405,8 +465,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                                 'İLAN FİYATI',
                                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                               ),
-                              Text(
-                                CurrencyFormatter.format(askingPrice),
+                              AnimatedRollingCounter(
+                                value: askingPrice,
                                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                               ),
                             ],
@@ -447,8 +507,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 );
               },
             ),
+            ],
           ],
-        ],
+        ),
       ),
       bottomNavigationBar: _isInspected
           ? SafeArea(

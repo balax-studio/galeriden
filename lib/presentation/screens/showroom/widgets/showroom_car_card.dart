@@ -10,9 +10,11 @@ import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/visitor_queue_engine.dart';
 import '../../../providers/game_provider.dart';
+import '../../../widgets/animated_rolling_counter.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/pulsing_dot.dart';
 import 'showroom_listing_modal.dart';
 
 class ShowroomCarCard extends ConsumerWidget {
@@ -51,7 +53,11 @@ class ShowroomCarCard extends ConsumerWidget {
             : (car.isDoped
                 ? const Color(0xFFFFDE59)
                 : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
-        borderRadius: 12,
+        borderRadius: 10,
+        borderWidth: 2.5,
+        shadowOffset: const Offset(4.5, 4.5),
+        showDotGrid: true,
+        showHazardHeader: car.isStaleListing || car.isBarnFind,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -75,12 +81,19 @@ class ShowroomCarCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       if (hasOffer) ...[
-                        const NeoBrutalBadge(
-                          text: 'TEKLİF VAR',
-                          icon: Icons.local_fire_department_rounded,
-                          backgroundColor: Color(0xFF00E575),
-                          textColor: Colors.black,
-                          fontSize: 9.5,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            PulsingDot(color: Color(0xFF00E575), size: 6.0),
+                            SizedBox(width: 4),
+                            NeoBrutalBadge(
+                              text: 'TEKLİF VAR',
+                              icon: Icons.local_fire_department_rounded,
+                              backgroundColor: Color(0xFF00E575),
+                              textColor: Colors.black,
+                              fontSize: 9.5,
+                            ),
+                          ],
                         ),
                         const SizedBox(width: 6),
                       ],
@@ -473,71 +486,76 @@ class ShowroomCarCard extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Alış Maliyeti',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Alış Maliyeti',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              ),
+                            ),
+                            AnimatedRollingCounter(
+                              value: car.currentPurchasePrice,
+                              isShort: true,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Text(
-                        CurrencyFormatter.formatShort(car.currentPurchasePrice),
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Net Tahmini Kâr',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              ),
+                            ),
+                            AnimatedRollingCounter(
+                              value: car.netEstimatedProfit,
+                              isShort: true,
+                              prefix: car.netEstimatedProfit >= 0 ? '+' : '',
+                              suffix: ' (%${car.profitMarginPercent.round()})',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w900,
+                                color: car.netEstimatedProfit >= 0
+                                    ? const Color(0xFF00E575)
+                                    : const Color(0xFFEF4444),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Net Tahmini Kâr',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              car.isListed ? 'İlan Fiyatı' : 'Piyasa Değeri',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              ),
+                            ),
+                            AnimatedRollingCounter(
+                              value: car.isListed ? car.listingPrice : car.estimatedRealValue,
+                              isShort: true,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w900,
+                                color: car.isListed ? const Color(0xFF00E575) : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Text(
-                        '${car.netEstimatedProfit >= 0 ? "+" : ""}${CurrencyFormatter.formatShort(car.netEstimatedProfit)} (%${car.profitMarginPercent.round()})',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w900,
-                          color: car.netEstimatedProfit >= 0
-                              ? const Color(0xFF00E575)
-                              : const Color(0xFFEF4444),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        car.isListed ? 'İlan Fiyatı' : 'Piyasa Değeri',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                        ),
-                      ),
-                      Text(
-                        CurrencyFormatter.formatShort(car.isListed ? car.listingPrice : car.estimatedRealValue),
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w900,
-                          color: car.isListed ? const Color(0xFF00E575) : (isDark ? Colors.white : const Color(0xFF0F172A)),
-                        ),
-                      ),
-                    ],
-                  ),
                       ],
                     ),
                   ),
