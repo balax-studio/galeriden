@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
 
@@ -149,5 +150,68 @@ class ExpertiseEngine {
       'overallGrade': overallGrade,
       'developerNote': note,
     };
+  }
+
+  /// Evaluates 100% strict, accurate physical automotive condition stamp
+  static ({String text, Color color}) getInspectionStamp({
+    required CarModel car,
+    required ExpertiseReport exp,
+    required Map<String, dynamic> eval,
+  }) {
+    final int paintedCount = eval['paintedCount'] as int? ?? 0;
+    final int changedCount = eval['changedCount'] as int? ?? 0;
+    final int damagedCount = eval['damagedCount'] as int? ?? 0;
+    final String overallGrade = eval['overallGrade'] as String? ?? '';
+    final bool isSevere = exp.isMileageTampered ||
+        exp.tramerAmount >= 100000 ||
+        overallGrade.startsWith('D') ||
+        damagedCount >= 3 ||
+        exp.bodyParts['Şasi/Podye'] == PartStatus.damaged ||
+        exp.bodyParts['Tavan'] == PartStatus.damaged;
+
+    if (isSevere) {
+      return (text: 'AĞIR HASARLI', color: const Color(0xFFEF4444));
+    }
+
+    if (changedCount > 0 && paintedCount > 0) {
+      return (text: 'DEĞİŞEN & BOYA', color: const Color(0xFFF59E0B));
+    }
+
+    if (changedCount > 0) {
+      return (
+        text: changedCount == 1 ? '1 PARÇA DEĞİŞEN' : '$changedCount PARÇA DEĞİŞEN',
+        color: const Color(0xFFF59E0B),
+      );
+    }
+
+    if (damagedCount > 0) {
+      return (
+        text: damagedCount == 1 ? '1 PARÇA HASARLI' : '$damagedCount PARÇA HASARLI',
+        color: const Color(0xFFF59E0B),
+      );
+    }
+
+    if (paintedCount >= 6) {
+      return (text: 'KOMPLE BOYALI', color: const Color(0xFFF59E0B));
+    }
+
+    if (paintedCount > 0) {
+      return (
+        text: paintedCount == 1 ? '1 PARÇA BOYALI' : '$paintedCount PARÇA BOYALI',
+        color: const Color(0xFF38BDF8),
+      );
+    }
+
+    // STRICT CHECK: Hatasız Boyasız only when every part is genuinely original and clean
+    final isCompletelyOriginal = exp.bodyParts.values.every((p) => p == PartStatus.original) &&
+        exp.tramerAmount == 0 &&
+        !exp.isMileageTampered &&
+        !car.hasNonOriginalParts;
+
+    if (isCompletelyOriginal) {
+      return (text: 'HATASIZ BOYASIZ', color: const Color(0xFF00E575));
+    }
+
+    return (text: 'EKSPERTİZ ONAYLI', color: const Color(0xFF00E575));
   }
 }

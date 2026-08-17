@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/stat_colors.dart';
@@ -45,6 +46,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
     final car = widget.listing.car;
     final exp = car.expertise;
     final eval = ExpertiseEngine.evaluateVehicle(car);
+    final stampInfo = ExpertiseEngine.getInspectionStamp(car: car, exp: exp, eval: eval);
     final game = ref.watch(gameProvider);
 
     return Scaffold(
@@ -100,16 +102,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                             ),
                             if (_isInspected) ...[
                               NeoBrutalStamp(
-                                text: eval['overallGrade'] == 'KUSURSUZ' || (!car.hasNonOriginalParts && exp.engineCondition >= 85)
-                                    ? 'BOYASIZ'
-                                    : (exp.isMileageTampered || exp.tramerAmount > 100000
-                                        ? 'AĞIR HASAR'
-                                        : 'DEĞİŞEN VAR'),
-                                color: eval['overallGrade'] == 'KUSURSUZ' || (!car.hasNonOriginalParts && exp.engineCondition >= 85)
-                                    ? const Color(0xFF00E575)
-                                    : (exp.isMileageTampered || exp.tramerAmount > 100000
-                                        ? const Color(0xFFEF4444)
-                                        : const Color(0xFFF59E0B)),
+                                text: stampInfo.text,
+                                color: stampInfo.color,
                                 fontSize: 9.5,
                                 angle: -0.08,
                               ),
@@ -212,23 +206,19 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                     const SizedBox(height: 4),
                     NeoBrutalBadge(
                       text: eval['overallGrade'] as String,
-                      backgroundColor: AppColors.brutalGreen,
-                      textColor: Colors.black,
+                      backgroundColor: (eval['overallGrade'] as String).startsWith('D')
+                          ? AppColors.errorRed
+                          : ((eval['overallGrade'] as String).startsWith('A')
+                              ? AppColors.brutalGreen
+                              : AppColors.primaryAmber),
+                      textColor: (eval['overallGrade'] as String).startsWith('D') ? Colors.white : Colors.black,
                       fontSize: 12,
                     ),
                   ],
                 ),
                 SlamStampWidget(
-                  text: exp.isMileageTampered || exp.tramerAmount > 50000
-                      ? 'AĞIR HASARLI'
-                      : (exp.bodyParts.values.every((p) => p.name == 'original')
-                          ? 'HATASIZ BOYASIZ'
-                          : 'EKSPERTİZ ONAYLI'),
-                  color: exp.isMileageTampered || exp.tramerAmount > 50000
-                      ? AppColors.errorRed
-                      : (exp.bodyParts.values.every((p) => p.name == 'original')
-                          ? AppColors.brutalGreen
-                          : AppColors.primaryAmber),
+                  text: stampInfo.text,
+                  color: stampInfo.color,
                   fontSize: 11,
                   angle: -0.08,
                 ),
@@ -260,7 +250,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${CurrencyFormatter.formatShort(exp.mileage.toDouble())} KM',
+                          '${NumberFormat('#,###', 'tr_TR').format(exp.mileage)} KM',
                           style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 4),
