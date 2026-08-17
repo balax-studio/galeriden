@@ -4,7 +4,6 @@ enum WeatherType {
   sunny(
     title: 'Güneşli & Açık',
     description: 'Piyasa canlı, vitrin ziyaretleri ve test sürüşleri tam verimde.',
-    emojiIcon: '☀️',
     visitorMultiplier: 1.15,
     carWashBonusMultiplier: 1.0,
     suvDemandMultiplier: 1.0,
@@ -15,7 +14,6 @@ enum WeatherType {
   rainy(
     title: 'Sağanak Yağmurlu',
     description: 'Ziyaretçi trafiği sakinler fakat oto yıkama işletmesinin işleri %50 patlar.',
-    emojiIcon: '🌧️',
     visitorMultiplier: 0.75,
     carWashBonusMultiplier: 1.50,
     suvDemandMultiplier: 1.10,
@@ -26,7 +24,6 @@ enum WeatherType {
   snowy(
     title: 'Yoğun Kar Yağışlı',
     description: 'SUV ve 4x4 araç talebi %60 artar! Yolda kalan araçlar çekici gelirini katlar.',
-    emojiIcon: '❄️',
     visitorMultiplier: 0.65,
     carWashBonusMultiplier: 0.50,
     suvDemandMultiplier: 1.60,
@@ -37,7 +34,6 @@ enum WeatherType {
   foggy(
     title: 'Yoğun Sisli',
     description: 'Görüş mesafesi düşük. Ekspertiz göz kararı doğruluğu %20 azalır.',
-    emojiIcon: '🌫️',
     visitorMultiplier: 0.90,
     carWashBonusMultiplier: 0.80,
     suvDemandMultiplier: 1.0,
@@ -48,7 +44,6 @@ enum WeatherType {
 
   final String title;
   final String description;
-  final String emojiIcon;
   final double visitorMultiplier;
   final double carWashBonusMultiplier;
   final double suvDemandMultiplier;
@@ -78,7 +73,6 @@ enum WeatherType {
   const WeatherType({
     required this.title,
     required this.description,
-    required this.emojiIcon,
     required this.visitorMultiplier,
     required this.carWashBonusMultiplier,
     required this.suvDemandMultiplier,

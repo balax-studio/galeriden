@@ -113,15 +113,15 @@ class PsychologyEngine {
     final items = <String>[];
 
     if (peakSaleHighlight != null && peakSaleHighlight.isNotEmpty) {
-      items.add('🌟 Günün En Kârlı Zirve Anı: $peakSaleHighlight');
+      items.add('Günün En Kârlı Zirve Anı: $peakSaleHighlight');
     }
     if (pendingOrdersCount > 0) {
-      items.add('📦 $pendingOrdersCount parça siparişi yolda, kargolar ulaşıyor.');
+      items.add('$pendingOrdersCount parça siparişi yolda, kargolar ulaşıyor.');
     }
     if (showroomListedCarsCount > 0) {
-      items.add('🚗 $showroomListedCarsCount vitrin aracı için potansiyel alıcılar sırada.');
+      items.add('$showroomListedCarsCount vitrin aracı için potansiyel alıcılar sırada.');
     }
-    items.add('🔥 Yarın giriş yaparsan $tomorrowStreak. Gün Serisi: ₺$tomorrowReward hazır.');
+    items.add('Yarın giriş yaparsan $tomorrowStreak. Gün Serisi: ₺$tomorrowReward hazır.');
 
     return {
       'title': 'DÖNÜŞÜNÜ BEKLEYENLER',

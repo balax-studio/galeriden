@@ -1,3 +1,4 @@
+import '../../core/utils/iterable_extensions.dart';
 import '../../data/models/dealership_model.dart';
 
 class CashflowSummary {
@@ -61,7 +62,7 @@ class CashflowEngine {
     final double stockPortfolioValue = game.ownedStocks.fold<double>(
       0.0,
       (sum, s) {
-        final currentStock = game.marketStocks.where((m) => m.symbol == s.symbol).firstOrNull;
+        final currentStock = findFirstWhere(game.marketStocks, (m) => m.symbol == s.symbol);
         final price = currentStock?.currentPrice ?? s.averageCost;
         return sum + (s.quantity * price);
       },

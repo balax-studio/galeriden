@@ -1,7 +1,29 @@
+import '../../../data/models/cheque_model.dart';
 import '../../../data/models/dealership_model.dart';
+import '../../../data/models/installment_contract_model.dart';
 import '../../../data/models/loan_model.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
+
+enum LiquidityLevel { strong, moderate, tight }
+
+class LiquidityStatus {
+  final LiquidityLevel level;
+  final double ratio;
+  final String badgeLabel;
+  final String description;
+  final double totalLiquidAssets;
+  final double totalShortTermDebts;
+
+  const LiquidityStatus({
+    required this.level,
+    required this.ratio,
+    required this.badgeLabel,
+    required this.description,
+    required this.totalLiquidAssets,
+    required this.totalShortTermDebts,
+  });
+}
 
 mixin GameFinanceMixin on GameBaseNotifier {
   /// Deduct balance from dealership capital
@@ -79,6 +101,117 @@ mixin GameFinanceMixin on GameBaseNotifier {
     );
     saveState();
     return true;
+  }
+
+  /// Cash out / factor cheque early with discount fee
+  bool cashOutChequeEarly(String chequeId, {double discountRate = 0.08}) {
+    final index = state.activeCheques.indexWhere((c) => c.id == chequeId);
+    if (index == -1) return false;
+
+    final cheque = state.activeCheques[index];
+    if (cheque.isDefaulted || cheque.inLegalCollection) return false;
+
+    final double cashReceived = cheque.calculateFactoringCash(discountRate: discountRate);
+
+    List<Cheque> updatedCheques = List<Cheque>.from(state.activeCheques);
+    updatedCheques.removeAt(index);
+
+    state = state.copyWith(
+      balance: state.balance + cashReceived,
+      activeCheques: updatedCheques,
+    );
+
+    addXP(15);
+    saveState();
+    return true;
+  }
+
+  /// Send defaulted / bounced cheque to legal lawyer collection
+  bool sendChequeToLegalCollection(String chequeId) {
+    final index = state.activeCheques.indexWhere((c) => c.id == chequeId);
+    if (index == -1) return false;
+
+    final cheque = state.activeCheques[index];
+    if (!cheque.isDefaulted || cheque.inLegalCollection) return false;
+
+    const double lawyerFee = 1500.0;
+    if (state.balance < lawyerFee) return false;
+
+    List<Cheque> updatedCheques = List<Cheque>.from(state.activeCheques);
+    updatedCheques[index] = cheque.copyWith(
+      inLegalCollection: true,
+      legalCollectionDaysRemaining: 5,
+    );
+
+    state = state.copyWith(
+      balance: state.balance - lawyerFee,
+      activeCheques: updatedCheques,
+    );
+
+    saveState();
+    return true;
+  }
+
+  /// Settle all remaining installments of a contract early with cash discount
+  bool settleInstallmentEarly(String contractId, {double discountRate = 0.05}) {
+    final index = state.activeInstallments.indexWhere((c) => c.id == contractId);
+    if (index == -1) return false;
+
+    final contract = state.activeInstallments[index];
+    final double netCash = contract.calculateEarlySettlementCash(discountRate: discountRate);
+
+    List<InstallmentContract> updatedContracts = List<InstallmentContract>.from(state.activeInstallments);
+    updatedContracts.removeAt(index);
+
+    state = state.copyWith(
+      balance: state.balance + netCash,
+      activeInstallments: updatedContracts,
+    );
+
+    addXP(20);
+    saveState();
+    return true;
+  }
+
+  /// Calculate dealership current liquidity and solvency status
+  LiquidityStatus calculateLiquidityStatus() {
+    final double carStockValue = state.ownedCars.fold(0.0, (sum, c) => sum + c.purchasePrice);
+    final double installmentReceivables = state.activeInstallments.fold(0.0, (sum, c) => sum + (c.totalAmount - c.paidAmount));
+    final double chequeReceivables = state.activeCheques.fold(0.0, (sum, c) => sum + c.amount);
+
+    final double totalLiquidAssets = state.balance + state.bankDepositBalance + carStockValue + installmentReceivables + chequeReceivables;
+    final double totalLoanLiabilities = state.activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
+    final double shortTermTax = state.dailyTaxRate * 30.0;
+    final double totalShortTermDebts = totalLoanLiabilities + shortTermTax;
+
+    final double ratio = totalShortTermDebts <= 0 ? 10.0 : (totalLiquidAssets / totalShortTermDebts);
+
+    LiquidityLevel level;
+    String badgeLabel;
+    String description;
+
+    if (ratio >= 2.5) {
+      level = LiquidityLevel.strong;
+      badgeLabel = 'Sağlam & Likit (Güçlü Nakit)';
+      description = 'Kasa ve dönen varlıkların borçlarını rahatça karşılıyor. Yeni araç yatırımlarına hazır.';
+    } else if (ratio >= 1.2) {
+      level = LiquidityLevel.moderate;
+      badgeLabel = 'Dengeli & İzlemede (Stabil)';
+      description = 'Alacak ve borç dengesi normal seviyede. Taksit ve çek vadelerini takip et.';
+    } else {
+      level = LiquidityLevel.tight;
+      badgeLabel = 'Nakit Sıkışıklığı (Riskli Likidite)';
+      description = 'Kısa vadeli borçlar yüksek. Çek kırdırma veya acil araç satışı ile nakit yarat.';
+    }
+
+    return LiquidityStatus(
+      level: level,
+      ratio: ratio,
+      badgeLabel: badgeLabel,
+      description: description,
+      totalLiquidAssets: totalLiquidAssets,
+      totalShortTermDebts: totalShortTermDebts,
+    );
   }
 
   /// Add rewarded ad balance boost

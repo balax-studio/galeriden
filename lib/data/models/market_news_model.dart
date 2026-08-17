@@ -69,5 +69,40 @@ class MarketNewsModel {
       priceMultiplier: 1.25,
       targetCategory: 'luxury',
     ),
+    MarketNewsModel(
+      id: 'news_6',
+      title: 'ELEKTRİKLİ ARAÇ TEŞVİKİ',
+      description: 'Yeni nesil batarya teşvikleriyle hibrit ve elektrikli araçlara talep tavan yaptı! (+%20 Pazar Değeri)',
+      priceMultiplier: 1.20,
+      targetCategory: 'electric',
+    ),
+    MarketNewsModel(
+      id: 'news_7',
+      title: 'TİCARİ ARAÇ VERGİ AVANTAJI',
+      description: 'Esnafa yönelik amortisman indirimi hafif ticari ve van piyasasını hareketlendirdi. (+%14 Pazar Değeri)',
+      priceMultiplier: 1.14,
+      targetCategory: 'commercial',
+    ),
+    MarketNewsModel(
+      id: 'news_8',
+      title: 'KLASİK OTOMOBİL FESTİVALİ',
+      description: 'Uluslararası ralli etkinliği öncesi retro ve kupon araçlar prim yaptı! (+%22 Pazar Değeri)',
+      priceMultiplier: 1.22,
+      targetCategory: 'classic',
+    ),
+    MarketNewsModel(
+      id: 'news_9',
+      title: 'KREDİ FAİZLERİNDE SIKILAŞMA',
+      description: 'Taşıt kredisi onay oranlarının düşmesi lüks otomobil piyasasında durgunluk yarattı. (-%10 Pazar Değeri)',
+      priceMultiplier: 0.90,
+      targetCategory: 'luxury',
+    ),
+    MarketNewsModel(
+      id: 'news_10',
+      title: 'TATİL VE BAYRAM AKINI',
+      description: 'Uzun tatil öncesi aile sedanlarına ve geniş bagajlı araçlara rağbet arttı. (+%12 Pazar Değeri)',
+      priceMultiplier: 1.12,
+      targetCategory: 'sedan',
+    ),
   ];
 }

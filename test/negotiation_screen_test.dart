@@ -10,7 +10,7 @@ import 'package:galeriden/presentation/providers/market_provider.dart';
 import 'package:galeriden/presentation/screens/marketplace/negotiation_screen.dart';
 
 class _TestMarketNotifier extends MarketNotifier {
-  _TestMarketNotifier(Ref ref, List<ListingModel> initialListings) : super(ref) {
+  _TestMarketNotifier(super.ref, List<ListingModel> initialListings) {
     state = initialListings;
   }
 }

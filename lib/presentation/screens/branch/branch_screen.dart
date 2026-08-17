@@ -261,20 +261,21 @@ class BranchScreen extends ConsumerWidget {
                         fullWidth: true,
                         onPressed: (isLevelUnlocked && canAfford)
                             ? () {
-                                final success = ref.read(gameProvider.notifier).upgradeBranch(b);
-                                if (success) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        side: BorderSide(
-                                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                          width: 2.5,
-                                        ),
-                                      ),
-                                      content: Column(
+                                 final success = ref.read(gameProvider.notifier).upgradeBranch(b);
+                                 if (success) {
+                                   showDialog(
+                                     context: context,
+                                     builder: (ctx) => Dialog(
+                                       backgroundColor: Colors.transparent,
+                                       insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                       child: NeoBrutalCard(
+                                         padding: const EdgeInsets.all(20),
+                                         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                         borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                      borderRadius: 12,
+                                      borderWidth: 2.5,
+                                      shadowOffset: const Offset(4, 4),
+                                      child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Container(
@@ -308,9 +309,10 @@ class BranchScreen extends ConsumerWidget {
                                         ],
                                       ),
                                     ),
-                                  );
-                                }
-                              }
+                                  ),
+                                );
+                               }
+                             }
                             : null,
                       ),
                     ],

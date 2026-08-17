@@ -24,6 +24,7 @@ class AuctionScreen extends ConsumerStatefulWidget {
 
 class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTickerProviderStateMixin {
   late AuctionModel _auction;
+  List<UpcomingLotModel> _upcomingLots = [];
   Timer? _timer;
   bool _hasPlayerEnteredBid = false;
   final List<String> _bidLogs = [];
@@ -32,13 +33,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   bool _isWindowOpen = true;
   bool _isOfficerConsulted = false;
   String? _officerSpeech;
+  int _selectedTabIndex = 0; // 0: Canlı Müzayede Masası, 1: Müzayede Kataloğu (Gelecek Lotlar)
 
   @override
   void initState() {
     super.initState();
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
 
     _isWindowOpen = AuctionEngine.isAuctionActiveNow();
@@ -46,6 +48,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     final game = ref.read(gameProvider);
     _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+    _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
+
     _bidLogs.add('Gümrük ve Tasfiye İhale Seansı Başladı!');
     _bidLogs.add('Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
     _startAuctionTimer();
@@ -56,7 +60,6 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
 
-      // Check window active state
       final windowNow = AuctionEngine.isAuctionActiveNow();
       if (windowNow != _isWindowOpen) {
         setState(() {
@@ -64,6 +67,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           if (_isWindowOpen) {
             final game = ref.read(gameProvider);
             _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+            _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
             _isOfficerConsulted = false;
             _officerSpeech = null;
           }
@@ -79,6 +83,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
             _isWindowOpen = true;
             final game = ref.read(gameProvider);
             _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+            _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
             _isOfficerConsulted = false;
             _officerSpeech = null;
           }
@@ -110,7 +115,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     });
   }
 
-  void _placePlayerBid(double increment) {
+  void _placePlayerBid(double increment, {bool isAggressiveFlag = false}) {
     if (_auction.isPlayerHighestBidder) {
       NotificationService.showInfo(context, 'En yüksek teklif zaten senin! Rakip teklif bekleniyor.');
       return;
@@ -132,8 +137,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         highestBidderName: '${game.dealershipName} (Sen)',
         isPlayerHighestBidder: true,
         secondsRemaining: (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
+        activeSpeech: isAggressiveFlag ? 'Bayrak kaldırdın! Rakipler tereddütte kaldı.' : null,
+        activeSpeakerName: isAggressiveFlag ? game.dealershipName : null,
       );
-      _bidLogs.insert(0, 'SENİN TEKLİFİN: ${CurrencyFormatter.formatShort(nextBid)}');
+      _bidLogs.insert(0, isAggressiveFlag ? 'AGRESİF BAYRAK TEKLİFİ: ${CurrencyFormatter.formatShort(nextBid)}' : 'SENİN TEKLİFİN: ${CurrencyFormatter.formatShort(nextBid)}');
     });
   }
 
@@ -143,12 +150,77 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     final game = ref.read(gameProvider);
     setState(() {
       _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+      _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
       _bidLogs.clear();
       _bidLogs.add('Yeni Araç İhale Masasında!');
       _bidLogs.add('Başlangıç Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
       _hasPlayerEnteredBid = false;
     });
     _startAuctionTimer();
+  }
+
+  void _showTrunkLootDialog(TrunkLoot loot) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(20),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: AppColors.brutalYellow,
+            borderWidth: 2.5,
+            borderRadius: 12,
+            shadowOffset: const Offset(4, 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(loot.icon, style: const TextStyle(fontSize: 48)),
+                const SizedBox(height: 12),
+                const Text(
+                  'GÜMRÜK BAGAJ SÜRPRİZİ!',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  loot.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  loot.description,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                NeoBrutalBadge(
+                  text: 'Kazanılan Değer: +${CurrencyFormatter.format(loot.value)}',
+                  backgroundColor: AppColors.brutalGreen,
+                  textColor: Colors.black,
+                  fontSize: 12,
+                ),
+                const SizedBox(height: 18),
+                NeoBrutalButton(
+                  label: 'ÖDÜLÜ KASAYA AKTAR',
+                  backgroundColor: AppColors.brutalGreen,
+                  textColor: Colors.black,
+                  fullWidth: true,
+                  onPressed: () {
+                    ref.read(gameProvider.notifier).addMoney(loot.value);
+                    Navigator.of(ctx).pop();
+                    NotificationService.showSuccess(context, '${CurrencyFormatter.format(loot.value)} kasaya eklendi!');
+                    _resetAuctionSilently();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _handleAuctionEnd() {
@@ -178,7 +250,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: AppColors.brutalGreen,
               borderWidth: 2.5,
-              borderRadius: 16,
+              borderRadius: 12,
+              shadowOffset: const Offset(4, 4),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -215,12 +288,23 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   NeoBrutalButton(
-                    label: 'ARACI SHOWROOM\'A AL',
-                    icon: Icons.check_circle_rounded,
-                    backgroundColor: AppColors.brutalGreen,
+                    label: 'BAGAJI AÇ & SÜRPRİZİ AL',
+                    icon: Icons.card_giftcard_rounded,
+                    backgroundColor: AppColors.brutalOrange,
                     textColor: Colors.black,
+                    fullWidth: true,
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      _showTrunkLootDialog(_auction.customsNote.trunkLoot);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  NeoBrutalButton(
+                    label: 'DİREKT SHOWROOM\'A AL',
+                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    textColor: isDark ? Colors.white : Colors.black,
                     fullWidth: true,
                     onPressed: () {
                       Navigator.of(ctx).pop();
@@ -265,10 +349,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   const SizedBox(height: 14),
                   const Text(
                     'İHALE KAÇIRILDI',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -308,8 +389,6 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
-    final car = _auction.car;
-    final isLastSeconds = _auction.secondsRemaining <= 4 && _auction.secondsRemaining > 0;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -330,376 +409,651 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       ),
       body: !_isWindowOpen
           ? _buildClosedWindowView(isDark)
-          : ListView(
-              padding: const EdgeInsets.all(14),
-              physics: const BouncingScrollPhysics(),
+          : Column(
               children: [
-                // 1. FOMO Timer Card
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor: isLastSeconds
-                      ? AppColors.errorRed.withValues(alpha: 0.2)
-                      : (isDark ? const Color(0xFF141721) : Colors.white),
-                  borderColor: isLastSeconds ? AppColors.errorRed : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
-                  borderRadius: 14,
+                // Top Tab Selector
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF141721) : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
+                  ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _selectedTabIndex = 0),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: isLastSeconds ? AppColors.errorRed : AppColors.brutalYellow,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                width: 2.0,
+                              color: _selectedTabIndex == 0
+                                  ? (isDark ? AppColors.brutalOrange : AppColors.brutalYellow)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.gavel_rounded, size: 14, color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'CANLI MASA',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w900,
+                                      color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Icon(
-                              Icons.timer_rounded,
-                              color: isLastSeconds ? Colors.white : Colors.black,
-                              size: 20,
-                            ),
                           ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'KALAN SÜRE: ${_auction.secondsRemaining} SN',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w900,
-                                  color: isLastSeconds
-                                      ? AppColors.errorRed
-                                      : (isDark ? Colors.white : const Color(0xFF0F172A)),
-                                ),
-                              ),
-                              Text(
-                                isLastSeconds ? 'SON ŞANS! TEKLİF VER' : 'Süre bitince en yüksek teklif kazanır',
-                                style: TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: isLastSeconds
-                                      ? AppColors.errorRed
-                                      : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      if (isLastSeconds)
-                        AnimatedBuilder(
-                          animation: _pulseController,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: 1.0 + (_pulseController.value * 0.15),
-                              child: const NeoBrutalBadge(
-                                text: 'SON ŞANS!',
-                                backgroundColor: AppColors.errorRed,
-                                textColor: Colors.white,
-                                fontSize: 10,
-                              ),
-                            );
-                          },
                         ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _selectedTabIndex = 1),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: _selectedTabIndex == 1
+                                  ? (isDark ? AppColors.brutalOrange : AppColors.brutalYellow)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.list_alt_rounded, size: 14, color: _selectedTabIndex == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'İHALE KATALOĞU (${_upcomingLots.length})',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w900,
+                                      color: _selectedTabIndex == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                Expanded(
+                  child: _selectedTabIndex == 0
+                      ? _buildLiveAuctionTab(isDark)
+                      : _buildUpcomingCatalogTab(isDark),
+                ),
+              ],
+            ),
+    );
+  }
 
-                // 2. Monolithic Car Detail Card
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 14,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildLiveAuctionTab(bool isDark) {
+    final car = _auction.car;
+    final isLastSeconds = _auction.secondsRemaining <= 5 && _auction.secondsRemaining > 0;
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        // 1. 3-STAGE GAVEL & FOMO TIMER BANNER
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(12),
+          backgroundColor: isLastSeconds
+              ? AppColors.errorRed.withValues(alpha: 0.2)
+              : (isDark ? const Color(0xFF141721) : Colors.white),
+          borderColor: isLastSeconds ? AppColors.errorRed : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+          borderRadius: 14,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isLastSeconds ? AppColors.errorRed : AppColors.brutalYellow,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.gavel_rounded,
+                          color: isLastSeconds ? Colors.white : Colors.black,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${car.brand} ${car.modelName}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${car.modelYear} • ${car.expertise.mileage} KM • ${car.bodyType}',
-                                  style: TextStyle(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            _auction.gavelCallText,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: isLastSeconds ? AppColors.errorRed : (isDark ? Colors.white : const Color(0xFF0F172A)),
                             ),
                           ),
-                          NeoBrutalBadge(
-                            text: 'Piyasa: ${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
-                            backgroundColor: AppColors.brutalYellow,
-                            textColor: Colors.black,
+                          Text(
+                            'Kalan Süre: ${_auction.secondsRemaining} Saniye',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (isLastSeconds)
+                    AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: 1.0 + (_pulseController.value * 0.15),
+                          child: const NeoBrutalBadge(
+                            text: 'ÇEKİÇ VURULUYOR!',
+                            backgroundColor: AppColors.errorRed,
+                            textColor: Colors.white,
                             fontSize: 10,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
-                            width: 1.2,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'GÜNCEL LİDER TEKLİF',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF64748B),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  CurrencyFormatter.formatShort(_auction.currentBid),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.brutalGreen,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Text(
-                                  'TEKLİF SAHİBİ',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF64748B),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                NeoBrutalBadge(
-                                  text: _auction.highestBidderName,
-                                  backgroundColor: _auction.isPlayerHighestBidder
-                                      ? AppColors.brutalGreen
-                                      : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-                                  textColor: _auction.isPlayerHighestBidder
-                                      ? Colors.black
-                                      : (isDark ? Colors.white : Colors.black),
-                                  fontSize: 10.5,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // 1.1 CUSTOMS ANNOTATION & OFFICIAL REPORT
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(12),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderRadius: 12,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.verified_user_rounded, color: AppColors.brutalOrange, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        _auction.customsNote.originOffice,
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 12),
+                  NeoBrutalBadge(
+                    text: _auction.customsNote.legalStatus,
+                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    textColor: isDark ? Colors.white : Colors.black,
+                    fontSize: 9.5,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Text('Ekspertiz Şerhi: ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                  Expanded(
+                    child: Text(
+                      _auction.customsNote.riskRewardFactor,
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
 
-                // 3. Quick Bid Buttons
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 14,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'HIZLI TEKLİF VER',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
-                            ),
+        // 2. MONOLITHIC CAR DETAIL CARD
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(14),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderRadius: 14,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${car.brand} ${car.modelName}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
-                          if (_auction.isPlayerHighestBidder)
-                            const NeoBrutalBadge(
-                              text: 'LİDER SENSİN',
-                              icon: Icons.workspace_premium_rounded,
-                              backgroundColor: AppColors.brutalGreen,
-                              textColor: Colors.black,
-                              fontSize: 10,
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: NeoBrutalButton(
-                              label: '+₺5.000',
-                              backgroundColor: _auction.isPlayerHighestBidder
-                                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                                  : AppColors.brutalYellow,
-                              textColor: _auction.isPlayerHighestBidder
-                                  ? (isDark ? Colors.white54 : Colors.black54)
-                                  : Colors.black,
-                              fontSize: 12,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(5000),
-                            ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${car.modelYear} • ${car.expertise.mileage} KM • ${car.bodyType}',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: NeoBrutalButton(
-                              label: '+₺15.000',
-                              backgroundColor: _auction.isPlayerHighestBidder
-                                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                                  : AppColors.brutalOrange,
-                              textColor: _auction.isPlayerHighestBidder
-                                  ? (isDark ? Colors.white54 : Colors.black54)
-                                  : Colors.black,
-                              fontSize: 12,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(15000),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: NeoBrutalButton(
-                              label: '+₺30.000',
-                              backgroundColor: _auction.isPlayerHighestBidder
-                                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                                  : AppColors.brutalGreen,
-                              textColor: _auction.isPlayerHighestBidder
-                                  ? (isDark ? Colors.white54 : Colors.black54)
-                                  : Colors.black,
-                              fontSize: 12,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(30000),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  NeoBrutalBadge(
+                    text: 'Piyasa: ${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
+                    backgroundColor: AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    fontSize: 10,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                    width: 1.2,
                   ),
                 ),
-                const SizedBox(height: 12),
-
-                // 4. Competitors / Rivals
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 14,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'SALONDAKİ RAKİP ALICILAR',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'GÜNCEL LİDER TEKLİF',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF64748B),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      ..._auction.rivals.map((r) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 3),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      r.isFolded ? Icons.close_rounded : Icons.person_rounded,
-                                      size: 14,
-                                      color: r.isFolded ? Colors.red : Colors.blue,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      r.name,
-                                      style: TextStyle(
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.w700,
-                                        color: r.isFolded ? Colors.grey : (isDark ? Colors.white70 : Colors.black87),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                NeoBrutalBadge(
-                                  text: r.isFolded ? 'Çekildi' : r.personality,
-                                  backgroundColor: r.isFolded
-                                      ? Colors.grey.shade400
-                                      : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                                  textColor: Colors.black,
-                                  fontSize: 9.5,
-                                ),
-                              ],
-                            ),
-                          )),
-                    ],
-                  ),
+                        const SizedBox(height: 2),
+                        Text(
+                          CurrencyFormatter.formatShort(_auction.currentBid),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text(
+                          'TEKLİF SAHİBİ',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        NeoBrutalBadge(
+                          text: _auction.highestBidderName,
+                          backgroundColor: _auction.isPlayerHighestBidder
+                              ? AppColors.brutalGreen
+                              : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                          textColor: _auction.isPlayerHighestBidder
+                              ? Colors.black
+                              : (isDark ? Colors.white : Colors.black),
+                          fontSize: 10.5,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
 
-                // 5. Live Bidding Logs
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 14,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'İHALE CANLI AKIŞI',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      ..._bidLogs.take(5).map((log) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2.5),
-                            child: Text(
-                              log,
-                              style: TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w600,
-                                color: log.contains('SEN')
-                                    ? AppColors.brutalGreen
-                                    : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
-                              ),
-                            ),
-                          )),
-                    ],
+        // 2.1 DYNAMIC RIVAL SPEECH BUBBLE
+        if (_auction.activeSpeech != null)
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.brutalYellow.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.brutalYellow, width: 1.5),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.brutalYellow, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${_auction.activeSpeakerName ?? "Salondan Biri"}: "${_auction.activeSpeech}"',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
             ),
+          ),
+
+        // 3. QUICK BID BUTTONS & AGGRESSIVE FLAG BID
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(14),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderRadius: 14,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'HIZLI TEKLİF & SALON HAMLELERİ',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  if (_auction.isPlayerHighestBidder)
+                    const NeoBrutalBadge(
+                      text: 'LİDER SENSİN',
+                      icon: Icons.workspace_premium_rounded,
+                      backgroundColor: AppColors.brutalGreen,
+                      textColor: Colors.black,
+                      fontSize: 10,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: '+₺5.000',
+                      backgroundColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          : AppColors.brutalYellow,
+                      textColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? Colors.white54 : Colors.black54)
+                          : Colors.black,
+                      fontSize: 12,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(5000),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: '+₺15.000',
+                      backgroundColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          : AppColors.brutalOrange,
+                      textColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? Colors.white54 : Colors.black54)
+                          : Colors.black,
+                      fontSize: 12,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(15000),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: '+₺30.000',
+                      backgroundColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          : AppColors.brutalGreen,
+                      textColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? Colors.white54 : Colors.black54)
+                          : Colors.black,
+                      fontSize: 12,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(30000),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              NeoBrutalButton(
+                icon: Icons.flag_rounded,
+                label: 'BAYRAK GÖSTER (+₺50.000 AGRESİF ARTIR)',
+                backgroundColor: _auction.isPlayerHighestBidder
+                    ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                    : const Color(0xFFFFDE59),
+                textColor: Colors.black,
+                fontSize: 11,
+                fullWidth: true,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(50000, isAggressiveFlag: true),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // 4. COMPETITORS / RIVALS
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(14),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderRadius: 14,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'SALONDAKİ RAKİP ALICILAR',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+              ),
+              const SizedBox(height: 8),
+              ..._auction.rivals.map((r) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              r.isFolded ? Icons.close_rounded : Icons.person_rounded,
+                              size: 15,
+                              color: r.isFolded ? AppColors.errorRed : AppColors.brutalGreen,
+                            ),
+                            const SizedBox(width: 6),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  r.name,
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: r.isFolded ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)) : (isDark ? Colors.white70 : Colors.black87),
+                                  ),
+                                ),
+                                if (r.lastSpeech != null)
+                                  Text(
+                                    '"${r.lastSpeech}"',
+                                    style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontStyle: FontStyle.italic),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        NeoBrutalBadge(
+                          text: r.isFolded ? 'Çekildi' : r.personality,
+                          backgroundColor: r.isFolded
+                              ? (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1))
+                              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                          textColor: r.isFolded ? (isDark ? Colors.white60 : Colors.black54) : (isDark ? Colors.white : Colors.black),
+                          fontSize: 9.5,
+                        ),
+                      ],
+                    ),
+                  )),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // 5. LIVE BIDDING LOGS
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(14),
+          backgroundColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
+          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderRadius: 14,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'İHALE CANLI AKIŞI',
+                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+              ),
+              const SizedBox(height: 6),
+              ..._bidLogs.take(5).map((log) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2.5),
+                    child: Text(
+                      log,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: log.contains('SEN')
+                            ? AppColors.brutalGreen
+                            : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUpcomingCatalogTab(bool isDark) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(12),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderRadius: 12,
+          child: const Row(
+            children: [
+              Icon(Icons.info_outline_rounded, color: AppColors.brutalYellow, size: 20),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Bu seansın ardından sırayla müzayede masasına çıkacak sonraki 3 araç listelenmektedir.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        ..._upcomingLots.map((lot) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(14),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 14,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      NeoBrutalBadge(
+                        text: 'LOT #${lot.lotNumber}',
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 10.5,
+                      ),
+                      NeoBrutalBadge(
+                        text: 'Tahmini: ${CurrencyFormatter.formatShort(lot.estimatedMarketValue)}',
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        textColor: isDark ? Colors.white : Colors.black,
+                        fontSize: 10,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${lot.car.brand} ${lot.car.modelName}',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${lot.car.modelYear} • ${lot.car.expertise.mileage} KM • ${lot.car.bodyType}',
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Başlangıç Fiyatı:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                        Text(
+                          CurrencyFormatter.formatShort(lot.startingPrice),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.gavel_rounded, size: 12, color: Color(0xFF64748B)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${lot.customsNote.legalStatus} (${lot.customsNote.riskRewardFactor})',
+                        style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -729,192 +1083,139 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 16,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                    width: 2.0,
-                  ),
-                ),
-                child: const Icon(Icons.lock_clock_rounded, color: AppColors.brutalOrange, size: 38),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'İHALE SALONU ŞU AN KAPALI',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Gümrük ve hacizli araç ihale seansları kapalıdır. Yeni araç listeleri görevli memurlar tarafından tanzim edilmektedir.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-              ),
-              const SizedBox(height: 16),
-              if (!_isOfficerConsulted) ...[
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
+                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    shape: BoxShape.circle,
                     border: Border.all(
-                      color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
-                      width: 1.2,
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.brutalYellow,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 2.0,
+                  child: const Icon(Icons.lock_clock_rounded, color: AppColors.brutalOrange, size: 38),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'İHALE SALONU ŞU AN KAPALI',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Gümrük ve hacizli araç ihale seansları kapalıdır. Yeni araç listeleri görevli memurlar tarafından tanzim edilmektedir.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 16),
+                if (!_isOfficerConsulted) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.brutalYellow,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
+                          ),
+                          child: const Icon(Icons.support_agent_rounded, color: Colors.black, size: 20),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'Müzayede görevlisine danışarak bir sonraki ihale seansı vaktini öğrenebilirsiniz.',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                         ),
-                        child: const Icon(Icons.support_agent_rounded, color: Colors.black, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        child: Text(
-                          'Müzayede görevlisine danışarak bir sonraki ihale seansı vaktini öğrenebilirsiniz.',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 18),
-                NeoBrutalButton(
-                  label: 'GÖREVLİYE SOR',
-                  icon: Icons.record_voice_over_rounded,
-                  backgroundColor: AppColors.brutalYellow,
-                  textColor: Colors.black,
-                  fullWidth: true,
-                  onPressed: () {
-                    final speech = AuctionEngine.getRandomOfficerDialogue(timeStr);
-                    setState(() {
-                      _isOfficerConsulted = true;
-                      _officerSpeech = speech;
-                    });
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(color: Colors.black, width: 2),
-                        ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
+                  const SizedBox(height: 18),
+                  NeoBrutalButton(
+                    label: 'GÖREVLİYE SOR',
+                    icon: Icons.forum_rounded,
+                    backgroundColor: AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    fullWidth: true,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      setState(() {
+                        _isOfficerConsulted = true;
+                        _officerSpeech = AuctionEngine.getRandomOfficerDialogue(timeStr);
+                      });
+                    },
+                  ),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.brutalYellow.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.brutalYellow,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: AppColors.brutalYellow,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: const Icon(Icons.support_agent_rounded, size: 36, color: Colors.black),
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'MÜZAYEDE MEMURU',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-                            ),
-                            const SizedBox(height: 8),
+                            Icon(Icons.badge_rounded, color: AppColors.brutalYellow, size: 18),
+                            SizedBox(width: 6),
                             Text(
-                              speech,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.4),
-                            ),
-                            const SizedBox(height: 14),
-                            NeoBrutalBadge(
-                              text: 'Kalan Süre: $timeStr',
-                              icon: Icons.timer_rounded,
-                              backgroundColor: AppColors.brutalGreen,
-                              textColor: Colors.black,
-                              fontSize: 12,
-                            ),
-                            const SizedBox(height: 16),
-                            NeoBrutalButton(
-                              label: 'ANLAŞILDI & BEKLE',
-                              fullWidth: true,
-                              backgroundColor: AppColors.brutalYellow,
-                              textColor: Colors.black,
-                              onPressed: () => Navigator.pop(ctx),
+                              'Gümrük Müzayede Memuru:',
+                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
                             ),
                           ],
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ] else ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.brutalYellow, width: 1.5),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.forum_rounded, color: AppColors.brutalYellow, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _officerSpeech ?? 'Müzayede memuru evrakları hazırlıyor...',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                        const SizedBox(height: 6),
+                        Text(
+                          _officerSpeech ?? '',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.3),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Text(
+                          'Kalan Tahmini Süre: $timeStr',
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                NeoBrutalBadge(
-                  text: 'Sonraki Seans: $timeStr',
-                  icon: Icons.timer_rounded,
-                  backgroundColor: AppColors.brutalYellow,
-                  textColor: Colors.black,
-                  fontSize: 13,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
-                const SizedBox(height: 18),
-                NeoBrutalButton(
-                  label: 'TEKRAR DANIŞ',
-                  icon: Icons.chat_bubble_outline_rounded,
-                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? Colors.white : Colors.black,
-                  fullWidth: true,
-                  onPressed: () {
-                    final speech = AuctionEngine.getRandomOfficerDialogue(timeStr);
-                    setState(() {
-                      _officerSpeech = speech;
-                    });
-                    NotificationService.showInfo(context, speech);
-                  },
-                ),
+                  const SizedBox(height: 16),
+                  NeoBrutalButton(
+                    label: 'GÖREVİ YENİDEN SORGULA',
+                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    textColor: isDark ? Colors.white : Colors.black,
+                    fullWidth: true,
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        _officerSpeech = AuctionEngine.getRandomOfficerDialogue(timeStr);
+                      });
+                    },
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

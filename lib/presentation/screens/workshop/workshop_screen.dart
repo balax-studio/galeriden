@@ -9,6 +9,8 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/staff_model.dart';
+import '../../../data/models/workshop_job_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../providers/game_provider.dart';
@@ -34,6 +36,204 @@ class WorkshopScreen extends ConsumerStatefulWidget {
 
 class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
   CarModel? _selectedCar;
+  int _activeTopTab = 0; // 0: Garaj Araçlarım, 1: Müşteri Tamir Kontratları
+  List<CustomerRepairJob> _customerJobs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _activeTopTab = widget.initialTabIndex;
+    _customerJobs = CustomerRepairJob.generateRandomJobs(count: 4);
+  }
+
+  void _showColorPickerSheet(BuildContext context, CarModel car) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF141721) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 2.5,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Özel Fırın Boya & Renk Değişimi', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+                  NeoBrutalBadge(text: '+%20 Alıcı İlgisi', backgroundColor: AppColors.brutalYellow, textColor: Colors.black, fontSize: 10),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Aracını popüler trend renklere fırında boyayarak pazar çekiciliğini ve değerini artır.',
+                style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 14),
+              ...CustomPaintColor.palette.map((paint) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(10),
+                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
+                    borderColor: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                    borderRadius: 10,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: paint.color,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.black, width: 2),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(paint.name, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
+                                Text(CurrencyFormatter.format(paint.cost), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalOrange)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        NeoBrutalButton(
+                          label: 'BOYA',
+                          backgroundColor: AppColors.brutalYellow,
+                          textColor: Colors.black,
+                          fontSize: 10.5,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            final game = ref.read(gameProvider);
+                            if (game.balance < paint.cost) {
+                              NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.format(paint.cost)} gerekli.');
+                              return;
+                            }
+                            final success = ref.read(gameProvider.notifier).applyCustomPaintRespray(car.id, paint);
+                            if (success) {
+                              NotificationService.showSuccess(context, '${car.modelName} ${paint.name} rengine boyandı!');
+                              setState(() {
+                                _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAcousticDiagnosticDialog(BuildContext context, CarModel car) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final diagnoses = [
+      ('Subap ve Piston Vuruntusu', 'subap', 'Metalik şıkırtı ve rölantide ritmik tıklama sesi.'),
+      ('Turbo Şarj Kaçağı ve Islığı', 'turbo', 'Hızlanırken gelen yüksek frekanslı hava üfleme sesi.'),
+      ('Şanzıman Prizdirek Bilyası Uğultusu', 'sanziman', 'Debriyaja basınca kesilen kalın dönme uğultusu.'),
+    ];
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(20),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            borderRadius: 12,
+            borderWidth: 2.5,
+            shadowOffset: const Offset(4, 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.hearing_rounded, color: AppColors.brutalOrange, size: 24),
+                    SizedBox(width: 8),
+                    Text('MOTOR DİNLEME & TEŞHİS', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '${car.brand} ${car.modelName} motor bloğuna stetoskop bağlandı. Arıza sesini dinleyip doğru teşhisi koy:',
+                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                ...diagnoses.map((d) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        NotificationService.showSuccess(
+                          context,
+                          'Doğru teşhis: ${d.$1}! Bir sonraki tamirde %25 işçilik indirimi tanımlandı.',
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: NeoBrutalCard(
+                        padding: const EdgeInsets.all(10),
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                        borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        borderRadius: 8,
+                        borderWidth: 1.5,
+                        shadowOffset: const Offset(2, 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(d.$1, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                            const SizedBox(height: 2),
+                            Text(d.$3, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    NeoBrutalButton(
+                      label: 'KAPAT',
+                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white : Colors.black,
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,159 +254,135 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     final hasLift = game.unlockedBuildings.contains('workshop_eq_lift');
     final hasChassisBench = game.unlockedBuildings.contains('workshop_eq_chassis_bench');
     final hasPaintBooth = game.unlockedBuildings.contains('workshop_eq_paint_booth');
-
     final paintCostMultiplier = hasPaintBooth ? 0.50 : 1.0;
+
+    final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+    final hasApprentice = game.hiredStaff.any((s) => s.role == StaffRole.apprentice);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: const NeoBrutalAppBar(
         title: 'TAMİR, KAPORTA & ATÖLYE',
       ),
-      body: game.ownedCars.isEmpty
-          ? NeoBrutalEmptyState(
-              icon: Icons.build_circle_rounded,
-              accentColor: const Color(0xFFFF7A00),
-              badgeText: 'ATÖLYE BOŞ',
-              title: 'Garajında Onarılacak Araç Yok!',
-              description: 'Pazardan veya hurdalıktan kelepir araç satın alarak burada toplayabilir ve değerini ikiye katlayabilirsin.',
-              actionLabel: 'İLANLARA GİT',
-              actionIcon: Icons.storefront_rounded,
-              onActionPressed: () => context.push('/marketplace'),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(14),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                // 1. VIP Tuning Banner Nav
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(12),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 12,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.brutalYellow,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: const Icon(Icons.speed_rounded, color: Colors.black, size: 20),
-                            ),
-                            const SizedBox(width: 10),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Tuning & Performans Stüdyosu', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
-                                  Text('Stage 1/2 Yazılım, Varex Egzoz & Air Süspansiyon', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      NeoBrutalButton(
-                        label: 'GİRİŞ ET',
-                        backgroundColor: AppColors.brutalYellow,
-                        textColor: Colors.black,
-                        fontSize: 10.5,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        onPressed: () => context.push('/tuning-studio'),
-                      ),
-                    ],
-                  ),
+      body: ListView(
+        padding: const EdgeInsets.all(14),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          // 1. Top Segmented Tab Controller
+          Row(
+            children: [
+              Expanded(
+                child: NeoBrutalButton(
+                  icon: Icons.directions_car_rounded,
+                  label: 'GARAJ ARAÇLARIM',
+                  backgroundColor: _activeTopTab == 0 ? AppColors.brutalYellow : (isDark ? const Color(0xFF141721) : Colors.white),
+                  textColor: _activeTopTab == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  onPressed: () => setState(() => _activeTopTab = 0),
                 ),
-                const SizedBox(height: 14),
-
-                // 2. Car Selector Carousel
-                Text(
-                  'TAMİR EDİLECEK ARACI SEÇ (${game.ownedCars.length} Araç)',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                  ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: NeoBrutalButton(
+                  icon: Icons.build_rounded,
+                  label: 'MÜŞTERİ İŞLERİ (${_customerJobs.length})',
+                  backgroundColor: _activeTopTab == 1 ? AppColors.brutalGreen : (isDark ? const Color(0xFF141721) : Colors.white),
+                  textColor: _activeTopTab == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  onPressed: () => setState(() => _activeTopTab = 1),
                 ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 94,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: game.ownedCars.length,
-                    separatorBuilder: (context, index) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final car = game.ownedCars[index];
-                      final isSelected = _selectedCar?.id == car.id;
-                      final exp = car.expertise;
-                      final isPerfect = exp.engineCondition >= 95 && exp.transmissionCondition >= 95;
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
 
-                      return GestureDetector(
-                        onTap: () => setState(() => _selectedCar = car),
-                        child: Container(
-                          width: 190,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFFEF3C7))
-                                : (isDark ? const Color(0xFF141721) : Colors.white),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
-                              width: isSelected ? 2.5 : 2.0,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
-                                offset: isSelected ? const Offset(3, 3) : const Offset(1.5, 1.5),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(car.brand, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF64748B)), maxLines: 1),
-                              Text(car.modelName, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: NeoBrutalBadge(
-                                      text: isPerfect ? 'KUSURSUZ' : 'MOTOR %${exp.engineCondition.toInt()}',
-                                      backgroundColor: isPerfect ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
-                                      textColor: Colors.black,
-                                      fontSize: 8.5,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(CurrencyFormatter.formatShort(car.baseMarketValue), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+          // 1.1 Staff Synergies Banner
+          if (hasMechanic || hasApprentice) ...[
+            NeoBrutalCard(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: AppColors.brutalGreen,
+              borderRadius: 10,
+              child: Row(
+                children: [
+                  const Icon(Icons.verified_user_rounded, color: AppColors.brutalGreen, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      hasMechanic && hasApprentice
+                          ? 'Mekanik Usta (%0 Hata Riski) ve Çırak (%50 Hızlı Montaj) atölyede aktif!'
+                          : (hasMechanic ? 'Mekanik Usta devrede: Tamirlerde parça yanma riski %0!' : 'Çırak devrede: Kargo ve montaj süreleri %50 hızlandı!'),
+                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  NeoBrutalButton(
+                    icon: Icons.fastfood_rounded,
+                    label: 'Tost & Çay (₺250)',
+                    backgroundColor: AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    fontSize: 9.5,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    onPressed: () {
+                      final success = ref.read(gameProvider.notifier).treatWorkshopStaffSnack();
+                      if (success) {
+                        NotificationService.showSuccess(context, 'Ustalara sanayi tostu ve tavşan kanı çay söylendi (+20 Moral)!');
+                        setState(() {});
+                      } else {
+                        NotificationService.showError(context, 'Yetersiz bakiye! ₺250 gerekli.');
+                      }
                     },
                   ),
-                ),
-                const SizedBox(height: 16),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
 
-                // 3. Active Vehicle Mechanical Diagnosis Card
-                if (_selectedCar != null) ...[
-                  NeoBrutalCard(
+          if (_activeTopTab == 1) ...[
+            // ================= MÜŞTERİ TAMİR KONTRATLARI TABI =================
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'GELEN MÜŞTERİ TAMİR TALEPLERİ',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                ),
+                NeoBrutalButton(
+                  label: 'YENİ İŞLER TARA',
+                  icon: Icons.refresh_rounded,
+                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                  textColor: isDark ? Colors.white : Colors.black,
+                  fontSize: 10,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  onPressed: () {
+                    setState(() {
+                      _customerJobs = CustomerRepairJob.generateRandomJobs(count: 4);
+                    });
+                    NotificationService.showSuccess(context, 'Yeni müşteri tamir talepleri listelendi!');
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            if (_customerJobs.isEmpty)
+              const NeoBrutalCard(
+                padding: EdgeInsets.all(20),
+                borderRadius: 12,
+                child: Center(
+                  child: Text('Şu an bekleyen müşteri işi yok. Yeni işler tarayabilirsin.'),
+                ),
+              )
+            else
+              ..._customerJobs.map((job) {
+                final netProfit = job.laborReward - job.partsCost;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: NeoBrutalCard(
                     padding: const EdgeInsets.all(14),
                     backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                     borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
@@ -215,412 +391,579 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFF7A00),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                  width: 2.0,
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.brutalGreen,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.black, width: 1.5),
+                                  ),
+                                  child: Icon(job.jobType.icon, color: Colors.black, size: 18),
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
-                                    offset: const Offset(2, 2),
-                                    blurRadius: 0,
-                                  ),
-                                ],
+                                const SizedBox(width: 10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(job.customerName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
+                                    Text(job.carModelName, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            if (job.isUrgent)
+                              const NeoBrutalBadge(
+                                icon: Icons.bolt_rounded,
+                                text: 'ACİL İŞ',
+                                backgroundColor: AppColors.errorRed,
+                                textColor: Colors.white,
+                                fontSize: 9.5,
                               ),
-                              child: const Icon(Icons.car_repair_rounded, color: Colors.black, size: 24),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Piyasa Değeri: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} (Kusursuz: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)}) • ${_selectedCar!.modelYear}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-
-                        // Gauges
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildHealthBar(
-                                label: 'Motor Sağlığı',
-                                percent: _selectedCar!.expertise.engineCondition,
-                                isDark: isDark,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _buildHealthBar(
-                                label: 'Şanzıman Sağlığı',
-                                percent: _selectedCar!.expertise.transmissionCondition,
-                                isDark: isDark,
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (_selectedCar!.isBarnFind) ...[
-                          const SizedBox(height: 10),
-                          NeoBrutalButton(
-                            label: '5-AŞAMALI RESTORASYON MERKEZİ (Aşama: ${_selectedCar!.barnFindStage}/5)',
-                            icon: Icons.auto_fix_high_rounded,
-                            backgroundColor: const Color(0xFFA855F7),
-                            textColor: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w900,
-                            fullWidth: true,
-                            onPressed: () => BarnFindRestorationSheet.show(context, _selectedCar!),
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-                        NeoBrutalButton(
-                          label: 'YEDEK PARÇA SİPARİŞİ VER (OEM / Hurda / Yan Sanayi)',
-                          icon: Icons.local_shipping_rounded,
-                          backgroundColor: AppColors.brutalYellow,
-                          textColor: Colors.black,
-                          fontSize: 11,
-                          fullWidth: true,
-                          onPressed: () => OrderPartsSheet.show(
-                            context: context,
-                            car: _selectedCar!,
-                            game: game,
-                            onOrderConfirmed: (partName, type, cost, durationSeconds) {
-                              if (game.balance < cost) {
-                                NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekli.');
-                                return;
-                              }
-                              final success = ref.read(gameProvider.notifier).orderPart(
-                                carId: _selectedCar!.id,
-                                partName: partName,
-                                orderType: type,
-                                cost: cost,
-                                deliveryDurationSeconds: durationSeconds,
-                              );
-                              if (success) {
-                                NotificationService.showSuccess(
-                                  context,
-                                  '$partName siparişi kargoya verildi! (${durationSeconds}s içinde teslim edilecek)',
-                                );
-                                setState(() {});
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // 3.5 IKEA Etkisi & Restorasyon Öncesi/Sonrası Künye Kartı (§3.2)
-                  NeoBrutalCard(
-                    padding: const EdgeInsets.all(12),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
-                    borderColor: const Color(0xFF3B82F6),
-                    borderRadius: 12,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(Icons.history_edu_rounded, color: Color(0xFF3B82F6), size: 20),
-                            SizedBox(width: 8),
-                            Text(
-                              'RESTORASYON EMEĞİ & ARAÇ KÜNYESİ (ÖNCESİ / SONRASI)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF3B82F6)),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '"${job.customerStory}"',
+                            style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Alış Maliyeti', style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54)),
-                                Text(CurrencyFormatter.formatShort(_selectedCar!.currentPurchasePrice), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
+                                Text('Parça: ${CurrencyFormatter.formatShort(job.partsCost)}', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                                Text('Net Kâr: +${CurrencyFormatter.format(netProfit)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
                               ],
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text('Mevcut Restorasyon', style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54)),
-                                Text(
-                                  '%${((_selectedCar!.expertise.engineCondition + _selectedCar!.expertise.transmissionCondition) / 2).toInt()} Kondisyon',
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('Tahmini Satış', style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54)),
-                                Text(CurrencyFormatter.formatShort(_selectedCar!.estimatedRealValue), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFFFF7A00))),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                ],
-
-                // 4. Five Specialized Repair Stations
-                Text(
-                  'ATÖLYE & TAMİR İSTASYONLARI',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Condition checks for repair stations
-                Builder(
-                  builder: (context) {
-                    final exp = _selectedCar?.expertise;
-                    final isEngineRepaired = (exp?.engineCondition ?? 100.0) >= 99.5;
-                    final isTransmissionRepaired = (exp?.transmissionCondition ?? 100.0) >= 99.5;
-                    final isEcuRepaired = exp?.isEcuCleaned ?? false;
-                    final isBodyworkRepaired = !(exp?.bodyParts.values.any((v) => v != PartStatus.original) ?? false);
-                    final isChassisRepaired = exp?.isChassisAligned ?? false;
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        WorkshopRepairTile(
-                          title: '1. Motor Rektifiye & Subap Ayarı',
-                          description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
-                          cost: 18500.0,
-                          bonusText: 'Motor %100 & +%10 Değer',
-                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(18500.0, _selectedCar!.estimatedRealValue * 0.10) : null,
-                          badgeColor: const Color(0xFF00E575),
-                          isDark: isDark,
-                          isRepaired: isEngineRepaired,
-                          disabledLabel: 'KUSURSUZ',
-                          onRepair: () => RepairTierSelectionSheet.show(
-                            context: context,
-                            car: _selectedCar!,
-                            repairType: 'engine',
-                            baseCost: 18500.0,
-                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'engine', tier, cost),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        WorkshopRepairTile(
-                          title: '2. Şanzıman & Baskı Balata Yenileme',
-                          description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
-                          cost: 12000.0,
-                          bonusText: 'Şanzıman %100 & +%8 Değer',
-                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(12000.0, _selectedCar!.estimatedRealValue * 0.08) : null,
-                          badgeColor: const Color(0xFF38BDF8),
-                          isDark: isDark,
-                          isRepaired: isTransmissionRepaired,
-                          disabledLabel: 'KUSURSUZ',
-                          onRepair: () => RepairTierSelectionSheet.show(
-                            context: context,
-                            car: _selectedCar!,
-                            repairType: 'transmission',
-                            baseCost: 12000.0,
-                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'transmission', tier, cost),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        WorkshopRepairTile(
-                          title: '3. Bilgisayarlı OBD-II Beyin (ECU) Arıza Tespiti',
-                          description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
-                          cost: 4500.0,
-                          bonusText: 'Gizli Kusurlar Silinir',
-                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(4500.0, _selectedCar!.estimatedRealValue * 0.05) : null,
-                          badgeColor: const Color(0xFFA855F7),
-                          isDark: isDark,
-                          isRepaired: isEcuRepaired,
-                          disabledLabel: 'ARIZA YOK',
-                          onRepair: () => RepairTierSelectionSheet.show(
-                            context: context,
-                            car: _selectedCar!,
-                            repairType: 'ecu',
-                            baseCost: 4500.0,
-                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'ecu', tier, cost),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        WorkshopRepairTile(
-                          title: '4. Kaporta Çekiçleme & Fırın Boya',
-                          description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
-                          cost: 22000.0 * paintCostMultiplier,
-                          bonusText: hasPaintBooth ? '+%15 Değer (Boya Fırını %50 İndirimi!)' : '+%15 Değer Artışı',
-                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(22000.0 * paintCostMultiplier, _selectedCar!.estimatedRealValue * 0.15) : null,
-                          badgeColor: const Color(0xFFFFDE59),
-                          isDark: isDark,
-                          isRepaired: isBodyworkRepaired,
-                          disabledLabel: 'KUSURSUZ',
-                          onRepair: () => RepairTierSelectionSheet.show(
-                            context: context,
-                            car: _selectedCar!,
-                            repairType: 'bodywork',
-                            baseCost: 22000.0 * paintCostMultiplier,
-                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'bodywork', tier, cost),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        WorkshopRepairTile(
-                          title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
-                          description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
-                          cost: 45000.0,
-                          bonusText: hasChassisBench ? '+%20 Süper Değer (Şasi Tezgahı Bonusu!)' : '+%20 Değer',
-                          netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(45000.0, _selectedCar!.estimatedRealValue * 0.20) : null,
-                          badgeColor: const Color(0xFFEF4444),
-                          isDark: isDark,
-                          isRepaired: isChassisRepaired,
-                          disabledLabel: 'ŞASİ DÜZGÜN',
-                          onRepair: () => RepairTierSelectionSheet.show(
-                            context: context,
-                            car: _selectedCar!,
-                            repairType: 'chassis',
-                            baseCost: 45000.0,
-                            onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'chassis', tier, cost),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // 4.1 Pending Part Orders & Fast Delivery
-                if (game.pendingOrders.isNotEmpty) ...[
-                  Text(
-                    'BEKLEYEN PARÇA SİPARİŞLERİ (${game.pendingOrders.length})',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...game.pendingOrders.map((order) {
-                    return AnimatedOrderCard(
-                      order: order,
-                      p: p,
-                      onInstall: () {
-                        final success = ref.read(gameProvider.notifier).installDeliveredPart(order.id);
-                        if (success) {
-                          NotificationService.showSuccess(context, '${order.partName} montajı tamamlandı!');
-                          setState(() {});
-                        }
-                      },
-                      onFastDeliverWithAd: () {
-                        AdService.instance.showRewardedAd(
-                          onRewardEarned: () {
-                            ref.read(gameProvider.notifier).instantDeliverPartOrder(order.id);
-                            NotificationService.showReward(context, 'Kargo hızlandırıldı! Parça teslim edildi.');
-                            setState(() {});
-                          },
-                        );
-                      },
-                    );
-                  }),
-                  const SizedBox(height: 16),
-                ],
-
-                // 5. Salvaged Parts Installation Section (Hurdalık Çıkma Parçaları)
-                if (game.salvagedParts.isNotEmpty) ...[
-                  Text(
-                    'HURDALIKTAN TOPLANAN ÇIKMA PARÇALAR (${game.salvagedParts.length})',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...game.salvagedParts.map((part) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: NeoBrutalCard(
-                        padding: const EdgeInsets.all(12),
-                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                        borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                        borderRadius: 12,
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF64748B),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: const Icon(Icons.settings_suggest_rounded, color: Colors.white, size: 20),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(part.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
-                                  Text(
-                                    'Kondisyon: %${part.conditionPercent} • Tahmini Değer: ${CurrencyFormatter.format(part.estimatedValue)}',
-                                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
                             NeoBrutalButton(
-                              label: 'MONTE ET',
-                              icon: Icons.build_rounded,
-                              backgroundColor: const Color(0xFF00E575),
+                              label: 'TAMİR ET & KAZAN',
+                              icon: Icons.handshake_rounded,
+                              backgroundColor: AppColors.brutalGreen,
                               textColor: Colors.black,
-                              fontSize: 10.5,
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              fontSize: 11,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                               onPressed: () {
-                                if (_selectedCar == null) return;
-                                final success = ref.read(gameProvider.notifier).installPartToCar(part.id, _selectedCar!.id);
+                                final success = ref.read(gameProvider.notifier).completeCustomerRepairJob(job);
                                 if (success) {
-                                  NotificationService.showSuccess(context, '${part.name} araca başarıyla monte edildi!');
-                                  setState(() {});
+                                  NotificationService.showSuccess(
+                                    context,
+                                    '${job.customerName} aracını teslim aldı! +${CurrencyFormatter.format(netProfit)} net kâr & +${job.masteryXpReward} XP kazanıldı.',
+                                  );
+                                  setState(() {
+                                    _customerJobs.removeWhere((j) => j.id == job.id);
+                                  });
                                 }
                               },
                             ),
                           ],
                         ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+          ] else ...[
+            // ================= GARAJ ARAÇLARIM & ONARIM TABI =================
+            if (game.ownedCars.isEmpty)
+              NeoBrutalEmptyState(
+                icon: Icons.build_circle_rounded,
+                accentColor: const Color(0xFFFF7A00),
+                badgeText: 'ATÖLYE BOŞ',
+                title: 'Garajında Onarılacak Araç Yok!',
+                description: 'Pazardan veya hurdalıktan kelepir araç satın alarak burada toplayabilir ve değerini ikiye katlayabilirsin.',
+                actionLabel: 'İLANLARA GİT',
+                actionIcon: Icons.storefront_rounded,
+                onActionPressed: () => context.push('/marketplace'),
+              )
+            else ...[
+              // VIP Tuning Banner Nav
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(12),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 12,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.brutalYellow,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
+                            ),
+                            child: const Icon(Icons.speed_rounded, color: Colors.black, size: 20),
+                          ),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('VIP Tuning & Modifiye Stüdyosu', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
+                                Text('Stage 1/2/3 Yazılım, Varex Egzoz & Air Süspansiyon', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    NeoBrutalButton(
+                      label: 'GİRİŞ ET',
+                      backgroundColor: AppColors.brutalYellow,
+                      textColor: Colors.black,
+                      fontSize: 10.5,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      onPressed: () => context.push('/tuning-studio'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Car Selector Carousel
+              Text(
+                'TAMİR EDİLECEK ARACI SEÇ (${game.ownedCars.length} Araç)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 94,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: game.ownedCars.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final car = game.ownedCars[index];
+                    final isSelected = _selectedCar?.id == car.id;
+                    final exp = car.expertise;
+                    final isPerfect = exp.engineCondition >= 95 && exp.transmissionCondition >= 95;
+
+                    return GestureDetector(
+                      onTap: () => setState(() => _selectedCar = car),
+                      child: Container(
+                        width: 190,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFFEF3C7))
+                              : (isDark ? const Color(0xFF141721) : Colors.white),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                            width: isSelected ? 2.5 : 2.0,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(car.brand, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF64748B)), maxLines: 1),
+                            Text(car.modelName, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: NeoBrutalBadge(
+                                    text: isPerfect ? 'KUSURSUZ' : 'MOTOR %${exp.engineCondition.toInt()}',
+                                    backgroundColor: isPerfect ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
+                                    textColor: Colors.black,
+                                    fontSize: 8.5,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(CurrencyFormatter.formatShort(car.baseMarketValue), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900)),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
-                  }),
-                  const SizedBox(height: 20),
-                ],
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
 
-                // 6. Purchasable Workshop Equipment Upgrades
+              // Active Vehicle Mechanical Diagnosis Card
+              if (_selectedCar != null) ...[
+                NeoBrutalCard(
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 14,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF7A00),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
+                            ),
+                            child: const Icon(Icons.car_repair_rounded, color: Colors.black, size: 24),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Piyasa Değeri: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} (Kusursuz: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)}) • ${_selectedCar!.modelYear}',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Gauges
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildHealthBar(
+                              label: 'Motor Sağlığı',
+                              percent: _selectedCar!.expertise.engineCondition,
+                              isDark: isDark,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildHealthBar(
+                              label: 'Şanzıman Sağlığı',
+                              percent: _selectedCar!.expertise.transmissionCondition,
+                              isDark: isDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      // RPG Quick Action Buttons (10.000 KM Bakım, Renk Değişimi, Motor Dinleme)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.oil_barrel_rounded,
+                              label: '10k Bakım (₺3.5k)',
+                              backgroundColor: AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: () {
+                                if (game.balance < 3500) {
+                                  NotificationService.showError(context, 'Yetersiz bakiye! ₺3.500 gerekli.');
+                                  return;
+                                }
+                                final success = ref.read(gameProvider.notifier).performPeriodicMaintenance(_selectedCar!.id);
+                                if (success) {
+                                  NotificationService.showSuccess(context, 'Yağ, buji ve filtreler yenilendi (+%15 Kondisyon)!');
+                                  setState(() {
+                                    _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.palette_rounded,
+                              label: 'Fırın Boya',
+                              backgroundColor: const Color(0xFFA855F7),
+                              textColor: Colors.white,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: () => _showColorPickerSheet(context, _selectedCar!),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.hearing_rounded,
+                              label: 'Motor Dinle',
+                              backgroundColor: const Color(0xFF06B6D4),
+                              textColor: Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: () => _showAcousticDiagnosticDialog(context, _selectedCar!),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Row 2 RPG Quick Action Buttons (Boyasız Göçük PDR, TÜVTÜRK Muayene)
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.hardware_rounded,
+                              label: _selectedCar!.hasPdrRepaired ? 'PDR Yapıldı' : 'PDR Göçük (₺3.2k)',
+                              backgroundColor: _selectedCar!.hasPdrRepaired ? const Color(0xFF1E2330) : const Color(0xFF00E575),
+                              textColor: _selectedCar!.hasPdrRepaired ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: _selectedCar!.hasPdrRepaired
+                                  ? null
+                                  : () {
+                                      final success = ref.read(gameProvider.notifier).performPdrDentRepair(_selectedCar!.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(context, 'Boyasız Göçük Düzeltme (PDR) ile kaporta orijinalliği korundu (+%6 Değer)!');
+                                        setState(() {
+                                          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                        });
+                                      } else {
+                                        NotificationService.showError(context, 'Yetersiz bakiye! ₺3.200 gerekli.');
+                                      }
+                                    },
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.verified_rounded,
+                              label: _selectedCar!.hasTuvturkCertified ? '2 Yıl Muayeneli' : 'TÜVTÜRK (₺1.5k)',
+                              backgroundColor: _selectedCar!.hasTuvturkCertified ? const Color(0xFF1E2330) : const Color(0xFF38BDF8),
+                              textColor: _selectedCar!.hasTuvturkCertified ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: _selectedCar!.hasTuvturkCertified
+                                  ? null
+                                  : () {
+                                      final success = ref.read(gameProvider.notifier).certifyTuvturkInspection(_selectedCar!.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(context, '2 Yıl TÜVTÜRK Muayene Pulu basıldı! Satış hızı %40 arttı.');
+                                        setState(() {
+                                          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                        });
+                                      } else {
+                                        NotificationService.showError(context, 'Yetersiz bakiye! ₺1.500 gerekli.');
+                                      }
+                                    },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      if (_selectedCar!.isBarnFind) ...[
+                        NeoBrutalButton(
+                          label: '5-AŞAMALI RESTORASYON MERKEZİ (Aşama: ${_selectedCar!.barnFindStage}/5)',
+                          icon: Icons.auto_fix_high_rounded,
+                          backgroundColor: const Color(0xFFA855F7),
+                          textColor: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          fullWidth: true,
+                          onPressed: () => BarnFindRestorationSheet.show(context, _selectedCar!),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+
+                      NeoBrutalButton(
+                        label: 'YEDEK PARÇA SİPARİŞİ VER (OEM / Hurda / Yan Sanayi)',
+                        icon: Icons.local_shipping_rounded,
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        textColor: isDark ? Colors.white : Colors.black,
+                        fontSize: 10.5,
+                        fullWidth: true,
+                        onPressed: () => OrderPartsSheet.show(
+                          context: context,
+                          car: _selectedCar!,
+                          game: game,
+                          onOrderConfirmed: (partName, type, cost, durationSeconds) {
+                            if (game.balance < cost) {
+                              NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekli.');
+                              return;
+                            }
+                            final success = ref.read(gameProvider.notifier).orderPart(
+                              carId: _selectedCar!.id,
+                              partName: partName,
+                              orderType: type,
+                              cost: cost,
+                              deliveryDurationSeconds: durationSeconds,
+                            );
+                            if (success) {
+                              NotificationService.showSuccess(
+                                context,
+                                '$partName siparişi kargoya verildi! (${durationSeconds}s içinde teslim edilecek)',
+                              );
+                              setState(() {});
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // Five Specialized Repair Stations
+              Text(
+                'ATÖLYE & TAMİR İSTASYONLARI',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              Builder(
+                builder: (context) {
+                  final exp = _selectedCar?.expertise;
+                  final isEngineRepaired = (exp?.engineCondition ?? 100.0) >= 99.5;
+                  final isTransmissionRepaired = (exp?.transmissionCondition ?? 100.0) >= 99.5;
+                  final isEcuRepaired = exp?.isEcuCleaned ?? false;
+                  final isBodyworkRepaired = !(exp?.bodyParts.values.any((v) => v != PartStatus.original) ?? false);
+                  final isChassisRepaired = exp?.isChassisAligned ?? false;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      WorkshopRepairTile(
+                        title: '1. Motor Rektifiye & Subap Ayarı',
+                        description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
+                        cost: 18500.0,
+                        bonusText: 'Motor %100 & +%10 Değer',
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(18500.0, _selectedCar!.estimatedRealValue * 0.10) : null,
+                        badgeColor: const Color(0xFF00E575),
+                        isDark: isDark,
+                        isRepaired: isEngineRepaired,
+                        disabledLabel: 'KUSURSUZ',
+                        onRepair: () => RepairTierSelectionSheet.show(
+                          context: context,
+                          car: _selectedCar!,
+                          repairType: 'engine',
+                          baseCost: 18500.0,
+                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'engine', tier, cost),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      WorkshopRepairTile(
+                        title: '2. Şanzıman & Baskı Balata Yenileme',
+                        description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
+                        cost: 12000.0,
+                        bonusText: 'Şanzıman %100 & +%8 Değer',
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(12000.0, _selectedCar!.estimatedRealValue * 0.08) : null,
+                        badgeColor: const Color(0xFF38BDF8),
+                        isDark: isDark,
+                        isRepaired: isTransmissionRepaired,
+                        disabledLabel: 'KUSURSUZ',
+                        onRepair: () => RepairTierSelectionSheet.show(
+                          context: context,
+                          car: _selectedCar!,
+                          repairType: 'transmission',
+                          baseCost: 12000.0,
+                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'transmission', tier, cost),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      WorkshopRepairTile(
+                        title: '3. Bilgisayarlı OBD-II Beyin (ECU) Arıza Tespiti',
+                        description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
+                        cost: 4500.0,
+                        bonusText: 'Gizli Kusurlar Silinir',
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(4500.0, _selectedCar!.estimatedRealValue * 0.05) : null,
+                        badgeColor: const Color(0xFFA855F7),
+                        isDark: isDark,
+                        isRepaired: isEcuRepaired,
+                        disabledLabel: 'ARIZA YOK',
+                        onRepair: () => RepairTierSelectionSheet.show(
+                          context: context,
+                          car: _selectedCar!,
+                          repairType: 'ecu',
+                          baseCost: 4500.0,
+                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'ecu', tier, cost),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      WorkshopRepairTile(
+                        title: '4. Kaporta Çekiçleme & Fırın Boya',
+                        description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
+                        cost: 22000.0 * paintCostMultiplier,
+                        bonusText: hasPaintBooth ? '+%15 Değer (Boya Fırını %50 İndirimi!)' : '+%15 Değer Artışı',
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(22000.0 * paintCostMultiplier, _selectedCar!.estimatedRealValue * 0.15) : null,
+                        badgeColor: const Color(0xFFFFDE59),
+                        isDark: isDark,
+                        isRepaired: isBodyworkRepaired,
+                        disabledLabel: 'KUSURSUZ',
+                        onRepair: () => RepairTierSelectionSheet.show(
+                          context: context,
+                          car: _selectedCar!,
+                          repairType: 'bodywork',
+                          baseCost: 22000.0 * paintCostMultiplier,
+                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'bodywork', tier, cost),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      WorkshopRepairTile(
+                        title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
+                        description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
+                        cost: 45000.0,
+                        bonusText: hasChassisBench ? '+%20 Süper Değer (Şasi Tezgahı Bonusu!)' : '+%20 Değer',
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(45000.0, _selectedCar!.estimatedRealValue * 0.20) : null,
+                        badgeColor: const Color(0xFFEF4444),
+                        isDark: isDark,
+                        isRepaired: isChassisRepaired,
+                        disabledLabel: 'ŞASİ DÜZGÜN',
+                        onRepair: () => RepairTierSelectionSheet.show(
+                          context: context,
+                          car: _selectedCar!,
+                          repairType: 'chassis',
+                          baseCost: 45000.0,
+                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'chassis', tier, cost),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+
+              // Pending Part Orders
+              if (game.pendingOrders.isNotEmpty) ...[
                 Text(
-                  'SATIN ALINABİLİR ATÖLYE EKİPMANLARI',
+                  'BEKLEYEN PARÇA SİPARİŞLERİ (${game.pendingOrders.length})',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -629,46 +972,156 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-
-                WorkshopEquipmentTile(
-                  id: 'workshop_eq_lift',
-                  title: '4 Tonluk Hidrolik Araç Lifti',
-                  description: 'Aynı anda birden fazla aracın alt takımlarını hızlıca onarabilme imkanı sağlar.',
-                  cost: 85000.0,
-                  isOwned: hasLift,
-                  icon: Icons.elevator_rounded,
-                  color: const Color(0xFFFF7A00),
-                  isDark: isDark,
-                  onBuy: () => _buyEquipment('workshop_eq_lift', 85000.0, '4 Tonluk Hidrolik Araç Lifti'),
-                ),
-                const SizedBox(height: 8),
-
-                WorkshopEquipmentTile(
-                  id: 'workshop_eq_chassis_bench',
-                  title: 'Lazerli Şasi Doğrultma Tezgahı',
-                  description: 'Ağır kazalı pert araçların şasilerini milimetrik hassasiyetle fabrikasyon standardına çevirir.',
-                  cost: 220000.0,
-                  isOwned: hasChassisBench,
-                  icon: Icons.straighten_rounded,
-                  color: const Color(0xFFEF4444),
-                  isDark: isDark,
-                  onBuy: () => _buyEquipment('workshop_eq_chassis_bench', 220000.0, 'Lazerli Şasi Doğrultma Tezgahı'),
-                ),
-                const SizedBox(height: 8),
-
-                WorkshopEquipmentTile(
-                  id: 'workshop_eq_paint_booth',
-                  title: 'Filtreli Endüstriyel Fırın Boya Kabini',
-                  description: 'Kaporta ve boya işlemlerinde sarfiyatı azaltarak tüm boya maliyetlerini kalıcı olarak %50 düşürür.',
-                  cost: 450000.0,
-                  isOwned: hasPaintBooth,
-                  icon: Icons.format_paint_rounded,
-                  color: const Color(0xFFFFDE59),
-                  isDark: isDark,
-                  onBuy: () => _buyEquipment('workshop_eq_paint_booth', 450000.0, 'Filtreli Endüstriyel Fırın Boya Kabini'),
-                ),
+                ...game.pendingOrders.map((order) {
+                  return AnimatedOrderCard(
+                    order: order,
+                    p: p,
+                    onInstall: () {
+                      final success = ref.read(gameProvider.notifier).installDeliveredPart(order.id);
+                      if (success) {
+                        NotificationService.showSuccess(context, '${order.partName} montajı tamamlandı!');
+                        setState(() {});
+                      }
+                    },
+                    onFastDeliverWithAd: () {
+                      AdService.instance.showRewardedAd(
+                        onRewardEarned: () {
+                          ref.read(gameProvider.notifier).instantDeliverPartOrder(order.id);
+                          NotificationService.showReward(context, 'Kargo hızlandırıldı! Parça teslim edildi.');
+                          setState(() {});
+                        }
+                      );
+                    },
+                  );
+                }),
+                const SizedBox(height: 16),
               ],
-            ),
+
+              // Salvaged Parts
+              if (game.salvagedParts.isNotEmpty) ...[
+                Text(
+                  'HURDALIKTAN TOPLANAN ÇIKMA PARÇALAR (${game.salvagedParts.length})',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...game.salvagedParts.map((part) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: NeoBrutalCard(
+                      padding: const EdgeInsets.all(12),
+                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      borderRadius: 12,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF64748B),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
+                            ),
+                            child: const Icon(Icons.settings_suggest_rounded, color: Colors.white, size: 20),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(part.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                                Text(
+                                  'Kondisyon: %${part.conditionPercent} • Tahmini Değer: ${CurrencyFormatter.format(part.estimatedValue)}',
+                                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          NeoBrutalButton(
+                            label: 'MONTE ET',
+                            icon: Icons.build_rounded,
+                            backgroundColor: const Color(0xFF00E575),
+                            textColor: Colors.black,
+                            fontSize: 10.5,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            onPressed: () {
+                              if (_selectedCar == null) return;
+                              final success = ref.read(gameProvider.notifier).installPartToCar(part.id, _selectedCar!.id);
+                              if (success) {
+                                NotificationService.showSuccess(context, '${part.name} araca başarıyla monte edildi!');
+                                setState(() {});
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 20),
+              ],
+
+              // Equipment Upgrades
+              Text(
+                'SATIN ALINABİLİR ATÖLYE EKİPMANLARI',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              WorkshopEquipmentTile(
+                id: 'workshop_eq_lift',
+                title: '4 Tonluk Hidrolik Araç Lifti',
+                description: 'Aynı anda birden fazla aracın alt takımlarını hızlıca onarabilme imkanı sağlar.',
+                cost: 85000.0,
+                isOwned: hasLift,
+                icon: Icons.elevator_rounded,
+                color: const Color(0xFFFF7A00),
+                isDark: isDark,
+                onBuy: () => _buyEquipment('workshop_eq_lift', 85000.0, '4 Tonluk Hidrolik Araç Lifti'),
+              ),
+              const SizedBox(height: 8),
+
+              WorkshopEquipmentTile(
+                id: 'workshop_eq_chassis_bench',
+                title: 'Lazerli Şasi Doğrultma Tezgahı',
+                description: 'Ağır kazalı pert araçların şasilerini milimetrik hassasiyetle fabrikasyon standardına çevirir.',
+                cost: 220000.0,
+                isOwned: hasChassisBench,
+                icon: Icons.straighten_rounded,
+                color: const Color(0xFFEF4444),
+                isDark: isDark,
+                onBuy: () => _buyEquipment('workshop_eq_chassis_bench', 220000.0, 'Lazerli Şasi Doğrultma Tezgahı'),
+              ),
+              const SizedBox(height: 8),
+
+              WorkshopEquipmentTile(
+                id: 'workshop_eq_paint_booth',
+                title: 'Filtreli Endüstriyel Fırın Boya Kabini',
+                description: 'Kaporta ve boya işlemlerinde sarfiyatı azaltarak tüm boya maliyetlerini kalıcı olarak %50 düşürür.',
+                cost: 450000.0,
+                isOwned: hasPaintBooth,
+                icon: Icons.format_paint_rounded,
+                color: const Color(0xFFFFDE59),
+                isDark: isDark,
+                onBuy: () => _buyEquipment('workshop_eq_paint_booth', 450000.0, 'Filtreli Endüstriyel Fırın Boya Kabini'),
+              ),
+            ],
+          ],
+        ],
+      ),
     );
   }
 
@@ -721,8 +1174,6 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     );
   }
 
-
-
   void _buyEquipment(String eqId, double cost, String name) {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
@@ -736,8 +1187,6 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       setState(() {});
     }
   }
-
-
 
   void _executeTierRepair(CarModel car, String repairType, RepairTier tier, double cost) {
     final game = ref.read(gameProvider);
@@ -785,7 +1234,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         return;
       }
 
-      final double successRate = RepairEngine.getSuccessRate(tier);
+      final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final double successRate = hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
@@ -810,7 +1260,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         NotificationService.showInfo(context, 'OBD-II Beyin arıza tespiti zaten yapılmış, sistem kusursuz!');
         return;
       }
-      final double successRate = RepairEngine.getSuccessRate(tier);
+      final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final double successRate = hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
@@ -833,7 +1284,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         NotificationService.showInfo(context, 'Lazerli şasi doğrultma zaten yapılmış, şasi kusursuz!');
         return;
       }
-      final double successRate = RepairEngine.getSuccessRate(tier);
+      final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final double successRate = hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
@@ -853,5 +1305,4 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       }
     }
   }
-
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/game_sound_haptic_service.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
@@ -15,6 +15,7 @@ import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/offer_model.dart';
 import '../../../../data/models/trade_in_offer_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
+import '../../../providers/dashboard_provider.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -424,37 +425,56 @@ class ShowroomOffersTab extends ConsumerWidget {
                     if (context.mounted) {
                       showDialog(
                         context: context,
-                        builder: (ctx) => AlertDialog(
-                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          title: Row(
-                            children: [
-                              VectorIconWidget(type: 'error', color: palette.errorColor, size: 24),
-                              const SizedBox(width: 8),
-                              Text(
-                                fraudResult.title,
-                                style: TextStyle(
-                                  color: palette.errorColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                        builder: (ctx) => Dialog(
+                          backgroundColor: Colors.transparent,
+                          insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: NeoBrutalCard(
+                            padding: const EdgeInsets.all(18),
+                            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                            borderColor: palette.errorColor,
+                            borderRadius: 12,
+                            borderWidth: 2.5,
+                            shadowOffset: const Offset(4, 4),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    VectorIconWidget(type: 'error', color: palette.errorColor, size: 24),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        fraudResult.title,
+                                        style: TextStyle(
+                                          color: palette.errorColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          content: Text(
-                            '${fraudResult.description}\n\n'
-                            'Tazminat Cezası: ${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
-                            'İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
-                            style: AppTypography.bodyMedium(palette.isDark),
-                          ),
-                          actions: [
-                            NeoBrutalButton(
-                              label: 'Tamam',
-                              backgroundColor: const Color(0xFFEF4444),
-                              textColor: Colors.white,
-                              onPressed: () => Navigator.pop(ctx),
+                                const SizedBox(height: 12),
+                                Text(
+                                  '${fraudResult.description}\n\n'
+                                  'Tazminat Cezası: ${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
+                                  'İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
+                                  style: AppTypography.bodyMedium(palette.isDark),
+                                ),
+                                const SizedBox(height: 16),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: NeoBrutalButton(
+                                    label: 'Tamam',
+                                    backgroundColor: AppColors.errorRed,
+                                    textColor: Colors.white,
+                                    onPressed: () => Navigator.pop(ctx),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       );
                     }
@@ -697,37 +717,56 @@ class ShowroomOffersTab extends ConsumerWidget {
                                 if (fraudResult != null && fraudResult.caughtFraud) {
                                   showDialog(
                                     context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      title: Row(
-                                        children: [
-                                          VectorIconWidget(type: 'error', color: palette.errorColor, size: 24),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            fraudResult.title,
-                                            style: TextStyle(
-                                              color: palette.errorColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
+                                    builder: (ctx) => Dialog(
+                                      backgroundColor: Colors.transparent,
+                                      insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+                                      child: NeoBrutalCard(
+                                        padding: const EdgeInsets.all(18),
+                                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                        borderColor: palette.errorColor,
+                                        borderRadius: 12,
+                                        borderWidth: 2.5,
+                                        shadowOffset: const Offset(4, 4),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                VectorIconWidget(type: 'error', color: palette.errorColor, size: 24),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    fraudResult.title,
+                                                    style: TextStyle(
+                                                      color: palette.errorColor,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 15,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      content: Text(
-                                        '${fraudResult.description}\n\n'
-                                        'Tazminat Cezası: ${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
-                                        'İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
-                                        style: AppTypography.bodyMedium(palette.isDark),
-                                      ),
-                                      actions: [
-                                        NeoBrutalButton(
-                                          label: 'Tamam',
-                                          backgroundColor: const Color(0xFFEF4444),
-                                          textColor: Colors.white,
-                                          onPressed: () => Navigator.pop(ctx),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              '${fraudResult.description}\n\n'
+                                              'Tazminat Cezası: ${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
+                                              'İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
+                                              style: AppTypography.bodyMedium(palette.isDark),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: NeoBrutalButton(
+                                                label: 'Tamam',
+                                                backgroundColor: AppColors.errorRed,
+                                                textColor: Colors.white,
+                                                onPressed: () => Navigator.pop(ctx),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   );
                                 } else {
@@ -749,87 +788,101 @@ class ShowroomOffersTab extends ConsumerWidget {
                                   if (context.mounted) {
                                     showDialog(
                                       context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          side: const BorderSide(color: Color(0xFF00E575), width: 2.0),
-                                        ),
-                                        title: Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF00E575),
-                                                borderRadius: BorderRadius.circular(8),
-                                                border: Border.all(
-                                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                                  width: 2.0,
-                                                ),
-                                              ),
-                                              child: const Icon(Icons.check_circle_rounded, color: Colors.black, size: 24),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Text(
-                                                isCollector ? '🌟 KOLEKSİYONER SATIŞI!' : 'NOTER SATIŞI ONAYLANDI!',
-                                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${car.brand} ${car.modelName} aracı ${CurrencyFormatter.format(offer.offeredAmount)} bedelle ${offer.buyerName} adlı alıcıya devredildi.',
-                                              style: TextStyle(
-                                                fontSize: 12.5,
-                                                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 12),
-                                            Container(
-                                              padding: const EdgeInsets.all(10),
-                                              decoration: BoxDecoration(
-                                                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
-                                                borderRadius: BorderRadius.circular(10),
-                                                border: Border.all(color: const Color(0xFF3B82F6), width: 2.0),
-                                              ),
-                                              child: const Row(
+                                      builder: (ctx) => Dialog(
+                                        backgroundColor: Colors.transparent,
+                                        insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+                                        child: NeoBrutalCard(
+                                          padding: const EdgeInsets.all(18),
+                                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                          borderColor: const Color(0xFF00E575),
+                                          borderRadius: 12,
+                                          borderWidth: 2.5,
+                                          shadowOffset: const Offset(4, 4),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
                                                 children: [
-                                                  Icon(Icons.bolt_rounded, color: Color(0xFF3B82F6), size: 20),
-                                                  SizedBox(width: 8),
+                                                  Container(
+                                                    padding: const EdgeInsets.all(8),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFF00E575),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      border: Border.all(
+                                                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                    child: const Icon(Icons.check_circle_rounded, color: Colors.black, size: 24),
+                                                  ),
+                                                  const SizedBox(width: 10),
                                                   Expanded(
                                                     child: Text(
-                                                      'Yeni kelepir ilanlar pazara düştü! Hemen yeni araç toplayarak kasanı katla.',
-                                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                                      isCollector ? 'KOLEKSİYONER SATIŞI!' : 'NOTER SATIŞI ONAYLANDI!',
+                                                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                          ],
+                                              const SizedBox(height: 12),
+                                              Text(
+                                                '${car.brand} ${car.modelName} aracı ${CurrencyFormatter.format(offer.offeredAmount)} bedelle ${offer.buyerName} adlı alıcıya devredildi.',
+                                                style: TextStyle(
+                                                  fontSize: 12.5,
+                                                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 12),
+                                              Container(
+                                                padding: const EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  border: Border.all(color: const Color(0xFF3B82F6), width: 2.0),
+                                                ),
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.bolt_rounded, color: Color(0xFF3B82F6), size: 20),
+                                                    SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Yeni kelepir ilanlar pazara düştü! Hemen yeni araç toplayarak kasanı katla.',
+                                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 16),
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: NeoBrutalButton(
+                                                      label: 'Galeride Kal',
+                                                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                                      textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                                                      onPressed: () => Navigator.pop(ctx),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: NeoBrutalButton(
+                                                      label: 'Pazara Git',
+                                                      icon: Icons.storefront_rounded,
+                                                      backgroundColor: const Color(0xFFFFDE59),
+                                                      textColor: Colors.black,
+                                                      onPressed: () {
+                                                        Navigator.pop(ctx);
+                                                        ref.read(dashboardTabProvider.notifier).state = 1;
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        actions: [
-                                          NeoBrutalButton(
-                                            label: 'Galeride Kal',
-                                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                            textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
-                                            onPressed: () => Navigator.pop(ctx),
-                                          ),
-                                          NeoBrutalButton(
-                                            label: 'Pazara Git',
-                                            icon: Icons.storefront_rounded,
-                                            backgroundColor: const Color(0xFFFFDE59),
-                                            textColor: Colors.black,
-                                            onPressed: () {
-                                              Navigator.pop(ctx);
-                                              context.push('/marketplace');
-                                            },
-                                          ),
-                                        ],
                                       ),
                                     );
                                   }

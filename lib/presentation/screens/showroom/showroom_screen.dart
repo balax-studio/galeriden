@@ -192,11 +192,28 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                       fontSize: 10,
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                                       onPressed: () {
-                                        final count = ref.read(gameProvider.notifier).listAllGarageCars();
+                                        final count = ref.read(gameProvider.notifier).publishAllReadyCars();
                                         if (count > 0) {
                                           NotificationService.showSuccess(context, '$count yeni araç ilana çıkarıldı!');
                                         } else {
-                                          NotificationService.showInfo(context, 'İlana konulacak boşta araç bulunamadı.');
+                                          NotificationService.showInfo(context, 'İlana konulacak hazır araç bulunamadı.');
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(width: 6),
+                                    NeoBrutalButton(
+                                      label: 'Flaş İndirim (%10)',
+                                      icon: Icons.local_fire_department_rounded,
+                                      backgroundColor: const Color(0xFFFFDE59),
+                                      textColor: Colors.black,
+                                      fontSize: 10,
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                      onPressed: () {
+                                        final count = ref.read(gameProvider.notifier).startWeekendFlashSale();
+                                        if (count > 0) {
+                                          NotificationService.showSuccess(context, '$count ilanda %10 flaş indirim yapıldı! Müşteriler hızlandı.');
+                                        } else {
+                                          NotificationService.showInfo(context, 'İndirim uygulanacak aktif ilan bulunamadı.');
                                         }
                                       },
                                     ),

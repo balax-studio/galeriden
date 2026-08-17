@@ -129,15 +129,14 @@ class ThemeState {
       style: ElevatedButton.styleFrom(
         backgroundColor: activePalette.primaryColor,
         foregroundColor: isDark ? const Color(0xFF0D0D0F) : Colors.white,
-        elevation: 4,
-        shadowColor: activePalette.primaryColor.withValues(alpha: 0.35),
+        elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.25), width: 0.8),
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 2.0),
         ),
         textStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w900,
           letterSpacing: 0.4,
           fontSize: 14,
         ),
@@ -150,12 +149,12 @@ class ThemeState {
       style: OutlinedButton.styleFrom(
         foregroundColor: activePalette.textPrimaryColor,
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        side: BorderSide(color: activePalette.surfaceBorderColor, width: 1.2),
+        side: BorderSide(color: activePalette.surfaceBorderColor, width: 2.0),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(10),
         ),
         textStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w800,
           letterSpacing: 0.3,
           fontSize: 13,
         ),
@@ -166,19 +165,19 @@ class ThemeState {
   InputDecorationTheme _buildInputDecorationTheme() {
     return InputDecorationTheme(
       filled: true,
-      fillColor: activePalette.surfaceColor.withValues(alpha: 0.7),
+      fillColor: activePalette.surfaceColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 2.0),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 2.0),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: activePalette.primaryColor, width: 1.5),
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: activePalette.primaryColor, width: 2.0),
       ),
       hintStyle: TextStyle(color: activePalette.textSecondaryColor, fontSize: 13),
     );
@@ -191,25 +190,20 @@ class ThemeState {
       secondarySelectedColor: activePalette.primaryColor,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: activePalette.surfaceBorderColor, width: 1.5),
       ),
-      labelStyle: TextStyle(
-        color: activePalette.textPrimaryColor,
-        fontWeight: FontWeight.w600,
-        fontSize: 12,
-      ),
+      labelStyle: TextStyle(color: activePalette.textPrimaryColor, fontSize: 12, fontWeight: FontWeight.w700),
     );
   }
 
   DialogThemeData _buildDialogTheme() {
     return DialogThemeData(
       backgroundColor: activePalette.surfaceColor,
-      elevation: 16,
-      shadowColor: Colors.black54,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: activePalette.surfaceBorderColor, width: 1.2),
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: activePalette.surfaceBorderColor, width: 2.5),
       ),
     );
   }
@@ -217,9 +211,10 @@ class ThemeState {
   BottomSheetThemeData _buildBottomSheetTheme() {
     return BottomSheetThemeData(
       backgroundColor: activePalette.surfaceColor,
-      elevation: 16,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        side: BorderSide(color: activePalette.surfaceBorderColor, width: 2.5),
       ),
     );
   }

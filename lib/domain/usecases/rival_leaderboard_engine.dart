@@ -256,8 +256,8 @@ class RivalLeaderboardEngine {
         isLeader: true,
         scoreDifference: diff,
         motivationMessage: secondRival != null
-            ? '👑 ŞEHİR LİDERİSİN! En yakın rakibin ${secondRival.name} ${CurrencyFormatter.format(diff)} gerinde.'
-            : '👑 ŞEHİR LİDERİSİN!',
+            ? 'ŞEHİR LİDERİSİN! En yakın rakibin ${secondRival.name} ${CurrencyFormatter.format(diff)} gerinde.'
+            : 'ŞEHİR LİDERİSİN!',
       );
     }
 
@@ -270,7 +270,7 @@ class RivalLeaderboardEngine {
       targetRivalName: rivalAhead.name,
       scoreDifference: diff,
       motivationMessage:
-          '🏆 #${playerRank - 1} sıradaki ${rivalAhead.name}\'ı geçmek için sadece ${CurrencyFormatter.format(diff)} ciro kaldı! 1-2 kârlı satışla sıranı yükselt!',
+          '#${playerRank - 1} sıradaki ${rivalAhead.name}\'ı geçmek için sadece ${CurrencyFormatter.format(diff)} ciro kaldı! 1-2 kârlı satışla sıranı yükselt!',
     );
   }
 }

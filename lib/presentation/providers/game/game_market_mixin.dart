@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '../../../core/utils/iterable_extensions.dart';
 import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/cheque_model.dart';
@@ -6,6 +7,7 @@ import '../../../data/models/customer_model.dart';
 import '../../../data/models/customer_review_model.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/game_event_model.dart';
 import '../../../data/models/installment_contract_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/offer_model.dart';
@@ -15,8 +17,8 @@ import '../../../data/models/player_skills.dart';
 import '../../../data/models/sale_record_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/side_business_model.dart';
-import '../../../data/models/staff_model.dart';
 import '../../../data/models/stock_model.dart';
+import '../../../data/models/trade_in_offer_model.dart';
 import '../../../domain/usecases/market_engine.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
@@ -227,6 +229,129 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Calculate projected daily stock dividends from portfolio
+  double calculateDailyStockDividends() {
+    double totalDailyDividend = 0.0;
+    for (var owned in state.ownedStocks) {
+      final stock = findFirstWhere(state.marketStocks, (s) => s.symbol == owned.symbol);
+      if (stock != null) {
+        final double stockValue = owned.quantity * stock.currentPrice;
+        final double dailyVal = (stockValue * stock.dividendYield) / 365.0;
+        totalDailyDividend += dailyVal;
+      }
+    }
+    return (totalDailyDividend * 100).roundToDouble() / 100.0;
+  }
+
+  /// Buy foreign exchange (USD, EUR) or Gold (GOLD)
+  bool buyForex(String symbol, double amount) {
+    if (amount <= 0) return false;
+    final forex = state.marketForex.firstWhere(
+      (f) => f.symbol == symbol,
+      orElse: () => ForexGoldModel.defaultForex.firstWhere((f) => f.symbol == symbol),
+    );
+
+    final double totalCost = amount * forex.buyRate;
+    if (state.balance < totalCost) return false;
+
+    List<PlayerForexModel> updatedOwned = List.from(state.ownedForex);
+    final existingIndex = updatedOwned.indexWhere((f) => f.symbol == symbol);
+
+    if (existingIndex != -1) {
+      final existing = updatedOwned[existingIndex];
+      final double totalSpent = (existing.averageRate * existing.amount) + totalCost;
+      final double newAmount = existing.amount + amount;
+      final double newAvgRate = totalSpent / newAmount;
+
+      updatedOwned[existingIndex] = existing.copyWith(
+        amount: newAmount,
+        averageRate: newAvgRate,
+      );
+    } else {
+      updatedOwned.add(PlayerForexModel(
+        symbol: symbol,
+        amount: amount,
+        averageRate: forex.buyRate,
+      ));
+    }
+
+    state = state.copyWith(
+      balance: state.balance - totalCost,
+      ownedForex: updatedOwned,
+    );
+
+    addXP((totalCost / 50000.0).clamp(0, 20).round());
+    saveState();
+    return true;
+  }
+
+  /// Sell foreign exchange (USD, EUR) or Gold (GOLD)
+  bool sellForex(String symbol, double amount) {
+    if (amount <= 0) return false;
+    List<PlayerForexModel> updatedOwned = List.from(state.ownedForex);
+    final existingIndex = updatedOwned.indexWhere((f) => f.symbol == symbol);
+    if (existingIndex == -1) return false;
+
+    final existing = updatedOwned[existingIndex];
+    if (existing.amount < amount) return false;
+
+    final forex = state.marketForex.firstWhere(
+      (f) => f.symbol == symbol,
+      orElse: () => ForexGoldModel.defaultForex.firstWhere((f) => f.symbol == symbol),
+    );
+
+    final double revenue = amount * forex.sellRate;
+
+    if (existing.amount == amount) {
+      updatedOwned.removeAt(existingIndex);
+    } else {
+      updatedOwned[existingIndex] = existing.copyWith(
+        amount: existing.amount - amount,
+      );
+    }
+
+    state = state.copyWith(
+      balance: state.balance + revenue,
+      ownedForex: updatedOwned,
+    );
+
+    addXP((revenue / 50000.0).clamp(0, 20).round());
+    saveState();
+    return true;
+  }
+
+  /// Request allocation in an active IPO
+  bool requestIpo(String ipoId, int requestedLots) {
+    if (requestedLots <= 0) return false;
+    final ipoIndex = state.activeIpos.indexWhere((i) => i.id == ipoId);
+    if (ipoIndex == -1) return false;
+
+    final ipo = state.activeIpos[ipoIndex];
+    if (ipo.isListed) return false;
+
+    final double totalCost = requestedLots * ipo.lotPrice;
+    if (state.balance < totalCost) return false;
+
+    final reqIndex = state.playerIpoRequests.indexWhere((r) => r.ipoId == ipoId);
+    if (reqIndex != -1) return false;
+
+    final newRequest = PlayerIpoRequestModel(
+      ipoId: ipoId,
+      requestedLots: requestedLots,
+      allottedLots: requestedLots,
+      totalSpent: totalCost,
+    );
+
+    state = state.copyWith(
+      balance: state.balance - totalCost,
+      playerIpoRequests: [...state.playerIpoRequests, newRequest],
+    );
+
+    addXP(30);
+    saveState();
+    return true;
+  }
+
   /// Boost Listing Doping
   /// Boost Listing Doping (Can only be done once per car, requires car to be listed, caps at max 3 offers)
   bool boostListingDoping(String carId) {
@@ -343,6 +468,35 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (carIndex == -1) return;
 
     final car = state.ownedCars[carIndex];
+
+    // Karaborsa Araç Satışında Noter Şasi Çakışması & Satış Blokesi Denetimi
+    if (car.isBlackMarket || car.modelName.contains('Karaborsa') || car.id.startsWith('bm_')) {
+      final notaryBlockChance = (car.blackMarketRiskPercent > 0 ? car.blackMarketRiskPercent : 30) / 100.0 * 0.70;
+      if (math.Random().nextDouble() < notaryBlockChance) {
+        const notaryFine = 8000.0;
+        final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
+        final newReputation = (state.reputationScore - 12).clamp(0, 200);
+        
+        final blockedEvent = GameEventModel(
+          id: 'notary_blocked_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+          title: 'NOTER SATIŞ BLOKESİ: ŞASİ ÇAKIŞMASI!',
+          description: 'Noter memuru devir işlemi sırasında ${car.brand} ${car.modelName} için sistemde ikiz plaka / haciz uyarısı verdi! Satış iptal edildi, alıcı ${offer.buyerName} karakola şikayette bulundu (-12 İtibar, ₺8.000 noter ve idari harç).',
+          type: GameEventType.expense,
+          amount: -notaryFine,
+          date: DateTime.now(),
+        );
+
+        state = state.copyWith(
+          balance: (state.balance - notaryFine).clamp(0.0, double.infinity),
+          reputationScore: newReputation,
+          incomingOffers: updatedOffers,
+          recentEvents: [blockedEvent, ...state.recentEvents],
+        );
+        saveState();
+        return;
+      }
+    }
+
     final isConsignment = car.isConsignment;
     final double profit;
     final double cashReceived;
@@ -362,7 +516,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       final multiplier = state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
       profit = (baseProfit * multiplier).roundToDouble();
       final paymentResult = _processPayment(offer);
-      cashReceived = paymentResult.$1;
+      cashReceived = (paymentResult.$1 * state.cashSaleProfitBonusMultiplier).roundToDouble();
       updatedCheques = paymentResult.$2;
       updatedInstallments = paymentResult.$3;
     }
@@ -469,19 +623,20 @@ mixin GameMarketMixin on GameBaseNotifier {
     final isGoodEngine = car.expertise.engineCondition >= 80;
 
     final hasVipConcierge = state.purchasedAcademyCourses.contains('course_vip_concierge');
-    final hasVipLounge = state.unlockedDecorIds.contains('decor_vip_lounge');
+    final hasVipLounge = state.hasDecor('decor_vip_lounge');
+    final hasTrophy = state.hasDecor('decor_trophy_cabinet');
 
     if (car.declarationType == ListingDeclarationType.honest) {
       if (isClean && isGoodEngine) {
         reviewRating = 5.0;
         reviewComment = 'Aracı pırıl pırıl teslim aldım. Ekspertizde sürpriz çıkmadı, elinize sağlık!';
-        reputationChange = 5 + (hasVipConcierge || hasVipLounge ? 2 : 0);
+        reputationChange = 5 + (hasVipConcierge || hasVipLounge ? 2 : 0) + (hasTrophy ? 1 : 0);
       } else {
         reviewRating = (hasVipConcierge || hasVipLounge) ? 4.5 : 4.0;
         reviewComment = (hasVipConcierge || hasVipLounge)
             ? 'VIP karşılamaları ve samimi ikramları harikaydı. Dürüst esnaf, teşekkürler.'
             : 'Dürüst satıcı, ufak tefek masraflarını baştan belirtti. Teşekkürler.';
-        reputationChange = 2 + (hasVipConcierge ? 1 : 0);
+        reputationChange = 2 + (hasVipConcierge ? 1 : 0) + (hasTrophy ? 1 : 0);
       }
     } else {
       reviewRating = (hasVipConcierge || hasVipLounge) ? 2.5 : 2.0;
@@ -830,7 +985,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (bmCar.isPurchased) return false;
     if (state.balance < bmCar.askingPrice) return false;
 
-    // Convert to CarModel in garage
+    // Convert to CarModel in garage with active black market risk tags
     final newCar = CarModel(
       id: 'bm_owned_${DateTime.now().millisecondsSinceEpoch}',
       brand: bmCar.brand,
@@ -845,6 +1000,10 @@ mixin GameMarketMixin on GameBaseNotifier {
       baseMarketValue: bmCar.realMarketValue,
       currentPurchasePrice: bmCar.askingPrice,
       isRare: true,
+      isBlackMarket: true,
+      blackMarketRiskType: bmCar.riskType,
+      blackMarketRiskPercent: bmCar.riskLevelPercent,
+      blackMarketSellerAlias: bmCar.sellerAlias,
       expertise: ExpertiseReport(
         engineCondition: 85.0,
         transmissionCondition: 85.0,
@@ -978,4 +1137,33 @@ mixin GameMarketMixin on GameBaseNotifier {
     saveState();
     return true;
   }
+
+  /// Müşteri araç takas teklifini kabul etme (Trade-in Exchange)
+  bool acceptTradeInOffer(TradeInOfferModel tradeOffer) {
+    final targetIndex = state.ownedCars.indexWhere((c) => c.id == tradeOffer.targetCarId);
+    if (targetIndex == -1) return false;
+
+    if (tradeOffer.cashDifference < 0 && state.balance < (-tradeOffer.cashDifference)) {
+      return false; // Üste vermesi gereken nakit yetersiz
+    }
+
+    final targetCar = state.ownedCars[targetIndex];
+    final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(targetIndex);
+    updatedCars.add(tradeOffer.offeredCar);
+
+    final updatedOffers = state.incomingOffers.where((o) => o.carId != targetCar.id).toList();
+
+    state = state.copyWith(
+      balance: state.balance + tradeOffer.cashDifference,
+      ownedCars: updatedCars,
+      incomingOffers: updatedOffers,
+      carsSold: state.carsSold + 1,
+      totalProfit: state.totalProfit + (tradeOffer.cashDifference > 0 ? tradeOffer.cashDifference : 0.0),
+    );
+
+    addXP(65);
+    saveState();
+    return true;
+  }
 }
+

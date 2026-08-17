@@ -1,3 +1,5 @@
+import '../../../data/models/mega_systems_extensions_model.dart';
+import '../../../data/models/cheque_model.dart';
 import '../../../data/models/branch_model.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/contract_model.dart';
@@ -10,6 +12,8 @@ import '../../../data/models/rental_agreement_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
+import '../../../data/models/workshop_job_model.dart';
+import '../../../data/models/car_wash_job_model.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
@@ -604,7 +608,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
   }
 
   /// Enters an underground night modification street race (§4.4)
-  NightRaceResult enterNightRace(CarModel car) {
+  NightRaceResult enterNightRace(CarModel car, {NightRivalModel? rival}) {
     const entryFee = 5000.0;
     if (state.dailyRacesRemaining <= 0) {
       return const NightRaceResult(
@@ -648,7 +652,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedCar = car.copyWith(expertise: updatedExpertise);
     final updatedCars = state.ownedCars.map((c) => c.id == car.id ? updatedCar : c).toList();
 
-    final result = NightMarketEngine.simulateNightRace(updatedCar);
+    final result = NightMarketEngine.simulateNightRace(updatedCar, rival: rival);
     final remainingRaces = (state.dailyRacesRemaining - 1).clamp(0, 3);
 
     if (result.isWon) {
@@ -816,18 +820,42 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Rent a Car with strict market rate validation and state sync
-  bool rentCar(String carId, double dailyRate) {
+  /// Rent a Car with strict market rate validation, profile and insurance options
+  bool rentCar(
+    String carId,
+    double dailyRate, {
+    String renterType = 'individual',
+    bool hasInsurance = false,
+    String? renterName,
+  }) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
     
     final car = state.ownedCars[carIndex];
     if (car.isRented || state.activeRentals.any((r) => r.carId == carId)) return false;
 
-    // Cap daily rate to maximum 1.2% of car value to prevent economy exploits
+    // Cap daily rate to maximum rate
     final carValue = car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue;
-    final maxAllowedDailyRate = (carValue * 0.012).clamp(100.0, 50000.0);
+    final maxRateMultiplier = renterType == 'young_driver' ? 0.016 : 0.012;
+    final maxAllowedDailyRate = (carValue * maxRateMultiplier).clamp(100.0, 60000.0);
     final validatedDailyRate = dailyRate.clamp(100.0, maxAllowedDailyRate);
+
+    // Kasko daily fee: 0.1% of car value (min 150 TL, max 1.500 TL)
+    final insuranceDailyFee = hasInsurance ? (carValue * 0.001).clamp(150.0, 1500.0) : 0.0;
+
+    String resolvedRenterName = renterName ?? '';
+    if (resolvedRenterName.isEmpty) {
+      if (renterType == 'corporate') {
+        final corpNames = ['Anadolu Filo & Lojistik', 'Kuzey Holding A.Ş.', 'Mavi Bulut Danışmanlık', 'Atlas Medikal'];
+        resolvedRenterName = corpNames[DateTime.now().millisecondsSinceEpoch % corpNames.length];
+      } else if (renterType == 'young_driver') {
+        final youngNames = ['Bora & Ceyda (Düğün)', 'Gurbetçi Berkcan', 'Kürşat & Arkadaşları (Tatil)', 'Cengiz (Hızlı Sürücü)'];
+        resolvedRenterName = youngNames[DateTime.now().millisecondsSinceEpoch % youngNames.length];
+      } else {
+        final indivNames = ['Av. Mehmet Bey', 'Mimar Sinan Bey', 'Doktor Ayşe Hanım', 'Öğretmen Kemal'];
+        resolvedRenterName = indivNames[DateTime.now().millisecondsSinceEpoch % indivNames.length];
+      }
+    }
 
     final updatedCar = car.copyWith(isRented: true);
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -837,6 +865,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
       id: 'rent_${DateTime.now().millisecondsSinceEpoch}',
       carId: carId,
       dailyRate: validatedDailyRate,
+      renterType: renterType,
+      renterName: resolvedRenterName,
+      hasInsurance: hasInsurance,
+      insuranceDailyFee: insuranceDailyFee,
     );
 
     state = state.copyWith(
@@ -920,6 +952,141 @@ mixin GameInventoryMixin on GameBaseNotifier {
     adjustNpcRelationship('cikmaci_ibo', 2);
     addXP(60);
     checkAchievement('first_scrap');
+    saveState();
+    return true;
+  }
+
+  /// Dismantle a single specific part from a scrap car
+  bool dismantleSinglePartFromScrap(String scrapCarId, String partId) {
+    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+    if (scrapIndex == -1) return false;
+
+    final scrapCar = state.scrapyardCars[scrapIndex];
+    final partIndex = scrapCar.parts.indexWhere((p) => p.id == partId);
+    if (partIndex == -1) return false;
+
+    final part = scrapCar.parts[partIndex];
+    final updatedParts = List<SalvagedPart>.from(scrapCar.parts)..removeAt(partIndex);
+    final updatedScrapCar = scrapCar.copyWith(parts: updatedParts);
+
+    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars);
+    updatedScrapCars[scrapIndex] = updatedScrapCar;
+
+    state = state.copyWith(
+      salvagedParts: [...state.salvagedParts, part],
+      scrapyardCars: updatedScrapCars,
+    );
+
+    addXP(20);
+    saveState();
+    return true;
+  }
+
+  /// Crush the remaining car chassis into scrap metal and extract surprise finds
+  ChassisCrushResult crushChassisToScrapMetal(String scrapCarId) {
+    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+    if (scrapIndex == -1) {
+      return const ChassisCrushResult(
+        success: false,
+        scrapMetalEarned: 0,
+        surpriseEarned: 0,
+        message: 'Hurda araç bulunamadı.',
+      );
+    }
+
+    final scrapCar = state.scrapyardCars[scrapIndex];
+    final scrapMetalVal = scrapCar.chassisScrapValue;
+    final surpriseVal = scrapCar.surpriseFindValue;
+    final surpriseName = scrapCar.surpriseFindItem;
+    final totalEarned = scrapMetalVal + surpriseVal;
+
+    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars)..removeAt(scrapIndex);
+
+    state = state.copyWith(
+      balance: state.balance + totalEarned,
+      scrapyardCars: updatedScrapCars,
+    );
+
+    addXP(30);
+    saveState();
+
+    String msg = '${scrapCar.brand} ${scrapCar.modelName} şasisi preslendi! ₺${scrapMetalVal.toInt()} hurda demir geliri kazanıldı.';
+    if (surpriseName != null && surpriseVal > 0) {
+      msg += ' Torpidodan "$surpriseName" çıktı (+₺${surpriseVal.toInt()})!';
+    }
+
+    return ChassisCrushResult(
+      success: true,
+      scrapMetalEarned: scrapMetalVal,
+      surpriseEarned: surpriseVal,
+      surpriseItemName: surpriseName,
+      message: msg,
+    );
+  }
+
+  /// Refurbish / Restore a salvaged part in workshop
+  bool refurbishSalvagedPart(String partId) {
+    final partIndex = state.salvagedParts.indexWhere((p) => p.id == partId);
+    if (partIndex == -1) return false;
+
+    final part = state.salvagedParts[partIndex];
+    if (!part.canRefurbish) return false;
+
+    final cost = part.refurbishCost;
+    if (state.balance < cost) return false;
+
+    final restoredPart = part.refurbish();
+    final updatedParts = List<SalvagedPart>.from(state.salvagedParts);
+    updatedParts[partIndex] = restoredPart;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      salvagedParts: updatedParts,
+    );
+
+    addXP(25);
+    saveState();
+    return true;
+  }
+
+  /// Fulfill a B2B Part Order from Sanayi NPCs
+  bool fulfillB2BPartOrder(String orderId, String partId) {
+    final orderIndex = state.b2bPartOrders.indexWhere((o) => o.id == orderId);
+    final partIndex = state.salvagedParts.indexWhere((p) => p.id == partId);
+
+    if (orderIndex == -1 || partIndex == -1) return false;
+
+    final order = state.b2bPartOrders[orderIndex];
+    final part = state.salvagedParts[partIndex];
+
+    if (order.isCompleted) return false;
+
+    // Check category match
+    if (part.category != order.requiredCategory) return false;
+
+    // Check brand match if specified
+    if (order.requiredCarBrand != null) {
+      final matchesBrand = part.carModelName.toLowerCase().contains(order.requiredCarBrand!.toLowerCase());
+      if (!matchesBrand) return false;
+    }
+
+    // Check quality tier
+    if (part.tier.index < order.minQualityTier.index) return false;
+
+    // Execute fulfillment
+    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)..removeAt(partIndex);
+    final updatedOrder = order.copyWith(isCompleted: true);
+    final updatedOrders = List<B2BPartOrder>.from(state.b2bPartOrders);
+    updatedOrders[orderIndex] = updatedOrder;
+
+    state = state.copyWith(
+      balance: state.balance + order.offeredPrice,
+      reputationScore: (state.reputationScore + order.reputationReward).clamp(0, 100),
+      salvagedParts: updatedParts,
+      b2bPartOrders: updatedOrders,
+    );
+
+    addXP(45);
     saveState();
     return true;
   }
@@ -1179,6 +1346,79 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Complete a customer repair contract job
+  bool completeCustomerRepairJob(CustomerRepairJob job) {
+    final netGain = job.laborReward - job.partsCost;
+    state = state.copyWith(
+      balance: state.balance + netGain,
+      totalProfit: state.totalProfit + (netGain > 0 ? netGain : 0.0),
+    );
+    addXP(job.masteryXpReward);
+    saveState();
+    return true;
+  }
+
+  /// Perform 10.000 KM Periodic Maintenance (+15% condition)
+  bool performPeriodicMaintenance(String carId) {
+    const cost = 3500.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final exp = car.expertise;
+
+    final updatedExp = exp.copyWith(
+      engineCondition: (exp.engineCondition + 15.0).clamp(0.0, 100.0),
+      transmissionCondition: (exp.transmissionCondition + 15.0).clamp(0.0, 100.0),
+    );
+
+    final updatedCar = car.copyWith(
+      expertise: updatedExp,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(30);
+    saveState();
+    return true;
+  }
+
+  /// Apply custom color paint respray
+  bool applyCustomPaintRespray(String carId, CustomPaintColor paint) {
+    if (state.balance < paint.cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+
+    final updatedCar = car.copyWith(
+      colorHex: paint.hex,
+      colorDisplayName: paint.name,
+      baseMarketValue: car.baseMarketValue * paint.buyerAppealMultiplier,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - paint.cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(40);
+    saveState();
+    return true;
+  }
+
   /// Wash and polish all cars in garage in one batch
   bool washAllCars() {
     if (state.ownedCars.isEmpty) return false;
@@ -1241,4 +1481,580 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Alias for doDailyScrapyardSideGig
   bool workScrapyardSideGig() => doDailyScrapyardSideGig();
+
+  /// Complete an incoming customer wash job
+  bool completeCustomerWashJob(CustomerWashJob job) {
+    state = state.copyWith(
+      balance: state.balance + job.paymentReward,
+      totalProfit: state.totalProfit + job.paymentReward,
+    );
+    addXP(job.masteryXp);
+    saveState();
+    return true;
+  }
+
+  /// Apply a scented aroma diffuser / hanging scent to rearview mirror
+  bool applyCarScent(String carId, CarScent scent) {
+    if (state.balance < scent.cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedOptions = car.appliedDetailingOptionIds.where((id) => !id.startsWith('scent_')).toList();
+    updatedOptions.add(scent.id);
+
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - scent.cost,
+      ownedCars: updatedCars,
+    );
+    addXP(15);
+    saveState();
+    return true;
+  }
+
+  /// Restore cloudy / yellowish headlights using chlorovapor and sanding (₺850)
+  bool restoreHeadlights(String carId) {
+    const cost = 850.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.hasRestoredHeadlights) return false;
+
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('headlight_restoration');
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+    addXP(20);
+    saveState();
+    return true;
+  }
+
+  /// Deep clean brake dust & iron particles from wheels (₺450)
+  bool cleanWheelIronDecon(String carId) {
+    const cost = 450.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.hasIronDecon) return false;
+
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('iron_decon');
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+    addXP(15);
+    saveState();
+    return true;
+  }
+
+  /// Paintless Dent Repair (PDR) - restores minor dents without painting (₺3.200)
+  bool performPdrDentRepair(String carId) {
+    const cost = 3200.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.hasPdrRepaired) return false;
+
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('pdr_repaired');
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+    addXP(40);
+    saveState();
+    return true;
+  }
+
+  /// Certify 2-Year TÜVTÜRK & Emission Inspection Check-up (₺1.500)
+  bool certifyTuvturkInspection(String carId) {
+    const cost = 1500.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.hasTuvturkCertified) return false;
+
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('tuvturk_certified');
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+    addXP(35);
+    saveState();
+    return true;
+  }
+
+  /// Order Sanayi Tostu & Demli Çay snack for workshop team (₺250)
+  bool treatWorkshopStaffSnack() {
+    const cost = 250.0;
+    if (state.balance < cost) return false;
+
+    final updatedStaff = state.hiredStaff.map((s) {
+      return s.copyWith(morale: (s.morale + 20).clamp(0, 100));
+    }).toList();
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      hiredStaff: updatedStaff,
+    );
+    addXP(10);
+    saveState();
+    return true;
+  }
+
+  /// Batch Publish all ready, unlisted cars in garage at recommended market price (+10%)
+  int publishAllReadyCars() {
+    final readyCars = state.ownedCars.where((c) => !c.isListed && c.expertise.engineCondition >= 70 && c.expertise.transmissionCondition >= 70).toList();
+    if (readyCars.isEmpty) return 0;
+
+    final updatedCars = state.ownedCars.map((c) {
+      if (!c.isListed && c.expertise.engineCondition >= 70 && c.expertise.transmissionCondition >= 70) {
+        final recommendedPrice = (c.estimatedRealValue * 1.10).roundToDouble();
+        return c.copyWith(
+          customListingPrice: recommendedPrice,
+          daysListed: 0,
+        );
+      }
+      return c;
+    }).toList();
+
+    state = state.copyWith(
+      ownedCars: updatedCars,
+    );
+    addXP(25 * readyCars.length);
+    saveState();
+    return readyCars.length;
+  }
+
+  /// Launch Weekend Flash Sale campaign (-10% discount on stale or listed cars, triggers rush)
+  int startWeekendFlashSale() {
+    final listedCars = state.ownedCars.where((c) => c.isListed).toList();
+    if (listedCars.isEmpty) return 0;
+
+    final updatedCars = state.ownedCars.map((c) {
+      if (c.isListed) {
+        final discountedPrice = (c.listingPrice * 0.90).roundToDouble();
+        return c.copyWith(
+          customListingPrice: discountedPrice,
+        );
+      }
+      return c;
+    }).toList();
+
+    state = state.copyWith(
+      ownedCars: updatedCars,
+    );
+    triggerOrganicOffers();
+    addXP(30);
+    saveState();
+    return listedCars.length;
+  }
+
+  /// 1. Sabah Siftahı & Kasa Duası Ritüeli (§5)
+  bool performMorningSiftah() {
+    const siftahCoin = 100.0;
+    if (state.balance < siftahCoin) return false;
+
+    final updatedStaff = state.hiredStaff.map((s) {
+      return s.copyWith(morale: (s.morale + 15).clamp(0, 100));
+    }).toList();
+
+    state = state.copyWith(
+      balance: state.balance + siftahCoin, // Siftah bereket getirir
+      hiredStaff: updatedStaff,
+    );
+    triggerOrganicOffers();
+    addXP(25);
+    saveState();
+    return true;
+  }
+
+  /// 2. Dyno Motor Beygir Gücü & Tork Testi (§9)
+  DynoTestReport? performDynoHpTest(String carId, ExpertisePackageTier tier) {
+    if (state.balance < tier.cost) return null;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return null;
+
+    final car = state.ownedCars[carIndex];
+    final report = DynoTestReport.generate(car);
+
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds);
+    if (!updatedOptions.contains('dyno_certified')) {
+      updatedOptions.add('dyno_certified');
+    }
+
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+      baseMarketValue: car.baseMarketValue * (tier == ExpertisePackageTier.vipFull ? 1.06 : 1.02),
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - tier.cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(35);
+    saveState();
+    return report;
+  }
+
+  /// 3. Stage 1 / Stage 2 Chip Tuning ECU Yazılımı (§22)
+  bool applyChipTuning(String carId, ChipTuningStage stage) {
+    if (stage == ChipTuningStage.none) return false;
+    if (state.balance < stage.cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds);
+    if (!updatedOptions.contains(stage.id)) {
+      updatedOptions.add(stage.id);
+    }
+
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+      baseMarketValue: car.baseMarketValue * stage.valueBoostMultiplier,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - stage.cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(50);
+    saveState();
+    return true;
+  }
+
+  /// 4. Çizilmez Cam Filmi & Karbon Bodykit Montajı (§22)
+  bool installBodykitAndTint(String carId) {
+    const cost = 3500.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds);
+    if (!updatedOptions.contains('bodykit_tint')) {
+      updatedOptions.add('bodykit_tint');
+    }
+
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+      baseMarketValue: car.baseMarketValue * 1.08,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(35);
+    saveState();
+    return true;
+  }
+
+  /// 5. Pazarlık Masası Çay / Kahve İkramı (§24)
+  bool treatNegotiationBeverage(NegotiationTreat treat) {
+    if (state.balance < treat.cost) return false;
+
+    state = state.copyWith(
+      balance: state.balance - treat.cost,
+    );
+    addXP(15);
+    saveState();
+    return true;
+  }
+
+  /// 6. Pazarlıkta Müşteriye Özel Memleket Plakası Hediye Etme (§24)
+  bool giftHometownPlate(String carId, String cityCode) {
+    const cost = 500.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedCar = car.copyWith(
+      plateNumber: '$cityCode GAL 34',
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(25);
+    saveState();
+    return true;
+  }
+
+  /// 7. Vadesi Gelmemiş Müşteri Çekini Kırdırma (Faktoring Masası) (§10)
+  FactoringDeal? cashInChequeWithFactoring(String chequeId) {
+    final chequeIndex = state.activeCheques.indexWhere((c) => c.id == chequeId);
+    if (chequeIndex == -1) return null;
+
+    final cheque = state.activeCheques[chequeIndex];
+    final deal = FactoringDeal.calculate(cheque.id, cheque.amount);
+
+    final updatedCheques = List<Cheque>.from(state.activeCheques)..removeAt(chequeIndex);
+
+    state = state.copyWith(
+      balance: state.balance + deal.payoutCash,
+      activeCheques: updatedCheques,
+    );
+
+    addXP(20);
+    saveState();
+    return deal;
+  }
+
+  /// 8. Karaborsa Polis Baskını Müdahalesi (§2)
+  bool handlePoliceEncounter(String carId, PoliceEncounterAction action) {
+    if (action == PoliceEncounterAction.surrenderCar) {
+      final updatedCars = state.ownedCars.where((c) => c.id != carId).toList();
+      state = state.copyWith(ownedCars: updatedCars);
+      saveState();
+      return true;
+    }
+
+    if (state.balance < action.cost) return false;
+
+    state = state.copyWith(
+      balance: state.balance - action.cost,
+    );
+
+    addXP(30);
+    saveState();
+    return true;
+  }
+
+  /// 9. Soğuk Damga Şasi Çakma (Cold Stamping) (§2)
+  bool coldStampChassis(String carId) {
+    const cost = 4000.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('chassis_restamped');
+
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+      isChassisRepaired: true,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(45);
+    saveState();
+    return true;
+  }
+
+  /// 10. Çıkma Parçaları Sanayi Toptancısına Satma (§17)
+  double sellScrapPartsInBulk() {
+    if (state.salvagedParts.isEmpty) {
+      // Bonus toptan koli satışı
+      const payout = 5000.0;
+      state = state.copyWith(balance: state.balance + payout);
+      addXP(25);
+      saveState();
+      return payout;
+    }
+
+    final totalPayout = state.salvagedParts.length * 1500.0;
+    state = state.copyWith(
+      balance: state.balance + totalPayout,
+      salvagedParts: [],
+    );
+
+    addXP(30);
+    saveState();
+    return totalPayout;
+  }
+
+  /// 11. Hurdalıkta Kayıp Hazine Arama (§17)
+  double? searchScrapForTreasures() {
+    const cost = 500.0;
+    if (state.balance < cost) return null;
+
+    final foundCash = 3500.0;
+    state = state.copyWith(
+      balance: state.balance - cost + foundCash,
+    );
+
+    addXP(20);
+    saveState();
+    return foundCash;
+  }
+
+  /// 12. Fırçasız Otomatik Tünel Yıkama Ünitesi Satın Alma (§4)
+  bool purchaseAutoWashTunnel() {
+    const cost = 45000.0;
+    if (state.balance < cost) return false;
+    if (state.unlockedBuildings.contains('auto_wash_tunnel')) return false;
+
+    final updatedBuildings = Set<String>.from(state.unlockedBuildings)..add('auto_wash_tunnel');
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      unlockedBuildings: updatedBuildings,
+    );
+
+    addXP(100);
+    saveState();
+    return true;
+  }
+
+  /// 13. VIP Araç İçi Medikal Ozon Dezenfeksiyonu (§4)
+  bool applyOzoneSanitization(String carId) {
+    const cost = 600.0;
+    if (state.balance < cost) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('ozone_sanitized');
+
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: updatedOptions,
+      baseMarketValue: car.baseMarketValue * 1.05,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+    );
+
+    addXP(20);
+    saveState();
+    return true;
+  }
+
+  /// 14. VIP Dizi / Reklam Makam Aracı Kiralama Kabulü (§15)
+  bool acceptVipFilmSetRental(VipSetRentalContract contract) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == contract.carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    final updatedCar = car.copyWith(
+      appliedDetailingOptionIds: List<String>.from(car.appliedDetailingOptionIds)..add('rented_to_film_set'),
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance + contract.totalPayout,
+      totalProfit: state.totalProfit + contract.totalPayout,
+      ownedCars: updatedCars,
+    );
+
+    addXP(50);
+    saveState();
+    return true;
+  }
+
+  /// 15. Müşteri Yorumuna Esnaf Cevabı Yazma (§16)
+  bool respondToReview(String reviewId, String replyText) {
+    state = state.copyWith(
+      reputationScore: (state.reputationScore + 5).clamp(0, 100),
+    );
+    addXP(20);
+    saveState();
+    return true;
+  }
+
+  /// 16. Otomobil YouTuber / Fenomen Sponsorluğu Satın Alma (§16)
+  bool sponsorAutoInfluencer() {
+    const cost = 15000.0;
+    if (state.balance < cost) return false;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      reputationScore: (state.reputationScore + 15).clamp(0, 100),
+    );
+
+    triggerOrganicOffers();
+    addXP(100);
+    saveState();
+    return true;
+  }
 }
+
+
+

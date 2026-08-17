@@ -12,7 +12,7 @@ import '../../widgets/neo_brutal_card.dart';
 class DistrictInfo {
   final String key;
   final String name;
-  final String icon;
+  final IconData icon;
   final String segment;
   final String perk;
   final int minReputation;
@@ -33,7 +33,7 @@ const List<DistrictInfo> kDistricts = [
   DistrictInfo(
     key: 'ikitelli_sanayi',
     name: 'İkitelli Sanayi',
-    icon: '🔧',
+    icon: Icons.build_rounded,
     segment: 'Ticari & Orta Segment',
     perk: 'Yedek Parça & Onarım Maliyeti -%15',
     minReputation: 0,
@@ -42,7 +42,7 @@ const List<DistrictInfo> kDistricts = [
   DistrictInfo(
     key: 'bagcilar_oto_pazari',
     name: 'Bağcılar Oto Pazarı',
-    icon: '⚡',
+    icon: Icons.bolt_rounded,
     segment: 'Hızlı Sirkülasyon & Fırsat',
     perk: 'Müşteri Teklif Trafiği +%25',
     minReputation: 25,
@@ -51,7 +51,7 @@ const List<DistrictInfo> kDistricts = [
   DistrictInfo(
     key: 'kadikoy_klasik',
     name: 'Kadıköy Klasik Sokağı',
-    icon: '📻',
+    icon: Icons.radio_rounded,
     segment: 'Klasik & Koleksiyon',
     perk: 'Yadigâr & Klasik Araç Değeri +%15',
     minReputation: 50,
@@ -60,7 +60,7 @@ const List<DistrictInfo> kDistricts = [
   DistrictInfo(
     key: 'ankara_kizilay',
     name: 'Ankara Kızılay Hattı',
-    icon: '🏢',
+    icon: Icons.apartment_rounded,
     segment: 'Memur & Sedan Araçlar',
     perk: 'İhtilafsız Temiz Satış Oranı +%20',
     minReputation: 75,
@@ -69,7 +69,7 @@ const List<DistrictInfo> kDistricts = [
   DistrictInfo(
     key: 'maslak_plaza',
     name: 'Maslak Plaza',
-    icon: '🏙️',
+    icon: Icons.location_city_rounded,
     segment: 'Lüks & Premium',
     perk: 'Gelen Teklif Fiyatları +%8',
     minReputation: 120,
@@ -78,7 +78,7 @@ const List<DistrictInfo> kDistricts = [
   DistrictInfo(
     key: 'nisantasi_vitrin',
     name: 'Nişantaşı Vitrin',
-    icon: '💎',
+    icon: Icons.diamond_rounded,
     segment: 'Süper Spor & Egzotik',
     perk: 'Esnaf İtibarı Çarpanı +%20',
     minReputation: 200,
@@ -115,7 +115,7 @@ class DistrictMarketScreen extends ConsumerWidget {
             borderRadius: 12,
             child: Row(
               children: [
-                const Text('🗺️', style: TextStyle(fontSize: 28)),
+                const Icon(Icons.map_rounded, size: 28, color: Color(0xFF3B82F6)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -168,7 +168,11 @@ class DistrictMarketScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Text(district.icon, style: const TextStyle(fontSize: 22)),
+                            Icon(
+                              district.icon,
+                              size: 22,
+                              color: isUnlocked ? district.accentColor : (isDark ? Colors.white38 : Colors.black38),
+                            ),
                             const SizedBox(width: 8),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

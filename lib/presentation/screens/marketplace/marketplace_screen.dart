@@ -9,8 +9,8 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/marketplace_extensions_model.dart';
 import '../../../data/models/theme_palette_model.dart';
-import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/animated_rolling_counter.dart';
@@ -22,7 +22,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_skeleton.dart';
 import '../../widgets/pulsing_dot.dart';
 import '../../widgets/staggered_item_entry.dart';
-import 'interactive_negotiation_sheet.dart';
+import 'sms_tramer_sheet.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
   const MarketplaceScreen({super.key});
@@ -33,6 +33,7 @@ class MarketplaceScreen extends ConsumerStatefulWidget {
 
 class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   String _selectedFilter = 'all'; // 'all', 'bargain', 'clean', 'affordable'
+  MarketSortOption _selectedSort = MarketSortOption.defaultSort;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
@@ -68,7 +69,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final trend = game.marketTrend;
 
     // Filter listings based on active chip filter and search query
-    final listings = allListings.where((item) {
+    final filtered = allListings.where((item) {
       if (_searchQuery.isNotEmpty) {
         final matchBrand = item.car.brand.toLowerCase().contains(_searchQuery);
         final matchModel = item.car.modelName.toLowerCase().contains(_searchQuery);
@@ -86,6 +87,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       }
       return true;
     }).toList();
+
+    final listings = _selectedSort.sortListings(filtered);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -240,6 +243,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 _buildFilterChip('clean', 'Hatasız / Boyasız', Icons.verified_user_rounded, p, isDark),
                 const SizedBox(width: 8),
                 _buildFilterChip('affordable', 'Bütçeme Uygun', Icons.account_balance_wallet_rounded, p, isDark),
+                const SizedBox(width: 8),
+                _buildSortMenuButton(p, isDark),
               ],
             ),
           ),
@@ -316,288 +321,349 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
                           physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                           itemCount: listings.length,
-                    itemBuilder: (context, index) {
-                      final item = listings[index];
-                      final car = item.car;
-                      final exp = car.expertise;
-                      final isFlash = item.sellerTrait.contains('Fırsat');
-                      final viewerCount = PsychologyEngine.getLiveViewerCount();
+                          itemBuilder: (context, index) {
+                            final item = listings[index];
+                            final car = item.car;
+                            final exp = car.expertise;
+                            final isFlash = item.sellerTrait.contains('Fırsat') || item.askingPrice < car.estimatedRealValue * 0.88;
+                            final viewerCount = (item.id.hashCode % 12) + 3;
+                            final carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xFF')));
+                            final persona = SellerPersona.fromString(item.sellerTrait);
 
-                      // Convert hex string to Color
-                      Color carColor;
-                      try {
-                        carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xFF')));
-                      } catch (e) {
-                        carColor = p.primaryColor;
-                      }
-
-                      // Estimated net profit & ROI calculation
-                      final estimatedRepairCost = (100 - exp.engineCondition) * 150 +
-                          (100 - exp.transmissionCondition) * 120 +
-                          exp.bodyParts.values.where((s) => s == PartStatus.damaged).length * 800;
-                      final estNetProfit = car.estimatedRealValue - item.askingPrice - estimatedRepairCost;
-                      final estRoi = (estNetProfit / item.askingPrice) * 100;
-
-                      return RepaintBoundary(
-                        child: StaggeredItemEntry(
-                          index: index,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: NeoBrutalCard(
-                            padding: const EdgeInsets.all(14),
-                            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                            borderColor: car.isRare
-                                ? const Color(0xFFA855F7)
-                                : (isFlash
-                                    ? const Color(0xFFFF7A00)
-                                    : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
-                            borderRadius: 10,
-                            borderWidth: 2.5,
-                            shadowOffset: const Offset(4.0, 4.0),
-                            showDotGrid: true,
-                            showHazardHeader: isFlash || car.isBarnFind,
-                            onTap: () => context.push('/listing-detail', extra: item),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Top Tag & Live Viewer FOMO with PulsingDot
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        NeoBrutalBadge(
-                                          text: car.bodyType,
-                                          backgroundColor: p.secondaryColor.withValues(alpha: 0.2),
-                                          textColor: isDark ? p.secondaryColor : const Color(0xFF0F172A),
-                                          borderColor: p.secondaryColor,
-                                          fontSize: 9.5,
-                                        ),
-                                        if (car.isBarnFind) ...[
-                                          const SizedBox(width: 6),
-                                          const NeoBrutalBadge(
-                                            text: 'SAMANLIK KELEPİRİ',
-                                            backgroundColor: Color(0xFFD97706),
-                                            textColor: Colors.white,
-                                            fontSize: 9.5,
-                                          ),
-                                        ] else if (car.isRare) ...[
-                                          const SizedBox(width: 6),
-                                          const NeoBrutalBadge(
-                                            text: 'NADİR KOLEKSİYON',
-                                            backgroundColor: Color(0xFFA855F7),
-                                            textColor: Colors.white,
-                                            fontSize: 9.5,
-                                          ),
-                                        ],
-                                        if (isFlash) ...[
-                                          const SizedBox(width: 6),
-                                          const NeoBrutalBadge(
-                                            text: 'KELEPİR FIRSAT',
-                                            backgroundColor: Color(0xFFFF7A00),
-                                            textColor: Colors.black,
-                                            fontSize: 9.5,
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        const PulsingDot(
-                                          color: Color(0xFF00E575),
-                                          size: 6.5,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          '$viewerCount kişi bakıyor',
-                                          style: TextStyle(
-                                            fontSize: 10.5,
-                                            fontWeight: FontWeight.w700,
-                                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-
-                              // Car Header: Silhouette Icon + Name + City
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                        width: 2.0,
-                                      ),
-                                    ),
-                                    child: CarSilhouetteWidget(
-                                      bodyType: car.bodyType,
-                                      color: carColor,
-                                      width: 52,
-                                      height: 26,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${car.brand} ${car.modelName}',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w900,
-                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          '${item.sellerCity} • ${car.modelYear} Model',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-
-                              // Color-Coded Stat Badges (KM, Engine, Tramer, Profit Margin)
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: [
-                                  NeoBrutalBadge(
-                                    text: '${(exp.mileage / 1000).toStringAsFixed(0)}K KM',
-                                    backgroundColor: StatColors.getMileageColor(exp.mileage).withValues(alpha: 0.2),
-                                    textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                    borderColor: StatColors.getMileageColor(exp.mileage),
-                                    fontSize: 10,
-                                  ),
-                                  NeoBrutalBadge(
-                                    text: exp.tramerAmount == 0
-                                        ? 'Tramer: ₺0'
-                                        : 'Tramer: ${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
-                                    backgroundColor: StatColors.getTramerColor(exp.tramerAmount).withValues(alpha: 0.2),
-                                    textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                    borderColor: StatColors.getTramerColor(exp.tramerAmount),
-                                    fontSize: 10,
-                                  ),
-                                  NeoBrutalBadge(
-                                    text: 'Motor: %${exp.engineCondition.round()}',
-                                    backgroundColor: StatColors.getEngineColor(exp.engineCondition).withValues(alpha: 0.2),
-                                    textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                    borderColor: StatColors.getEngineColor(exp.engineCondition),
-                                    fontSize: 10,
-                                  ),
-                                  if (estNetProfit > 0)
-                                    NeoBrutalBadge(
-                                      text: 'Kâr: +${CurrencyFormatter.formatShort(estNetProfit)} (%${estRoi.toStringAsFixed(0)} ROI)',
-                                      backgroundColor: estRoi >= 15
-                                          ? const Color(0xFF00E575).withValues(alpha: 0.2)
-                                          : const Color(0xFFFFDE59).withValues(alpha: 0.2),
-                                      textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                      borderColor: estRoi >= 15 ? const Color(0xFF00E575) : const Color(0xFFFFDE59),
-                                      fontSize: 10,
-                                    )
-                                  else
-                                    NeoBrutalBadge(
-                                      text: 'Düşük Marj (${CurrencyFormatter.formatShort(estNetProfit)})',
-                                      backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.15),
-                                      textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                      borderColor: const Color(0xFFEF4444),
-                                      fontSize: 10,
-                                    ),
-                                  if (exp.isMileageTampered && item.isExpertiseCompleted)
-                                    const NeoBrutalBadge(
-                                      text: 'ŞÜPHELİ KM!',
-                                      backgroundColor: Color(0xFFEF4444),
-                                      textColor: Colors.white,
-                                      fontSize: 10,
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-
-                              // Price & Action Buttons
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
+                            return StaggeredItemEntry(
+                              index: index,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: NeoBrutalCard(
+                                  padding: const EdgeInsets.all(12),
+                                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                  borderColor: car.isBarnFind
+                                      ? const Color(0xFFD97706)
+                                      : (car.isRare
+                                          ? const Color(0xFFA855F7)
+                                          : (isFlash
+                                              ? const Color(0xFFFF7A00)
+                                              : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)))),
+                                  borderRadius: 10,
+                                  borderWidth: 2.5,
+                                  shadowOffset: const Offset(4.0, 4.0),
+                                  showDotGrid: true,
+                                  showHazardHeader: isFlash || car.isBarnFind,
+                                  onTap: () => context.push('/listing-detail', extra: item),
+                                  child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        'İlan Fiyatı',
-                                        style: TextStyle(
-                                          fontSize: 10.5,
-                                          fontWeight: FontWeight.w700,
-                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                        ),
+                                      // Top Tag & Live Viewer FOMO with PulsingDot
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              NeoBrutalBadge(
+                                                text: persona.badgeText,
+                                                backgroundColor: persona.color.withValues(alpha: 0.2),
+                                                textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                                borderColor: persona.color,
+                                                fontSize: 9.5,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              NeoBrutalBadge(
+                                                text: car.bodyType,
+                                                backgroundColor: p.secondaryColor.withValues(alpha: 0.2),
+                                                textColor: isDark ? p.secondaryColor : const Color(0xFF0F172A),
+                                                borderColor: p.secondaryColor,
+                                                fontSize: 9.5,
+                                              ),
+                                              if (car.isBarnFind) ...[
+                                                const SizedBox(width: 6),
+                                                const NeoBrutalBadge(
+                                                  text: 'SAMANLIK KELEPİRİ',
+                                                  backgroundColor: Color(0xFFD97706),
+                                                  textColor: Colors.white,
+                                                  fontSize: 9.5,
+                                                ),
+                                              ] else if (car.isRare) ...[
+                                                const SizedBox(width: 6),
+                                                const NeoBrutalBadge(
+                                                  text: 'NADİR KOLEKSİYON',
+                                                  backgroundColor: Color(0xFFA855F7),
+                                                  textColor: Colors.white,
+                                                  fontSize: 9.5,
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              const PulsingDot(
+                                                color: Color(0xFF00E575),
+                                                size: 6.5,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                '$viewerCount kişi bakıyor',
+                                                style: TextStyle(
+                                                  fontSize: 10.5,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      AnimatedRollingCounter(
-                                        value: item.askingPrice,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w900,
-                                          color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
-                                        ),
+                                      const SizedBox(height: 10),
+
+                                      // Car Header: Silhouette Icon + Name + City
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                                width: 2.0,
+                                              ),
+                                            ),
+                                            child: CarSilhouetteWidget(
+                                              bodyType: car.bodyType,
+                                              color: carColor,
+                                              width: 52,
+                                              height: 26,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${car.brand} ${car.modelName}',
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w900,
+                                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  '${item.sellerCity} • ${car.modelYear} Model • ${item.sellerName}',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+
+                                      // Color-Coded Stat Badges (KM, Engine, Tramer, Profit Margin)
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 6,
+                                        children: [
+                                          NeoBrutalBadge(
+                                            text: '${(exp.mileage / 1000).toStringAsFixed(0)}K KM',
+                                            backgroundColor: StatColors.getMileageColor(exp.mileage).withValues(alpha: 0.2),
+                                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                            borderColor: StatColors.getMileageColor(exp.mileage),
+                                            fontSize: 10,
+                                          ),
+                                          NeoBrutalBadge(
+                                            text: exp.tramerAmount == 0
+                                                ? 'Tramer: ₺0'
+                                                : 'Tramer: ${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
+                                            backgroundColor: StatColors.getTramerColor(exp.tramerAmount).withValues(alpha: 0.2),
+                                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                            borderColor: StatColors.getTramerColor(exp.tramerAmount),
+                                            fontSize: 10,
+                                          ),
+                                          NeoBrutalBadge(
+                                            text: 'Motor: %${exp.engineCondition.round()}',
+                                            backgroundColor: StatColors.getEngineColor(exp.engineCondition).withValues(alpha: 0.2),
+                                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                            borderColor: StatColors.getEngineColor(exp.engineCondition),
+                                            fontSize: 10,
+                                          ),
+                                          if (item.askingPrice < car.estimatedRealValue)
+                                            NeoBrutalBadge(
+                                              text: '+%${(((car.estimatedRealValue - item.askingPrice) / item.askingPrice) * 100).round()} Kâr Potansiyeli',
+                                              backgroundColor: const Color(0xFF00E575).withValues(alpha: 0.2),
+                                              textColor: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                                              borderColor: const Color(0xFF00E575),
+                                              fontSize: 10,
+                                            ),
+                                          if (exp.isMileageTampered && item.isExpertiseCompleted)
+                                            const NeoBrutalBadge(
+                                              text: 'ŞÜPHELİ KM!',
+                                              backgroundColor: Color(0xFFEF4444),
+                                              textColor: Colors.white,
+                                              fontSize: 10,
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+
+                                      // Price & Action Buttons
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'İlan Fiyatı',
+                                                style: TextStyle(
+                                                  fontSize: 10.5,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                ),
+                                              ),
+                                              AnimatedRollingCounter(
+                                                value: item.askingPrice,
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w900,
+                                                  color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              NeoBrutalButton(
+                                                label: '5664 SMS',
+                                                icon: Icons.sms_outlined,
+                                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                                textColor: const Color(0xFF38BDF8),
+                                                fontSize: 10,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                                                onPressed: () {
+                                                  HapticFeedback.lightImpact();
+                                                  SmsTramerSheet.show(context, item);
+                                                },
+                                              ),
+                                              const SizedBox(width: 6),
+                                              NeoBrutalButton(
+                                                label: item.isExpertiseCompleted ? 'RAPOR' : 'EKSPERTİZ',
+                                                icon: Icons.assignment_outlined,
+                                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                                textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                                fontSize: 10,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                                                onPressed: () {
+                                                  context.push('/expertise', extra: item);
+                                                },
+                                              ),
+                                              const SizedBox(width: 6),
+                                              NeoBrutalButton(
+                                                label: 'PAZARLIK',
+                                                icon: Icons.handshake_rounded,
+                                                backgroundColor: const Color(0xFFFFDE59),
+                                                textColor: Colors.black,
+                                                fontSize: 10.5,
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                                onPressed: () {
+                                                  context.push('/negotiation', extra: item);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  Row(
-                                    children: [
-                                      NeoBrutalButton(
-                                        label: item.isExpertiseCompleted ? 'RAPOR' : 'EKSPERTİZ',
-                                        icon: Icons.assignment_outlined,
-                                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                        textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                        fontSize: 10.5,
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                        onPressed: () {
-                                          context.push('/expertise', extra: item);
-                                        },
-                                      ),
-                                      const SizedBox(width: 8),
-                                      NeoBrutalButton(
-                                        label: 'TEKLİF VER & PAZARLIK ET',
-                                        icon: Icons.handshake_rounded,
-                                        backgroundColor: const Color(0xFFFFDE59),
-                                        textColor: Colors.black,
-                                        fontSize: 11,
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        onPressed: () {
-                                          context.push('/negotiation', extra: item);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
-                            ],
-                          ),
+                            );
+                          },
                         ),
-                      ),
-                    ),
-                  );
-                },
-                ),
             ),
           ),
       ],
     ),
   );
 }
+
+  Widget _buildSortMenuButton(ThemePaletteModel p, bool isDark) {
+    return PopupMenuButton<MarketSortOption>(
+      initialValue: _selectedSort,
+      onSelected: (sort) {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedSort = sort);
+      },
+      color: isDark ? const Color(0xFF141721) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          width: 2.0,
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: _selectedSort != MarketSortOption.defaultSort ? const Color(0xFF38BDF8) : (isDark ? const Color(0xFF141721) : Colors.white),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            width: 2.0,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _selectedSort.icon,
+              size: 14,
+              color: _selectedSort != MarketSortOption.defaultSort ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              _selectedSort.label,
+              style: TextStyle(
+                color: _selectedSort != MarketSortOption.defaultSort ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                fontWeight: FontWeight.w800,
+                fontSize: 11.5,
+              ),
+            ),
+            const SizedBox(width: 2),
+            Icon(
+              Icons.arrow_drop_down_rounded,
+              size: 16,
+              color: _selectedSort != MarketSortOption.defaultSort ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
+            ),
+          ],
+        ),
+      ),
+      itemBuilder: (context) => MarketSortOption.values.map((opt) {
+        return PopupMenuItem<MarketSortOption>(
+          value: opt,
+          child: Row(
+            children: [
+              Icon(opt.icon, size: 16, color: isDark ? Colors.white : Colors.black),
+              const SizedBox(width: 8),
+              Text(
+                opt.label,
+                style: TextStyle(
+                  fontWeight: _selectedSort == opt ? FontWeight.w900 : FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
 
   Widget _buildFilterChip(
     String key,

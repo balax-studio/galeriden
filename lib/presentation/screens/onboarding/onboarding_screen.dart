@@ -104,6 +104,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                             width: 2,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+                              offset: const Offset(2, 2),
+                              blurRadius: 0,
+                            ),
+                          ],
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: Image.asset(
@@ -162,8 +169,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       child: NeoBrutalCard(
                         padding: const EdgeInsets.all(24),
                         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                        borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                        borderRadius: 16,
+                        borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        borderRadius: 12,
+                        borderWidth: 2.5,
+                        shadowOffset: const Offset(4, 4),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -183,11 +192,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               height: 110,
                               decoration: BoxDecoration(
                                 color: (item['accent'] as Color).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                                   width: 2.5,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+                                    offset: const Offset(3, 3),
+                                    blurRadius: 0,
+                                  ),
+                                ],
                               ),
                               alignment: Alignment.center,
                               child: VectorIconWidget(

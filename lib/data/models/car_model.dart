@@ -51,6 +51,10 @@ class CarModel {
   final double consignmentCommissionRate; // Gallery cut percentage (e.g. 0.12 = %12)
   final String? consignmentOwnerName;
   final int consignmentDaysRemaining; // Expires in 14 days if not sold
+  final bool isBlackMarket; // Sourced from illegal black market
+  final String? blackMarketRiskType; // 'change_vin', 'stolen_paperwork', 'smuggled_exotic', 'salvage_hidden', 'mafia_debt'
+  final int blackMarketRiskPercent; // 15..50% risk rate
+  final String? blackMarketSellerAlias;
 
   CarModel({
     required this.id,
@@ -97,6 +101,10 @@ class CarModel {
     this.consignmentCommissionRate = 0.10,
     this.consignmentOwnerName,
     this.consignmentDaysRemaining = 14,
+    this.isBlackMarket = false,
+    this.blackMarketRiskType,
+    this.blackMarketRiskPercent = 20,
+    this.blackMarketSellerAlias,
   }) : modelName = sanitizeModelName(brand, modelName);
 
   /// Strips redundant brand name prefixes if present (e.g. 'Merso G-63' with brand 'Merso' -> 'G-63')
@@ -118,6 +126,30 @@ class CarModel {
 
   /// True if vehicle has received interior and upholstery steam detailing
   bool get isInteriorCleaned => appliedDetailingOptionIds.contains('interior_detailing');
+
+  /// True if vehicle has received VIP ceramic coating
+  bool get isCeramicCoated => appliedDetailingOptionIds.contains('ceramic_coating');
+
+  /// True if headlights have been restored with chlorovapor and sanding
+  bool get hasRestoredHeadlights => appliedDetailingOptionIds.contains('headlight_restoration');
+
+  /// True if wheels have received iron decontaminant cleaning
+  bool get hasIronDecon => appliedDetailingOptionIds.contains('iron_decon');
+
+  /// True if vehicle has passed 2-year TÜVTÜRK inspection certification
+  bool get hasTuvturkCertified => appliedDetailingOptionIds.contains('tuvturk_certified');
+
+  /// True if bodywork dents were fixed using Paintless Dent Repair (PDR)
+  bool get hasPdrRepaired => appliedDetailingOptionIds.contains('pdr_repaired');
+
+  /// Identifier of the active scent hung on the rearview mirror
+  String? get appliedScentId {
+    final match = appliedDetailingOptionIds.where((id) => id.startsWith('scent_')).toList();
+    return match.isNotEmpty ? match.first : null;
+  }
+
+  /// True if a scent is hung on the rearview mirror
+  bool get hasScent => appliedScentId != null && appliedScentId!.isNotEmpty;
 
   /// Net estimated profit comparing listing price (or fair value) to purchase price
   double get netEstimatedProfit => listingPrice - currentPurchasePrice;
@@ -298,6 +330,10 @@ class CarModel {
       'consignmentCommissionRate': consignmentCommissionRate,
       'consignmentOwnerName': consignmentOwnerName,
       'consignmentDaysRemaining': consignmentDaysRemaining,
+      'isBlackMarket': isBlackMarket,
+      'blackMarketRiskType': blackMarketRiskType,
+      'blackMarketRiskPercent': blackMarketRiskPercent,
+      'blackMarketSellerAlias': blackMarketSellerAlias,
     };
   }
 
@@ -354,6 +390,10 @@ class CarModel {
       consignmentCommissionRate: (json['consignmentCommissionRate'] as num?)?.toDouble() ?? 0.10,
       consignmentOwnerName: json['consignmentOwnerName'] as String?,
       consignmentDaysRemaining: json['consignmentDaysRemaining'] as int? ?? 14,
+      isBlackMarket: json['isBlackMarket'] as bool? ?? false,
+      blackMarketRiskType: json['blackMarketRiskType'] as String?,
+      blackMarketRiskPercent: json['blackMarketRiskPercent'] as int? ?? 20,
+      blackMarketSellerAlias: json['blackMarketSellerAlias'] as String?,
     );
   }
 
@@ -403,6 +443,10 @@ class CarModel {
     double? consignmentCommissionRate,
     String? consignmentOwnerName,
     int? consignmentDaysRemaining,
+    bool? isBlackMarket,
+    String? blackMarketRiskType,
+    int? blackMarketRiskPercent,
+    String? blackMarketSellerAlias,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -449,6 +493,10 @@ class CarModel {
       consignmentCommissionRate: consignmentCommissionRate ?? this.consignmentCommissionRate,
       consignmentOwnerName: consignmentOwnerName ?? this.consignmentOwnerName,
       consignmentDaysRemaining: consignmentDaysRemaining ?? this.consignmentDaysRemaining,
+      isBlackMarket: isBlackMarket ?? this.isBlackMarket,
+      blackMarketRiskType: blackMarketRiskType ?? this.blackMarketRiskType,
+      blackMarketRiskPercent: blackMarketRiskPercent ?? this.blackMarketRiskPercent,
+      blackMarketSellerAlias: blackMarketSellerAlias ?? this.blackMarketSellerAlias,
     );
   }
 }

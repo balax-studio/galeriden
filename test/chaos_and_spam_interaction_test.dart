@@ -168,6 +168,13 @@ void main() {
     });
 
     testWidgets('2. Car Wash & Detailing Service Spam Double-Charge Prevention', (tester) async {
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       final initialCar = createSampleCar();
       final container = ProviderContainer();
 

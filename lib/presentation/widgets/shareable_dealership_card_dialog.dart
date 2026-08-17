@@ -238,7 +238,7 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                         textColor: Colors.black,
                         onPressed: () {
                           final shareText =
-                              '🚗 ${game.dealershipName} (${game.rpgTitle})\n💰 Toplam Kâr: ${CurrencyFormatter.format(game.totalProfit)}\n🏆 Satılan Araç: ${game.carsSold} adet\n⭐ İtibar: ${game.reputationScore}\nGalerisinden: Oto Galeri Simülatörü!';
+                              '${game.dealershipName} (${game.rpgTitle})\nToplam Kâr: ${CurrencyFormatter.format(game.totalProfit)}\nSatılan Araç: ${game.carsSold} adet\nİtibar: ${game.reputationScore}\nGalerisinden: Oto Galeri Simülatörü!';
                           Clipboard.setData(ClipboardData(text: shareText));
                           NotificationService.showSuccess(context, 'Galeri kartı panoya kopyalandı!');
                         },

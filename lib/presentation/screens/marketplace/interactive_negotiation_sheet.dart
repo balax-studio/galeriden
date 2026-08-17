@@ -2,9 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/customer_model.dart';
@@ -94,17 +92,13 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
     final discountAmount = asking - _offeredPrice;
     final discountRatio = ((discountAmount / asking) * 100).toStringAsFixed(1);
 
-    Color chanceColor;
-    String chanceLabel;
+    final Color chanceColor;
     if (chancePercent >= 70) {
       chanceColor = const Color(0xFF00E575);
-      chanceLabel = 'Yüksek Kabul Şansı';
     } else if (chancePercent >= 40) {
       chanceColor = const Color(0xFFFFDE59);
-      chanceLabel = 'Çekişmeli Müzakere';
     } else {
       chanceColor = const Color(0xFFFF54B0);
-      chanceLabel = 'Zorlu Teklif';
     }
 
     return Container(

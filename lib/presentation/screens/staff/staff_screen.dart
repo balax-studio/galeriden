@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +9,75 @@ import '../../../core/utils/notification_service.dart';
 import '../../../data/models/staff_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
+import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 
 class StaffScreen extends ConsumerWidget {
   const StaffScreen({super.key});
+
+  void _showBonusSheet(BuildContext context, WidgetRef ref, StaffModel staff) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final game = ref.read(gameProvider);
+    final bonusAmounts = [3000.0, 7500.0, 15000.0];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF141721) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 2.5,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('${staff.name} İçin Prim Belirle', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                  const NeoBrutalBadge(text: '+50 Moral & Bağlılık', backgroundColor: AppColors.brutalGreen, textColor: Colors.black, fontSize: 10),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Personele başarı primi vermek morali anında tazeler ve bayi tecrübe puanını artırır.',
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 16),
+              ...bonusAmounts.map((amt) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: NeoBrutalButton(
+                    label: '${CurrencyFormatter.format(amt)} Prim Dağıt',
+                    backgroundColor: game.balance >= amt ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                    textColor: game.balance >= amt ? Colors.black : Colors.grey,
+                    fullWidth: true,
+                    onPressed: game.balance < amt
+                        ? null
+                        : () {
+                            final success = ref.read(gameProvider.notifier).giveStaffBonus(staff.id, amt);
+                            Navigator.pop(ctx);
+                            if (success) {
+                              NotificationService.showSuccess(context, '${staff.name} primini aldı, morali zirveye çıktı!');
+                            }
+                          },
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,6 +85,7 @@ class StaffScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+    final synergies = TeamSynergyEngine.calculateSynergies(game.hiredStaff);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -48,7 +114,7 @@ class StaffScreen extends ConsumerWidget {
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.people_alt_rounded, color: Colors.black, size: 24),
+                  child: const Icon(Icons.groups_rounded, color: Colors.black, size: 26),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -61,7 +127,7 @@ class StaffScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${game.hiredStaff.length} / ${StaffRole.values.length} Personel İşe Alındı',
+                        '${game.hiredStaff.length} / ${StaffRole.values.length} Personel Görevde',
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                       ),
                     ],
@@ -71,6 +137,57 @@ class StaffScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
+
+          // 1.1 Team Synergies Section
+          if (synergies.isNotEmpty) ...[
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(12),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: AppColors.brutalGreen,
+              borderRadius: 14,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.bolt_rounded, color: AppColors.brutalGreen, size: 18),
+                          SizedBox(width: 6),
+                          Text('AKTİF DEPARTMAN SİNERJİLERİ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900)),
+                        ],
+                      ),
+                      NeoBrutalBadge(
+                        text: '${synergies.length} Sinerji Aktif',
+                        backgroundColor: AppColors.brutalGreen,
+                        textColor: Colors.black,
+                        fontSize: 9.5,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ...synergies.map((syn) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2.5),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(syn.vectorIcon, size: 14, color: AppColors.brutalGreen),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '${syn.title}: ${syn.description}',
+                                style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
 
           // 2. Academy Banner
           NeoBrutalCard(
@@ -131,7 +248,7 @@ class StaffScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           Text(
-            'PERSONEL KADROSU LİSTESİ',
+            'TÜM PERSONEL ROLLERİ & KADRO (${StaffRole.values.length})',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -141,7 +258,7 @@ class StaffScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
 
-          // 3. Staff Roles
+          // 3. Staff Roles List
           ...StaffRole.values.map((role) {
             final matches = game.hiredStaff.where((s) => s.role == role);
             final hired = matches.isEmpty ? null : matches.first;
@@ -152,7 +269,9 @@ class StaffScreen extends ConsumerWidget {
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
                 backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderColor: isHired
+                    ? AppColors.brutalGreen
+                    : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,111 +280,228 @@ class StaffScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
                             children: [
-                              Text(
-                                role.title,
-                                style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isHired ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Icon(
+                                  _getRoleIcon(role),
+                                  color: isHired ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                  size: 18,
+                                ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Günlük Maaş: ${CurrencyFormatter.formatShort(role.dailySalary)}',
-                                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isHired ? hired.name : role.title,
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      isHired ? '${hired.masteryTitle} • ${role.title}' : 'Açık Kadro',
+                                      style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        NeoBrutalButton(
-                          label: isHired ? 'İŞTEN ÇIKAR' : 'İŞE AL',
-                          backgroundColor: isHired ? AppColors.errorRed : AppColors.brutalGreen,
-                          textColor: isHired ? Colors.white : Colors.black,
-                          fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                          onPressed: () {
-                            if (isHired) {
-                              ref.read(gameProvider.notifier).fireStaff(hired.id);
-                              NotificationService.showSuccess(context, '${role.title} İşten Çıkarıldı.');
-                            } else {
-                              final newStaff = StaffModel(
-                                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                                name: '${role.title} Sorumlusu',
-                                role: role,
-                                hiredAt: DateTime.now(),
-                              );
-                              final success = ref.read(gameProvider.notifier).hireStaff(newStaff);
-                              if (success) {
-                                NotificationService.showSuccess(context, '${role.title} Ekibe Katıldı!');
-                              }
-                            }
-                          },
+                        NeoBrutalBadge(
+                          text: isHired ? 'GÖREVDE' : 'KADRO BOŞ',
+                          backgroundColor: isHired ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                          textColor: isHired ? Colors.black : (isDark ? Colors.white54 : Colors.black54),
+                          fontSize: 10,
                         ),
                       ],
                     ),
-                    if (isHired) ...[
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 2.0,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFDE59),
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(
-                                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    hired.masteryTitle,
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Tamamlanan İş: ${hired.tasksCompleted}',
-                                  style: TextStyle(
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white70 : Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              '+%${((hired.speedMultiplier - 1.0) * 100).toInt()} Hız | -%${hired.costDiscountPercent} Maliyet',
-                              style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF00E575),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 8),
                     Text(
                       role.description,
                       style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                     ),
+                    const SizedBox(height: 10),
+
+                    if (isHired) ...[
+                      // Morale Bar & Perk Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Text('Moral & Enerji: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                              Text(
+                                '%${hired.morale}',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: hired.morale > 75
+                                      ? AppColors.brutalGreen
+                                      : (hired.morale > 40 ? AppColors.brutalYellow : AppColors.errorRed),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (hired.perk != null)
+                            NeoBrutalBadge(
+                              text: '${hired.perk!.icon} ${hired.perk!.title}',
+                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                              textColor: isDark ? Colors.white : Colors.black,
+                              fontSize: 9.5,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF0F1118) : const Color(0xFFE2E8F0),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: (hired.morale / 100).clamp(0.0, 1.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: hired.morale > 75
+                                  ? AppColors.brutalGreen
+                                  : (hired.morale > 40 ? AppColors.brutalYellow : AppColors.errorRed),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Career summary
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Kariyer: ${hired.tasksCompleted} Görev • ${CurrencyFormatter.format(hired.dailySalary)}/Gün',
+                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                          ),
+                          InkWell(
+                            onTap: () => ref.read(gameProvider.notifier).fireStaff(hired.id),
+                            child: const Text(
+                              'İŞTEN ÇIKAR',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      // RPG Treat Action Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.local_cafe_rounded,
+                              label: 'Çay (₺500)',
+                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                              textColor: isDark ? Colors.white : Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: () {
+                                final success = ref.read(gameProvider.notifier).treatStaffTea(hired.id);
+                                if (success) {
+                                  NotificationService.showSuccess(context, '${hired.name} çayını yudumladı (+15 Moral)!');
+                                } else {
+                                  NotificationService.showError(context, 'Yetersiz bakiye!');
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.restaurant_rounded,
+                              label: 'Kebap (₺1.5k)',
+                              backgroundColor: AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: () {
+                                final success = ref.read(gameProvider.notifier).treatStaffMeal(hired.id);
+                                if (success) {
+                                  NotificationService.showSuccess(context, '${hired.name} öğle yemeğini yedi (+35 Moral)!');
+                                } else {
+                                  NotificationService.showError(context, 'Yetersiz bakiye!');
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.payments_rounded,
+                              label: 'Prim Ver',
+                              backgroundColor: AppColors.brutalGreen,
+                              textColor: Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              onPressed: () => _showBonusSheet(context, ref, hired),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${CurrencyFormatter.format(role.dailySalary)} / Gün',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                          ),
+                          NeoBrutalButton(
+                            label: 'İŞE AL',
+                            icon: Icons.person_add_alt_1_rounded,
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 11,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                            onPressed: () {
+                              final random = Random();
+                              final names = [
+                                'Murat Usta',
+                                'Ahmet Can',
+                                'Burak Danışman',
+                                'Cemil Usta',
+                                'Zeynep Hanım',
+                                'Kadir Eksper',
+                                'Volkan Avukat',
+                              ];
+                              final perks = StaffPerk.values;
+                              final newStaff = StaffModel(
+                                id: 'staff_${DateTime.now().millisecondsSinceEpoch}',
+                                name: names[random.nextInt(names.length)],
+                                role: role,
+                                hiredAt: DateTime.now(),
+                                perk: perks[random.nextInt(perks.length)],
+                              );
+                              final success = ref.read(gameProvider.notifier).hireStaff(newStaff);
+                              if (success) {
+                                NotificationService.showSuccess(
+                                  context,
+                                  '${newStaff.name} (${role.title}) ekibe katıldı!',
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -274,5 +510,24 @@ class StaffScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  IconData _getRoleIcon(StaffRole role) {
+    switch (role) {
+      case StaffRole.washer:
+        return Icons.local_car_wash_rounded;
+      case StaffRole.apprentice:
+        return Icons.handyman_rounded;
+      case StaffRole.salesman:
+        return Icons.handshake_rounded;
+      case StaffRole.masterMechanic:
+        return Icons.build_circle_rounded;
+      case StaffRole.appraiser:
+        return Icons.fact_check_rounded;
+      case StaffRole.marketer:
+        return Icons.campaign_rounded;
+      case StaffRole.legalAdvisor:
+        return Icons.gavel_rounded;
+    }
   }
 }

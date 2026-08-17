@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/iterable_extensions.dart';
 
 enum DramaticCategory {
   loss, // Kategori A: Kayıp & Para
@@ -167,7 +168,7 @@ class DramaticCardModel {
 
   factory DramaticCardModel.fromJson(Map<String, dynamic> json) {
     final cardId = json['id'] as String? ?? '';
-    final defaultMatch = defaultCards.where((c) => c.id == cardId).firstOrNull;
+    final defaultMatch = findFirstWhere(defaultCards, (c) => c.id == cardId);
     if (defaultMatch != null) return defaultMatch;
 
     return DramaticCardModel(

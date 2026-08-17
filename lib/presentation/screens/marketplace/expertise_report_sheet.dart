@@ -10,7 +10,6 @@ import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
 import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/neo_brutal_button.dart';
-import 'interactive_negotiation_sheet.dart';
 
 class ExpertiseReportSheet extends StatelessWidget {
   final CarModel car;

@@ -444,13 +444,14 @@ class NegotiationEngine {
     // Probability calculations
     if (playerTargetPrice <= previousOffer) {
       // Player asked for lower/same amount -> Immediate Accept!
+      final msg = _getAcceptedMessage(customer?.archetype, playerTargetPrice);
       return NegotiationOutcome(
         updatedOffer: currentOffer.copyWith(
           offeredAmount: playerTargetPrice,
           status: OfferStatus.accepted,
           counterStrategy: strategy,
         ),
-        responseMessage: 'Harika! Bu teklifi memnuniyetle kabul ediyorum. Noterde buluşalım.',
+        responseMessage: msg,
         isAccepted: true,
         isWalkaway: false,
       );
@@ -459,13 +460,14 @@ class NegotiationEngine {
     if (diffRatio <= 0.08 + skillBonus) {
       // Very reasonable counter offer -> 85% chance accept
       if (_random.nextDouble() < 0.85 + skillBonus) {
+        final msg = _getAcceptedMessage(customer?.archetype, playerTargetPrice);
         return NegotiationOutcome(
           updatedOffer: currentOffer.copyWith(
             offeredAmount: playerTargetPrice,
             status: OfferStatus.accepted,
             counterStrategy: strategy,
           ),
-          responseMessage: 'Anlaştık usta! ₺${playerTargetPrice.round()} benim için uygundur.',
+          responseMessage: msg,
           isAccepted: true,
           isWalkaway: false,
         );
@@ -477,9 +479,10 @@ class NegotiationEngine {
 
     // Check walkaway threshold adjusted by dynamic ceiling
     if (diffRatio > 0.50 || playerTargetPrice > carRealValue * (maxCeiling + 0.10)) {
+      final msg = _getWalkawayMessage(customer?.archetype, diffFormatted, isExtreme: true);
       return NegotiationOutcome(
         updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
-        responseMessage: 'Alıcı $diffFormatted fark yüzünden masadan kalktı! ("Bu paraya bayiden sıfırını alırım")',
+        responseMessage: msg,
         isAccepted: false,
         isWalkaway: true,
       );
@@ -487,9 +490,10 @@ class NegotiationEngine {
 
     if (diffRatio > (0.30 - walkawayModifier) || playerTargetPrice > carRealValue * maxCeiling) {
       if (_random.nextDouble() > (0.15 + skillBonus)) {
+        final msg = _getWalkawayMessage(customer?.archetype, diffFormatted, isExtreme: false);
         return NegotiationOutcome(
           updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
-          responseMessage: 'Alıcı $diffFormatted farkla masadan kalktı! ("Bütçemi aştı, başka ilanlara bakacağım")',
+          responseMessage: msg,
           isAccepted: false,
           isWalkaway: true,
         );
@@ -507,6 +511,7 @@ class NegotiationEngine {
 
     if (newCount >= currentOffer.maxCounters) {
       // Max counters reached -> Buyer gives final offer
+      final msg = _getFinalOfferMessage(customer?.archetype, buyerNewOffer);
       return NegotiationOutcome(
         updatedOffer: currentOffer.copyWith(
           offeredAmount: buyerNewOffer,
@@ -514,12 +519,13 @@ class NegotiationEngine {
           status: OfferStatus.countered,
           counterStrategy: strategy,
         ),
-        responseMessage: 'Usta son sözüm ₺${buyerNewOffer.round()}. Üstüne çıkamam, kabul ediyorsan hayırlı olsun.',
+        responseMessage: msg,
         isAccepted: false,
         isWalkaway: false,
       );
     }
 
+    final msg = _getMiddleCounterMessage(customer?.archetype, buyerNewOffer, playerTargetPrice);
     return NegotiationOutcome(
       updatedOffer: currentOffer.copyWith(
         offeredAmount: buyerNewOffer,
@@ -527,10 +533,111 @@ class NegotiationEngine {
         status: OfferStatus.countered,
         counterStrategy: strategy,
       ),
-      responseMessage: '₺${playerTargetPrice.round()} biraz yüksek ama bütçemi zorlayıp ₺${buyerNewOffer.round()} verebilirim.',
+      responseMessage: msg,
       isAccepted: false,
       isWalkaway: false,
     );
+  }
+
+  static String _getAcceptedMessage(CustomerArchetype? archetype, double price) {
+    final priceStr = '₺${price.round()}';
+    final options = switch (archetype) {
+      CustomerArchetype.skepticalOfficial => [
+        'Anlaştık, $priceStr benim için makul. Noter evraklarını hazırlayalım.',
+        'Hayırlı olsun. Ekspertiz raporundaki şeffaflık için teşekkür ederim, $priceStr kabulümdür.',
+        'Fiyatta anlaştık. Devir işlemlerini hemen başlatalım.',
+      ],
+      CustomerArchetype.impatientYouth => [
+        'Tamamdır usta! $priceStr fiyata araba benimdir, anahtarı ver gazlayalım!',
+        'Süper oldu! Yarın ilk iş egzoz ve jant bakacağım, $priceStr kabul!',
+        'Harika rakam, el sıkıştık say!',
+      ],
+      CustomerArchetype.greedyFlipper => [
+        'Kurtardı esnafım. $priceStr nakit hesaba geçiyorum, satışı ver.',
+        'Tamam, kırmadın bizi. $priceStr peşin sayıyorum, hayrını gör.',
+        'Peki usta, aramızda kalsın bu rakam. Notere geçelim.',
+      ],
+      _ => [
+        'Anlaştık usta! $priceStr aile bütçemize uydu, hayırlı olsun.',
+        'Güzel ticaret oldu. $priceStr nakit devir için notere geçebiliriz.',
+        'İkna oldum, esnaflığın için sağ ol. $priceStr fiyata anlaştık.',
+      ],
+    };
+    return options[_random.nextInt(options.length)];
+  }
+
+  static String _getWalkawayMessage(CustomerArchetype? archetype, String diff, {required bool isExtreme}) {
+    if (isExtreme) {
+      final options = switch (archetype) {
+        CustomerArchetype.skepticalOfficial => [
+          'Alıcı $diff fark yüzünden masadan kalktı! ("Bu paraya bayiden sıfır kilometre araç alırım")',
+          'Alıcı $diff aşırı farkı görünce evrakları çantasına koyup çıktı. ("Piyasa rayicinin çok üstünde")',
+        ],
+        CustomerArchetype.impatientYouth => [
+          'Genç alıcı $diff fark yüzünden vazgeçti! ("O paraya üst kasa turbo alırım")',
+          'Alıcı $diff farkı duyunca kapıyı çarpıp çıktı!',
+        ],
+        CustomerArchetype.greedyFlipper => [
+          'Al-satçı $diff farkı görünce güldü: ("Bize ekmek bırakmadın usta, kolay gelsin")',
+          'Esnaf $diff fark yüzünden masadan kalktı. ("Bu fiyata kimseye satamazsın")',
+        ],
+        _ => [
+          'Alıcı $diff fark yüzünden masadan kalktı! ("Bütçemi fazlasıyla aşıyor, başka arabalara bakacağım")',
+          'Müşteri $diff fiyat farkını görünce teşekkür edip ayrıldı.',
+        ],
+      };
+      return options[_random.nextInt(options.length)];
+    }
+
+    final options = switch (archetype) {
+      CustomerArchetype.skepticalOfficial => [
+        'Alıcı $diff farkla masadan kalktı! ("Hesaplarıma uymadı, hayırlı işler")',
+        'Alıcı $diff fark yüzünden tereddüt etti ve vazgeçti.',
+      ],
+      CustomerArchetype.impatientYouth => [
+        'Alıcı $diff fark yüzünden başka ilana yöneldi.',
+        'Genç alıcı $diff farkı karşılayamadığı için ayrıldı.',
+      ],
+      _ => [
+        'Alıcı $diff farkla masadan kalktı! ("Bütçemi aştı, başka ilanlara bakacağım")',
+        'Müşteri $diff fark yüzünden anlaşamadı ve ayrıldı.',
+      ],
+    };
+    return options[_random.nextInt(options.length)];
+  }
+
+  static String _getMiddleCounterMessage(CustomerArchetype? archetype, double buyerOffer, double targetPrice) {
+    final buyerStr = '₺${buyerOffer.round()}';
+    final targetStr = '₺${targetPrice.round()}';
+    final options = switch (archetype) {
+      CustomerArchetype.skepticalOfficial => [
+        '$targetStr biraz bütçemi aşıyor. Raporu inceledim, en fazla $buyerStr verebilirim.',
+        'Maaş hesabımı dengelemem lazım. $buyerStr nakit ödeyebilirim, ne dersin?',
+      ],
+      CustomerArchetype.impatientYouth => [
+        'Usta $targetStr çok zorlar. Kredi kartı limitimi de ekleyip $buyerStr yapayım, bitirelim!',
+        'Arabayı çok beğendim ama param $buyerStr kadar çıkıyor. Orta yolu bulalım.',
+      ],
+      CustomerArchetype.greedyFlipper => [
+        'Esnafım $targetStr kurtarmaz. Ben de ekmek yiyeceğim, $buyerStr peşin çalışır.',
+        'Bana $buyerStr bırakırsan yarım saate noterde devri alırız.',
+      ],
+      _ => [
+        '$targetStr biraz yüksek geldi ama bütçemi zorlayıp $buyerStr verebilirim.',
+        'Ailemiz için bu araç uygun ama limitimiz $buyerStr. Uyarsa el sıkışalım.',
+      ],
+    };
+    return options[_random.nextInt(options.length)];
+  }
+
+  static String _getFinalOfferMessage(CustomerArchetype? archetype, double buyerOffer) {
+    final buyerStr = '₺${buyerOffer.round()}';
+    final options = [
+      'Usta son sözüm $buyerStr. Üstüne bir kuruş çıkamam, kabul ediyorsan hayırlı olsun.',
+      'Bütçemin son damlası $buyerStr. Vermezsen başka araca bakacağım.',
+      'Son teklifim $buyerStr nakit. Karar senin.',
+    ];
+    return options[_random.nextInt(options.length)];
   }
 
   /// Generates a bonus offer from a loyal returning customer (CRM feature)

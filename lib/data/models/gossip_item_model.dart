@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum GossipType {
   marketTrend, // Piyasa tüyosu
   rivalIntel,  // Rakip istihbaratı
@@ -62,12 +64,38 @@ class GossipItemModel {
     };
   }
 
+  IconData get sourceIcon {
+    switch (sourceNpc) {
+      case 'cayci_necati':
+        return Icons.local_cafe_rounded;
+      case 'vlogger_berk':
+        return Icons.videocam_rounded;
+      case 'cikmaci_ibo':
+        return Icons.build_circle_rounded;
+      case 'noter_derya':
+        return Icons.history_edu_rounded;
+      case 'ekspertiz_kadir':
+        return Icons.fact_check_rounded;
+      case 'sigortaci_melih':
+        return Icons.security_rounded;
+      case 'taksici_sevket':
+        return Icons.local_taxi_rounded;
+      case 'gumrukcu_tarik':
+        return Icons.local_shipping_rounded;
+      case 'simsar_vedat':
+        return Icons.trending_up_rounded;
+      case 'usta_selim':
+      default:
+        return Icons.engineering_rounded;
+    }
+  }
+
   factory GossipItemModel.fromJson(Map<String, dynamic> json) {
     return GossipItemModel(
       id: json['id'] as String? ?? 'gossip_${DateTime.now().millisecondsSinceEpoch}',
       sourceNpc: json['sourceNpc'] as String? ?? 'cayci_necati',
       sourceNpcName: json['sourceNpcName'] as String? ?? 'Çaycı Necati',
-      sourceAvatar: json['sourceAvatar'] as String? ?? '☕',
+      sourceAvatar: json['sourceAvatar'] as String? ?? 'cayci',
       title: json['title'] as String? ?? 'Sanayi Dedikodusu',
       teaser: json['teaser'] as String? ?? 'Bir şeyler duydum usta...',
       content: json['content'] as String? ?? 'Piyasa hareketlenecek.',

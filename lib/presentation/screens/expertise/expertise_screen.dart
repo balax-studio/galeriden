@@ -21,7 +21,6 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/slam_stamp_widget.dart';
-import '../marketplace/interactive_negotiation_sheet.dart';
 
 class ExpertiseScreen extends ConsumerStatefulWidget {
   final ListingModel listing;

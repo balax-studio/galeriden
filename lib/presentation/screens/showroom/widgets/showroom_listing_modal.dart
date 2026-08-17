@@ -211,7 +211,8 @@ class ShowroomListingModal {
                       children: [
                         Expanded(
                           child: _buildTactileStrategyCard(
-                            label: '🔍 Şeffaflık',
+                            icon: Icons.search_rounded,
+                            label: 'Şeffaflık',
                             subtitle: '+%20 İkna Bonusu',
                             isSelected: selectedStrategy == 'ikna_et',
                             activeColor: AppColors.brutalGreen,
@@ -222,7 +223,8 @@ class ShowroomListingModal {
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildTactileStrategyCard(
-                            label: '☕ Çay İkramı',
+                            icon: Icons.coffee_rounded,
+                            label: 'Çay İkramı',
                             subtitle: 'Esnaf Sıcaklığı',
                             isSelected: selectedStrategy == 'duyguya_oyna',
                             activeColor: AppColors.brutalYellow,
@@ -237,7 +239,8 @@ class ShowroomListingModal {
                       children: [
                         Expanded(
                           child: _buildTactileStrategyCard(
-                            label: '💼 Tok Satıcı',
+                            icon: Icons.work_rounded,
+                            label: 'Tok Satıcı',
                             subtitle: 'Gençleri Etkiler',
                             isSelected: selectedStrategy == 'sert_dur',
                             activeColor: AppColors.brutalOrange,
@@ -248,7 +251,8 @@ class ShowroomListingModal {
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildTactileStrategyCard(
-                            label: '⚡ Hızlı Kapat',
+                            icon: Icons.bolt_rounded,
+                            label: 'Hızlı Kapat',
                             subtitle: 'Nakit İndirimi',
                             isSelected: selectedStrategy == 'hizli_kapat',
                             activeColor: AppColors.brutalCyan,
@@ -1177,6 +1181,7 @@ class ShowroomListingModal {
   }
 
   static Widget _buildTactileStrategyCard({
+    required IconData icon,
     required String label,
     required String subtitle,
     required bool isSelected,
@@ -1195,13 +1200,23 @@ class ShowroomListingModal {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w900,
-              color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
-            ),
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 13,
+                color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 2),
           Text(

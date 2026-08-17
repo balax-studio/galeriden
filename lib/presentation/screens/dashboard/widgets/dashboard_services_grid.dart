@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/utils/iterable_extensions.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
@@ -209,7 +210,7 @@ class DashboardServicesGrid extends ConsumerWidget {
 
     // Progressive Disclosure: Unlocked items + NEXT single locked preview item
     final unlockedItems = allServices.where((s) => game.isFeatureUnlocked(s.route)).toList();
-    final nextLockedItem = allServices.where((s) => !game.isFeatureUnlocked(s.route)).firstOrNull;
+    final nextLockedItem = findFirstWhere(allServices, (s) => !game.isFeatureUnlocked(s.route));
 
     final displayItems = List<_ServiceItem>.from(unlockedItems);
     if (nextLockedItem != null) {

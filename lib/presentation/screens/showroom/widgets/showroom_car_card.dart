@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/game_constants.dart';
@@ -15,6 +16,7 @@ import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/pulsing_dot.dart';
+import 'car_cost_breakdown_sheet.dart';
 import 'showroom_listing_modal.dart';
 
 class ShowroomCarCard extends ConsumerWidget {
@@ -508,31 +510,52 @@ class ShowroomCarCard extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Net Tahmini Kâr',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              ),
+                        InkWell(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            CarCostBreakdownSheet.show(context, car);
+                          },
+                          borderRadius: BorderRadius.circular(6),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Net Kâr Analizi',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Icon(
+                                      Icons.info_outline_rounded,
+                                      size: 10,
+                                      color: isDark ? Colors.white60 : Colors.black45,
+                                    ),
+                                  ],
+                                ),
+                                AnimatedRollingCounter(
+                                  value: car.netEstimatedProfit,
+                                  isShort: true,
+                                  prefix: car.netEstimatedProfit >= 0 ? '+' : '',
+                                  suffix: ' (%${car.profitMarginPercent.round()})',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: car.netEstimatedProfit >= 0
+                                        ? const Color(0xFF00E575)
+                                        : const Color(0xFFEF4444),
+                                  ),
+                                ),
+                              ],
                             ),
-                            AnimatedRollingCounter(
-                              value: car.netEstimatedProfit,
-                              isShort: true,
-                              prefix: car.netEstimatedProfit >= 0 ? '+' : '',
-                              suffix: ' (%${car.profitMarginPercent.round()})',
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w900,
-                                color: car.netEstimatedProfit >= 0
-                                    ? const Color(0xFF00E575)
-                                    : const Color(0xFFEF4444),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -769,49 +792,60 @@ class ShowroomCarCard extends ConsumerWidget {
                   if (car.isLockedInShowcase) {
                     showDialog(
                       context: context,
-                      builder: (dCtx) => AlertDialog(
-                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          side: BorderSide(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 2.0,
-                          ),
-                        ),
-                        title: const Text('VİTRİNDEN ÇIKARILSIN MI?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
-                        content: const Text(
-                          'Bu araç galeri yadigârı olarak kilitli. Vitrinden çıkarırsan satışa açılacak ve devir (prestij) sırasında aktarılmayacaktır. Emin misin?',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                        ),
-                        actions: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                      builder: (dCtx) => Dialog(
+                        backgroundColor: Colors.transparent,
+                        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(18),
+                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          borderRadius: 12,
+                          borderWidth: 2.5,
+                          shadowOffset: const Offset(4, 4),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              NeoBrutalButton(
-                                label: 'İPTAL',
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
-                                fontSize: 11,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                onPressed: () => Navigator.pop(dCtx),
+                              const Text(
+                                'VİTRİNDEN ÇIKARILSIN MI?',
+                                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
                               ),
-                              const SizedBox(width: 8),
-                              NeoBrutalButton(
-                                label: 'KİLİDİ AÇ',
-                                icon: Icons.lock_open_rounded,
-                                backgroundColor: AppColors.errorRed,
-                                textColor: Colors.white,
-                                fontSize: 11,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                onPressed: () {
-                                  Navigator.pop(dCtx);
-                                  ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
-                                  NotificationService.showSuccess(context, '${car.brand} ${car.modelName} vitrinden çıkarıldı.');
-                                },
+                              const SizedBox(height: 10),
+                              const Text(
+                                'Bu araç galeri yadigârı olarak kilitli. Vitrinden çıkarırsan satışa açılacak ve devir (prestij) sırasında aktarılmayacaktır. Emin misin?',
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  NeoBrutalButton(
+                                    label: 'İPTAL',
+                                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                    textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                                    fontSize: 11,
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    onPressed: () => Navigator.pop(dCtx),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  NeoBrutalButton(
+                                    label: 'KİLİDİ AÇ',
+                                    icon: Icons.lock_open_rounded,
+                                    backgroundColor: AppColors.errorRed,
+                                    textColor: Colors.white,
+                                    fontSize: 11,
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    onPressed: () {
+                                      Navigator.pop(dCtx);
+                                      ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
+                                      NotificationService.showSuccess(context, '${car.brand} ${car.modelName} vitrinden çıkarıldı.');
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     );
                   } else {

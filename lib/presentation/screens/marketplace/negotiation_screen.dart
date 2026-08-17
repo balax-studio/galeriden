@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
@@ -58,13 +57,13 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     _fomoText = PsychologyEngine.getRandomFomoText();
   }
 
-  int _calculateSuccessChance(int negotiationSkillLevel) {
+  int _calculateSuccessChance(int negotiationSkillLevel, {double decorBonusPercent = 0.0}) {
     final baseChance = NegotiationEngine.calculateMarketplaceBuyerSuccessChance(
       askingPrice: widget.listing.askingPrice,
       offeredPrice: _offeredPrice,
       negotiationSkillLevel: negotiationSkillLevel,
     );
-    return (baseChance + _bonusChancePercent).clamp(5, 95);
+    return (baseChance + _bonusChancePercent + decorBonusPercent.toInt()).clamp(5, 95);
   }
 
   void _snapToDiscount(double asking, double discountPercent) {
@@ -90,7 +89,8 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     final asking = currentListing.askingPrice;
     final car = currentListing.car;
 
-    final chancePercent = _calculateSuccessChance(game.skills.negotiationLevel);
+    final decorBonus = game.negotiationPersuasionBonusPercent;
+    final chancePercent = _calculateSuccessChance(game.skills.negotiationLevel, decorBonusPercent: decorBonus);
     final discountAmount = asking - _offeredPrice;
     final discountRatio = ((discountAmount / asking) * 100).toStringAsFixed(1);
 
@@ -493,14 +493,30 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                             color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                           ),
                         ),
-                        NeoBrutalBadge(
-                          icon: Icons.psychology_rounded,
-                          text: 'İkna Şansı: %$chancePercent',
-                          backgroundColor: chanceColor,
-                          textColor: Colors.black,
-                          borderWidth: 1.5,
-                          fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        Row(
+                          children: [
+                            if (decorBonus > 0) ...[
+                              const NeoBrutalBadge(
+                                icon: Icons.chair_rounded,
+                                text: '+%4 Makam',
+                                backgroundColor: Color(0xFFD97706),
+                                textColor: Colors.black,
+                                borderWidth: 1.5,
+                                fontSize: 10,
+                                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                            NeoBrutalBadge(
+                              icon: Icons.psychology_rounded,
+                              text: 'İkna Şansı: %$chancePercent',
+                              backgroundColor: chanceColor,
+                              textColor: Colors.black,
+                              borderWidth: 1.5,
+                              fontSize: 11,
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            ),
+                          ],
                         ),
                       ],
                     ),

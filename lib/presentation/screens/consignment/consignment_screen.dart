@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
+import '../../../domain/usecases/consignment_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -34,46 +35,95 @@ class ConsignmentScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(14),
         physics: const BouncingScrollPhysics(),
         children: [
-          // 1. Explanatory Banner
+          // 1. Explanatory Banner with Branch Tier & Parking Fee Highlights
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF1E1E2E) : const Color(0xFFF0FDF4),
             borderColor: AppColors.brutalGreen,
             borderRadius: 14,
-            child: Row(
+            child: Column(
               children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.brutalGreen,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
+                      ),
+                      child: const Icon(Icons.handshake_rounded, color: Colors.black, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'SIFIR SERMAYE İLE ÇİFTE KAZANÇ',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Müşteriler araçlarını galerinize emanet bıraksın. Sıfır sermaye ile hem satış komisyonu hem de günlük sergileme ücreti kazanın!',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.brutalGreen,
-                    borderRadius: BorderRadius.circular(10),
+                    color: isDark ? const Color(0xFF11131C) : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.handshake_rounded, color: Colors.black, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(
-                        'SIFIR SERMAYE İLE KOMİSYON',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                      const Icon(Icons.storefront_rounded, size: 16, color: AppColors.brutalYellow),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          game.currentBranchName,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Müşteriler araçlarını dükkanınıza emanet bıraksın. Cebinizden 1 Kuruş çıkmadan satın, %10-%15 komisyonu cebe indirin!',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.brutalGreen.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: AppColors.brutalGreen, width: 1),
+                        ),
+                        child: Text(
+                          '+₺${(game.currentBranchTier == 1 ? 300 : (game.currentBranchTier == 2 ? 600 : (game.currentBranchTier == 3 ? 1200 : (game.currentBranchTier == 4 ? 2500 : (game.currentBranchTier == 5 ? 5000 : (game.currentBranchTier == 6 ? 10000 : (game.currentBranchTier == 7 ? 22000 : 45000))))))) }/gün otopark',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen,
+                          ),
                         ),
                       ),
                     ],
@@ -275,7 +325,7 @@ class ConsignmentScreen extends ConsumerWidget {
                       const SizedBox(height: 2),
                       const Text(
                         '₺0 (Ücretsiz)',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                       ),
                     ],
                   ),
@@ -283,13 +333,27 @@ class ConsignmentScreen extends ConsumerWidget {
                   Column(
                     children: [
                       const Text(
-                        'TAHMİNİ KOMİSYON KÂRI',
+                        'TAHMİNİ KOMİSYON',
                         style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.textSecondaryLight),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '+${CurrencyFormatter.format(estimatedCommission)}',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
+                      ),
+                    ],
+                  ),
+                  Container(width: 1, height: 28, color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+                  Column(
+                    children: [
+                      const Text(
+                        'GÜNLÜK SERGİLEME',
+                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.textSecondaryLight),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '+₺${ConsignmentEngine.calculateDailyParkingFee(game.currentBranchTier).round()}/gün',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                       ),
                     ],
                   ),

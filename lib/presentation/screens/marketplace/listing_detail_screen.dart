@@ -14,8 +14,8 @@ import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/car_icons.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 import 'expertise_report_sheet.dart';
-import 'interactive_negotiation_sheet.dart';
 
 class ListingDetailScreen extends ConsumerWidget {
   final ListingModel listing;
@@ -58,14 +58,13 @@ class ListingDetailScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Vehicle Visual Banner Box
-            Container(
-              width: double.infinity,
+            NeoBrutalCard(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              decoration: BoxDecoration(
-                color: p.surfaceColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: p.surfaceBorderColor),
-              ),
+              backgroundColor: p.surfaceColor,
+              borderColor: p.surfaceBorderColor,
+              borderRadius: 12,
+              borderWidth: 2.5,
+              shadowOffset: const Offset(4, 4),
               child: Column(
                 children: [
                   CarSilhouetteWidget(

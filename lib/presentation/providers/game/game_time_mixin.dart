@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import '../../../core/utils/iterable_extensions.dart';
 
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/car_model.dart';
@@ -77,10 +78,12 @@ mixin GameTimeMixin on GameBaseNotifier {
     newBalance = loanResult.$1;
     final updatedLoans = loanResult.$2;
     
-    final rentalResult = _processRentals(newBalance, currentCars, List.from(state.activeRentals));
+    final rentalResult = _processRentals(newBalance, currentCars, List.from(state.activeRentals), newEvents, List.from(state.incomingOffers));
     newBalance = rentalResult.$1;
     currentCars = rentalResult.$2;
     final updatedRentals = rentalResult.$3;
+    newEvents = rentalResult.$4;
+    final offersAfterRentals = rentalResult.$5;
 
     final installResult = _processInstallments(newBalance, List.from(state.activeInstallments));
     newBalance = installResult.$1;
@@ -101,7 +104,18 @@ mixin GameTimeMixin on GameBaseNotifier {
     newBalance = bizResult.$1;
     final updatedBusinesses = bizResult.$2;
 
-    final updatedStocks = _processStockMarket(List.from(state.marketStocks));
+    final stockResult = _processStockMarketAndDividends(nextDay, newBalance, List.from(state.marketStocks), state.ownedStocks, newEvents);
+    final updatedStocks = stockResult.$1;
+    newBalance = stockResult.$2;
+    newEvents = stockResult.$3;
+
+    final updatedForex = _processForexMarket(List.from(state.marketForex));
+    final ipoResult = _processIpoMarket(nextDay, newBalance, List.from(state.activeIpos), List.from(state.playerIpoRequests), newEvents);
+    final updatedIpos = ipoResult.$1;
+    final updatedIpoReqs = ipoResult.$2;
+    newBalance = ipoResult.$3;
+    newEvents = ipoResult.$4;
+
     newBalance = _processDailyTax(newBalance);
     newEvents = _createDailySummaryEvent(nextDay, newBalance, newEvents);
     final currentNews = _processMarketNews(nextDay, state.activeNews);
@@ -116,10 +130,11 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     currentCars = _processListingsAmortization(currentCars);
 
-    // 1. Process Consignment Vehicle Remaining Days & Expiry Return
+    // 1. Process Consignment Vehicle Remaining Days & Expiry Return & Daily Parking Fees
     final consignmentResult = _processConsignmentDays(currentCars, newEvents);
     currentCars = consignmentResult.$1;
-    newEvents = consignmentResult.$2;
+    newBalance += consignmentResult.$2;
+    newEvents = consignmentResult.$3;
 
     // 2. Process Black Market Police Raid Risk
     int currentReputation = state.reputationScore;
@@ -139,7 +154,7 @@ mixin GameTimeMixin on GameBaseNotifier {
     final currentDisputeNotice = dispute.$2;
     newEvents = dispute.$3;
 
-    final updatedIncomingOffers = _processLoyalCustomerOffers(currentCars, List.from(state.incomingOffers));
+    final updatedIncomingOffers = _processLoyalCustomerOffers(currentCars, offersAfterRentals);
     final updatedBankDeposit = _processBankInterest(state.bankDepositBalance);
     final updatedMissions = _processDailyMissions(List.from(state.activeMissions));
     final updatedContracts = _processVIPContracts(List.from(state.activeContracts));
@@ -148,12 +163,16 @@ mixin GameTimeMixin on GameBaseNotifier {
     final dailyGossips = GossipEngine.generateDailyGossips(nextDay);
     final updatedTradeOffers = _processTradeInOffers(nextDay, currentCars, List.from(state.incomingTradeInOffers));
     final updatedConsignmentOffers = _processConsignmentOffers(nextDay, List.from(state.consignmentOffers));
+    final updatedB2BOrders = (nextDay % 2 == 0 || state.b2bPartOrders.isEmpty)
+        ? B2BPartOrder.generateDailyOrders(nextDay)
+        : state.b2bPartOrders;
 
     // Showroom Decor & District Traffic Boosts
-    final hasLedGrid = state.unlockedDecorIds.contains('decor_led_grid');
-    final hasGranite = state.unlockedDecorIds.contains('decor_granite_floor');
+    final hasLedGrid = state.hasDecor('decor_led_grid');
+    final hasGranite = state.hasDecor('decor_granite_floor');
+    final hasTotem = state.hasDecor('decor_led_totem_sign');
     final bagcilarDominance = (state.districtMarketShare['Bağcılar Oto Pazarı'] ?? 0.0) >= 0.50;
-    if ((hasLedGrid || hasGranite || bagcilarDominance) && currentCars.any((c) => c.isListed && !c.isRented)) {
+    if ((hasLedGrid || hasGranite || hasTotem || bagcilarDominance) && currentCars.any((c) => c.isListed && !c.isRented)) {
       triggerOrganicOffers();
     }
 
@@ -169,10 +188,14 @@ mixin GameTimeMixin on GameBaseNotifier {
       activeCheques: updatedCheques,
       sideBusinesses: updatedBusinesses,
       marketStocks: updatedStocks,
+      marketForex: updatedForex,
+      activeIpos: updatedIpos,
+      playerIpoRequests: updatedIpoReqs,
       recentEvents: newEvents,
       activeNews: currentNews,
       scrapyardCars: currentScrapCars,
       blackMarketCars: currentBlackCars,
+      b2bPartOrders: updatedB2BOrders,
       daysSinceLastStoryAd: storyAd.$1,
       nextStoryAdTargetDays: storyAd.$2,
       pendingStoryCard: storyAd.$3,
@@ -226,7 +249,8 @@ mixin GameTimeMixin on GameBaseNotifier {
     if (state.specializationPath == SpecializationPath.boss) totalSalaries *= 0.80;
     
     if (balance >= totalSalaries) {
-      return (balance - totalSalaries, staff);
+      final updated = staff.map((s) => s.copyWith(morale: max(30, s.morale - 1))).toList();
+      return (balance - totalSalaries, updated);
     } else if (balance > 0) {
       return (0.0, <StaffModel>[]);
     } else {
@@ -282,24 +306,127 @@ mixin GameTimeMixin on GameBaseNotifier {
     return (balance, loans);
   }
 
-  (double, List<CarModel>, List<RentalAgreement>) _processRentals(double balance, List<CarModel> cars, List<RentalAgreement> rentals) {
+  (double, List<CarModel>, List<RentalAgreement>, List<GameEventModel>, List<OfferModel>) _processRentals(
+      double balance,
+      List<CarModel> cars,
+      List<RentalAgreement> rentals,
+      List<GameEventModel> events,
+      List<OfferModel> incomingOffers) {
     for (int i = rentals.length - 1; i >= 0; i--) {
       final rental = rentals[i];
-      balance += rental.dailyRate;
+      final insuranceFee = rental.hasInsurance ? rental.insuranceDailyFee : 0.0;
+      final netDaily = (rental.dailyRate - insuranceFee).clamp(0.0, double.infinity);
+      balance += netDaily;
       
       final carIndex = cars.indexWhere((c) => c.id == rental.carId);
       if (carIndex != -1) {
         CarModel car = cars[carIndex];
-        if (random.nextDouble() < 0.05) { 
-          car = car.copyWith(expertise: car.expertise.copyWith(engineCondition: max(0, car.expertise.engineCondition - 5)));
-        } else if (random.nextDouble() < 0.01) { 
-          car = car.copyWith(expertise: car.expertise.copyWith(tramerAmount: car.expertise.tramerAmount + 15000, engineCondition: max(0, car.expertise.engineCondition - 20)));
+        final riskMultiplier = rental.renterType == 'young_driver' ? 1.4 : (rental.renterType == 'corporate' ? 0.2 : 0.6);
+        final roll = random.nextDouble();
+
+        // 1. EDS & Hız Radarı Cezası (%2 * multiplier)
+        if (roll < 0.020 * riskMultiplier) {
+          final fineBase = 4500.0 + random.nextInt(4000);
+          final actualCost = (rental.hasInsurance || rental.renterType == 'corporate') ? fineBase * 0.20 : fineBase;
+          balance = (balance - actualCost).clamp(0.0, double.infinity);
+          events.insert(0, GameEventModel(
+            id: 'rental_fine_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'KİRALIK ARAÇ: RADAR & EDS CEZASI!',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile hız sınırını aştı (₺${fineBase.toInt()} ceza tebliğ edildi${rental.hasInsurance ? ', Kasko & kurumsal sözleşme sayesinde ₺${actualCost.toInt()} ödendi' : ''}).',
+            type: GameEventType.expense,
+            amount: -actualCost,
+            date: DateTime.now(),
+          ));
         }
+        // 2. Düğün Konvoyu Yanlama & Şanzıman Hasarı (%1.5 * multiplier)
+        else if (roll < 0.035 * riskMultiplier) {
+          final repairDeductible = rental.hasInsurance ? 1000.0 : 4000.0;
+          balance = (balance - repairDeductible).clamp(0.0, double.infinity);
+          final newTrans = max(10.0, car.expertise.transmissionCondition - 20.0);
+          final newEngine = max(10.0, car.expertise.engineCondition - 10.0);
+          car = car.copyWith(
+            isWashed: false,
+            isPolished: false,
+            expertise: car.expertise.copyWith(
+              transmissionCondition: newTrans,
+              engineCondition: newEngine,
+            ),
+          );
+          events.insert(0, GameEventModel(
+            id: 'rental_drift_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'KİRALIK ARAÇ: KONVOYDA AŞIRI YIPRANMA!',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} aracında debriyajı yakmış ve lastikleri eritmiş (-%20 Şanzıman, -%10 Motor, ₺${repairDeductible.toInt()} masraf).',
+            type: GameEventType.expense,
+            amount: -repairDeductible,
+            date: DateTime.now(),
+          ));
+        }
+        // 3. Ağır Kaza & Tramer Kaydı (%0.8 * multiplier)
+        else if (roll < 0.043 * riskMultiplier) {
+          final tramerAdd = 25000 + (random.nextInt(5) * 5000);
+          final outOfPocket = rental.hasInsurance ? 3000.0 : 12000.0;
+          balance = (balance - outOfPocket).clamp(0.0, double.infinity);
+          car = car.copyWith(
+            expertise: car.expertise.copyWith(
+              tramerAmount: car.expertise.tramerAmount + tramerAdd,
+              engineCondition: max(10.0, car.expertise.engineCondition - 25.0),
+              transmissionCondition: max(10.0, car.expertise.transmissionCondition - 15.0),
+            ),
+          );
+          events.insert(0, GameEventModel(
+            id: 'rental_crash_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'KİRALIK ARAÇ: TRAFİK KAZASI HASARI!',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile refüje çarptı (+₺$tramerAdd Tramer işlendi${rental.hasInsurance ? ', Ticari Kasko hasarı karşıladı (₺3.000 muafiyet ödendi)' : ', Kasko olmadığı için ₺12.000 masraf yapıldı'}).',
+            type: GameEventType.expense,
+            amount: -outOfPocket,
+            date: DateTime.now(),
+          ));
+        }
+        // 4. Korsan Taşımacılık / Otoparka Çekilme (%0.4 * multiplier, only individual & young_driver)
+        else if (roll < 0.047 * riskMultiplier && rental.renterType != 'corporate') {
+          const impoundFine = 8000.0;
+          balance = (balance - impoundFine).clamp(0.0, double.infinity);
+          events.insert(0, GameEventModel(
+            id: 'rental_impound_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'KİRALIK ARAÇ: KORSAN TAŞIMA & MEN!',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile izinsiz yolcu taşırken polis çevirmesine girdi! Araç otoparka çekildi ve ₺8.000 idari ceza kesildi.',
+            type: GameEventType.expense,
+            amount: -impoundFine,
+            date: DateTime.now(),
+          ));
+        }
+        // 5. Kiracının Aracı Satın Alma Teklifi (%2.5 şans)
+        else if (roll > (1.0 - 0.025)) {
+          final carVal = car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.baseMarketValue;
+          final offerPrice = (carVal * 1.15).roundToDouble();
+          final buyoutOffer = OfferModel(
+            id: 'offer_rent_buyout_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            carId: car.id,
+            buyerName: '${rental.renterName} (Kiracı)',
+            offeredAmount: offerPrice,
+            buyerMessage: 'Aracınızdan son derece memnun kaldım. Kiralamayı bitirip aracı doğrudan satın almak istiyorum.',
+            createdAt: DateTime.now(),
+            offerType: OfferType.cash,
+          );
+          incomingOffers.insert(0, buyoutOffer);
+          events.insert(0, GameEventModel(
+            id: 'rental_buyout_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'KİRACIDAN SATIN ALMA TEKLİFİ!',
+            description: '${rental.renterName}, kiraladığı ${car.brand} ${car.modelName} için piyasa değerinin %15 fazlasına (₺${offerPrice.toInt()}) peşin teklif sundu!',
+            type: GameEventType.goodEvent,
+            amount: offerPrice,
+            date: DateTime.now(),
+          ));
+        }
+
         cars[carIndex] = car;
       }
-      rentals[i] = rental.copyWith(rentedDays: rental.rentedDays + 1, totalEarned: rental.totalEarned + rental.dailyRate);
+      rentals[i] = rental.copyWith(
+        rentedDays: rental.rentedDays + 1,
+        totalEarned: rental.totalEarned + netDaily,
+      );
     }
-    return (balance, cars, rentals);
+    return (balance, cars, rentals, events, incomingOffers);
   }
 
   (double, List<InstallmentContract>) _processInstallments(double balance, List<InstallmentContract> installments) {
@@ -338,12 +465,25 @@ mixin GameTimeMixin on GameBaseNotifier {
     final double chequeBounceRisk = (0.05 - state.skills.chequeRiskReduction).clamp(0.005, 0.05);
     for (int i = cheques.length - 1; i >= 0; i--) {
       final cheque = cheques[i];
+
+      // Handle legal collection progression
+      if (cheque.inLegalCollection) {
+        int legalDays = cheque.legalCollectionDaysRemaining - 1;
+        if (legalDays <= 0) {
+          final recovered = cheque.amount * 0.75;
+          balance += recovered;
+          cheques.removeAt(i);
+        } else {
+          cheques[i] = cheque.copyWith(legalCollectionDaysRemaining: legalDays);
+        }
+        continue;
+      }
+
       int remainingDays = cheque.daysUntilDue - 1;
       
       if (remainingDays <= 0) {
         if (random.nextDouble() < chequeBounceRisk) {
-          balance += cheque.amount * 0.5; 
-          cheques.removeAt(i);
+          cheques[i] = cheque.copyWith(daysUntilDue: 0, isDefaulted: true);
         } else {
           balance += cheque.amount;
           cheques.removeAt(i);
@@ -410,16 +550,20 @@ mixin GameTimeMixin on GameBaseNotifier {
     return (balance, businesses);
   }
 
-  (List<CarModel>, List<GameEventModel>) _processConsignmentDays(List<CarModel> cars, List<GameEventModel> events) {
+  (List<CarModel>, double, List<GameEventModel>) _processConsignmentDays(List<CarModel> cars, List<GameEventModel> events) {
     final updated = <CarModel>[];
+    double dailyParkingEarnings = 0.0;
+    final parkingPerCar = ConsignmentEngine.calculateDailyParkingFee(state.currentBranchTier);
+
     for (final car in cars) {
       if (car.isConsignment) {
+        dailyParkingEarnings += parkingPerCar;
         final daysLeft = car.consignmentDaysRemaining - 1;
         if (daysLeft <= 0) {
           events.insert(0, GameEventModel(
             id: 'consignment_expired_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
-            title: 'Konsinye Süresi Doldu',
-            description: '${car.brand} ${car.modelName} emanet süresi dolduğu için araç sahibine iade edildi.',
+            title: 'Emanet Araç Süresi Doldu',
+            description: '${car.consignmentOwnerName ?? "Sahibi"}, ${car.brand} ${car.modelName} emanet süresi dolduğu için aracı teslim aldı.',
             amount: 0.0,
             type: GameEventType.neutral,
             date: DateTime.now(),
@@ -431,38 +575,154 @@ mixin GameTimeMixin on GameBaseNotifier {
         updated.add(car);
       }
     }
-    return (updated, events);
+
+    if (dailyParkingEarnings > 0) {
+      events.insert(0, GameEventModel(
+        id: 'consignment_parking_${DateTime.now().millisecondsSinceEpoch}',
+        title: 'Emanet Otopark & Sergileme Geliri',
+        description: 'Vitrindeki emanet araçlardan günlük toplam +₺${dailyParkingEarnings.round()} sergileme ücreti kazanıldı.',
+        amount: dailyParkingEarnings,
+        type: GameEventType.income,
+        date: DateTime.now(),
+      ));
+    }
+
+    return (updated, dailyParkingEarnings, events);
   }
 
   (double, List<CarModel>, int, List<GameEventModel>) _processBlackMarketRaid(
       double balance, List<CarModel> cars, int reputation, List<GameEventModel> events) {
     final hasGossipWarning = state.activeGossips.any((g) => g.id == 'gossip_police_raid' && g.isPurchased);
-    final bmIndex = cars.indexWhere((c) => c.modelName.contains('Karaborsa') || c.id.startsWith('bm_'));
-    if (bmIndex != -1) {
-      // 10% daily risk (or 3% if warned by gossip)
-      final chance = hasGossipWarning ? 0.03 : 0.10;
-      if (random.nextDouble() < chance) {
-        final seizedCar = cars[bmIndex];
-        cars.removeAt(bmIndex);
-        const fine = 25000.0;
-        balance = (balance - fine).clamp(0.0, double.infinity);
-        reputation = (reputation - 15).clamp(0, 200);
-        events.insert(0, GameEventModel(
-          id: 'police_raid_${DateTime.now().millisecondsSinceEpoch}',
-          title: '🚨 MALİ ŞUBE & ASAYİŞ BASKINI!',
-          description: '${seizedCar.brand} ${seizedCar.modelName} çalıntı/hacizli şüphesiyle yediemin otoparkına çekildi! ₺25.000 idari para cezası kesildi ve -15 Esnaf İtibarı kaybedildi.',
-          type: GameEventType.expense,
-          amount: -fine,
-          date: DateTime.now(),
-        ));
+    
+    // Find all black market cars in inventory
+    final bmIndices = <int>[];
+    for (int i = 0; i < cars.length; i++) {
+      final c = cars[i];
+      if (c.isBlackMarket || c.modelName.contains('Karaborsa') || c.id.startsWith('bm_')) {
+        bmIndices.add(i);
       }
     }
+
+    if (bmIndices.isEmpty) {
+      return (balance, cars, reputation, events);
+    }
+
+    final carsToRemove = <CarModel>[];
+
+    for (final idx in bmIndices) {
+      final car = cars[idx];
+      final riskRate = (car.blackMarketRiskPercent > 0 ? car.blackMarketRiskPercent : 25) / 100.0;
+      final hasNazarPrayer = state.hasDecor('decor_nazar_prayer_frame');
+      final adjustedChance = (hasGossipWarning ? (riskRate * 0.35) : riskRate) * (hasNazarPrayer ? 0.85 : 1.0);
+
+      if (random.nextDouble() < adjustedChance) {
+        final riskType = car.blackMarketRiskType ?? 'change_vin';
+
+        switch (riskType) {
+          case 'change_vin':
+            if (random.nextDouble() < 0.60) {
+              // Police seizure
+              carsToRemove.add(car);
+              const fine = 35000.0;
+              balance = (balance - fine).clamp(0.0, double.infinity);
+              reputation = (reputation - 20).clamp(0, 200);
+              events.insert(0, GameEventModel(
+                id: 'police_raid_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+                title: 'ASAYİŞ KRİMİNAL: SAHTE ŞASİ (CHANGE) TESPİTİ!',
+                description: '${car.brand} ${car.modelName} aracının şasisinin başka bir pert araçtan kopyalandığı (Change) tespit edildi. Araç yediemin otoparkına çekildi! ₺35.000 idari para cezası ve -20 İtibar!',
+                type: GameEventType.expense,
+                amount: -fine,
+                date: DateTime.now(),
+              ));
+            } else {
+              // Mechanical chassis weld failure (two halves crack)
+              final carIdx = cars.indexOf(car);
+              if (carIdx != -1) {
+                final updatedParts = Map<String, PartStatus>.from(car.expertise.bodyParts);
+                updatedParts['Şasi/Podye'] = PartStatus.damaged;
+                updatedParts['Kaput'] = PartStatus.damaged;
+                cars[carIdx] = car.copyWith(
+                  expertise: car.expertise.copyWith(
+                    engineCondition: 25.0,
+                    transmissionCondition: 30.0,
+                    tramerAmount: car.expertise.tramerAmount + 140000,
+                    bodyParts: updatedParts,
+                  ),
+                );
+                events.insert(0, GameEventModel(
+                  id: 'chassis_crack_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+                  title: 'MERDİVEN ALTI KAYNAK ÇÖKTÜ!',
+                  description: '${car.brand} ${car.modelName} ortadan ikiye eklenmiş kaynaklı araç çıktı! Gece vitrinde dururken şasi kaynağından koptu ve motor bloğu çatladı. Araç ağır hasara düştü!',
+                  type: GameEventType.expense,
+                  amount: 0.0,
+                  date: DateTime.now(),
+                ));
+              }
+            }
+            break;
+
+          case 'smuggled_exotic':
+            // Interpol / Customs Muhafaza confiscation
+            carsToRemove.add(car);
+            const fine = 60000.0;
+            balance = (balance - fine).clamp(0.0, double.infinity);
+            reputation = (reputation - 25).clamp(0, 200);
+            events.insert(0, GameEventModel(
+              id: 'interpol_customs_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+              title: 'GÜMRÜK MUHAFAZA & İNTERPOL BASKINI!',
+              description: '${car.brand} ${car.modelName} yurt dışından sahte evrakla kaçak sokulduğu için Gümrük Muhafaza ekiplerince el konuldu! ₺60.000 kaçakçılık cezası uygulandı ve -25 İtibar!',
+              type: GameEventType.expense,
+              amount: -fine,
+              date: DateTime.now(),
+            ));
+            break;
+
+          case 'stolen_paperwork':
+            // Real owner & lawyer raid
+            carsToRemove.add(car);
+            const fine = 25000.0;
+            balance = (balance - fine).clamp(0.0, double.infinity);
+            reputation = (reputation - 15).clamp(0, 200);
+            events.insert(0, GameEventModel(
+              id: 'stolen_court_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+              title: 'ASIL RUHSAT SAHİBİ & POLİS BASKINI!',
+              description: 'Asıl araç sahibi savcılık kararıyla galerinize geldi! ${car.brand} ${car.modelName} çalıntı kaydı nedeniyle sahibine teslim edildi. ₺25.000 hukuki masraf ödendi ve -15 İtibar.',
+              type: GameEventType.expense,
+              amount: -fine,
+              date: DateTime.now(),
+            ));
+            break;
+
+          case 'mafia_debt':
+          case 'salvage_hidden':
+          default:
+            // Underground mafia extortion
+            const fine = 30000.0;
+            balance = (balance - fine).clamp(0.0, double.infinity);
+            reputation = (reputation - 10).clamp(0, 200);
+            events.insert(0, GameEventModel(
+              id: 'mafia_debt_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+              title: 'YERALTI HESAPLAŞMASI & TEFECİ BASKINI!',
+              description: '${car.blackMarketSellerAlias ?? "Karanlık satıcı"} borcunu ödemeden kaçtığı için alacaklı çete galeriyi bastı! ${car.brand} ${car.modelName} hatrına ₺30.000 haraç ödenmek zorunda kalındı.',
+              type: GameEventType.expense,
+              amount: -fine,
+              date: DateTime.now(),
+            ));
+            break;
+        }
+      }
+    }
+
+    for (final c in carsToRemove) {
+      cars.removeWhere((item) => item.id == c.id);
+    }
+
     return (balance, cars, reputation, events);
   }
 
   (List<CarModel>, List<GameEventModel>) _processVandalism(List<CarModel> cars, List<GameEventModel> events) {
-    final hasCctv = state.unlockedDecorIds.contains('decor_security_cctv');
-    if (!hasCctv && cars.any((c) => c.isListed) && random.nextDouble() < 0.04) {
+    final hasSecurity = state.hasFullSecurityProtection;
+    if (!hasSecurity && cars.any((c) => c.isListed) && random.nextDouble() < 0.04) {
       final listedCars = cars.where((c) => c.isListed).toList();
       final targetCar = listedCars[random.nextInt(listedCars.length)];
       final carIdx = cars.indexOf(targetCar);
@@ -490,7 +750,13 @@ mixin GameTimeMixin on GameBaseNotifier {
     return (cars, events);
   }
 
-  List<StockModel> _processStockMarket(List<StockModel> stocks) {
+  (List<StockModel>, double, List<GameEventModel>) _processStockMarketAndDividends(
+    int nextDay,
+    double balance,
+    List<StockModel> stocks,
+    List<PlayerStockModel> ownedStocks,
+    List<GameEventModel> events,
+  ) {
     for (int i = 0; i < stocks.length; i++) {
       final stock = stocks[i];
       double baseChange = (random.nextDouble() * 0.20) - 0.10;
@@ -511,7 +777,106 @@ mixin GameTimeMixin on GameBaseNotifier {
       if (history.length > 30) history = history.sublist(history.length - 30);
       stocks[i] = stock.copyWith(previousPrice: stock.currentPrice, currentPrice: newPrice, priceHistory: history);
     }
-    return stocks;
+
+    // Process daily dividends from portfolio
+    double totalDividends = 0.0;
+    for (var owned in ownedStocks) {
+      final stock = findFirstWhere(stocks, (s) => s.symbol == owned.symbol);
+      if (stock != null) {
+        final double stockVal = owned.quantity * stock.currentPrice;
+        totalDividends += (stockVal * stock.dividendYield) / 365.0;
+      }
+    }
+
+    if (totalDividends >= 1.0) {
+      final roundDiv = (totalDividends * 100).roundToDouble() / 100.0;
+      balance += roundDiv;
+      events.insert(0, GameEventModel(
+        id: 'dividend_$nextDay',
+        title: 'BIST Portföy Temettü Geliri',
+        description: 'Hisselerinden günlük +₺${roundDiv.round()} net temettü nakit akışı hesabına yatırıldı.',
+        type: GameEventType.income,
+        amount: roundDiv,
+        date: DateTime.now(),
+      ));
+    }
+
+    return (stocks, balance, events);
+  }
+
+  List<ForexGoldModel> _processForexMarket(List<ForexGoldModel> forexList) {
+    if (forexList.isEmpty) return ForexGoldModel.defaultForex;
+    List<ForexGoldModel> updated = [];
+    for (var item in forexList) {
+      final double changeRatio = 1.0 + ((random.nextDouble() * 0.03) - 0.015);
+      final double newBuy = (item.buyRate * changeRatio * 100).roundToDouble() / 100.0;
+      final double newSell = (newBuy * 0.991 * 100).roundToDouble() / 100.0;
+
+      List<double> history = List.from(item.rateHistory);
+      history.add(newBuy);
+      if (history.length > 30) history = history.sublist(history.length - 30);
+
+      updated.add(item.copyWith(
+        buyRate: newBuy,
+        sellRate: newSell,
+        previousRate: item.buyRate,
+        rateHistory: history,
+      ));
+    }
+    return updated;
+  }
+
+  (List<IpoOfferModel>, List<PlayerIpoRequestModel>, double, List<GameEventModel>) _processIpoMarket(
+    int nextDay,
+    double balance,
+    List<IpoOfferModel> ipos,
+    List<PlayerIpoRequestModel> requests,
+    List<GameEventModel> events,
+  ) {
+    if (ipos.isEmpty) {
+      return (IpoOfferModel.defaultIpos(nextDay), requests, balance, events);
+    }
+
+    List<IpoOfferModel> updatedIpos = [];
+    List<PlayerIpoRequestModel> updatedRequests = List.from(requests);
+
+    for (var ipo in ipos) {
+      if (ipo.isListed) {
+        updatedIpos.add(ipo);
+        continue;
+      }
+
+      int remainingDays = ipo.daysUntilListing - 1;
+      if (remainingDays <= 0) {
+        updatedIpos.add(ipo.copyWith(daysUntilListing: 0, isListed: true));
+
+        final playerReq = findFirstWhere(updatedRequests, (r) => r.ipoId == ipo.id);
+        if (playerReq != null) {
+          final double payout = playerReq.totalSpent * ipo.listingMultiplier;
+          final double profit = payout - playerReq.totalSpent;
+          balance += payout;
+
+          events.insert(0, GameEventModel(
+            id: 'ipo_listed_${ipo.id}_$nextDay',
+            title: '${ipo.companyName} (${ipo.symbol}) Borsada Tavan Açtı!',
+            description: '${ipo.symbol} halka arzında tavan serisi gerçekleşti! ₺${playerReq.totalSpent.round()} yatırımın ₺${payout.round()} oldu (+₺${profit.round()} kâr).',
+            type: GameEventType.income,
+            amount: payout,
+            date: DateTime.now(),
+          ));
+        }
+      } else {
+        updatedIpos.add(ipo.copyWith(daysUntilListing: remainingDays));
+      }
+    }
+
+    if (updatedIpos.every((i) => i.isListed)) {
+      if (nextDay % 7 == 0) {
+        updatedIpos = IpoOfferModel.defaultIpos(nextDay);
+      }
+    }
+
+    return (updatedIpos, updatedRequests, balance, events);
   }
 
   double _processDailyTax(double balance) {
@@ -669,8 +1034,14 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   List<CarModel> _processConsignmentOffers(int nextDay, List<CarModel> offers) {
-    if (nextDay % 3 == 0 || offers.isEmpty) {
-      return ConsignmentEngine.generateConsignmentOffers(inGameDay: nextDay);
+    final hasSamovar = state.hasDecor('decor_copper_samovar');
+    final refreshInterval = hasSamovar ? 2 : 3;
+    if (nextDay % refreshInterval == 0 || offers.isEmpty) {
+      return ConsignmentEngine.generateConsignmentOffers(
+        inGameDay: nextDay,
+        branchTier: state.currentBranchTier,
+        reputationScore: state.reputationScore,
+      );
     }
     return offers;
   }
@@ -1000,6 +1371,10 @@ mixin GameTimeMixin on GameBaseNotifier {
         scrapPrice: 140000.0,
         estimatedPartTotalValue: 280000.0,
         damageNote: 'Önden ağır taklalı, tavan ezik. Motor ve şanzıman sapasağlam.',
+        chassisScrapMetalWeightKg: 1450,
+        chassisScrapValue: 8700.0,
+        surpriseFindItem: 'Orijinal Harman Kardon Amfi & M Vites Topuzu',
+        surpriseFindValue: 4500.0,
         parts: const [
           SalvagedPart(id: 'p_1_1', name: '2.0 TwinPower Turbo Motor Bloğu', carModelName: 'Bemeve 3.20d', category: 'engine', conditionPercent: 88, estimatedValue: 120000.0),
           SalvagedPart(id: 'p_1_2', name: '8 İleri ZF Otomatik Şanzıman', carModelName: 'Bemeve 3.20d', category: 'transmission', conditionPercent: 92, estimatedValue: 85000.0),
@@ -1015,6 +1390,10 @@ mixin GameTimeMixin on GameBaseNotifier {
         scrapPrice: 190000.0,
         estimatedPartTotalValue: 360000.0,
         damageNote: 'Arkadan kamyon çarpması sonrası pert kararı verilmiş.',
+        chassisScrapMetalWeightKg: 1320,
+        chassisScrapValue: 7920.0,
+        surpriseFindItem: 'Fabrika Takım Çantası & Yedek Anahtar',
+        surpriseFindValue: 3000.0,
         parts: const [
           SalvagedPart(id: 'p_2_1', name: '2.0 TSI GTI Turbo Şarj Kiti', carModelName: 'Vosgen Golf', category: 'turbo', conditionPercent: 94, estimatedValue: 65000.0),
           SalvagedPart(id: 'p_2_2', name: 'DSG Islak Kavrama Şanzıman', carModelName: 'Vosgen Golf', category: 'transmission', conditionPercent: 90, estimatedValue: 95000.0),
@@ -1030,6 +1409,10 @@ mixin GameTimeMixin on GameBaseNotifier {
         scrapPrice: 165000.0,
         estimatedPartTotalValue: 310000.0,
         damageNote: 'Elektrik kontağından motor kompartımanı kısmen hasarlı.',
+        chassisScrapMetalWeightKg: 1550,
+        chassisScrapValue: 9300.0,
+        surpriseFindItem: 'Nostaljik Becker Teyp & Orijinal Ruhsat Kabı',
+        surpriseFindValue: 3800.0,
         parts: const [
           SalvagedPart(id: 'p_3_1', name: 'AMG Deri Koltuk & İç Döşeme Takımı', carModelName: 'Merso C-200', category: 'bodywork', conditionPercent: 92, estimatedValue: 80000.0),
           SalvagedPart(id: 'p_3_2', name: '9G-Tronic Otomatik Şanzıman', carModelName: 'Merso C-200', category: 'transmission', conditionPercent: 89, estimatedValue: 110000.0),

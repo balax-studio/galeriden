@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 
 enum PartQualityTier {
   worn,      // Çürük / Ağır Aşınmış (%10 - %25)
@@ -39,6 +40,42 @@ class SalvagedPart {
       case PartQualityTier.pristine:
         return 'Sıfır Ayarında';
     }
+  }
+
+  /// Refurbishing cost in the workshop
+  double get refurbishCost {
+    final cost = (estimatedValue * 0.18).clamp(800.0, 5000.0);
+    return (cost / 100).roundToDouble() * 100;
+  }
+
+  bool get canRefurbish => tier != PartQualityTier.pristine && conditionPercent < 90;
+
+  /// Refurbish / Restore the part in workshop
+  SalvagedPart refurbish() {
+    if (!canRefurbish) return this;
+
+    final newCondition = (conditionPercent + 35).clamp(55, 95);
+    PartQualityTier newTier;
+    double valueMultiplier;
+
+    if (newCondition >= 90) {
+      newTier = PartQualityTier.pristine;
+      valueMultiplier = 1.45;
+    } else if (newCondition >= 65) {
+      newTier = PartQualityTier.good;
+      valueMultiplier = 1.30;
+    } else {
+      newTier = PartQualityTier.usable;
+      valueMultiplier = 1.20;
+    }
+
+    final newValue = (estimatedValue * valueMultiplier / 100).roundToDouble() * 100;
+
+    return copyWith(
+      conditionPercent: newCondition,
+      tier: newTier,
+      estimatedValue: newValue,
+    );
   }
 
   SalvagedPart copyWith({
@@ -103,6 +140,10 @@ class ScrapyardCar {
   final String damageNote;
   final List<SalvagedPart> parts;
   final bool isPurchased;
+  final int chassisScrapMetalWeightKg;
+  final double chassisScrapValue;
+  final String? surpriseFindItem;
+  final double surpriseFindValue;
 
   const ScrapyardCar({
     required this.id,
@@ -114,6 +155,10 @@ class ScrapyardCar {
     required this.damageNote,
     required this.parts,
     this.isPurchased = false,
+    this.chassisScrapMetalWeightKg = 1100,
+    this.chassisScrapValue = 6600.0,
+    this.surpriseFindItem,
+    this.surpriseFindValue = 0.0,
   });
 
   ScrapyardCar copyWith({
@@ -126,6 +171,10 @@ class ScrapyardCar {
     String? damageNote,
     List<SalvagedPart>? parts,
     bool? isPurchased,
+    int? chassisScrapMetalWeightKg,
+    double? chassisScrapValue,
+    String? surpriseFindItem,
+    double? surpriseFindValue,
   }) {
     return ScrapyardCar(
       id: id ?? this.id,
@@ -137,6 +186,10 @@ class ScrapyardCar {
       damageNote: damageNote ?? this.damageNote,
       parts: parts ?? this.parts,
       isPurchased: isPurchased ?? this.isPurchased,
+      chassisScrapMetalWeightKg: chassisScrapMetalWeightKg ?? this.chassisScrapMetalWeightKg,
+      chassisScrapValue: chassisScrapValue ?? this.chassisScrapValue,
+      surpriseFindItem: surpriseFindItem ?? this.surpriseFindItem,
+      surpriseFindValue: surpriseFindValue ?? this.surpriseFindValue,
     );
   }
 
@@ -151,6 +204,10 @@ class ScrapyardCar {
       'damageNote': damageNote,
       'parts': parts.map((p) => p.toJson()).toList(),
       'isPurchased': isPurchased,
+      'chassisScrapMetalWeightKg': chassisScrapMetalWeightKg,
+      'chassisScrapValue': chassisScrapValue,
+      'surpriseFindItem': surpriseFindItem,
+      'surpriseFindValue': surpriseFindValue,
     };
   }
 
@@ -168,10 +225,14 @@ class ScrapyardCar {
               .toList() ??
           [],
       isPurchased: json['isPurchased'] as bool? ?? false,
+      chassisScrapMetalWeightKg: json['chassisScrapMetalWeightKg'] as int? ?? 1100,
+      chassisScrapValue: (json['chassisScrapValue'] as num?)?.toDouble() ?? 6600.0,
+      surpriseFindItem: json['surpriseFindItem'] as String?,
+      surpriseFindValue: (json['surpriseFindValue'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
-  /// 12 Categories of Auto Parts Generator
+  /// 12 Categories of Auto Parts Generator with Realistic Turkish Scrapyard Tuning
   static List<SalvagedPart> generateRandomParts(String carName, double carBasePrice) {
     final rand = Random();
     final categories = [
@@ -226,8 +287,236 @@ class ScrapyardCar {
         category: item['cat'] as String,
         conditionPercent: condition,
         tier: tier,
-        estimatedValue: (baseVal.roundToDouble() / 100).round() * 100, // Round to nearest 100
+        estimatedValue: (baseVal.roundToDouble() / 100).round() * 100,
       );
     }).toList();
+  }
+}
+
+class ChassisCrushResult {
+  final bool success;
+  final double scrapMetalEarned;
+  final double surpriseEarned;
+  final String? surpriseItemName;
+  final String message;
+
+  const ChassisCrushResult({
+    required this.success,
+    required this.scrapMetalEarned,
+    required this.surpriseEarned,
+    this.surpriseItemName,
+    required this.message,
+  });
+}
+
+class B2BPartOrder {
+  final String id;
+  final String mechanicName;
+  final String mechanicAvatar;
+  final String requiredCategory;
+  final String? requiredCarBrand;
+  final PartQualityTier minQualityTier;
+  final double offeredPrice;
+  final int reputationReward;
+  final String description;
+  final int expiresInDays;
+  final bool isCompleted;
+
+  IconData get avatarIcon {
+    switch (mechanicAvatar) {
+      case 'haydar':
+        return Icons.engineering_rounded;
+      case 'ibo':
+        return Icons.inventory_2_rounded;
+      case 'berk':
+        return Icons.sports_score_rounded;
+      case 'sahin':
+        return Icons.bolt_rounded;
+      default:
+        return Icons.build_rounded;
+    }
+  }
+
+  const B2BPartOrder({
+    required this.id,
+    required this.mechanicName,
+    this.mechanicAvatar = 'mechanic',
+    required this.requiredCategory,
+    this.requiredCarBrand,
+    required this.minQualityTier,
+    required this.offeredPrice,
+    required this.reputationReward,
+    required this.description,
+    required this.expiresInDays,
+    this.isCompleted = false,
+  });
+
+  B2BPartOrder copyWith({
+    String? id,
+    String? mechanicName,
+    String? mechanicAvatar,
+    String? requiredCategory,
+    String? requiredCarBrand,
+    PartQualityTier? minQualityTier,
+    double? offeredPrice,
+    int? reputationReward,
+    String? description,
+    int? expiresInDays,
+    bool? isCompleted,
+  }) {
+    return B2BPartOrder(
+      id: id ?? this.id,
+      mechanicName: mechanicName ?? this.mechanicName,
+      mechanicAvatar: mechanicAvatar ?? this.mechanicAvatar,
+      requiredCategory: requiredCategory ?? this.requiredCategory,
+      requiredCarBrand: requiredCarBrand ?? this.requiredCarBrand,
+      minQualityTier: minQualityTier ?? this.minQualityTier,
+      offeredPrice: offeredPrice ?? this.offeredPrice,
+      reputationReward: reputationReward ?? this.reputationReward,
+      description: description ?? this.description,
+      expiresInDays: expiresInDays ?? this.expiresInDays,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'mechanicName': mechanicName,
+      'mechanicAvatar': mechanicAvatar,
+      'requiredCategory': requiredCategory,
+      'requiredCarBrand': requiredCarBrand,
+      'minQualityTier': minQualityTier.name,
+      'offeredPrice': offeredPrice,
+      'reputationReward': reputationReward,
+      'description': description,
+      'expiresInDays': expiresInDays,
+      'isCompleted': isCompleted,
+    };
+  }
+
+  factory B2BPartOrder.fromJson(Map<String, dynamic> json) {
+    return B2BPartOrder(
+      id: json['id'] as String? ?? 'order_${DateTime.now().millisecondsSinceEpoch}',
+      mechanicName: json['mechanicName'] as String? ?? 'Sanayi Ustası',
+      mechanicAvatar: json['mechanicAvatar'] as String? ?? 'mechanic',
+      requiredCategory: json['requiredCategory'] as String? ?? 'engine',
+      requiredCarBrand: json['requiredCarBrand'] as String?,
+      minQualityTier: PartQualityTier.values.firstWhere(
+        (e) => e.name == json['minQualityTier'],
+        orElse: () => PartQualityTier.usable,
+      ),
+      offeredPrice: (json['offeredPrice'] as num?)?.toDouble() ?? 15000.0,
+      reputationReward: json['reputationReward'] as int? ?? 5,
+      description: json['description'] as String? ?? 'Acil parça aranıyor.',
+      expiresInDays: json['expiresInDays'] as int? ?? 3,
+      isCompleted: json['isCompleted'] as bool? ?? false,
+    );
+  }
+
+  /// Generate dynamic B2B orders from Sanayi NPCs
+  static List<B2BPartOrder> generateDailyOrders(int day) {
+    final allOrders = [
+      B2BPartOrder(
+        id: 'order_${day}_haydar',
+        mechanicName: 'Haydar Usta (Motor & Mekanik)',
+        mechanicAvatar: 'haydar',
+        requiredCategory: 'transmission',
+        requiredCarBrand: 'Volkswagen',
+        minQualityTier: PartQualityTier.usable,
+        offeredPrice: 36000.0,
+        reputationReward: 6,
+        description: 'Müşterinin Passat aracı liftte askıda kaldı, acil temiz şanzıman aranıyor!',
+        expiresInDays: 3,
+      ),
+      B2BPartOrder(
+        id: 'order_${day}_ibo',
+        mechanicName: 'Çıkmacı İbo (Yedek Parça Deposu)',
+        mechanicAvatar: 'ibo',
+        requiredCategory: 'engine',
+        requiredCarBrand: 'BMW',
+        minQualityTier: PartQualityTier.usable,
+        offeredPrice: 48000.0,
+        reputationReward: 8,
+        description: 'E46 / E90 kasaya uyumlu 6 silindir veya temiz motor bloğu lazım, peşin öderim!',
+        expiresInDays: 4,
+      ),
+      B2BPartOrder(
+        id: 'order_${day}_berk',
+        mechanicName: 'Tuning Berk (Performans Garajı)',
+        mechanicAvatar: 'berk',
+        requiredCategory: 'turbo',
+        requiredCarBrand: null,
+        minQualityTier: PartQualityTier.good,
+        offeredPrice: 28000.0,
+        reputationReward: 5,
+        description: 'Pist projesi için sağlam turbo şarj arıyoruz. Kondisyonu yüksek olmalı!',
+        expiresInDays: 2,
+      ),
+      B2BPartOrder(
+        id: 'order_${day}_sahin',
+        mechanicName: 'Elektrikçi Şahin Usta',
+        mechanicAvatar: 'sahin',
+        requiredCategory: 'ecu',
+        requiredCarBrand: null,
+        minQualityTier: PartQualityTier.usable,
+        offeredPrice: 18000.0,
+        reputationReward: 4,
+        description: 'Beyin arızalı bir araç geldi, sağlam ve temiz bir motor beyni (ECU) aranıyor.',
+        expiresInDays: 3,
+      ),
+      B2BPartOrder(
+        id: 'order_${day}_riza',
+        mechanicName: 'Kaportacı Rıza Usta',
+        mechanicAvatar: 'haydar',
+        requiredCategory: 'seats',
+        requiredCarBrand: 'Mercedes-Benz',
+        minQualityTier: PartQualityTier.good,
+        offeredPrice: 32000.0,
+        reputationReward: 6,
+        description: 'Restorasyondaki W124 için hatasız orijinal deri koltuk takımı arıyorum.',
+        expiresInDays: 4,
+      ),
+      B2BPartOrder(
+        id: 'order_${day}_veli',
+        mechanicName: 'Egzozcu Veli',
+        mechanicAvatar: 'berk',
+        requiredCategory: 'catalytic',
+        requiredCarBrand: null,
+        minQualityTier: PartQualityTier.usable,
+        offeredPrice: 22000.0,
+        reputationReward: 5,
+        description: 'Muayeneden kalan bir araç için orijinal katalitik konvertör lazım, acil.',
+        expiresInDays: 2,
+      ),
+      B2BPartOrder(
+        id: 'order_${day}_selahattin',
+        mechanicName: 'Frenci Selahattin',
+        mechanicAvatar: 'haydar',
+        requiredCategory: 'brakes',
+        requiredCarBrand: 'Audi',
+        minQualityTier: PartQualityTier.good,
+        offeredPrice: 19500.0,
+        reputationReward: 4,
+        description: 'Quattro fren revizyonu için temiz kaliper ve hava kanallı disk takımı.',
+        expiresInDays: 3,
+      ),
+      B2BPartOrder(
+        id: 'order_${day}_kadir',
+        mechanicName: 'Radyatörcü Kadir',
+        mechanicAvatar: 'sahin',
+        requiredCategory: 'radiator',
+        requiredCarBrand: null,
+        minQualityTier: PartQualityTier.usable,
+        offeredPrice: 14000.0,
+        reputationReward: 3,
+        description: 'Hararet yapan ticari minibüs için sağlam çift fanlı radyatör arıyoruz.',
+        expiresInDays: 2,
+      ),
+    ];
+
+    final rand = Random(day * 43 + 89);
+    allOrders.shuffle(rand);
+    return allOrders.take(4).toList();
   }
 }

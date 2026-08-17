@@ -24,6 +24,7 @@ class NightMarketScreen extends ConsumerStatefulWidget {
 
 class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
   String? _selectedCarId;
+  NightRivalModel? _currentRival;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +39,10 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
           (c) => c?.id == _selectedCarId,
           orElse: () => ownedCars.isNotEmpty ? ownedCars.first : null,
         );
+
+    if (selectedCar != null && _currentRival == null) {
+      _currentRival = NightMarketEngine.getMatchedRival(selectedCar);
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0C10),
@@ -112,19 +117,32 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
             )
           else ...[
             // 2. Select Car Section
-            const Text(
-              'YARIŞ ARACINI SEÇ',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-                color: Color(0xFF94A3B8),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'YARIŞ ARACINI SEÇ',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ),
+                Text(
+                  '${ownedCars.length} Araç Mevcut',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
 
             SizedBox(
-              height: 90,
+              height: 100,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -132,15 +150,17 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                 itemBuilder: (context, index) {
                   final car = ownedCars[index];
                   final isSelected = car.id == selectedCar?.id;
+                  final carPower = NightMarketEngine.calculatePlayerPower(car);
 
                   return GestureDetector(
                     onTap: () {
                       setState(() {
                         _selectedCarId = car.id;
+                        _currentRival = NightMarketEngine.getMatchedRival(car);
                       });
                     },
                     child: Container(
-                      width: 160,
+                      width: 165,
                       margin: const EdgeInsets.only(right: 10),
                       child: NeoBrutalCard(
                         padding: const EdgeInsets.all(10),
@@ -162,13 +182,39 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              'Motor: %${car.expertise.engineCondition.round()}',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.brutalGreen,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Motor: %${car.expertise.engineCondition.round()}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.brutalGreen,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.brutalYellow.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: AppColors.brutalYellow, width: 1),
+                                  ),
+                                  child: Text(
+                                    '$carPower HP',
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColors.brutalYellow,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -190,6 +236,27 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
 
   Widget _buildRaceDuelCard(BuildContext context, CarModel car) {
     final dailyRacesRemaining = ref.watch(gameProvider.select((g) => g.dailyRacesRemaining));
+    final rival = _currentRival ?? NightMarketEngine.getMatchedRival(car);
+    final playerPower = NightMarketEngine.calculatePlayerPower(car);
+    final winChance = NightMarketEngine.estimateWinChance(car, rival);
+
+    final winChanceColor = winChance >= 65
+        ? AppColors.brutalGreen
+        : (winChance >= 45 ? AppColors.brutalYellow : AppColors.errorRed);
+
+    final winStatusText = winChance >= 70
+        ? 'Avantajlısın'
+        : (winChance >= 55
+            ? 'Hafif Üstünsün'
+            : (winChance >= 45 ? 'Denk Mücadele' : 'Zorlu Rakip'));
+
+    String prizeRangeText = '₺20.000 - ₺35.000 (+4 İtibar)';
+    if (rival.tier == 2) {
+      prizeRangeText = '₺40.000 - ₺65.000 (+6 İtibar)';
+    } else if (rival.tier == 3) {
+      prizeRangeText = '₺75.000 - ₺120.000 (+10 İtibar)';
+    }
+
     return NeoBrutalCard(
       padding: const EdgeInsets.all(16),
       backgroundColor: const Color(0xFF161922),
@@ -222,8 +289,8 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                 fontSize: 10,
               ),
               const SizedBox(width: 4),
-              const NeoBrutalBadge(
-                text: 'GECE MEZATI',
+              NeoBrutalBadge(
+                text: rival.badge,
                 backgroundColor: AppColors.brutalPink,
                 textColor: Colors.white,
                 fontSize: 10,
@@ -259,7 +326,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
                       ),
                       Text(
-                        'Kondisyon: %${car.expertise.engineCondition.round()}',
+                        'Güç: $playerPower HP (Kond: %${car.expertise.engineCondition.round()})',
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                       ),
                     ],
@@ -279,25 +346,87 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    children: const [
+                    children: [
                       Text(
-                        'SANAYİ RAKİBİ',
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
+                        rival.title.toUpperCase(),
+                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        'E30 Turbo Dragster',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
+                        rival.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
                       ),
                       Text(
-                        'Stage 2 Modifiyeli',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalYellow),
+                        '${rival.carName} (~${rival.basePower} HP)',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalYellow),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 10),
+
+          // Odds & Matchmaking Analytics
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: winChanceColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: winChanceColor.withValues(alpha: 0.6), width: 1.5),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.query_stats_rounded, size: 16, color: winChanceColor),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Kazanma Tahmini: %$winChance ($winStatusText)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: winChanceColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _currentRival = NightMarketEngine.getRandomRivalForTier(rival.tier, excludeId: rival.id);
+                  });
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF262C3D),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF475569), width: 1.0),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
+                      SizedBox(width: 4),
+                      Text(
+                        'Rakip Değiş',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
 
@@ -312,9 +441,9 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                     'KAZANILACAK ÖDÜL (GİRİŞ: ${CurrencyFormatter.format(GameConstants.nightRaceEntryFee)})',
                     style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
                   ),
-                  const Text(
-                    '₺25.000 - ₺60.000 (+5 İtibar)',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                  Text(
+                    prizeRangeText,
+                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                   ),
                 ],
               ),
@@ -324,8 +453,11 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                 textColor: Colors.white,
                 onPressed: dailyRacesRemaining > 0
                     ? () {
-                        final result = ref.read(gameProvider.notifier).enterNightRace(car);
+                        final result = ref.read(gameProvider.notifier).enterNightRace(car, rival: rival);
                         _showRaceResultDialog(context, result);
+                        setState(() {
+                          _currentRival = NightMarketEngine.getMatchedRival(car);
+                        });
                       }
                     : null,
               ),

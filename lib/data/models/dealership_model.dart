@@ -90,6 +90,10 @@ class DealershipModel {
   final List<SideBusinessModel> sideBusinesses;
   final List<StockModel> marketStocks;
   final List<PlayerStockModel> ownedStocks;
+  final List<PlayerForexModel> ownedForex;
+  final List<ForexGoldModel> marketForex;
+  final List<IpoOfferModel> activeIpos;
+  final List<PlayerIpoRequestModel> playerIpoRequests;
   final List<GameEventModel> recentEvents;
   final double dailyTaxRate;
 
@@ -98,6 +102,7 @@ class DealershipModel {
   final List<SalvagedPart> salvagedParts;
   final List<ScrapyardCar> scrapyardCars;
   final List<BlackMarketCarModel> blackMarketCars;
+  final List<B2BPartOrder> b2bPartOrders;
 
   final Set<String> unlockedBuildings;
 
@@ -298,6 +303,15 @@ class DealershipModel {
     }
   }
 
+  // Showroom Decor & Architecture RPG Helpers
+  bool hasDecor(String decorId) => unlockedDecorIds.contains(decorId);
+  int get unlockedDecorCount => unlockedDecorIds.length;
+  double get negotiationPersuasionBonusPercent => hasDecor('decor_leather_chair_desk') ? 4.0 : 0.0;
+  double get buyerWalkawayReductionPercent => hasDecor('decor_tesbih_lighter_stand') ? 20.0 : 0.0;
+  double get consignmentDemandBonusPercent => hasDecor('decor_copper_samovar') ? 25.0 : 0.0;
+  double get cashSaleProfitBonusMultiplier => hasDecor('decor_money_counter_safe') ? 1.02 : 1.0;
+  bool get hasFullSecurityProtection => hasDecor('decor_security_cctv') || hasDecor('decor_laser_alarm_system');
+
   int getNpcRelation(String npcId) {
     return npcRelationships[npcId] ?? 50;
   }
@@ -402,6 +416,42 @@ class DealershipModel {
     }
   }
 
+  static String getBranchNameForTier(int tier) {
+    switch (tier) {
+      case 1:
+        return 'Kaldırım Başı Ayakçı Galerisi (Seviye 1)';
+      case 2:
+        return 'Mahalle Tipi Açık Oto Galeri (Seviye 2)';
+      case 3:
+        return 'Sanayi Sitesi Esnaf Galerisi (Seviye 3)';
+      case 4:
+        return 'Cadde Üstü Butik Oto Galeri (Seviye 4)';
+      case 5:
+        return 'Oto Center Kurumsal Galeri (Seviye 5)';
+      case 6:
+        return 'Premium Cam Showroom Plaza (Seviye 6)';
+      case 7:
+        return 'Lüks Koleksiyoner VIP Galeri (Seviye 7)';
+      case 8:
+        return 'Mega Otomotiv Holding Plazası (Seviye 8)';
+      default:
+        return 'Kaldırım Başı Ayakçı Galerisi (Seviye 1)';
+    }
+  }
+
+  int get currentBranchTier {
+    if (unlockedBuildings.contains('property_tier_8')) return 8;
+    if (unlockedBuildings.contains('property_tier_7')) return 7;
+    if (unlockedBuildings.contains('property_tier_6')) return 6;
+    if (unlockedBuildings.contains('property_tier_5')) return 5;
+    if (unlockedBuildings.contains('property_tier_4')) return 4;
+    if (unlockedBuildings.contains('property_tier_3')) return 3;
+    if (unlockedBuildings.contains('property_tier_2')) return 2;
+    return 1;
+  }
+
+  String get currentBranchName => getBranchNameForTier(currentBranchTier);
+
   bool isFeatureUnlocked(String route) {
     if (route == '/gossip' || route == '/consignment' || route == '/night-market') {
       return true;
@@ -443,12 +493,17 @@ class DealershipModel {
     this.sideBusinesses = const [],
     this.marketStocks = const [],
     this.ownedStocks = const [],
+    this.ownedForex = const [],
+    this.marketForex = const [],
+    this.activeIpos = const [],
+    this.playerIpoRequests = const [],
     this.recentEvents = const [],
     this.dailyTaxRate = 150.0,
     this.activeNews,
     this.salvagedParts = const [],
     this.scrapyardCars = const [],
     this.blackMarketCars = const [],
+    this.b2bPartOrders = const [],
     this.unlockedBuildings = const {},
     this.seenStoryCardIds = const [],
     this.daysSinceLastStoryAd = 0,
@@ -785,6 +840,10 @@ class DealershipModel {
       ],
       marketStocks: StockModel.defaultStocks,
       ownedStocks: const [],
+      ownedForex: const [],
+      marketForex: ForexGoldModel.defaultForex,
+      activeIpos: IpoOfferModel.defaultIpos(1),
+      playerIpoRequests: const [],
       recentEvents: const [],
       dailyTaxRate: 150.0,
       unlockedBuildings: const {
@@ -837,12 +896,17 @@ class DealershipModel {
       'sideBusinesses': sideBusinesses.map((e) => e.toJson()).toList(),
       'marketStocks': marketStocks.map((e) => e.toJson()).toList(),
       'ownedStocks': ownedStocks.map((e) => e.toJson()).toList(),
+      'ownedForex': ownedForex.map((f) => f.toJson()).toList(),
+      'marketForex': marketForex.map((f) => f.toJson()).toList(),
+      'activeIpos': activeIpos.map((i) => i.toJson()).toList(),
+      'playerIpoRequests': playerIpoRequests.map((r) => r.toJson()).toList(),
       'recentEvents': recentEvents.map((e) => e.toJson()).toList(),
       'dailyTaxRate': dailyTaxRate,
       'activeNews': activeNews?.toJson(),
       'salvagedParts': salvagedParts.map((p) => p.toJson()).toList(),
       'scrapyardCars': scrapyardCars.map((c) => c.toJson()).toList(),
       'blackMarketCars': blackMarketCars.map((c) => c.toJson()).toList(),
+      'b2bPartOrders': b2bPartOrders.map((o) => o.toJson()).toList(),
       'unlockedBuildings': unlockedBuildings.toList(),
       'seenStoryCardIds': seenStoryCardIds,
       'daysSinceLastStoryAd': daysSinceLastStoryAd,
@@ -949,12 +1013,21 @@ class DealershipModel {
           ? parseList(json['marketStocks'] as List<dynamic>?, StockModel.fromJson)
           : DealershipModel.initial().marketStocks,
       ownedStocks: parseList(json['ownedStocks'] as List<dynamic>?, PlayerStockModel.fromJson),
+      ownedForex: parseList(json['ownedForex'] as List<dynamic>?, PlayerForexModel.fromJson),
+      marketForex: parseList(json['marketForex'] as List<dynamic>?, ForexGoldModel.fromJson).isNotEmpty
+          ? parseList(json['marketForex'] as List<dynamic>?, ForexGoldModel.fromJson)
+          : ForexGoldModel.defaultForex,
+      activeIpos: parseList(json['activeIpos'] as List<dynamic>?, IpoOfferModel.fromJson).isNotEmpty
+          ? parseList(json['activeIpos'] as List<dynamic>?, IpoOfferModel.fromJson)
+          : IpoOfferModel.defaultIpos(1),
+      playerIpoRequests: parseList(json['playerIpoRequests'] as List<dynamic>?, PlayerIpoRequestModel.fromJson),
       recentEvents: parseList(json['recentEvents'] as List<dynamic>?, GameEventModel.fromJson),
       dailyTaxRate: (json['dailyTaxRate'] as num?)?.toDouble() ?? 150.0,
       activeNews: json['activeNews'] is Map ? MarketNewsModel.fromJson(Map<String, dynamic>.from(json['activeNews'] as Map)) : null,
       salvagedParts: parseList(json['salvagedParts'] as List<dynamic>?, SalvagedPart.fromJson),
       scrapyardCars: parseList(json['scrapyardCars'] as List<dynamic>?, ScrapyardCar.fromJson),
       blackMarketCars: parseList(json['blackMarketCars'] as List<dynamic>?, BlackMarketCarModel.fromJson),
+      b2bPartOrders: parseList(json['b2bPartOrders'] as List<dynamic>?, B2BPartOrder.fromJson),
       unlockedBuildings: (json['unlockedBuildings'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {
         '/marketplace',
         '/showroom',
@@ -1103,12 +1176,17 @@ class DealershipModel {
     List<SideBusinessModel>? sideBusinesses,
     List<StockModel>? marketStocks,
     List<PlayerStockModel>? ownedStocks,
+    List<PlayerForexModel>? ownedForex,
+    List<ForexGoldModel>? marketForex,
+    List<IpoOfferModel>? activeIpos,
+    List<PlayerIpoRequestModel>? playerIpoRequests,
     List<GameEventModel>? recentEvents,
     double? dailyTaxRate,
     MarketNewsModel? activeNews,
     List<SalvagedPart>? salvagedParts,
     List<ScrapyardCar>? scrapyardCars,
     List<BlackMarketCarModel>? blackMarketCars,
+    List<B2BPartOrder>? b2bPartOrders,
     Set<String>? unlockedBuildings,
     List<String>? seenStoryCardIds,
     int? daysSinceLastStoryAd,
@@ -1192,12 +1270,17 @@ class DealershipModel {
       sideBusinesses: sideBusinesses ?? this.sideBusinesses,
       marketStocks: marketStocks ?? this.marketStocks,
       ownedStocks: ownedStocks ?? this.ownedStocks,
+      ownedForex: ownedForex ?? this.ownedForex,
+      marketForex: marketForex ?? this.marketForex,
+      activeIpos: activeIpos ?? this.activeIpos,
+      playerIpoRequests: playerIpoRequests ?? this.playerIpoRequests,
       recentEvents: recentEvents ?? this.recentEvents,
       dailyTaxRate: dailyTaxRate ?? this.dailyTaxRate,
       activeNews: activeNews ?? this.activeNews,
       salvagedParts: salvagedParts ?? this.salvagedParts,
       scrapyardCars: scrapyardCars ?? this.scrapyardCars,
       blackMarketCars: blackMarketCars ?? this.blackMarketCars,
+      b2bPartOrders: b2bPartOrders ?? this.b2bPartOrders,
       unlockedBuildings: unlockedBuildings ?? this.unlockedBuildings,
       seenStoryCardIds: seenStoryCardIds ?? this.seenStoryCardIds,
       daysSinceLastStoryAd: daysSinceLastStoryAd ?? this.daysSinceLastStoryAd,

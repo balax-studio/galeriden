@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -12,13 +13,14 @@ import '../../../providers/game_provider.dart';
 import '../../../widgets/floating_money_overlay.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
+import '../../../widgets/neo_brutal_card.dart';
 
 /// Centralized Modals & Bottom Sheets for Dashboard Retention Mechanics
 class DashboardRetentionModals {
   DashboardRetentionModals._();
 
   /// Offline Progression Recap Dialog
-  static void showOfflineRecapModal(BuildContext context, Map<String, dynamic> recap) {
+  static void showOfflineRecapModal(BuildContext context, Map<String, dynamic> recap, {WidgetRef? ref}) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final isDark = themeExt.palette.isDark;
 
@@ -28,86 +30,95 @@ class DashboardRetentionModals {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF00E575), width: 2.4),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00E575),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.wb_sunny_rounded, color: Colors.black, size: 22),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                recap['title'] as String? ?? 'YOKLUĞUNDA NELER OLDU?',
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (earnedIncome > 0) ...[
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF00E575), width: 1.2),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Kazanılan Pasif Gelir:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text(
-                      '+${CurrencyFormatter.format(earnedIncome)}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(18),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: const Color(0xFF00E575),
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00E575),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
                     ),
-                  ],
-                ),
+                    child: const Icon(Icons.wb_sunny_rounded, color: Colors.black, size: 22),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      recap['title'] as String? ?? 'YOKLUĞUNDA NELER OLDU?',
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
-            ],
-            ...bulletPoints.map(
-              (bp) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  bp,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+              if (earnedIncome > 0) ...[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF00E575), width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Kazanılan Pasif Gelir:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text(
+                        '+${CurrencyFormatter.format(earnedIncome)}',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              ...bulletPoints.map(
+                (bp) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    bp,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          NeoBrutalButton(
-            label: 'Ödülleri Topla & Başla',
-            icon: Icons.check_circle_rounded,
-            backgroundColor: const Color(0xFF00E575),
-            textColor: Colors.black,
-            fullWidth: true,
-            onPressed: () {
-              Navigator.pop(ctx);
-              if (earnedIncome > 0) {
-                FloatingMoneyOverlay.of(context)?.showMoneyPopUp(earnedIncome, label: 'Pasif Gelir!');
-              }
-            },
+              const SizedBox(height: 16),
+              NeoBrutalButton(
+                label: 'Ödülleri Topla & Başla',
+                icon: Icons.check_circle_rounded,
+                backgroundColor: const Color(0xFF00E575),
+                textColor: Colors.black,
+                fullWidth: true,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  if (earnedIncome > 0) {
+                    FloatingMoneyOverlay.of(context)?.showMoneyPopUp(earnedIncome, label: 'Kazanılan Pasif Gelir!');
+                  }
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -131,56 +142,70 @@ class DashboardRetentionModals {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A), width: 2),
-        ),
-        title: Text(
-          openLoops['title'] as String? ?? 'DÖNÜŞÜNÜ BEKLEYENLER',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 16,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...((openLoops['items'] as List<String>?) ?? []).map(
-              (bp) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  bp,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(18),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                openLoops['title'] as String? ?? 'DÖNÜŞÜNÜ BEKLEYENLER',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...((openLoops['items'] as List<String>?) ?? []).map(
+                (bp) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    bp,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: 'Oyunda Kal',
+                      backgroundColor: const Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: 'Çıkış Yap',
+                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          NeoBrutalButton(
-            label: 'Oyunda Kal',
-            backgroundColor: const Color(0xFFFFDE59),
-            textColor: Colors.black,
-            onPressed: () => Navigator.pop(ctx),
-          ),
-          NeoBrutalButton(
-            label: 'Çıkış Yap',
-            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-            textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
-            onPressed: () {
-              Navigator.pop(ctx);
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
       ),
     );
   }
@@ -194,90 +219,95 @@ class DashboardRetentionModals {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFFFDE59), width: 2.5),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFDE59),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                  width: 2.0,
-                ),
-              ),
-              child: const Icon(Icons.card_giftcard_rounded, color: Colors.black, size: 22),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                gift['title'] as String,
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF9C3),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFFFDE59), width: 2.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(18),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: const Color(0xFFFFDE59),
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    gift['sender'] as String,
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFFD97706)),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFDE59),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
+                    ),
+                    child: const Icon(Icons.card_giftcard_rounded, color: Colors.black, size: 22),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '"${gift['message']}"',
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontStyle: FontStyle.italic,
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      gift['title'] as String,
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Hediye İçeriği:',
-              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            const Text('• ₺15.000 Dükkan Açılış Hibe Desteği', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00E575))),
-            const Text('• 1 Adet Ücretsiz Tam Kapsamlı Ekspertiz Çeki', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF38BDF8))),
-          ],
-        ),
-        actions: [
-          NeoBrutalButton(
-            label: 'Hediyeyi Kabul Et & Başla',
-            icon: Icons.check_circle_rounded,
-            backgroundColor: const Color(0xFFFFDE59),
-            textColor: Colors.black,
-            fullWidth: true,
-            onPressed: () {
-              ref.read(gameProvider.notifier).addMoney(gift['bonusMoney'] as double);
-              ref.read(gameProvider.notifier).addXP(100);
-              Navigator.pop(ctx);
-              FloatingMoneyOverlay.of(context)?.showMoneyPopUp(gift['bonusMoney'] as double, label: 'Haydar Usta Hibesi!');
-            },
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF9C3),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFFDE59), width: 2.0),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      gift['sender'] as String,
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFFD97706)),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '"${gift['message']}"',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontStyle: FontStyle.italic,
+                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Hediye İçeriği:',
+                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              const Text('• ₺15.000 Dükkan Açılış Hibe Desteği', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00E575))),
+              const Text('• 1 Adet Ücretsiz Tam Kapsamlı Ekspertiz Çeki', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF38BDF8))),
+              const SizedBox(height: 16),
+              NeoBrutalButton(
+                label: 'Hediyeyi Kabul Et & Başla',
+                icon: Icons.check_circle_rounded,
+                backgroundColor: const Color(0xFFFFDE59),
+                textColor: Colors.black,
+                fullWidth: true,
+                onPressed: () {
+                  ref.read(gameProvider.notifier).addMoney(gift['bonusMoney'] as double);
+                  ref.read(gameProvider.notifier).addXP(100);
+                  Navigator.pop(ctx);
+                  FloatingMoneyOverlay.of(context)?.showMoneyPopUp(gift['bonusMoney'] as double, label: 'Haydar Usta Hibesi!');
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -289,82 +319,87 @@ class DashboardRetentionModals {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: Color(0xFFFFDE59), width: 2.5),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFDE59),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                  width: 2.0,
-                ),
-              ),
-              child: const Icon(Icons.military_tech_rounded, color: Colors.black, size: 28),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(18),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: const Color(0xFFFFDE59),
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  const Text('SEVİYE ATLADIN!', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFF59E0B))),
-                  Text('SEVİYE $newLevel', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Tebrikler! Galericilik kariyerinde Seviye $newLevel kademesine ulaştın. Yeni iş kolları, yetenek puanı ve prestijli araç fırsatları açıldı!',
-              style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF00E575), width: 2.0),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.star_rounded, color: Color(0xFF00E575), size: 18),
-                  SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFDE59),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
+                    ),
+                    child: const Icon(Icons.military_tech_rounded, color: Colors.black, size: 28),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      '+1 Yetenek Puanı & Yeni Binalar Kullanıma Hazır!',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('SEVİYE ATLADIN!', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFF59E0B))),
+                        Text('SEVİYE $newLevel', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-        actions: [
-          NeoBrutalButton(
-            label: 'ŞİMDİ KEŞFET',
-            icon: Icons.rocket_launch_rounded,
-            backgroundColor: const Color(0xFFFFDE59),
-            textColor: Colors.black,
-            fullWidth: true,
-            onPressed: () {
-              Navigator.pop(ctx);
-              onExplore?.call();
-            },
+              const SizedBox(height: 12),
+              Text(
+                'Tebrikler! Galericilik kariyerinde Seviye $newLevel kademesine ulaştın. Yeni iş kolları, yetenek puanı ve prestijli araç fırsatları açıldı!',
+                style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF00E575), width: 2.0),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.star_rounded, color: Color(0xFF00E575), size: 18),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '+1 Yetenek Puanı & Yeni Binalar Kullanıma Hazır!',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              NeoBrutalButton(
+                label: 'ŞİMDİ KEŞFET',
+                icon: Icons.rocket_launch_rounded,
+                backgroundColor: const Color(0xFFFFDE59),
+                textColor: Colors.black,
+                fullWidth: true,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onExplore?.call();
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -708,6 +743,7 @@ class DashboardRetentionModals {
   }
 
   static Widget _buildMilestoneRow(int targetCount, String title, String reward, bool isUnlocked, bool isDark) {
+    final mutedColor = isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -724,7 +760,7 @@ class DashboardRetentionModals {
         children: [
           Icon(
             isUnlocked ? Icons.check_circle_rounded : Icons.lock_outline_rounded,
-            color: isUnlocked ? const Color(0xFF10B981) : Colors.grey,
+            color: isUnlocked ? const Color(0xFF10B981) : mutedColor,
             size: 18,
           ),
           const SizedBox(width: 8),
@@ -737,14 +773,14 @@ class DashboardRetentionModals {
                   style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.bold,
-                    color: isUnlocked ? (isDark ? Colors.white : const Color(0xFF0F172A)) : Colors.grey,
+                    color: isUnlocked ? (isDark ? Colors.white : const Color(0xFF0F172A)) : mutedColor,
                   ),
                 ),
                 Text(
                   reward,
                   style: TextStyle(
                     fontSize: 10,
-                    color: isUnlocked ? const Color(0xFF10B981) : Colors.grey,
+                    color: isUnlocked ? const Color(0xFF10B981) : mutedColor,
                   ),
                 ),
               ],
@@ -769,89 +805,108 @@ class DashboardRetentionModals {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFFFDE59), width: 2.4),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFDE59),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.stars_rounded, color: Colors.black, size: 22),
-            ),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: Text(
-                'GALERİYİ DEVRET (YENİ SEZON)',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Galerini yüksek kârla bir holdinge devrederek yeni sezona başlayabilirsin.',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF3C7),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFFFDE59), width: 1.2),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(18),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: const Color(0xFFFFDE59),
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.workspace_premium_rounded, size: 14, color: Color(0xFFD97706)),
-                      SizedBox(width: 4),
-                      Text('Kalıcı Sezon Kazanımları:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5)),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFDE59),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
+                    ),
+                    child: const Icon(Icons.stars_rounded, color: Colors.black, size: 22),
                   ),
-                  const SizedBox(height: 4),
-                  Text('• +%15 Kalıcı Satış Kâr Çarpanı (Mevcut: Sezon ${game.prestigeLevel})', style: const TextStyle(fontSize: 11)),
-                  const Text('• ₺150.000 Başlangıç Can Suyu Kasası', style: TextStyle(fontSize: 11)),
-                  const Text('• Tüm Yetenekler & Başarımlar Korunur', style: TextStyle(fontSize: 11)),
-                  const Text('• Araç ve bakiye sıfırlanır, yeni efsane başlar', style: TextStyle(fontSize: 11, color: Colors.red)),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'GALERİYİ DEVRET (YENİ SEZON)',
+                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              const Text(
+                'Galerini yüksek kârla bir holdinge devrederek yeni sezona başlayabilirsin.',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFFDE59), width: 1.5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.workspace_premium_rounded, size: 14, color: Color(0xFFD97706)),
+                        SizedBox(width: 4),
+                        Text('Kalıcı Sezon Kazanımları:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text('• +%15 Kalıcı Satış Kâr Çarpanı (Mevcut: Sezon ${game.prestigeLevel})', style: const TextStyle(fontSize: 11)),
+                    const Text('• ₺150.000 Başlangıç Can Suyu Kasası', style: TextStyle(fontSize: 11)),
+                    const Text('• Tüm Yetenekler & Başarımlar Korunur', style: TextStyle(fontSize: 11)),
+                    const Text('• Araç ve bakiye sıfırlanır, yeni efsane başlar', style: TextStyle(fontSize: 11, color: AppColors.errorRed)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: 'Vazgeç',
+                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 2,
+                    child: NeoBrutalButton(
+                      label: 'Galeriyi Devret (Sezon Başlat)',
+                      icon: Icons.rocket_launch_rounded,
+                      backgroundColor: const Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ref.read(gameProvider.notifier).performPrestige();
+                        NotificationService.showSuccess(
+                          context,
+                          'Yeni sezona başladın! Sezon çarpanın yükseldi ve ₺150.000 eklendi.',
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          NeoBrutalButton(
-            label: 'Vazgeç',
-            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-            textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
-            onPressed: () => Navigator.pop(ctx),
-          ),
-          NeoBrutalButton(
-            label: 'Galeriyi Devret (Sezon Başlat)',
-            icon: Icons.rocket_launch_rounded,
-            backgroundColor: const Color(0xFFFFDE59),
-            textColor: Colors.black,
-            onPressed: () {
-              Navigator.pop(ctx);
-              ref.read(gameProvider.notifier).performPrestige();
-              NotificationService.showSuccess(
-                context,
-                'Yeni sezona başladın! Sezon çarpanın yükseldi ve ₺150.000 eklendi.',
-              );
-            },
-          ),
-        ],
       ),
     );
   }

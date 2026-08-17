@@ -5,31 +5,12 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/tuning_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
-
-class TuningStudioOption {
-  final String id;
-  final String title;
-  final String description;
-  final double cost;
-  final double valueMultiplier;
-  final IconData icon;
-  final Color color;
-
-  const TuningStudioOption({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.cost,
-    required this.valueMultiplier,
-    required this.icon,
-    required this.color,
-  });
-}
 
 class TuningStudioScreen extends ConsumerStatefulWidget {
   const TuningStudioScreen({super.key});
@@ -40,63 +21,193 @@ class TuningStudioScreen extends ConsumerStatefulWidget {
 
 class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
   CarModel? _selectedCar;
+  int _selectedTabIndex = 0; // 0: Tümü, 1: Motor, 2: Aero, 3: Yürüyen, 4: Egzoz, 5: Hazır Paketler
 
-  final List<TuningStudioOption> _tuningOptions = const [
-    TuningStudioOption(
-      id: 'tune_ecu_stg1',
-      title: 'Stage 1 ECU Beyin Yazılımı',
-      description: 'Motor beyin haritasını güncelleyerek +45 BG güç kazanımı sağla.',
-      cost: 15000,
-      valueMultiplier: 1.12,
-      icon: Icons.memory_rounded,
-      color: AppColors.brutalYellow,
-    ),
-    TuningStudioOption(
-      id: 'tune_ecu_stg2',
-      title: 'Stage 2 Performans & Downpipe',
-      description: 'Açık hava filtresi ve paslanmaz downpipe ile tam performans yükle.',
-      cost: 35000,
-      valueMultiplier: 1.25,
-      icon: Icons.speed_rounded,
-      color: AppColors.errorRed,
-    ),
-    TuningStudioOption(
-      id: 'tune_exhaust',
-      title: 'Varex Kumandalı Egzoz Sistemi',
-      description: 'Çift çıkış kumandalı performans egzozu ile araç çekiciliğini artır.',
-      cost: 22000,
-      valueMultiplier: 1.15,
-      icon: Icons.minor_crash_rounded,
-      color: AppColors.brutalOrange,
-    ),
-    TuningStudioOption(
-      id: 'tune_bodykit',
-      title: 'Karbon Fiber Aero Bodykit & Spoyler',
-      description: 'Ön karlık, yan marşpiyel ve karbon difüzör takımı.',
-      cost: 45000,
-      valueMultiplier: 1.30,
-      icon: Icons.auto_awesome_rounded,
-      color: Color(0xFFA855F7),
-    ),
-    TuningStudioOption(
-      id: 'tune_rims',
-      title: '20" Dövme Alaşım Spor Jant Takımı',
-      description: 'Lüks hafif alaşım jantlar ve alçak profil performans lastikleri.',
-      cost: 28000,
-      valueMultiplier: 1.18,
-      icon: Icons.tire_repair_rounded,
-      color: Color(0xFF06B6D4),
-    ),
-    TuningStudioOption(
-      id: 'tune_air_suspension',
-      title: 'Air Ride Havalı Süspansiyon Kiti',
-      description: 'Bağımsız körüklü uzaktan kumandalı basık süspansiyon sistemi.',
-      cost: 55000,
-      valueMultiplier: 1.35,
-      icon: Icons.tune_rounded,
-      color: AppColors.brutalGreen,
-    ),
-  ];
+  void _runDynoSimulation(BuildContext context, CarDynoStats dyno) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(20),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            borderRadius: 12,
+            borderWidth: 2.5,
+            shadowOffset: const Offset(4, 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.speed_rounded, color: AppColors.brutalYellow, size: 24),
+                    SizedBox(width: 8),
+                    Text(
+                      'DYNO GÜÇ TESTİ',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${_selectedCar!.brand} ${_selectedCar!.modelName}',
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildDynoStatColumn('BEYGİR GÜCÜ', '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen),
+                          _buildDynoStatColumn('TORK', '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildDynoStatColumn('0-100 KM/S', '${dyno.currentAccel}s', '${dyno.baseAccel}s idi', const Color(0xFF06B6D4)),
+                          _buildDynoStatColumn('EGZOZ SESİ', '${dyno.exhaustDb} dB', dyno.exhaustDb > 95 ? 'YÜKSEK' : 'KONTROLLÜ', const Color(0xFFA855F7)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Dinamometre ölçümü tamamlandı. Güç ve tork eğrisi sisteme kaydedildi.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 16),
+                NeoBrutalButton(
+                  label: 'RAPORU KAPAT',
+                  backgroundColor: AppColors.brutalYellow,
+                  textColor: Colors.black,
+                  fullWidth: true,
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _buildDynoStatColumn(String label, String mainVal, String subVal, Color color) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+        const SizedBox(height: 2),
+        Text(mainVal, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color)),
+        Text(subVal, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+      ],
+    );
+  }
+
+  void _applyTuningOption(TuningOptionModel opt) {
+    final game = ref.read(gameProvider);
+    if (game.balance < opt.cost) {
+      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
+      return;
+    }
+
+    final newMarketValue = _selectedCar!.baseMarketValue * opt.valueMultiplier;
+    final updatedCar = _selectedCar!.copyWith(
+      baseMarketValue: newMarketValue,
+      appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, opt.id],
+    );
+    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
+
+    setState(() {
+      _selectedCar = updatedCar;
+    });
+
+    NotificationService.showSuccess(
+      context,
+      '${opt.title} uygulandı! (+${opt.hpGain > 0 ? '${opt.hpGain} HP • ' : ''}${CurrencyFormatter.formatShort(newMarketValue)})',
+    );
+  }
+
+  void _applyPresetBuild(TuningPresetBuild preset) {
+    final game = ref.read(gameProvider);
+    final discountedCost = preset.getDiscountedCost();
+
+    if (game.balance < discountedCost) {
+      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.format(discountedCost)} gerekli.');
+      return;
+    }
+
+    // Apply all unapplied options
+    final newOptionIds = Set<String>.from(_selectedCar!.appliedDetailingOptionIds)..addAll(preset.optionIds);
+    double valueMultiplier = 1.0;
+    for (final id in preset.optionIds) {
+      final opt = TuningCatalog.allOptions.where((o) => o.id == id);
+      if (opt.isNotEmpty) {
+        valueMultiplier *= opt.first.valueMultiplier;
+      }
+    }
+
+    final newMarketValue = _selectedCar!.baseMarketValue * (valueMultiplier.clamp(1.0, 1.75));
+    final updatedCar = _selectedCar!.copyWith(
+      baseMarketValue: newMarketValue,
+      appliedDetailingOptionIds: newOptionIds.toList(),
+    );
+
+    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, discountedCost);
+
+    setState(() {
+      _selectedCar = updatedCar;
+    });
+
+    NotificationService.showSuccess(
+      context,
+      '${preset.title} %15 indirimle uygulandı! Araç Pazar Değeri: ${CurrencyFormatter.formatShort(newMarketValue)}',
+    );
+  }
+
+  void _applyLegalProject() {
+    const certCost = 4500.0;
+    final game = ref.read(gameProvider);
+    if (game.balance < certCost) {
+      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.format(certCost)} gerekli.');
+      return;
+    }
+
+    final updatedCar = _selectedCar!.copyWith(
+      baseMarketValue: _selectedCar!.baseMarketValue * 1.05,
+      appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, 'tune_legal_project_cert'],
+    );
+
+    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, certCost);
+
+    setState(() {
+      _selectedCar = updatedCar;
+    });
+
+    NotificationService.showSuccess(
+      context,
+      'Mühendislik projesi onaylandı! Araç TÜVTÜRK & Ruhsata işlendi (+%5 Değer).',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +219,37 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     if (_selectedCar != null && !ownedCars.any((c) => c.id == _selectedCar!.id)) {
       _selectedCar = null;
+    } else if (_selectedCar != null) {
+      _selectedCar = ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
+    }
+
+    final dyno = _selectedCar != null ? CarDynoCalculator.calculateDyno(_selectedCar!) : null;
+
+    final tabs = [
+      (label: 'TÜMÜ (${TuningCatalog.allOptions.length})', icon: Icons.tune_rounded),
+      (label: 'MOTOR', icon: Icons.speed_rounded),
+      (label: 'AERO', icon: Icons.palette_rounded),
+      (label: 'YÜRÜYEN', icon: Icons.directions_car_rounded),
+      (label: 'EGZOZ', icon: Icons.volume_up_rounded),
+      (label: 'PAKETLER', icon: Icons.inventory_2_rounded),
+    ];
+
+    List<TuningOptionModel> visibleOptions;
+    switch (_selectedTabIndex) {
+      case 1:
+        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.powertrain);
+        break;
+      case 2:
+        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.aero);
+        break;
+      case 3:
+        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.stance);
+        break;
+      case 4:
+        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.exhaust);
+        break;
+      default:
+        visibleOptions = TuningCatalog.allOptions;
     }
 
     return Scaffold(
@@ -145,12 +287,12 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'VIP TUNİNG & GÜÇ YÜKLEME',
+                        'VIP PERFORMANS & MODİFİYE ATÖLYESİ',
                         style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'Araçlara özel performans yazılımı ve bodykit ekleyerek değerlerini %35\'e kadar artırın.',
+                        'Stage yazılımlar, aero bodykit ve egzoz sistemleri ile araçlarınızı pist canavarına dönüştürün.',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
@@ -163,7 +305,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
           // 2. Car Selector
           Text(
-            'TUNİNG YAPILACAK ARACI SEÇ',
+            'MODİFİYE EDİLECEK ARACI SEÇ',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -199,7 +341,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   return GestureDetector(
                     onTap: () => setState(() => _selectedCar = car),
                     child: Container(
-                      width: 150,
+                      width: 160,
                       margin: const EdgeInsets.only(right: 10),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -227,7 +369,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            CurrencyFormatter.formatShort(car.currentPurchasePrice),
+                            CurrencyFormatter.formatShort(car.baseMarketValue),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
@@ -243,136 +385,365 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             ),
           const SizedBox(height: 16),
 
-          // 3. Tuning Modules
-          if (_selectedCar != null) ...[
-            Text(
-              '${_selectedCar!.brand} ${_selectedCar!.modelName} İÇİN MODÜLLER',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-                color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            ..._tuningOptions.map((opt) {
-              final isApplied = _selectedCar!.appliedDetailingOptionIds.contains(opt.id);
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isApplied ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
-                  borderRadius: 14,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          // 3. Dyno Dashboard & Car Stats
+          if (_selectedCar != null && dyno != null) ...[
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(14),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: AppColors.brutalGreen,
+              borderRadius: 14,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: opt.color,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                    width: 2.0,
-                                  ),
-                                ),
-                                child: Icon(opt.icon, color: Colors.black, size: 20),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                opt.title,
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isApplied)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 6),
-                                  child: NeoBrutalBadge(
-                                    text: 'UYGULANDI',
-                                    backgroundColor: AppColors.brutalGreen,
-                                    textColor: Colors.black,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              NeoBrutalBadge(
-                                text: '+%${((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)} Değer',
-                                backgroundColor: AppColors.brutalYellow,
-                                textColor: Colors.black,
-                                fontSize: 10,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        opt.description,
-                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                          const Icon(Icons.speed_rounded, color: AppColors.brutalGreen, size: 18),
+                          const SizedBox(width: 6),
                           Text(
-                            isApplied ? 'TAMAMLANDI' : CurrencyFormatter.formatShort(opt.cost),
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                              color: isApplied ? const Color(0xFF64748B) : AppColors.brutalOrange,
-                            ),
-                          ),
-                          NeoBrutalButton(
-                            label: isApplied ? 'UYGULANDI' : 'UYGULA',
-                            icon: isApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
-                            backgroundColor: isApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : opt.color,
-                            textColor: isApplied ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
-                            fontSize: 11.5,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            onPressed: isApplied
-                                ? null
-                                : () {
-                                    if (game.balance < opt.cost) {
-                                      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
-                                      return;
-                                    }
-
-                                    final newMarketValue = _selectedCar!.baseMarketValue * opt.valueMultiplier;
-                                    final updatedCar = _selectedCar!.copyWith(
-                                      baseMarketValue: newMarketValue,
-                                      appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, opt.id],
-                                    );
-                                    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
-
-                                    setState(() {
-                                      _selectedCar = updatedCar;
-                                    });
-
-                                    NotificationService.showSuccess(
-                                      context,
-                                      '${opt.title} uygulandı! Yeni Pazar Değeri: ${CurrencyFormatter.formatShort(newMarketValue)}',
-                                    );
-                                  },
+                            'DYNO GÜÇ KARNESİ • ${_selectedCar!.brand}',
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900),
                           ),
                         ],
+                      ),
+                      NeoBrutalBadge(
+                        text: dyno.isInspectionCompliant ? 'TÜVTÜRK UYGUN' : 'MUAYENEDEN GEÇMEZ',
+                        backgroundColor: dyno.isInspectionCompliant ? AppColors.brutalGreen : AppColors.errorRed,
+                        textColor: dyno.isInspectionCompliant ? Colors.black : Colors.white,
+                        fontSize: 9.5,
                       ),
                     ],
                   ),
-                ),
-              );
-            }),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildMetricTile('GÜÇ', '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen, isDark),
+                      _buildMetricTile('TORK', '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange, isDark),
+                      _buildMetricTile('0-100', '${dyno.currentAccel}s', '${dyno.baseAccel}s idi', const Color(0xFF06B6D4), isDark),
+                      _buildMetricTile('DESİBEL', '${dyno.exhaustDb} dB', '%${dyno.tuningRating} Skor', const Color(0xFFA855F7), isDark),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: NeoBrutalButton(
+                          icon: Icons.speed_rounded,
+                          label: 'DYNO ÇEKİMİ YAP',
+                          backgroundColor: AppColors.brutalYellow,
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          onPressed: () => _runDynoSimulation(context, dyno),
+                        ),
+                      ),
+                      if (!dyno.isInspectionCompliant) ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: NeoBrutalButton(
+                            icon: Icons.shield_rounded,
+                            label: 'RUHSATA İŞLET (₺4.5k)',
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10.5,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            onPressed: _applyLegalProject,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 4. Tab Bar (Tümü, Motor, Aero, Stance, Egzoz, Paketler)
+            SizedBox(
+              height: 38,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: tabs.length,
+                itemBuilder: (ctx, i) {
+                  final isTabSelected = _selectedTabIndex == i;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedTabIndex = i),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isTabSelected
+                            ? AppColors.brutalYellow
+                            : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isTabSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            tabs[i].icon,
+                            size: 13,
+                            color: isTabSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            tabs[i].label,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: isTabSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // 5. Preset Builds Tab or Option List
+            if (_selectedTabIndex == 5) ...[
+              ...TuningPresetBuilds.allPresets.map((preset) {
+                final discountedPrice = preset.getDiscountedCost();
+                final rawPrice = TuningCatalog.calculateRawCost(preset.optionIds);
+                final allApplied = preset.optionIds.every((id) => _selectedCar!.appliedDetailingOptionIds.contains(id));
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(14),
+                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: allApplied ? AppColors.brutalGreen : AppColors.brutalOrange,
+                    borderRadius: 14,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(preset.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                            NeoBrutalBadge(
+                              text: allApplied ? 'UYGULANDI' : '%15 İNDİRİMLİ',
+                              backgroundColor: allApplied ? AppColors.brutalGreen : AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 10,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(preset.description, style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  CurrencyFormatter.formatShort(rawPrice),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    decoration: TextDecoration.lineThrough,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  CurrencyFormatter.formatShort(discountedPrice),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                ),
+                              ],
+                            ),
+                            NeoBrutalButton(
+                              label: allApplied ? 'PAKET AKTİF' : 'PAKETİ UYGULA',
+                              icon: allApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
+                              backgroundColor: allApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
+                              textColor: allApplied ? Colors.grey : Colors.black,
+                              fontSize: 11,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              onPressed: allApplied ? null : () => _applyPresetBuild(preset),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ] else ...[
+              // Standard Options List
+              ...visibleOptions.map((opt) {
+                final isApplied = _selectedCar!.appliedDetailingOptionIds.contains(opt.id);
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(14),
+                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: isApplied ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                    borderRadius: 14,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: opt.color,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                  child: Icon(opt.icon, color: Colors.black, size: 20),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  opt.title,
+                                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isApplied)
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 6),
+                                    child: NeoBrutalBadge(
+                                      text: 'UYGULANDI',
+                                      backgroundColor: AppColors.brutalGreen,
+                                      textColor: Colors.black,
+                                      fontSize: 9.5,
+                                    ),
+                                  ),
+                                NeoBrutalBadge(
+                                  text: '+%${((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)} Değer',
+                                  backgroundColor: AppColors.brutalYellow,
+                                  textColor: Colors.black,
+                                  fontSize: 9.5,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          opt.description,
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Performance Gain Badges
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [
+                            if (opt.hpGain > 0)
+                              NeoBrutalBadge(
+                                text: '+${opt.hpGain} HP',
+                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                textColor: AppColors.brutalGreen,
+                                fontSize: 9.5,
+                              ),
+                            if (opt.nmGain > 0)
+                              NeoBrutalBadge(
+                                text: '+${opt.nmGain} Nm',
+                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                textColor: AppColors.brutalOrange,
+                                fontSize: 9.5,
+                              ),
+                            if (opt.accelDelta != 0.0)
+                              NeoBrutalBadge(
+                                text: '${opt.accelDelta}s (0-100)',
+                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                textColor: const Color(0xFF06B6D4),
+                                fontSize: 9.5,
+                              ),
+                            if (opt.soundDbGain > 0)
+                              NeoBrutalBadge(
+                                text: '+${opt.soundDbGain} dB',
+                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                textColor: const Color(0xFFA855F7),
+                                fontSize: 9.5,
+                              ),
+                            if (!opt.isLegalWithoutProject)
+                              const NeoBrutalBadge(
+                                icon: Icons.warning_amber_rounded,
+                                text: 'Ruhsat Onayı Gerekir',
+                                backgroundColor: AppColors.errorRed,
+                                textColor: Colors.white,
+                                fontSize: 9.5,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              isApplied ? 'TAMAMLANDI' : CurrencyFormatter.formatShort(opt.cost),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w900,
+                                color: isApplied ? const Color(0xFF64748B) : AppColors.brutalOrange,
+                              ),
+                            ),
+                            NeoBrutalButton(
+                              label: isApplied ? 'UYGULANDI' : 'UYGULA',
+                              icon: isApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
+                              backgroundColor: isApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : opt.color,
+                              textColor: isApplied ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                              fontSize: 11.5,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              onPressed: isApplied ? null : () => _applyTuningOption(opt),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
           ],
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildMetricTile(String title, String val, String sub, Color color, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(title, style: const TextStyle(fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+          const SizedBox(height: 2),
+          Text(val, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: color)),
+          Text(sub, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
         ],
       ),
     );

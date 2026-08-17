@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
@@ -15,7 +16,7 @@ class RestorationStageInfo {
   final String title;
   final String description;
   final double cost;
-  final String icon;
+  final IconData icon;
 
   const RestorationStageInfo({
     required this.stage,
@@ -32,35 +33,35 @@ const List<RestorationStageInfo> kRestorationStages = [
     title: '1. Şasi & Pas Temizliği',
     description: 'Aracın tabanındaki çürükler kesilir, kumlama yapılır ve şasi güçlendirilir.',
     cost: 4500,
-    icon: '🪨',
+    icon: Icons.cleaning_services_rounded,
   ),
   RestorationStageInfo(
     stage: 2,
     title: '2. Motor & Mekanik Revizyon',
     description: 'Pistonlar, segmanlar ve silindir kapağı sıfırlanır, motor ilk günkü gibi çalıştırılır.',
     cost: 9500,
-    icon: '⚙️',
+    icon: Icons.settings_rounded,
   ),
   RestorationStageInfo(
     stage: 3,
     title: '3. Elektrik & Tesisat Yenileme',
     description: 'Eski kablo demetleri sökülür, modern ve güvenli sigorta tesisatı çekilir.',
     cost: 6000,
-    icon: '⚡',
+    icon: Icons.bolt_rounded,
   ),
   RestorationStageInfo(
     stage: 4,
     title: '4. Kaporta Düzeltme & Astar',
     description: 'Eksik veya ezik saç paneller çekiçlenir, epoksi astar atılarak fırına hazırlanır.',
     cost: 8000,
-    icon: '🔨',
+    icon: Icons.hardware_rounded,
   ),
   RestorationStageInfo(
     stage: 5,
     title: '5. Fabrika Orijinal Boya & Detay',
     description: 'Katalog rengiyle mikron boya atılır, nikelajlar ve iç döşeme sıfırlanır.',
     cost: 12000,
-    icon: '✨',
+    icon: Icons.palette_rounded,
   ),
 ];
 
@@ -124,7 +125,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
             children: [
               Row(
                 children: [
-                  const Text('🛖', style: TextStyle(fontSize: 26)),
+                  const Icon(Icons.home_repair_service_rounded, size: 24, color: AppColors.brutalYellow),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +263,13 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                     borderRadius: 10,
                     child: Row(
                       children: [
-                        Text(stageInfo.icon, style: const TextStyle(fontSize: 22)),
+                        Icon(
+                          stageInfo.icon,
+                          size: 22,
+                          color: isDone
+                              ? const Color(0xFF00E575)
+                              : (isCurrent ? const Color(0xFFFF7A00) : (isDark ? Colors.white38 : Colors.black38)),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(

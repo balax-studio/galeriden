@@ -397,7 +397,9 @@ class SettingsScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.all(20),
                                 backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                                 borderColor: const Color(0xFFA855F7),
-                                borderRadius: 16,
+                                borderRadius: 12,
+                                borderWidth: 2.5,
+                                shadowOffset: const Offset(4, 4),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -489,7 +491,9 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.all(20),
                           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                           borderColor: AppColors.errorRed,
-                          borderRadius: 16,
+                          borderRadius: 12,
+                          borderWidth: 2.5,
+                          shadowOffset: const Offset(4, 4),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -625,7 +629,9 @@ class SettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-          borderRadius: 16,
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -716,7 +722,9 @@ class SettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-          borderRadius: 16,
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

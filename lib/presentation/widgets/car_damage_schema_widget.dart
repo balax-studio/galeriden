@@ -25,11 +25,11 @@ class CarDamageSchemaWidget extends StatelessWidget {
             Text('EKSPERTİZ KAPORTA ŞEMASI', style: TextStyle(color: p.textPrimaryColor, fontWeight: FontWeight.bold, fontSize: 14)),
             Row(
               children: [
-                _buildLegendItem('Orijinal', p.successColor),
+                _buildLegendItem('Orijinal', p.successColor, p),
                 const SizedBox(width: 8),
-                _buildLegendItem('Boya', p.warningColor),
+                _buildLegendItem('Boya', p.warningColor, p),
                 const SizedBox(width: 8),
-                _buildLegendItem('Değişen', p.errorColor),
+                _buildLegendItem('Değişen', p.errorColor, p),
               ],
             ),
           ],
@@ -42,8 +42,8 @@ class CarDamageSchemaWidget extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: p.surfaceColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: p.surfaceBorderColor),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: p.surfaceBorderColor, width: 2.0),
             ),
             child: Column(
               children: [
@@ -214,7 +214,7 @@ class CarDamageSchemaWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(String label, Color color, ThemePaletteModel p) {
     return Row(
       children: [
         Container(
@@ -223,7 +223,7 @@ class CarDamageSchemaWidget extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        Text(label, style: TextStyle(fontSize: 11, color: p.textSecondaryColor, fontWeight: FontWeight.w700)),
       ],
     );
   }
