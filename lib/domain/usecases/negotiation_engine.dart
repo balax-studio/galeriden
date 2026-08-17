@@ -188,7 +188,7 @@ class NegotiationEngine {
     double seasonMultiplier = 1.0,
   }) {
     final realVal = car.estimatedRealValue * seasonMultiplier;
-    final askingPrice = car.listingPrice > 0 ? car.listingPrice : realVal;
+    final askingPrice = car.isListed ? car.listingPrice : (listingPrice > 0 ? listingPrice : realVal);
     final distRoll = _random.nextDouble();
 
     // Listing Quality Factor
@@ -218,32 +218,36 @@ class NegotiationEngine {
     final customer = CustomerModel.generate(assignedArchetype);
     buyerName = customer.name;
 
-    if (distRoll < 0.02) {
-      // 1) Collector Jackpot (%2 chance): +20% to +40% over asking/real price
-      baseOffer = (max(realVal, askingPrice) * (1.20 + (_random.nextDouble() * 0.20)) * listingQualityBonus).roundToDouble();
+    if (distRoll < 0.05) {
+      // 1) Collector / Serious Buyer match (%5 chance): Exactly 100% asking price
+      baseOffer = askingPrice;
       buyerName = 'Koleksiyoner $buyerName';
-      message = 'Tam aradığım temizlikte özel bir araç! Kaçırmamak için liste fiyatının da üzerinde ${CurrencyFormatter.formatShort(baseOffer)} nakit teklif ediyorum!';
-    } else if (distRoll < 0.10) {
-      // 2) Asking Price Match (%8 chance): Exactly 100% of asking price
-      baseOffer = (askingPrice * listingQualityBonus).roundToDouble();
-      message = 'Fiyat çok makul, pazarlıksız ilandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyata hemen notere geçelim.';
-    } else if (distRoll < 0.30) {
-      // 3) Lowball / Ölücü (%20 chance): %55 - %75 of asking/real price
+      message = 'Tam aradığım temizlikte özel bir araç! İlandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyatınızı kabul ediyorum, hemen notere geçelim.';
+    } else if (distRoll < 0.15) {
+      // 2) Asking Price Match (%10 chance): Exactly 100% of asking price
+      baseOffer = askingPrice;
+      message = 'Fiyat gayet makul. İlandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyattan pazarlıksız alıyorum.';
+    } else if (distRoll < 0.35) {
+      // 3) Lowball / Ölücü (%20 chance): %60 - %78 of asking price
       isLowball = true;
-      baseOffer = (min(realVal, askingPrice) * (0.55 + (_random.nextDouble() * 0.20))).roundToDouble();
+      baseOffer = (askingPrice * (0.60 + (_random.nextDouble() * 0.18))).roundToDouble();
       if (baseOffer >= askingPrice) {
-        baseOffer = (askingPrice * 0.70).roundToDouble();
+        baseOffer = (askingPrice * 0.75).roundToDouble();
       }
       message = lowballMessages[_random.nextInt(lowballMessages.length)];
     } else {
-      // 4) Standard Normal Offer (%70 chance): %88 - %98 of asking price
-      final maxAllowed = min(realVal * 1.02, askingPrice * 0.98);
-      final minAllowed = min(realVal * 0.88, askingPrice * 0.88);
-      baseOffer = ((minAllowed + (_random.nextDouble() * max(1000.0, maxAllowed - minAllowed))) * listingQualityBonus).roundToDouble();
+      // 4) Standard Normal Offer (%65 chance): %85 - %97 of asking price
+      final discountPercent = 0.03 + (_random.nextDouble() * 0.12);
+      baseOffer = (askingPrice * (1.0 - discountPercent) * listingQualityBonus).roundToDouble();
       if (baseOffer > askingPrice) {
         baseOffer = askingPrice;
       }
       message = buyerMessages[_random.nextInt(buyerMessages.length)];
+    }
+
+    // Strict ceiling clamp for cash baseline
+    if (baseOffer > askingPrice) {
+      baseOffer = askingPrice;
     }
 
     // Credit score generation
@@ -259,23 +263,32 @@ class NegotiationEngine {
       creditScore = 12 + _random.nextInt(17); // 12 - 28 (Severe default risk)
     }
 
-    // Offer Type Distribution: 50% Cash, 30% Installment (Senetli/Taksitli), 20% Cheque (Çekli)
+    // Offer Type Distribution:
+    // If car does NOT allow installments: 100% CASH ONLY (Never installment or cheque)
+    // If car allows installments: 50% Installment (Senetli), 25% Cheque (Çekli), 25% Cash
     OfferType chosenOfferType = OfferType.cash;
     int installments = 0;
-    final typeRoll = _random.nextDouble();
 
-    if (typeRoll < 0.30 || (car.allowsInstallments && typeRoll < 0.55)) {
-      chosenOfferType = OfferType.installment;
-      installments = _random.nextBool() ? 6 : 12;
-      final premium = 1.15 + (_random.nextDouble() * 0.15); // +15% to +30% price premium
-      baseOffer = (baseOffer * premium).roundToDouble();
-      message = 'Usta nakitim kısıtlı ama aylık gelirim iyi. Aracı $installments ay vadeli senetle ₺${baseOffer.round()} fiyata alayım.';
-    } else if (typeRoll < 0.50) {
-      chosenOfferType = OfferType.cheque;
-      installments = 1;
-      final premium = 1.12 + (_random.nextDouble() * 0.10); // +12% to +22% cheque premium
-      baseOffer = (baseOffer * premium).roundToDouble();
-      message = 'Ticari 45 gün vadeli banka onaylı çekim var. Kabul edersen ₺${baseOffer.round()} fiyata anlaşalım.';
+    if (car.allowsInstallments) {
+      final typeRoll = _random.nextDouble();
+      if (typeRoll < 0.50) {
+        chosenOfferType = OfferType.installment;
+        installments = _random.nextBool() ? 6 : 12;
+        final premium = 1.15 + (_random.nextDouble() * 0.15); // +15% to +30% financing interest
+        baseOffer = (askingPrice * premium).roundToDouble();
+        message = 'Usta nakitim kısıtlı ama aylık gelirim düzenli. İlan fiyatınız yerine $installments ay vadeli senetle vade farkıyla toplam ${CurrencyFormatter.formatShort(baseOffer)} teklif ediyorum.';
+      } else if (typeRoll < 0.75) {
+        chosenOfferType = OfferType.cheque;
+        installments = 1;
+        final premium = 1.10 + (_random.nextDouble() * 0.10); // +10% to +20% cheque premium
+        baseOffer = (askingPrice * premium).roundToDouble();
+        message = 'Ticari 45 gün vadeli banka onaylı çekim var. İlan fiyatınız yerine çekle ${CurrencyFormatter.formatShort(baseOffer)} teklif ediyorum.';
+      } else {
+        chosenOfferType = OfferType.cash;
+      }
+    } else {
+      chosenOfferType = OfferType.cash;
+      installments = 0;
     }
 
     // Test Drive Request (%35 chance for serious buyers)

@@ -128,8 +128,7 @@ class OfflineProgression {
     for (int i = 0; i < potentialOffers; i++) {
       if (updatedCars.isNotEmpty && updatedOffers.length < maxOffersLimit) {
         final car = updatedCars[i % updatedCars.length];
-        double repOfferBonus = 1.0 + (repLevel * 0.02);
-        final offer = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.15 * repOfferBonus);
+        final offer = NegotiationEngine.generateBuyerOffer(car, car.listingPrice);
         updatedOffers.add(offer);
         newOffersGenerated++;
       }

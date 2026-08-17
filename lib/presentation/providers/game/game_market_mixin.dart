@@ -266,7 +266,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
       if (currentOffers >= 3) return;
-      final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.05);
+      final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.listingPrice);
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
       saveState();
     });
@@ -275,7 +275,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
       if (currentOffers >= 3) return;
-      final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.estimatedRealValue * 1.08);
+      final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.listingPrice);
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
       saveState();
     });
@@ -306,9 +306,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (eligibleCars.isEmpty) return;
 
     final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
-    final hasSalesman = state.hiredStaff.any((s) => s.role == StaffRole.salesman);
-    final baseTargetPrice = randomCar.estimatedRealValue * (hasSalesman ? 1.10 : 1.0);
-    final offer = NegotiationEngine.generateBuyerOffer(randomCar, baseTargetPrice);
+    final offer = NegotiationEngine.generateBuyerOffer(randomCar, randomCar.listingPrice);
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     saveState();
   }

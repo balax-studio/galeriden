@@ -773,12 +773,12 @@ class ShowroomListingModal {
 
                     // SECTION 3: TACTILE TOGGLE CARDS (Senetle & Hasar Gizleme)
                     _buildTactileToggleRow(
-                      title: 'Senetle / Taksitli Satışa Aç',
-                      subtitle: 'Taksitli ve senetli alıcıların teklif vermesine izin ver (%20 vade farkı)',
+                      title: 'Vadeli / Senet / Çek Satışına Aç',
+                      subtitle: 'Vadeli senet ve çek tekliflerine izin ver (+%20 vade farkı). Kapalıyken SADECE %100 PEŞİN NAKİT teklif gelir.',
                       icon: Icons.payments_rounded,
                       isActive: allowsInstallments,
-                      activeLabel: 'AÇIK (%20 VADE)',
-                      inactiveLabel: 'KAPALI',
+                      activeLabel: 'AÇIK (VADELİ/ÇEK)',
+                      inactiveLabel: 'SADECE NAKİT',
                       activeColor: AppColors.brutalGreen,
                       onToggle: () => setState(() => allowsInstallments = !allowsInstallments),
                       isDark: isDark,
