@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/dealership_model.dart';
+import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/part_order_model.dart';
 import '../../../../domain/usecases/repair_engine.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -53,7 +54,7 @@ class OrderPartsSheet extends StatefulWidget {
 }
 
 class _OrderPartsSheetState extends State<OrderPartsSheet> {
-  static const List<String> _parts = [
+  static const List<String> _allParts = [
     'Ön Kaput',
     'Ön Tampon',
     'Tavan',
@@ -66,18 +67,41 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
     'Şanzıman & Debriyaj',
   ];
 
+  List<String> get _availableParts {
+    final needed = <String>[];
+    widget.car.expertise.bodyParts.forEach((part, status) {
+      if (status == PartStatus.changed || status == PartStatus.damaged || status == PartStatus.painted) {
+        needed.add(part);
+      }
+    });
+    if (widget.car.expertise.engineCondition < 95.0) {
+      needed.add('Motor Bloğu & Piston');
+    }
+    if (widget.car.expertise.transmissionCondition < 95.0) {
+      needed.add('Şanzıman & Debriyaj');
+    }
+
+    if (needed.isNotEmpty) {
+      return needed;
+    }
+    return _allParts;
+  }
+
   late String _selectedPart;
+  late List<String> _partsList;
   OrderType _selectedType = OrderType.newOemPart;
 
   @override
   void initState() {
     super.initState();
-    _selectedPart = _parts.first;
+    _partsList = _availableParts;
+    _selectedPart = _partsList.first;
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isFiltered = _partsList.length < _allParts.length;
 
     // Calculate dynamic discount from perks
     double discountFactor = 1.0;
@@ -125,7 +149,25 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          if (isFiltered) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.brutalYellow.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: AppColors.brutalYellow, width: 1.5),
+              ),
+              child: Text(
+                'DİNAMİK FİLTRE • Sadece hasarlı, boyalı veya değişen parçalar listeleniyor',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? AppColors.brutalYellow : const Color(0xFF92400E),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
           const Text('Parça Seçin:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           Container(
@@ -143,7 +185,7 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 value: _selectedPart,
                 isExpanded: true,
                 dropdownColor: isDark ? const Color(0xFF1E2330) : Colors.white,
-                items: _parts.map((p) {
+                items: _partsList.map((p) {
                   return DropdownMenuItem(
                     value: p,
                     child: Text(p, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),

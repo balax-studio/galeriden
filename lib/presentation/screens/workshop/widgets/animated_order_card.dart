@@ -110,7 +110,7 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${order.partName} (${order.orderType == OrderType.quickPatch ? 'Geçici' : order.orderType == OrderType.masterRepair ? 'Usta Tamiri' : 'Yeni Parça'})',
+                        '${order.partName} • ${order.orderType == OrderType.quickPatch ? 'Geçici' : order.orderType == OrderType.masterRepair ? 'Usta Tamiri' : 'Yeni Parça'}',
                         style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 4),

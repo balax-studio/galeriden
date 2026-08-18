@@ -67,131 +67,162 @@ class ShowroomCarCard extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          '${car.brand} ${car.modelName}',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      if (hasOffer) ...[
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            PulsingDot(color: Color(0xFF00E575), size: 6.0),
-                            SizedBox(width: 4),
-                            NeoBrutalBadge(
-                              text: 'TEKLİF VAR',
-                              icon: Icons.local_fire_department_rounded,
-                              backgroundColor: Color(0xFF00E575),
-                              textColor: Colors.black,
-                              fontSize: 9.5,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 6),
-                      ],
-                      NeoBrutalBadge(
-                        text: car.isListed ? 'İLANDA' : 'GARAJDA',
-                        backgroundColor: car.isListed
-                            ? const Color(0xFF00E575)
-                            : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                        textColor: car.isListed ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
-                        fontSize: 9.5,
-                      ),
-                      if (car.isHeroShowcase) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'VİTRİN BAŞKÖŞESİ • +%30',
-                          icon: Icons.star_rounded,
-                          backgroundColor: Color(0xFFFFDE59),
-                          textColor: Colors.black,
-                          fontSize: 9.5,
-                        ),
-                      ],
-                      if (car.isStaleListing) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'ESKİ İLAN • -%40',
-                          icon: Icons.warning_amber_rounded,
-                          backgroundColor: Color(0xFFEF4444),
-                          textColor: Colors.white,
-                          fontSize: 9.5,
-                        ),
-                      ],
-                      if (car.isBarnFindRestored) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'RESTORE EDİLDİ • +%45',
-                          icon: Icons.auto_awesome_rounded,
-                          backgroundColor: Color(0xFF10B981),
-                          textColor: Colors.black,
-                          fontSize: 9.5,
-                        ),
-                      ] else if (car.isBarnFind) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'SAMANLIK KELEPİRİ',
-                          icon: Icons.handyman_rounded,
-                          backgroundColor: Color(0xFFD97706),
-                          textColor: Colors.white,
-                          fontSize: 9.5,
-                        ),
-                      ],
-                      if (car.hasNonOriginalParts) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'YAN SANAYİ PARÇA',
-                          backgroundColor: Color(0xFF64748B),
-                          textColor: Colors.white,
-                          fontSize: 9.5,
-                        ),
-                      ],
-                      if (car.isDoped) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'DOPİNGLİ',
-                          icon: Icons.bolt_rounded,
-                          backgroundColor: Color(0xFFFFDE59),
-                          textColor: Colors.black,
-                          fontSize: 9.5,
-                        ),
-                      ],
-                      if (car.isLockedInShowcase) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'KOLEKSİYONDA',
-                          icon: Icons.workspace_premium_rounded,
-                          backgroundColor: Color(0xFFA855F7),
-                          textColor: Colors.white,
-                          fontSize: 9.5,
-                        ),
-                      ] else if (car.isRare) ...[
-                        const SizedBox(width: 6),
-                        const NeoBrutalBadge(
-                          text: 'NADİR',
-                          icon: Icons.diamond_rounded,
-                          backgroundColor: Color(0xFFA855F7),
-                          textColor: Colors.white,
-                          fontSize: 9.5,
-                        ),
-                      ],
-                    ],
+                  child: Text(
+                    '${car.brand} ${car.modelName}',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 NeoBrutalBadge(
                   text: car.bodyType,
                   fontSize: 9.5,
                 ),
               ],
+            ),
+            const SizedBox(height: 6),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  if (hasOffer) ...[
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        PulsingDot(color: Color(0xFF00E575), size: 6.0),
+                        SizedBox(width: 4),
+                        NeoBrutalBadge(
+                          text: 'TEKLİF VAR',
+                          icon: Icons.local_fire_department_rounded,
+                          backgroundColor: Color(0xFF00E575),
+                          textColor: Colors.black,
+                          fontSize: 9.5,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  if (car.isLockedInShowcase) ...[
+                    const NeoBrutalBadge(
+                      text: 'VİTRİNE KİLİTLİ',
+                      icon: Icons.lock_rounded,
+                      backgroundColor: AppColors.brutalCyan,
+                      textColor: Colors.black,
+                      fontSize: 9.5,
+                    ),
+                  ] else if (car.isRented) ...[
+                    const NeoBrutalBadge(
+                      text: 'KİRADA',
+                      icon: Icons.key_rounded,
+                      backgroundColor: AppColors.brutalPurple,
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                    ),
+                  ] else ...[
+                    NeoBrutalBadge(
+                      text: car.isListed ? 'İLANDA' : 'GARAJDA',
+                      backgroundColor: car.isListed
+                          ? const Color(0xFF00E575)
+                          : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                      textColor: car.isListed ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                      fontSize: 9.5,
+                    ),
+                  ],
+                  if (car.isOverTuned) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'AŞIRI MODİFİYE',
+                      icon: Icons.speed_rounded,
+                      backgroundColor: AppColors.brutalOrange,
+                      textColor: Colors.black,
+                      fontSize: 9.5,
+                    ),
+                  ],
+                  if (car.isHeroShowcase) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'VİTRİN BAŞKÖŞESİ • +%30',
+                      icon: Icons.star_rounded,
+                      backgroundColor: Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      fontSize: 9.5,
+                    ),
+                  ],
+                  if (car.isStaleListing) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'ESKİ İLAN • -%40',
+                      icon: Icons.warning_amber_rounded,
+                      backgroundColor: Color(0xFFEF4444),
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                    ),
+                  ],
+                  if (car.isBarnFindRestored) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'RESTORE EDİLDİ • +%45',
+                      icon: Icons.auto_awesome_rounded,
+                      backgroundColor: Color(0xFF10B981),
+                      textColor: Colors.black,
+                      fontSize: 9.5,
+                    ),
+                  ] else if (car.isBarnFind) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'SAMANLIK KELEPİRİ',
+                      icon: Icons.handyman_rounded,
+                      backgroundColor: Color(0xFFD97706),
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                    ),
+                  ],
+                  if (car.hasNonOriginalParts) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'YAN SANAYİ PARÇA',
+                      backgroundColor: Color(0xFF64748B),
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                    ),
+                  ],
+                  if (car.isDoped) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'DOPİNGLİ',
+                      icon: Icons.bolt_rounded,
+                      backgroundColor: Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      fontSize: 9.5,
+                    ),
+                  ],
+                  if (car.isLockedInShowcase) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'KOLEKSİYONDA',
+                      icon: Icons.workspace_premium_rounded,
+                      backgroundColor: Color(0xFFA855F7),
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                    ),
+                  ] else if (car.isRare) ...[
+                    const SizedBox(width: 6),
+                    const NeoBrutalBadge(
+                      text: 'NADİR',
+                      icon: Icons.diamond_rounded,
+                      backgroundColor: Color(0xFFA855F7),
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                    ),
+                  ],
+                ],
+              ),
             ),
             const SizedBox(height: 10),
 
@@ -661,10 +692,18 @@ class ShowroomCarCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: NeoBrutalButton(
-                    label: 'Fiyat & İlanı Düzenle',
-                    icon: Icons.edit_note_rounded,
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                    label: car.isLockedInShowcase
+                        ? 'Vitrine Kilitli'
+                        : (car.isRented ? 'Kirada Çalışıyor' : 'Fiyat & İlanı Düzenle'),
+                    icon: car.isLockedInShowcase
+                        ? Icons.lock_rounded
+                        : (car.isRented ? Icons.key_rounded : Icons.edit_note_rounded),
+                    backgroundColor: (car.isLockedInShowcase || car.isRented)
+                        ? (isDark ? const Color(0xFF141721) : const Color(0xFFF1F5F9))
+                        : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                    textColor: (car.isLockedInShowcase || car.isRented)
+                        ? const Color(0xFF64748B)
+                        : (isDark ? Colors.white : const Color(0xFF0F172A)),
                     fontSize: 11,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     onPressed: () => ShowroomListingModal.showListingEditSheet(context, ref, car),

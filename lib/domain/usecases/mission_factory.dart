@@ -291,7 +291,7 @@ class MissionFactory {
       budget: baseBudget,
       rewardBonus: bonus,
       deadlineDays: 4 + _random.nextInt(4), // 4-7 in-game days
-      description: '${client['name']} özel bir sipariş verdi: ${client['targetBrand'] ?? client['brand']} (${client['type']}) arıyor. Teslimatta ek ₺${bonus.toInt()} prim ödeyecek.',
+      description: '${client['name']} özel bir sipariş verdi: ${client['targetBrand'] ?? client['brand']} • ${client['type']} arıyor. Teslimatta ek ₺${bonus.toInt()} prim ödeyecek.',
     );
   }
 }

@@ -47,7 +47,7 @@ class GameConstants {
         'Şahin-S Yanlama',
         'Doğan Görünümlü SLX',
         'Kartal Bagajlı',
-        'Hacı Murat 124 (Dede Mirası)',
+        'Hacı Murat 124 • Dede Mirası',
         'Serçe Çıtır Şehirli',
         'Murat 131 Nostalji Kralı',
       ],

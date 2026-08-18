@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/first_time_action_keys.dart';
+import '../../../core/services/game_sound_haptic_service.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../data/models/car_model.dart';
 import '../../../data/models/customer_model.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/psychology_engine.dart';
@@ -47,9 +51,10 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
   late CustomerModel _customer;
   late String _fomoText;
   int _bonusChancePercent = 0;
-  bool _hasUsedTea = false;
-  bool _hasUsedCigarette = false;
-  bool _hasUsedPartner = false;
+  late List<EsnafTactic> _dynamicTactics;
+  final Set<String> _usedTacticIds = {};
+  int _tacticUsageCount = 0;
+  TacticRollOutcome? _lastTacticOutcome;
   bool _hasUsedHonestDiscount = false;
 
   @override
@@ -58,6 +63,12 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
     _offeredPrice = (widget.listing.askingPrice * 0.90).roundToDouble();
     _customer = CustomerModel.generateSellerFromListing(widget.listing.sellerName);
     _fomoText = PsychologyEngine.getRandomFomoText();
+    _dynamicTactics = NegotiationEngine.generateTactics(
+      isBuying: true,
+      car: widget.listing.car,
+      customer: _customer,
+      price: widget.listing.askingPrice,
+    );
   }
 
   int _calculateSuccessChance(int negotiationSkillLevel, {double decorBonusPercent = 0.0}) {
@@ -607,101 +618,111 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
 
                   // 5. Tactical Esnaf Action Cards Bar
                   if (_sellerResponse == null && !_isLockedOut) ...[
-                    Text(
-                      'ESNAF KOZLARI & MÜZAKERE TAKTİKLERİ',
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                        color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Çay İkram Et
-                        Expanded(
-                          child: _buildTacticalCard(
-                            title: _hasUsedTea ? 'Çay Verildi' : 'Çay İkram Et',
-                            badgeText: '+%10 Şans',
-                            icon: Icons.local_cafe_rounded,
-                            activeBgColor: const Color(0xFFFFDE59),
-                            isUsed: _hasUsedTea,
-                            isDark: isDark,
-                            onTap: () {
-                              final res = NegotiationEngine.executeEsnafAction(
-                                actionType: 'cay_soyle',
-                                currentOffer: _offeredPrice,
-                                askingPrice: asking,
-                                negotiationSkillLevel: game.skills.negotiationLevel,
-                              );
-                              setState(() {
-                                _hasUsedTea = true;
-                                _bonusChancePercent += res['bonusChance'] as int;
-                              });
-                              HapticFeedback.mediumImpact();
-                              NotificationService.showSuccess(context, res['message'] as String);
-                            },
+                        Text(
+                          'ESNAF KOZLARI & MÜZAKERE TAKTİKLERİ',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                           ),
                         ),
-                        const SizedBox(width: 8),
-
-                        // Sigara Yak
-                        Expanded(
-                          child: _buildTacticalCard(
-                            title: _hasUsedCigarette ? 'Sigara Yakıldı' : 'Bir Sigara Yak',
-                            badgeText: '+%12 Şans',
-                            icon: Icons.smoking_rooms_rounded,
-                            activeBgColor: const Color(0xFFCBD5E1),
-                            isUsed: _hasUsedCigarette,
-                            isDark: isDark,
-                            onTap: () {
-                              final res = NegotiationEngine.executeEsnafAction(
-                                actionType: 'sigara_yak',
-                                currentOffer: _offeredPrice,
-                                askingPrice: asking,
-                                negotiationSkillLevel: game.skills.negotiationLevel,
-                              );
-                              setState(() {
-                                _hasUsedCigarette = true;
-                                _bonusChancePercent += res['bonusChance'] as int;
-                              });
-                              HapticFeedback.mediumImpact();
-                              NotificationService.showSuccess(context, res['message'] as String);
-                            },
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _tacticUsageCount >= 3
+                                ? (isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFEE2E2))
+                                : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: _tacticUsageCount >= 3
+                                  ? AppColors.errorRed
+                                  : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+                              width: 1.2,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Ortağa Danış
-                        Expanded(
-                          child: _buildTacticalCard(
-                            title: _hasUsedPartner ? 'Ortağa Danışıldı' : 'Ortağa Danış',
-                            badgeText: 'Fiyatı İt',
-                            icon: Icons.phone_in_talk_rounded,
-                            activeBgColor: const Color(0xFF38BDF8),
-                            isUsed: _hasUsedPartner,
-                            isDark: isDark,
-                            onTap: () {
-                              final res = NegotiationEngine.executeEsnafAction(
-                                actionType: 'ortak_arayayim',
-                                currentOffer: _offeredPrice,
-                                askingPrice: asking,
-                                negotiationSkillLevel: game.skills.negotiationLevel,
-                              );
-                              setState(() {
-                                _hasUsedPartner = true;
-                                _bonusChancePercent += res['bonusChance'] as int;
-                                if (res['priceShift'] != null) {
-                                  _offeredPrice = (res['priceShift'] as double).clamp(asking * 0.75, asking);
-                                }
-                              });
-                              HapticFeedback.mediumImpact();
-                              NotificationService.showSuccess(context, res['message'] as String);
-                            },
+                          child: Text(
+                            '$_tacticUsageCount / 3 KOZ KULLANILDI',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              color: _tacticUsageCount >= 3
+                                  ? AppColors.errorRed
+                                  : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                            ),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 6),
+
+                    // Last Tactic Outcome Banner
+                    if (_lastTacticOutcome != null) ...[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: _lastTacticOutcome!.isSuccess
+                              ? (isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5))
+                              : (_lastTacticOutcome!.isWalkaway
+                                  ? (isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFEE2E2))
+                                  : (isDark ? const Color(0xFF78350F) : const Color(0xFFFEF3C7))),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: _lastTacticOutcome!.isSuccess
+                                ? AppColors.brutalGreen
+                                : (_lastTacticOutcome!.isWalkaway ? AppColors.errorRed : AppColors.brutalYellow),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _lastTacticOutcome!.isSuccess
+                                  ? Icons.casino_rounded
+                                  : (_lastTacticOutcome!.isWalkaway ? Icons.cancel_rounded : Icons.casino_outlined),
+                              size: 16,
+                              color: _lastTacticOutcome!.isSuccess
+                                  ? AppColors.brutalGreen
+                                  : (_lastTacticOutcome!.isWalkaway ? AppColors.errorRed : AppColors.brutalYellow),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Zar: ${_lastTacticOutcome!.diceRoll} / ${_lastTacticOutcome!.threshold} • ${_lastTacticOutcome!.isSuccess ? "Başarılı +%${_lastTacticOutcome!.bonusChance}" : (_lastTacticOutcome!.isWalkaway ? "Masadan Kalkıldı" : "Direnç ${_lastTacticOutcome!.bonusChance}%")}',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    Row(
+                      children: _dynamicTactics.map((tactic) {
+                        final isUsed = _usedTacticIds.contains(tactic.id);
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: _buildTacticalCard(
+                              title: isUsed ? '${tactic.title} Kullanıldı' : tactic.title,
+                              badgeText: tactic.badgeText,
+                              icon: _getTacticIcon(tactic.iconKey),
+                              activeBgColor: _getTacticColor(tactic.iconKey),
+                              isUsed: isUsed,
+                              isDark: isDark,
+                              onTap: () => _executeTactic(tactic, car, asking, game),
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
                     const SizedBox(height: 12),
                   ],
@@ -1339,6 +1360,103 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
         ),
       ),
     );
+  }
+
+  IconData _getTacticIcon(String iconKey) {
+    switch (iconKey) {
+      case 'expert':
+        return Icons.search_rounded;
+      case 'cash':
+        return Icons.payments_rounded;
+      case 'market':
+        return Icons.trending_down_rounded;
+      case 'partner':
+        return Icons.phone_in_talk_rounded;
+      case 'tea':
+        return Icons.local_cafe_rounded;
+      case 'smoke':
+        return Icons.smoking_rooms_rounded;
+      case 'mechanic':
+        return Icons.build_rounded;
+      case 'urgent':
+        return Icons.alarm_on_rounded;
+      case 'pristine':
+        return Icons.auto_awesome_rounded;
+      case 'notary':
+        return Icons.drive_file_rename_outline_rounded;
+      case 'tok_seller':
+        return Icons.work_rounded;
+      default:
+        return Icons.handshake_rounded;
+    }
+  }
+
+  Color _getTacticColor(String iconKey) {
+    switch (iconKey) {
+      case 'expert':
+        return const Color(0xFF00E575);
+      case 'cash':
+        return const Color(0xFFFFDE59);
+      case 'market':
+        return const Color(0xFFFF54B0);
+      case 'partner':
+        return const Color(0xFF38BDF8);
+      case 'tea':
+        return const Color(0xFFFFDE59);
+      case 'smoke':
+        return const Color(0xFFCBD5E1);
+      case 'mechanic':
+        return const Color(0xFFF97316);
+      case 'urgent':
+        return const Color(0xFFEF4444);
+      case 'pristine':
+        return const Color(0xFFA855F7);
+      case 'notary':
+        return const Color(0xFF10B981);
+      case 'tok_seller':
+        return const Color(0xFFF59E0B);
+      default:
+        return const Color(0xFFFFDE59);
+    }
+  }
+
+  void _executeTactic(EsnafTactic tactic, CarModel car, double asking, DealershipModel game) {
+    if (_usedTacticIds.contains(tactic.id) || _tacticUsageCount >= 3) return;
+    if (_isAccepted || _sellerResponse != null || _isLockedOut || _isThinking || _isProcessing) return;
+
+    final outcome = NegotiationEngine.rollTactic(
+      tactic: tactic,
+      tacticUsageIndex: _tacticUsageCount,
+      negotiationSkillLevel: game.skills.negotiationLevel,
+      car: car,
+      customer: _customer,
+      isBuying: true,
+      purchasedAcademyCourses: game.purchasedAcademyCourses,
+      isTraderSpecialization: game.specializationPath == SpecializationPath.trader,
+    );
+
+    setState(() {
+      _usedTacticIds.add(tactic.id);
+      _tacticUsageCount++;
+      _bonusChancePercent += outcome.bonusChance;
+      _lastTacticOutcome = outcome;
+      if (outcome.isWalkaway) {
+        _isLockedOut = true;
+        _sellerResponse = outcome.message;
+      }
+    });
+
+    HapticFeedback.heavyImpact();
+    if (outcome.isWalkaway) {
+      GameSoundHapticService.playWarningVibration();
+      NotificationService.showError(context, outcome.message);
+    } else if (outcome.isSuccess) {
+      GameSoundHapticService.playCashSuccess();
+      NotificationService.showSuccess(context, 'Zar: ${outcome.diceRoll}/${outcome.threshold} • ${outcome.message}');
+    } else {
+      GameSoundHapticService.playTapImpact();
+      NotificationService.showWarning(context, 'Zar: ${outcome.diceRoll}/${outcome.threshold} • ${outcome.message}');
+    }
   }
 
   Widget _buildTacticalCard({

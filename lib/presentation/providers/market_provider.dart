@@ -44,10 +44,12 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
     final game = _ref.read(gameProvider);
     final trend = game.marketTrend;
     final balance = game.balance;
+    final hasNecati = game.hasHighNpcTrust('necati');
     state = MarketEngine.generateRandomListings(
       playerLevel: playerLevel,
       trend: trend,
       playerBalance: balance,
+      hasHighNecatiTrust: hasNecati,
     );
   }
 
@@ -63,6 +65,7 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
     final game = _ref.read(gameProvider);
     final trend = game.marketTrend;
     final balance = game.balance;
+    final hasNecati = game.hasHighNpcTrust('necati');
     final targetCount = MarketEngine.calculateDynamicListingCount(
       playerLevel: playerLevel,
       trend: trend,
@@ -88,6 +91,7 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
       playerLevel: playerLevel,
       trend: trend,
       playerBalance: balance,
+      hasHighNecatiTrust: hasNecati,
     );
 
     final updatedList = [...current, ...newListings];

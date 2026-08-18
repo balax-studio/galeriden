@@ -136,9 +136,22 @@ class GameCoreNotifier extends GameBaseNotifier
     
     _saveDebounceTimer?.cancel();
     _saveDebounceTimer = Timer(const Duration(milliseconds: 350), () async {
+      if (!mounted) return;
+      final jsonMap = state.toJson();
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
-      final jsonString = jsonEncode(state.toJson());
+
+      String jsonString;
+      try {
+        if (!kIsWeb) {
+          jsonString = await compute(_encodeDealershipToJson, jsonMap);
+        } else {
+          jsonString = jsonEncode(jsonMap);
+        }
+      } catch (_) {
+        jsonString = jsonEncode(jsonMap);
+      }
+
       await prefs.setString(_storageKey, jsonString);
     });
   }
@@ -146,9 +159,21 @@ class GameCoreNotifier extends GameBaseNotifier
   /// Forces an immediate save to disk
   Future<void> flushSaveNow() async {
     _saveDebounceTimer?.cancel();
+    final jsonMap = state.toJson();
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
-    final jsonString = jsonEncode(state.toJson());
+
+    String jsonString;
+    try {
+      if (!kIsWeb) {
+        jsonString = await compute(_encodeDealershipToJson, jsonMap);
+      } else {
+        jsonString = jsonEncode(jsonMap);
+      }
+    } catch (_) {
+      jsonString = jsonEncode(jsonMap);
+    }
+
     await prefs.setString(_storageKey, jsonString);
   }
 
@@ -503,3 +528,6 @@ class GameCoreNotifier extends GameBaseNotifier
 final gameCoreProvider = StateNotifierProvider<GameCoreNotifier, DealershipModel>((ref) {
   return GameCoreNotifier();
 });
+
+/// Top-level helper function for background isolate serialization
+String _encodeDealershipToJson(Map<String, dynamic> jsonMap) => jsonEncode(jsonMap);

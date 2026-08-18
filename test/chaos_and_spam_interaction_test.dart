@@ -137,24 +137,13 @@ void main() {
       expect(find.text('Koleksiyon Vitrinine Kilitle • +%5 İtibar'), findsOneWidget);
       expect(find.textContaining('Öne Çıkar'), findsOneWidget);
 
-      // Lock in showcase
-      final lockBtn = find.text('Koleksiyon Vitrinine Kilitle • +%5 İtibar');
-      await tester.ensureVisible(lockBtn);
-      await tester.tap(lockBtn);
-      await drainTimers(tester);
-
-      // Verify car is locked, badge and button updated
-      expect(container.read(gameProvider).ownedCars.first.isLockedInShowcase, true);
-      expect(find.text('Koleksiyon Vitrininden Çıkar • Satışa Aç'), findsOneWidget);
-      expect(find.text('KOLEKSİYONDA'), findsOneWidget);
-
       final balanceBeforeDoping = container.read(gameProvider).balance;
 
-      // SPAM CLICK "Öne Çıkar" (Doping) 10 times
+      // SPAM CLICK "Öne Çıkar" (Doping) 10 times on listed car
       final dopingBtn = find.textContaining('Öne Çıkar');
       await tester.ensureVisible(dopingBtn);
       for (int i = 0; i < 10; i++) {
-        await tester.tap(dopingBtn);
+        await tester.tap(dopingBtn, warnIfMissed: false);
       }
       await drainTimers(tester);
 
@@ -162,6 +151,17 @@ void main() {
       expect(container.read(gameProvider).balance, balanceBeforeDoping - GameConstants.dopingCost);
       expect(container.read(gameProvider).ownedCars.first.isDoped, true);
       expect(find.text('Dopingli'), findsOneWidget);
+
+      // Now test Lock in showcase
+      final lockBtn = find.text('Koleksiyon Vitrinine Kilitle • +%5 İtibar');
+      await tester.ensureVisible(lockBtn);
+      await tester.tap(lockBtn, warnIfMissed: false);
+      await drainTimers(tester);
+
+      // Verify car is locked, badge and button updated
+      expect(container.read(gameProvider).ownedCars.first.isLockedInShowcase, true);
+      expect(find.text('Koleksiyon Vitrininden Çıkar • Satışa Aç'), findsOneWidget);
+      expect(find.text('KOLEKSİYONDA'), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox());
       container.dispose();
@@ -292,12 +292,12 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         balance: 1000000.0,
-        unlockedBuildings: {'/staff', '/staff-academy', 'property_tier_3'},
+        unlockedBuildings: {'/staff', '/staff-academy', '/car-wash', 'property_tier_3'},
         hiredStaff: [],
       );
       await tester.pumpAndSettle();
 
-      // Initial state: "İŞE AL"
+      // Initial state: "İŞE AL" for unlocked /car-wash role
       expect(find.text('İŞE AL'), findsWidgets);
       expect(find.text('İŞTEN ÇIKAR'), findsNothing);
 
@@ -312,18 +312,7 @@ void main() {
       expect(container.read(gameProvider).hiredStaff.length, 1);
       expect(find.text('İŞTEN ÇIKAR'), findsOneWidget);
 
-      // SPAM CLICK "İŞTEN ÇIKAR"
-      final fireBtn = find.text('İŞTEN ÇIKAR').first;
-      for (int i = 0; i < 10; i++) {
-        await tester.tap(fireBtn, warnIfMissed: false);
-      }
-      await drainTimers(tester);
-
-      // Staff removed cleanly
-      expect(container.read(gameProvider).hiredStaff.isEmpty, true);
-      expect(find.text('İŞTEN ÇIKAR'), findsNothing);
-
-      // Test Staff Academy Course Enrollment Spam
+      // Test Staff Academy Course Enrollment Spam with active hired staff
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -336,7 +325,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('EĞİTİME GÖNDER'), findsWidgets);
-      expect(find.text('SERTİFİKA ALINDI'), findsNothing);
+      expect(find.text('SERTİFİKA AKTİF'), findsNothing);
 
       final balanceBeforeCourse = container.read(gameProvider).balance;
       final enrollBtn = find.text('EĞİTİME GÖNDER').first;
@@ -345,11 +334,33 @@ void main() {
       }
       await drainTimers(tester);
 
-      // Course unlocked once, button transitions to "SERTİFİKA ALINDI"
-      expect(container.read(gameProvider).purchasedAcademyCourses.length, 1);
-      expect(find.text('SERTİFİKA ALINDI'), findsOneWidget);
-      expect(find.text('SERTİFİKALI'), findsOneWidget);
+      // Course completed once for hired staff, button transitions to "SERTİFİKA AKTİF"
+      expect(container.read(gameProvider).hiredStaff.first.completedCourseIds.length, 1);
+      expect(find.text('SERTİFİKA AKTİF'), findsOneWidget);
+      expect(find.text('TAMAMLANDI'), findsOneWidget);
       expect(container.read(gameProvider).balance < balanceBeforeCourse, true);
+
+      // Return to StaffScreen and SPAM CLICK "İŞTEN ÇIKAR"
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: testTheme,
+            home: const StaffScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final fireBtn = find.text('İŞTEN ÇIKAR').first;
+      for (int i = 0; i < 10; i++) {
+        await tester.tap(fireBtn, warnIfMissed: false);
+      }
+      await drainTimers(tester);
+
+      // Staff removed cleanly
+      expect(container.read(gameProvider).hiredStaff.isEmpty, true);
+      expect(find.text('İŞTEN ÇIKAR'), findsNothing);
 
       await tester.pumpWidget(const SizedBox());
       container.dispose();

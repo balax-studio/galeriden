@@ -6,3 +6,5 @@
 3. **Strict Ownership Gating**: Random events targeting side businesses or facilities must check `b.isOwned == true` and `isFeatureUnlocked(route)`.
 4. **Reactive Button States**: State actions must immediately disable spam buttons with reactive updates (`Consumer` / `ref.watch`).
 5. **No Unprompted Git Push**: Never run `git push` without explicit user request.
+6. **Widget Test Timer Hygiene**: When writing widget tests that mount `gameCoreProvider`, always invoke `container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer()` during setup or teardown to prevent pending timer test assertion failures.
+7. **Isolate Serialization for Heavy Models**: State persistence serialization must use Flutter `compute()` isolate execution with safe web fallback.

@@ -82,27 +82,32 @@ class WorkshopRepairTile extends StatelessWidget {
                     ),
                   )
                 else
-                  Row(
-                    children: [
-                      const PulsingDot(color: Color(0xFFFF7A00), size: 5.5),
-                      const SizedBox(width: 5),
-                      const Text(
-                        'Onarım Bedeli: ',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFFF7A00),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const PulsingDot(color: Color(0xFFFF7A00), size: 5.5),
+                        const SizedBox(width: 5),
+                        const Text(
+                          'Onarım Bedeli: ',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFFFF7A00),
+                          ),
                         ),
-                      ),
-                      AnimatedRollingCounter(
-                        value: cost,
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFFF7A00),
+                        AnimatedRollingCounter(
+                          value: cost,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFFFF7A00),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 if (!isRepaired && netRoiText != null && netRoiText!.isNotEmpty) ...[
                   const SizedBox(height: 2),

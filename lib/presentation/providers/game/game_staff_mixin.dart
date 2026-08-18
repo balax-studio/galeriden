@@ -6,6 +6,7 @@ import 'game_base_notifier.dart';
 mixin GameStaffMixin on GameBaseNotifier {
   /// Hire a staff member
   bool hireStaff(StaffModel staff) {
+    if (!state.isFeatureUnlocked(staff.role.requiredFeatureRoute)) return false;
     if (state.hiredStaff.any((s) => s.role == staff.role)) return false; // Max 1 per role
     state = state.copyWith(hiredStaff: [...state.hiredStaff, staff]);
     addXP(25);
@@ -104,6 +105,45 @@ mixin GameStaffMixin on GameBaseNotifier {
       purchasedAcademyCourses: [...state.purchasedAcademyCourses, courseId],
     );
     addXP(50);
+    saveState();
+    return true;
+  }
+
+  /// Train a specific staff member with a role-specialized course
+  bool trainStaffMember(String staffId, StaffTrainingCourse course) {
+    if (state.balance < course.cost) return false;
+
+    final index = state.hiredStaff.indexWhere((s) => s.id == staffId);
+    if (index == -1) return false;
+
+    final staff = state.hiredStaff[index];
+    if (staff.completedCourseIds.contains(course.id)) return false;
+
+    final updatedCourses = [...staff.completedCourseIds, course.id];
+    final newMorale = (staff.morale + 20).clamp(0, 100);
+    final newMasteryLevel = (staff.masteryLevel + 1).clamp(1, 5);
+
+    final updatedStaff = staff.copyWith(
+      completedCourseIds: updatedCourses,
+      morale: newMorale,
+      masteryLevel: newMasteryLevel,
+      specialization: course.title,
+    );
+
+    List<StaffModel> updatedList = List<StaffModel>.from(state.hiredStaff);
+    updatedList[index] = updatedStaff;
+
+    final updatedAcademyPurchases = state.purchasedAcademyCourses.contains(course.id)
+        ? state.purchasedAcademyCourses
+        : [...state.purchasedAcademyCourses, course.id];
+
+    state = state.copyWith(
+      balance: state.balance - course.cost,
+      hiredStaff: updatedList,
+      purchasedAcademyCourses: updatedAcademyPurchases,
+    );
+
+    addXP(40);
     saveState();
     return true;
   }

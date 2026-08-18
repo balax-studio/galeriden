@@ -10,6 +10,7 @@ class NotificationService {
       icon: Icons.check_circle_rounded,
       accentColor: const Color(0xFF00E575), // Brutal Green
       textColor: Colors.black,
+      durationSeconds: 2,
     );
   }
 
@@ -21,7 +22,7 @@ class NotificationService {
       icon: Icons.dangerous_rounded,
       accentColor: const Color(0xFFFF3366), // Brutal Red
       textColor: Colors.white,
-      durationSeconds: 4,
+      durationSeconds: 2,
     );
   }
 
@@ -33,6 +34,7 @@ class NotificationService {
       icon: Icons.info_rounded,
       accentColor: const Color(0xFF38BDF8), // Brutal Blue
       textColor: Colors.black,
+      durationSeconds: 2,
     );
   }
 
@@ -44,7 +46,7 @@ class NotificationService {
       icon: Icons.warning_amber_rounded,
       accentColor: const Color(0xFFFFDE59), // Brutal Yellow
       textColor: Colors.black,
-      durationSeconds: 4,
+      durationSeconds: 2,
     );
   }
 
@@ -56,7 +58,7 @@ class NotificationService {
       icon: Icons.monetization_on_rounded,
       accentColor: const Color(0xFFFFDE59),
       textColor: Colors.black,
-      durationSeconds: 4,
+      durationSeconds: 2,
     );
   }
 
@@ -68,7 +70,7 @@ class NotificationService {
       icon: Icons.stars_rounded,
       accentColor: const Color(0xFFA855F7), // Brutal Violet
       textColor: Colors.white,
-      durationSeconds: 4,
+      durationSeconds: 2,
     );
   }
 
@@ -79,13 +81,13 @@ class NotificationService {
     required IconData icon,
     required Color accentColor,
     required Color textColor,
-    int durationSeconds = 3,
+    int durationSeconds = 2,
   }) {
     toastification.showCustom(
       context: context,
       autoCloseDuration: Duration(seconds: durationSeconds),
       alignment: Alignment.topCenter,
-      animationDuration: const Duration(milliseconds: 350),
+      animationDuration: const Duration(milliseconds: 250),
       builder: (BuildContext context, ToastificationItem holder) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

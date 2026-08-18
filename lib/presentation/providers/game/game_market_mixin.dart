@@ -11,6 +11,7 @@ import '../../../data/models/expertise_model.dart';
 import '../../../data/models/game_event_model.dart';
 import '../../../data/models/installment_contract_model.dart';
 import '../../../data/models/mission_model.dart';
+import '../../../data/models/notary_event_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/models/part_order_model.dart';
 import '../../../data/models/player_achievements.dart';
@@ -25,6 +26,18 @@ import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
+
+class OfferPullResult {
+  final bool hasNewOffer;
+  final String message;
+  final bool isZeigarnikLull;
+
+  const OfferPullResult({
+    required this.hasNewOffer,
+    required this.message,
+    this.isZeigarnikLull = false,
+  });
+}
 
 mixin GameMarketMixin on GameBaseNotifier {
   /// Buy a side business
@@ -401,7 +414,11 @@ mixin GameMarketMixin on GameBaseNotifier {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
       if (currentOffers >= 3) return;
-      final newOffer1 = NegotiationEngine.generateBuyerOffer(car, car.listingPrice);
+      final newOffer1 = NegotiationEngine.generateBuyerOffer(
+        car,
+        car.listingPrice,
+        isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+      );
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
       saveState();
     });
@@ -410,7 +427,11 @@ mixin GameMarketMixin on GameBaseNotifier {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
       if (currentOffers >= 3) return;
-      final newOffer2 = NegotiationEngine.generateBuyerOffer(car, car.listingPrice);
+      final newOffer2 = NegotiationEngine.generateBuyerOffer(
+        car,
+        car.listingPrice,
+        isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+      );
       state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
       saveState();
     });
@@ -423,16 +444,18 @@ mixin GameMarketMixin on GameBaseNotifier {
   void triggerOrganicOffers() {
     if (state.ownedCars.isEmpty) return;
 
-    // Sadece İLANA KONULMUŞ, kiralanmamış, vitrinde kilitli olmayan ve üzerinde 3'ten az aktif teklif olan araçlara organik teklif gelsin
     final eligibleCars = <CarModel>[];
     for (final car in state.ownedCars) {
       if (!car.isListed || car.isRented || car.isLockedInShowcase) continue;
       int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
       if (activeOffers < 3) {
         eligibleCars.add(car);
-        // Dopingli araçlara 3 kat daha yüksek seçilme şansı
         if (car.isDoped) {
           eligibleCars.add(car);
+          eligibleCars.add(car);
+        }
+        // Vlogger Berk high trust grants +25% organic customer traffic
+        if (state.hasHighNpcTrust('vlogger_berk')) {
           eligibleCars.add(car);
         }
       }
@@ -441,9 +464,93 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (eligibleCars.isEmpty) return;
 
     final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
-    final offer = NegotiationEngine.generateBuyerOffer(randomCar, randomCar.listingPrice);
+    final offer = NegotiationEngine.generateBuyerOffer(
+      randomCar,
+      randomCar.listingPrice,
+      isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+    );
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     saveState();
+  }
+
+  /// Manual pull for buyer offers from Showroom screen with Zeigarnik effect market anticipation
+  OfferPullResult manualPullOrganicOffer() {
+    if (state.ownedCars.isEmpty) {
+      return const OfferPullResult(
+        hasNewOffer: false,
+        message: 'Galerinizde henüz araç bulunmuyor.',
+      );
+    }
+
+    final listedCars = state.ownedCars.where((c) => c.isListed && !c.isRented && !c.isLockedInShowcase).toList();
+    if (listedCars.isEmpty) {
+      return const OfferPullResult(
+        hasNewOffer: false,
+        message: 'Teklif alabilmek için önce galerideki araçlarınızı ilana koymalısınız.',
+      );
+    }
+
+    final eligibleCars = <CarModel>[];
+    for (final car in listedCars) {
+      int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      if (activeOffers < 3) {
+        // Over-tuned cars have 35% lower general appeal
+        if (car.isOverTuned && random.nextDouble() < 0.35) {
+          continue;
+        }
+        eligibleCars.add(car);
+        if (car.isDoped) {
+          eligibleCars.add(car);
+          eligibleCars.add(car);
+        }
+        if (state.hasHighNpcTrust('vlogger_berk')) {
+          eligibleCars.add(car);
+        }
+      }
+    }
+
+    if (eligibleCars.isEmpty) {
+      final hasOverTunedOnly = listedCars.every((c) => c.isOverTuned);
+      return OfferPullResult(
+        hasNewOffer: false,
+        message: hasOverTunedOnly
+            ? 'Aşırı modifiyeli ilanlar standart alıcıları uzaklaştırıyor • Genç modifiye meraklılarının ilgisi bekleniyor.'
+            : 'Tüm ilanlarınızda aktif teklif kotası dolu • Mevcut teklifleri yanıtlayın veya reddedin.',
+      );
+    }
+
+    // Dynamic market lull chance (65% base; drops to 48% with Vlogger Berk trust)
+    final double lullChance = state.hasHighNpcTrust('vlogger_berk') ? 0.48 : 0.65;
+    if (random.nextDouble() < lullChance) {
+      final zeigarnikMessages = [
+        'Piyasa şu an durgun • 2 potansiyel alıcı ilanı favorilerine ekledi, yakında dönüş yapabilirler.',
+        'Bir alıcı ilanı detaylı inceledi ancak henüz aramadı • Merak uyandıran ilanlar daha hızlı satılır.',
+        'İlan görüntülenmesi arttı! Kararsız bir müşteri eksper raporunu inceliyor...',
+        'Galerinizin önünden geçen bir müşteri vitrindeki araca göz gezdirdi • Takipte kalın!',
+        'Piyasada nakit sıkışıklığı var • Alıcılar kredi sonucunu bekliyor.',
+        'Galeri vitrininiz inceleniyor • Ciddi bir alıcı fiyat geçmişine bakıyor.',
+      ];
+      final message = zeigarnikMessages[random.nextInt(zeigarnikMessages.length)];
+      return OfferPullResult(
+        hasNewOffer: false,
+        message: message,
+        isZeigarnikLull: true,
+      );
+    }
+
+    final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
+    final offer = NegotiationEngine.generateBuyerOffer(
+      randomCar,
+      randomCar.listingPrice,
+      isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+    );
+    state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
+    saveState();
+
+    return OfferPullResult(
+      hasNewOffer: true,
+      message: '${randomCar.brand} ${randomCar.modelName} için yeni bir alıcı teklifi geldi!',
+    );
   }
 
   /// Accept offer with fraud inspection evaluation
@@ -470,6 +577,47 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     acceptOffer(offer);
     return fraudResult;
+  }
+
+  /// Process notary deed transfer with random events (cancellation, EFT limit, fast clerk bonus)
+  NotaryEventResult processNotarySale(OfferModel offer, CustomerModel customer) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);
+    if (carIndex == -1) {
+      return const NotaryEventResult(
+        type: NotaryEventType.buyerWalkaway,
+        title: 'ARAÇ BULUNAMADI',
+        description: 'Araç envanterde bulunamadı.',
+        isCancelled: true,
+      );
+    }
+
+    final car = state.ownedCars[carIndex];
+    final notaryResult = NotaryEventResult.evaluateNotaryEvent(
+      buyerName: customer.name,
+      carTitle: '${car.brand} ${car.modelName}',
+      price: offer.offeredAmount,
+      dealershipReputation: state.reputationScore,
+    );
+
+    if (notaryResult.isCancelled) {
+      final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
+      state = state.copyWith(incomingOffers: updatedOffers);
+      saveState();
+      return notaryResult;
+    }
+
+    acceptOffer(offer);
+
+    if (notaryResult.bonusXp > 0) {
+      addXP(notaryResult.bonusXp);
+    }
+    if (notaryResult.bonusReputation > 0) {
+      final newRep = (state.reputationScore + notaryResult.bonusReputation).clamp(0, 100);
+      state = state.copyWith(reputationScore: newRep);
+      saveState();
+    }
+
+    return notaryResult;
   }
 
   /// Accept an offer and sell car
@@ -674,9 +822,21 @@ mixin GameMarketMixin on GameBaseNotifier {
     return (review, reputationChange);
   }
 
-  /// Reject an offer
+  /// Reject or dismiss an offer
   void rejectOffer(String offerId) {
     final updatedOffers = state.incomingOffers.where((o) => o.id != offerId).toList();
+    state = state.copyWith(incomingOffers: updatedOffers);
+    saveState();
+  }
+
+  /// Dismiss an expired or rejected offer (alias for rejectOffer)
+  void dismissOffer(String offerId) {
+    rejectOffer(offerId);
+  }
+
+  /// Clear all expired offers
+  void clearExpiredOffers() {
+    final updatedOffers = state.incomingOffers.where((o) => !o.isExpired && o.status != OfferStatus.expired).toList();
     state = state.copyWith(incomingOffers: updatedOffers);
     saveState();
   }
@@ -973,7 +1133,13 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Add customer review upon sales
   void addCustomerReview(CustomerReviewModel review) {
-    final newReputation = (state.reputationScore + (review.rating >= 4.0 ? 5 : -10)).clamp(0, 100);
+    // Deduplication check: Do not add duplicate review from same reviewer for same car
+    final isDuplicate = state.customerReviews.any(
+      (r) => r.reviewerName == review.reviewerName && r.carTitle == review.carTitle,
+    );
+    if (isDuplicate) return;
+
+    final newReputation = (state.reputationScore + (review.rating >= 4.0 ? 5 : -10)).clamp(0, 200);
     state = state.copyWith(
       customerReviews: [review, ...state.customerReviews],
       reputationScore: newReputation,
@@ -1034,7 +1200,11 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final bmCar = state.blackMarketCars[index];
     if (bmCar.isPurchased) return false;
-    if (state.balance < bmCar.askingPrice) return false;
+
+    // Gölge İbrahim VIP Black Market discount (15% off)
+    final hasGolgeTrust = state.hasHighNpcTrust('golge_ibrahim');
+    final finalCost = hasGolgeTrust ? (bmCar.askingPrice * 0.85).roundToDouble() : bmCar.askingPrice;
+    if (state.balance < finalCost) return false;
 
     // Convert to CarModel in garage with active black market risk tags
     final newCar = CarModel(
@@ -1049,7 +1219,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       plateNumber: MarketEngine.generateLicensePlate().number,
       plateRarity: 'legendary',
       baseMarketValue: bmCar.realMarketValue,
-      currentPurchasePrice: bmCar.askingPrice,
+      currentPurchasePrice: finalCost,
       isRare: true,
       isBlackMarket: true,
       blackMarketRiskType: bmCar.riskType,
@@ -1066,13 +1236,18 @@ mixin GameMarketMixin on GameBaseNotifier {
       ),
     );
 
-    List<BlackMarketCarModel> updatedBM = List.from(state.blackMarketCars);
+    final updatedBM = List<BlackMarketCarModel>.from(state.blackMarketCars);
     updatedBM[index] = bmCar.copyWith(isPurchased: true);
 
+    final currentRel = state.getNpcRelation('golge_ibrahim');
+    final newRelations = Map<String, int>.from(state.npcRelationships);
+    newRelations['golge_ibrahim'] = (currentRel + 5).clamp(0, 100);
+
     state = state.copyWith(
-      balance: state.balance - bmCar.askingPrice,
+      balance: state.balance - finalCost,
       blackMarketCars: updatedBM,
       ownedCars: [...state.ownedCars, newCar],
+      npcRelationships: newRelations,
     );
 
     addXP(200);

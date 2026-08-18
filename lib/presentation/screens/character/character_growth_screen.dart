@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -240,7 +241,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // 4. Esnaf Çevresi & NPC İlişkileri (§2.4)
-          _buildNpcRelationshipsSection(context, game, isDark),
+          _buildNpcRelationshipsSection(context, ref, game, isDark),
           const SizedBox(height: 16),
 
           // 5. Achievements Section
@@ -499,7 +500,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNpcRelationshipsSection(BuildContext context, DealershipModel game, bool isDark) {
+  Widget _buildNpcRelationshipsSection(BuildContext context, WidgetRef ref, DealershipModel game, bool isDark) {
     final npcs = [
       {
         'id': 'haydar_usta',
@@ -546,14 +547,25 @@ class CharacterGrowthScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'ESNAF ÇEVRESİ & NPC İLİŞKİLERİ',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.5,
-            color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'ESNAF ÇEVRESİ & NPC İLİŞKİLERİ',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+                color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+              ),
+            ),
+            const NeoBrutalBadge(
+              text: 'DİNAMİK ETKİLEŞİM',
+              backgroundColor: AppColors.brutalCyan,
+              textColor: Colors.black,
+              fontSize: 9.5,
+            ),
+          ],
         ),
         const SizedBox(height: 10),
 
@@ -563,100 +575,436 @@ class CharacterGrowthScreen extends ConsumerWidget {
           final hasHighTrust = game.hasHighNpcTrust(id);
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: NeoBrutalCard(
-              padding: const EdgeInsets.all(12),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: hasHighTrust ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
-              borderRadius: 12,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: npc['color'] as Color,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 2.0,
+            padding: const EdgeInsets.only(bottom: 10),
+            child: InkWell(
+              onTap: () => _showNpcInteractionSheet(context, ref, npc, trust, hasHighTrust, isDark),
+              borderRadius: BorderRadius.circular(12),
+              child: NeoBrutalCard(
+                padding: const EdgeInsets.all(12),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: hasHighTrust ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                borderRadius: 12,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: npc['color'] as Color,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
+                          ),
+                          child: Icon(npc['icon'] as IconData, color: Colors.white, size: 20),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                npc['name'] as String,
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                              ),
+                              Text(
+                                npc['role'] as String,
+                                style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Icon(npc['icon'] as IconData, color: Colors.white, size: 20),
+                        NeoBrutalBadge(
+                          text: '$trust / 100',
+                          backgroundColor: hasHighTrust ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                          textColor: hasHighTrust ? Colors.black : (isDark ? Colors.white : Colors.black),
+                          fontSize: 11,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    // Trust Progress Bar
+                    Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: (trust / 100.0).clamp(0.0, 1.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: hasHighTrust ? AppColors.brutalGreen : (npc['color'] as Color),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          npc['perk'] as String,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: hasHighTrust ? AppColors.brutalGreen : const Color(0xFF64748B),
+                          ),
+                        ),
+                        Row(
                           children: [
-                            Text(
-                              npc['name'] as String,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
-                            ),
-                            Text(
-                              npc['role'] as String,
-                              style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                            if (hasHighTrust)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 6),
+                                child: Text(
+                                  'AKTİF',
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                ),
+                              ),
+                            const Text(
+                              'GÖRÜŞ & JEST YAP >',
+                              style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
                             ),
                           ],
                         ),
-                      ),
-                      NeoBrutalBadge(
-                        text: '$trust / 100',
-                        backgroundColor: hasHighTrust ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                        textColor: hasHighTrust ? Colors.black : (isDark ? Colors.white : Colors.black),
-                        fontSize: 11,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Trust Progress Bar
-                  Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
-                        width: 1.5,
-                      ),
+                      ],
                     ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: (trust / 100.0).clamp(0.0, 1.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: hasHighTrust ? AppColors.brutalGreen : (npc['color'] as Color),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        npc['perk'] as String,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: hasHighTrust ? AppColors.brutalGreen : const Color(0xFF64748B),
-                        ),
-                      ),
-                      if (hasHighTrust)
-                        const Text(
-                          'AKTİF',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                        ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
         }),
       ],
+    );
+  }
+
+  void _showNpcInteractionSheet(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> npc,
+    int currentTrust,
+    bool hasHighTrust,
+    bool isDark,
+  ) {
+    final id = npc['id'] as String;
+    final name = npc['name'] as String;
+    final role = npc['role'] as String;
+    final icon = npc['icon'] as IconData;
+    final color = npc['color'] as Color;
+
+    String moodDialogue;
+    if (id == 'haydar_usta') {
+      if (currentTrust < 40) {
+        moodDialogue = 'Dükkan yoğun usta, acil bir işin yoksa liftleri meşgul etmeyelim.';
+      } else if (currentTrust < 70) {
+        moodDialogue = 'Aleykümselam usta, diagnostik cihazını açık tutuyorum. Ekspertizlik araç varsa getir bakarız.';
+      } else {
+        moodDialogue = 'Eyvallah canım kardeşim! Senin getirdiğin arabanın vidasına kadar kefilim, eksper yarı fiyatına feda olsun!';
+      }
+    } else if (id == 'cikmaci_ibo') {
+      if (currentTrust < 40) {
+        moodDialogue = 'Hurdaya bedava bakılmaz usta, parçayı söken parasını sayar.';
+      } else if (currentTrust < 70) {
+        moodDialogue = 'Hoş geldin, taze pert kasa indirdik. İşine yarar parça olursa kenara ayırırım.';
+      } else {
+        moodDialogue = 'Sanayinin kralı gelmiş! Çıkma parçada sana liste fiyatı sökmez, %25 dost indirimi helaldir!';
+      }
+    } else if (id == 'golge_ibrahim') {
+      if (currentTrust < 40) {
+        moodDialogue = 'Fazla soru sorma, polis devriyesi geziyor. Paran varsa konuşalım.';
+      } else if (currentTrust < 70) {
+        moodDialogue = 'Gece yarısı limana iki özel makine düşecek. Sessizce payını alırsın.';
+      } else {
+        moodDialogue = 'Biz artık kader ortağıyız. En temiz change ve gizli ihaleleri önce sana açıyorum, %15 komisyon indirimi sana feda!';
+      }
+    } else if (id == 'vlogger_berk') {
+      if (currentTrust < 40) {
+        moodDialogue = 'Kanka kanalda 500 bin abone var, bedavaya hikaye atmamı beklemiyorsun herhalde?';
+      } else if (currentTrust < 70) {
+        moodDialogue = 'Selamlar! Vitrindeki spor kasayı reels videosunda arka plana koydum, etkileşim güzel gidiyor.';
+      } else {
+        moodDialogue = 'Kankam benim! Yeni videoda senin galeriyi ana sponsor gibi övdüm, vitrinine müşteri yağacak hazır ol!';
+      }
+    } else {
+      if (currentTrust < 40) {
+        moodDialogue = 'Çay ₺10 usta, veresiye defterimiz kapalıdır.';
+      } else if (currentTrust < 70) {
+        moodDialogue = 'Afiyet olsun usta. Sanayide yine fısıltılar dönüyor, kulisleri takip etmeyi unutma.';
+      } else {
+        moodDialogue = 'Ooo galerici dostum! Maslakta ucuza düşen kelepirleri ilk sana fısıldıyorum, çayın da her zaman benden!';
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Consumer(
+          builder: (context, modalRef, _) {
+            final liveGame = modalRef.watch(gameProvider);
+            final liveTrust = liveGame.getNpcRelation(id);
+            final liveHasHighTrust = liveGame.hasHighNpcTrust(id);
+
+            return Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                border: Border.all(color: Colors.black, width: 2.5),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white24 : Colors.black26,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black, width: 2.0),
+                        ),
+                        child: Icon(icon, color: Colors.white, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name,
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                            ),
+                            Text(
+                              role,
+                              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                      ),
+                      NeoBrutalBadge(
+                        text: '$liveTrust / 100 GÜVEN',
+                        backgroundColor: liveHasHighTrust ? AppColors.brutalGreen : AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 11,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Mood Quote Box
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.format_quote_rounded, size: 18, color: AppColors.brutalYellow),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            moodDialogue,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white70 : const Color(0xFF1E293B),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  Text(
+                    'İLİŞKİ GELİŞTİRME SEÇENEKLERİ',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 1. Çay Ismarla (₺250 • +3 Güven)
+                  _buildInteractionRow(
+                    title: 'Çay Ismarla & Muhabbet Et',
+                    subtitle: 'Sıcak çay eşliğinde sanayi sohbeti',
+                    cost: 250,
+                    trustGain: 3,
+                    icon: Icons.coffee_rounded,
+                    buttonColor: AppColors.brutalYellow,
+                    isDark: isDark,
+                    canAfford: liveGame.balance >= 250,
+                    onTap: () {
+                      final ok = ref.read(gameProvider.notifier).interactWithNpc(
+                        npcId: id,
+                        cost: 250,
+                        trustGain: 3,
+                      );
+                      if (ok) {
+                        GameSoundHapticService.playCashSuccess();
+                        NotificationService.showSuccess(context, '$name ile çay içildi • +3 Güven!');
+                      } else {
+                        NotificationService.showError(context, 'Yetersiz bakiye! ₺250 gerekli.');
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+
+                  // 2. İş Pasla (₺1.500 • +8 Güven)
+                  _buildInteractionRow(
+                    title: 'İş & Müşteri Pasla',
+                    subtitle: 'Esnaf dayanışması ve ortak iş birliği',
+                    cost: 1500,
+                    trustGain: 8,
+                    icon: Icons.handshake_rounded,
+                    buttonColor: AppColors.brutalCyan,
+                    isDark: isDark,
+                    canAfford: liveGame.balance >= 1500,
+                    onTap: () {
+                      final ok = ref.read(gameProvider.notifier).interactWithNpc(
+                        npcId: id,
+                        cost: 1500,
+                        trustGain: 8,
+                      );
+                      if (ok) {
+                        GameSoundHapticService.playCashSuccess();
+                        NotificationService.showSuccess(context, '$name ile iş paslaşıldı • +8 Güven!');
+                      } else {
+                        NotificationService.showError(context, 'Yetersiz bakiye! ₺1.500 gerekli.');
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+
+                  // 3. Özel Hediye / Jest Yap (₺5.000 • +18 Güven)
+                  _buildInteractionRow(
+                    title: 'Özel Sanayi Hediyesi & Jest',
+                    subtitle: 'Hızlı güven kazanımı ve prestijli jest',
+                    cost: 5000,
+                    trustGain: 18,
+                    icon: Icons.card_giftcard_rounded,
+                    buttonColor: AppColors.brutalGreen,
+                    isDark: isDark,
+                    canAfford: liveGame.balance >= 5000,
+                    onTap: () {
+                      final ok = ref.read(gameProvider.notifier).interactWithNpc(
+                        npcId: id,
+                        cost: 5000,
+                        trustGain: 18,
+                      );
+                      if (ok) {
+                        GameSoundHapticService.playCashSuccess();
+                        NotificationService.showSuccess(context, '$name için özel hediye gönderildi • +18 Güven!');
+                      } else {
+                        NotificationService.showError(context, 'Yetersiz bakiye! ₺5.000 gerekli.');
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildInteractionRow({
+    required String title,
+    required String subtitle,
+    required double cost,
+    required int trustGain,
+    required IconData icon,
+    required Color buttonColor,
+    required bool isDark,
+    required bool canAfford,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: buttonColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black, width: 1.8),
+            ),
+            child: Icon(icon, size: 18, color: Colors.black),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                ),
+                Text(
+                  '$subtitle • +$trustGain Güven',
+                  style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          NeoBrutalButton(
+            label: CurrencyFormatter.format(cost),
+            backgroundColor: canAfford ? buttonColor : const Color(0xFF64748B),
+            textColor: Colors.black,
+            fontSize: 10.5,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            onPressed: onTap,
+          ),
+        ],
+      ),
     );
   }
 

@@ -9,6 +9,7 @@ import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/offer_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
+import '../../../../domain/usecases/negotiation_engine.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -23,7 +24,14 @@ class ShowroomListingModal {
     final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
     double targetPrice = (offer.offeredAmount * 1.08).roundToDouble();
-    String selectedStrategy = 'ikna_et';
+
+    final dynamicTactics = NegotiationEngine.generateTactics(
+      isBuying: false,
+      car: car,
+      customer: offer.buyerCustomer,
+      price: targetPrice,
+    );
+    String selectedStrategy = dynamicTactics.first.id;
 
     final remainingCounters = offer.maxCounters - offer.counterCount;
 
@@ -195,7 +203,7 @@ class ShowroomListingModal {
                         const Icon(Icons.psychology_rounded, size: 16, color: AppColors.brutalCyan),
                         const SizedBox(width: 6),
                         Text(
-                          'PAZARLIK YAKLAŞIMI / STRATEJİSİ',
+                          'ESNAF KOZLARI & SATIŞ STRATEJİSİ',
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w900,
@@ -208,59 +216,22 @@ class ShowroomListingModal {
                     const SizedBox(height: 8),
 
                     Row(
-                      children: [
-                        Expanded(
-                          child: _buildTactileStrategyCard(
-                            icon: Icons.search_rounded,
-                            label: 'Şeffaflık',
-                            subtitle: '+%20 İkna Bonusu',
-                            isSelected: selectedStrategy == 'ikna_et',
-                            activeColor: AppColors.brutalGreen,
-                            onTap: () => setState(() => selectedStrategy = 'ikna_et'),
-                            isDark: isDark,
+                      children: dynamicTactics.map((tactic) {
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: _buildTactileStrategyCard(
+                              icon: _getTacticIcon(tactic.iconKey),
+                              label: tactic.title,
+                              subtitle: tactic.badgeText,
+                              isSelected: selectedStrategy == tactic.id,
+                              activeColor: _getTacticColor(tactic.iconKey),
+                              onTap: () => setState(() => selectedStrategy = tactic.id),
+                              isDark: isDark,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildTactileStrategyCard(
-                            icon: Icons.coffee_rounded,
-                            label: 'Çay İkramı',
-                            subtitle: 'Esnaf Sıcaklığı',
-                            isSelected: selectedStrategy == 'duyguya_oyna',
-                            activeColor: AppColors.brutalYellow,
-                            onTap: () => setState(() => selectedStrategy = 'duyguya_oyna'),
-                            isDark: isDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildTactileStrategyCard(
-                            icon: Icons.work_rounded,
-                            label: 'Tok Satıcı',
-                            subtitle: 'Gençleri Etkiler',
-                            isSelected: selectedStrategy == 'sert_dur',
-                            activeColor: AppColors.brutalOrange,
-                            onTap: () => setState(() => selectedStrategy = 'sert_dur'),
-                            isDark: isDark,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildTactileStrategyCard(
-                            icon: Icons.bolt_rounded,
-                            label: 'Hızlı Kapat',
-                            subtitle: 'Nakit İndirimi',
-                            isSelected: selectedStrategy == 'hizli_kapat',
-                            activeColor: AppColors.brutalCyan,
-                            onTap: () => setState(() => selectedStrategy = 'hizli_kapat'),
-                            isDark: isDark,
-                          ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     ),
 
                     const SizedBox(height: 20),
@@ -294,6 +265,21 @@ class ShowroomListingModal {
   // 2. İLAN AYARLARI & STRATEJİ MERKEZİ (LISTING EDIT SHEET)
   // =========================================================================
   static void showListingEditSheet(BuildContext context, WidgetRef ref, CarModel car) {
+    if (car.isLockedInShowcase) {
+      NotificationService.showError(
+        context,
+        'Bu araç prestij vitrinine kilitlenmiştir • Satışa çıkarılamaz!',
+      );
+      return;
+    }
+    if (car.isRented) {
+      NotificationService.showError(
+        context,
+        'Bu araç kirada çalışmaktadır • Satışa çıkarılamaz!',
+      );
+      return;
+    }
+
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
@@ -310,7 +296,8 @@ class ShowroomListingModal {
         ? car.listingTone
         : 'standard';
     bool hideDamagedPhotos = car.hideDamagedPhotos;
-    bool allowsInstallments = car.allowsInstallments;
+    final isFinanceUnlockedInitial = ref.read(gameProvider).isFeatureUnlocked('/finance');
+    bool allowsInstallments = isFinanceUnlockedInitial ? car.allowsInstallments : false;
 
     final double minPrice = (car.currentPurchasePrice * 0.8).clamp(10000.0, car.estimatedRealValue);
     final double maxPrice = (car.estimatedRealValue * 1.6).roundToDouble();
@@ -329,6 +316,7 @@ class ShowroomListingModal {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            final isFinanceUnlocked = ref.read(gameProvider).isFeatureUnlocked('/finance');
             return Padding(
               padding: EdgeInsets.only(
                 left: 18,
@@ -778,13 +766,26 @@ class ShowroomListingModal {
                     // SECTION 3: TACTILE TOGGLE CARDS (Senetle & Hasar Gizleme)
                     _buildTactileToggleRow(
                       title: 'Vadeli / Senet / Çek Satışına Aç',
-                      subtitle: 'Vadeli senet ve çek tekliflerine izin ver • +%20 vade farkı. Kapalıyken SADECE %100 PEŞİN NAKİT teklif gelir.',
-                      icon: Icons.payments_rounded,
-                      isActive: allowsInstallments,
+                      subtitle: isFinanceUnlocked
+                          ? 'Vadeli senet ve çek tekliflerine izin ver • +%20 vade farkı. Kapalıyken SADECE %100 PEŞİN NAKİT teklif gelir.'
+                          : 'Vadeli senet ve çekli satışlar Seviye 5 Finans Merkezi kurulduğunda aktifleşir • Şu an sadece peşin nakit satış yapılabilir.',
+                      icon: isFinanceUnlocked ? Icons.payments_rounded : Icons.lock_rounded,
+                      isActive: isFinanceUnlocked && allowsInstallments,
+                      isLocked: !isFinanceUnlocked,
+                      lockedBadgeText: 'KİLİTLİ • SEVİYE 5',
                       activeLabel: 'AÇIK • VADELİ/ÇEK',
                       inactiveLabel: 'SADECE NAKİT',
                       activeColor: AppColors.brutalGreen,
-                      onToggle: () => setState(() => allowsInstallments = !allowsInstallments),
+                      onToggle: () {
+                        if (!isFinanceUnlocked) {
+                          NotificationService.showWarning(
+                            context,
+                            'Vadeli satış yapabilmek için Seviye 5 Finans Merkezi açılmalıdır.',
+                          );
+                          return;
+                        }
+                        setState(() => allowsInstallments = !allowsInstallments);
+                      },
                       isDark: isDark,
                     ),
                     const SizedBox(height: 8),
@@ -920,7 +921,7 @@ class ShowroomListingModal {
                               listingPhotoCount: selectedPhotoCount,
                               listingTone: selectedTone,
                               hideDamagedPhotos: hideDamagedPhotos,
-                              allowsInstallments: allowsInstallments,
+                              allowsInstallments: ref.read(gameProvider).isFeatureUnlocked('/finance') ? allowsInstallments : false,
                             );
                         Navigator.pop(context);
                         NotificationService.showSuccess(context, '${car.brand} ${car.modelName} ilanı güncellendi!');
@@ -1036,11 +1037,29 @@ class ShowroomListingModal {
     required Color activeColor,
     required VoidCallback onToggle,
     required bool isDark,
+    bool isLocked = false,
+    String? lockedBadgeText,
   }) {
+    final borderColor = isLocked
+        ? (isDark ? const Color(0xFF2A3142) : Colors.grey.shade400)
+        : (isActive ? activeColor : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)));
+
+    final badgeText = isLocked
+        ? (lockedBadgeText ?? 'KİLİTLİ')
+        : (isActive ? activeLabel : inactiveLabel);
+
+    final badgeBgColor = isLocked
+        ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+        : (isActive ? activeColor : (isDark ? const Color(0xFF262C3D) : const Color(0xFFCBD5E1)));
+
+    final badgeTextColor = isLocked
+        ? const Color(0xFF94A3B8)
+        : (isActive ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)));
+
     return NeoBrutalCard(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isActive ? activeColor : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+      borderColor: borderColor,
       borderWidth: 2.0,
       borderRadius: 12,
       shadowOffset: const Offset(2.5, 2.5),
@@ -1050,7 +1069,9 @@ class ShowroomListingModal {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isActive ? activeColor : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
+              color: isLocked
+                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                  : (isActive ? activeColor : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9))),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -1058,9 +1079,11 @@ class ShowroomListingModal {
               ),
             ),
             child: Icon(
-              icon,
+              isLocked ? Icons.lock_rounded : icon,
               size: 18,
-              color: isActive ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+              color: isLocked
+                  ? const Color(0xFF94A3B8)
+                  : (isActive ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B))),
             ),
           ),
           const SizedBox(width: 10),
@@ -1073,7 +1096,9 @@ class ShowroomListingModal {
                   style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    color: isLocked
+                        ? (isDark ? Colors.white60 : Colors.black54)
+                        : (isDark ? Colors.white : const Color(0xFF0F172A)),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -1090,10 +1115,11 @@ class ShowroomListingModal {
           ),
           const SizedBox(width: 8),
           NeoBrutalBadge(
-            text: isActive ? activeLabel : inactiveLabel,
-            backgroundColor: isActive ? activeColor : (isDark ? const Color(0xFF262C3D) : const Color(0xFFCBD5E1)),
-            textColor: isActive ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)),
-            fontSize: 10,
+            text: badgeText,
+            icon: isLocked ? Icons.lock_rounded : null,
+            backgroundColor: badgeBgColor,
+            textColor: badgeTextColor,
+            fontSize: 9.5,
           ),
         ],
       ),
@@ -1230,5 +1256,63 @@ class ShowroomListingModal {
         ],
       ),
     );
+  }
+
+  static IconData _getTacticIcon(String iconKey) {
+    switch (iconKey) {
+      case 'expert':
+        return Icons.search_rounded;
+      case 'cash':
+        return Icons.payments_rounded;
+      case 'market':
+        return Icons.trending_down_rounded;
+      case 'partner':
+        return Icons.phone_in_talk_rounded;
+      case 'tea':
+        return Icons.local_cafe_rounded;
+      case 'smoke':
+        return Icons.smoking_rooms_rounded;
+      case 'mechanic':
+        return Icons.build_rounded;
+      case 'urgent':
+        return Icons.alarm_on_rounded;
+      case 'pristine':
+        return Icons.auto_awesome_rounded;
+      case 'notary':
+        return Icons.drive_file_rename_outline_rounded;
+      case 'tok_seller':
+        return Icons.work_rounded;
+      default:
+        return Icons.handshake_rounded;
+    }
+  }
+
+  static Color _getTacticColor(String iconKey) {
+    switch (iconKey) {
+      case 'expert':
+        return const Color(0xFF00E575);
+      case 'cash':
+        return const Color(0xFFFFDE59);
+      case 'market':
+        return const Color(0xFFFF54B0);
+      case 'partner':
+        return const Color(0xFF38BDF8);
+      case 'tea':
+        return const Color(0xFFFFDE59);
+      case 'smoke':
+        return const Color(0xFFCBD5E1);
+      case 'mechanic':
+        return const Color(0xFFF97316);
+      case 'urgent':
+        return const Color(0xFFEF4444);
+      case 'pristine':
+        return const Color(0xFFA855F7);
+      case 'notary':
+        return const Color(0xFF10B981);
+      case 'tok_seller':
+        return const Color(0xFFF59E0B);
+      default:
+        return const Color(0xFFFFDE59);
+    }
   }
 }

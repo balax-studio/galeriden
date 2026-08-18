@@ -293,12 +293,21 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                     onPressed: isDismantled
                                         ? null
                                         : () {
-                                            final success = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
-                                            if (success) {
-                                              NotificationService.showSuccess(
-                                                context,
-                                                '${part.name} başarıyla söküldü ve depoya aktarıldı!',
-                                              );
+                                            final result = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
+                                            if (result.success) {
+                                              if (result.isSalvaged) {
+                                                NotificationService.showSuccess(
+                                                  context,
+                                                  result.message,
+                                                );
+                                              } else {
+                                                NotificationService.showWarning(
+                                                  context,
+                                                  result.message,
+                                                );
+                                              }
+                                            } else {
+                                              NotificationService.showError(context, result.message);
                                             }
                                           },
                                   ),
@@ -571,23 +580,36 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                             Row(
                               children: [
                                 Expanded(
-                                  child: NeoBrutalButton(
-                                    label: 'ÇIRAKLIK YAP • ₺5.000',
-                                    icon: Icons.work_history_rounded,
-                                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                    textColor: isDark ? Colors.white : Colors.black,
-                                    fontSize: 11,
-                                    padding: const EdgeInsets.symmetric(vertical: 8),
-                                    onPressed: () {
-                                      final success = ref.read(gameProvider.notifier).workScrapyardSideGig();
-                                      if (success) {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          'Hurdalıkta günlük çıraklık işi yaptın ve ₺5.000 kazandın!',
-                                        );
-                                      } else {
-                                        NotificationService.showError(context, 'Hurdalık çıraklık işini günde sadece 1 kez yapabilirsin.');
-                                      }
+                                  child: Builder(
+                                    builder: (context) {
+                                      final bool canWorkGig = game.lastScrapyardGigDate == null ||
+                                          DateTime.now().difference(game.lastScrapyardGigDate!).inHours >= 20;
+
+                                      return NeoBrutalButton(
+                                        label: canWorkGig ? 'ÇIRAKLIK YAP • ₺5.000' : 'GÜNLÜK ÇIRAKLIK • BUGÜN YAPILDI',
+                                        icon: canWorkGig ? Icons.work_history_rounded : Icons.check_circle_rounded,
+                                        backgroundColor: canWorkGig
+                                            ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                                            : (isDark ? const Color(0xFF141721) : const Color(0xFFCBD5E1)),
+                                        textColor: canWorkGig
+                                            ? (isDark ? Colors.white : Colors.black)
+                                            : (isDark ? Colors.white38 : Colors.black38),
+                                        fontSize: 11,
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                                        onPressed: canWorkGig
+                                            ? () {
+                                                final success = ref.read(gameProvider.notifier).workScrapyardSideGig();
+                                                if (success) {
+                                                  NotificationService.showSuccess(
+                                                    context,
+                                                    'Hurdalıkta günlük çıraklık yaptın ve ₺5.000 yevmiye kazandın!',
+                                                  );
+                                                } else {
+                                                  NotificationService.showError(context, 'Hurdalık çıraklık işini günde sadece 1 kez yapabilirsin.');
+                                                }
+                                              }
+                                            : null,
+                                      );
                                     },
                                   ),
                                 ),
@@ -807,12 +829,14 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                           NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
                                           return;
                                         }
-                                        final success = ref.read(gameProvider.notifier).buyAndDismantleScrapCar(car.id);
-                                        if (success) {
+                                        final res = ref.read(gameProvider.notifier).buyAndDismantleScrapCar(car.id);
+                                        if (res.success) {
                                           NotificationService.showSuccess(
                                             context,
-                                            '${car.modelName} satın alındı ve tüm parçaları depoya aktarıldı!',
+                                            res.message,
                                           );
+                                        } else {
+                                          NotificationService.showError(context, res.message);
                                         }
                                       },
                                     ),

@@ -38,47 +38,13 @@ class StaffAcademyScreen extends ConsumerStatefulWidget {
 }
 
 class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
-  final List<StaffCourseOption> _courses = const [
-    StaffCourseOption(
-      id: 'course_sales_master',
-      title: 'İleri Satış İkna & Pazarlık Sertifikası',
-      description: 'Müşterilerle yapılan pazarlıklarda araç satış teklifi kabul oranını +%25 artırır.',
-      cost: 12000,
-      icon: Icons.handshake_rounded,
-      color: AppColors.brutalYellow,
-    ),
-    StaffCourseOption(
-      id: 'course_mechanic_master',
-      title: 'Ağır Motor & Şanzıman Ustalık Eğitimi',
-      description: 'Atölyedeki tamir ve parça değişim maliyetlerini %30 düşürür, süreyi yarıya indirir.',
-      cost: 18000,
-      icon: Icons.build_rounded,
-      color: AppColors.brutalOrange,
-    ),
-    StaffCourseOption(
-      id: 'course_expertise_cert',
-      title: 'Resmi Lisanslı Başeksper Sertifikası',
-      description: 'Araç ekspertiz raporlarında boyalı ve değişen parçaların %100 kusursuz tespit edilmesini sağlar.',
-      cost: 25000,
-      icon: Icons.verified_rounded,
-      color: Color(0xFF06B6D4),
-    ),
-    StaffCourseOption(
-      id: 'course_vip_concierge',
-      title: '5 Yıldızlı VIP Müşteri İlişkileri Eğitimi',
-      description: 'Her satış sonrası müşteri memnuniyet yorumlarını ve bayi itibar puanını yükseltir.',
-      cost: 15000,
-      icon: Icons.star_rounded,
-      color: Color(0xFFA855F7),
-    ),
-  ];
+  StaffRole? _selectedRoleFilter;
 
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
-    final isDark = p.isDark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final isDark = themeExt?.palette.isDark ?? (Theme.of(context).brightness == Brightness.dark);
 
     if (!game.isFeatureUnlocked('/staff-academy')) {
       return Scaffold(
@@ -93,6 +59,10 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
     }
 
     final staffList = game.hiredStaff;
+    final allCourses = StaffRoleSpecializations.allCourses;
+    final filteredCourses = _selectedRoleFilter == null
+        ? allCourses
+        : allCourses.where((c) => c.role == _selectedRoleFilter).toList();
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -129,13 +99,13 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'KURUMSAL PERSONEL AKADEMİSİ',
+                        'ROL BAZLI UZMANLIK AKADEMİSİ',
                         style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        'Ustalarını ve danışmanlarını akredite sertifika programlarına göndererek kârını katla • ${game.purchasedAcademyCourses.length}/${_courses.length} Tamamlandı.',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      const Text(
+                        'Her pozisyon için özel tasarlanmış ileri seviye müfredatlarla personelinin verimliliğini ve gelirini katla.',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -145,87 +115,81 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
           ),
           const SizedBox(height: 14),
 
-          // 2. Hired Staff Quick List
+          // 2. Role Filter Chips
           Text(
-            'EĞİTİLECEK PERSONEL • ${staffList.length} Aktif',
+            'UZMANLIK ALANI SEÇİN',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11.5,
               fontWeight: FontWeight.w900,
               letterSpacing: 0.5,
               color: isDark ? Colors.white70 : const Color(0xFF0F172A),
             ),
           ),
           const SizedBox(height: 8),
-
-          if (staffList.isEmpty)
-            NeoBrutalCard(
-              padding: const EdgeInsets.all(16),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 12,
-              child: const Center(
-                child: Text(
-                  'Henüz işe alınmış personel bulunmuyor.',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              children: [
+                _buildRoleFilterChip(
+                  label: 'Tüm Roller',
+                  isSelected: _selectedRoleFilter == null,
+                  onTap: () => setState(() => _selectedRoleFilter = null),
+                  isDark: isDark,
                 ),
-              ),
-            )
-          else
-            ...staffList.map((staff) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(10),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.person_rounded, size: 18, color: AppColors.brutalYellow),
-                          const SizedBox(width: 8),
-                          Text(
-                            staff.name,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-                          ),
-                        ],
-                      ),
-                      NeoBrutalBadge(
-                        text: staff.role.title,
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                        textColor: isDark ? Colors.white : Colors.black,
-                        fontSize: 10,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
+                const SizedBox(width: 6),
+                ...StaffRole.values.map((role) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: _buildRoleFilterChip(
+                      label: role.title,
+                      isSelected: _selectedRoleFilter == role,
+                      onTap: () => setState(() => _selectedRoleFilter = role),
+                      isDark: isDark,
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
           const SizedBox(height: 16),
 
           // 3. Courses List
-          Text(
-            'AKADEMİ SERTİFİKA PROGRAMLARI',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.5,
-              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'MÜFREDAT DERSLERİ • ${filteredCourses.length} Kurs',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
 
-          ..._courses.map((course) {
-            final isPurchased = game.purchasedAcademyCourses.contains(course.id);
+          ...filteredCourses.map((course) {
+            final matchingStaff = staffList.where((s) => s.role == course.role).toList();
+            final hasStaff = matchingStaff.isNotEmpty;
+            final isFacilityUnlocked = game.isFeatureUnlocked(course.role.requiredFeatureRoute);
+
+            // Check if any matching staff completed this course
+            final trainedStaff = matchingStaff.where((s) => s.completedCourseIds.contains(course.id)).toList();
+            final isCompletedByAllHired = hasStaff && trainedStaff.length == matchingStaff.length;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
                 backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                borderColor: isCompletedByAllHired
+                    ? AppColors.brutalGreen
+                    : (!isFacilityUnlocked
+                        ? AppColors.brutalOrange
+                        : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,31 +197,51 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: course.color,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                  width: 2.0,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: course.color,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Icon(course.icon, color: Colors.black, size: 20),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      course.title,
+                                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      'Hedef Pozisyon: ${course.role.title}',
+                                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              child: Icon(course.icon, color: Colors.black, size: 20),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              course.title,
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        if (isPurchased)
+                        if (isCompletedByAllHired)
                           const NeoBrutalBadge(
-                            text: 'SERTİFİKALI',
+                            text: 'TAMAMLANDI',
                             backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          )
+                        else if (!isFacilityUnlocked)
+                          const NeoBrutalBadge(
+                            text: 'TESİS KİLİTLİ',
+                            backgroundColor: AppColors.brutalOrange,
                             textColor: Colors.black,
                             fontSize: 10,
                           ),
@@ -268,42 +252,103 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                       course.description,
                       style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                     ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: course.color.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'Bonus: ${course.bonusSummary}',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isPurchased ? 'TAMAMLANDI' : CurrencyFormatter.formatShort(course.cost),
+                          isCompletedByAllHired ? 'MEZUN VERİLDİ' : CurrencyFormatter.formatShort(course.cost),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
-                            color: isPurchased ? const Color(0xFF64748B) : AppColors.brutalGreen,
+                            color: isCompletedByAllHired ? const Color(0xFF64748B) : AppColors.brutalGreen,
                           ),
                         ),
-                        NeoBrutalButton(
-                          label: isPurchased ? 'SERTİFİKA ALINDI' : 'EĞİTİME GÖNDER',
-                          icon: isPurchased ? Icons.check_circle_rounded : Icons.school_rounded,
-                          backgroundColor: isPurchased ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : course.color,
-                          textColor: isPurchased ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
-                          fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          onPressed: isPurchased
-                              ? null
-                              : () {
-                                  if (game.balance < course.cost) {
-                                    NotificationService.showError(context, 'Yetersiz Bakiye!');
-                                    return;
-                                  }
+                        if (isCompletedByAllHired)
+                          NeoBrutalButton(
+                            label: 'SERTİFİKA AKTİF',
+                            icon: Icons.check_circle_rounded,
+                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                            textColor: isDark ? Colors.white54 : Colors.black54,
+                            fontSize: 11,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            onPressed: null,
+                          )
+                        else if (!isFacilityUnlocked)
+                          NeoBrutalButton(
+                            label: 'TESİS GEREKLİ',
+                            icon: Icons.lock_rounded,
+                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                            textColor: isDark ? Colors.white38 : Colors.black38,
+                            fontSize: 11,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            onPressed: () {
+                              NotificationService.showInfo(
+                                context,
+                                'Bu eğitimi açmak için ${course.role.requiredFacilityName} tesisini inşa etmelisiniz.',
+                              );
+                            },
+                          )
+                        else if (!hasStaff)
+                          NeoBrutalButton(
+                            label: 'PERSONEL YOK',
+                            icon: Icons.person_off_rounded,
+                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                            textColor: isDark ? Colors.white54 : Colors.black54,
+                            fontSize: 11,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            onPressed: () {
+                              NotificationService.showInfo(
+                                context,
+                                'Bu eğitimi vermek için önce bir ${course.role.title} işe almalısınız.',
+                              );
+                            },
+                          )
+                        else
+                          NeoBrutalButton(
+                            label: 'EĞİTİME GÖNDER',
+                            icon: Icons.school_rounded,
+                            backgroundColor: course.color,
+                            textColor: Colors.black,
+                            fontSize: 11,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            onPressed: () {
+                              // Find staff who hasn't finished this course
+                              final candidateStaff = matchingStaff.firstWhere(
+                                (s) => !s.completedCourseIds.contains(course.id),
+                                orElse: () => matchingStaff.first,
+                              );
 
-                                  final success = ref.read(gameProvider.notifier).purchaseAcademyCourse(course.id, course.cost);
-                                  if (success) {
-                                    NotificationService.showSuccess(
-                                      context,
-                                      '${course.title} Tamamlandı! Personellerine Kalıcı Sertifika Tanımlandı.',
-                                    );
-                                  }
-                                },
-                        ),
+                              if (game.balance < course.cost) {
+                                NotificationService.showError(context, 'Yetersiz Bakiye!');
+                                return;
+                              }
+
+                              final success = ref.read(gameProvider.notifier).trainStaffMember(candidateStaff.id, course);
+                              if (success) {
+                                NotificationService.showSuccess(
+                                  context,
+                                  '${candidateStaff.name} • ${course.title} eğitimini tamamladı!',
+                                );
+                              }
+                            },
+                          ),
                       ],
                     ),
                   ],
@@ -312,6 +357,43 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
             );
           }),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRoleFilterChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFFA855F7)
+              : (isDark ? const Color(0xFF141721) : Colors.white),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFFA855F7)
+                : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+            color: isSelected
+                ? Colors.white
+                : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
+          ),
+        ),
       ),
     );
   }

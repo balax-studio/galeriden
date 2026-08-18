@@ -54,13 +54,14 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
     final hasSalesman = game.hiredStaff.any((s) => s.role == StaffRole.salesman);
     final unwashedCount = game.ownedCars.where((c) => !c.isWashed || !c.isPolished || !c.isDetailedCleaned).length;
 
-    // Filter cars
+    // Filter cars: Rented cars are excluded from showroom and displayed only in Rent-A-Car
     List<CarModel> filteredCars = game.ownedCars.where((c) {
+      if (c.isRented) return false;
       switch (_selectedFilter) {
         case 'Onarım Bekliyor':
           return c.expertise.engineCondition < 80 || c.expertise.transmissionCondition < 80 || !c.isWashed;
         case 'İlana Hazır':
-          return !c.isListed && c.expertise.engineCondition >= 80 && c.expertise.transmissionCondition >= 80;
+          return !c.isListed && !c.isLockedInShowcase && c.expertise.engineCondition >= 80 && c.expertise.transmissionCondition >= 80;
         case 'İlanda':
           return c.isListed;
         case 'Teklif Var':
@@ -122,7 +123,14 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                     onRefresh: () async {
                       HapticFeedback.mediumImpact();
                       await Future.delayed(const Duration(milliseconds: 400));
-                      ref.read(gameProvider.notifier).triggerOrganicOffers();
+                      final res = ref.read(gameProvider.notifier).manualPullOrganicOffer();
+                      if (context.mounted) {
+                        if (res.hasNewOffer) {
+                          NotificationService.showSuccess(context, res.message);
+                        } else {
+                          NotificationService.showInfo(context, res.message);
+                        }
+                      }
                     },
                     child: ListView(
                       padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
@@ -165,24 +173,38 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                 physics: const BouncingScrollPhysics(),
                                 child: Row(
                                   children: [
-                                    NeoBrutalButton(
-                                      label: unwashedCount > 0 ? 'Tümünü Yıka • $unwashedCount' : 'Tümü Temiz',
-                                      icon: Icons.local_car_wash_rounded,
-                                      backgroundColor: unwashedCount > 0 ? const Color(0xFF3B82F6) : (isDark ? Colors.white12 : Colors.black12),
-                                      textColor: Colors.white,
-                                      fontSize: 10,
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                      onPressed: unwashedCount > 0
-                                          ? () {
-                                              final count = ref.read(gameProvider.notifier).washAllShowroomCars();
-                                              if (count > 0) {
-                                                NotificationService.showSuccess(context, '$count araç yıkandı ve parlatıldı!');
-                                              } else if (count == -1) {
-                                                NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
+                                    if (game.level < 2) ...[
+                                      NeoBrutalButton(
+                                        label: 'Tümünü Yıka • Seviye 2',
+                                        icon: Icons.lock_rounded,
+                                        backgroundColor: isDark ? Colors.white12 : Colors.black12,
+                                        textColor: isDark ? Colors.white54 : Colors.black54,
+                                        fontSize: 10,
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                        onPressed: () {
+                                          NotificationService.showInfo(context, 'Toplu araç yıkama tesisi Seviye 2\'de açılır!');
+                                        },
+                                      ),
+                                    ] else ...[
+                                      NeoBrutalButton(
+                                        label: unwashedCount > 0 ? 'Tümünü Yıka • $unwashedCount' : 'Tümü Temiz',
+                                        icon: Icons.local_car_wash_rounded,
+                                        backgroundColor: unwashedCount > 0 ? const Color(0xFF3B82F6) : (isDark ? Colors.white12 : Colors.black12),
+                                        textColor: Colors.white,
+                                        fontSize: 10,
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                        onPressed: unwashedCount > 0
+                                            ? () {
+                                                final count = ref.read(gameProvider.notifier).washAllShowroomCars();
+                                                if (count > 0) {
+                                                  NotificationService.showSuccess(context, '$count araç yıkandı ve parlatıldı!');
+                                                } else if (count == -1) {
+                                                  NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
+                                                }
                                               }
-                                            }
-                                          : null,
-                                    ),
+                                            : null,
+                                      ),
+                                    ],
                                     const SizedBox(width: 6),
                                     NeoBrutalButton(
                                       label: 'Tümünü İlana Koy',

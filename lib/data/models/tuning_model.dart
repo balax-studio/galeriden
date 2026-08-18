@@ -310,7 +310,116 @@ class TuningCatalog {
       icon: Icons.speaker_rounded,
       color: Color(0xFFA855F7),
     ),
+    TuningOptionModel(
+      id: 'tune_ecu_stg3_plus',
+      title: 'Stage 3+ Race Map & Launch Control',
+      description: 'Elektronik kalkış kontrolü ve 2.5 bar devasa turbo basınç haritası.',
+      category: TuningCategory.powertrain,
+      cost: 95000,
+      hpGain: 165,
+      nmGain: 230,
+      accelDelta: -1.9,
+      soundDbGain: 12,
+      valueMultiplier: 1.50,
+      isLegalWithoutProject: false,
+      icon: Icons.rocket_launch_rounded,
+      color: AppColors.errorRed,
+    ),
+    TuningOptionModel(
+      id: 'tune_meth_injection',
+      title: 'Metanol & Su Enjeksiyon Kiti',
+      description: 'Emme havasını dondurarak yanma odasında patlama gücünü fırlat.',
+      category: TuningCategory.powertrain,
+      cost: 29000,
+      hpGain: 45,
+      nmGain: 60,
+      accelDelta: -0.4,
+      soundDbGain: 0,
+      valueMultiplier: 1.18,
+      icon: Icons.water_drop_rounded,
+      color: Color(0xFF06B6D4),
+    ),
+    TuningOptionModel(
+      id: 'tune_titanium_intake',
+      title: 'Karbon Emiş Manifoldu & Filtre',
+      description: 'Soğuk hava emiş kiti ile kesintisiz hava akışı ve turbo sesi.',
+      category: TuningCategory.powertrain,
+      cost: 32000,
+      hpGain: 22,
+      nmGain: 35,
+      accelDelta: -0.2,
+      soundDbGain: 6,
+      valueMultiplier: 1.16,
+      icon: Icons.air_rounded,
+      color: AppColors.brutalGreen,
+    ),
+    TuningOptionModel(
+      id: 'tune_carbon_hood_trunk',
+      title: 'Karbon Fiber Kaput & Bagaj Kapağı',
+      description: '80 kg ağırlık tasarrufu ve pist tipi havalandırma ızgaraları.',
+      category: TuningCategory.aero,
+      cost: 38000,
+      hpGain: 0,
+      nmGain: 0,
+      accelDelta: -0.3,
+      soundDbGain: 0,
+      valueMultiplier: 1.25,
+      icon: Icons.shield_moon_rounded,
+      color: Color(0xFFA855F7),
+    ),
+    TuningOptionModel(
+      id: 'tune_custom_forged_slick',
+      title: 'Özel Forged Jant & Slick Yarış Lastiği',
+      description: 'Pist tipi yapışkan lastikler ve hafifletilmiş monoblok jantlar.',
+      category: TuningCategory.stance,
+      cost: 42000,
+      hpGain: 0,
+      nmGain: 0,
+      accelDelta: -0.4,
+      soundDbGain: 0,
+      valueMultiplier: 1.30,
+      isLegalWithoutProject: false,
+      icon: Icons.sports_motorsports_rounded,
+      color: AppColors.brutalOrange,
+    ),
+    TuningOptionModel(
+      id: 'tune_rollcage_racing',
+      title: 'FIA Onaylı Rollcage & Yarış Koltukları',
+      description: 'Şasi burulma direncini ikiye katlayan hafif boru kafes sistemi.',
+      category: TuningCategory.stance,
+      cost: 36000,
+      hpGain: 0,
+      nmGain: 0,
+      accelDelta: 0.0,
+      soundDbGain: 0,
+      valueMultiplier: 1.22,
+      isLegalWithoutProject: false,
+      icon: Icons.security_rounded,
+      color: Color(0xFF64748B),
+    ),
   ];
+
+  /// Identifiers of loud/aggressive modifications that trigger Over-Tuned status
+  static const List<String> aggressiveTuningIds = [
+    'tune_turbo_stg3',
+    'tune_ecu_stg3_plus',
+    'tune_straight_pipe_flame',
+    'tune_popcorn_map',
+    'tune_widebody',
+    'tune_air_suspension',
+    'tune_custom_forged_slick',
+    'tune_meth_injection',
+  ];
+
+  static bool isOverTuned(List<String> optionIds) {
+    int aggressiveCount = 0;
+    for (final id in optionIds) {
+      if (aggressiveTuningIds.contains(id)) {
+        aggressiveCount++;
+      }
+    }
+    return aggressiveCount >= 3 || optionIds.where((id) => id.startsWith('tune_')).length >= 5;
+  }
 
   static List<TuningOptionModel> getOptionsByCategory(TuningCategory category) {
     return allOptions.where((o) => o.category == category).toList();
@@ -351,6 +460,22 @@ class TuningPresetBuilds {
       badge: 'TRACK MONSTER',
       optionIds: ['tune_turbo_stg3', 'tune_widebody', 'tune_ceramic_brakes', 'tune_straight_pipe_flame'],
       discountPercent: 0.15,
+    ),
+    TuningPresetBuild(
+      id: 'preset_drag_spec',
+      title: 'Gece Drag Şampiyonu Paketi',
+      description: 'Stage 3+ Race Map + Metanol + Slick Lastik + Alev Kiti • Çeyrek Mil Kralı.',
+      badge: 'DRAG SPEC',
+      optionIds: ['tune_ecu_stg3_plus', 'tune_meth_injection', 'tune_custom_forged_slick', 'tune_straight_pipe_flame'],
+      discountPercent: 0.18,
+    ),
+    TuningPresetBuild(
+      id: 'preset_time_attack',
+      title: 'Pist & Time Attack Paketi',
+      description: 'Karbon Kaput/Bagaj + Rollcage + Karbon Emiş + Coilover • Saf Viraj Hızı.',
+      badge: 'TIME ATTACK',
+      optionIds: ['tune_carbon_hood_trunk', 'tune_rollcage_racing', 'tune_titanium_intake', 'tune_coilover'],
+      discountPercent: 0.18,
     ),
   ];
 }

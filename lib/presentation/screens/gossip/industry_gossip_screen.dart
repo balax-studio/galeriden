@@ -282,13 +282,30 @@ class IndustryGossipScreen extends ConsumerWidget {
                           color: AppColors.textSecondaryLight,
                         ),
                       ),
-                      Text(
-                        CurrencyFormatter.format(gossip.cost),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w900,
-                          color: canAfford ? AppColors.brutalGreen : AppColors.errorRed,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            CurrencyFormatter.format(
+                              (game.hasHighNpcTrust(gossip.sourceNpc == 'cayci_necati' ? 'necati' : gossip.sourceNpc))
+                                  ? (gossip.cost * 0.50).roundToDouble()
+                                  : gossip.cost,
+                            ),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: canAfford ? AppColors.brutalGreen : AppColors.errorRed,
+                            ),
+                          ),
+                          if (game.hasHighNpcTrust(gossip.sourceNpc == 'cayci_necati' ? 'necati' : gossip.sourceNpc)) ...[
+                            const SizedBox(width: 6),
+                            const NeoBrutalBadge(
+                              text: '-%50 DOST İNDİRİMİ',
+                              backgroundColor: AppColors.brutalGreen,
+                              textColor: Colors.black,
+                              fontSize: 9,
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),

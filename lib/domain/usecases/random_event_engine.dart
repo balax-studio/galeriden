@@ -8,6 +8,38 @@ class RandomEventEngine {
   static List<GameEventModel> get allEventTemplates => [
         // --- GENEL KÖTÜ OLAYLAR ---
         GameEventModel(
+          id: 'event_black_market_raid',
+          title: 'GECE PAZARI POLİS BASKINI • MALİYE & KAÇAKÇILIK OPERASYONU',
+          description: 'Gece pazarından temin edilen şüpheli araçlar için Kaçakçılık ve Organize Suçlarla Mücadele ekipleri galerine baskın düzenledi!',
+          iconEmoji: 'siren',
+          amount: 0.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(
+              label: 'Hukuk Danışmanını Ara • -25.000 ₺',
+              resultText: 'Avukatın savcılık tedbir kararını durdurdu, araçları ve itibarını kurtardı.',
+              balanceChange: -25000.0,
+              reputationChange: 5,
+              xpGain: 120,
+            ),
+            GameEventChoice(
+              label: 'Cezayı Kabul Et & Aracı Teslim Et • -60.000 ₺',
+              resultText: 'İdari para cezasını ödedin ve şüpheli araç yediemin otoparkına çekildi.',
+              balanceChange: -60000.0,
+              reputationChange: -20,
+              xpGain: 50,
+            ),
+            GameEventChoice(
+              label: 'Gece Yarısı Aracı Kaçırmaya Çalış • Riskli',
+              resultText: 'Polis ekipleri kaçırma girişimini tespit etti! Ağır kaçakçılık cezası uygulandı.',
+              balanceChange: -150000.0,
+              reputationChange: -35,
+              xpGain: 20,
+            ),
+          ],
+        ),
+        GameEventModel(
           id: 'event_belediye',
           title: 'Zabıta & Belediye Denetimi',
           description: 'Ruhsat ve kaldırım işgali denetimine gelen zabıtalar ceza kesti!',

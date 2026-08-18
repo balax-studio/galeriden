@@ -14,6 +14,7 @@ import '../../../widgets/floating_money_overlay.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/zeigarnik_progress_bar.dart';
 import 'dashboard_retention_modals.dart';
 
 /// 1. Profile & Dealership Banner
@@ -130,30 +131,18 @@ class DashboardProfileBanner extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Level Progress Bar (Goal Gradient §2.2)
+          // Level Progress Bar (Goal Gradient & Zeigarnik Effect §2.2)
           Row(
             children: [
               Expanded(
-                child: Container(
+                child: ZeigarnikProgressBar(
+                  progress: xpProgress,
                   height: 12,
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                      width: 1.4,
-                    ),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: xpProgress,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: palette.primaryColor,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
+                  fillColor: palette.primaryColor,
+                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                  borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  borderWidth: 1.4,
+                  borderRadius: 6,
                 ),
               ),
               const SizedBox(width: 10),

@@ -133,11 +133,11 @@ class RepairEngine {
 
   /// Restores engine to 100% with craftsman tier (does NOT touch transmission)
   static RepairResult repairEngine(CarModel car, RepairTier tier) {
-    if (car.expertise.engineCondition >= 100.0) {
+    if (car.expertise.engineCondition >= 95.0) {
       return RepairResult(
         updatedCar: car,
         isSuccess: false,
-        message: 'Motor zaten %100 kusursuz, rektefiye gerekmiyor!',
+        message: 'Motor zaten %95 üzeri kusursuz kondisyonda • Rektefiye gerekmiyor.',
         costPaid: 0.0,
       );
     }
@@ -171,11 +171,11 @@ class RepairEngine {
 
   /// Restores transmission to 100% with craftsman tier (does NOT touch engine)
   static RepairResult repairTransmission(CarModel car, RepairTier tier) {
-    if (car.expertise.transmissionCondition >= 100.0) {
+    if (car.expertise.transmissionCondition >= 95.0) {
       return RepairResult(
         updatedCar: car,
         isSuccess: false,
-        message: 'Şanzıman ve baskı balata zaten %100 kusursuz, tamir gerekmiyor!',
+        message: 'Şanzıman ve baskı balata zaten %95 üzeri kusursuz • Revizyon gerekmiyor.',
         costPaid: 0.0,
       );
     }

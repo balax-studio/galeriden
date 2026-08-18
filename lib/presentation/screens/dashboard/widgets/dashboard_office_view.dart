@@ -99,240 +99,427 @@ class DashboardOfficeView extends ConsumerWidget {
           // ==========================================
           // 3. STORY-DRIVEN REWARDED AD BONUS CARDS
           // ==========================================
-          // Card A: Gurbetçi Hikmet Dayı Zarf Fonu (+₺25.000)
-          NeoBrutalCard(
-            padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF191D2B) : const Color(0xFFFEFCE8),
-            borderColor: const Color(0xFFEAB308),
-            borderWidth: 2.4,
-            borderRadius: 14,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    NeoBrutalBadge(
-                      text: 'GURBETÇİ DAYI FONU',
-                      backgroundColor: Color(0xFFEAB308),
-                      textColor: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                    ),
-                    NeoBrutalBadge(
-                      text: '+₺25.000 HİBE',
-                      icon: Icons.play_circle_filled_rounded,
-                      backgroundColor: AppColors.brutalGreen,
-                      textColor: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF242A3D) : const Color(0xFFFEF08A),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isDark ? const Color(0xFFEAB308) : const Color(0xFF0F172A),
-                          width: 2.0,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: const AvatarIconWidget(
-                        avatar: 'deal',
-                        color: Color(0xFFEAB308),
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hikmet Dayı\'dan Zarf İçinde Avans',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            '"Yeğenim sanayide adını duyduk, piyasayı kasıp kavuruyorsun! Şu sarı zarfı al, dükkanın çorbası kaynasın, vitrine can suyu olsun!"',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontStyle: FontStyle.italic,
-                              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: NeoBrutalButton(
-                    label: 'ZARFI AÇ • +₺25.000 NAKİT AL',
-                    icon: Icons.play_circle_filled_rounded,
-                    backgroundColor: const Color(0xFFEAB308),
-                    textColor: Colors.black,
-                    fontSize: 11.5,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    onPressed: () {
-                      HapticFeedback.heavyImpact();
-                      AdService.instance.showRewardedAd(
-                        onRewardEarned: () {
-                          ref.read(gameProvider.notifier).claimOfficeAdGrant();
-                          NotificationService.showSuccess(
-                            context,
-                            'Hikmet Dayı\'nın Zarfı Açıldı! Kasaya +₺25.000 Nakit Eklendi!',
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
+          // Card A: Dynamic Daily Grant / Zarf Fonu
+          Builder(
+            builder: (context) {
+              final dailyGrant = SmartOfficeHookEngine.getDailyGrantVariant(game);
+              final isGrantUsed = game.isOfficeGrantClaimedToday;
 
-          // Card B: Dynamic Smart Hook tailored to player deficiency
-          NeoBrutalCard(
-            padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF161A26) : const Color(0xFFF0FDF4),
-            borderColor: smartHook.accentColor,
-            borderWidth: 2.4,
-            borderRadius: 14,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    NeoBrutalBadge(
-                      text: 'DİNAMİK FIRSAT',
-                      backgroundColor: smartHook.accentColor,
-                      textColor: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                    ),
-                    NeoBrutalBadge(
-                      text: smartHook.rewardBadgeText,
-                      backgroundColor: isDark ? const Color(0xFF232B3E) : Colors.white,
-                      textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                      borderColor: smartHook.accentColor,
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
+              return NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF191D2B) : const Color(0xFFFEFCE8),
+                borderColor: isGrantUsed ? const Color(0xFF475569) : const Color(0xFFEAB308),
+                borderWidth: 2.4,
+                borderRadius: 14,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF22293A) : const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: smartHook.accentColor,
-                          width: 2.0,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        NeoBrutalBadge(
+                          text: dailyGrant.badgeText,
+                          backgroundColor: isGrantUsed ? const Color(0xFF475569) : const Color(0xFFEAB308),
+                          textColor: isGrantUsed ? Colors.white : Colors.black,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
                         ),
-                      ),
-                      alignment: Alignment.center,
-                      child: AvatarIconWidget(
-                        avatar: smartHook.characterAvatar,
-                        color: smartHook.accentColor,
-                        size: 24,
-                      ),
+                        if (isGrantUsed)
+                          const NeoBrutalBadge(
+                            text: 'KULLANILDI',
+                            icon: Icons.check_circle_outline_rounded,
+                            backgroundColor: Color(0xFF334155),
+                            textColor: Color(0xFF94A3B8),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                          )
+                        else
+                          NeoBrutalBadge(
+                            text: '+₺25.000 HİBE',
+                            icon: Icons.play_circle_filled_rounded,
+                            backgroundColor: AppColors.brutalGreen,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                          ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF242A3D) : const Color(0xFFFEF08A),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isGrantUsed
+                                  ? const Color(0xFF475569)
+                                  : (isDark ? const Color(0xFFEAB308) : const Color(0xFF0F172A)),
+                              width: 2.0,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: AvatarIconWidget(
+                            avatar: 'deal',
+                            color: isGrantUsed ? const Color(0xFF64748B) : const Color(0xFFEAB308),
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                smartHook.title,
+                                dailyGrant.title,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                  color: isGrantUsed
+                                      ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                                      : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                dailyGrant.callerRole,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isGrantUsed ? const Color(0xFF64748B) : const Color(0xFFEAB308),
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                isGrantUsed
+                                    ? '"Bugünkü hibe desteğini teslim aldın esnafım. Yarın sabah taze zarfla tekrar uğra!"'
+                                    : dailyGrant.dialogue,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontStyle: FontStyle.italic,
+                                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
                                 ),
                               ),
                             ],
                           ),
-                          Text(
-                            '${smartHook.callerName} • ${smartHook.callerRole}',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: smartHook.accentColor,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: isGrantUsed
+                          ? const NeoBrutalButton(
+                              label: 'KULLANILDI • YARIN YENİLENİR',
+                              icon: Icons.check_rounded,
+                              backgroundColor: Color(0xFF222838),
+                              textColor: Color(0xFF64748B),
+                              fontSize: 11.5,
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              onPressed: null,
+                            )
+                          : NeoBrutalButton(
+                              label: 'ZARFI AÇ • +₺25.000 NAKİT AL',
+                              icon: Icons.play_circle_filled_rounded,
+                              backgroundColor: const Color(0xFFEAB308),
+                              textColor: Colors.black,
+                              fontSize: 11.5,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              onPressed: () {
+                                HapticFeedback.heavyImpact();
+                                AdService.instance.showRewardedAd(
+                                  onRewardEarned: () {
+                                    ref.read(gameProvider.notifier).claimOfficeAdGrant();
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${dailyGrant.callerName} Desteği Alındı! Kasaya +₺25.000 Eklendi!',
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            smartHook.storyDialogue,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontStyle: FontStyle.italic,
-                              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Ödül: ${smartHook.rewardDescription}',
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF334155),
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: NeoBrutalButton(
-                    label: smartHook.actionButtonLabel,
-                    icon: Icons.play_circle_filled_rounded,
-                    backgroundColor: smartHook.accentColor,
-                    textColor: Colors.white,
-                    fontSize: 11.5,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    onPressed: () {
-                      HapticFeedback.heavyImpact();
-                      AdService.instance.showRewardedAd(
-                        onRewardEarned: () {
-                          ref.read(gameProvider.notifier).executeSmartOfficeHook(smartHook.type);
-                          NotificationService.showSuccess(
-                            context,
-                            '${smartHook.title}: ${smartHook.rewardBadgeText} Başarıyla Uygulandı!',
-                          );
-                        },
-                      );
-                    },
-                  ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Card B: Dynamic Smart Hook tailored to player deficiency
+          Builder(
+            builder: (context) {
+              final isHookUsed = game.isSmartHookClaimedToday;
+
+              return NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF161A26) : const Color(0xFFF0FDF4),
+                borderColor: isHookUsed ? const Color(0xFF475569) : smartHook.accentColor,
+                borderWidth: 2.4,
+                borderRadius: 14,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        NeoBrutalBadge(
+                          text: 'DİNAMİK FIRSAT',
+                          backgroundColor: isHookUsed ? const Color(0xFF475569) : smartHook.accentColor,
+                          textColor: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        if (isHookUsed)
+                          const NeoBrutalBadge(
+                            text: 'KULLANILDI',
+                            icon: Icons.check_circle_outline_rounded,
+                            backgroundColor: Color(0xFF334155),
+                            textColor: Color(0xFF94A3B8),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w900,
+                          )
+                        else
+                          NeoBrutalBadge(
+                            text: smartHook.rewardBadgeText,
+                            backgroundColor: isDark ? const Color(0xFF232B3E) : Colors.white,
+                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                            borderColor: smartHook.accentColor,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w900,
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF22293A) : const Color(0xFFDCFCE7),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isHookUsed ? const Color(0xFF475569) : smartHook.accentColor,
+                              width: 2.0,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: AvatarIconWidget(
+                            avatar: smartHook.characterAvatar,
+                            color: isHookUsed ? const Color(0xFF64748B) : smartHook.accentColor,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    smartHook.title,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w900,
+                                      color: isHookUsed
+                                          ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                                          : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '${smartHook.callerName} • ${smartHook.callerRole}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isHookUsed ? const Color(0xFF64748B) : smartHook.accentColor,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                isHookUsed
+                                    ? '"Bugünkü fırsatı değerlendirdin. Sanayide yeni bir haber çıktığında sana ilk ben haber vereceğim!"'
+                                    : smartHook.storyDialogue,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontStyle: FontStyle.italic,
+                                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Ödül: ${smartHook.rewardDescription}',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF334155),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: isHookUsed
+                          ? const NeoBrutalButton(
+                              label: 'KULLANILDI • YENİ FIRSAT BEKLENİYOR',
+                              icon: Icons.check_rounded,
+                              backgroundColor: Color(0xFF222838),
+                              textColor: Color(0xFF64748B),
+                              fontSize: 11.5,
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              onPressed: null,
+                            )
+                          : NeoBrutalButton(
+                              label: smartHook.actionButtonLabel,
+                              icon: Icons.play_circle_filled_rounded,
+                              backgroundColor: smartHook.accentColor,
+                              textColor: Colors.white,
+                              fontSize: 11.5,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              onPressed: () {
+                                HapticFeedback.heavyImpact();
+                                AdService.instance.showRewardedAd(
+                                  onRewardEarned: () {
+                                    ref.read(gameProvider.notifier).executeSmartOfficeHook(smartHook.type);
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${smartHook.title}: ${smartHook.rewardBadgeText} Başarıyla Uygulandı!',
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
+          ),
+          const SizedBox(height: 14),
+
+          // Card C: Esnaf Dedikoduları & Piyasa Fısıltıları
+          Builder(
+            builder: (context) {
+              final gossipList = SmartOfficeHookEngine.getOfficeGossipAndTips(game);
+
+              return NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141824) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A344A) : const Color(0xFF0F172A),
+                borderWidth: 2.2,
+                borderRadius: 14,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const NeoBrutalBadge(
+                          text: 'SANAYİ FISILTILARI',
+                          backgroundColor: Color(0xFF38BDF8),
+                          textColor: Colors.black,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        Text(
+                          'Gün ${game.currentDay}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ...gossipList.map((gossip) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF2E384D) : const Color(0xFFE2E8F0),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF2A3347) : const Color(0xFFE0F2FE),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  gossip.icon,
+                                  color: const Color(0xFF38BDF8),
+                                  size: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          gossip.sourceName,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                          ),
+                                        ),
+                                        Text(
+                                          gossip.title,
+                                          style: const TextStyle(
+                                            fontSize: 9.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF38BDF8),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      gossip.content,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontStyle: FontStyle.italic,
+                                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              );
+            },
           ),
           const SizedBox(height: 14),
 

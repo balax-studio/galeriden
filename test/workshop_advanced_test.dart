@@ -43,6 +43,7 @@ void main() {
       container.read(gameProvider.notifier).state = container.read(gameProvider).copyWith(
         balance: 100000,
         ownedCars: [testCar],
+        unlockedBuildings: {'/workshop'},
       );
     });
 
@@ -108,7 +109,8 @@ void main() {
       final repaintedCar = container.read(gameProvider).ownedCars.firstWhere((c) => c.id == testCar.id);
       expect(repaintedCar.colorHex, equals(nardoGrey.hex));
       expect(repaintedCar.colorDisplayName, equals(nardoGrey.name));
-      expect(repaintedCar.baseMarketValue, greaterThan(testCar.baseMarketValue));
+      expect(repaintedCar.baseMarketValue, equals(testCar.baseMarketValue));
+      expect(repaintedCar.estimatedRealValue, greaterThan(testCar.estimatedRealValue));
     });
 
     test('5. Staff Master Mechanic and Apprentice synergies eliminate repair failure and speed up orders', () {

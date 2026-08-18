@@ -50,6 +50,10 @@ class CarCostBreakdownSheet extends StatelessWidget {
       detailingCost += 1500;
       extraCosts.add({'title': '2 Yıl TÜVTÜRK & Muayene Pulu', 'cost': 1500.0});
     }
+    if (car.isWashed) {
+      detailingCost += 250;
+      extraCosts.add({'title': 'İç-Dış Detaylı Yıkama & Temizlik', 'cost': 250.0});
+    }
     if (car.isPolished) {
       detailingCost += 2500;
       extraCosts.add({'title': 'Pasta Cila & Boya Koruma', 'cost': 2500.0});

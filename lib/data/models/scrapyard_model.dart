@@ -520,3 +520,40 @@ class B2BPartOrder {
     return allOrders.take(4).toList();
   }
 }
+
+class SinglePartDismantleResult {
+  final bool success;
+  final bool isSalvaged;
+  final SalvagedPart? part;
+  final String message;
+
+  const SinglePartDismantleResult({
+    required this.success,
+    required this.isSalvaged,
+    this.part,
+    required this.message,
+  });
+}
+
+class BulkScrapDismantleResult {
+  final bool success;
+  final int totalPartsCount;
+  final int salvagedCount;
+  final int lostCount;
+  final List<SalvagedPart> salvagedParts;
+  final List<SalvagedPart> lostParts;
+  final double costPaid;
+  final String message;
+
+  const BulkScrapDismantleResult({
+    required this.success,
+    this.totalPartsCount = 0,
+    this.salvagedCount = 0,
+    this.lostCount = 0,
+    this.salvagedParts = const [],
+    this.lostParts = const [],
+    this.costPaid = 0.0,
+    required this.message,
+  });
+}
+

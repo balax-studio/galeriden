@@ -514,17 +514,27 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           ? SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                child: NeoBrutalButton(
-                  label: 'PAZARLIK ET & SATIN AL',
-                  icon: Icons.handshake_rounded,
-                  backgroundColor: AppColors.brutalYellow,
-                  textColor: Colors.black,
-                  fontSize: 13,
-                  fullWidth: true,
-                  onPressed: () {
-                    context.push('/negotiation', extra: widget.listing);
-                  },
-                ),
+                child: game.ownedCars.any((c) => c.id == car.id)
+                    ? NeoBrutalButton(
+                        label: 'BU ARAÇ GARAJINIZDA • SATIN ALINDI',
+                        icon: Icons.check_circle_rounded,
+                        backgroundColor: isDark ? Colors.white12 : Colors.black12,
+                        textColor: isDark ? Colors.white60 : Colors.black54,
+                        fontSize: 12,
+                        fullWidth: true,
+                        onPressed: null,
+                      )
+                    : NeoBrutalButton(
+                        label: 'PAZARLIK ET & SATIN AL',
+                        icon: Icons.handshake_rounded,
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 13,
+                        fullWidth: true,
+                        onPressed: () {
+                          context.push('/negotiation', extra: widget.listing);
+                        },
+                      ),
               ),
             )
           : null,

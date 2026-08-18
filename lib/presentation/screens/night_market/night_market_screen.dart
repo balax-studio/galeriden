@@ -386,12 +386,16 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                     children: [
                       Icon(Icons.query_stats_rounded, size: 16, color: winChanceColor),
                       const SizedBox(width: 6),
-                      Text(
-                        'Kazanma Tahmini: %$winChance • $winStatusText',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
-                          color: winChanceColor,
+                      Expanded(
+                        child: Text(
+                          'Kazanma: %$winChance • $winStatusText',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: winChanceColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -433,21 +437,30 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'KAZANILACAK ÖDÜL • GİRİŞ ${CurrencyFormatter.format(GameConstants.nightRaceEntryFee)}',
-                    style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
-                  ),
-                  Text(
-                    prizeRangeText,
-                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'KAZANILACAK ÖDÜL • GİRİŞ ${CurrencyFormatter.formatShort(GameConstants.nightRaceEntryFee)}',
+                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        prizeRangeText,
+                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               NeoBrutalButton(
-                label: dailyRacesRemaining > 0 ? 'GAZLA & YARIŞ • ${CurrencyFormatter.format(GameConstants.nightRaceEntryFee)}' : 'GÜNLÜK HAK BİTTİ',
+                label: dailyRacesRemaining > 0 ? 'GAZLA & YARIŞ' : 'HAK BİTTİ',
                 backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalPink : const Color(0xFF475569),
                 textColor: Colors.white,
                 onPressed: dailyRacesRemaining > 0

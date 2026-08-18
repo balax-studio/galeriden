@@ -107,30 +107,42 @@ class ExpertiseEngine {
       if (status == PartStatus.damaged) damagedCount++;
     });
 
-    double damagePercentage = (changedCount * 12.0) + (damagedCount * 20.0) + (paintedCount * 5.0);
+    double damagePercentage = (changedCount * 5.0) + (damagedCount * 10.0) + (paintedCount * 2.5);
     
-    // Tavan veya Şasi boyalı/değişen ise Türk pazarında özel takla/ağır hasar algısı oluşur
+    // Tavan veya Şasi boyalı/değişen ise Türk pazarında özel takla/iskelet hasar katsayısı
     final roofStatus = exp.bodyParts['Tavan'];
     if (roofStatus != null && roofStatus != PartStatus.original) {
-      damagePercentage += (roofStatus == PartStatus.painted ? 10.0 : 20.0);
+      damagePercentage += (roofStatus == PartStatus.painted ? 6.0 : 14.0);
     }
 
-    damagePercentage += (100.0 - exp.engineCondition) * 0.4;
-    damagePercentage += (100.0 - exp.transmissionCondition) * 0.3;
+    damagePercentage += (100.0 - exp.engineCondition) * 0.25;
+    damagePercentage += (100.0 - exp.transmissionCondition) * 0.20;
+
+    final hasStructuralDamage = exp.bodyParts['Şasi/Podye'] == PartStatus.damaged ||
+        exp.bodyParts['Şasi/Podye'] == PartStatus.changed ||
+        exp.bodyParts['Tavan'] == PartStatus.damaged;
+    final hasHeavyTramer = (car.baseMarketValue > 0 && exp.tramerAmount >= (car.baseMarketValue * 0.25) && exp.tramerAmount >= 100000) ||
+        (exp.tramerAmount >= 250000);
+    final isHeavySalvage = hasStructuralDamage || hasHeavyTramer || (damagedCount >= 3);
 
     double fairMarketValue = car.baseMarketValue * (1.0 - (damagePercentage / 100.0).clamp(0.0, 0.65));
+    if (isHeavySalvage) {
+      fairMarketValue = min(fairMarketValue, car.baseMarketValue * 0.60);
+    }
 
     String overallGrade;
-    if (damagePercentage < 10) {
+    if (isHeavySalvage) {
+      overallGrade = 'D • Ağır Hasarlı / Pert Kayıtlı';
+    } else if (damagePercentage < 15) {
       overallGrade = 'A+ • Kusursuz / Koleksiyonluk';
-    } else if (damagePercentage < 22) {
+    } else if (damagePercentage < 30) {
       overallGrade = 'A • Temiz / Masrafsız';
-    } else if (damagePercentage < 35) {
+    } else if (damagePercentage < 48) {
       overallGrade = 'B • İyi Durumda / Lokal Boyalı';
-    } else if (damagePercentage < 50) {
+    } else if (damagePercentage < 65) {
       overallGrade = 'C • Orta / Bakım Gerekli';
     } else {
-      overallGrade = 'D • Ağır Hasarlı / Onarım Gerekli';
+      overallGrade = 'C- • Yıpranmış / Ağır Bakım İster';
     }
 
     final noteBuffer = StringBuffer('Ekspertiz Notu: ');
@@ -138,9 +150,9 @@ class ExpertiseEngine {
       noteBuffer.write('KM sayacında müdahale şüphesi tespit edilmiştir. ');
     }
     if (exp.tramerAmount > 50000) {
-      noteBuffer.write('Geçmiş hasar kaydı yüksek, tramer bedeli ₺${exp.tramerAmount}. ');
+      noteBuffer.write('Geçmiş hasar kaydı tramer bedeli ₺${exp.tramerAmount}. ');
     }
-    if (exp.bodyParts['Şasi/Podye'] == PartStatus.damaged || exp.bodyParts['Tavan'] == PartStatus.damaged) {
+    if (hasStructuralDamage) {
       noteBuffer.write('Kritik iskelet şasi, podye veya tavan hasarı mevcut! ');
     } else if (exp.bodyParts.values.every((p) => p == PartStatus.original)) {
       noteBuffer.write('Tüm kaporta aksamı ve şasi fabrikasyon orijinaldir. ');
@@ -170,6 +182,8 @@ class ExpertiseEngine {
       'fairMarketValue': fairMarketValue,
       'overallGrade': overallGrade,
       'developerNote': note,
+      'isHeavySalvage': isHeavySalvage,
+      'hasStructuralDamage': hasStructuralDamage,
     };
   }
 
@@ -182,15 +196,13 @@ class ExpertiseEngine {
     final int paintedCount = eval['paintedCount'] as int? ?? 0;
     final int changedCount = eval['changedCount'] as int? ?? 0;
     final int damagedCount = eval['damagedCount'] as int? ?? 0;
-    final String overallGrade = eval['overallGrade'] as String? ?? '';
-    final bool isSevere = exp.isMileageTampered ||
-        exp.tramerAmount >= 100000 ||
-        overallGrade.startsWith('D') ||
-        damagedCount >= 3 ||
-        exp.bodyParts['Şasi/Podye'] == PartStatus.damaged ||
-        exp.bodyParts['Tavan'] == PartStatus.damaged;
+    final bool isHeavySalvage = eval['isHeavySalvage'] as bool? ?? false;
+    final bool hasStructuralDamage = eval['hasStructuralDamage'] as bool? ??
+        (exp.bodyParts['Şasi/Podye'] == PartStatus.damaged ||
+            exp.bodyParts['Şasi/Podye'] == PartStatus.changed ||
+            exp.bodyParts['Tavan'] == PartStatus.damaged);
 
-    if (isSevere) {
+    if (isHeavySalvage || hasStructuralDamage || exp.isMileageTampered || damagedCount >= 3) {
       return (text: 'AĞIR HASARLI', color: const Color(0xFFEF4444));
     }
 

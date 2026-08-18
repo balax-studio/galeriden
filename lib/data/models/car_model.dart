@@ -57,6 +57,7 @@ class CarModel {
   final String? blackMarketRiskType; // 'change_vin', 'stolen_paperwork', 'smuggled_exotic', 'salvage_hidden', 'mafia_debt'
   final int blackMarketRiskPercent; // 15..50% risk rate
   final String? blackMarketSellerAlias;
+  final bool isPeriodicMaintained; // 10.000 KM periodic maintenance performed
 
   CarModel({
     required this.id,
@@ -107,6 +108,7 @@ class CarModel {
     this.blackMarketRiskType,
     this.blackMarketRiskPercent = 20,
     this.blackMarketSellerAlias,
+    this.isPeriodicMaintained = false,
   }) : modelName = sanitizeModelName(brand, modelName);
 
   /// Strips redundant brand name prefixes if present (e.g. 'Merso G-63' with brand 'Merso' -> 'G-63')
@@ -213,8 +215,8 @@ class CarModel {
   @pragma('vm:entry-point')
   String get carModelName => '$brand $modelName';
 
-  /// Check if car is actively listed for sale
-  bool get isListed => customListingPrice != null && customListingPrice! > 0;
+  /// Check if car is actively listed for sale (strictly false if rented or showcase locked)
+  bool get isListed => !isRented && !isLockedInShowcase && customListingPrice != null && customListingPrice! > 0;
 
   /// Effective listing price (custom if set by player, otherwise estimated real value)
   double get listingPrice => customListingPrice ?? estimatedRealValue;
@@ -232,11 +234,14 @@ class CarModel {
   int get effectiveHorsepower {
     final healthFactor = (expertise.engineCondition / 100.0).clamp(0.40, 1.0);
     int tuningHp = 0;
+    if (appliedDetailingOptionIds.contains('tune_ecu_stg3_plus')) tuningHp += 165;
+    if (appliedDetailingOptionIds.contains('tune_meth_injection')) tuningHp += 45;
+    if (appliedDetailingOptionIds.contains('tune_titanium_intake')) tuningHp += 22;
+    if (appliedDetailingOptionIds.contains('tune_turbo_stg3')) tuningHp += 120;
     if (appliedDetailingOptionIds.contains('tune_ecu_stg2')) tuningHp += 75;
     if (appliedDetailingOptionIds.contains('tune_ecu_stg1')) tuningHp += 35;
     if (appliedDetailingOptionIds.contains('tune_exhaust')) tuningHp += 15;
-    if (appliedDetailingOptionIds.contains('tune_turbo_stg3')) tuningHp += 120;
-    if (appliedDetailingOptionIds.contains('tune_straight_pipe_flame')) tuningHp += 20;
+    if (appliedDetailingOptionIds.contains('tune_straight_pipe_flame')) tuningHp += 28;
     if (isDoped) tuningHp += 25;
 
     final calculated = (factoryHorsepower * (0.70 + 0.30 * healthFactor)).round() + tuningHp;
@@ -251,6 +256,25 @@ class CarModel {
       if (status != PartStatus.original) return false;
     }
     return true;
+  }
+
+  /// Returns true if car has 3+ aggressive/loud tuning mods or 5+ total performance mods
+  bool get isOverTuned {
+    const aggressiveIds = [
+      'tune_turbo_stg3',
+      'tune_ecu_stg3_plus',
+      'tune_straight_pipe_flame',
+      'tune_popcorn_map',
+      'tune_widebody',
+      'tune_air_suspension',
+      'tune_custom_forged_slick',
+      'tune_meth_injection',
+    ];
+    int aggressiveCount = 0;
+    for (final id in appliedDetailingOptionIds) {
+      if (aggressiveIds.contains(id)) aggressiveCount++;
+    }
+    return aggressiveCount >= 3 || appliedDetailingOptionIds.where((id) => id.startsWith('tune_')).length >= 5;
   }
 
   /// Calculates estimated overall value after repair & cleaning & rarity & detailing
@@ -285,14 +309,27 @@ class CarModel {
     factor += (0.30 - damageRatio * 0.25 - paintedRatio * 0.10 - structuralPenalty)
         .clamp(0.05, 0.30);
 
+    // 1. Cleaning & Washing Bonus (Capped at +8%)
     if (isDetailedCleaned || (isWashed && isPolished)) {
       factor += 0.08;
     } else if (isWashed || isPolished) {
       factor += 0.04;
     }
 
-    // Boost factor per applied custom detailing option
-    factor += appliedDetailingOptionIds.length * 0.06;
+    // 2. Cosmetic & Certification Detailing Bonus (Far, Demir tozu, PDR, Dyno, Ozon, TÜVTÜRK - +2.5% each, Capped at +10%)
+    final detailingCount = appliedDetailingOptionIds
+        .where((id) => !id.startsWith('tune_') && !id.startsWith('stage_'))
+        .length;
+    factor += (detailingCount * 0.025).clamp(0.0, 0.10);
+
+    // 3. Performance & Stance Tuning Bonus (Stage 1/2/3, Turbo, Bodykit, Coilover, Exhaust - +4% each, Capped at +25%)
+    double rawTuningBoost = 0.0;
+    for (final id in appliedDetailingOptionIds) {
+      if (id.startsWith('tune_') || id.startsWith('stage_')) {
+        rawTuningBoost += 0.04;
+      }
+    }
+    factor += rawTuningBoost.clamp(0.0, 0.25);
 
     if (isRare) {
       factor += 0.15;
@@ -370,6 +407,7 @@ class CarModel {
       'blackMarketRiskType': blackMarketRiskType,
       'blackMarketRiskPercent': blackMarketRiskPercent,
       'blackMarketSellerAlias': blackMarketSellerAlias,
+      'isPeriodicMaintained': isPeriodicMaintained,
     };
   }
 
@@ -430,6 +468,7 @@ class CarModel {
       blackMarketRiskType: json['blackMarketRiskType'] as String?,
       blackMarketRiskPercent: json['blackMarketRiskPercent'] as int? ?? 20,
       blackMarketSellerAlias: json['blackMarketSellerAlias'] as String?,
+      isPeriodicMaintained: json['isPeriodicMaintained'] as bool? ?? false,
     );
   }
 
@@ -483,6 +522,7 @@ class CarModel {
     String? blackMarketRiskType,
     int? blackMarketRiskPercent,
     String? blackMarketSellerAlias,
+    bool? isPeriodicMaintained,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -533,6 +573,7 @@ class CarModel {
       blackMarketRiskType: blackMarketRiskType ?? this.blackMarketRiskType,
       blackMarketRiskPercent: blackMarketRiskPercent ?? this.blackMarketRiskPercent,
       blackMarketSellerAlias: blackMarketSellerAlias ?? this.blackMarketSellerAlias,
+      isPeriodicMaintained: isPeriodicMaintained ?? this.isPeriodicMaintained,
     );
   }
 }

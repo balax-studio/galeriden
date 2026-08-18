@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
+import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../domain/usecases/district_economy_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -56,7 +59,16 @@ const List<DistrictInfo> kDistricts = [
     segment: 'Klasik & Koleksiyon',
     perk: 'Yadigâr & Klasik Araç Değeri +%15',
     minReputation: 50,
-    accentColor: Color(0xFFA855F7),
+    accentColor: Color(0xFF8B5CF6),
+  ),
+  DistrictInfo(
+    key: 'etiler_galericiler',
+    name: 'Etiler Galericiler Sitesi',
+    icon: Icons.star_rounded,
+    segment: 'Premium & SUV',
+    perk: 'Satış Kar Marjı +%10',
+    minReputation: 100,
+    accentColor: Color(0xFF00E575),
   ),
   DistrictInfo(
     key: 'ankara_kizilay',
@@ -89,6 +101,10 @@ const List<DistrictInfo> kDistricts = [
 
 class DistrictMarketScreen extends ConsumerWidget {
   const DistrictMarketScreen({super.key});
+
+  /// Calculates dynamic exponential cost for acquiring +5% market share in a district
+  static double calculateBoostCost(double currentShare) =>
+      DistrictEconomyEngine.calculateBoostCost(currentShare);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -161,18 +177,29 @@ class DistrictMarketScreen extends ConsumerWidget {
 
           // District Cards
           ...kDistricts.map((district) {
-            final rawShare = districtShares[district.name] ?? districtShares[district.key] ?? 0.05;
+            final rawShare = (districtShares[district.name] ?? districtShares[district.key] ?? 0.05).clamp(0.0, 1.0);
             final sharePercent = (rawShare * 100).round();
+            final isMaxed = rawShare >= 1.0;
             final isUnlocked = game.reputation >= district.minReputation;
+            final boostCost = calculateBoostCost(rawShare);
+
+            final cardBorderColor = isMaxed
+                ? AppColors.brutalYellow
+                : (isUnlocked ? district.accentColor : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)));
+
+            final cardBgColor = isMaxed
+                ? (isDark ? const Color(0xFF1C190D) : const Color(0xFFFEFCE8))
+                : (isDark ? const Color(0xFF161A24) : Colors.white);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF161A24) : Colors.white,
-                borderColor: isUnlocked ? district.accentColor : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
-                borderWidth: isUnlocked ? 2.0 : 1.2,
+                backgroundColor: cardBgColor,
+                borderColor: cardBorderColor,
+                borderWidth: isMaxed ? 2.8 : (isUnlocked ? 2.0 : 1.2),
                 borderRadius: 12,
+                shadowOffset: isMaxed ? const Offset(3.5, 3.5) : const Offset(2.5, 2.5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -184,7 +211,9 @@ class DistrictMarketScreen extends ConsumerWidget {
                             Icon(
                               district.icon,
                               size: 22,
-                              color: isUnlocked ? district.accentColor : (isDark ? Colors.white38 : Colors.black38),
+                              color: isMaxed
+                                  ? AppColors.brutalYellow
+                                  : (isUnlocked ? district.accentColor : (isDark ? Colors.white38 : Colors.black38)),
                             ),
                             const SizedBox(width: 8),
                             Column(
@@ -219,6 +248,15 @@ class DistrictMarketScreen extends ConsumerWidget {
                             textColor: isDark ? Colors.white60 : Colors.black54,
                             fontSize: 9.5,
                           )
+                        else if (isMaxed)
+                          const NeoBrutalBadge(
+                            text: "FULLE'NİN FULÜ • %100 TEKEL",
+                            icon: Icons.workspace_premium_rounded,
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 9.5,
+                            borderWidth: 2.0,
+                          )
                         else
                           NeoBrutalBadge(
                             text: '%$sharePercent Pazar Payı',
@@ -234,21 +272,34 @@ class DistrictMarketScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: district.accentColor.withValues(alpha: 0.12),
+                        color: isMaxed
+                            ? (isDark ? const Color(0xFF26220E) : const Color(0xFFFEF08A))
+                            : district.accentColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: district.accentColor.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: isMaxed
+                              ? AppColors.brutalYellow
+                              : district.accentColor.withValues(alpha: 0.3),
+                          width: isMaxed ? 1.5 : 1.0,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.star_rounded, size: 13, color: district.accentColor),
+                          Icon(
+                            isMaxed ? Icons.verified_rounded : Icons.star_rounded,
+                            size: 13,
+                            color: isMaxed ? const Color(0xFFCA8A04) : district.accentColor,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             district.perk,
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isMaxed
+                                  ? (isDark ? AppColors.brutalYellow : const Color(0xFF713F12))
+                                  : (isDark ? Colors.white : const Color(0xFF0F172A)),
                             ),
                           ),
                         ],
@@ -263,42 +314,87 @@ class DistrictMarketScreen extends ConsumerWidget {
                         value: rawShare.clamp(0.0, 1.0),
                         minHeight: 7,
                         backgroundColor: isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0),
-                        valueColor: AlwaysStoppedAnimation<Color>(district.accentColor),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          isMaxed ? AppColors.brutalYellow : district.accentColor,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
 
-                    // Action to Boost Share via Local Campaign
+                    // Action: Either Boost Button or Full Dominance Stamp
                     if (isUnlocked)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          NeoBrutalButton(
-                            label: 'Yerel El İlanı & Reklam • ₺10.000 ➔ +%5 Pay',
-                            icon: Icons.campaign_rounded,
-                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                            fontSize: 10,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            onPressed: () {
-                              final success = ref.read(gameProvider.notifier).boostDistrictMarketShare(district.name, 0.05, 10000);
-                              if (success) {
-                                final updated = ((districtShares[district.name] ?? 0.05) + 0.05) * 100;
-                                NotificationService.showSuccess(
-                                  context,
-                                  '${district.name} semtinde el ilanları dağıtıldı! Pazar payı: %${updated.round()}',
-                                );
-                              } else {
-                                if (game.balance < 10000) {
-                                  NotificationService.showError(context, 'Reklam kampanyası için ₺10.000 bakiye gereklidir.');
-                                } else {
-                                  NotificationService.showInfo(context, 'Bu semtte %100 maksimum hakimiyete ulaşıldı!');
-                                }
-                              }
-                            },
+                      if (isMaxed)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF26220E) : const Color(0xFFFEF08A),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark ? AppColors.brutalYellow : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(2, 2),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.verified_rounded, size: 16, color: Color(0xFFCA8A04)),
+                              const SizedBox(width: 6),
+                              Text(
+                                'SEMTİN HÂKİMİ • TÜM ESNAF AVANTAJLARI AÇIK',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.3,
+                                  color: isDark ? AppColors.brutalYellow : const Color(0xFF713F12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            NeoBrutalButton(
+                              label: 'Yerel Kampanya Başlat • ${CurrencyFormatter.formatShort(boostCost)} -> +%5 Pay',
+                              icon: Icons.campaign_rounded,
+                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                              textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              onPressed: () {
+                                final success = ref.read(gameProvider.notifier).boostDistrictMarketShare(
+                                      district.name,
+                                      0.05,
+                                      boostCost,
+                                    );
+                                if (success) {
+                                  final updated = ((districtShares[district.name] ?? 0.05) + 0.05).clamp(0.0, 1.0) * 100;
+                                  NotificationService.showSuccess(
+                                    context,
+                                    '${district.name} semtinde yerel kampanya başlatıldı! Pazar payı: %${updated.round()}',
+                                  );
+                                } else {
+                                  if (game.balance < boostCost) {
+                                    NotificationService.showError(
+                                      context,
+                                      'Reklam kampanyası için ${CurrencyFormatter.formatShort(boostCost)} bakiye gereklidir.',
+                                    );
+                                  } else {
+                                    NotificationService.showInfo(context, 'Bu semtte %100 maksimum hakimiyete ulaşıldı!');
+                                  }
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                   ],
                 ),
               ),

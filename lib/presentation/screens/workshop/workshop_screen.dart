@@ -754,24 +754,26 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.oil_barrel_rounded,
-                              label: '10k Bakım • ₺3.5k',
-                              backgroundColor: AppColors.brutalYellow,
-                              textColor: Colors.black,
+                              label: _selectedCar!.isPeriodicMaintained ? 'BAKIM YAPILDI' : '10k Bakım • ₺3.5k',
+                              backgroundColor: _selectedCar!.isPeriodicMaintained ? const Color(0xFF1E2330) : AppColors.brutalYellow,
+                              textColor: _selectedCar!.isPeriodicMaintained ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: () {
-                                if (game.balance < 3500) {
-                                  NotificationService.showError(context, 'Yetersiz bakiye! ₺3.500 gerekli.');
-                                  return;
-                                }
-                                final success = ref.read(gameProvider.notifier).performPeriodicMaintenance(_selectedCar!.id);
-                                if (success) {
-                                  NotificationService.showSuccess(context, 'Yağ, buji ve filtreler yenilendi • +%15 Kondisyon!');
-                                  setState(() {
-                                    _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
-                                  });
-                                }
-                              },
+                              onPressed: _selectedCar!.isPeriodicMaintained
+                                  ? null
+                                  : () {
+                                      if (game.balance < 3500) {
+                                        NotificationService.showError(context, 'Yetersiz bakiye! ₺3.500 gerekli.');
+                                        return;
+                                      }
+                                      final success = ref.read(gameProvider.notifier).performPeriodicMaintenance(_selectedCar!.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(context, 'Yağ, buji ve filtreler yenilendi • +%15 Kondisyon!');
+                                        setState(() {
+                                          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                        });
+                                      }
+                                    },
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -923,11 +925,20 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Builder(
                 builder: (context) {
                   final exp = _selectedCar?.expertise;
-                  final isEngineRepaired = (exp?.engineCondition ?? 100.0) >= 99.5;
-                  final isTransmissionRepaired = (exp?.transmissionCondition ?? 100.0) >= 99.5;
+                  final isEngineRepaired = (exp?.engineCondition ?? 100.0) >= 95.0;
+                  final isTransmissionRepaired = (exp?.transmissionCondition ?? 100.0) >= 95.0;
                   final isEcuRepaired = exp?.isEcuCleaned ?? false;
                   final isBodyworkRepaired = !(exp?.bodyParts.values.any((v) => v != PartStatus.original) ?? false);
                   final isChassisRepaired = exp?.isChassisAligned ?? false;
+
+                  final carBaseVal = _selectedCar != null
+                      ? max(150000.0, _selectedCar!.baseMarketValue.toDouble())
+                      : 400000.0;
+                  final dynamicEngineCost = (carBaseVal * 0.035).clamp(8500.0, 75000.0);
+                  final dynamicTransCost = (carBaseVal * 0.025).clamp(6500.0, 50000.0);
+                  final dynamicEcuCost = (carBaseVal * 0.010).clamp(2500.0, 20000.0);
+                  final dynamicBodyCost = (carBaseVal * 0.045 * paintCostMultiplier).clamp(12000.0, 90000.0);
+                  final dynamicChassisCost = (carBaseVal * 0.065).clamp(25000.0, 150000.0);
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -935,18 +946,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       WorkshopRepairTile(
                         title: '1. Motor Rektifiye & Subap Ayarı',
                         description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
-                        cost: 18500.0,
+                        cost: dynamicEngineCost,
                         bonusText: 'Motor %100 & +%10 Değer',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(18500.0, _selectedCar!.estimatedRealValue * 0.10) : null,
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicEngineCost, _selectedCar!.estimatedRealValue * 0.10) : null,
                         badgeColor: const Color(0xFF00E575),
                         isDark: isDark,
                         isRepaired: isEngineRepaired,
-                        disabledLabel: 'KUSURSUZ',
+                        disabledLabel: 'GEREKLİ DEĞİL • MOTOR KUSURSUZ',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
                           repairType: 'engine',
-                          baseCost: 18500.0,
+                          baseCost: dynamicEngineCost,
                           onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'engine', tier, cost),
                         ),
                       ),
@@ -955,18 +966,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       WorkshopRepairTile(
                         title: '2. Şanzıman & Baskı Balata Yenileme',
                         description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
-                        cost: 12000.0,
+                        cost: dynamicTransCost,
                         bonusText: 'Şanzıman %100 & +%8 Değer',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(12000.0, _selectedCar!.estimatedRealValue * 0.08) : null,
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicTransCost, _selectedCar!.estimatedRealValue * 0.08) : null,
                         badgeColor: const Color(0xFF38BDF8),
                         isDark: isDark,
                         isRepaired: isTransmissionRepaired,
-                        disabledLabel: 'KUSURSUZ',
+                        disabledLabel: 'GEREKLİ DEĞİL • ŞANZIMAN KUSURSUZ',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
                           repairType: 'transmission',
-                          baseCost: 12000.0,
+                          baseCost: dynamicTransCost,
                           onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'transmission', tier, cost),
                         ),
                       ),
@@ -975,18 +986,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       WorkshopRepairTile(
                         title: '3. Bilgisayarlı OBD-II Beyin Arıza Tespiti',
                         description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
-                        cost: 4500.0,
+                        cost: dynamicEcuCost,
                         bonusText: 'Gizli Kusurlar Silinir',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(4500.0, _selectedCar!.estimatedRealValue * 0.05) : null,
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicEcuCost, _selectedCar!.estimatedRealValue * 0.05) : null,
                         badgeColor: const Color(0xFFA855F7),
                         isDark: isDark,
                         isRepaired: isEcuRepaired,
-                        disabledLabel: 'ARIZA YOK',
+                        disabledLabel: 'GEREKLİ DEĞİL • ARIZA YOK',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
                           repairType: 'ecu',
-                          baseCost: 4500.0,
+                          baseCost: dynamicEcuCost,
                           onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'ecu', tier, cost),
                         ),
                       ),
@@ -995,18 +1006,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       WorkshopRepairTile(
                         title: '4. Kaporta Çekiçleme & Fırın Boya',
                         description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
-                        cost: 22000.0 * paintCostMultiplier,
+                        cost: dynamicBodyCost,
                         bonusText: hasPaintBooth ? '+%15 Değer • Boya Fırını İndirimi' : '+%15 Değer Artışı',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(22000.0 * paintCostMultiplier, _selectedCar!.estimatedRealValue * 0.15) : null,
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicBodyCost, _selectedCar!.estimatedRealValue * 0.15) : null,
                         badgeColor: const Color(0xFFFFDE59),
                         isDark: isDark,
                         isRepaired: isBodyworkRepaired,
-                        disabledLabel: 'KUSURSUZ',
+                        disabledLabel: 'GEREKLİ DEĞİL • KAPORTA KUSURSUZ',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
                           repairType: 'bodywork',
-                          baseCost: 22000.0 * paintCostMultiplier,
+                          baseCost: dynamicBodyCost,
                           onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'bodywork', tier, cost),
                         ),
                       ),
@@ -1015,18 +1026,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       WorkshopRepairTile(
                         title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
                         description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
-                        cost: 45000.0,
+                        cost: dynamicChassisCost,
                         bonusText: hasChassisBench ? '+%20 Süper Değer • Şasi Tezgahı Bonusu' : '+%20 Değer',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(45000.0, _selectedCar!.estimatedRealValue * 0.20) : null,
+                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicChassisCost, _selectedCar!.estimatedRealValue * 0.20) : null,
                         badgeColor: const Color(0xFFEF4444),
                         isDark: isDark,
                         isRepaired: isChassisRepaired,
-                        disabledLabel: 'ŞASİ DÜZGÜN',
+                        disabledLabel: 'GEREKLİ DEĞİL • ŞASİ SAĞLAM',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
                           repairType: 'chassis',
-                          baseCost: 45000.0,
+                          baseCost: dynamicChassisCost,
                           onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'chassis', tier, cost),
                         ),
                       ),

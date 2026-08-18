@@ -110,18 +110,23 @@ class MarketEngine {
     int playerLevel = 1,
     MarketTrendModel? trend,
     double? playerBalance,
+    bool hasHighNecatiTrust = false,
   }) {
     final activeTrend = trend ?? generateMarketTrend();
     final actualCount = count ?? calculateDynamicListingCount(playerLevel: playerLevel, trend: activeTrend);
     List<ListingModel> listings = [];
     for (int i = 0; i < actualCount; i++) {
-      listings.add(_generateSingleListing(playerLevel, activeTrend));
+      listings.add(_generateSingleListing(
+        playerLevel,
+        activeTrend,
+        playerBalance: playerBalance,
+        hasHighNecatiTrust: hasHighNecatiTrust,
+      ));
     }
 
-    // Soft-lock prevention: Always guarantee at least 1 budget-friendly starter car
-    // that the player can comfortably purchase with current balance or starting budget.
+    // Soft-lock prevention: If player has very low balance, ensure at least one naturally affordable starter model
     final effectiveBalance = (playerBalance != null && playerBalance > 0) ? playerBalance : 75000.0;
-    final maxAffordablePrice = max(35000.0, effectiveBalance * 0.90);
+    final maxAffordablePrice = max(40000.0, effectiveBalance * 0.95);
 
     final hasAffordable = listings.any((l) => l.askingPrice <= maxAffordablePrice);
     if (!hasAffordable && listings.isNotEmpty) {
@@ -155,7 +160,6 @@ class MarketEngine {
     final engineCondition = (45.0 + _random.nextInt(40)).clamp(40.0, 90.0);
     final transCondition = (50.0 + _random.nextInt(35)).clamp(45.0, 90.0);
     final mileage = 120000 + _random.nextInt(160000);
-    final tramerAmount = _random.nextInt(12000);
 
     final bodyParts = <String, PartStatus>{
       'Kaput': _getRandomPartStatus(),
@@ -171,6 +175,9 @@ class MarketEngine {
       'Bagaj': _getRandomPartStatus(),
       'Şasi/Podye': PartStatus.original,
     };
+
+    final hasDamagedParts = bodyParts.values.any((s) => s != PartStatus.original);
+    final tramerAmount = hasDamagedParts ? (2500 + _random.nextInt(7500)) : 0;
 
     final expertise = ExpertiseReport(
       engineCondition: engineCondition.toDouble(),
@@ -304,6 +311,7 @@ class MarketEngine {
     bool isRare = false,
     bool isPristine = false,
     ListingDeclarationType declarationType = ListingDeclarationType.honest,
+    int tramerAmount = 0,
   }) {
     if (isBarnFind) {
       final barnDescriptions = [
@@ -321,9 +329,16 @@ class MarketEngine {
       ];
       return pristineDescriptions[_random.nextInt(pristineDescriptions.length)];
     }
+    if (declarationType == ListingDeclarationType.flawlessClaim) {
+      final flawlessClaimDescriptions = [
+        'HATASIZ BOYASIZ TRAMERSİZ! İlk sahibinden, nokta kusuru olmayan garaj arabası.',
+        'Kazasız belasız, hasar kaydı kesinlikle yoktur. Ekspertize dilediğiniz gibi açıktır.',
+      ];
+      return flawlessClaimDescriptions[_random.nextInt(flawlessClaimDescriptions.length)];
+    }
     if (isFlashDeal) {
       final flashDescriptions = [
-        'ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır, araç başında cüzi pazarlık olur.',
+        'ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır, araç başında usulünce pazarlık olur.',
         'Yurtdışına taşınma sebebiyle çok acil satılık! Fiyatı piyasa değerinin altında tuttum, kaçıran üzülür.',
         'Ödemelerim sebebiyle birkaç günlüğüne bu fiyattır. Takas teklif etmeyiniz, sadece nakit satılık.',
       ];
@@ -332,20 +347,28 @@ class MarketEngine {
     if (isRare) {
       final rareDescriptions = [
         'Koleksiyon kondisyonunda, özenle saklanmış nadide araç! Kapalı garajda muhafaza edilmektedir.',
-        'Özel seri, düşük kilometre ve hatasız kondisyonda. Değerini bilen gerçek koleksiyonculara hayırlı olsun.',
+        'Özel seri, düşük kilometre ve temiz kondisyonda. Değerini bilen gerçek meraklısına hayırlı olsun.',
         'Hafta sonları keyifle binilmiş pırıl pırıl koleksiyon arabası. Tüm fabrika etiketleri ve orijinal parçaları üzerindedir.',
       ];
       return rareDescriptions[_random.nextInt(rareDescriptions.length)];
     }
 
     if (declarationType == ListingDeclarationType.honest) {
-      final honestDescriptions = [
-        'Bakımları zamanında eksiksiz yapılmıştır. Şehir içi sürtmelerden ufak boyaları vardır, şasiler tavan orijinaldir.',
-        'İlk sahibinden temiz aile aracı. Boyalı parçaları aşağıda dürüstçe işaretlenmiştir. Yürüyeni kusursuzdur.',
-        'Memurdan kullanılmış araç. Tüm periyodik bakımları serviste yapılmış olup ekspertiz raporu mevcuttur.',
-        'Araçta değişen parçalar belirtilmiştir. Motoru ve şanzımanı saat gibi, masrafsız binilecek araçtır.',
-      ];
-      return honestDescriptions[_random.nextInt(honestDescriptions.length)];
+      if (tramerAmount > 0) {
+        final honestTramerDescriptions = [
+          'Bakımları zamanında eksiksiz yapılmıştır. Geçmişten sadece ₺$tramerAmount tramer hasar kaydı vardır, şasiler tavan orijinaldir.',
+          'İlk sahibinden temiz aile aracı. Tramer kaydı ₺$tramerAmount olup boyalı parçalar ilanda dürüstçe belirtilmiştir.',
+          'Memurdan kullanılmış araç. ₺$tramerAmount ufak trameri vardır, motoru ve yürüyeni kusursuzdur.',
+        ];
+        return honestTramerDescriptions[_random.nextInt(honestTramerDescriptions.length)];
+      } else {
+        final honestCleanDescriptions = [
+          'Bakımları zamanında eksiksiz yapılmıştır. Tramer hasar kaydı YOKTUR, şasiler tavan orijinaldir.',
+          'İlk sahibinden temiz aile aracı. Hasar kayıtsız olup yürüyeni kusursuzdur.',
+          'Memurdan kullanılmış araç. Tüm periyodik bakımları serviste yapılmış olup tramer kaydı bulunmamaktadır.',
+        ];
+        return honestCleanDescriptions[_random.nextInt(honestCleanDescriptions.length)];
+      }
     }
 
     final standardDescriptions = [
@@ -358,8 +381,13 @@ class MarketEngine {
     return standardDescriptions[_random.nextInt(standardDescriptions.length)];
   }
 
-  static ListingModel _generateSingleListing(int playerLevel, MarketTrendModel trend) {
-    final brandData = _selectWeightedBrand();
+  static ListingModel _generateSingleListing(
+    int playerLevel,
+    MarketTrendModel trend, {
+    double? playerBalance,
+    bool hasHighNecatiTrust = false,
+  }) {
+    final brandData = _selectWeightedBrand(playerBalance: playerBalance, playerLevel: playerLevel);
     final modelName = brandData.models[_random.nextInt(brandData.models.length)];
     
     final (bodyType, year, isClassicModel) = _determineBodyTypeAndYear(modelName);
@@ -468,12 +496,14 @@ class MarketEngine {
       baseValue *= 1.35;
     }
 
-    // Seller profile
+    // Seller profile & Flash Deal chance (Necati Dayı perk increases kelepir deals to 22%)
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
-    final isFlashDeal = !isPristine && (_random.nextDouble() < 0.12);
+    final flashChance = hasHighNecatiTrust ? 0.22 : 0.12;
+    final isFlashDeal = !isPristine && (_random.nextDouble() < flashChance);
 
-    // 4% chance of Barn Find (Samanlık Kelepiri)
-    final isBarnFind = !isPristine && (isClassicModel || _random.nextDouble() < 0.04) && _random.nextDouble() < 0.40;
+    // Barn Find chance (Necati Dayı perk increases barn finds to 10%)
+    final barnBaseChance = hasHighNecatiTrust ? 0.10 : 0.04;
+    final isBarnFind = !isPristine && (isClassicModel || _random.nextDouble() < barnBaseChance) && _random.nextDouble() < 0.40;
 
     final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Trabzon'];
     final sellerCity = cities[_random.nextInt(cities.length)];
@@ -551,6 +581,7 @@ class MarketEngine {
         isRare: isRare,
         isPristine: isPristine,
         declarationType: declarationType,
+        tramerAmount: tramerAmount,
       ),
       askingPrice: askingPrice,
       isExpertiseCompleted: false,
@@ -558,14 +589,82 @@ class MarketEngine {
     );
   }
 
-  static CarBrandData _selectWeightedBrand() {
-    int totalWeight = GameConstants.carBrands.fold(0, (sum, item) => sum + item.popularityWeight);
-    int roll = _random.nextInt(totalWeight);
-    int currentSum = 0;
+  static CarBrandData _selectWeightedBrand({double? playerBalance, int playerLevel = 1}) {
+    // Determine dynamic segment weights according to player balance
+    double getSegmentMultiplier(String segment) {
+      if (playerBalance == null || playerBalance <= 0) return 1.0;
+
+      if (playerBalance < 150000) {
+        // Low budget: Economy, Legend, Classic, and Common brands heavily favored
+        switch (segment) {
+          case 'efsane':
+          case 'klasik':
+          case 'ekonomi':
+            return 4.0;
+          case 'halk':
+            return 2.5;
+          case 'popüler':
+          case 'güvenilir':
+            return 0.8;
+          case 'premium':
+          case 'lüks':
+            return 0.3;
+          case 'süperspor':
+          case 'egzotik':
+            return 0.1;
+          default:
+            return 1.0;
+        }
+      } else if (playerBalance < 800000) {
+        // Mid budget: Economy, Popular, Reliable, Common, and moderate Premium
+        switch (segment) {
+          case 'halk':
+          case 'popüler':
+          case 'güvenilir':
+          case 'ekonomi':
+            return 2.5;
+          case 'premium':
+            return 1.5;
+          case 'lüks':
+            return 0.8;
+          case 'süperspor':
+          case 'egzotik':
+            return 0.4;
+          default:
+            return 1.0;
+        }
+      } else {
+        // High budget / Tycoon: Premium, Luxury, Super Sport, Exotic, Electric favored
+        switch (segment) {
+          case 'süperspor':
+          case 'egzotik':
+          case 'lüks':
+          case 'premium':
+          case 'elektrikli':
+            return 3.5;
+          case 'popüler':
+          case 'güvenilir':
+            return 1.5;
+          case 'efsane':
+          case 'klasik':
+            return 1.2;
+          default:
+            return 0.6;
+        }
+      }
+    }
+
+    double totalWeight = 0.0;
+    for (var brand in GameConstants.carBrands) {
+      totalWeight += brand.popularityWeight * getSegmentMultiplier(brand.segment);
+    }
+
+    double roll = _random.nextDouble() * totalWeight;
+    double currentSum = 0.0;
 
     for (var brand in GameConstants.carBrands) {
-      currentSum += brand.popularityWeight;
-      if (roll < currentSum) return brand;
+      currentSum += brand.popularityWeight * getSegmentMultiplier(brand.segment);
+      if (roll <= currentSum) return brand;
     }
     return GameConstants.carBrands.first;
   }
@@ -623,7 +722,7 @@ class MarketEngine {
         ('$cityCode GS 1905', 'legendary'),
         ('$cityCode FB 1907', 'legendary'),
         ('$cityCode BJK 1903', 'legendary'),
-        ('61 TS 1967', 'legendary'),
+        ('$cityCode TS 1967', 'legendary'),
         ('$cityCode VIP 001', 'legendary'),
         ('$cityCode BOSS 99', 'legendary'),
         ('$cityCode KRL 01', 'legendary'),

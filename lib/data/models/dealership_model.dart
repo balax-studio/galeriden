@@ -165,6 +165,14 @@ class DealershipModel {
   final List<CarModel> consignmentOffers;             // Konsinye & Emanet Araçlar (§4.6.1)
   final int dailyRacesRemaining;                      // Gece Yarışı Günlük Kalan Hak (Exploit Koruması)
 
+  // Ofis ve Günlük Reklam Fırsatları Takibi
+  final int lastOfficeGrantClaimDay;
+  final int lastSmartHookUsedDay;
+  final int officeSeed;
+
+  bool get isOfficeGrantClaimedToday => lastOfficeGrantClaimDay >= currentDay;
+  bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
+
   int get emblemIndex => int.tryParse(logoEmblemId.replaceAll(RegExp(r'\D'), '')) ?? 0;
 
   double get money => balance;
@@ -585,6 +593,9 @@ class DealershipModel {
     this.consignmentOffers = const [],
     this.dailyRacesRemaining = 3,
     this.completedFirstTimeActions = const {},
+    this.lastOfficeGrantClaimDay = 0,
+    this.lastSmartHookUsedDay = 0,
+    this.officeSeed = 0,
   });
 
   factory DealershipModel.initial() {
@@ -975,6 +986,9 @@ class DealershipModel {
       'consignmentOffers': consignmentOffers.map((c) => c.toJson()).toList(),
       'dailyRacesRemaining': dailyRacesRemaining,
       'completedFirstTimeActions': completedFirstTimeActions.toList(),
+      'lastOfficeGrantClaimDay': lastOfficeGrantClaimDay,
+      'lastSmartHookUsedDay': lastSmartHookUsedDay,
+      'officeSeed': officeSeed,
     };
   }
 
@@ -1135,6 +1149,9 @@ class DealershipModel {
       consignmentOffers: parseList(json['consignmentOffers'] as List<dynamic>?, CarModel.fromJson),
       dailyRacesRemaining: json['dailyRacesRemaining'] as int? ?? 3,
       completedFirstTimeActions: (json['completedFirstTimeActions'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {},
+      lastOfficeGrantClaimDay: json['lastOfficeGrantClaimDay'] as int? ?? 0,
+      lastSmartHookUsedDay: json['lastSmartHookUsedDay'] as int? ?? 0,
+      officeSeed: json['officeSeed'] as int? ?? 0,
     );
   }
 
@@ -1261,6 +1278,9 @@ class DealershipModel {
     List<CarModel>? consignmentOffers,
     int? dailyRacesRemaining,
     Set<String>? completedFirstTimeActions,
+    int? lastOfficeGrantClaimDay,
+    int? lastSmartHookUsedDay,
+    int? officeSeed,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1352,6 +1372,9 @@ class DealershipModel {
       consignmentOffers: consignmentOffers ?? this.consignmentOffers,
       dailyRacesRemaining: dailyRacesRemaining ?? this.dailyRacesRemaining,
       completedFirstTimeActions: completedFirstTimeActions ?? this.completedFirstTimeActions,
+      lastOfficeGrantClaimDay: lastOfficeGrantClaimDay ?? this.lastOfficeGrantClaimDay,
+      lastSmartHookUsedDay: lastSmartHookUsedDay ?? this.lastSmartHookUsedDay,
+      officeSeed: officeSeed ?? this.officeSeed,
     );
   }
 

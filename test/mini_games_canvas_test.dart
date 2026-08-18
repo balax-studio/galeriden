@@ -81,7 +81,7 @@ void main() {
         ),
       );
 
-      expect(find.text('GECE MEZATI DRAG ARENASI'), findsOneWidget);
+      expect(find.text('GECE SANAYİSİ DRAG ARENASI'), findsOneWidget);
       expect(find.text('DRIFT KRALI'), findsOneWidget);
 
       // Advance past countdown timer
@@ -90,8 +90,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 800));
       await tester.pump(const Duration(milliseconds: 800));
 
-      // In racing phase, shift button or canvas should be present
+      // In racing phase, shift button and multi-gear info should be present
       expect(find.byType(CustomPaint), findsWidgets);
+      expect(find.textContaining('VİTES'), findsWidgets);
       expect(isFinishedCalled, isFalse);
     });
 

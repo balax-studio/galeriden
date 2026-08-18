@@ -19,13 +19,14 @@ class PlayerSkills {
     this.bonusSkillPoints = 0,
   });
 
-  /// Calibrated early win progression: Level 1 -> 2 in first 3-5 mins, then smooth logarithmic curve
+  /// Calibrated early win progression: Level 1-4 fast curve, then expanded gap after Level 5
   static int requiredXpForLevel(int level) {
     if (level <= 1) return 1250;
     if (level == 2) return 3500;
     if (level == 3) return 8000;
     if (level == 4) return 15000;
-    return (15000 * pow(1.35, level - 4)).round();
+    if (level == 5) return 25000;
+    return (25000 * pow(1.50, level - 5)).round();
   }
 
   /// Calculates level based on accumulated total XP

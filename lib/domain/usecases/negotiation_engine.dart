@@ -5,6 +5,60 @@ import '../../data/models/customer_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/offer_model.dart';
 
+enum TacticContext {
+  buying,
+  selling,
+  both,
+}
+
+class EsnafTactic {
+  final String id;
+  final String title;
+  final String badgeText;
+  final String description;
+  final String iconKey;
+  final TacticContext context;
+  final List<CustomerArchetype> preferredArchetypes;
+  final int baseBonusPercent;
+  final String successDialogue;
+  final String failureDialogue;
+  final String walkawayDialogue;
+
+  const EsnafTactic({
+    required this.id,
+    required this.title,
+    required this.badgeText,
+    required this.description,
+    required this.iconKey,
+    required this.context,
+    this.preferredArchetypes = const [],
+    required this.baseBonusPercent,
+    required this.successDialogue,
+    required this.failureDialogue,
+    required this.walkawayDialogue,
+  });
+}
+
+class TacticRollOutcome {
+  final bool isSuccess;
+  final bool isWalkaway;
+  final int diceRoll;
+  final int threshold;
+  final int bonusChance;
+  final String message;
+  final String tacticTitle;
+
+  const TacticRollOutcome({
+    required this.isSuccess,
+    required this.isWalkaway,
+    required this.diceRoll,
+    required this.threshold,
+    required this.bonusChance,
+    required this.message,
+    required this.tacticTitle,
+  });
+}
+
 class NegotiationOutcome {
   final OfferModel updatedOffer;
   final String responseMessage;
@@ -212,6 +266,7 @@ class NegotiationEngine {
     CarModel car,
     double listingPrice, {
     double seasonMultiplier = 1.0,
+    bool isFinanceUnlocked = true,
   }) {
     final realVal = car.estimatedRealValue * seasonMultiplier;
     final askingPrice = car.isListed ? car.listingPrice : (listingPrice > 0 ? listingPrice : realVal);
@@ -238,37 +293,59 @@ class NegotiationEngine {
     String buyerName = buyerNames[_random.nextInt(buyerNames.length)];
     bool isLowball = false;
 
-    // Archetype assignment
-    final archetypes = CustomerArchetype.values;
-    final assignedArchetype = archetypes[_random.nextInt(archetypes.length)];
+    // Archetype assignment: Over-tuned vehicles heavily attract young enthusiasts
+    final CustomerArchetype assignedArchetype;
+    if (car.isOverTuned && _random.nextDouble() < 0.85) {
+      assignedArchetype = CustomerArchetype.impatientYouth;
+    } else {
+      final archetypes = CustomerArchetype.values;
+      assignedArchetype = archetypes[_random.nextInt(archetypes.length)];
+    }
     final customer = CustomerModel.generate(assignedArchetype);
     buyerName = customer.name;
 
+    // Realistic market ceiling: Buyers won't pay unlimited money just because an asking price is inflated
+    final bool isOverpriced = askingPrice > (realVal * 1.05);
+    final double maxRealisticWillingness = realVal * (1.05 + (listingQualityBonus - 1.0) + (car.isRare ? 0.10 : 0.0));
+
+    final List<String> overTunedBuyerMessages = [
+      'Reis makine alev atıyor! Bu basıklık ve egzoz sesi tam bizim semte göre, ${CurrencyFormatter.formatShort(askingPrice * 0.92)} peşin veriyorum!',
+      'Ustam popcorn yazılımına ve duruşuna bittim. Arabayı bu akşam almam lazım, ${CurrencyFormatter.formatShort(askingPrice * 0.95)} olur mu?',
+      'Valla garajda gördüm kanım kaynadı! Jantlar ve bodykit harika, ${CurrencyFormatter.formatShort(askingPrice * 0.90)} nakite el sıkışalım.',
+      'Sesi caddeleri inletir bunun! ${CurrencyFormatter.formatShort(askingPrice * 0.93)} teklif ediyorum, hemen notere geçelim.',
+    ];
+
     if (distRoll < 0.05) {
-      // 1) Collector / Serious Buyer match (%5 chance): Exactly 100% asking price
-      baseOffer = askingPrice;
+      // 1) Collector / Serious Buyer match (%5 chance): Accepts asking price only if reasonably priced or rare, otherwise caps at realistic willingness
+      baseOffer = isOverpriced && !car.isRare ? min(askingPrice, maxRealisticWillingness) : askingPrice;
       buyerName = 'Koleksiyoner $buyerName';
       message = 'Tam aradığım temizlikte özel bir araç! İlandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyatınızı kabul ediyorum, hemen notere geçelim.';
     } else if (distRoll < 0.15) {
-      // 2) Asking Price Match (%10 chance): Exactly 100% of asking price
-      baseOffer = askingPrice;
-      message = 'Fiyat gayet makul. İlandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyattan pazarlıksız alıyorum.';
+      // 2) Asking Price Match (%10 chance): Exactly asking price (capped at market willingness if overpriced)
+      baseOffer = isOverpriced ? min(askingPrice, maxRealisticWillingness) : askingPrice;
+      message = car.isOverTuned
+          ? 'Reis ilandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyata helali hoş olsun, makine harika yapılmış direkt alıyorum!'
+          : 'Fiyat gayet makul. İlandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyattan pazarlıksız alıyorum.';
     } else if (distRoll < 0.35) {
-      // 3) Lowball / Ölücü (%20 chance): %60 - %78 of asking price
+      // 3) Lowball / Ölücü (%20 chance): %60 - %78 of asking price (anchored to min of askingPrice and realVal)
       isLowball = true;
-      baseOffer = (askingPrice * (0.60 + (_random.nextDouble() * 0.18))).roundToDouble();
+      final anchorPrice = min(askingPrice, realVal * 1.10);
+      baseOffer = (anchorPrice * (0.60 + (_random.nextDouble() * 0.18))).roundToDouble();
       if (baseOffer >= askingPrice) {
         baseOffer = (askingPrice * 0.75).roundToDouble();
       }
       message = lowballMessages[_random.nextInt(lowballMessages.length)];
     } else {
-      // 4) Standard Normal Offer (%65 chance): %85 - %97 of asking price
+      // 4) Standard Normal Offer (%65 chance): %85 - %97 of fair anchor price
       final discountPercent = 0.03 + (_random.nextDouble() * 0.12);
-      baseOffer = (askingPrice * (1.0 - discountPercent) * listingQualityBonus).roundToDouble();
+      final anchorPrice = isOverpriced ? min(askingPrice, maxRealisticWillingness) : askingPrice;
+      baseOffer = (anchorPrice * (1.0 - discountPercent) * listingQualityBonus).roundToDouble();
       if (baseOffer > askingPrice) {
         baseOffer = askingPrice;
       }
-      message = buyerMessages[_random.nextInt(buyerMessages.length)];
+      message = (car.isOverTuned && assignedArchetype == CustomerArchetype.impatientYouth)
+          ? overTunedBuyerMessages[_random.nextInt(overTunedBuyerMessages.length)]
+          : buyerMessages[_random.nextInt(buyerMessages.length)];
     }
 
     // Strict ceiling clamp for cash baseline
@@ -290,12 +367,12 @@ class NegotiationEngine {
     }
 
     // Offer Type Distribution:
-    // If car does NOT allow installments: 100% CASH ONLY (Never installment or cheque)
-    // If car allows installments: 50% Installment (Senetli), 25% Cheque (Çekli), 25% Cash
+    // If car does NOT allow installments OR finance is locked: 100% CASH ONLY (Never installment or cheque)
+    // If car allows installments AND finance is unlocked: 50% Installment (Senetli), 25% Cheque (Çekli), 25% Cash
     OfferType chosenOfferType = OfferType.cash;
     int installments = 0;
 
-    if (car.allowsInstallments) {
+    if (car.allowsInstallments && isFinanceUnlocked) {
       final typeRoll = _random.nextDouble();
       if (typeRoll < 0.50) {
         chosenOfferType = OfferType.installment;
@@ -331,14 +408,16 @@ class NegotiationEngine {
       }
     }
 
+    final now = DateTime.now();
     return OfferModel(
-      id: 'offer_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}',
+      id: 'offer_${now.microsecondsSinceEpoch}_${_random.nextInt(999)}',
       carId: car.id,
       buyerName: isLowball ? 'Ölücü $buyerName' : buyerName,
       offeredAmount: baseOffer,
       buyerMessage: message,
       status: OfferStatus.pending,
-      createdAt: DateTime.now(),
+      createdAt: now,
+      expiresAt: now.add(Duration(minutes: 3 + _random.nextInt(6))),
       offerType: chosenOfferType,
       customerCreditScore: creditScore,
       installmentMonths: installments,
@@ -358,42 +437,381 @@ class NegotiationEngine {
     return 1.25;
   }
 
-  /// Executes interactive esnaf tactics (§2.4 / Q14)
+  // --- DYNAMIC ESNAF TACTICS POOL (§2.4 / Q14) ---
+  static const List<EsnafTactic> allTactics = [
+    // --- ALIM TAKTİKLERİ (BUYING) ---
+    EsnafTactic(
+      id: 'ekspertiz_kusuru',
+      title: 'Ekspertiz Kusuru Öne Sür',
+      badgeText: 'Kusur Baskısı',
+      description: 'Araçtaki boya, hasar veya yüksek kilometreyi masaya koyup fiyatı kır.',
+      iconKey: 'expert',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
+      baseBonusPercent: 18,
+      successDialogue: 'Ekspertiz raporundaki kusurlar tek tek sayıldı • Satıcı terledi ve boyun eğdi!',
+      failureDialogue: 'Satıcı • Usta araba sıfır değil, bu yaşta normal • diyerek kusurlara kulak tıkadı.',
+      walkawayDialogue: 'Satıcı sinirlendi • Kusur arıyorsan bayiye git sıfır al usta, pazarlık bitti! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'nakit_goster',
+      title: 'Nakit Para Çıkar',
+      badgeText: 'Peşin Gücü',
+      description: 'Deste nakdi masaya koyup hemen notere geçme teklifi yap.',
+      iconKey: 'cash',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
+      baseBonusPercent: 20,
+      successDialogue: 'Masanın üstündeki nakit desteyi gören satıcının gözleri parladı • Hemen el sıkışmaya hazır!',
+      failureDialogue: 'Satıcı • Paranın yüzü sıcak ama bu rakama kurtarmaz usta • diyerek tok durdu.',
+      walkawayDialogue: 'Satıcı • Parayla beni ezemezsin usta, araba satılık değil artık! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'piyasa_durgunlugu',
+      title: 'Piyasa Durgunluğu Blöfü',
+      badgeText: 'Piyasa Gerçeği',
+      description: 'Piyasada yaprak kımıldamadığını, bu fiyata kimsenin almayacağını söyle.',
+      iconKey: 'market',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
+      baseBonusPercent: 16,
+      successDialogue: 'Piyasa analizlerin satıcıyı ikna etti • "Haklısın usta, uzun süredir soran yoktu" diyerek yumuşadı!',
+      failureDialogue: 'Satıcı • Piyasayı bana öğretme usta, dün 3 kişi aradı bu araba için • diyerek rest çekti.',
+      walkawayDialogue: 'Satıcı • Madem piyasa ölü, araba garajımda yatar yine de sana vermem! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'ortak_arayayim',
+      title: 'Ortağa Danış',
+      badgeText: 'Bütçe Limiti',
+      description: 'Ortağını arayıp bütçenin son limitine gelindiği algısı yarat.',
+      iconKey: 'partner',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 16,
+      successDialogue: 'Ortağa danışıldı • "Usta ortak onay vermiyor, bütçemiz ancak bu fiyata yetiyor" denildi. Satıcının direnci kırıldı!',
+      failureDialogue: 'Karşı taraf • Ortağın da piyasayı bilmiyor herhalde usta • diyerek taviz vermedi.',
+      walkawayDialogue: 'Satıcı • Ortağınla aranda anlaş öyle gel, vaktimi harcama! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'cay_soyle',
+      title: 'Tavşankanı Çay Ismarla',
+      badgeText: 'Ortamı Yumuşat',
+      description: 'Sıcak çay ikram edip muhabbetle satıcının savunmasını düşür.',
+      iconKey: 'tea',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan, CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 14,
+      successDialogue: 'Tavşankanı sıcak çay yudumlandı • Tatlı muhabbetle masadaki buzlar tamamen eridi!',
+      failureDialogue: 'Satıcı • Sağ ol usta çaya vaktim yok, fiyata gelelim • diyerek kestirip attı.',
+      walkawayDialogue: 'Satıcı • Çayla kahveyle aklımı çelemezsin, satmıyorum! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'sigara_yak',
+      title: 'Ağır Esnaf Tavrı',
+      badgeText: 'Direnç Kır',
+      description: 'Kendinden emin ağır galerici duruşuyla satıcıya baskı kur.',
+      iconKey: 'smoke',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 15,
+      successDialogue: 'Ağır esnaf tavrın ve kendinden emin duruşun karşı tarafın direncini kırdı!',
+      failureDialogue: 'Karşı taraf ağır duruşundan etkilenmedi • "Fiyatım net usta" dedi.',
+      walkawayDialogue: 'Karşı taraf tavrından rahatsız oldu • "Böyle esnaflık olmaz" diyerek masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'usta_cagir',
+      title: 'Sanayiden Usta Çağır',
+      badgeText: 'Usta Gözü',
+      description: 'Sanayiden güvendiğin motor ustasını çağırıp gizli sesleri dinlet.',
+      iconKey: 'mechanic',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.impatientYouth],
+      baseBonusPercent: 19,
+      successDialogue: 'Usta kaputu açıp iki noktayı gösterdi • Satıcı afalladı ve fiyatta büyük geri adım attı!',
+      failureDialogue: 'Satıcı • Kendi ustanı getirmişsin tabii kusur bulur • diyerek itiraz etti.',
+      walkawayDialogue: 'Satıcı • Arabamı kurcalatmam kimseye, araba satılık değil! • Masadan ayrıldı.',
+    ),
+
+    // --- SATIM TAKTİKLERİ (SELLING) ---
+    EsnafTactic(
+      id: 'baska_alici_var',
+      title: 'Başka Alıcı Var Acelesi',
+      badgeText: 'Aciliyet Yarat',
+      description: 'Öğleden sonra başka bir müşterinin kapora göndereceğini söyleyip elini çabuk tuttur.',
+      iconKey: 'urgent',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 19,
+      successDialogue: 'Alıcı panikledi • "Kapora vermesin usta, ben hemen alıyorum" diyerek teklifini yukarı çekti!',
+      failureDialogue: 'Alıcı • Nasipse o alsın usta, ben aceleye gelmem • diyerek blöfü yemedi.',
+      walkawayDialogue: 'Alıcı • Madem başka alıcı var ona sat usta, ben çekiliyorum! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'emsalsiz_kondisyon',
+      title: 'Emsalsiz Makine Övgüsü',
+      badgeText: 'Değer Vurgusu',
+      description: 'Aracın motor performansını, duruşunu ve temizliğini öne çıkar.',
+      iconKey: 'pristine',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 18,
+      successDialogue: 'Aracın detaylarını dinleyen alıcının gözleri parladı • Fiyat farkını seve seve kabul etti!',
+      failureDialogue: 'Alıcı • Herkes kendi malını över usta, piyasa ortada • diyerek fiyatında diretti.',
+      walkawayDialogue: 'Alıcı • Altın kaplama değil ya bu araba, abarttın iyice! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'dost_isi_ikram',
+      title: 'Dost İşi Noter İkramı',
+      badgeText: 'Esnaf Jest',
+      description: 'Noter masrafını ve ilk depo yakıtı üstlenerek karşı teklifini tatlandır.',
+      iconKey: 'notary',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial],
+      baseBonusPercent: 16,
+      successDialogue: 'Yaptığın samimi jest alıcının gönlünü fethetti • "Helali hoş olsun usta" diyerek anlaştı!',
+      failureDialogue: 'Alıcı • Bir depo benzinle göz boyama usta, fiyattan düş • dedi.',
+      walkawayDialogue: 'Alıcı • Küçük hesaplarla beni oyalama usta! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'cay_soyle_satis',
+      title: 'Tavşankanı Çay & İkram',
+      badgeText: 'Güven İnşası',
+      description: 'Müşteriye sıcacık çay ikram edip galericilik güveni aşıla.',
+      iconKey: 'tea',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan, CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 14,
+      successDialogue: 'Sıcak çay eşliğinde kurulan esnaf diyaloğu müşterinin güvenini tazeledi!',
+      failureDialogue: 'Müşteri • Çay için teşekkürler ama rakam hala yüksek usta • dedi.',
+      walkawayDialogue: 'Müşteri • Laf kalabalığına karnım tok, satmıyorsan gidiyorum! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'fiyat_sabit_tok',
+      title: 'Tok Satıcı Duruşu',
+      badgeText: 'Net Tavır',
+      description: 'Aracın arkasında durup kalitesine güvendiğini, aşağı inmeyeceğini hissettir.',
+      iconKey: 'tok_seller',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 17,
+      successDialogue: 'Tok duruşun müşteriye aracın gerçekten temiz olduğunu hissettirdi • Fiyatı kabul etti!',
+      failureDialogue: 'Müşteri • Sen tok satıcıysan ben de aceleci alıcı değilim usta • dedi.',
+      walkawayDialogue: 'Müşteri • İnadınla bol kazançlar usta, başka galeriden bakarım! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'expertiz_guvencesi',
+      title: 'Şeffaf Kurumsal Ekspertiz',
+      badgeText: 'Tam Güven',
+      description: 'Tüm mekanik ve kaporta raporunu açıkça sunup sıfır şüphe bırak.',
+      iconKey: 'expert',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
+      baseBonusPercent: 20,
+      successDialogue: 'Şeffaf ekspertiz raporu alıcının tüm korkularını sildi • Hemen el sıkışıldı!',
+      failureDialogue: 'Alıcı • Rapor iyi güzel ama bütçem bu kadar usta • diyerek teklifini korudu.',
+      walkawayDialogue: 'Alıcı • Raporla göz boyama usta, bu fiyat mantıksız! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'hizli_teslimat',
+      title: 'Hemen Noter & Teslimat',
+      badgeText: 'Hızlı Devir',
+      description: 'Ruhsatı ve anahtarları masaya koyup 15 dakikada devir garantisi ver.',
+      iconKey: 'urgent',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
+      baseBonusPercent: 18,
+      successDialogue: 'Hızlı teslimat teklifin acelesi olan alıcının tam aradığı fırsat oldu!',
+      failureDialogue: 'Alıcı • Hız önemli ama para daha önemli usta, indirim yap • dedi.',
+      walkawayDialogue: 'Alıcı • Beni aceleye getirip sıkıştırma usta! • Masadan ayrıldı.',
+    ),
+  ];
+
+  /// Generates 3 contextual esnaf tactics dynamically based on role, car condition, and customer archetype
+  static List<EsnafTactic> generateTactics({
+    required bool isBuying,
+    required CarModel car,
+    CustomerModel? customer,
+    required double price,
+  }) {
+    final targetContext = isBuying ? TacticContext.buying : TacticContext.selling;
+    final candidates = allTactics.where((t) => t.context == targetContext || t.context == TacticContext.both).toList();
+
+    // Score candidates based on customer archetype, car condition, and price
+    final scored = candidates.map((tactic) {
+      int score = 10;
+
+      // 1. Archetype Match (+15)
+      if (customer != null && tactic.preferredArchetypes.contains(customer.archetype)) {
+        score += 15;
+      }
+
+      // 2. Car Condition Alignment
+      final hasDamagedParts = car.expertise.bodyParts.values.any(
+        (st) => st == PartStatus.painted || st == PartStatus.changed || st == PartStatus.damaged,
+      );
+      if (isBuying) {
+        if (tactic.id == 'ekspertiz_kusuru' && (hasDamagedParts || car.expertise.mileage > 150000)) {
+          score += 25;
+        }
+        if (tactic.id == 'usta_cagir' && (car.expertise.engineCondition < 75 || car.modelYear < 2012)) {
+          score += 20;
+        }
+        if (tactic.id == 'nakit_goster' && price < 400000) {
+          score += 15;
+        }
+      } else {
+        if (tactic.id == 'emsalsiz_kondisyon' && (car.isPristineOriginal || car.isPolished || car.isRare)) {
+          score += 25;
+        }
+        if (tactic.id == 'expertiz_guvencesi' && car.isPristineOriginal) {
+          score += 20;
+        }
+        if (tactic.id == 'baska_alici_var' && car.estimatedRealValue > 500000) {
+          score += 15;
+        }
+      }
+
+      // Add a slight deterministic pseudo-random variance based on car id
+      final hash = (car.id.hashCode.abs() + tactic.id.hashCode.abs()) % 10;
+      score += hash;
+
+      return MapEntry(tactic, score);
+    }).toList();
+
+    scored.sort((a, b) => b.value.compareTo(a.value));
+    return scored.take(3).map((e) => e.key).toList();
+  }
+
+  /// Evaluates a dice-rolled tactic attempt with diminishing returns and walkaway risks
+  static TacticRollOutcome rollTactic({
+    required EsnafTactic tactic,
+    required int tacticUsageIndex, // 0 for 1st card, 1 for 2nd card, 2 for 3rd card
+    required int negotiationSkillLevel,
+    required CarModel car,
+    CustomerModel? customer,
+    required bool isBuying,
+    List<String> purchasedAcademyCourses = const [],
+    bool isTraderSpecialization = false,
+  }) {
+    // 1. Base Success Threshold with Diminishing Returns
+    int baseThreshold;
+    if (tacticUsageIndex == 0) {
+      baseThreshold = 75; // 1st Card: 75% base success
+    } else if (tacticUsageIndex == 1) {
+      baseThreshold = 50; // 2nd Card: 50% base success
+    } else {
+      baseThreshold = 30; // 3rd Card: 30% base success
+    }
+
+    // 2. Modifiers
+    int threshold = baseThreshold + (negotiationSkillLevel * 3);
+    if (customer != null && tactic.preferredArchetypes.contains(customer.archetype)) {
+      threshold += 10;
+    }
+    if (purchasedAcademyCourses.contains('course_sales_master')) {
+      threshold += 6;
+    }
+    if (isTraderSpecialization) {
+      threshold += 8;
+    }
+    threshold = threshold.clamp(15, 95);
+
+    // 3. Dice Roll (1 - 100)
+    final roll = _random.nextInt(100) + 1;
+    final bool isSuccess = roll <= threshold;
+
+    if (isSuccess) {
+      double bonusMultiplier = 1.0;
+      if (tacticUsageIndex == 1) bonusMultiplier = 0.75;
+      if (tacticUsageIndex >= 2) bonusMultiplier = 0.50;
+
+      final int bonus = ((tactic.baseBonusPercent + (negotiationSkillLevel * 2)) * bonusMultiplier).round();
+      return TacticRollOutcome(
+        isSuccess: true,
+        isWalkaway: false,
+        diceRoll: roll,
+        threshold: threshold,
+        bonusChance: bonus,
+        message: '${tactic.successDialogue} • +%$bonus',
+        tacticTitle: tactic.title,
+      );
+    }
+
+    // 4. Failure & Walkaway Risk
+    int walkawayRiskPercent = 0;
+    if (tacticUsageIndex == 1) walkawayRiskPercent = 12;
+    if (tacticUsageIndex >= 2) walkawayRiskPercent = 35;
+
+    final walkawayRoll = _random.nextInt(100) + 1;
+    final bool isWalkaway = walkawayRoll <= walkawayRiskPercent;
+
+    if (isWalkaway) {
+      return TacticRollOutcome(
+        isSuccess: false,
+        isWalkaway: true,
+        diceRoll: roll,
+        threshold: threshold,
+        bonusChance: -15,
+        message: tactic.walkawayDialogue,
+        tacticTitle: tactic.title,
+      );
+    }
+
+    final int penalty = tacticUsageIndex == 0 ? -3 : (tacticUsageIndex == 1 ? -6 : -10);
+    return TacticRollOutcome(
+      isSuccess: false,
+      isWalkaway: false,
+      diceRoll: roll,
+      threshold: threshold,
+      bonusChance: penalty,
+      message: '${tactic.failureDialogue} • $penalty%',
+      tacticTitle: tactic.title,
+    );
+  }
+
+  /// Legacy helper backwards-compatible wrapper
   static Map<String, dynamic> executeEsnafAction({
     required String actionType,
     required double currentOffer,
     required double askingPrice,
     required int negotiationSkillLevel,
   }) {
-    switch (actionType) {
-      case 'cay_soyle':
-        return {
-          'success': true,
-          'bonusChance': 10 + (negotiationSkillLevel * 2),
-          'message': 'Sıcak tavşankanı çay ikram edildi! Satıcının yumuşamasıyla ikna şansı +%${10 + (negotiationSkillLevel * 2)} arttı.',
-        };
-      case 'sigara_yak':
-        return {
-          'success': true,
-          'bonusChance': 12 + negotiationSkillLevel,
-          'message': 'Ağır esnaf tavrıyla sigara yakıldı. Tok duruşun sayesinde satıcının direnci kırıldı! • +%${12 + negotiationSkillLevel}',
-        };
-      case 'ortak_arayayim':
-        final shiftAmount = (askingPrice - currentOffer) * 0.40;
-        final newShiftedPrice = (currentOffer + shiftAmount).roundToDouble();
-        return {
-          'success': true,
-          'bonusChance': 15,
-          'priceShift': newShiftedPrice,
-          'message': 'Ortağa danışıldı ve "Tamamdır usta, ortak onay verdi" denildi. Teklif yukarı çekildi!',
-        };
-      default:
-        return {
-          'success': false,
-          'bonusChance': 0,
-          'message': 'Bilinmeyen esnaf taktiği.',
-        };
-    }
+    final tactic = allTactics.firstWhere(
+      (t) => t.id == actionType,
+      orElse: () => allTactics.first,
+    );
+    final outcome = rollTactic(
+      tactic: tactic,
+      tacticUsageIndex: 0,
+      negotiationSkillLevel: negotiationSkillLevel,
+      car: CarModel(
+        id: '',
+        brand: '',
+        modelName: '',
+        modelYear: 2020,
+        bodyType: '',
+        colorHex: '#000000',
+        baseMarketValue: askingPrice,
+        currentPurchasePrice: askingPrice,
+        expertise: ExpertiseReport(
+          engineCondition: 100,
+          transmissionCondition: 100,
+          tramerAmount: 0,
+          mileage: 100000,
+          isMileageTampered: false,
+          bodyParts: {},
+        ),
+      ),
+      isBuying: true,
+    );
+
+    return {
+      'success': outcome.isSuccess,
+      'isWalkaway': outcome.isWalkaway,
+      'bonusChance': outcome.bonusChance,
+      'priceShift': null,
+      'message': outcome.message,
+    };
   }
 
   /// Process counter-offer from player to buyer with strategic esnaf approaches (§1.1 & §2.4)
@@ -402,75 +820,84 @@ class NegotiationEngine {
     required double playerTargetPrice,
     required CarModel car,
     required int negotiationSkillLevel,
+    double? dynamicMaxMultiplier,
+    CustomerModel? customer,
     String? strategy, // 'ikna_et', 'duyguya_oyna', 'sert_dur', 'hizli_kapat', 'cay_soyle', 'sigara_yak', 'ortak_arayayim'
     List<String> purchasedAcademyCourses = const [],
     bool isTraderSpecialization = false,
   }) {
     final double previousOffer = currentOffer.offeredAmount;
     final double carRealValue = car.estimatedRealValue;
-    final customer = currentOffer.buyerCustomer;
-    final double maxCeiling = getDynamicCeilingMultiplier(car, offer: currentOffer);
-
-    // Strategy Bonus Modifier
+    final activeCustomer = customer ?? currentOffer.buyerCustomer;
+    final double maxCeiling = dynamicMaxMultiplier ?? getDynamicCeilingMultiplier(car, offer: currentOffer);
     double strategyBonus = 0.0;
     double walkawayModifier = 0.0;
 
     // Staff Academy & Specialization Trader Perks
     if (purchasedAcademyCourses.contains('course_sales_master')) {
-      strategyBonus += 0.10; // Personel Akademisi Satış Ustası Bonusu
+      strategyBonus += 0.10;
     }
     if (isTraderSpecialization) {
-      strategyBonus += 0.15; // Tüccar Uzmanlık Bonusu
+      strategyBonus += 0.15;
     }
 
     if (strategy == 'ikna_et') {
-      // Transparency & Expertise focus
       if (car.declarationType == ListingDeclarationType.honest) {
-        strategyBonus += 0.20;
+        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.20 : 0.12;
       } else {
         strategyBonus -= 0.10;
         walkawayModifier += 0.15;
       }
-    } else if (strategy == 'duyguya_oyna') {
-      // Warm Esnaf Tea & Empathy
-      if (customer?.archetype == CustomerArchetype.familyMan || customer?.archetype == CustomerArchetype.skepticalOfficial) {
-        strategyBonus += 0.18;
-      } else if (customer?.archetype == CustomerArchetype.impatientYouth) {
-        strategyBonus += 0.05;
-      }
-    } else if (strategy == 'sert_dur') {
-      // Confident Tok Satıcı
-      if (customer?.archetype == CustomerArchetype.impatientYouth) {
-        strategyBonus += 0.15;
+    } else if (strategy == 'baska_alici_var') {
+      if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || activeCustomer?.archetype == CustomerArchetype.greedyFlipper) {
+        strategyBonus += 0.22;
       } else {
-        walkawayModifier += 0.20;
+        strategyBonus += 0.08;
+        walkawayModifier += 0.10;
       }
-    } else if (strategy == 'hizli_kapat') {
-      // Fast closure discount
-      strategyBonus += 0.22;
-    } else if (strategy == 'cay_soyle') {
-      // Esnaf Çayı: +10% alıcı toleransı, masadan kalkma riskini düşürür (§2.4)
-      strategyBonus += 0.14;
+    } else if (strategy == 'emsalsiz_kondisyon') {
+      if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || car.isPristineOriginal) {
+        strategyBonus += 0.24;
+      } else {
+        strategyBonus += 0.12;
+      }
+    } else if (strategy == 'dost_isi_ikram') {
+      if (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) {
+        strategyBonus += 0.20;
+        walkawayModifier -= 0.10;
+      } else {
+        strategyBonus += 0.12;
+      }
+    } else if (strategy == 'cay_soyle_satis' || strategy == 'cay_soyle') {
+      strategyBonus += 0.15;
       walkawayModifier -= 0.15;
+    } else if (strategy == 'fiyat_sabit_tok' || strategy == 'sert_dur') {
+      if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || activeCustomer?.archetype == CustomerArchetype.greedyFlipper) {
+        strategyBonus += 0.18;
+      } else {
+        walkawayModifier += 0.15;
+      }
+    } else if (strategy == 'expertiz_guvencesi' || strategy == 'ikna_et') {
+      if (car.declarationType == ListingDeclarationType.honest) {
+        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.22 : 0.14;
+      } else {
+        strategyBonus -= 0.10;
+        walkawayModifier += 0.15;
+      }
+    } else if (strategy == 'hizli_teslimat' || strategy == 'hizli_kapat') {
+      strategyBonus += 0.20;
     } else if (strategy == 'sigara_yak') {
-      // Ağırdan Al & Sigara Yak: Tok satıcı duruşu
       strategyBonus += 0.16;
       walkawayModifier += 0.05;
     } else if (strategy == 'ortak_arayayim') {
-      // Ortağa Danışma: Fiyatı yukarı çeker
       strategyBonus += 0.18;
     }
 
-    // Skill boost: +3% acceptance probability per skill level
     double skillBonus = ((negotiationSkillLevel - 1) * 0.03) + strategyBonus;
-
-    // Difference ratio between player target and buyer's previous offer
     double diffRatio = (playerTargetPrice - previousOffer) / previousOffer;
 
-    // Probability calculations
     if (playerTargetPrice <= previousOffer) {
-      // Player asked for lower/same amount -> Immediate Accept!
-      final msg = _getAcceptedMessage(customer?.archetype, playerTargetPrice);
+      final msg = _getAcceptedMessage(activeCustomer?.archetype, playerTargetPrice);
       return NegotiationOutcome(
         updatedOffer: currentOffer.copyWith(
           offeredAmount: playerTargetPrice,
@@ -483,9 +910,17 @@ class NegotiationEngine {
       );
     }
 
-    if (diffRatio <= 0.08 + skillBonus) {
-      // Very reasonable counter offer -> 85% chance accept
-      if (_random.nextDouble() < 0.85 + skillBonus) {
+    double archetypeAcceptModifier = switch (activeCustomer?.archetype) {
+      CustomerArchetype.greedyFlipper => -0.25,
+      CustomerArchetype.skepticalOfficial => -0.18,
+      CustomerArchetype.familyMan => -0.10,
+      CustomerArchetype.impatientYouth => 0.10,
+      _ => 0.0,
+    };
+
+    if (diffRatio <= 0.06 + skillBonus) {
+      double acceptChance = (0.50 + skillBonus + archetypeAcceptModifier).clamp(0.15, 0.85);
+      if (_random.nextDouble() < acceptChance) {
         final msg = _getAcceptedMessage(customer?.archetype, playerTargetPrice);
         return NegotiationOutcome(
           updatedOffer: currentOffer.copyWith(

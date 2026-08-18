@@ -1103,10 +1103,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       onRefresh: () async {
         HapticFeedback.mediumImpact();
         await Future.delayed(const Duration(milliseconds: 350));
-        setState(() {
-          _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
-          _isWindowOpen = AuctionEngine.isAuctionActiveNow();
-        });
+        if (mounted) {
+          setState(() {
+            _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
+            _isWindowOpen = AuctionEngine.isAuctionActiveNow();
+          });
+        }
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),

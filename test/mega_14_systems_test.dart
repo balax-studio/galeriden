@@ -72,7 +72,8 @@ void main() {
 
       final updatedCar = notifier.state.ownedCars.first;
       expect(updatedCar.appliedDetailingOptionIds.contains('dyno_certified'), isTrue);
-      expect(updatedCar.baseMarketValue, greaterThan(1200000.0));
+      expect(updatedCar.baseMarketValue, equals(1200000.0));
+      expect(updatedCar.estimatedRealValue, greaterThan(car.estimatedRealValue));
     });
 
     test('3. Stage 1 & 2 Chip Tuning Remap and Bodykit boost car performance and value', () {
@@ -105,12 +106,14 @@ void main() {
       final tuneSuccess = notifier.applyChipTuning(car.id, ChipTuningStage.stage2);
       expect(tuneSuccess, isTrue);
       expect(notifier.state.ownedCars.first.appliedDetailingOptionIds.contains('stage_2_ecu'), isTrue);
-      expect(notifier.state.ownedCars.first.baseMarketValue, greaterThan(1000000.0));
+      expect(notifier.state.ownedCars.first.baseMarketValue, equals(900000.0));
+      expect(notifier.state.ownedCars.first.estimatedRealValue, greaterThan(900000.0));
 
       // Bodykit & Cam Filmi
       final bodykitSuccess = notifier.installBodykitAndTint(car.id);
       expect(bodykitSuccess, isTrue);
       expect(notifier.state.ownedCars.first.appliedDetailingOptionIds.contains('bodykit_tint'), isTrue);
+      expect(notifier.state.ownedCars.first.baseMarketValue, equals(900000.0));
     });
 
     test('4. Turkish Hospitality Tea, Coffee and Hometown Plate in negotiation', () {

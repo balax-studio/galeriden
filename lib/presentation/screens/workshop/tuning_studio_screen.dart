@@ -37,9 +37,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       return;
     }
 
-    final newMarketValue = _selectedCar!.baseMarketValue * opt.valueMultiplier;
+    final wasOverTuned = _selectedCar!.isOverTuned;
     final updatedCar = _selectedCar!.copyWith(
-      baseMarketValue: newMarketValue,
       appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, opt.id],
     );
     ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
@@ -48,10 +47,15 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       _selectedCar = updatedCar;
     });
 
+    final newMarketValue = updatedCar.estimatedRealValue;
     NotificationService.showSuccess(
       context,
-      '${opt.title} uygulandı! (+${opt.hpGain > 0 ? '${opt.hpGain} HP • ' : ''}${CurrencyFormatter.formatShort(newMarketValue)})',
+      '${opt.title} uygulandı! • ${opt.hpGain > 0 ? '+${opt.hpGain} HP • ' : ''}Değer: ${CurrencyFormatter.formatShort(newMarketValue)}',
     );
+
+    if (!wasOverTuned && updatedCar.isOverTuned) {
+      _showOverTunedWarningDialog();
+    }
   }
 
   void _applyPresetBuild(TuningPresetBuild preset) {
@@ -63,19 +67,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       return;
     }
 
+    final wasOverTuned = _selectedCar!.isOverTuned;
     // Apply all unapplied options
     final newOptionIds = Set<String>.from(_selectedCar!.appliedDetailingOptionIds)..addAll(preset.optionIds);
-    double valueMultiplier = 1.0;
-    for (final id in preset.optionIds) {
-      final opt = TuningCatalog.allOptions.where((o) => o.id == id);
-      if (opt.isNotEmpty) {
-        valueMultiplier *= opt.first.valueMultiplier;
-      }
-    }
-
-    final newMarketValue = _selectedCar!.baseMarketValue * (valueMultiplier.clamp(1.0, 1.75));
     final updatedCar = _selectedCar!.copyWith(
-      baseMarketValue: newMarketValue,
       appliedDetailingOptionIds: newOptionIds.toList(),
     );
 
@@ -85,9 +80,66 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       _selectedCar = updatedCar;
     });
 
+    final newMarketValue = updatedCar.estimatedRealValue;
     NotificationService.showSuccess(
       context,
       '${preset.title} %15 indirimle uygulandı! Araç Pazar Değeri: ${CurrencyFormatter.formatShort(newMarketValue)}',
+    );
+
+    if (!wasOverTuned && updatedCar.isOverTuned) {
+      _showOverTunedWarningDialog();
+    }
+  }
+
+  void _showOverTunedWarningDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1410),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.brutalOrange, width: 2.8),
+        ),
+        title: Row(
+          children: const [
+            Icon(Icons.warning_amber_rounded, color: AppColors.brutalOrange, size: 24),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'DİKKAT • AŞIRI MODİFİYE',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'Bu araç artık aşırı modifiyeli statüsüne ulaştı! Standart aile, memur ve filo müşterileri bu aracı tercih etmeyebilir.',
+              style: TextStyle(fontSize: 12.5, color: Color(0xFFFED7AA)),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Gelen teklifler ağırlıklı olarak genç ve modifiye tutkunu kitleye kayacaktır. Pazar teklif sıklığı %30-40 düşebilir.',
+              style: TextStyle(fontSize: 11.5, color: Color(0xFFCBD5E1), fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        actions: [
+          NeoBrutalButton(
+            label: 'ANLADIM • DEVAM ET',
+            backgroundColor: AppColors.brutalOrange,
+            textColor: Colors.black,
+            onPressed: () => Navigator.pop(ctx),
+          ),
+        ],
+      ),
     );
   }
 
@@ -100,7 +152,6 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     }
 
     final updatedCar = _selectedCar!.copyWith(
-      baseMarketValue: _selectedCar!.baseMarketValue * 1.05,
       appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, 'tune_legal_project_cert'],
     );
 
@@ -328,22 +379,36 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           ),
                         ],
                       ),
-                      NeoBrutalBadge(
-                        text: dyno.isInspectionCompliant ? 'TÜVTÜRK UYGUN' : 'MUAYENEDEN GEÇMEZ',
-                        backgroundColor: dyno.isInspectionCompliant ? AppColors.brutalGreen : AppColors.errorRed,
-                        textColor: dyno.isInspectionCompliant ? Colors.black : Colors.white,
-                        fontSize: 9.5,
+                      Wrap(
+                        spacing: 4,
+                        children: [
+                          if (_selectedCar!.isOverTuned)
+                            const NeoBrutalBadge(
+                              text: 'AŞIRI MODİFİYE • GENÇ KİTLE',
+                              backgroundColor: AppColors.brutalOrange,
+                              textColor: Colors.black,
+                              fontSize: 9.0,
+                            ),
+                          NeoBrutalBadge(
+                            text: dyno.isInspectionCompliant ? 'TÜVTÜRK UYGUN' : 'MUAYENEDEN GEÇMEZ',
+                            backgroundColor: dyno.isInspectionCompliant ? AppColors.brutalGreen : AppColors.errorRed,
+                            textColor: dyno.isInspectionCompliant ? Colors.black : Colors.white,
+                            fontSize: 9.0,
+                          ),
+                        ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildMetricTile('GÜÇ', '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen, isDark),
-                      _buildMetricTile('TORK', '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange, isDark),
-                      _buildMetricTile('0-100', '${dyno.currentAccel}s', '${dyno.baseAccel}s idi', const Color(0xFF06B6D4), isDark),
-                      _buildMetricTile('DESİBEL', '${dyno.exhaustDb} dB', '%${dyno.tuningRating} Skor', const Color(0xFFA855F7), isDark),
+                      Expanded(child: _buildMetricTile('GÜÇ', '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen, isDark)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _buildMetricTile('TORK', '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange, isDark)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _buildMetricTile('0-100', '${dyno.currentAccel}s', '${dyno.baseAccel}s idi', const Color(0xFF06B6D4), isDark)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _buildMetricTile('DESİBEL', '${dyno.exhaustDb} dB', '%${dyno.tuningRating} Skor', const Color(0xFFA855F7), isDark)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -649,7 +714,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
   static Widget _buildMetricTile(String title, String val, String sub, Color color, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(8),
@@ -660,10 +725,27 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       ),
       child: Column(
         children: [
-          Text(title, style: const TextStyle(fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 2),
-          Text(val, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: color)),
-          Text(sub, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              val,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: color),
+            ),
+          ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              sub,
+              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+            ),
+          ),
         ],
       ),
     );

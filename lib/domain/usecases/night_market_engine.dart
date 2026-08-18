@@ -54,7 +54,7 @@ class NightMarketEngine {
 
   /// Comprehensive roster of 12 authentic street opponents across 3 difficulty tiers
   static const List<NightRivalModel> allRivals = [
-    // --- Tier 1: Sanayi Çırakları & Mahalle Gazcıları (Güç: 75 - 120 HP) ---
+    // --- Tier 1: Sanayi Çırakları & Mahalle Gazcıları (Güç: 75 - 130 HP) ---
     NightRivalModel(
       id: 'rival_t1_1',
       name: 'Çırak Samet',
@@ -95,8 +95,28 @@ class NightMarketEngine {
       basePower: 115,
       badge: 'SEMT',
     ),
+    NightRivalModel(
+      id: 'rival_t1_5',
+      name: 'Sanayi Çırağı Şahin',
+      title: 'Yanlama Meraklısı',
+      carName: 'Tofaş Şahin 1.6 S',
+      modificationSummary: 'Kep Kep Karbüratör & 5 Kol Jant',
+      tier: 1,
+      basePower: 92,
+      badge: 'ÇIRAK',
+    ),
+    NightRivalModel(
+      id: 'rival_t1_6',
+      name: 'Çorbacı Mahmut Dayı',
+      title: 'Gece Müdavimi',
+      carName: 'Mercedes 200E W124',
+      modificationSummary: 'LPG Ayarlı Ağır Kasa Klasiği',
+      tier: 1,
+      basePower: 118,
+      badge: 'KLASİK',
+    ),
 
-    // --- Tier 2: Cadde Çocukları & Stage 1/2 Tuning (Güç: 180 - 320 HP) ---
+    // --- Tier 2: Cadde Çocukları & Stage 1/2 Tuning (Güç: 180 - 350 HP) ---
     NightRivalModel(
       id: 'rival_t2_1',
       name: 'Yazılımcı Alper',
@@ -137,8 +157,28 @@ class NightMarketEngine {
       basePower: 300,
       badge: 'FENOMEN',
     ),
+    NightRivalModel(
+      id: 'rival_t2_5',
+      name: 'Driftçi Berkcan',
+      title: 'Yanlama Ustası',
+      carName: 'BMW 3.28i E36 Coupe',
+      modificationSummary: 'M52B28 Yazılım & Kilitli Diferansiyel',
+      tier: 2,
+      basePower: 230,
+      badge: 'DRİFT',
+    ),
+    NightRivalModel(
+      id: 'rival_t2_6',
+      name: 'Gece Yarışçısı Type-R',
+      title: 'VTEC Efsanesi',
+      carName: 'Honda Civic Type-R FK8',
+      modificationSummary: 'Invidia Titanyum Egzoz & Karbon Kanat',
+      tier: 2,
+      basePower: 315,
+      badge: 'YARIŞÇI',
+    ),
 
-    // --- Tier 3: Yeraltı Efsaneleri & Süper Sporlar (Güç: 420 - 950 HP) ---
+    // --- Tier 3: Yeraltı Efsaneleri & Süper Sporlar (Güç: 420 - 1050 HP) ---
     NightRivalModel(
       id: 'rival_t3_1',
       name: 'Gölge İbrahim',
@@ -179,7 +219,40 @@ class NightMarketEngine {
       basePower: 950,
       badge: 'EFSANE',
     ),
+    NightRivalModel(
+      id: 'rival_t3_5',
+      name: 'Galericiler Sitesi Ağası',
+      title: 'V10 Efsanesi',
+      carName: 'BMW M5 E60 V10',
+      modificationSummary: 'Eisenmann Egzoz & 8500 RPM Çığlığı',
+      tier: 3,
+      basePower: 520,
+      badge: 'AĞA',
+    ),
+    NightRivalModel(
+      id: 'rival_t3_6',
+      name: 'Zengin Züppesi Doruk',
+      title: 'Pist Şımarığı',
+      carName: 'Porsche 911 Turbo S',
+      modificationSummary: 'Akrapovic Titanyum & Launch Kontrol',
+      tier: 3,
+      basePower: 680,
+      badge: 'SÜPER SPOR',
+    ),
   ];
+
+  /// Random trash-talk and defeat taunts when player loses
+  static String getRandomDefeatTaunt(NightRivalModel rival) {
+    final taunts = [
+      'Bu arabayla ancak bakkala gidersin esnafım!',
+      'Bir dahaki sefere motoru da yükle de gel!',
+      'Tozumu yuttun! İntikam istiyorsan masaya iki katını koy!',
+      'Biz bu sokaklara dün çıkmadık, biraz daha tecrübe lazım sana!',
+      'O vites geçişi neydi öyle? Arabanın ciğerini söktün ama yetişemedin!',
+      'Sanayide iyi bir ustaya uğra, belki bir dahaki sefere farkı kapatırsın!',
+    ];
+    return taunts[_random.nextInt(taunts.length)];
+  }
 
   /// Checks if current real-world hour is within Night Shift (22:00 - 04:00) or simulation (§4.4)
   static bool isNightShiftActive({DateTime? customTime}) {

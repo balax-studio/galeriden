@@ -80,10 +80,9 @@ void main() {
     expect(find.text('-%15'), findsOneWidget);
     expect(find.text('-%20'), findsOneWidget);
 
-    // Verify Esnaf Tactics exist
-    expect(find.text('Çay İkram Et'), findsOneWidget);
-    expect(find.text('Bir Sigara Yak'), findsOneWidget);
-    expect(find.text('Ortağa Danış'), findsOneWidget);
+    // Verify Esnaf Tactics and Koz Counter exist
+    expect(find.textContaining('KOZ KULLANILDI'), findsOneWidget);
+    expect(find.text('ESNAF KOZLARI & MÜZAKERE TAKTİKLERİ'), findsOneWidget);
 
     // Verify CTA Button exists
     expect(find.textContaining('TEKLİF ET'), findsOneWidget);

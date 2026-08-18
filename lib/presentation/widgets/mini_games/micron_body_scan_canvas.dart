@@ -181,9 +181,9 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
           ),
           const SizedBox(height: 14),
 
-          // 2D Interactive Blueprint Blueprint Grid Canvas
+          // 2D Interactive Blueprint Grid Canvas
           Container(
-            height: 200,
+            height: 220,
             width: double.infinity,
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF080A10) : const Color(0xFFF1F5F9),
@@ -219,61 +219,109 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
 
                       return Stack(
                         children: [
-                          // 1. Kaput (Front Hood)
+                          // 1. Ön Tampon
                           _buildTouchTarget(
-                            left: w * 0.12,
-                            top: h * 0.30,
-                            width: w * 0.22,
-                            height: h * 0.40,
-                            partName: 'Kaput',
-                          ),
-                          // 2. Tavan (Roof)
-                          _buildTouchTarget(
-                            left: w * 0.40,
-                            top: h * 0.28,
-                            width: w * 0.24,
-                            height: h * 0.44,
-                            partName: 'Tavan',
-                          ),
-                          // 3. Bagaj (Trunk)
-                          _buildTouchTarget(
-                            left: w * 0.70,
+                            left: w * 0.04,
                             top: h * 0.32,
-                            width: w * 0.18,
+                            width: w * 0.09,
                             height: h * 0.36,
-                            partName: 'Bagaj',
+                            partName: 'Ön Tampon',
                           ),
-                          // 4. Sol Ön Çamurluk / Kapı
+                          // 2. Sol Ön Çamurluk
                           _buildTouchTarget(
-                            left: w * 0.20,
-                            top: h * 0.06,
-                            width: w * 0.26,
-                            height: h * 0.20,
+                            left: w * 0.15,
+                            top: h * 0.08,
+                            width: w * 0.15,
+                            height: h * 0.22,
                             partName: 'Sol Ön Çamurluk',
                           ),
-                          // 5. Sağ Ön Çamurluk / Kapı
+                          // 3. Kaput
                           _buildTouchTarget(
-                            left: w * 0.20,
-                            top: h * 0.74,
-                            width: w * 0.26,
-                            height: h * 0.20,
+                            left: w * 0.15,
+                            top: h * 0.34,
+                            width: w * 0.15,
+                            height: h * 0.32,
+                            partName: 'Kaput',
+                          ),
+                          // 4. Sağ Ön Çamurluk
+                          _buildTouchTarget(
+                            left: w * 0.15,
+                            top: h * 0.70,
+                            width: w * 0.15,
+                            height: h * 0.22,
                             partName: 'Sağ Ön Çamurluk',
                           ),
-                          // 6. Sol Arka Çamurluk / Kapı
+                          // 5. Sol Ön Kapı
                           _buildTouchTarget(
-                            left: w * 0.54,
-                            top: h * 0.06,
-                            width: w * 0.26,
-                            height: h * 0.20,
+                            left: w * 0.32,
+                            top: h * 0.08,
+                            width: w * 0.16,
+                            height: h * 0.22,
+                            partName: 'Sol Ön Kapı',
+                          ),
+                          // 6. Tavan
+                          _buildTouchTarget(
+                            left: w * 0.32,
+                            top: h * 0.34,
+                            width: w * 0.34,
+                            height: h * 0.32,
+                            partName: 'Tavan',
+                          ),
+                          // 7. Sağ Ön Kapı
+                          _buildTouchTarget(
+                            left: w * 0.32,
+                            top: h * 0.70,
+                            width: w * 0.16,
+                            height: h * 0.22,
+                            partName: 'Sağ Ön Kapı',
+                          ),
+                          // 8. Sol Arka Kapı
+                          _buildTouchTarget(
+                            left: w * 0.50,
+                            top: h * 0.08,
+                            width: w * 0.16,
+                            height: h * 0.22,
+                            partName: 'Sol Arka Kapı',
+                          ),
+                          // 9. Sağ Arka Kapı
+                          _buildTouchTarget(
+                            left: w * 0.50,
+                            top: h * 0.70,
+                            width: w * 0.16,
+                            height: h * 0.22,
+                            partName: 'Sağ Arka Kapı',
+                          ),
+                          // 10. Sol Arka Çamurluk
+                          _buildTouchTarget(
+                            left: w * 0.68,
+                            top: h * 0.08,
+                            width: w * 0.15,
+                            height: h * 0.22,
                             partName: 'Sol Arka Çamurluk',
                           ),
-                          // 7. Sağ Arka Çamurluk / Kapı
+                          // 11. Bagaj
                           _buildTouchTarget(
-                            left: w * 0.54,
-                            top: h * 0.74,
-                            width: w * 0.26,
-                            height: h * 0.20,
+                            left: w * 0.68,
+                            top: h * 0.34,
+                            width: w * 0.15,
+                            height: h * 0.32,
+                            partName: 'Bagaj',
+                          ),
+                          // 12. Sağ Arka Çamurluk
+                          _buildTouchTarget(
+                            left: w * 0.68,
+                            top: h * 0.70,
+                            width: w * 0.15,
+                            height: h * 0.22,
                             partName: 'Sağ Arka Çamurluk',
+                          ),
+                          // 13. Arka Tampon
+                          _buildTouchTarget(
+                            left: w * 0.85,
+                            top: h * 0.32,
+                            width: w * 0.09,
+                            height: h * 0.36,
+                            partName: 'Arka Tampon',
                           ),
                         ],
                       );
@@ -344,7 +392,8 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
     final status = widget.bodyParts[partName] ??
         widget.bodyParts.entries
             .firstWhere(
-              (e) => e.key.toLowerCase().contains(partName.toLowerCase()) || partName.toLowerCase().contains(e.key.toLowerCase()),
+              (e) => e.key.toLowerCase().replaceAll(' ', '').contains(partName.toLowerCase().replaceAll(' ', '')) ||
+                  partName.toLowerCase().replaceAll(' ', '').contains(e.key.toLowerCase().replaceAll(' ', '')),
               orElse: () => MapEntry(partName, PartStatus.original),
             )
             .value;
@@ -410,36 +459,129 @@ class _CarBlueprintPainter extends CustomPainter {
     final borderPaint = Paint()
       ..color = isDark ? const Color(0xFF475569) : const Color(0xFF0F172A)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4;
+      ..strokeWidth = 2.0;
 
     final carRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(w * 0.10, h * 0.20, w * 0.80, h * 0.60),
-      const Radius.circular(20),
+      Rect.fromLTWH(w * 0.03, h * 0.05, w * 0.94, h * 0.90),
+      const Radius.circular(16),
     );
     canvas.drawRRect(carRect, bodyPaint);
     canvas.drawRRect(carRect, borderPaint);
 
-    // Front Hood (Kaput)
+    // 1. Ön Tampon
     _drawPartSection(
       canvas,
-      Rect.fromLTWH(w * 0.12, h * 0.28, w * 0.22, h * 0.44),
+      Rect.fromLTWH(w * 0.04, h * 0.32, w * 0.09, h * 0.36),
+      'Ön Tampon',
+      'Ön Tamp.',
+      borderPaint,
+    );
+
+    // 2. Sol Ön Çamurluk (Top)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.15, h * 0.08, w * 0.15, h * 0.22),
+      'Sol Ön Çamurluk',
+      'Sol Ön Çam.',
+      borderPaint,
+    );
+
+    // 3. Kaput (Center)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.15, h * 0.34, w * 0.15, h * 0.32),
+      'Kaput',
       'Kaput',
       borderPaint,
     );
 
-    // Cabin / Roof (Tavan)
+    // 4. Sağ Ön Çamurluk (Bottom)
     _drawPartSection(
       canvas,
-      Rect.fromLTWH(w * 0.38, h * 0.25, w * 0.26, h * 0.50),
+      Rect.fromLTWH(w * 0.15, h * 0.70, w * 0.15, h * 0.22),
+      'Sağ Ön Çamurluk',
+      'Sağ Ön Çam.',
+      borderPaint,
+    );
+
+    // 5. Sol Ön Kapı (Top)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.32, h * 0.08, w * 0.16, h * 0.22),
+      'Sol Ön Kapı',
+      'Sol Ön K.',
+      borderPaint,
+    );
+
+    // 6. Tavan (Center Cabin)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.32, h * 0.34, w * 0.34, h * 0.32),
+      'Tavan',
       'Tavan',
       borderPaint,
     );
 
-    // Trunk (Bagaj)
+    // 7. Sağ Ön Kapı (Bottom)
     _drawPartSection(
       canvas,
-      Rect.fromLTWH(w * 0.68, h * 0.28, w * 0.20, h * 0.44),
+      Rect.fromLTWH(w * 0.32, h * 0.70, w * 0.16, h * 0.22),
+      'Sağ Ön Kapı',
+      'Sağ Ön K.',
+      borderPaint,
+    );
+
+    // 8. Sol Arka Kapı (Top)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.50, h * 0.08, w * 0.16, h * 0.22),
+      'Sol Arka Kapı',
+      'Sol Arka K.',
+      borderPaint,
+    );
+
+    // 9. Sağ Arka Kapı (Bottom)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.50, h * 0.70, w * 0.16, h * 0.22),
+      'Sağ Arka Kapı',
+      'Sağ Arka K.',
+      borderPaint,
+    );
+
+    // 10. Sol Arka Çamurluk (Top)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.68, h * 0.08, w * 0.15, h * 0.22),
+      'Sol Arka Çamurluk',
+      'Sol Ark Çam.',
+      borderPaint,
+    );
+
+    // 11. Bagaj (Center)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.68, h * 0.34, w * 0.15, h * 0.32),
       'Bagaj',
+      'Bagaj',
+      borderPaint,
+    );
+
+    // 12. Sağ Arka Çamurluk (Bottom)
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.68, h * 0.70, w * 0.15, h * 0.22),
+      'Sağ Arka Çamurluk',
+      'Sağ Ark Çam.',
+      borderPaint,
+    );
+
+    // 13. Arka Tampon
+    _drawPartSection(
+      canvas,
+      Rect.fromLTWH(w * 0.85, h * 0.32, w * 0.09, h * 0.36),
+      'Arka Tampon',
+      'Arka Tamp.',
       borderPaint,
     );
 
@@ -456,29 +598,36 @@ class _CarBlueprintPainter extends CustomPainter {
     }
   }
 
-  void _drawPartSection(Canvas canvas, Rect rect, String label, Paint border) {
-    final status = bodyParts[label] ?? PartStatus.original;
-    final isScanned = scannedParts.contains(label);
-    final isSelected = selectedPartKey == label;
+  void _drawPartSection(Canvas canvas, Rect rect, String lookupKey, String displayLabel, Paint border) {
+    final status = bodyParts[lookupKey] ??
+        bodyParts.entries
+            .firstWhere(
+              (e) => e.key.toLowerCase().replaceAll(' ', '').contains(lookupKey.toLowerCase().replaceAll(' ', '')) ||
+                  lookupKey.toLowerCase().replaceAll(' ', '').contains(e.key.toLowerCase().replaceAll(' ', '')),
+              orElse: () => MapEntry(lookupKey, PartStatus.original),
+            )
+            .value;
+    final isScanned = scannedParts.contains(lookupKey) || scannedParts.contains(displayLabel);
+    final isSelected = selectedPartKey == lookupKey || selectedPartKey == displayLabel;
 
     Color fillColor = isDark ? const Color(0xFF1A2232) : const Color(0xFFF8FAFC);
     if (isScanned) {
-      fillColor = StatColors.getPartColor(status.name).withValues(alpha: isDark ? 0.35 : 0.25);
+      fillColor = StatColors.getPartColor(status.name).withValues(alpha: isDark ? 0.40 : 0.30);
     }
     if (isSelected) {
-      fillColor = AppColors.brutalYellow.withValues(alpha: 0.6);
+      fillColor = AppColors.brutalYellow.withValues(alpha: 0.65);
     }
 
     final fillPaint = Paint()..color = fillColor;
-    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(8));
+    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(6));
     canvas.drawRRect(rrect, fillPaint);
     canvas.drawRRect(rrect, border);
 
     final textPainter = TextPainter(
       text: TextSpan(
-        text: label,
+        text: displayLabel,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 8.5,
           fontWeight: FontWeight.w900,
           color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF334155)),
         ),

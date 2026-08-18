@@ -162,9 +162,26 @@ class BlackMarketScreen extends ConsumerWidget {
                                   color: Color(0xFF64748B),
                                 ),
                               ),
-                              Text(
-                                CurrencyFormatter.formatShort(car.askingPrice),
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                              Row(
+                                children: [
+                                  Text(
+                                    CurrencyFormatter.formatShort(
+                                      game.hasHighNpcTrust('golge_ibrahim')
+                                          ? (car.askingPrice * 0.85).roundToDouble()
+                                          : car.askingPrice,
+                                    ),
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                  ),
+                                  if (game.hasHighNpcTrust('golge_ibrahim')) ...[
+                                    const SizedBox(width: 6),
+                                    const NeoBrutalBadge(
+                                      text: 'GÖLGE İNDİRİMİ -%15',
+                                      backgroundColor: AppColors.brutalYellow,
+                                      textColor: Colors.black,
+                                      fontSize: 9,
+                                    ),
+                                  ],
+                                ],
                               ),
                             ],
                           ),
@@ -180,8 +197,11 @@ class BlackMarketScreen extends ConsumerWidget {
                                 NotificationService.showError(context, 'Garajında boş yer yok! Şubeni büyüt veya bir araç sat.');
                                 return;
                               }
-                              if (game.balance < car.askingPrice) {
-                                NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(car.askingPrice)} gerekli.');
+                              final effectiveCost = game.hasHighNpcTrust('golge_ibrahim')
+                                  ? (car.askingPrice * 0.85).roundToDouble()
+                                  : car.askingPrice;
+                              if (game.balance < effectiveCost) {
+                                NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(effectiveCost)} gerekli.');
                                 return;
                               }
 
