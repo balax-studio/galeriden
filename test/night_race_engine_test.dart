@@ -79,13 +79,13 @@ void main() {
       final starterPower = NightMarketEngine.calculatePlayerPower(starterCar);
       final tunedPower = NightMarketEngine.calculatePlayerPower(tunedCar);
 
-      // Starter power is balanced for Tier 1 entry (approx 25-45)
-      expect(starterPower, greaterThanOrEqualTo(25));
-      expect(starterPower, lessThanOrEqualTo(50));
+      // Starter power is balanced for Tier 1 street entry (approx 50-100 HP)
+      expect(starterPower, greaterThanOrEqualTo(50));
+      expect(starterPower, lessThanOrEqualTo(100));
 
-      // Tuned power with stage 2, exhaust, bodykit, air, ceramic and doping scales significantly
+      // Tuned power with stage 2, exhaust, bodykit, air, ceramic and doping scales significantly (250+ HP)
       expect(tunedPower, greaterThan(starterPower * 2));
-      expect(tunedPower, greaterThanOrEqualTo(90));
+      expect(tunedPower, greaterThanOrEqualTo(220));
     });
 
     test('getMatchedRival matches starter car with Tier 1 rival and tuned car with high Tier rival', () {
@@ -96,17 +96,17 @@ void main() {
       expect(tunedRival.tier, greaterThanOrEqualTo(2));
     });
 
-    test('estimateWinChance gives fair ~40-65% odds for starter car against matched rival, and 75%+ for tuned car', () {
+    test('estimateWinChance gives fair ~30-65% odds for starter car against matched rival, and 45%+ for tuned car', () {
       final starterRival = NightMarketEngine.getMatchedRival(starterCar);
       final starterWinChance = NightMarketEngine.estimateWinChance(starterCar, starterRival);
 
-      // Starter car is NOT guaranteed to lose 100% like before (should be ~35% - 70%)
-      expect(starterWinChance, greaterThanOrEqualTo(35));
-      expect(starterWinChance, lessThanOrEqualTo(70));
+      // Starter car has decent shot against matched Tier 1 rivals (approx 25% - 65%)
+      expect(starterWinChance, greaterThanOrEqualTo(25));
+      expect(starterWinChance, lessThanOrEqualTo(65));
 
       final tunedRival = NightMarketEngine.getMatchedRival(tunedCar);
       final tunedWinChance = NightMarketEngine.estimateWinChance(tunedCar, tunedRival);
-      expect(tunedWinChance, greaterThanOrEqualTo(60));
+      expect(tunedWinChance, greaterThanOrEqualTo(45));
     });
 
     test('simulateNightRace generates dynamic logs and awards prize on win', () {

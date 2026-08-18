@@ -357,10 +357,10 @@ class TuningPresetBuilds {
 
 class CarDynoCalculator {
   static CarDynoStats calculateDyno(CarModel car) {
-    // Generate deterministic baseline from vehicle characteristics
-    final baseHp = (150 + (car.baseMarketValue / 20000).round()).clamp(120, 500);
-    final baseNm = (baseHp * 1.4).round();
-    final baseAccel = (10.0 - (baseHp / 80)).clamp(3.6, 11.5);
+    // Authentic baseline from vehicle characteristics
+    final baseHp = car.factoryHorsepower;
+    final baseNm = car.factoryTorque;
+    final baseAccel = car.factoryZeroToHundred;
     final baseDb = 78;
 
     int addedHp = 0;

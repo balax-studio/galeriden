@@ -124,22 +124,20 @@ class DynoTestReport {
   });
 
   static DynoTestReport generate(CarModel car) {
-    int baseHp = 130;
-    if (car.bodyType == 'Spor') baseHp = 280;
-    if (car.bodyType == 'SUV') baseHp = 190;
-    if (car.brand == 'BMW' || car.brand == 'Merso' || car.brand == 'Audi') baseHp += 60;
-
-    final conditionFactor = car.expertise.engineCondition / 100.0;
-    final measured = (baseHp * (0.75 + 0.25 * conditionFactor)).round();
-    final baseTorque = (baseHp * 1.5).round();
-    final measuredTorq = (baseTorque * conditionFactor).round();
+    final baseHp = car.factoryHorsepower;
+    final baseTorque = car.factoryTorque;
+    final conditionFactor = (car.expertise.engineCondition / 100.0).clamp(0.40, 1.0);
+    
+    // Effective measured HP includes engine health + tuning mods
+    final measured = car.effectiveHorsepower;
+    final measuredTorq = (baseTorque * (0.75 + 0.25 * conditionFactor)).round();
 
     return DynoTestReport(
       factoryHp: baseHp,
       measuredHp: measured,
       factoryTorque: baseTorque,
       measuredTorque: measuredTorq,
-      healthPercentage: (measured / baseHp) * 100,
+      healthPercentage: ((measured / (baseHp == 0 ? 1 : baseHp)) * 100).clamp(30.0, 180.0),
     );
   }
 }

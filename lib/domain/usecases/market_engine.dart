@@ -201,6 +201,7 @@ class MarketEngine {
       currentPurchasePrice: baseValue,
       isRare: false,
       isBarnFind: false,
+      declarationType: ListingDeclarationType.honest,
       expertise: expertise,
     );
 
@@ -289,9 +290,10 @@ class MarketEngine {
     }
   }
 
-  static String _generateTitle(int year, String brand, String modelName, bool isBarnFind, bool isRare) {
+  static String _generateTitle(int year, String brand, String modelName, bool isBarnFind, bool isRare, {bool isPristine = false}) {
     String title = '$year $brand $modelName';
     if (isBarnFind) return '[SAMANLIK KELEPİRİ] $title';
+    if (isPristine) return '[HATASIZ BOYASIZ] $title';
     if (isRare) return '[KOLEKSİYON] $title';
     return title;
   }
@@ -300,6 +302,8 @@ class MarketEngine {
     bool isBarnFind = false,
     bool isFlashDeal = false,
     bool isRare = false,
+    bool isPristine = false,
+    ListingDeclarationType declarationType = ListingDeclarationType.honest,
   }) {
     if (isBarnFind) {
       final barnDescriptions = [
@@ -308,6 +312,14 @@ class MarketEngine {
         'Samanlık buluntusu! Motor ve yürüyen elden geçmeli, gövde hatları düzgün. Proje aracı arayanlar için kaçırılmayacak fırsat.',
       ];
       return barnDescriptions[_random.nextInt(barnDescriptions.length)];
+    }
+    if (isPristine) {
+      final pristineDescriptions = [
+        'FABRİKASYON HATASIZ & BOYASIZ! İlk sahibinden yetkili servis bakımlı, tek kuruş masrafsız garaj arabası.',
+        'Boya, değişen, tramer kesinlikle YOKTUR. Tüm gövde panelleri ve cıvataları orijinaldir. Ekspertize açıktır.',
+        'Sıfır kokusu üzerinde! Nokta hatasız, tamponlarında dahi çizik yoktur. Kapalı garajda muhafaza edilmiştir.',
+      ];
+      return pristineDescriptions[_random.nextInt(pristineDescriptions.length)];
     }
     if (isFlashDeal) {
       final flashDescriptions = [
@@ -324,6 +336,16 @@ class MarketEngine {
         'Hafta sonları keyifle binilmiş pırıl pırıl koleksiyon arabası. Tüm fabrika etiketleri ve orijinal parçaları üzerindedir.',
       ];
       return rareDescriptions[_random.nextInt(rareDescriptions.length)];
+    }
+
+    if (declarationType == ListingDeclarationType.honest) {
+      final honestDescriptions = [
+        'Bakımları zamanında eksiksiz yapılmıştır. Şehir içi sürtmelerden ufak boyaları vardır, şasiler tavan orijinaldir.',
+        'İlk sahibinden temiz aile aracı. Boyalı parçaları aşağıda dürüstçe işaretlenmiştir. Yürüyeni kusursuzdur.',
+        'Memurdan kullanılmış araç. Tüm periyodik bakımları serviste yapılmış olup ekspertiz raporu mevcuttur.',
+        'Araçta değişen parçalar belirtilmiştir. Motoru ve şanzımanı saat gibi, masrafsız binilecek araçtır.',
+      ];
+      return honestDescriptions[_random.nextInt(honestDescriptions.length)];
     }
 
     final standardDescriptions = [
@@ -343,34 +365,79 @@ class MarketEngine {
     final (bodyType, year, isClassicModel) = _determineBodyTypeAndYear(modelName);
     final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
 
+    // 28% chance of Pristine ("Hatasız & Boyasız") Vehicle
+    final isPristine = !isClassicModel && (_random.nextDouble() < 0.28);
+
     // 12% chance of Rare vehicle drop (or classic model is inherently collectible)
     final isRare = isClassicModel || (_random.nextDouble() < 0.12);
 
     // Mileage & Tramer
-    final mileage = isRare
-        ? (12000 + _random.nextInt(180000))
-        : (5000 + _random.nextInt(345000));
-    final hasTramer = isRare ? (_random.nextDouble() < 0.3) : (_random.nextDouble() < 0.55);
+    final mileage = isPristine
+        ? (15000 + _random.nextInt(65000))
+        : (isRare ? (12000 + _random.nextInt(180000)) : (5000 + _random.nextInt(345000)));
+
+    final hasTramer = isPristine ? false : (isRare ? (_random.nextDouble() < 0.3) : (_random.nextDouble() < 0.55));
     final tramerAmount = hasTramer ? (1500 + _random.nextInt(43500)) : 0;
-    final isTampered = _random.nextDouble() < 0.08;
+    
+    // Seller Honesty Distribution (§2.2):
+    // 40% Honest, 35% Minor flaw hidden, 25% Major flaw hidden
+    final ListingDeclarationType declarationType;
+    if (isPristine) {
+      declarationType = ListingDeclarationType.honest;
+    } else {
+      final honestyRoll = _random.nextDouble();
+      if (honestyRoll < 0.40) {
+        declarationType = ListingDeclarationType.honest;
+      } else if (honestyRoll < 0.75) {
+        declarationType = ListingDeclarationType.minorFlawHidden;
+      } else {
+        declarationType = (_random.nextDouble() < 0.30)
+            ? ListingDeclarationType.tamperedMileageClaim
+            : ListingDeclarationType.flawlessClaim;
+      }
+    }
 
-    final bodyParts = <String, PartStatus>{
-      'Kaput': isRare ? PartStatus.original : _getRandomPartStatus(),
-      'Tavan': isRare ? PartStatus.original : _getRandomPartStatus(tavanMultiplier: true),
-      'Sol Ön Çamurluk': _getRandomPartStatus(),
-      'Sağ Ön Çamurluk': _getRandomPartStatus(),
-      'Sol Arka Çamurluk': _getRandomPartStatus(),
-      'Sağ Arka Çamurluk': _getRandomPartStatus(),
-      'Sol Ön Kapı': _getRandomPartStatus(),
-      'Sağ Ön Kapı': _getRandomPartStatus(),
-      'Sol Arka Kapı': _getRandomPartStatus(),
-      'Sağ Arka Kapı': _getRandomPartStatus(),
-      'Bagaj': _getRandomPartStatus(),
-      'Şasi/Podye': isRare ? PartStatus.original : _getRandomPartStatus(shasiMultiplier: true),
-    };
+    final isTampered = (declarationType == ListingDeclarationType.tamperedMileageClaim);
 
-    final engineCondition = (40.0 + _random.nextInt(61)).clamp(40.0, 100.0);
-    final transCondition = (45.0 + _random.nextInt(56)).clamp(45.0, 100.0);
+    final Map<String, PartStatus> bodyParts;
+    if (isPristine) {
+      bodyParts = <String, PartStatus>{
+        'Kaput': PartStatus.original,
+        'Tavan': PartStatus.original,
+        'Sol Ön Çamurluk': PartStatus.original,
+        'Sağ Ön Çamurluk': PartStatus.original,
+        'Sol Arka Çamurluk': PartStatus.original,
+        'Sağ Arka Çamurluk': PartStatus.original,
+        'Sol Ön Kapı': PartStatus.original,
+        'Sağ Ön Kapı': PartStatus.original,
+        'Sol Arka Kapı': PartStatus.original,
+        'Sağ Arka Kapı': PartStatus.original,
+        'Bagaj': PartStatus.original,
+        'Şasi/Podye': PartStatus.original,
+      };
+    } else {
+      bodyParts = <String, PartStatus>{
+        'Kaput': isRare ? PartStatus.original : _getRandomPartStatus(),
+        'Tavan': isRare ? PartStatus.original : _getRandomPartStatus(tavanMultiplier: true),
+        'Sol Ön Çamurluk': _getRandomPartStatus(),
+        'Sağ Ön Çamurluk': _getRandomPartStatus(),
+        'Sol Arka Çamurluk': _getRandomPartStatus(),
+        'Sağ Arka Çamurluk': _getRandomPartStatus(),
+        'Sol Ön Kapı': _getRandomPartStatus(),
+        'Sağ Ön Kapı': _getRandomPartStatus(),
+        'Sol Arka Kapı': _getRandomPartStatus(),
+        'Sağ Arka Kapı': _getRandomPartStatus(),
+        'Bagaj': _getRandomPartStatus(),
+        'Şasi/Podye': isRare ? PartStatus.original : _getRandomPartStatus(shasiMultiplier: true),
+      };
+    }
+
+    final engineCondition = isPristine
+        ? (88.0 + _random.nextInt(13)).clamp(85.0, 100.0)
+        : (40.0 + _random.nextInt(61)).clamp(40.0, 100.0);
+    final transCondition = isPristine
+        ? (88.0 + _random.nextInt(13)).clamp(85.0, 100.0)
+        : (45.0 + _random.nextInt(56)).clamp(45.0, 100.0);
 
     final expertise = ExpertiseReport(
       engineCondition: engineCondition.toDouble(),
@@ -391,6 +458,11 @@ class MarketEngine {
     final trendMult = trend.bodyTypeMultipliers[bodyType] ?? 1.0;
     baseValue *= trendMult;
 
+    // Pristine collector premium
+    if (isPristine) {
+      baseValue *= 1.15;
+    }
+
     // Rare collector multiplier
     if (isRare && isClassicModel) {
       baseValue *= 1.35;
@@ -398,10 +470,10 @@ class MarketEngine {
 
     // Seller profile
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
-    final isFlashDeal = _random.nextDouble() < 0.12;
+    final isFlashDeal = !isPristine && (_random.nextDouble() < 0.12);
 
     // 4% chance of Barn Find (Samanlık Kelepiri)
-    final isBarnFind = (isClassicModel || _random.nextDouble() < 0.04) && _random.nextDouble() < 0.40;
+    final isBarnFind = !isPristine && (isClassicModel || _random.nextDouble() < 0.04) && _random.nextDouble() < 0.40;
 
     final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Trabzon'];
     final sellerCity = cities[_random.nextInt(cities.length)];
@@ -421,8 +493,9 @@ class MarketEngine {
       plateRarity: plate.rarity,
       baseMarketValue: baseValue,
       currentPurchasePrice: baseValue,
-      isRare: isRare || isBarnFind,
+      isRare: isRare || isBarnFind || isPristine,
       isBarnFind: isBarnFind,
+      declarationType: declarationType,
       expertise: isBarnFind
           ? ExpertiseReport(
               engineCondition: (25.0 + _random.nextInt(20)).toDouble(),
@@ -450,6 +523,7 @@ class MarketEngine {
 
     // Realistic seller asking price between 70% and 130% of fair market value
     double randomMarginFactor = 0.70 + (_random.nextDouble() * 0.60); // 0.70 to 1.30
+    if (isPristine) randomMarginFactor = 1.05 + (_random.nextDouble() * 0.15); // Clean pristine pricing
     if (isFlashDeal) randomMarginFactor = 0.65 + (_random.nextDouble() * 0.15); // 0.65 to 0.80
     if (isBarnFind) randomMarginFactor = 0.35 + (_random.nextDouble() * 0.20); // 0.35 to 0.55 (Dirt cheap kelepir!)
 
@@ -461,16 +535,22 @@ class MarketEngine {
     return ListingModel(
       id: 'listing_$id',
       car: car,
-      sellerName: '${sellerProfile['name']} (${_getRandomSellerName()})',
-      sellerTrait: isBarnFind
-          ? 'Terk Edilmiş Kelepir Araç'
-          : (isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!)),
+      sellerName: isPristine
+          ? 'Titiz Sahibinden (${_getRandomSellerName()})'
+          : '${sellerProfile['name']} (${_getRandomSellerName()})',
+      sellerTrait: isPristine
+          ? 'Hatasız & Orijinal Garaj Arabası'
+          : (isBarnFind
+              ? 'Terk Edilmiş Kelepir Araç'
+              : (isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!))),
       sellerCity: sellerCity,
-      title: _generateTitle(year, brandData.name, modelName, isBarnFind, isRare),
+      title: _generateTitle(year, brandData.name, modelName, isBarnFind, isRare, isPristine: isPristine),
       description: _generateDescription(
         isBarnFind: isBarnFind,
         isFlashDeal: isFlashDeal,
         isRare: isRare,
+        isPristine: isPristine,
+        declarationType: declarationType,
       ),
       askingPrice: askingPrice,
       isExpertiseCompleted: false,

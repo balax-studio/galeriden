@@ -112,6 +112,7 @@ void main() {
       final car = listings.first.car;
 
       final tamperedCar = car.copyWith(
+        declarationType: ListingDeclarationType.tamperedMileageClaim,
         expertise: ExpertiseReport(
           engineCondition: car.expertise.engineCondition,
           transmissionCondition: car.expertise.transmissionCondition,

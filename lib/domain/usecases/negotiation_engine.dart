@@ -113,9 +113,20 @@ class NegotiationEngine {
 
   /// Detects discrepancy between seller claim and full expertise report
   static ExpertiseDiscrepancyInfo detectExpertiseDiscrepancy(CarModel car) {
+    // 1. If seller declared honestly or car is completely pristine, zero discrepancy
+    if (car.declarationType == ListingDeclarationType.honest || car.isPristineOriginal) {
+      return ExpertiseDiscrepancyInfo(
+        hasDiscrepancy: false,
+        title: 'DÜRÜST SATICI: Söylenenin Dışında Kusur Çıkmadı',
+        description: 'Ekspertiz raporu ile satıcı beyanı birebir örtüşüyor. Güvenilir esnaf / dürüst araç sahibi.',
+        extraDiscountPercent: 0.0,
+      );
+    }
+
     final exp = car.expertise;
 
-    if (exp.isMileageTampered) {
+    // 2. Tampered Mileage (Major fraud)
+    if (exp.isMileageTampered || car.declarationType == ListingDeclarationType.tamperedMileageClaim) {
       return ExpertiseDiscrepancyInfo(
         hasDiscrepancy: true,
         title: 'SAHTE SAYAÇ / KM DÜŞÜRÜLMÜŞ',
@@ -124,6 +135,21 @@ class NegotiationEngine {
       );
     }
 
+    // 3. Minor flaw hidden (Paint or minor cosmetic part undisclosed)
+    if (car.declarationType == ListingDeclarationType.minorFlawHidden) {
+      final paintedOrDamaged = exp.bodyParts.entries.where(
+        (e) => e.value == PartStatus.painted || e.value == PartStatus.changed || e.value == PartStatus.damaged,
+      ).toList();
+      final partName = paintedOrDamaged.isNotEmpty ? paintedOrDamaged.first.key : 'Gövde';
+      return ExpertiseDiscrepancyInfo(
+        hasDiscrepancy: true,
+        title: 'GİZLİ BOYA / ÇIKINTI PARÇA',
+        description: 'İlanda söylenmeyen $partName parçasında boya/işlem tespit edildi! (-%10 Ekstra İndirim Kozu)',
+        extraDiscountPercent: 0.10,
+      );
+    }
+
+    // 4. Major flawless claim contradiction (Heavy damage, replaced part, or heavy tramer)
     final changedOrDamaged = exp.bodyParts.entries.where(
       (e) => e.value == PartStatus.changed || e.value == PartStatus.damaged,
     ).toList();
@@ -132,13 +158,13 @@ class NegotiationEngine {
       final partName = changedOrDamaged.first.key;
       return ExpertiseDiscrepancyInfo(
         hasDiscrepancy: true,
-        title: 'GİZLİ DEĞİŞEN / HASARLI PARÇA',
+        title: 'KOZ FIRSATI: GİZLİ DEĞİŞEN / HASARLI PARÇA',
         description: 'İlanda söylenmeyen $partName parçasında ağır hasar/değişen tespit edildi! (-%18 Ekstra İndirim Kozu)',
         extraDiscountPercent: 0.18,
       );
     }
 
-    if (exp.tramerAmount > 45000) {
+    if (exp.tramerAmount > 25000) {
       return ExpertiseDiscrepancyInfo(
         hasDiscrepancy: true,
         title: 'GİZLENMİŞ TRAMER KAYDI',

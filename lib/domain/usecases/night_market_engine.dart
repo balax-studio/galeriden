@@ -54,15 +54,15 @@ class NightMarketEngine {
 
   /// Comprehensive roster of 12 authentic street opponents across 3 difficulty tiers
   static const List<NightRivalModel> allRivals = [
-    // --- Tier 1: Sanayi Çırakları & Mahalle Gazcıları (Güç: 32 - 46) ---
+    // --- Tier 1: Sanayi Çırakları & Mahalle Gazcıları (Güç: 75 - 120 HP) ---
     NightRivalModel(
       id: 'rival_t1_1',
       name: 'Çırak Samet',
       title: 'Sanayi Çaylağı',
       carName: 'Tofaş Doğan SLX',
-      modificationSummary: 'Açık Filtre & Düz Boru',
+      modificationSummary: 'Açık Filtre & Düz Boru (+6 HP)',
       tier: 1,
-      basePower: 34,
+      basePower: 86,
       badge: 'ÇAYLAK',
     ),
     NightRivalModel(
@@ -72,7 +72,7 @@ class NightMarketEngine {
       carName: 'Renault 12 Toros',
       modificationSummary: 'Weber Karbüratör & Çelik Jant',
       tier: 1,
-      basePower: 36,
+      basePower: 75,
       badge: 'ESNAF',
     ),
     NightRivalModel(
@@ -80,9 +80,9 @@ class NightMarketEngine {
       name: 'Kurye Emre',
       title: 'Otoban Faresi',
       carName: 'Fiat Fiorino 1.3 MJet',
-      modificationSummary: 'Dumansız Stage 1 Yazılım',
+      modificationSummary: 'Dumansız Stage 1 Yazılım (+15 HP)',
       tier: 1,
-      basePower: 40,
+      basePower: 105,
       badge: 'TİCARİ',
     ),
     NightRivalModel(
@@ -92,19 +92,19 @@ class NightMarketEngine {
       carName: 'Fiat Palio 1.4 Sporting',
       modificationSummary: 'Kısa Şanzıman & Spor Yay',
       tier: 1,
-      basePower: 44,
+      basePower: 115,
       badge: 'SEMT',
     ),
 
-    // --- Tier 2: Cadde Çocukları & Stage 1/2 Tuning (Güç: 58 - 74) ---
+    // --- Tier 2: Cadde Çocukları & Stage 1/2 Tuning (Güç: 180 - 320 HP) ---
     NightRivalModel(
       id: 'rival_t2_1',
       name: 'Yazılımcı Alper',
       title: 'Cadde Yarışçısı',
       carName: 'VW Polo GTI 1.4 TSI',
-      modificationSummary: 'Pop & Bang Yazılım & Downpipe',
+      modificationSummary: 'Pop & Bang Yazılım & Downpipe (+35 HP)',
       tier: 2,
-      basePower: 60,
+      basePower: 215,
       badge: 'CADDE',
     ),
     NightRivalModel(
@@ -112,9 +112,9 @@ class NightMarketEngine {
       name: 'Egzozcu Yaşar Usta',
       title: 'Atmosferikçi',
       carName: 'Honda Civic 1.6 VTi',
-      modificationSummary: 'VTEC Açan Headers & Düz Boru',
+      modificationSummary: 'VTEC Açan Headers & Düz Boru (+30 HP)',
       tier: 2,
-      basePower: 64,
+      basePower: 190,
       badge: 'USTA',
     ),
     NightRivalModel(
@@ -122,9 +122,9 @@ class NightMarketEngine {
       name: 'Gece Kuşu Kemal',
       title: 'Çevre Yolu Hayaleti',
       carName: 'BMW 3.20d E90 M-Tech',
-      modificationSummary: 'Stage 2 Dumancı Hibrit Turbo',
+      modificationSummary: 'Stage 2 Dumancı Hibrit Turbo (+65 HP)',
       tier: 2,
-      basePower: 68,
+      basePower: 245,
       badge: 'DUMANCI',
     ),
     NightRivalModel(
@@ -132,13 +132,13 @@ class NightMarketEngine {
       name: 'Sanayi Fenomeni Berk',
       title: 'Pist Heveslisi',
       carName: 'VW Golf 7 GTI Performance',
-      modificationSummary: 'Intercooler & Forge Blow-Off',
+      modificationSummary: 'Intercooler & Forge Blow-Off (+80 HP)',
       tier: 2,
-      basePower: 72,
+      basePower: 300,
       badge: 'FENOMEN',
     ),
 
-    // --- Tier 3: Yeraltı Efsaneleri & Süper Sporlar (Güç: 85 - 110) ---
+    // --- Tier 3: Yeraltı Efsaneleri & Süper Sporlar (Güç: 420 - 950 HP) ---
     NightRivalModel(
       id: 'rival_t3_1',
       name: 'Gölge İbrahim',
@@ -146,7 +146,7 @@ class NightMarketEngine {
       carName: 'Mercedes E55 AMG V8',
       modificationSummary: 'Kompressor Kasnak & Supercharger',
       tier: 3,
-      basePower: 86,
+      basePower: 476,
       badge: 'BARON',
     ),
     NightRivalModel(
@@ -156,7 +156,7 @@ class NightMarketEngine {
       carName: 'Nissan 200SX S13',
       modificationSummary: 'SR20DET Big Turbo & Kilitli Dif',
       tier: 3,
-      basePower: 92,
+      basePower: 420,
       badge: 'DRİFT',
     ),
     NightRivalModel(
@@ -166,7 +166,7 @@ class NightMarketEngine {
       carName: 'BMW M3 Competition Hamann',
       modificationSummary: 'Hamann Stage 3 & Karbon Gövde',
       tier: 3,
-      basePower: 98,
+      basePower: 580,
       badge: 'VIP',
     ),
     NightRivalModel(
@@ -176,7 +176,7 @@ class NightMarketEngine {
       carName: 'Nissan GT-R R35 Black Edition',
       modificationSummary: '1000 HP Çift Alpha Turbo & Launch',
       tier: 3,
-      basePower: 108,
+      basePower: 950,
       badge: 'EFSANE',
     ),
   ];
@@ -187,50 +187,29 @@ class NightMarketEngine {
     return hour >= 22 || hour < 4;
   }
 
-  /// Calculates a comprehensive street power score for any player car
+  /// Calculates a comprehensive street horsepower score for any player car
   static int calculatePlayerPower(CarModel playerCar) {
-    // 1. Base mechanical health score (max 70)
-    final enginePower = playerCar.expertise.engineCondition * 0.40;
-    final transPower = playerCar.expertise.transmissionCondition * 0.30;
-    final chassisPower = playerCar.expertise.isChassisAligned ? 8.0 : 0.0;
+    int totalPower = playerCar.effectiveHorsepower;
 
-    // 2. Market Tier Bonus (higher performance base classes)
-    double baseTierBonus = 0;
-    if (playerCar.baseMarketValue >= 5000000) {
-      baseTierBonus = 35;
-    } else if (playerCar.baseMarketValue >= 1500000) {
-      baseTierBonus = 22;
-    } else if (playerCar.baseMarketValue >= 500000) {
-      baseTierBonus = 12;
-    } else if (playerCar.baseMarketValue >= 150000) {
-      baseTierBonus = 6;
+    // Chassis alignment and aerodynamic polish bonus
+    if (playerCar.expertise.isChassisAligned) {
+      totalPower += (totalPower * 0.04).round();
+    }
+    if (playerCar.isDetailedCleaned || (playerCar.isWashed && playerCar.isPolished)) {
+      totalPower += 5;
     }
 
-    // 3. Applied Modifications & Detailing Options
-    int tuningHpBoost = 0;
-    if (playerCar.appliedDetailingOptionIds.contains('tune_ecu_stg2')) tuningHpBoost += 25;
-    if (playerCar.appliedDetailingOptionIds.contains('tune_ecu_stg1')) tuningHpBoost += 15;
-    if (playerCar.appliedDetailingOptionIds.contains('tune_exhaust')) tuningHpBoost += 10;
-    if (playerCar.appliedDetailingOptionIds.contains('tune_bodykit')) tuningHpBoost += 8;
-    if (playerCar.appliedDetailingOptionIds.contains('tune_air_suspension')) tuningHpBoost += 7;
-
-    // Detailing aesthetics / polish gives traction & aerodynamic confidence
-    final detailingCount = playerCar.appliedDetailingOptionIds.where((id) => !id.startsWith('tune_')).length;
-    final detailingBonus = detailingCount * 4;
-
-    final dopingBonus = playerCar.isDoped ? 12 : 0;
-
-    return (enginePower + transPower + chassisPower + baseTierBonus + tuningHpBoost + detailingBonus + dopingBonus).round();
+    return totalPower < 40 ? 40 : totalPower;
   }
 
   /// Finds a balanced and exciting rival matched to the player's car power
   static NightRivalModel getMatchedRival(CarModel playerCar) {
     final playerPower = calculatePlayerPower(playerCar);
 
-    int targetTier = 1;
-    if (playerPower >= 80) {
+    int targetTier;
+    if (playerPower >= 380) {
       targetTier = 3;
-    } else if (playerPower >= 52) {
+    } else if (playerPower >= 150) {
       targetTier = 2;
     } else {
       targetTier = 1;
@@ -282,13 +261,13 @@ class NightMarketEngine {
     double basePrize = 25000.0;
     int repBonus = 4;
     if (activeRival.tier == 2) {
-      basePrize = 40000.0 + _random.nextInt(25000);
+      basePrize = 45000.0 + _random.nextInt(25000);
       repBonus = 6;
     } else if (activeRival.tier == 3) {
-      basePrize = 75000.0 + _random.nextInt(45000);
+      basePrize = 80000.0 + _random.nextInt(45000);
       repBonus = 10;
     } else {
-      basePrize = 20000.0 + _random.nextInt(15000);
+      basePrize = 25000.0 + _random.nextInt(15000);
       repBonus = 4;
     }
 

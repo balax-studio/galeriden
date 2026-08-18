@@ -859,8 +859,8 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             padding: const EdgeInsets.only(bottom: 12),
                             child: NeoBrutalCard(
                               padding: const EdgeInsets.all(12),
-                              backgroundColor: isDark ? const Color(0xFF24142B) : const Color(0xFFFAF5FF),
-                              borderColor: const Color(0xFFA855F7),
+                              backgroundColor: isDark ? const Color(0xFF0F291E) : const Color(0xFFECFDF5),
+                              borderColor: const Color(0xFF10B981),
                               borderWidth: 2,
                               borderRadius: 12,
                               shadowOffset: const Offset(3, 3),
@@ -869,79 +869,104 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 children: [
                                   const Row(
                                     children: [
-                                      Icon(Icons.masks_rounded, color: Color(0xFFA855F7), size: 18),
+                                      Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 18),
                                       SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
-                                          'BLÖF FIRSATI: Satıcıyı Yanılt',
-                                          style: TextStyle(color: Color(0xFFA855F7), fontWeight: FontWeight.w900, fontSize: 12.5),
+                                          'DÜRÜST SATICI: Söylenenin Dışında Kusur Çıkmadı',
+                                          style: TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.w900, fontSize: 12.5),
                                         ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Araçta sorun yok ama yalan söyleyerek fiyatı kırabilirsin. (Başarısız olursa teklifi anında reddeder!)',
+                                    'Ekspertiz raporu satıcının beyanıyla %100 örtüşüyor. Güvenilir esnaf/araç sahibiyle dürüstlük üzerinden pazarlık yapabilirsin (+%10 Anlaşma Bonusu)!',
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w600,
-                                      color: isDark ? const Color(0xFFC084FC) : const Color(0xFF6B21A8),
+                                      color: isDark ? const Color(0xFF6EE7B7) : const Color(0xFF065F46),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  NeoBrutalButton(
-                                    label: 'Blöf Yap (-%15 İndirim Kopar)',
-                                    icon: Icons.psychology_alt_rounded,
-                                    backgroundColor: const Color(0xFFA855F7),
-                                    textColor: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w900,
-                                    fullWidth: true,
-                                    padding: const EdgeInsets.symmetric(vertical: 8),
-                                    onPressed: () {
-                                      final roll = Random().nextInt(100);
-                                      final bluffChance = game.skills.negotiationLevel * 5;
-                                      
-                                      if (roll < bluffChance) {
-                                        final targetDiscPrice = (asking * 0.85).roundToDouble();
-                                        setState(() {
-                                          _offeredPrice = targetDiscPrice;
-                                          _isAccepted = true;
-                                          switch (_customer.archetype) {
-                                            case CustomerArchetype.skepticalOfficial:
-                                              _sellerResponse = 'Gerçekten mi? Raporu o kadar dikkatli okumamıştım. Peki o zaman, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun.';
-                                              break;
-                                            case CustomerArchetype.impatientYouth:
-                                              _sellerResponse = 'Öyle mi diyorsun? Uğraşamayacağım şimdi, al senin dediğin fiyat ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun geç.';
-                                              break;
-                                            case CustomerArchetype.greedyFlipper:
-                                              _sellerResponse = 'Vay be, gözümden kaçmış demek. Nakit vereceksen ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum, yoksa iptal.';
-                                              break;
-                                            case CustomerArchetype.familyMan:
-                                              _sellerResponse = 'Yaa, öyle miymiş... Ben hiç fark etmedim. Neyse tamam, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun o zaman.';
-                                              break;
-                                          }
-                                        });
-                                      } else {
-                                        setState(() {
-                                          _isAccepted = false;
-                                          switch (_customer.archetype) {
-                                            case CustomerArchetype.skepticalOfficial:
-                                              _sellerResponse = 'Ben aracımın her şeyini bilirim, evraklarım tam! Kimi kandırıyorsun, seninle işim olmaz!';
-                                              break;
-                                            case CustomerArchetype.impatientYouth:
-                                              _sellerResponse = 'Kardeşim sen beni kopardın mı sanıyorsun? Raporda her şey yazıyor, hadi işine!';
-                                              break;
-                                            case CustomerArchetype.greedyFlipper:
-                                              _sellerResponse = 'Hoppala! Kimi yiyorsun sen? O raporu ben kendi ustama da gösterdim, uza buradan.';
-                                              break;
-                                            case CustomerArchetype.familyMan:
-                                              _sellerResponse = 'Ayıptır, biz burada dürüstçe iş yapıyoruz. Ekspertiz raporu ortada, sana araç falan satmıyorum.';
-                                              break;
-                                          }
-                                        });
-                                      }
-                                    },
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: NeoBrutalButton(
+                                          label: 'Dostça İndirim İste (+%10 Şans)',
+                                          icon: Icons.handshake_rounded,
+                                          backgroundColor: const Color(0xFF10B981),
+                                          textColor: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                          padding: const EdgeInsets.symmetric(vertical: 8),
+                                          onPressed: () {
+                                            HapticFeedback.selectionClick();
+                                            setState(() {
+                                              _bonusChancePercent += 10;
+                                              _sellerResponse = 'Dürüstlüğümüzün hatrına araç başında küçük bir ikram yaparız elbet, teklifini ilet bakalım.';
+                                            });
+                                            NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! (+%10 Şans)');
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: NeoBrutalButton(
+                                          label: 'Blöf Yap (-%15)',
+                                          icon: Icons.psychology_alt_rounded,
+                                          backgroundColor: isDark ? const Color(0xFF24142B) : const Color(0xFFFAF5FF),
+                                          textColor: const Color(0xFFA855F7),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                          padding: const EdgeInsets.symmetric(vertical: 8),
+                                          onPressed: () {
+                                            final roll = Random().nextInt(100);
+                                            final bluffChance = game.skills.negotiationLevel * 5;
+                                            
+                                            if (roll < bluffChance) {
+                                              final targetDiscPrice = (asking * 0.85).roundToDouble();
+                                              setState(() {
+                                                _offeredPrice = targetDiscPrice;
+                                                _isAccepted = true;
+                                                switch (_customer.archetype) {
+                                                  case CustomerArchetype.skepticalOfficial:
+                                                    _sellerResponse = 'Gerçekten mi? Raporu o kadar dikkatli okumamıştım. Peki o zaman, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun.';
+                                                    break;
+                                                  case CustomerArchetype.impatientYouth:
+                                                    _sellerResponse = 'Öyle mi diyorsun? Uğraşamayacağım şimdi, al senin dediğin fiyat ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun geç.';
+                                                    break;
+                                                  case CustomerArchetype.greedyFlipper:
+                                                    _sellerResponse = 'Vay be, gözümden kaçmış demek. Nakit vereceksen ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum, yoksa iptal.';
+                                                    break;
+                                                  case CustomerArchetype.familyMan:
+                                                    _sellerResponse = 'Yaa, öyle miymiş... Ben hiç fark etmedim. Neyse tamam, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun o zaman.';
+                                                    break;
+                                                }
+                                              });
+                                            } else {
+                                              setState(() {
+                                                _isAccepted = false;
+                                                switch (_customer.archetype) {
+                                                  case CustomerArchetype.skepticalOfficial:
+                                                    _sellerResponse = 'Ben aracımın her şeyini bilirim, evraklarım tam! Kimi kandırıyorsun, seninle işim olmaz!';
+                                                    break;
+                                                  case CustomerArchetype.impatientYouth:
+                                                    _sellerResponse = 'Kardeşim sen beni kopardın mı sanıyorsun? Raporda her şey yazıyor, hadi işine!';
+                                                    break;
+                                                  case CustomerArchetype.greedyFlipper:
+                                                    _sellerResponse = 'Hoppala! Kimi yiyorsun sen? O raporu ben kendi ustama da gösterdim, uza buradan.';
+                                                    break;
+                                                  case CustomerArchetype.familyMan:
+                                                    _sellerResponse = 'Ayıptır, biz burada dürüstçe iş yapıyoruz. Ekspertiz raporu ortada, sana araç falan satmıyorum.';
+                                                    break;
+                                                }
+                                              });
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

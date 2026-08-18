@@ -1,7 +1,9 @@
+import '../../core/constants/car_specifications.dart';
 import 'expertise_model.dart';
 
 enum ListingDeclarationType {
   honest,
+  minorFlawHidden,
   flawlessClaim,
   tamperedMileageClaim,
 }
@@ -216,6 +218,40 @@ class CarModel {
 
   /// Effective listing price (custom if set by player, otherwise estimated real value)
   double get listingPrice => customListingPrice ?? estimatedRealValue;
+
+  /// Authentic factory horsepower from automotive specifications database
+  int get factoryHorsepower => CarSpecifications.getFactoryHorsepower(brand, modelName, bodyType: bodyType);
+
+  /// Authentic factory torque (Nm)
+  int get factoryTorque => CarSpecifications.getFactoryTorque(brand, modelName, bodyType: bodyType);
+
+  /// Authentic factory 0-100 km/h acceleration (seconds)
+  double get factoryZeroToHundred => CarSpecifications.getFactoryZeroToHundred(brand, modelName, bodyType: bodyType);
+
+  /// Dynamic effective horsepower taking engine health and tuning modifications into account
+  int get effectiveHorsepower {
+    final healthFactor = (expertise.engineCondition / 100.0).clamp(0.40, 1.0);
+    int tuningHp = 0;
+    if (appliedDetailingOptionIds.contains('tune_ecu_stg2')) tuningHp += 75;
+    if (appliedDetailingOptionIds.contains('tune_ecu_stg1')) tuningHp += 35;
+    if (appliedDetailingOptionIds.contains('tune_exhaust')) tuningHp += 15;
+    if (appliedDetailingOptionIds.contains('tune_turbo_stg3')) tuningHp += 120;
+    if (appliedDetailingOptionIds.contains('tune_straight_pipe_flame')) tuningHp += 20;
+    if (isDoped) tuningHp += 25;
+
+    final calculated = (factoryHorsepower * (0.70 + 0.30 * healthFactor)).round() + tuningHp;
+    return calculated < 40 ? 40 : calculated;
+  }
+
+  /// True if vehicle has 0 tramer, all 12 body panels original, mileage not tampered, and good mechanical health
+  bool get isPristineOriginal {
+    if (expertise.tramerAmount > 0 || expertise.isMileageTampered) return false;
+    if (expertise.engineCondition < 80.0 || expertise.transmissionCondition < 80.0) return false;
+    for (final status in expertise.bodyParts.values) {
+      if (status != PartStatus.original) return false;
+    }
+    return true;
+  }
 
   /// Calculates estimated overall value after repair & cleaning & rarity & detailing
   double get estimatedRealValue {
