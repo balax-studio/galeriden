@@ -28,32 +28,39 @@ class AdService {
     return isIOS ? _iosProductionRewardedAdUnitId : _androidProductionRewardedAdUnitId;
   }
 
+  int _retryAttempt = 0;
+
   /// Initialize Google Mobile Ads SDK safely with Apple ATT compliance
   Future<void> initialize() async {
     if (kIsWeb) return;
     if (_isInitialized) return;
 
     try {
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
-        try {
-          final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-          if (status == TrackingStatus.notDetermined) {
-            await AppTrackingTransparency.requestTrackingAuthorization();
-          }
-        } catch (attError) {
-          debugPrint('[AdService] ATT request error: $attError');
-        }
-      }
-
       await MobileAds.instance.initialize();
       _isInitialized = true;
-      loadRewardedAd();
+
+      // Safe iOS ATT request after UI frame is ready
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        Future.delayed(const Duration(milliseconds: 800), () async {
+          try {
+            final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+            if (status == TrackingStatus.notDetermined) {
+              await AppTrackingTransparency.requestTrackingAuthorization();
+            }
+          } catch (attError) {
+            debugPrint('[AdService] ATT request error: $attError');
+          }
+          loadRewardedAd();
+        });
+      } else {
+        loadRewardedAd();
+      }
     } catch (e) {
       debugPrint('[AdService] MobileAds initialization failed or not supported on this platform: $e');
     }
   }
 
-  /// Preload Rewarded Ad
+  /// Preload Rewarded Ad with automatic retry logic
   void loadRewardedAd() {
     if (kIsWeb || !_isInitialized || _isAdLoading || _rewardedAd != null) return;
 
@@ -67,12 +74,19 @@ class AdService {
             debugPrint('[AdService] Rewarded ad loaded successfully.');
             _rewardedAd = ad;
             _isAdLoading = false;
+            _retryAttempt = 0;
             _setupAdCallbacks(ad);
           },
           onAdFailedToLoad: (LoadAdError error) {
             debugPrint('[AdService] Rewarded ad failed to load: ${error.message} (code: ${error.code})');
             _rewardedAd = null;
             _isAdLoading = false;
+            _retryAttempt++;
+            if (_retryAttempt <= 3) {
+              final delay = Duration(seconds: _retryAttempt * 5);
+              debugPrint('[AdService] Retrying ad load in ${delay.inSeconds}s (attempt $_retryAttempt/3)...');
+              Future.delayed(delay, () => loadRewardedAd());
+            }
           },
         ),
       );
