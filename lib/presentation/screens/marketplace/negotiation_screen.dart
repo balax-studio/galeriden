@@ -35,6 +35,7 @@ class NegotiationScreen extends ConsumerStatefulWidget {
 
 class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
   late double _offeredPrice;
+  double? _agreedFinalPrice;
   String? _sellerResponse;
   bool _isAccepted = false;
   bool _isProcessing = false;
@@ -68,6 +69,9 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
   }
 
   void _snapToDiscount(double asking, double discountPercent) {
+    if (_isAccepted || _sellerResponse != null || _isLockedOut || _isThinking || _isProcessing) {
+      return;
+    }
     HapticFeedback.selectionClick();
     setState(() {
       _offeredPrice = (asking * (1.0 - discountPercent)).roundToDouble();
@@ -591,7 +595,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                         min: (asking * 0.75).roundToDouble(),
                         max: asking,
                         divisions: 50,
-                        onChanged: (_sellerResponse != null || _isThinking || _isLockedOut)
+                        onChanged: (_isAccepted || _sellerResponse != null || _isThinking || _isLockedOut || _isProcessing)
                             ? null
                             : (val) {
                                 HapticFeedback.selectionClick();
@@ -936,6 +940,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                           final targetDiscPrice = (asking * 0.85).roundToDouble();
                                           setState(() {
                                             _offeredPrice = targetDiscPrice;
+                                            _agreedFinalPrice = targetDiscPrice;
                                             _isAccepted = true;
                                             switch (_customer.archetype) {
                                               case CustomerArchetype.skepticalOfficial:
@@ -1029,6 +1034,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                 final targetDiscPrice = (asking * (1.0 - disc.extraDiscountPercent)).roundToDouble();
                                 setState(() {
                                   _offeredPrice = targetDiscPrice;
+                                  _agreedFinalPrice = targetDiscPrice;
                                   _isAccepted = true;
                                   switch (_customer.archetype) {
                                     case CustomerArchetype.skepticalOfficial:
@@ -1090,6 +1096,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                     _isThinking = false;
                                     _isProcessing = false;
                                     _isAccepted = true;
+                                    _agreedFinalPrice = _offeredPrice;
                                     _isNearMiss = false;
                                     switch (_customer.archetype) {
                                       case CustomerArchetype.skepticalOfficial:
@@ -1141,7 +1148,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                   else if (_isAccepted)
                     Expanded(
                       child: NeoBrutalButton(
-                        label: '${CurrencyFormatter.formatShort(_offeredPrice)} ÖDE VE SATIN AL',
+                        label: '${CurrencyFormatter.formatShort(_agreedFinalPrice ?? _offeredPrice)} ÖDE VE SATIN AL',
                         icon: Icons.shopping_bag_rounded,
                         backgroundColor: const Color(0xFF00E575),
                         textColor: Colors.black,
@@ -1149,14 +1156,15 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                         fontWeight: FontWeight.w900,
                         fullWidth: true,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        onPressed: (game.balance < _offeredPrice || _isProcessing)
+                        onPressed: (game.balance < (_agreedFinalPrice ?? _offeredPrice) || _isProcessing)
                             ? null
                             : () {
                                 HapticFeedback.heavyImpact();
                                 setState(() => _isProcessing = true);
+                                final finalPayPrice = _agreedFinalPrice ?? _offeredPrice;
                                 final outcome = ref.read(gameProvider.notifier).buyCar(
                                       currentListing.car,
-                                      _offeredPrice,
+                                      finalPayPrice,
                                       isExpertiseCompleted: currentListing.isExpertiseCompleted,
                                     );
                                 if (outcome != null) {
@@ -1292,30 +1300,34 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
   Widget _buildQuickSnapChip(String label, double discountPercent, double asking, bool isDark) {
     final targetPrice = (asking * (1.0 - discountPercent)).roundToDouble();
     final isSelected = (_offeredPrice - targetPrice).abs() < 500;
+    final isLocked = _isAccepted || _sellerResponse != null || _isLockedOut || _isThinking || _isProcessing;
 
     return InkWell(
-      onTap: () => _snapToDiscount(asking, discountPercent),
+      onTap: isLocked ? null : () => _snapToDiscount(asking, discountPercent),
       borderRadius: BorderRadius.circular(6),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFFFFDE59)
-              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
+      child: Opacity(
+        opacity: isLocked ? 0.45 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A))
-                : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
-            width: 1.5,
+                ? const Color(0xFFFFDE59)
+                : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: isSelected
+                  ? (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A))
+                  : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+              width: 1.5,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 10.5,
-            fontWeight: FontWeight.w900,
-            color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
+              color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)),
+            ),
           ),
         ),
       ),
