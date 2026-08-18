@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../../data/models/branch_model.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -106,12 +108,25 @@ class BranchScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: 'YENİLE',
-                  backgroundColor: const Color(0xFF06B6D4),
-                  textColor: Colors.black,
+                  label: game.isFeatureUnlocked('/showroom-decor') ? 'YENİLE' : 'KİLİTLİ',
+                  backgroundColor: game.isFeatureUnlocked('/showroom-decor')
+                      ? const Color(0xFF06B6D4)
+                      : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                  textColor: game.isFeatureUnlocked('/showroom-decor') ? Colors.black : Colors.white70,
                   fontSize: 11,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  onPressed: () => context.push('/showroom-decor'),
+                  onPressed: () {
+                    if (game.isFeatureUnlocked('/showroom-decor')) {
+                      context.push('/showroom-decor');
+                    } else {
+                      final reqLvl = DealershipModel.getRequiredLevel('/showroom-decor');
+                      final reqBranch = DealershipModel.getRequiredBranchName('/showroom-decor');
+                      NotificationService.showInfo(
+                        context,
+                        'Showroom dekorasyonu Seviye $reqLvl ($reqBranch) gerektirir.',
+                      );
+                    }
+                  },
                 ),
               ],
             ),

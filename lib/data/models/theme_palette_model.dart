@@ -131,5 +131,24 @@ class ThemePaletteModel {
       warningColor: Color(0xFFF59E0B),
       errorColor: Color(0xFFEF4444),
     ),
+
+    // 3. Absurd Cyber - Toksik Asit & Siber Galeri (₺150.000)
+    ThemePaletteModel(
+      id: 'toksik_asit_cyber',
+      name: 'Toksik Asit & Siber Galeri (Absürt)',
+      price: 150000,
+      isUnlocked: false,
+      isDark: true,
+      primaryColor: Color(0xFFCCFF00),
+      secondaryColor: Color(0xFFFF007F),
+      backgroundColor: Color(0xFF09060F),
+      surfaceColor: Color(0xFF140D24),
+      surfaceBorderColor: Color(0xFFCCFF00),
+      textPrimaryColor: Color(0xFFF9FAFB),
+      textSecondaryColor: Color(0xFFD8B4FE),
+      successColor: Color(0xFF00FF9D),
+      warningColor: Color(0xFFFF9900),
+      errorColor: Color(0xFFFF1744),
+    ),
   ];
 }

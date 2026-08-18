@@ -11,6 +11,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class BankInvestmentsScreen extends ConsumerStatefulWidget {
   const BankInvestmentsScreen({super.key});
@@ -46,6 +47,18 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/bank-investments')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'BANKA & MEVDUAT YATIRIMLARI'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/bank-investments',
+          featureTitle: 'BANKA & MEVDUAT YATIRIMLARI',
+          icon: Icons.account_balance_rounded,
+        ),
+      );
+    }
 
     final isMaxCreditLimit = game.bankCreditLimit >= 25000000.0;
 

@@ -192,6 +192,7 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         balance: 200000.0,
+        unlockedBuildings: {'/car-wash', 'property_tier_2'},
         ownedCars: [initialCar],
       );
       await tester.pumpAndSettle();
@@ -289,6 +290,7 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         balance: 1000000.0,
+        unlockedBuildings: {'/staff', '/staff-academy', 'property_tier_3'},
         hiredStaff: [],
       );
       await tester.pumpAndSettle();
@@ -381,6 +383,7 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         balance: 1000000.0,
+        unlockedBuildings: {'/showroom-decor', 'property_tier_4', '/side-businesses', 'property_tier_8'},
         sideBusinesses: [testBusiness],
       );
       await tester.pumpAndSettle();
@@ -443,12 +446,25 @@ void main() {
         transmissionCondition: 100,
       );
       final container = ProviderContainer();
-      final notifier = container.read(gameProvider.notifier);
 
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: testTheme,
+            home: const WorkshopScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         balance: 500000.0,
+        unlockedBuildings: {'/workshop', 'property_tier_3'},
         ownedCars: [brokenCar],
       );
+      await tester.pumpAndSettle();
 
       final initialBalance = notifier.state.balance;
 
@@ -469,17 +485,6 @@ void main() {
         cost: 18500.0,
       );
       expect(secondRepair, false);
-
-      // Verify in WorkshopScreen UI that repaired engine station shows ONARILDI / KUSURSUZ
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const WorkshopScreen(),
-          ),
-        ),
-      );
       await tester.pumpAndSettle();
 
       expect(find.byType(WorkshopRepairTile), findsWidgets);

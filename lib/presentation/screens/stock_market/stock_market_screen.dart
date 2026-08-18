@@ -12,6 +12,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class StockMarketScreen extends ConsumerStatefulWidget {
   const StockMarketScreen({super.key});
@@ -522,6 +523,18 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/stock-market')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'BORSA & YATIRIM MERKEZİ'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/stock-market',
+          featureTitle: 'BORSA & FON PİYASASI',
+          icon: Icons.candlestick_chart_rounded,
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),

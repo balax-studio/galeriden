@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/iterable_extensions.dart';
 
 import '../../../data/models/staff_model.dart';
@@ -65,9 +66,10 @@ mixin GameTimeMixin on GameBaseNotifier {
     List<CarModel> currentCars = List.from(state.ownedCars);
 
     newBalance = _processDailyPropertyBurn(newBalance);
-    final salaryResult = _processSalaries(newBalance, currentStaff);
+    final salaryResult = _processSalaries(newBalance, currentStaff, newEvents);
     newBalance = salaryResult.$1;
     currentStaff = salaryResult.$2;
+    newEvents = salaryResult.$3;
 
     currentCars = _processStaffAutomation(currentStaff, currentCars);
     if (currentStaff.any((s) => s.role == StaffRole.salesman) && currentCars.any((c) => c.isListed && !c.isRented)) {
@@ -244,17 +246,51 @@ mixin GameTimeMixin on GameBaseNotifier {
     return balance - burn;
   }
 
-  (double, List<StaffModel>) _processSalaries(double balance, List<StaffModel> staff) {
+  (double, List<StaffModel>, List<GameEventModel>) _processSalaries(
+      double balance, List<StaffModel> staff, List<GameEventModel> events) {
+    if (staff.isEmpty) return (balance, staff, events);
+    
     double totalSalaries = staff.fold(0.0, (s, st) => s + st.dailySalary);
     if (state.specializationPath == SpecializationPath.boss) totalSalaries *= 0.80;
     
     if (balance >= totalSalaries) {
-      final updated = staff.map((s) => s.copyWith(morale: max(30, s.morale - 1))).toList();
-      return (balance - totalSalaries, updated);
-    } else if (balance > 0) {
-      return (0.0, <StaffModel>[]);
+      final updated = staff.map((s) => s.copyWith(morale: min(100, s.morale + 1))).toList();
+      return (balance - totalSalaries, updated, events);
     } else {
-      return (balance, <StaffModel>[]);
+      final remainingStaff = <StaffModel>[];
+      final resignedStaff = <StaffModel>[];
+
+      for (final s in staff) {
+        final newMorale = s.morale - 35;
+        if (newMorale <= 10) {
+          resignedStaff.add(s);
+        } else {
+          remainingStaff.add(s.copyWith(morale: newMorale));
+        }
+      }
+
+      if (resignedStaff.isNotEmpty) {
+        final names = resignedStaff.map((s) => '${s.name} (${s.role.name})').join(', ');
+        events.insert(0, GameEventModel(
+          id: 'staff_resignation_${DateTime.now().millisecondsSinceEpoch}',
+          title: 'PERSONEL İSTİFASI!',
+          description: 'Maaş ödemeleri yapılamadığı için $names morali tükenerek galerinizi terk etti ve istifa etti!',
+          type: GameEventType.expense,
+          amount: 0.0,
+          date: DateTime.now(),
+        ));
+      } else {
+        events.insert(0, GameEventModel(
+          id: 'salary_unpaid_${DateTime.now().millisecondsSinceEpoch}',
+          title: 'MAAŞLAR ÖDENEMEDİ!',
+          description: 'Kasada yeterli nakit olmadığı için personellerin günlük maaşı ödenemedi. Personel morali ağır darbe aldı (-35 Moral)!',
+          type: GameEventType.expense,
+          amount: 0.0,
+          date: DateTime.now(),
+        ));
+      }
+
+      return (balance, remainingStaff, events);
     }
   }
 
@@ -593,7 +629,8 @@ mixin GameTimeMixin on GameBaseNotifier {
   (double, List<CarModel>, int, List<GameEventModel>) _processBlackMarketRaid(
       double balance, List<CarModel> cars, int reputation, List<GameEventModel> events) {
     final hasGossipWarning = state.activeGossips.any((g) => g.id == 'gossip_police_raid' && g.isPurchased);
-    
+    final hasLegalAdvisor = state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
+
     // Find all black market cars in inventory
     final bmIndices = <int>[];
     for (int i = 0; i < cars.length; i++) {
@@ -613,29 +650,45 @@ mixin GameTimeMixin on GameBaseNotifier {
       final car = cars[idx];
       final riskRate = (car.blackMarketRiskPercent > 0 ? car.blackMarketRiskPercent : 25) / 100.0;
       final hasNazarPrayer = state.hasDecor('decor_nazar_prayer_frame');
-      final adjustedChance = (hasGossipWarning ? (riskRate * 0.35) : riskRate) * (hasNazarPrayer ? 0.85 : 1.0);
+      final adjustedChance = riskRate * (hasNazarPrayer ? 0.85 : 1.0);
 
       if (random.nextDouble() < adjustedChance) {
+        if (hasGossipWarning) {
+          events.insert(0, GameEventModel(
+            id: 'gossip_evaded_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'İSTİHBARAT SAYESİNDE BASKIN ATLATILDI!',
+            description: 'Kahvehaneden satın aldığınız "Polis Baskını" istihbaratı sayesinde ${car.brand} ${car.modelName} aracını önceden gizli depoya çektiniz. Denetim ekibi galeride hiçbir kusur bulamadı!',
+            type: GameEventType.goodEvent,
+            amount: 0.0,
+            date: DateTime.now(),
+          ));
+          continue;
+        }
+
         final riskType = car.blackMarketRiskType ?? 'change_vin';
 
         switch (riskType) {
           case 'change_vin':
             if (random.nextDouble() < 0.60) {
-              // Police seizure
-              carsToRemove.add(car);
-              const fine = 35000.0;
+              final rawFine = 35000.0;
+              final fine = hasLegalAdvisor ? (rawFine * 0.25) : rawFine;
+              final repLoss = hasLegalAdvisor ? 5 : 20;
+              if (!hasLegalAdvisor) {
+                carsToRemove.add(car);
+              }
               balance = (balance - fine).clamp(0.0, double.infinity);
-              reputation = (reputation - 20).clamp(0, 200);
+              reputation = (reputation - repLoss).clamp(0, 200);
               events.insert(0, GameEventModel(
                 id: 'police_raid_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
-                title: 'ASAYİŞ KRİMİNAL: SAHTE ŞASİ (CHANGE) TESPİTİ!',
-                description: '${car.brand} ${car.modelName} aracının şasisinin başka bir pert araçtan kopyalandığı (Change) tespit edildi. Araç yediemin otoparkına çekildi! ₺35.000 idari para cezası ve -20 İtibar!',
+                title: hasLegalAdvisor ? 'HUKUK DANIŞMANI CHANGE DAVASINI KURTARDI!' : 'ASAYİŞ KRİMİNAL: SAHTE ŞASİ (CHANGE) TESPİTİ!',
+                description: hasLegalAdvisor
+                    ? 'Avukatınız savcılık kararına yürütmeyi durdurma alarak ${car.brand} ${car.modelName} aracının otoparka çekilmesini engelledi! İdari ceza %75 indirildi: ₺${CurrencyFormatter.formatShort(fine)}.'
+                    : '${car.brand} ${car.modelName} aracının şasisinin başka bir pert araçtan kopyalandığı (Change) tespit edildi. Araç yediemin otoparkına çekildi! ₺35.000 idari para cezası ve -20 İtibar!',
                 type: GameEventType.expense,
                 amount: -fine,
                 date: DateTime.now(),
               ));
             } else {
-              // Mechanical chassis weld failure (two halves crack)
               final carIdx = cars.indexOf(car);
               if (carIdx != -1) {
                 final updatedParts = Map<String, PartStatus>.from(car.expertise.bodyParts);
@@ -662,15 +715,20 @@ mixin GameTimeMixin on GameBaseNotifier {
             break;
 
           case 'smuggled_exotic':
-            // Interpol / Customs Muhafaza confiscation
-            carsToRemove.add(car);
-            const fine = 60000.0;
+            final rawFine = 60000.0;
+            final fine = hasLegalAdvisor ? (rawFine * 0.25) : rawFine;
+            final repLoss = hasLegalAdvisor ? 8 : 25;
+            if (!hasLegalAdvisor) {
+              carsToRemove.add(car);
+            }
             balance = (balance - fine).clamp(0.0, double.infinity);
-            reputation = (reputation - 25).clamp(0, 200);
+            reputation = (reputation - repLoss).clamp(0, 200);
             events.insert(0, GameEventModel(
               id: 'interpol_customs_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
-              title: 'GÜMRÜK MUHAFAZA & İNTERPOL BASKINI!',
-              description: '${car.brand} ${car.modelName} yurt dışından sahte evrakla kaçak sokulduğu için Gümrük Muhafaza ekiplerince el konuldu! ₺60.000 kaçakçılık cezası uygulandı ve -25 İtibar!',
+              title: hasLegalAdvisor ? 'AVUKATINIZ GÜMRÜK EL KOYMASINI DURDURDU!' : 'GÜMRÜK MUHAFAZA & İNTERPOL BASKINI!',
+              description: hasLegalAdvisor
+                  ? 'Gümrük Muhafaza müfettişlerine karşı Hukuk Danışmanınız uluslararası tescil itirazında bulunarak araca el konulmasını önledi. Cezayı ₺${CurrencyFormatter.formatShort(fine)}\'ye düşürdü.'
+                  : '${car.brand} ${car.modelName} yurt dışından sahte evrakla kaçak sokulduğu için Gümrük Muhafaza ekiplerince el konuldu! ₺60.000 kaçakçılık cezası uygulandı ve -25 İtibar!',
               type: GameEventType.expense,
               amount: -fine,
               date: DateTime.now(),
@@ -678,15 +736,20 @@ mixin GameTimeMixin on GameBaseNotifier {
             break;
 
           case 'stolen_paperwork':
-            // Real owner & lawyer raid
-            carsToRemove.add(car);
-            const fine = 25000.0;
+            final rawFine = 25000.0;
+            final fine = hasLegalAdvisor ? (rawFine * 0.25) : rawFine;
+            final repLoss = hasLegalAdvisor ? 5 : 15;
+            if (!hasLegalAdvisor) {
+              carsToRemove.add(car);
+            }
             balance = (balance - fine).clamp(0.0, double.infinity);
-            reputation = (reputation - 15).clamp(0, 200);
+            reputation = (reputation - repLoss).clamp(0, 200);
             events.insert(0, GameEventModel(
               id: 'stolen_court_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
-              title: 'ASIL RUHSAT SAHİBİ & POLİS BASKINI!',
-              description: 'Asıl araç sahibi savcılık kararıyla galerinize geldi! ${car.brand} ${car.modelName} çalıntı kaydı nedeniyle sahibine teslim edildi. ₺25.000 hukuki masraf ödendi ve -15 İtibar.',
+              title: hasLegalAdvisor ? 'HUKUK DANIŞMANINIZ RUHSAT İHTİLAFINI ÇÖZDÜ!' : 'ASIL RUHSAT SAHİBİ & POLİS BASKINI!',
+              description: hasLegalAdvisor
+                  ? 'Avukatınız iyi niyetli üçüncü kişi savunması yaparak aracın teslimini durdurdu. Mahkeme masrafı ₺${CurrencyFormatter.formatShort(fine)} olarak sınırlandı.'
+                  : 'Asıl araç sahibi savcılık kararıyla galerinize geldi! ${car.brand} ${car.modelName} çalıntı kaydı nedeniyle sahibine teslim edildi. ₺25.000 hukuki masraf ödendi ve -15 İtibar.',
               type: GameEventType.expense,
               amount: -fine,
               date: DateTime.now(),
@@ -696,14 +759,17 @@ mixin GameTimeMixin on GameBaseNotifier {
           case 'mafia_debt':
           case 'salvage_hidden':
           default:
-            // Underground mafia extortion
-            const fine = 30000.0;
+            final rawFine = 30000.0;
+            final fine = hasLegalAdvisor ? (rawFine * 0.25) : rawFine;
+            final repLoss = hasLegalAdvisor ? 3 : 10;
             balance = (balance - fine).clamp(0.0, double.infinity);
-            reputation = (reputation - 10).clamp(0, 200);
+            reputation = (reputation - repLoss).clamp(0, 200);
             events.insert(0, GameEventModel(
               id: 'mafia_debt_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
-              title: 'YERALTI HESAPLAŞMASI & TEFECİ BASKINI!',
-              description: '${car.blackMarketSellerAlias ?? "Karanlık satıcı"} borcunu ödemeden kaçtığı için alacaklı çete galeriyi bastı! ${car.brand} ${car.modelName} hatrına ₺30.000 haraç ödenmek zorunda kalındı.',
+              title: hasLegalAdvisor ? 'AVUKATINIZ TEFECİ ŞANTAJINI SAVCILIĞA BİLDİRDİ!' : 'YERALTI HESAPLAŞMASI & TEFECİ BASKINI!',
+              description: hasLegalAdvisor
+                  ? 'Hukuk Danışmanınız suç duyurusunda bulunarak mafyanın haraç talebini savurdu. Sembolik ₺${CurrencyFormatter.formatShort(fine)} güvenlik masrafıyla kriz çözüldü.'
+                  : '${car.blackMarketSellerAlias ?? "Karanlık satıcı"} borcunu ödemeden kaçtığı için alacaklı çete galeriyi bastı! ${car.brand} ${car.modelName} hatrına ₺30.000 haraç ödenmek zorunda kalındı.',
               type: GameEventType.expense,
               amount: -fine,
               date: DateTime.now(),

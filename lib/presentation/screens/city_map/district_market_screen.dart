@@ -8,6 +8,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class DistrictInfo {
   final String key;
@@ -95,6 +96,18 @@ class DistrictMarketScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/districts')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'SEMT HAKİMİYETİ & PAZAR PAYI'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/districts',
+          featureTitle: 'SEMT HAKİMİYETİ',
+          icon: Icons.map_rounded,
+        ),
+      );
+    }
 
     final districtShares = game.districtMarketShare;
 

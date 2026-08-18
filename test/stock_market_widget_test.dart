@@ -19,13 +19,28 @@ void main() {
     testWidgets('StockMarketScreen renders tabs, market stocks and owned stocks without error', (tester) async {
       tester.view.physicalSize = const Size(1280, 1024);
       tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
       final container = ProviderContainer();
-      final notifier = container.read(gameProvider.notifier);
 
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: ThemeData.dark().copyWith(
+              extensions: [
+                AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),
+              ],
+            ),
+            home: const StockMarketScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         balance: 500000.0,
+        unlockedBuildings: {'/stock-market', 'property_tier_6'},
         marketStocks: StockModel.defaultStocks,
         ownedStocks: [
           PlayerStockModel(
@@ -43,22 +58,7 @@ void main() {
         ],
       );
 
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: ThemeData.dark().copyWith(
-              extensions: [
-                AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),
-              ],
-            ),
-            home: const StockMarketScreen(),
-          ),
-        ),
-      );
-
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
 
       // Screen title and tabs exist
       expect(find.text('BİST HİSSELERİ'), findsOneWidget);

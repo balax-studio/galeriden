@@ -11,6 +11,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class SalesHistoryScreen extends ConsumerStatefulWidget {
   const SalesHistoryScreen({super.key});
@@ -28,6 +29,19 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/history')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'SATIŞ & TİCARET GEÇMİŞİ'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/history',
+          featureTitle: 'SATIŞ & TİCARET GEÇMİŞİ',
+          icon: Icons.receipt_long_rounded,
+        ),
+      );
+    }
+
     final history = game.salesHistory;
 
     final totalRevenue = history.fold<double>(0.0, (sum, s) => sum + s.salePrice);

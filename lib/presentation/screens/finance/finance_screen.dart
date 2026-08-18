@@ -348,12 +348,23 @@ class FinanceScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: 'YÖNET',
-                  backgroundColor: AppColors.brutalGreen,
-                  textColor: Colors.black,
+                  label: game.isFeatureUnlocked('/bank-investments') ? 'YÖNET' : 'KİLİTLİ',
+                  backgroundColor: game.isFeatureUnlocked('/bank-investments')
+                      ? AppColors.brutalGreen
+                      : const Color(0xFF64748B),
+                  textColor: game.isFeatureUnlocked('/bank-investments') ? Colors.black : Colors.white,
                   fontSize: 11,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  onPressed: () => context.push('/bank-investments'),
+                  onPressed: () {
+                    if (game.isFeatureUnlocked('/bank-investments')) {
+                      context.push('/bank-investments');
+                    } else {
+                      NotificationService.showInfo(
+                        context,
+                        'Kilitli Özellik! Vadeli Mevduat & Krediler ${DealershipModel.getRequiredBranchName('/bank-investments')} satın alındığında açılır.',
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -475,7 +486,16 @@ class FinanceScreen extends ConsumerWidget {
                 ),
               ),
               InkWell(
-                onTap: () => context.push('/bank-investments'),
+                onTap: () {
+                  if (game.isFeatureUnlocked('/bank-investments')) {
+                    context.push('/bank-investments');
+                  } else {
+                    NotificationService.showInfo(
+                      context,
+                      'Kilitli Özellik! Kredi çekebilmek için ${DealershipModel.getRequiredBranchName('/bank-investments')} satın alınmalıdır.',
+                    );
+                  }
+                },
                 child: const Text(
                   '+ KREDİ ÇEK',
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),

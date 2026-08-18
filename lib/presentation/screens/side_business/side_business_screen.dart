@@ -10,6 +10,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'widgets/side_business_detail_sheet.dart';
 
 class SideBusinessScreen extends ConsumerWidget {
@@ -57,6 +58,18 @@ class SideBusinessScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/side-businesses')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'YAN İŞLETMELER & DÜKKANLAR'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/side-businesses',
+          featureTitle: 'YAN İŞLETMELER & DÜKKANLAR',
+          icon: Icons.storefront_rounded,
+        ),
+      );
+    }
 
     final ownedBusinesses = game.sideBusinesses.where((b) => b.isOwned).toList();
     final totalDailyIncome = game.sideBusinesses.fold(0.0, (sum, b) => sum + b.effectiveDailyIncome);

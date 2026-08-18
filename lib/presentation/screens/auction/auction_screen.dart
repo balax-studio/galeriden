@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -14,6 +15,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class AuctionScreen extends ConsumerStatefulWidget {
   const AuctionScreen({super.key});
@@ -389,6 +391,27 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+    final game = ref.watch(gameProvider);
+
+    if (!game.isFeatureUnlocked('/auction')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'CANLI GÜMRÜK İHALESİ'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/auction',
+          featureTitle: 'GÜMRÜK & İHALE MERKEZİ',
+          icon: Icons.gavel_rounded,
+        ),
+      );
+    }
+
+    if (game.reputationScore < 30) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'CANLI GÜMRÜK İHALESİ'),
+        body: _buildLowReputationLockedView(isDark, game.reputationScore),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -1213,6 +1236,54 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 ],
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLowReputationLockedView(bool isDark, int repScore) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(24),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: AppColors.brutalOrange,
+          borderRadius: 16,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.brutalOrange.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.brutalOrange, width: 2),
+                ),
+                child: const Icon(Icons.lock_rounded, size: 42, color: AppColors.brutalOrange),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'İHALE SALONU GİRİŞİ KİLİTLİ',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Resmi devlet ve gümrük tasfiye ihalelerine katılabilmek için minimum 30 Esnaf İtibarı gereklidir.\n\nŞu anki İtibarınız: $repScore / 30',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B), height: 1.4),
+              ),
+              const SizedBox(height: 20),
+              NeoBrutalButton(
+                label: 'PAZARA GİT & İTİBAR KAZAN',
+                icon: Icons.storefront_rounded,
+                backgroundColor: AppColors.brutalYellow,
+                textColor: Colors.black,
+                fontSize: 11.5,
+                onPressed: () => context.push('/marketplace'),
+              ),
+            ],
           ),
         ),
       ),

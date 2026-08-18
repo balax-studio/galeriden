@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class RentACarScreen extends ConsumerWidget {
   const RentACarScreen({super.key});
@@ -25,6 +26,18 @@ class RentACarScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/rent-a-car')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'RENT A CAR MÜDÜRLÜĞÜ'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/rent-a-car',
+          featureTitle: 'RENT A CAR KİRALAMA',
+          icon: Icons.car_rental_rounded,
+        ),
+      );
+    }
 
     final double dailyRentalIncome = game.activeRentals.fold(0.0, (sum, r) => sum + r.dailyRate);
 

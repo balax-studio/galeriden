@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/workshop_job_model.dart';
@@ -18,6 +19,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import 'widgets/animated_order_card.dart';
 import 'widgets/barn_find_restoration_sheet.dart';
@@ -242,6 +244,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
+    if (!game.isFeatureUnlocked('/workshop')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'TAMİR & SERVİS ATÖLYESİ'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/workshop',
+          featureTitle: 'TAMİR & ONARIM ATÖLYESİ',
+          icon: Icons.build_circle_rounded,
+        ),
+      );
+    }
+
     if (game.ownedCars.isNotEmpty && _selectedCar == null) {
       _selectedCar = game.ownedCars.first;
     } else if (game.ownedCars.isNotEmpty && _selectedCar != null) {
@@ -343,40 +357,90 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
           if (_activeTopTab == 1) ...[
             // ================= MÜŞTERİ TAMİR KONTRATLARI TABI =================
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'GELEN MÜŞTERİ TAMİR TALEPLERİ',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                ),
-                NeoBrutalButton(
-                  label: 'YENİ İŞLER TARA',
-                  icon: Icons.refresh_rounded,
-                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? Colors.white : Colors.black,
-                  fontSize: 10,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  onPressed: () {
-                    setState(() {
-                      _customerJobs = CustomerRepairJob.generateRandomJobs(count: 4);
-                    });
-                    NotificationService.showSuccess(context, 'Yeni müşteri tamir talepleri listelendi!');
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            if (_customerJobs.isEmpty)
-              const NeoBrutalCard(
-                padding: EdgeInsets.all(20),
-                borderRadius: 12,
-                child: Center(
-                  child: Text('Şu an bekleyen müşteri işi yok. Yeni işler tarayabilirsin.'),
+            if (!hasMechanic)
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(20),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: AppColors.brutalOrange,
+                borderRadius: 14,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.brutalOrange.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.brutalOrange, width: 2),
+                      ),
+                      child: const Icon(Icons.build_circle_rounded, size: 36, color: AppColors.brutalOrange),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'MÜŞTERİ TAMİR SERVİSİ KİLİTLİ',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Dışarıdan gelen müşteri araçlarının arıza tespitini yapmak ve kontratlı tamir işlerini alabilmek için kadronuzda bir Mekanik Usta (Master Mechanic) bulunmalıdır.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 16),
+                    NeoBrutalButton(
+                      label: 'MEKANİK USTA İŞE AL',
+                      icon: Icons.person_add_rounded,
+                      backgroundColor: AppColors.brutalYellow,
+                      textColor: Colors.black,
+                      fontSize: 11,
+                      onPressed: () {
+                        if (game.isFeatureUnlocked('/staff')) {
+                          context.push('/staff');
+                        } else {
+                          NotificationService.showInfo(
+                            context,
+                            'Kilitli Özellik! Personel kadrosu ${DealershipModel.getRequiredBranchName('/staff')} satın alındığında açılır.',
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               )
-            else
+            else ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'GELEN MÜŞTERİ TAMİR TALEPLERİ',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                  ),
+                  NeoBrutalButton(
+                    label: 'YENİ İŞLER TARA',
+                    icon: Icons.refresh_rounded,
+                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    textColor: isDark ? Colors.white : Colors.black,
+                    fontSize: 10,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    onPressed: () {
+                      setState(() {
+                        _customerJobs = CustomerRepairJob.generateRandomJobs(count: 4);
+                      });
+                      NotificationService.showSuccess(context, 'Yeni müşteri tamir talepleri listelendi!');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              if (_customerJobs.isEmpty)
+                const NeoBrutalCard(
+                  padding: EdgeInsets.all(20),
+                  borderRadius: 12,
+                  child: Center(
+                    child: Text('Şu an bekleyen müşteri işi yok. Yeni işler tarayabilirsin.'),
+                  ),
+                )
+              else
               ..._customerJobs.map((job) {
                 final netProfit = job.laborReward - job.partsCost;
 
@@ -474,6 +538,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   ),
                 );
               }),
+            ],
           ] else ...[
             // ================= GARAJ ARAÇLARIM & ONARIM TABI =================
             if (game.ownedCars.isEmpty)
@@ -527,12 +592,23 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     ),
                     const SizedBox(width: 8),
                     NeoBrutalButton(
-                      label: 'GİRİŞ ET',
-                      backgroundColor: AppColors.brutalYellow,
-                      textColor: Colors.black,
+                      label: game.isFeatureUnlocked('/tuning-studio') ? 'GİRİŞ ET' : 'KİLİTLİ',
+                      backgroundColor: game.isFeatureUnlocked('/tuning-studio')
+                          ? AppColors.brutalYellow
+                          : const Color(0xFF64748B),
+                      textColor: game.isFeatureUnlocked('/tuning-studio') ? Colors.black : Colors.white,
                       fontSize: 10.5,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      onPressed: () => context.push('/tuning-studio'),
+                      onPressed: () {
+                        if (game.isFeatureUnlocked('/tuning-studio')) {
+                          context.push('/tuning-studio');
+                        } else {
+                          NotificationService.showInfo(
+                            context,
+                            'Kilitli Özellik! Tuning Stüdyosu ${DealershipModel.getRequiredBranchName('/tuning-studio')} satın alındığında açılır.',
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -1200,6 +1276,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         NotificationService.showInfo(context, 'Motor zaten kusursuz durumda!');
         return;
       }
+      if (tier == RepairTier.master && !game.unlockedBuildings.contains('workshop_eq_lift')) {
+        NotificationService.showError(context, 'Ağır motor rektifiyesi için atölyenizde Hidrolik Araç Lifti kurulu olmalıdır!');
+        return;
+      }
       final result = ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
       if (result.isSuccess) {
         NotificationService.showSuccess(context, result.message);
@@ -1212,6 +1292,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     } else if (repairType == 'transmission') {
       if (car.expertise.transmissionCondition >= 99.5) {
         NotificationService.showInfo(context, 'Şanzıman ve baskı balata zaten kusursuz durumda!');
+        return;
+      }
+      if (tier == RepairTier.master && !game.unlockedBuildings.contains('workshop_eq_lift')) {
+        NotificationService.showError(context, 'Komple şanzıman indirme ve yenileme için Hidrolik Araç Lifti gereklidir!');
         return;
       }
       final result = ref.read(gameProvider.notifier).repairTransmissionWithTier(car, tier);

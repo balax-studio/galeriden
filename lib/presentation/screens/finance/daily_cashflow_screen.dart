@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/side_business_model.dart';
 import '../../../data/models/staff_model.dart';
@@ -74,6 +75,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           _buildIncomeBreakdownList(
             context: context,
             isDark: isDark,
+            game: game,
             sideBusinesses: ownedBusinesses,
             businessMultiplier: businessMultiplier,
             sideBusinessIncome: summary.sideBusinessIncome,
@@ -97,6 +99,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           _buildExpenseBreakdownList(
             context: context,
             isDark: isDark,
+            game: game,
             staffList: game.hiredStaff,
             staffSalaries: summary.staffSalaries,
             hasBossPerk: game.specializationPath == SpecializationPath.boss,
@@ -110,7 +113,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // 5. Hızlı Finans & Yönetim Eylemleri
-          _buildQuickActionButtons(context, isDark),
+          _buildQuickActionButtons(context, game, isDark),
           const SizedBox(height: 24),
         ],
       ),
@@ -501,6 +504,7 @@ class DailyCashflowScreen extends ConsumerWidget {
   Widget _buildIncomeBreakdownList({
     required BuildContext context,
     required bool isDark,
+    required DealershipModel game,
     required List<SideBusinessModel> sideBusinesses,
     required double businessMultiplier,
     required double sideBusinessIncome,
@@ -525,7 +529,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           amount: sideBusinessIncome,
           isIncome: true,
           badgeText: businessMultiplier > 1.0 ? '+%30 Patron Bonusu' : null,
-          onTap: () => context.push('/side-businesses'),
+          onTap: () => _handleShortcut(context, game, '/side-businesses'),
         ),
         const SizedBox(height: 8),
 
@@ -540,7 +544,7 @@ class DailyCashflowScreen extends ConsumerWidget {
               : '$rentalsCount adet sözleşmeli kiralık araç günlük tarifesi',
           amount: rentalIncome,
           isIncome: true,
-          onTap: () => context.push('/rent-a-car'),
+          onTap: () => _handleShortcut(context, game, '/rent-a-car'),
         ),
         const SizedBox(height: 8),
 
@@ -555,7 +559,7 @@ class DailyCashflowScreen extends ConsumerWidget {
               : 'Vadeli hesapta para bulunmuyor',
           amount: depositInterest,
           isIncome: true,
-          onTap: () => context.push('/bank-investments'),
+          onTap: () => _handleShortcut(context, game, '/bank-investments'),
         ),
         const SizedBox(height: 8),
 
@@ -569,7 +573,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             subtitle: '${CurrencyFormatter.format(stockPortfolioValue)} hisse senedi günlük getiri projeksiyonu',
             amount: stockDividend,
             isIncome: true,
-            onTap: () => context.push('/stock-market'),
+            onTap: () => _handleShortcut(context, game, '/stock-market'),
           ),
       ],
     );
@@ -578,6 +582,7 @@ class DailyCashflowScreen extends ConsumerWidget {
   Widget _buildExpenseBreakdownList({
     required BuildContext context,
     required bool isDark,
+    required DealershipModel game,
     required List<StaffModel> staffList,
     required double staffSalaries,
     required bool hasBossPerk,
@@ -602,7 +607,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           amount: staffSalaries,
           isIncome: false,
           badgeText: hasBossPerk ? '-%20 Patron İndirimi' : null,
-          onTap: () => context.push('/staff'),
+          onTap: () => _handleShortcut(context, game, '/staff'),
         ),
         const SizedBox(height: 8),
 
@@ -615,7 +620,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           subtitle: '$propertyTierName kira, aidat, elektrik ve işletme gideri',
           amount: propertyDailyBurn,
           isIncome: false,
-          onTap: () => context.push('/branches'),
+          onTap: () => _handleShortcut(context, game, '/branches'),
         ),
         const SizedBox(height: 8),
 
@@ -629,7 +634,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             subtitle: 'Aktif ticari kredilerin günlük faiz ve anapara taksit payı',
             amount: loanDailyPayment,
             isIncome: false,
-            onTap: () => context.push('/bank-investments'),
+            onTap: () => _handleShortcut(context, game, '/bank-investments'),
           ),
           const SizedBox(height: 8),
         ],
@@ -648,6 +653,17 @@ class DailyCashflowScreen extends ConsumerWidget {
     );
   }
 
+  void _handleShortcut(BuildContext context, DealershipModel game, String route) {
+    if (game.isFeatureUnlocked(route)) {
+      context.push(route);
+    } else {
+      NotificationService.showInfo(
+        context,
+        'Kilitli Alan! Bu özellik ${DealershipModel.getRequiredBranchName(route)} satın alındığında açılır. Şubeler ekranından inceleyebilirsin.',
+      );
+    }
+  }
+
   Widget _buildItemCard({
     required bool isDark,
     required IconData icon,
@@ -659,29 +675,29 @@ class DailyCashflowScreen extends ConsumerWidget {
     String? badgeText,
     VoidCallback? onTap,
   }) {
-    final color = isIncome ? const Color(0xFF00E575) : const Color(0xFFEF4444);
+    final amountFormatted = CurrencyFormatter.format(amount);
+    final prefix = isIncome ? '+' : '-';
+    final amountColor = isIncome ? AppColors.brutalGreen : AppColors.errorRed;
 
     return NeoBrutalCard(
-      onTap: onTap != null
-          ? () {
-              HapticFeedback.lightImpact();
-              onTap();
-            }
-          : null,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
       borderRadius: 12,
+      onTap: onTap,
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.12),
+              color: iconColor.withValues(alpha: isDark ? 0.2 : 0.15),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: iconColor.withValues(alpha: 0.3), width: 1.2),
+              border: Border.all(
+                color: iconColor,
+                width: 1.4,
+              ),
             ),
-            child: Icon(icon, size: 20, color: iconColor),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -690,11 +706,11 @@ class DailyCashflowScreen extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Text(
                         title,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w900,
                           color: isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
@@ -706,7 +722,7 @@ class DailyCashflowScreen extends ConsumerWidget {
                       const SizedBox(width: 6),
                       NeoBrutalBadge(
                         text: badgeText,
-                        backgroundColor: const Color(0xFFFFDE59),
+                        backgroundColor: isIncome ? AppColors.brutalGreen : AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 9,
                       ),
@@ -717,31 +733,36 @@ class DailyCashflowScreen extends ConsumerWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                     color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                   ),
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${isIncome ? '+' : '-'}${CurrencyFormatter.format(amount)}',
+                '$prefix$amountFormatted',
                 style: TextStyle(
-                  fontSize: 12.5,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w900,
-                  color: color,
+                  color: amountColor,
                 ),
               ),
-              const Text(
+              const SizedBox(height: 2),
+              Text(
                 '/gün',
-                style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                ),
               ),
             ],
           ),
@@ -750,7 +771,7 @@ class DailyCashflowScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActionButtons(BuildContext context, bool isDark) {
+  Widget _buildQuickActionButtons(BuildContext context, DealershipModel game, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -770,13 +791,15 @@ class DailyCashflowScreen extends ConsumerWidget {
               child: NeoBrutalButton(
                 label: 'YAN İŞLETME',
                 icon: Icons.storefront_rounded,
-                backgroundColor: AppColors.brutalGreen,
-                textColor: Colors.black,
+                backgroundColor: game.isFeatureUnlocked('/side-businesses')
+                    ? AppColors.brutalGreen
+                    : const Color(0xFF64748B),
+                textColor: game.isFeatureUnlocked('/side-businesses') ? Colors.black : Colors.white,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  context.push('/side-businesses');
+                  _handleShortcut(context, game, '/side-businesses');
                 },
               ),
             ),
@@ -785,13 +808,15 @@ class DailyCashflowScreen extends ConsumerWidget {
               child: NeoBrutalButton(
                 label: 'PERSONEL',
                 icon: Icons.badge_rounded,
-                backgroundColor: const Color(0xFFFFDE59),
-                textColor: Colors.black,
+                backgroundColor: game.isFeatureUnlocked('/staff')
+                    ? const Color(0xFFFFDE59)
+                    : const Color(0xFF64748B),
+                textColor: game.isFeatureUnlocked('/staff') ? Colors.black : Colors.white,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  context.push('/staff');
+                  _handleShortcut(context, game, '/staff');
                 },
               ),
             ),
@@ -800,13 +825,15 @@ class DailyCashflowScreen extends ConsumerWidget {
               child: NeoBrutalButton(
                 label: 'BANKA',
                 icon: Icons.account_balance_rounded,
-                backgroundColor: const Color(0xFF38BDF8),
-                textColor: Colors.black,
+                backgroundColor: game.isFeatureUnlocked('/bank-investments')
+                    ? const Color(0xFF38BDF8)
+                    : const Color(0xFF64748B),
+                textColor: game.isFeatureUnlocked('/bank-investments') ? Colors.black : Colors.white,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  context.push('/bank-investments');
+                  _handleShortcut(context, game, '/bank-investments');
                 },
               ),
             ),

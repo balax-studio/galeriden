@@ -11,6 +11,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class IndustryGossipScreen extends ConsumerWidget {
   const IndustryGossipScreen({super.key});
@@ -21,6 +22,19 @@ class IndustryGossipScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/gossip')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'SANAYİ DEDİKODU HATTI'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/gossip',
+          featureTitle: 'SANAYİ DEDİKODU HATTI',
+          icon: Icons.campaign_rounded,
+        ),
+      );
+    }
+
     final gossips = game.activeGossips;
 
     return Scaffold(

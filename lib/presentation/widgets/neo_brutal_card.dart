@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'blueprint_grid_background.dart';
 import 'dot_grid_background.dart';
 import 'hazard_stripe_widget.dart';
 
@@ -19,6 +20,8 @@ class NeoBrutalCard extends StatefulWidget {
   final bool animateOnTap;
   final bool showHazardHeader;
   final bool showDotGrid;
+  final bool showBlueprintGrid;
+  final BlueprintPatternType patternType;
 
   const NeoBrutalCard({
     super.key,
@@ -35,6 +38,8 @@ class NeoBrutalCard extends StatefulWidget {
     this.animateOnTap = true,
     this.showHazardHeader = false,
     this.showDotGrid = false,
+    this.showBlueprintGrid = false,
+    this.patternType = BlueprintPatternType.blueprintGrid,
   });
 
   @override
@@ -59,7 +64,12 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
         : widget.shadowOffset;
 
     Widget cardBody = widget.child;
-    if (widget.showDotGrid) {
+    if (widget.showBlueprintGrid) {
+      cardBody = BlueprintGridBackground(
+        patternType: widget.patternType,
+        child: cardBody,
+      );
+    } else if (widget.showDotGrid) {
       cardBody = DotGridBackground(
         dotColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
         child: cardBody,

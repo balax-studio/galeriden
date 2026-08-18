@@ -6,12 +6,14 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class StaffScreen extends ConsumerWidget {
   const StaffScreen({super.key});
@@ -58,17 +60,18 @@ class StaffScreen extends ConsumerWidget {
                   child: NeoBrutalButton(
                     label: '${CurrencyFormatter.format(amt)} Prim Dağıt',
                     backgroundColor: game.balance >= amt ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                    textColor: game.balance >= amt ? Colors.black : Colors.grey,
+                    textColor: game.balance >= amt ? Colors.black : (isDark ? Colors.white38 : Colors.black38),
                     fullWidth: true,
-                    onPressed: game.balance < amt
-                        ? null
-                        : () {
-                            final success = ref.read(gameProvider.notifier).giveStaffBonus(staff.id, amt);
-                            Navigator.pop(ctx);
-                            if (success) {
-                              NotificationService.showSuccess(context, '${staff.name} primini aldı, morali zirveye çıktı!');
-                            }
-                          },
+                    onPressed: game.balance >= amt
+                        ? () {
+                            ref.read(gameProvider.notifier).giveStaffBonus(staff.id, amt);
+                            Navigator.of(ctx).pop();
+                            NotificationService.showSuccess(
+                              context,
+                              '${staff.name} personeline ${CurrencyFormatter.format(amt)} prim dağıtıldı! Morali %100\'e yükseldi.',
+                            );
+                          }
+                        : null,
                   ),
                 );
               }),
@@ -85,6 +88,19 @@ class StaffScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/staff')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'PERSONEL & EKİP YÖNETİMİ'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/staff',
+          featureTitle: 'PERSONEL KADROSU',
+          icon: Icons.groups_rounded,
+        ),
+      );
+    }
+
     final synergies = TeamSynergyEngine.calculateSynergies(game.hiredStaff);
 
     return Scaffold(
@@ -235,12 +251,23 @@ class StaffScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: 'EĞİT',
-                  backgroundColor: const Color(0xFFA855F7),
+                  label: game.isFeatureUnlocked('/staff-academy') ? 'EĞİT' : 'KİLİTLİ',
+                  backgroundColor: game.isFeatureUnlocked('/staff-academy')
+                      ? const Color(0xFFA855F7)
+                      : const Color(0xFF64748B),
                   textColor: Colors.white,
                   fontSize: 11,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  onPressed: () => context.push('/staff-academy'),
+                  onPressed: () {
+                    if (game.isFeatureUnlocked('/staff-academy')) {
+                      context.push('/staff-academy');
+                    } else {
+                      NotificationService.showInfo(
+                        context,
+                        'Kilitli Özellik! Personel Akademisi ${DealershipModel.getRequiredBranchName('/staff-academy')} satın alındığında açılır.',
+                      );
+                    }
+                  },
                 ),
               ],
             ),

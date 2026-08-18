@@ -7,11 +7,14 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/car_wash_job_model.dart';
+import '../../../data/models/staff_model.dart';
+import '../../../data/models/side_business_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class CarWashScreen extends ConsumerStatefulWidget {
   const CarWashScreen({super.key});
@@ -150,6 +153,18 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
+    if (!game.isFeatureUnlocked('/car-wash')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'OTO YIKAMA & DETAILING'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/car-wash',
+          featureTitle: 'OTO YIKAMA & DETAILING',
+          icon: Icons.local_car_wash_rounded,
+        ),
+      );
+    }
+
     final hasHotWaterGun = game.unlockedBuildings.contains('wash_eq_hot_water');
     final hasFoamPump = game.unlockedBuildings.contains('wash_eq_foam_pump');
     final hasPolisher = game.unlockedBuildings.contains('wash_eq_dual_polisher');
@@ -205,30 +220,123 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
           if (_activeTopTab == 1) ...[
             // ================= MÜŞTERİ YIKAMA TALEPLERİ TABI =================
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'YIKAMAYA GELEN MÜŞTERİ ARAÇLARI',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                ),
-                NeoBrutalButton(
-                  label: 'YENİ TALEPLER TARA',
-                  icon: Icons.refresh_rounded,
-                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? Colors.white : Colors.black,
-                  fontSize: 10,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  onPressed: () {
-                    setState(() {
-                      _customerWashJobs = CustomerWashJob.generateRandomJobs(count: 4);
-                    });
-                    NotificationService.showSuccess(context, 'Yeni yıkama müşterileri sıraya girdi!');
-                  },
-                ),
-              ],
+            Builder(
+              builder: (context) {
+                final hasWasherStaff = game.hiredStaff.any((s) => s.role == StaffRole.washer);
+                final hasWashBusiness = game.sideBusinesses.any((b) => b.type == SideBusinessType.carWash && b.isOwned);
+
+                if (!hasWasherStaff && !hasWashBusiness) {
+                  return NeoBrutalCard(
+                    padding: const EdgeInsets.all(20),
+                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: AppColors.brutalOrange,
+                    borderRadius: 14,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.brutalOrange.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.brutalOrange, width: 2),
+                          ),
+                          child: const Icon(Icons.lock_rounded, size: 36, color: AppColors.brutalOrange),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'MÜŞTERİ YIKAMA SERVİSİ KİLİTLİ',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Dışarıdan müşteri araçlarını yıkayıp sıcak nakit para ve XP kazanabilmek için kadronuza bir Yıkama & Detay Uzmanı almalı veya Oto Yıkama Dükkanı açmalısınız.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: NeoBrutalButton(
+                                label: game.isFeatureUnlocked('/staff') ? 'PERSONEL AL' : 'KİLİTLİ',
+                                icon: Icons.person_add_rounded,
+                                backgroundColor: game.isFeatureUnlocked('/staff')
+                                    ? AppColors.brutalYellow
+                                    : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                                textColor: game.isFeatureUnlocked('/staff') ? Colors.black : Colors.white70,
+                                fontSize: 11,
+                                onPressed: () {
+                                  if (game.isFeatureUnlocked('/staff')) {
+                                    context.push('/staff');
+                                  } else {
+                                    NotificationService.showInfo(
+                                      context,
+                                      'Personel alımı Seviye 3 (Sanayi Sitesi) gerektirir.',
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: NeoBrutalButton(
+                                label: game.isFeatureUnlocked('/side-businesses') ? 'DÜKKAN AÇ' : 'KİLİTLİ',
+                                icon: Icons.storefront_rounded,
+                                backgroundColor: game.isFeatureUnlocked('/side-businesses')
+                                    ? AppColors.brutalGreen
+                                    : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                                textColor: game.isFeatureUnlocked('/side-businesses') ? Colors.black : Colors.white70,
+                                fontSize: 11,
+                                onPressed: () {
+                                  if (game.isFeatureUnlocked('/side-businesses')) {
+                                    context.push('/side-businesses');
+                                  } else {
+                                    NotificationService.showInfo(
+                                      context,
+                                      'Yan işletmeler Seviye 8 (Mega Holding) gerektirir.',
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'YIKAMAYA GELEN MÜŞTERİ ARAÇLARI',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                        ),
+                        NeoBrutalButton(
+                          label: 'YENİ TALEPLER TARA',
+                          icon: Icons.refresh_rounded,
+                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          textColor: isDark ? Colors.white : Colors.black,
+                          fontSize: 10,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          onPressed: () {
+                            setState(() {
+                              _customerWashJobs = CustomerWashJob.generateRandomJobs(count: 4);
+                            });
+                            NotificationService.showSuccess(context, 'Yeni yıkama müşterileri sıraya girdi!');
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                );
+              },
             ),
-            const SizedBox(height: 10),
 
             if (_customerWashJobs.isEmpty)
               const NeoBrutalCard(
@@ -238,7 +346,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   child: Text('Şu an kuyrukta araç yok. Yeni talepler tarayabilirsin.'),
                 ),
               )
-            else
+            else if (game.hiredStaff.any((s) => s.role == StaffRole.washer) || game.sideBusinesses.any((b) => b.type == SideBusinessType.carWash && b.isOwned))
               ..._customerWashJobs.map((job) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -314,6 +422,13 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               fontSize: 11,
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                               onPressed: () {
+                                if (job.isVipCustomer && !hasPolisher && !hasFoamPump) {
+                                  NotificationService.showError(
+                                    context,
+                                    'VIP Araç Detailing işlemi için Endüstriyel Polisaj veya Otomatik Köpük Pompası ekipmanı gereklidir!',
+                                  );
+                                  return;
+                                }
                                 final success = ref.read(gameProvider.notifier).completeCustomerWashJob(job);
                                 if (success) {
                                   NotificationService.showSuccess(

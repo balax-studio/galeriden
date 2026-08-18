@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -12,6 +13,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class ConsignmentScreen extends ConsumerWidget {
   const ConsignmentScreen({super.key});
@@ -22,6 +24,70 @@ class ConsignmentScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/consignment-market')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'KONSİNYE & EMANET ARAÇLAR'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/consignment-market',
+          featureTitle: 'KONSİNYE PAZARI',
+          icon: Icons.handshake_rounded,
+        ),
+      );
+    }
+
+    if (game.reputationScore < 40) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'KONSİNYE & EMANET ARAÇLAR'),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(24),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: AppColors.brutalOrange,
+              borderRadius: 16,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.brutalOrange.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.brutalOrange, width: 2),
+                    ),
+                    child: const Icon(Icons.handshake_rounded, size: 42, color: AppColors.brutalOrange),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'KONSİNYE PAZARI KİLİTLİ',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Araç sahiplerinin arabalarını size güvenip emanet bırakması için minimum 40 Esnaf İtibarı gereklidir.\n\nŞu anki İtibarınız: ${game.reputationScore} / 40',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B), height: 1.4),
+                  ),
+                  const SizedBox(height: 20),
+                  NeoBrutalButton(
+                    label: 'PAZARA GİT & İTİBAR KAZAN',
+                    icon: Icons.storefront_rounded,
+                    backgroundColor: AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    fontSize: 11.5,
+                    onPressed: () => context.push('/marketplace'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     final activeConsignmentCars = game.ownedCars.where((c) => c.isConsignment).toList();
     final availableOffers = game.consignmentOffers;

@@ -431,15 +431,29 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
       adviceIcon = Icons.shopping_cart_rounded;
       onAdviceTap = () => context.push('/marketplace');
     } else if (dirtyCars.isNotEmpty) {
-      adviceTitle = '${dirtyCars.length} Araç Yıkama Bekliyor!';
-      adviceSubtitle = 'Kirli araçlar satış hızını düşürür. Oto Yıkama\'da parlat ve vitrine koy.';
-      adviceIcon = Icons.local_car_wash_rounded;
-      onAdviceTap = () => context.push('/car-wash');
+      if (game.isFeatureUnlocked('/car-wash')) {
+        adviceTitle = '${dirtyCars.length} Araç Yıkama Bekliyor!';
+        adviceSubtitle = 'Kirli araçlar satış hızını düşürür. Oto Yıkama\'da parlat ve vitrine koy.';
+        adviceIcon = Icons.local_car_wash_rounded;
+        onAdviceTap = () => context.push('/car-wash');
+      } else {
+        adviceTitle = 'Şubeni Büyüt, Yıkamayı Aç!';
+        adviceSubtitle = 'Seviye 2 Mahalle Galerisi açarak Oto Yıkama istasyonu kurabilirsin.';
+        adviceIcon = Icons.store_rounded;
+        onAdviceTap = () => context.push('/branches');
+      }
     } else if (damagedCars.isNotEmpty) {
-      adviceTitle = 'Atölyede Onarım Fırsatı!';
-      adviceSubtitle = '${damagedCars.length} aracın motor/kaporta masrafı var. Sanayide toparlayıp kâr marjını katla.';
-      adviceIcon = Icons.build_circle_rounded;
-      onAdviceTap = () => context.push('/workshop');
+      if (game.isFeatureUnlocked('/workshop')) {
+        adviceTitle = 'Atölyede Onarım Fırsatı!';
+        adviceSubtitle = '${damagedCars.length} aracın motor/kaporta masrafı var. Sanayide toparlayıp kâr marjını katla.';
+        adviceIcon = Icons.build_circle_rounded;
+        onAdviceTap = () => context.push('/workshop');
+      } else {
+        adviceTitle = 'Sanayi Şubesini Aç & Onar!';
+        adviceSubtitle = 'Hasarlı araçları tamir etmek için Seviye 3 Sanayi Sitesi şubesine geçmelisin.';
+        adviceIcon = Icons.build_circle_rounded;
+        onAdviceTap = () => context.push('/branches');
+      }
     } else if (unlistedCars.isNotEmpty) {
       adviceTitle = '${unlistedCars.length} Araç İlanda Değil!';
       adviceSubtitle = 'Showroom\'a gir, araçlarına fiyat biç ve ilana aç.';

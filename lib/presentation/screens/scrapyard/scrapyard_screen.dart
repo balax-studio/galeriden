@@ -10,6 +10,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class ScrapyardScreen extends ConsumerStatefulWidget {
   const ScrapyardScreen({super.key});
@@ -456,6 +457,19 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/scrapyard')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'HURDALIK & SÖKÜM TESİSİ'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/scrapyard',
+          featureTitle: 'HURDALIK & SÖKÜM TESİSİ',
+          icon: Icons.delete_outline_rounded,
+        ),
+      );
+    }
+
     final scrapCars = game.scrapyardCars;
     final salvagedParts = game.salvagedParts;
     final b2bOrders = game.b2bPartOrders.where((o) => !o.isCompleted).toList();

@@ -10,6 +10,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class StaffCourseOption {
   final String id;
@@ -78,6 +79,19 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/staff-academy')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'PERSONEL AKADEMİSİ & EĞİTİM'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/staff-academy',
+          featureTitle: 'PERSONEL AKADEMİSİ',
+          icon: Icons.school_rounded,
+        ),
+      );
+    }
+
     final staffList = game.hiredStaff;
 
     return Scaffold(

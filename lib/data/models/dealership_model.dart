@@ -376,10 +376,12 @@ class DealershipModel {
       case '/district-market':
       case '/districts':
       case '/gossip-hotline':
+      case '/gossip':
         return 7;
       case '/scrapyard':
       case '/side-businesses':
       case '/consignment-market':
+      case '/consignment':
       case '/second-branch':
       case '/vip-appointments':
       case '/customs-import':
@@ -453,7 +455,24 @@ class DealershipModel {
   String get currentBranchName => getBranchNameForTier(currentBranchTier);
 
   bool isFeatureUnlocked(String route) {
-    if (route == '/gossip' || route == '/consignment' || route == '/night-market') {
+    if (route == '/gossip' || route == '/gossip-hotline') {
+      return unlockedBuildings.contains('/gossip') ||
+          unlockedBuildings.contains('/gossip-hotline') ||
+          unlockedBuildings.contains('property_tier_7') ||
+          unlockedBuildings.contains('property_tier_8');
+    }
+    if (route == '/consignment' || route == '/consignment-market') {
+      return unlockedBuildings.contains('/consignment') ||
+          unlockedBuildings.contains('/consignment-market') ||
+          unlockedBuildings.contains('property_tier_8');
+    }
+    if (route == '/districts' || route == '/district-market') {
+      return unlockedBuildings.contains('/districts') ||
+          unlockedBuildings.contains('/district-market') ||
+          unlockedBuildings.contains('property_tier_7') ||
+          unlockedBuildings.contains('property_tier_8');
+    }
+    if (route == '/night-market') {
       return true;
     }
     return unlockedBuildings.contains(route);

@@ -1,13 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/theme/app_colors.dart';
 
 enum NeoHapticType { selection, light, heavy, none }
 
 /// Neo-Brutalist Tactile Button Widget (Maximalist Industrial Edition)
 /// Features heavy-duty borders, solid 0-blur offset shadow, and mechanical click-down compression feedback.
+/// Includes hardware-grade anti-spam debouncing, loading spinner, and applied/success state transitions.
 class NeoBrutalButton extends StatefulWidget {
   final String label;
+  final String? appliedLabel;
   final IconData? icon;
+  final IconData? appliedIcon;
   final VoidCallback? onPressed;
   final Color? backgroundColor;
   final Color? textColor;
@@ -22,11 +27,16 @@ class NeoBrutalButton extends StatefulWidget {
   final bool uppercase;
   final NeoHapticType hapticType;
   final double? minHeight;
+  final bool isLoading;
+  final bool isApplied;
+  final Duration? debounceDuration;
 
   const NeoBrutalButton({
     super.key,
     required this.label,
+    this.appliedLabel,
     this.icon,
+    this.appliedIcon = Icons.check_circle_rounded,
     this.onPressed,
     this.backgroundColor,
     this.textColor,
@@ -41,6 +51,9 @@ class NeoBrutalButton extends StatefulWidget {
     this.uppercase = false,
     this.hapticType = NeoHapticType.heavy,
     this.minHeight,
+    this.isLoading = false,
+    this.isApplied = false,
+    this.debounceDuration = const Duration(milliseconds: 350),
   });
 
   @override
@@ -49,16 +62,58 @@ class NeoBrutalButton extends StatefulWidget {
 
 class _NeoBrutalButtonState extends State<NeoBrutalButton> {
   bool _isPressed = false;
+  bool _isDebouncing = false;
+  Timer? _debounceTimer;
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    if (widget.onPressed == null || widget.isLoading || widget.isApplied || _isDebouncing) return;
+
+    if (widget.debounceDuration != null) {
+      _isDebouncing = true;
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(widget.debounceDuration!, () {
+        if (mounted) {
+          setState(() {
+            _isDebouncing = false;
+          });
+        }
+      });
+    }
+
+    widget.onPressed!();
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isEnabled = widget.onPressed != null;
+    final isEnabled = widget.onPressed != null && !widget.isLoading && !widget.isApplied;
 
-    final effectiveBg = widget.backgroundColor ??
-        (isDark ? const Color(0xFFE5C158) : const Color(0xFF0F172A));
-    final effectiveText = widget.textColor ??
-        (isDark ? const Color(0xFF07090E) : Colors.white);
+    Color effectiveBg;
+    if (widget.isApplied) {
+      effectiveBg = AppColors.brutalGreen;
+    } else if (isEnabled) {
+      effectiveBg = widget.backgroundColor ??
+          (isDark ? const Color(0xFFE5C158) : const Color(0xFF0F172A));
+    } else {
+      effectiveBg = isDark ? Colors.white12 : Colors.black12;
+    }
+
+    Color effectiveText;
+    if (widget.isApplied) {
+      effectiveText = Colors.black;
+    } else if (isEnabled) {
+      effectiveText = widget.textColor ??
+          (isDark ? const Color(0xFF07090E) : Colors.white);
+    } else {
+      effectiveText = Colors.grey;
+    }
+
     final effectiveBorder = widget.borderColor ??
         (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A));
     final effectiveShadow = isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
@@ -69,18 +124,24 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
 
     final effectiveMinHeight = widget.minHeight ?? (widget.fontSize < 12 ? 38.0 : 44.0);
 
+    final displayLabel = widget.isApplied
+        ? (widget.appliedLabel ?? 'UYGULANDI')
+        : (widget.uppercase ? widget.label.toUpperCase() : widget.label);
+
+    final displayIcon = widget.isApplied ? widget.appliedIcon : widget.icon;
+
     final buttonContent = ConstrainedBox(
       constraints: BoxConstraints(minHeight: effectiveMinHeight),
       child: Container(
         padding: widget.padding,
         decoration: BoxDecoration(
-          color: isEnabled ? effectiveBg : (isDark ? Colors.white12 : Colors.black12),
+          color: effectiveBg,
           borderRadius: BorderRadius.circular(widget.borderRadius),
           border: Border.all(
-            color: isEnabled ? effectiveBorder : Colors.transparent,
+            color: (isEnabled || widget.isApplied) ? effectiveBorder : Colors.transparent,
             width: widget.borderWidth,
           ),
-          boxShadow: isEnabled
+          boxShadow: (isEnabled || widget.isApplied)
               ? [
                   BoxShadow(
                     color: effectiveShadow,
@@ -90,36 +151,61 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
                 ]
               : null,
         ),
-        child: Row(
-          mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (widget.icon != null) ...[
-              Icon(
-                widget.icon,
-                size: widget.fontSize + 4,
-                color: isEnabled ? effectiveText : Colors.grey,
-              ),
-              const SizedBox(width: 6),
-            ],
-            Flexible(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  widget.uppercase ? widget.label.toUpperCase() : widget.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: isEnabled ? effectiveText : Colors.grey,
-                    fontSize: widget.fontSize,
-                    fontWeight: widget.fontWeight,
-                    letterSpacing: 0.5,
+        child: widget.isLoading
+            ? Row(
+                mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: widget.fontSize + 2,
+                    height: widget.fontSize + 2,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      valueColor: AlwaysStoppedAnimation<Color>(effectiveText),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'İŞLENİYOR...',
+                    style: TextStyle(
+                      color: effectiveText,
+                      fontSize: widget.fontSize,
+                      fontWeight: widget.fontWeight,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (displayIcon != null) ...[
+                    Icon(
+                      displayIcon,
+                      size: widget.fontSize + 4,
+                      color: effectiveText,
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        displayLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: effectiveText,
+                          fontSize: widget.fontSize,
+                          fontWeight: widget.fontWeight,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
 
@@ -157,7 +243,7 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
       },
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
-      onTap: widget.onPressed,
+      onTap: _handleTap,
       behavior: HitTestBehavior.opaque,
       child: result,
     );

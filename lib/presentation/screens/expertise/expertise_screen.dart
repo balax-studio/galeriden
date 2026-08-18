@@ -10,6 +10,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/staff_model.dart';
 import '../../../domain/usecases/expertise_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
@@ -146,28 +147,35 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   const SizedBox(height: 6),
                   Builder(
                     builder: (context) {
+                      final hasAppraiser = game.hiredStaff.any((s) => s.role == StaffRole.appraiser);
                       final discount = game.skills.expertiseCostDiscount;
                       final haydarFactor = game.hasHighNpcTrust('haydar_usta') ? 0.50 : 1.0;
-                      final fee = (GameConstants.expertiseBaseCost * (1.0 - discount) * haydarFactor).roundToDouble();
-                      final feeFormatted = CurrencyFormatter.format(fee);
-                      final perkLabel = game.hasHighNpcTrust('haydar_usta') ? ' (Haydar Usta %50 Dost İndirimi)' : '';
+                      final fee = hasAppraiser ? 0.0 : (GameConstants.expertiseBaseCost * (1.0 - discount) * haydarFactor).roundToDouble();
+                      final feeFormatted = hasAppraiser ? '₺0 (Kadroda Uzman Var)' : CurrencyFormatter.format(fee);
+                      final perkLabel = hasAppraiser
+                          ? ' (Ekspertiz Uzmanı Ücretsiz Raporladı)'
+                          : (game.hasHighNpcTrust('haydar_usta') ? ' (Haydar Usta %50 Dost İndirimi)' : '');
 
                       return Column(
                         children: [
                           Text(
-                            'Bu aracın kaporta, motor, tramer ve kilometre orijinalliğini görmek için $feeFormatted ödeyerek detaylı test yaptırmalısın.',
+                            hasAppraiser
+                                ? 'Kadroda çalışan Ekspertiz Uzmanınız sayesinde raporu hiçbir dış masraf ödemeden anında açabilirsiniz.'
+                                : 'Bu aracın kaporta, motor, tramer ve kilometre orijinalliğini görmek için $feeFormatted ödeyerek detaylı test yaptırmalısın.',
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                           const SizedBox(height: 16),
                           NeoBrutalButton(
-                            label: 'EKSPERTİZ YAPTIR ($feeFormatted)$perkLabel',
-                            icon: Icons.fact_check_rounded,
-                            backgroundColor: AppColors.brutalYellow,
+                            label: hasAppraiser
+                                ? 'UZMAN RAPORUNU AÇ (₺0 - Ücretsiz)'
+                                : 'EKSPERTİZ YAPTIR ($feeFormatted)$perkLabel',
+                            icon: hasAppraiser ? Icons.verified_user_rounded : Icons.fact_check_rounded,
+                            backgroundColor: hasAppraiser ? AppColors.brutalGreen : AppColors.brutalYellow,
                             textColor: Colors.black,
                             fontSize: 12.5,
                             fullWidth: true,
-                            onPressed: game.balance < fee
+                            onPressed: (game.balance < fee && !hasAppraiser)
                                 ? null
                                 : () {
                                     final success = ref.read(gameProvider.notifier).performMarketExpertise(fee);

@@ -10,6 +10,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class BlackMarketScreen extends ConsumerWidget {
   const BlackMarketScreen({super.key});
@@ -20,6 +21,19 @@ class BlackMarketScreen extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/black-market')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'KARABORSA & YASA DIŞI PAZAR'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/black-market',
+          featureTitle: 'KARABORSA PAZARI',
+          icon: Icons.masks_rounded,
+        ),
+      );
+    }
+
     final bmCars = game.blackMarketCars;
 
     return Scaffold(

@@ -336,6 +336,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
         '/district-market',
         '/districts',
         '/gossip-hotline',
+        '/gossip',
       });
     }
     if (branch.targetLevel >= 8) {
@@ -344,6 +345,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
         '/scrapyard',
         '/side-businesses',
         '/consignment-market',
+        '/consignment',
         '/second-branch',
         '/vip-appointments',
         '/customs-import',

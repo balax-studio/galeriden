@@ -73,4 +73,27 @@ class AppColors {
   static const Color brutalLightBorder = Color(0xFF0F172A);
   static const Color brutalShadowDark = Color(0xFF000000);
   static const Color brutalShadowLight = Color(0xFF0F172A);
+
+  // Absurd Cyber Neo-Brutal Tokens ("Toksik Asit & Siber Galeri")
+  static const Color toxicLime = Color(0xFFCCFF00);       // Ultra-vibrant Acid Lime
+  static const Color hotMagenta = Color(0xFFFF007F);      // Hyper Neon Fuchsia
+  static const Color cyberNightBg = Color(0xFF09060F);    // Obsidian Cyber Void
+  static const Color cyberSurface = Color(0xFF140D24);    // Deep Acid Indigo
+  static const Color cyberSurfaceBorder = Color(0xFFCCFF00); // Acid Stroke
+  static const Color cyberLilac = Color(0xFFD8B4FE);      // Secondary Text Lilac
+  static const Color neonMint = Color(0xFF00FF9D);        // Terminal Mint
+}
+
+/// 8-Point Neo-Brutalist Layout Grid & Spacing Standard
+class AppSpacing {
+  AppSpacing._();
+
+  static const double xxs = 2.0;
+  static const double xs = 4.0;
+  static const double sm = 8.0;
+  static const double md = 12.0;
+  static const double lg = 16.0;
+  static const double xl = 24.0;
+  static const double xxl = 32.0;
+  static const double xxxl = 48.0;
 }

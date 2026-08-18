@@ -11,6 +11,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 
 class ShowroomDecorScreen extends ConsumerStatefulWidget {
   const ShowroomDecorScreen({super.key});
@@ -28,6 +29,18 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    if (!game.isFeatureUnlocked('/showroom-decor')) {
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: const NeoBrutalAppBar(title: 'SHOWROOM & MİMARİ DEKORASYON'),
+        body: const NeoBrutalLockedFeatureView(
+          route: '/showroom-decor',
+          featureTitle: 'SHOWROOM MİMARİ DEKOR',
+          icon: Icons.palette_rounded,
+        ),
+      );
+    }
 
     final allDecors = ShowroomDecorModel.getAllDecors();
     final displayedDecors = _selectedCategory == DecorCategory.all
