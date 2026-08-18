@@ -50,6 +50,10 @@ final appRouter = GoRouter(
   errorBuilder: (context, state) => const DashboardScreen(),
   routes: [
     GoRoute(
+      path: '/',
+      redirect: (context, state) => '/dashboard',
+    ),
+    GoRoute(
       path: '/dashboard',
       pageBuilder: (context, state) => _buildCupertinoPage(const DashboardScreen(), state),
     ),
