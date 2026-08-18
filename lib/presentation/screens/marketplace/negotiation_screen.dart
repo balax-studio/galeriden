@@ -50,6 +50,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
   bool _hasUsedTea = false;
   bool _hasUsedCigarette = false;
   bool _hasUsedPartner = false;
+  bool _hasUsedHonestDiscount = false;
 
   @override
   void initState() {
@@ -905,21 +906,24 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                 children: [
                                   Expanded(
                                     child: NeoBrutalButton(
-                                      label: 'Dostça İndirim İste (+%10 Şans)',
+                                      label: _hasUsedHonestDiscount ? 'Dostça İkram Alındı' : 'Dostça İndirim İste (+%10 Şans)',
                                       icon: Icons.handshake_rounded,
-                                      backgroundColor: const Color(0xFF10B981),
+                                      backgroundColor: _hasUsedHonestDiscount ? const Color(0xFF059669) : const Color(0xFF10B981),
                                       textColor: Colors.white,
                                       fontSize: 11.5,
                                       fontWeight: FontWeight.w900,
                                       padding: const EdgeInsets.symmetric(vertical: 10),
-                                      onPressed: () {
-                                        HapticFeedback.selectionClick();
-                                        setState(() {
-                                          _bonusChancePercent += 10;
-                                          _sellerResponse = 'Dürüstlüğümüzün hatrına araç başında küçük bir ikram yaparız elbet, teklifini ilet bakalım.';
-                                        });
-                                        NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! (+%10 Şans)');
-                                      },
+                                      onPressed: (_hasUsedHonestDiscount || _isAccepted || _sellerResponse != null || _isLockedOut || _isThinking || _isProcessing)
+                                          ? null
+                                          : () {
+                                              HapticFeedback.selectionClick();
+                                              setState(() {
+                                                _hasUsedHonestDiscount = true;
+                                                _bonusChancePercent += 10;
+                                                _sellerResponse = 'Dürüstlüğümüzün hatrına araç başında küçük bir ikram yaparız elbet, teklifini ilet bakalım.';
+                                              });
+                                              NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! (+%10 Şans)');
+                                            },
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -932,51 +936,53 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                       fontSize: 11.5,
                                       fontWeight: FontWeight.w900,
                                       padding: const EdgeInsets.symmetric(vertical: 10),
-                                      onPressed: () {
-                                        final roll = Random().nextInt(100);
-                                        final bluffChance = game.skills.negotiationLevel * 5;
-                                        
-                                        if (roll < bluffChance) {
-                                          final targetDiscPrice = (asking * 0.85).roundToDouble();
-                                          setState(() {
-                                            _offeredPrice = targetDiscPrice;
-                                            _agreedFinalPrice = targetDiscPrice;
-                                            _isAccepted = true;
-                                            switch (_customer.archetype) {
-                                              case CustomerArchetype.skepticalOfficial:
-                                                _sellerResponse = 'Gerçekten mi? Raporu o kadar dikkatli okumamıştım. Peki o zaman, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun.';
-                                                break;
-                                              case CustomerArchetype.impatientYouth:
-                                                _sellerResponse = 'Öyle mi diyorsun? Uğraşamayacağım şimdi, al senin dediğin fiyat ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun geç.';
-                                                break;
-                                              case CustomerArchetype.greedyFlipper:
-                                                _sellerResponse = 'Vay be, gözümden kaçmış demek. Nakit vereceksen ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum, yoksa iptal.';
-                                                break;
-                                              case CustomerArchetype.familyMan:
-                                                _sellerResponse = 'Yaa, öyle miymiş... Ben hiç fark etmedim. Neyse tamam, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun o zaman.';
-                                                break;
-                                            }
-                                          });
-                                        } else {
-                                          setState(() {
-                                            _isAccepted = false;
-                                            switch (_customer.archetype) {
-                                              case CustomerArchetype.skepticalOfficial:
-                                                _sellerResponse = 'Ben aracımın her şeyini bilirim, evraklarım tam! Kimi kandırıyorsun, seninle işim olmaz!';
-                                                break;
-                                              case CustomerArchetype.impatientYouth:
-                                                _sellerResponse = 'Kardeşim sen beni kopardın mı sanıyorsun? Raporda her şey yazıyor, hadi işine!';
-                                                break;
-                                              case CustomerArchetype.greedyFlipper:
-                                                _sellerResponse = 'Hoppala! Kimi yiyorsun sen? O raporu ben kendi ustama da gösterdim, uza buradan.';
-                                                break;
-                                              case CustomerArchetype.familyMan:
-                                                _sellerResponse = 'Ayıptır, biz burada dürüstçe iş yapıyoruz. Ekspertiz raporu ortada, sana araç falan satmıyorum.';
-                                                break;
-                                            }
-                                          });
-                                        }
-                                      },
+                                      onPressed: (_isAccepted || _sellerResponse != null || _isLockedOut || _isThinking || _isProcessing)
+                                          ? null
+                                          : () {
+                                              final roll = Random().nextInt(100);
+                                              final bluffChance = game.skills.negotiationLevel * 5;
+                                              
+                                              if (roll < bluffChance) {
+                                                final targetDiscPrice = (asking * 0.85).roundToDouble();
+                                                setState(() {
+                                                  _offeredPrice = targetDiscPrice;
+                                                  _agreedFinalPrice = targetDiscPrice;
+                                                  _isAccepted = true;
+                                                  switch (_customer.archetype) {
+                                                    case CustomerArchetype.skepticalOfficial:
+                                                      _sellerResponse = 'Gerçekten mi? Raporu o kadar dikkatli okumamıştım. Peki o zaman, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun.';
+                                                      break;
+                                                    case CustomerArchetype.impatientYouth:
+                                                      _sellerResponse = 'Öyle mi diyorsun? Uğraşamayacağım şimdi, al senin dediğin fiyat ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun geç.';
+                                                      break;
+                                                    case CustomerArchetype.greedyFlipper:
+                                                      _sellerResponse = 'Vay be, gözümden kaçmış demek. Nakit vereceksen ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum, yoksa iptal.';
+                                                      break;
+                                                    case CustomerArchetype.familyMan:
+                                                      _sellerResponse = 'Yaa, öyle miymiş... Ben hiç fark etmedim. Neyse tamam, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun o zaman.';
+                                                      break;
+                                                  }
+                                                });
+                                              } else {
+                                                setState(() {
+                                                  _isAccepted = false;
+                                                  switch (_customer.archetype) {
+                                                    case CustomerArchetype.skepticalOfficial:
+                                                      _sellerResponse = 'Ben aracımın her şeyini bilirim, evraklarım tam! Kimi kandırıyorsun, seninle işim olmaz!';
+                                                      break;
+                                                    case CustomerArchetype.impatientYouth:
+                                                      _sellerResponse = 'Kardeşim sen beni kopardın mı sanıyorsun? Raporda her şey yazıyor, hadi işine!';
+                                                      break;
+                                                    case CustomerArchetype.greedyFlipper:
+                                                      _sellerResponse = 'Hoppala! Kimi yiyorsun sen? O raporu ben kendi ustama da gösterdim, uza buradan.';
+                                                      break;
+                                                    case CustomerArchetype.familyMan:
+                                                      _sellerResponse = 'Ayıptır, biz burada dürüstçe iş yapıyoruz. Ekspertiz raporu ortada, sana araç falan satmıyorum.';
+                                                      break;
+                                                  }
+                                                });
+                                              }
+                                            },
                                     ),
                                   ),
                                 ],
@@ -1030,8 +1036,10 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                               fontWeight: FontWeight.w900,
                               fullWidth: true,
                               padding: const EdgeInsets.symmetric(vertical: 10),
-                              onPressed: () {
-                                final targetDiscPrice = (asking * (1.0 - disc.extraDiscountPercent)).roundToDouble();
+                              onPressed: (_isAccepted || _sellerResponse != null || _isLockedOut || _isThinking || _isProcessing)
+                                  ? null
+                                  : () {
+                                      final targetDiscPrice = (asking * (1.0 - disc.extraDiscountPercent)).roundToDouble();
                                 setState(() {
                                   _offeredPrice = targetDiscPrice;
                                   _agreedFinalPrice = targetDiscPrice;
@@ -1343,8 +1351,10 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     required bool isDark,
     required VoidCallback onTap,
   }) {
+    final isCardDisabled = isUsed || _isAccepted || _sellerResponse != null || _isLockedOut || _isThinking || _isProcessing;
+
     return InkWell(
-      onTap: isUsed ? null : onTap,
+      onTap: isCardDisabled ? null : onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -1359,7 +1369,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                 : (isDark ? activeBgColor : const Color(0xFF0F172A)),
             width: 1.8,
           ),
-          boxShadow: isUsed
+          boxShadow: (isUsed || isCardDisabled)
               ? null
               : [
                   BoxShadow(
@@ -1369,7 +1379,9 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                   ),
                 ],
         ),
-        child: Column(
+        child: Opacity(
+          opacity: (isCardDisabled && !isUsed) ? 0.45 : 1.0,
+          child: Column(
           children: [
             Icon(
               icon,
@@ -1414,6 +1426,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

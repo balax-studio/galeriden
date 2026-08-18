@@ -15,6 +15,7 @@ import '../../../data/models/staff_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
 import '../../../data/models/workshop_job_model.dart';
 import '../../../data/models/car_wash_job_model.dart';
+import '../../../data/models/customer_review_model.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
@@ -134,6 +135,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
+
     final bool newLocked = !car.isLockedInShowcase;
     final updatedCar = car.copyWith(isLockedInShowcase: newLocked);
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -232,7 +235,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.isLockedInShowcase) return false;
+    if (car.isLockedInShowcase || car.isRented) return false;
 
     final profit = sellingPrice - car.currentPurchasePrice;
 
@@ -531,12 +534,14 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final targetIndex = state.ownedCars.indexWhere((c) => c.id == offer.targetCarId);
     if (targetIndex == -1) return false;
 
+    final targetCar = state.ownedCars[targetIndex];
+    if (targetCar.isLockedInShowcase || targetCar.isRented) return false;
+
     // Check if player has enough money if cashDifference is negative
     if (offer.cashDifference < 0 && state.balance < -offer.cashDifference) {
       return false;
     }
 
-    final targetCar = state.ownedCars[targetIndex];
     final updatedOwnedCars = List<CarModel>.from(state.ownedCars);
     updatedOwnedCars.removeAt(targetIndex);
 
@@ -551,6 +556,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     // Remove accepted trade offer from pending offers
     final updatedTradeOffers = state.incomingTradeInOffers.where((t) => t.id != offer.id).toList();
+    // Remove purchase offers for the target car
+    final updatedOffers = state.incomingOffers.where((o) => o.carId != targetCar.id).toList();
 
     // Calculate profit
     final effectiveSalePrice = tradedCar.estimatedRealValue + offer.cashDifference;
@@ -559,6 +566,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     state = state.copyWith(
       balance: state.balance + offer.cashDifference,
       ownedCars: updatedOwnedCars,
+      incomingOffers: updatedOffers,
       incomingTradeInOffers: updatedTradeOffers,
       totalProfit: state.totalProfit + (netProfit > 0 ? netProfit : 0),
       carsSold: state.carsSold + 1,
@@ -1129,6 +1137,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     final part = state.salvagedParts[partIndex];
     final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
 
     // Brand compatibility check
     final isBrandMatch = part.carModelName.toLowerCase().contains(car.brand.toLowerCase());
@@ -1232,6 +1241,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
 
     final isStandardWash = setWashed || (!setInterior && !setPolished && !setDetailed);
 
@@ -2008,6 +2018,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('ozone_sanitized');
 
     final updatedCar = car.copyWith(
@@ -2054,9 +2065,25 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// 15. Müşteri Yorumuna Esnaf Cevabı Yazma (§16)
   bool respondToReview(String reviewId, String replyText) {
-    state = state.copyWith(
-      reputationScore: (state.reputationScore + 5).clamp(0, 100),
-    );
+    final index = state.customerReviews.indexWhere((r) => r.id == reviewId);
+    if (index != -1) {
+      final review = state.customerReviews[index];
+      if (review.reply != null && review.reply!.isNotEmpty) return false;
+
+      final updatedReview = review.copyWith(reply: replyText);
+      List<CustomerReviewModel> updatedReviews = List.from(state.customerReviews);
+      updatedReviews[index] = updatedReview;
+
+      state = state.copyWith(
+        customerReviews: updatedReviews,
+        reputationScore: (state.reputationScore + 5).clamp(0, 1000),
+      );
+    } else {
+      state = state.copyWith(
+        reputationScore: (state.reputationScore + 5).clamp(0, 1000),
+      );
+    }
+
     addXP(20);
     saveState();
     return true;

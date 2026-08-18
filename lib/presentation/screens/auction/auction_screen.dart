@@ -124,6 +124,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     }
 
     final game = ref.read(gameProvider);
+    if (game.ownedCars.length >= game.maxGarageSlots) {
+      NotificationService.showError(context, 'Garajınız dolu! Yeni araç almadan önce mevcut araçlarınızı satmalı veya garajınızı genişletmelisiniz.');
+      return;
+    }
+
     final nextBid = _auction.currentBid + increment;
 
     if (game.balance < nextBid) {
@@ -237,8 +242,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     }
 
     if (_auction.isPlayerHighestBidder) {
+      final success = ref.read(gameProvider.notifier).buyCarDirectly(_auction.car, _auction.currentBid);
+      if (!success) {
+        NotificationService.showError(context, 'İhale kazanıldı ancak bakiye veya garaj kapasitesi yetersiz olduğu için alım tamamlanamadı!');
+        _resetAuctionSilently();
+        return;
+      }
+
       GameSoundHapticService.playCashSuccess();
-      ref.read(gameProvider.notifier).buyCarDirectly(_auction.car, _auction.currentBid);
 
       showDialog(
         context: context,

@@ -19,7 +19,6 @@ import '../../../data/models/sale_record_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/side_business_model.dart';
 import '../../../data/models/stock_model.dart';
-import '../../../data/models/trade_in_offer_model.dart';
 import '../../../domain/usecases/market_engine.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
@@ -203,7 +202,15 @@ mixin GameMarketMixin on GameBaseNotifier {
     final existing = updatedOwned[existingIndex];
     if (existing.quantity < amount) return false;
     
-    final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol);
+    final stock = state.marketStocks.firstWhere(
+      (s) => s.symbol == symbol,
+      orElse: () => StockModel(
+        symbol: symbol,
+        name: symbol,
+        currentPrice: existing.averageCost,
+        previousPrice: existing.averageCost,
+      ),
+    );
     double grossRevenue = stock.currentPrice * amount;
     double commission = grossRevenue * stockCommissionRate;
     double netRevenue = grossRevenue - commission;
@@ -364,7 +371,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final car = state.ownedCars[carIndex];
 
-    // Rule 1: Car MUST be listed for sale to receive doping
+    // Rule 1: Car MUST be listed for sale and not rented
     if (!car.isListed || car.isRented) return false;
 
     // Rule 2: Doping can only be applied ONCE per car
@@ -469,6 +476,11 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (carIndex == -1) return;
 
     final car = state.ownedCars[carIndex];
+    if (car.isLockedInShowcase) return;
+
+    // Kiralık araç kontrolü: Yalnızca kiracının bizzat satın alma talebi (buyout) ise satışa izin ver
+    final isBuyout = offer.buyerName.contains('Kiracı') || offer.id.contains('buyout');
+    if (car.isRented && !isBuyout) return;
 
     // Karaborsa Araç Satışında Noter Şasi Çakışması & Satış Blokesi Denetimi
     if (car.isBlackMarket || car.modelName.contains('Karaborsa') || car.id.startsWith('bm_')) {
@@ -525,6 +537,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     final updatedCars = state.ownedCars.where((c) => c.id != car.id).toList();
     final updatedOffers = state.incomingOffers.where((o) => o.carId != car.id).toList();
     final updatedPendingOrders = state.pendingOrders.where((o) => o.carId != car.id).toList();
+    final updatedActiveRentals = isBuyout ? state.activeRentals.where((r) => r.carId != car.id).toList() : state.activeRentals;
 
     int newCarsSold = state.carsSold + 1;
 
@@ -560,6 +573,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       ownedCars: updatedCars,
       incomingOffers: updatedOffers,
       pendingOrders: updatedPendingOrders,
+      activeRentals: updatedActiveRentals,
       activeCheques: updatedCheques,
       activeInstallments: updatedInstallments,
       totalProfit: state.totalProfit + profit,
@@ -1040,6 +1054,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final review = state.customerReviews[index];
+    if (review.reply != null && review.reply!.isNotEmpty) return false;
+
     final updatedReview = review.copyWith(reply: replyText);
 
     List<CustomerReviewModel> updatedReviews = List.from(state.customerReviews);
@@ -1139,34 +1155,6 @@ mixin GameMarketMixin on GameBaseNotifier {
       ownedCars: updatedCars,
       reputationScore: (state.reputationScore + 2).clamp(0, 1000),
     );
-    saveState();
-    return true;
-  }
-
-  /// Müşteri araç takas teklifini kabul etme (Trade-in Exchange)
-  bool acceptTradeInOffer(TradeInOfferModel tradeOffer) {
-    final targetIndex = state.ownedCars.indexWhere((c) => c.id == tradeOffer.targetCarId);
-    if (targetIndex == -1) return false;
-
-    if (tradeOffer.cashDifference < 0 && state.balance < (-tradeOffer.cashDifference)) {
-      return false; // Üste vermesi gereken nakit yetersiz
-    }
-
-    final targetCar = state.ownedCars[targetIndex];
-    final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(targetIndex);
-    updatedCars.add(tradeOffer.offeredCar);
-
-    final updatedOffers = state.incomingOffers.where((o) => o.carId != targetCar.id).toList();
-
-    state = state.copyWith(
-      balance: state.balance + tradeOffer.cashDifference,
-      ownedCars: updatedCars,
-      incomingOffers: updatedOffers,
-      carsSold: state.carsSold + 1,
-      totalProfit: state.totalProfit + (tradeOffer.cashDifference > 0 ? tradeOffer.cashDifference : 0.0),
-    );
-
-    addXP(65);
     saveState();
     return true;
   }
