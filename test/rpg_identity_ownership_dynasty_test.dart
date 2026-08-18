@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/dramatic_card_model.dart';
@@ -113,6 +114,7 @@ void main() {
       notifier.state = notifier.state.copyWith(
         balance: 1000000.0,
         characterOrigin: CharacterOrigin.tuccarTorunu,
+        completedFirstTimeActions: {FirstTimeActionKeys.firstCarBuy},
       );
       final buyPrevBalance = notifier.state.balance;
       final buyCar = CarModel(

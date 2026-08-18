@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/core/constants/game_constants.dart';
 import 'package:galeriden/core/theme/app_theme_extension.dart';
 import 'package:galeriden/data/models/car_model.dart';
@@ -194,6 +195,7 @@ void main() {
         balance: 200000.0,
         unlockedBuildings: {'/car-wash', 'property_tier_2'},
         ownedCars: [initialCar],
+        completedFirstTimeActions: {FirstTimeActionKeys.firstCarWash},
       );
       await tester.pumpAndSettle();
 

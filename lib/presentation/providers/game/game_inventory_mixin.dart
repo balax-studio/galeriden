@@ -1,3 +1,4 @@
+import '../../../core/constants/first_time_action_keys.dart';
 import '../../../data/models/mega_systems_extensions_model.dart';
 import '../../../data/models/cheque_model.dart';
 import '../../../data/models/branch_model.dart';
@@ -52,6 +53,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     addXP(200);
     checkAchievement('first_sale');
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarSell);
     updateMissionProgress(MissionType.sellCars, 1);
     if (profit > 0) updateMissionProgress(MissionType.earnProfit, profit.toInt());
     saveState();
@@ -64,6 +66,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     adjustNpcRelationship('haydar_usta', 2);
     addXP(25);
     checkAchievement('expert_master');
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstExpertise);
     updateMissionProgress(MissionType.doExpertise, 1);
     saveState();
     return true;
@@ -119,6 +122,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     addXP(50);
     checkAchievement('first_buy');
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarBuy);
     updateMissionProgress(MissionType.buyCars, 1);
     saveState();
     return outcome;
@@ -473,6 +477,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
 
     addXP(15);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarWash);
+    updateMissionProgress(MissionType.washCars, 1);
     saveState();
     return true;
   }
@@ -491,6 +497,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
 
     addXP(15);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstPartRepair);
     updateMissionProgress(MissionType.repairParts, 1);
     if (updatedCar.expertise.engineCondition == 100.0 && updatedCar.isDetailedCleaned) {
       checkAchievement('restoration_king');
@@ -689,6 +696,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       );
       if (result.isSuccess) {
         addXP(20);
+        checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstPartRepair);
         updateMissionProgress(MissionType.repairParts, 1);
       }
       saveState();
@@ -707,6 +715,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       );
       if (result.isSuccess) {
         addXP(30);
+        checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstPartRepair);
         updateMissionProgress(MissionType.repairParts, 1);
       }
       saveState();
@@ -725,6 +734,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       );
       if (result.isSuccess) {
         addXP(30);
+        checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstPartRepair);
         updateMissionProgress(MissionType.repairParts, 1);
       }
       saveState();
@@ -1262,6 +1272,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
 
     addXP(30);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarWash);
+    updateMissionProgress(MissionType.washCars, 1);
     saveState();
     return true;
   }
@@ -1444,6 +1456,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
       ownedCars: updatedCars,
     );
     addXP(20 * unwashedCars.length);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarWash);
+    updateMissionProgress(MissionType.washCars, unwashedCars.length);
     saveState();
     return true;
   }
@@ -1477,6 +1491,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       lastScrapyardGigDate: now,
     );
     addXP(25);
+    updateMissionProgress(MissionType.scrapyardDismantle, 1);
     saveState();
     return true;
   }
@@ -1491,6 +1506,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
       totalProfit: state.totalProfit + job.paymentReward,
     );
     addXP(job.masteryXp);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarWash);
+    updateMissionProgress(MissionType.washCars, 1);
     saveState();
     return true;
   }
@@ -1780,6 +1797,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
 
     addXP(50);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstTuning);
+    updateMissionProgress(MissionType.tuneCar, 1);
     saveState();
     return true;
   }
@@ -1812,6 +1831,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
 
     addXP(35);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstTuning);
+    updateMissionProgress(MissionType.tuneCar, 1);
     saveState();
     return true;
   }

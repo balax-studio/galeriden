@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/customer_review_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
@@ -65,6 +66,7 @@ void main() {
         balance: 50000.0,
         totalProfit: 0.0,
         tutorialCompleted: true,
+        completedFirstTimeActions: {FirstTimeActionKeys.firstCarSell},
       );
 
       final initialBalance = notifier.state.balance;

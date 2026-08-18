@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '../../../core/constants/first_time_action_keys.dart';
 import '../../../core/utils/iterable_extensions.dart';
 import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/car_model.dart';
@@ -571,6 +572,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     addXP(100 + (profit > 0 ? (profit / 1000).round() : 0));
     checkAchievement('first_sale');
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarSell);
     updateMissionProgress(MissionType.sellCars, 1);
     if (profit > 0) {
       updateMissionProgress(MissionType.earnProfit, profit.round());
@@ -701,6 +703,9 @@ mixin GameMarketMixin on GameBaseNotifier {
     }
 
     state = state.copyWith(incomingOffers: updatedOffers);
+    if (outcome.isAccepted) {
+      checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstNegotiationWin);
+    }
     saveState();
     return outcome;
   }

@@ -4,6 +4,13 @@ enum MissionType {
   repairParts,
   doExpertise,
   earnProfit,
+  smsInquiry,
+  washCars,
+  tuneCar,
+  hireStaff,
+  bankInvestment,
+  scrapyardDismantle,
+  nightMarketVisit,
 }
 
 class MissionModel {

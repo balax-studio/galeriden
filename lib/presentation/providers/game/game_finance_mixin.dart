@@ -1,7 +1,9 @@
+import '../../../core/constants/first_time_action_keys.dart';
 import '../../../data/models/cheque_model.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/installment_contract_model.dart';
 import '../../../data/models/loan_model.dart';
+import '../../../data/models/mission_model.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
 
@@ -227,6 +229,8 @@ mixin GameFinanceMixin on GameBaseNotifier {
       balance: state.balance - amount,
       bankDepositBalance: state.bankDepositBalance + amount,
     );
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstBankDeposit);
+    updateMissionProgress(MissionType.bankInvestment, 1);
     saveState();
     return true;
   }

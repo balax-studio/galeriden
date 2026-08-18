@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -271,6 +272,32 @@ class GameCoreNotifier extends GameBaseNotifier
     }).toList();
 
     state = state.copyWith(activeMissions: updatedMissions);
+  }
+
+  @override
+  bool checkAndAwardFirstTimeAction(
+    String actionKey, {
+    String? label,
+    double bonusMoney = 5000.0,
+    int bonusXP = 5,
+  }) {
+    if (state.completedFirstTimeActions.contains(actionKey)) {
+      return false;
+    }
+
+    final updatedSet = Set<String>.from(state.completedFirstTimeActions)..add(actionKey);
+    state = state.copyWith(
+      completedFirstTimeActions: updatedSet,
+      balance: state.balance + bonusMoney,
+    );
+    addXP(bonusXP);
+
+    try {
+      HapticFeedback.heavyImpact();
+    } catch (_) {}
+
+    saveState();
+    return true;
   }
 
   @override

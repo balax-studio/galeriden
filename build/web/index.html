@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base href="/galeriden/">
+  <base href="/">
 
   <script>
     // Self-healing base href calculation for GitHub Pages, root domain, or subfolders
@@ -12,7 +12,7 @@
         var lastSlash = path.lastIndexOf('/');
         path = lastSlash >= 0 ? path.substring(0, lastSlash + 1) : '/';
       }
-      if (baseTag && (baseTag.getAttribute('href') === '/' || baseTag.getAttribute('href') === '/galeriden/')) {
+      if (baseTag && (baseTag.getAttribute('href') === '/' || baseTag.getAttribute('href') === '/')) {
         baseTag.setAttribute('href', path);
       }
     })();

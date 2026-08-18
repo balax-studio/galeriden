@@ -1069,7 +1069,10 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   List<MissionModel> _processDailyMissions(List<MissionModel> missions) {
     if (missions.isEmpty || missions.every((m) => m.isClaimed)) {
-      return MissionFactory.generateDailyMissions(state.level);
+      return MissionFactory.generateDailyMissions(
+        state.level,
+        unlockedBuildings: state.unlockedBuildings,
+      );
     }
     return missions;
   }

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/offer_model.dart';
@@ -40,6 +41,12 @@ void main() {
       );
       // Give initial state
       gameNotifier.completeTutorial(); // complete tutorial to avoid 50k bonus
+      gameNotifier.state = gameNotifier.state.copyWith(
+        completedFirstTimeActions: {
+          FirstTimeActionKeys.firstCarBuy,
+          FirstTimeActionKeys.firstCarSell,
+        },
+      );
       gameNotifier.buyCarDirectly(testCar, 50000);
     });
     

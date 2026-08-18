@@ -1,3 +1,5 @@
+import '../../../core/constants/first_time_action_keys.dart';
+import '../../../data/models/mission_model.dart';
 import '../../../data/models/staff_model.dart';
 import 'game_base_notifier.dart';
 
@@ -7,6 +9,8 @@ mixin GameStaffMixin on GameBaseNotifier {
     if (state.hiredStaff.any((s) => s.role == staff.role)) return false; // Max 1 per role
     state = state.copyWith(hiredStaff: [...state.hiredStaff, staff]);
     addXP(25);
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstStaffHire);
+    updateMissionProgress(MissionType.hireStaff, 1);
     saveState();
     return true;
   }

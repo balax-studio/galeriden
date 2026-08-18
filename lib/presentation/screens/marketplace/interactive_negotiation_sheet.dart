@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/first_time_action_keys.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
@@ -1051,6 +1052,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
 
                                     final roll = Random().nextInt(100) + 1;
                                     if (roll <= chancePercent) {
+                                      ref.read(gameProvider.notifier).checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstNegotiationWin);
                                       setState(() {
                                         _isThinking = false;
                                         _isProcessing = false;

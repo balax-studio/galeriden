@@ -13,6 +13,12 @@ abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
   void addXP(int amount);
   void checkAchievement(String id);
   void updateMissionProgress(MissionType type, int amount);
+  bool checkAndAwardFirstTimeAction(
+    String actionKey, {
+    String? label,
+    double bonusMoney = 5000.0,
+    int bonusXP = 5,
+  });
   void refreshMarketTrends();
   void triggerOrganicOffers();
   void completeTutorial();

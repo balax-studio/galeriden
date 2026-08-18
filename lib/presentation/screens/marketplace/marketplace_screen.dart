@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/first_time_action_keys.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/marketplace_extensions_model.dart';
+import '../../../data/models/mission_model.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
@@ -548,6 +550,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
                                                 onPressed: () {
                                                   HapticFeedback.lightImpact();
+                                                  ref.read(gameProvider.notifier).checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstSmsInquiry);
+                                                  ref.read(gameProvider.notifier).updateMissionProgress(MissionType.smsInquiry, 1);
                                                   SmsTramerSheet.show(context, item);
                                                 },
                                               ),
@@ -588,10 +592,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         ),
             ),
           ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildSortMenuButton(ThemePaletteModel p, bool isDark) {
     return PopupMenuButton<MarketSortOption>(

@@ -14,6 +14,7 @@ import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/detailing_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/part_order_model.dart';
+import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 
 void main() {
@@ -282,6 +283,9 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
       final notifier = container.read(gameProvider.notifier);
+      notifier.state = notifier.state.copyWith(
+        completedFirstTimeActions: {FirstTimeActionKeys.firstBankDeposit},
+      );
 
       final initialBalance = container.read(gameProvider).balance;
       expect(container.read(gameProvider).bankDepositBalance, equals(0.0));

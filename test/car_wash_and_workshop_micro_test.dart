@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/staff_model.dart';
@@ -75,6 +76,10 @@ void main() {
     });
 
     test('2. Completing a customer wash job adds money to balance and awards XP', () {
+      final notifier = container.read(gameProvider.notifier);
+      notifier.state = notifier.state.copyWith(
+        completedFirstTimeActions: {FirstTimeActionKeys.firstCarWash},
+      );
       final initialBalance = container.read(gameProvider).balance;
       final initialXp = container.read(gameProvider).skills.xp;
 
