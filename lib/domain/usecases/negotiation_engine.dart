@@ -60,7 +60,7 @@ class NegotiationEngine {
     required double offeredPrice,
     required int negotiationSkillLevel,
   }) {
-    if (offeredPrice >= askingPrice) return 100;
+    if (askingPrice <= 0 || offeredPrice >= askingPrice) return 100;
     final discountPercent = ((askingPrice - offeredPrice) / askingPrice) * 100;
     final double baseChance = 100.0 - (discountPercent * 5.2);
     final double skillBonus = negotiationSkillLevel * 4.0;

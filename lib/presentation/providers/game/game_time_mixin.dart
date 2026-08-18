@@ -371,7 +371,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           events.insert(0, GameEventModel(
             id: 'rental_fine_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
             title: 'KİRALIK ARAÇ: RADAR & EDS CEZASI!',
-            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile hız sınırını aştı (₺${fineBase.toInt()} ceza tebliğ edildi${rental.hasInsurance ? ', Kasko & kurumsal sözleşme sayesinde ₺${actualCost.toInt()} ödendi' : ''}).',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile hız sınırını aştı • ₺${fineBase.toInt()} ceza tebliğ edildi${rental.hasInsurance ? ' • Kasko ve kurumsal sözleşme sayesinde ₺${actualCost.toInt()} ödendi' : ''}.',
             type: GameEventType.expense,
             amount: -actualCost,
             date: DateTime.now(),
@@ -415,7 +415,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           events.insert(0, GameEventModel(
             id: 'rental_crash_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
             title: 'KİRALIK ARAÇ: TRAFİK KAZASI HASARI!',
-            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile refüje çarptı (+₺$tramerAdd Tramer işlendi${rental.hasInsurance ? ', Ticari Kasko hasarı karşıladı • ₺3.000 muafiyet ödendi' : ', Kasko olmadığı için ₺12.000 masraf yapıldı'}).',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile refüje çarptı • +₺$tramerAdd Tramer işlendi${rental.hasInsurance ? ' • Ticari Kasko hasarı karşıladı • ₺3.000 muafiyet ödendi' : ' • Kasko olmadığı için ₺12.000 masraf yapıldı'}.',
             type: GameEventType.expense,
             amount: -outOfPocket,
             date: DateTime.now(),

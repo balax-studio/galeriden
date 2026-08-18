@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/side_business_model.dart';
 import 'package:galeriden/data/models/staff_model.dart';

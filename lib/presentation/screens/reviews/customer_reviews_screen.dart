@@ -395,6 +395,6 @@ class CustomerReviewsScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ).then((_) => textController.dispose());
   }
 }

@@ -274,7 +274,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           },
         );
       },
-    );
+    ).then((_) => lotController.dispose());
   }
 
   // --- TRADING DIALOG FOR FOREX / GOLD ---
@@ -486,7 +486,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           },
         );
       },
-    );
+    ).then((_) => amountController.dispose());
   }
 
   // --- QUICK CHIP BUILDER ---
@@ -1388,7 +1388,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           },
         );
       },
-    );
+    ).then((_) => lotCtrl.dispose());
   }
 }
 
