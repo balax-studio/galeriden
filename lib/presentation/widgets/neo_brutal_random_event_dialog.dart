@@ -189,7 +189,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                         context,
                         '${choice.resultText}\n'
                         '${choice.balanceChange != 0 ? (choice.balanceChange > 0 ? "+${CurrencyFormatter.formatShort(choice.balanceChange)}" : CurrencyFormatter.formatShort(choice.balanceChange)) : ""} '
-                        '${choice.reputationChange != 0 ? "(${choice.reputationChange > 0 ? "+" : ""}${choice.reputationChange} İtibar)" : ""}',
+                        '${choice.reputationChange != 0 ? "• ${choice.reputationChange > 0 ? "+" : ""}${choice.reputationChange} İtibar" : ""}',
                       );
                     },
                     child: Container(

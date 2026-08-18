@@ -110,7 +110,7 @@ class SmsTramerSheet extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'GÖNDEREN: 5664 (SBM)',
+                      'GÖNDEREN: 5664 • SBM',
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w900,
@@ -153,7 +153,7 @@ class SmsTramerSheet extends StatelessWidget {
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'HASAR KAYDI YOKTUR (₺0 Tramer). Aracın sigorta havuzunda kayıtlı herhangi bir kazası bulunmamaktadır.',
+                            'HASAR KAYDI YOKTUR • ₺0 Tramer. Aracın sigorta havuzunda kayıtlı herhangi bir kazası bulunmamaktadır.',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
@@ -191,8 +191,8 @@ class SmsTramerSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '• KZ1: ${(exp.tramerAmount * 0.6).round()} TL (Çarpma / Kaporta Onarımı)\n'
-                          '• KZ2: ${(exp.tramerAmount * 0.4).round()} TL (Dolu / Boya & Düzeltme)',
+                          '• KZ1: ${(exp.tramerAmount * 0.6).round()} TL • Çarpma / Kaporta Onarımı\n'
+                          '• KZ2: ${(exp.tramerAmount * 0.4).round()} TL • Dolu / Boya & Düzeltme',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -220,7 +220,7 @@ class SmsTramerSheet extends StatelessWidget {
                         SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            'DİKKAT: Son muayene KM kaydı mevcut kadrandan yüksektir! (KM Oynanmış)',
+                            'DİKKAT: Son muayene KM kaydı mevcut kadrandan yüksektir! • KM Oynanmış',
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w900,
@@ -233,7 +233,7 @@ class SmsTramerSheet extends StatelessWidget {
                   ),
                 ] else ...[
                   Text(
-                    'Son TÜVTÜRK Muayenesi: ${(exp.mileage * 0.95).round()} KM (KM Orijinal)',
+                    'Son TÜVTÜRK Muayenesi: ${(exp.mileage * 0.95).round()} KM • KM Orijinal',
                     style: TextStyle(
                       fontSize: 10.5,
                       color: isDark ? Colors.white60 : Colors.black54,

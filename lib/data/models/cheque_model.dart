@@ -44,7 +44,7 @@ class Cheque {
         'legalRecoveredAmount': legalRecoveredAmount,
       };
 
-  String get carModelName => 'Çekli Satış ($customerName)';
+  String get carModelName => 'Çekli Satış • $customerName';
   int get dueDay => daysUntilDue;
   int get dueDays => daysUntilDue;
 

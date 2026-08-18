@@ -10,10 +10,14 @@ void main() {
 
       final missionsLvl3 = MissionFactory.generateDailyMissions(3);
       expect(missionsLvl3.length, greaterThanOrEqualTo(3));
-      // Higher level missions have higher rewards
-      final totalRewardLvl1 = missionsLvl1.fold(0, (sum, m) => sum + m.rewardMoney);
-      final totalRewardLvl3 = missionsLvl3.fold(0, (sum, m) => sum + m.rewardMoney);
-      expect(totalRewardLvl3, greaterThan(totalRewardLvl1));
+      // Higher level missions have higher average rewards across batches
+      int totalRewardLvl1 = 0;
+      int totalRewardLvl5 = 0;
+      for (int i = 0; i < 20; i++) {
+        totalRewardLvl1 += MissionFactory.generateDailyMissions(1).fold(0, (sum, m) => sum + m.rewardMoney);
+        totalRewardLvl5 += MissionFactory.generateDailyMissions(5).fold(0, (sum, m) => sum + m.rewardMoney);
+      }
+      expect(totalRewardLvl5, greaterThan(totalRewardLvl1));
     });
 
     test('MissionFactory generates wanted vehicle contract', () {

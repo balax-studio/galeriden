@@ -91,8 +91,8 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
           title: 'SHOWROOM VE İLANLARIM',
           bottom: NeoBrutalTabBar(
             tabs: [
-              'Galerideki Araçlar (${game.ownedCars.length})',
-              'Gelen Teklifler (${game.incomingOffers.length})',
+              'Galerideki Araçlar • ${game.ownedCars.length}',
+              'Gelen Teklifler • ${game.incomingOffers.length}',
             ],
           ),
         ),
@@ -166,7 +166,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                 child: Row(
                                   children: [
                                     NeoBrutalButton(
-                                      label: unwashedCount > 0 ? 'Tümünü Yıka ($unwashedCount)' : 'Tümü Temiz',
+                                      label: unwashedCount > 0 ? 'Tümünü Yıka • $unwashedCount' : 'Tümü Temiz',
                                       icon: Icons.local_car_wash_rounded,
                                       backgroundColor: unwashedCount > 0 ? const Color(0xFF3B82F6) : (isDark ? Colors.white12 : Colors.black12),
                                       textColor: Colors.white,
@@ -202,7 +202,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                     ),
                                     const SizedBox(width: 6),
                                     NeoBrutalButton(
-                                      label: 'Flaş İndirim (%10)',
+                                      label: 'Flaş İndirim • %10',
                                       icon: Icons.local_fire_department_rounded,
                                       backgroundColor: const Color(0xFFFFDE59),
                                       textColor: Colors.black,

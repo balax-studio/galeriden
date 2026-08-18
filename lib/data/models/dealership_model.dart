@@ -185,17 +185,17 @@ class DealershipModel {
   String get corporateTierTitle {
     switch (corporateTier) {
       case 5:
-        return 'Galeriler Şahı (Kademe V)';
+        return 'Galeriler Şahı • Kademe V';
       case 4:
-        return 'Otomotiv Baronu (Kademe IV)';
+        return 'Otomotiv Baronu • Kademe IV';
       case 3:
-        return 'Plaza Sahibi (Kademe III)';
+        return 'Plaza Sahibi • Kademe III';
       case 2:
-        return 'Bölge Bayii (Kademe II)';
+        return 'Bölge Bayii • Kademe II';
       case 1:
-        return 'Sanayi Esnafı (Kademe I)';
+        return 'Sanayi Esnafı • Kademe I';
       default:
-        return 'Yerel Galeri (Başlangıç)';
+        return 'Yerel Galeri • Başlangıç';
     }
   }
 
@@ -401,21 +401,21 @@ class DealershipModel {
     final reqLvl = getRequiredLevel(route);
     switch (reqLvl) {
       case 1:
-        return 'Kaldırım Başı Ayakçı Galerisi (Seviye 1)';
+        return 'Kaldırım Başı Ayakçı Galerisi • Seviye 1';
       case 2:
-        return 'Mahalle Tipi Açık Oto Galeri (Seviye 2)';
+        return 'Mahalle Tipi Açık Oto Galeri • Seviye 2';
       case 3:
-        return 'Sanayi Sitesi Esnaf Galerisi (Seviye 3)';
+        return 'Sanayi Sitesi Esnaf Galerisi • Seviye 3';
       case 4:
-        return 'Cadde Üstü Butik Oto Galeri (Seviye 4)';
+        return 'Cadde Üstü Butik Oto Galeri • Seviye 4';
       case 5:
-        return 'Oto Center Kurumsal Galeri (Seviye 5)';
+        return 'Oto Center Kurumsal Galeri • Seviye 5';
       case 6:
-        return 'Premium Cam Showroom Plaza (Seviye 6)';
+        return 'Premium Cam Showroom Plaza • Seviye 6';
       case 7:
-        return 'Lüks Koleksiyoner VIP Galeri (Seviye 7)';
+        return 'Lüks Koleksiyoner VIP Galeri • Seviye 7';
       case 8:
-        return 'Mega Otomotiv Holding Plazası (Seviye 8)';
+        return 'Mega Otomotiv Holding Plazası • Seviye 8';
       default:
         return 'Kaldırım Başı Ayakçı Galerisi';
     }
@@ -424,23 +424,23 @@ class DealershipModel {
   static String getBranchNameForTier(int tier) {
     switch (tier) {
       case 1:
-        return 'Kaldırım Başı Ayakçı Galerisi (Seviye 1)';
+        return 'Kaldırım Başı Ayakçı Galerisi • Seviye 1';
       case 2:
-        return 'Mahalle Tipi Açık Oto Galeri (Seviye 2)';
+        return 'Mahalle Tipi Açık Oto Galeri • Seviye 2';
       case 3:
-        return 'Sanayi Sitesi Esnaf Galerisi (Seviye 3)';
+        return 'Sanayi Sitesi Esnaf Galerisi • Seviye 3';
       case 4:
-        return 'Cadde Üstü Butik Oto Galeri (Seviye 4)';
+        return 'Cadde Üstü Butik Oto Galeri • Seviye 4';
       case 5:
-        return 'Oto Center Kurumsal Galeri (Seviye 5)';
+        return 'Oto Center Kurumsal Galeri • Seviye 5';
       case 6:
-        return 'Premium Cam Showroom Plaza (Seviye 6)';
+        return 'Premium Cam Showroom Plaza • Seviye 6';
       case 7:
-        return 'Lüks Koleksiyoner VIP Galeri (Seviye 7)';
+        return 'Lüks Koleksiyoner VIP Galeri • Seviye 7';
       case 8:
-        return 'Mega Otomotiv Holding Plazası (Seviye 8)';
+        return 'Mega Otomotiv Holding Plazası • Seviye 8';
       default:
-        return 'Kaldırım Başı Ayakçı Galerisi (Seviye 1)';
+        return 'Kaldırım Başı Ayakçı Galerisi • Seviye 1';
     }
   }
 
@@ -593,7 +593,7 @@ class DealershipModel {
     final heritageCar = CarModel(
       id: 'car_heritage_dede',
       brand: 'Tofaşk',
-      modelName: 'Tofaşk Hacı Murat 124 (Dede Mirası)',
+      modelName: 'Tofaşk Hacı Murat 124 • Dede Mirası',
       modelYear: 1978,
       bodyType: 'Klasik',
       colorHex: '0xFF8B4513', // Saddle Brown
@@ -764,7 +764,7 @@ class DealershipModel {
           managerSalary: 600.0,
           managerBonusPercent: 0.25,
           upgrades: [
-            SideBusinessUpgradeModel(id: 'sb_6_u1', title: 'Dinamometre (Dyno) Güç Test Cihazı', description: 'Motor BG ve tork performansını milisaniyelik ölçen silindir dyno testi.', cost: 120000.0, bonusDailyIncome: 2850.0, iconName: 'speed'),
+            SideBusinessUpgradeModel(id: 'sb_6_u1', title: 'Dinamometre Dyno Güç Test Cihazı', description: 'Motor BG ve tork performansını milisaniyelik ölçen silindir dyno testi.', cost: 120000.0, bonusDailyIncome: 2850.0, iconName: 'speed'),
             SideBusinessUpgradeModel(id: 'sb_6_u2', title: 'Dijital Süspansiyon & Fren Test Hattı', description: 'Amortisör verimliliği ve fren sapmalarını bilgisayarlı rampada test etme.', cost: 225000.0, bonusDailyIncome: 5400.0, iconName: 'build_circle'),
             SideBusinessUpgradeModel(id: 'sb_6_u3', title: 'OBD2 Ağır Vasıta Beyin Tarayıcı', description: 'Gizlenen kilometre ve geçmiş arıza kodlarını ortaya çıkaran lisanslı tarayıcı.', cost: 390000.0, bonusDailyIncome: 9900.0, iconName: 'memory'),
             SideBusinessUpgradeModel(id: 'sb_6_u4', title: 'Mikron Kaporta & Şase Lazer Cihazı', description: 'Kazalı veya boyalı parçaları mikron hassasiyetinde tespit eden mikroskopik tarayıcı.', cost: 630000.0, bonusDailyIncome: 16500.0, iconName: 'center_focus_strong'),
@@ -879,7 +879,7 @@ class DealershipModel {
         '/theme-store',
         '/branches',
       },
-      discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 (Dede Mirası)'],
+      discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 • Dede Mirası'],
       pendingDopedOffers: const [],
     );
   }
@@ -1361,7 +1361,7 @@ class DealershipModel {
     final nextMultiplier = 1.0 + (nextPrestigeLevel * 0.15);
     final nextDynastyGen = dynastyGeneration + 1;
     final newHistory = List<String>.from(dynastyHistoryLog);
-    newHistory.add('$dynastyGeneration. Nesil ($rpgTitle): $carsSold araç satıldı, ₺${totalProfit.round()} kâr ile $dealershipName devredildi.');
+    newHistory.add('$dynastyGeneration. Nesil • $rpgTitle: $carsSold araç satıldı, ₺${totalProfit.round()} kâr ile $dealershipName devredildi.');
 
     // Keep cars that are locked in showcase (§2.6, §2.7)
     final preservedShowcaseCars = ownedCars.where((c) => c.isLockedInShowcase).toList();

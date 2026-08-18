@@ -160,7 +160,7 @@ void main() {
       // Attempt 4th race should be blocked
       final resBlocked = notifier.enterNightRace(notifier.state.ownedCars.first);
       expect(resBlocked.isWon, isFalse);
-      expect(resBlocked.raceSummary.contains('haklarınızı'), isTrue);
+      expect(resBlocked.rivalCarName, equals('Pist Kapalı'));
     });
 
     test('4. Scrapyard Parts Integration in Repair & Workshop', () async {

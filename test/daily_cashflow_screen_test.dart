@@ -139,7 +139,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('NAKİT AÇIĞI (ZARAR)'), findsOneWidget);
+      expect(find.text('NAKİT AÇIĞI • ZARAR'), findsOneWidget);
       expect(find.textContaining('Personel Gideri Yüksek'), findsOneWidget);
     });
   });

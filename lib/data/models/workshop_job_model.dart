@@ -75,7 +75,7 @@ class CustomerRepairJob {
     final random = Random();
     final templates = [
       (
-        'Ahmet Bey (Taksici)',
+        'Ahmet Bey • Taksici',
         'Fiat Egea 1.3 Multijet',
         'Ustam araç rampada çekmiyor, debriyaj kaçırıyor ve koku yapıyor.',
         RepairJobType.transmission,
@@ -86,7 +86,7 @@ class CustomerRepairJob {
         'baski_balata',
       ),
       (
-        'Murat Bey (Esnaf)',
+        'Murat Bey • Esnaf',
         'VW Passat 2.0 TDI',
         'Sabahları egzozdan mavi duman atıyor ve motordan şıkırtı geliyor.',
         RepairJobType.engine,
@@ -97,7 +97,7 @@ class CustomerRepairJob {
         'subap_segman',
       ),
       (
-        'Cemre Hanım (Mimar)',
+        'Cemre Hanım • Mimar',
         'BMW 320i',
         'Göstergede motor arıza lambası yandı ve araç kendini korumaya aldı.',
         RepairJobType.ecu,
@@ -108,7 +108,7 @@ class CustomerRepairJob {
         'oksijen_sensoru',
       ),
       (
-        'Volkan Bey (Müteahhit)',
+        'Volkan Bey • Müteahhit',
         'Ford Ranger 3.2 Wildtrak',
         'Şantiyede yan çamurluk ve kapı göçtü, fırın boya lazım.',
         RepairJobType.bodywork,
@@ -119,7 +119,7 @@ class CustomerRepairJob {
         'camurluk_gocuk',
       ),
       (
-        'Kenan Bey (Drift Sever)',
+        'Kenan Bey • Drift Sever',
         'Nissan Silvia S15',
         'Kaldırıma vurdum, direksiyon sağa çekiyor ve rot ayarı tutmuyor.',
         RepairJobType.chassis,
@@ -167,7 +167,7 @@ class CustomPaintColor {
 
   static const List<CustomPaintColor> palette = [
     CustomPaintColor(
-      name: 'Nardo Gri (Trend)',
+      name: 'Nardo Gri • Trend',
       hex: '#6B7280',
       cost: 14000,
       buyerAppealMultiplier: 1.25,
@@ -181,14 +181,14 @@ class CustomPaintColor {
       color: Color(0xFF111827),
     ),
     CustomPaintColor(
-      name: 'Yarış Kırmızısı (Rosso Corsa)',
+      name: 'Yarış Kırmızısı • Rosso Corsa',
       hex: '#DC2626',
       cost: 16000,
       buyerAppealMultiplier: 1.22,
       color: Color(0xFFDC2626),
     ),
     CustomPaintColor(
-      name: 'Mat Haki Yeşili (Military)',
+      name: 'Mat Haki Yeşili • Military',
       hex: '#4D7C0F',
       cost: 18000,
       buyerAppealMultiplier: 1.30,
@@ -202,7 +202,7 @@ class CustomPaintColor {
       color: Color(0xFFF8FAFC),
     ),
     CustomPaintColor(
-      name: 'Miamia Mavisi (Electric Blue)',
+      name: 'Miamia Mavisi • Electric Blue',
       hex: '#0284C7',
       cost: 15000,
       buyerAppealMultiplier: 1.20,

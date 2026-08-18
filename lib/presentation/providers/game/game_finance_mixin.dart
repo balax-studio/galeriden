@@ -194,15 +194,15 @@ mixin GameFinanceMixin on GameBaseNotifier {
 
     if (ratio >= 2.5) {
       level = LiquidityLevel.strong;
-      badgeLabel = 'Sağlam & Likit (Güçlü Nakit)';
+      badgeLabel = 'Sağlam & Likit • Güçlü Nakit';
       description = 'Kasa ve dönen varlıkların borçlarını rahatça karşılıyor. Yeni araç yatırımlarına hazır.';
     } else if (ratio >= 1.2) {
       level = LiquidityLevel.moderate;
-      badgeLabel = 'Dengeli & İzlemede (Stabil)';
+      badgeLabel = 'Dengeli & İzlemede • Stabil';
       description = 'Alacak ve borç dengesi normal seviyede. Taksit ve çek vadelerini takip et.';
     } else {
       level = LiquidityLevel.tight;
-      badgeLabel = 'Nakit Sıkışıklığı (Riskli Likidite)';
+      badgeLabel = 'Nakit Sıkışıklığı • Riskli Likidite';
       description = 'Kısa vadeli borçlar yüksek. Çek kırdırma veya acil araç satışı ile nakit yarat.';
     }
 

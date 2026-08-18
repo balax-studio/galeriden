@@ -331,7 +331,7 @@ class TuningPresetBuilds {
     TuningPresetBuild(
       id: 'preset_street_racer',
       title: 'Sokak Yarışçısı Paketi',
-      description: 'Stage 1 Yazılım + Varex Egzoz + Coilover Yay (Sokakların Efendisi).',
+      description: 'Stage 1 Yazılım + Varex Egzoz + Coilover Yay • Sokakların Efendisi.',
       badge: 'STREET RACER',
       optionIds: ['tune_ecu_stg1', 'tune_varex_exhaust', 'tune_coilover'],
       discountPercent: 0.15,
@@ -339,7 +339,7 @@ class TuningPresetBuilds {
     TuningPresetBuild(
       id: 'preset_vip_executive',
       title: 'VIP Executive Paketi',
-      description: '20" Dövme Jant + Matrix LED + Karbon Aero Kit (Lüks & Prestij).',
+      description: '20" Dövme Jant + Matrix LED + Karbon Aero Kit • Lüks & Prestij.',
       badge: 'VIP LUXURY',
       optionIds: ['tune_forged_rims', 'tune_matrix_lights', 'tune_bodykit_carbon'],
       discountPercent: 0.15,
@@ -347,7 +347,7 @@ class TuningPresetBuilds {
     TuningPresetBuild(
       id: 'preset_track_monster',
       title: 'Pist Canavarı Paketi',
-      description: 'Stage 3 Turbo + Widebody + Seramik Fren + Düz Boru Alev (Saf Güç).',
+      description: 'Stage 3 Turbo + Widebody + Seramik Fren + Düz Boru Alev • Saf Güç.',
       badge: 'TRACK MONSTER',
       optionIds: ['tune_turbo_stg3', 'tune_widebody', 'tune_ceramic_brakes', 'tune_straight_pipe_flame'],
       discountPercent: 0.15,

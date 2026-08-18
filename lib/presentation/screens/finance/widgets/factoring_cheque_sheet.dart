@@ -113,7 +113,7 @@ class FactoringChequeSheet extends StatelessWidget {
                               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                             ),
                             Text(
-                              'Net Ödeme: ₺${deal.payoutCash.toStringAsFixed(0)} (-%8.5)',
+                              'Net Ödeme: ₺${deal.payoutCash.toStringAsFixed(0)} • -%8.5',
                               style: const TextStyle(color: AppColors.brutalGreen, fontWeight: FontWeight.w800, fontSize: 11),
                             ),
                           ],

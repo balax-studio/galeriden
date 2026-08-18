@@ -271,7 +271,7 @@ class SideBusinessScreen extends ConsumerWidget {
                         ),
                         if (!isOwned)
                           NeoBrutalButton(
-                            label: 'SATIN AL (${CurrencyFormatter.formatShort(business.cost)})',
+                            label: 'SATIN AL • ${CurrencyFormatter.formatShort(business.cost)}',
                             icon: Icons.shopping_cart_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,

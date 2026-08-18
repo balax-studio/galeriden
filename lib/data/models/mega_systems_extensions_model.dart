@@ -145,7 +145,7 @@ class DynoTestReport {
 /// 3. Chip Tuning & Modifiye Sistemleri (§22)
 enum ChipTuningStage {
   none(id: 'none', name: 'Fabrikasyon ECU', hpBoost: 0, cost: 0.0, valueBoostMultiplier: 1.0),
-  stage1(id: 'stage_1_ecu', name: 'Stage 1 Yazılım (ECU Remap)', hpBoost: 35, cost: 4500.0, valueBoostMultiplier: 1.10),
+  stage1(id: 'stage_1_ecu', name: 'Stage 1 Yazılım • ECU Remap', hpBoost: 35, cost: 4500.0, valueBoostMultiplier: 1.10),
   stage2(id: 'stage_2_ecu', name: 'Stage 2 Yazılım & Downpipe', hpBoost: 75, cost: 9500.0, valueBoostMultiplier: 1.22);
 
   final String id;

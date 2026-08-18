@@ -151,7 +151,7 @@ class TurkishHospitalityBar extends StatelessWidget {
   }
 
   void _showPlateDialog(BuildContext context) {
-    final codes = ['06 (Ankara)', '34 (İstanbul)', '35 (İzmir)', '61 (Trabzon)', '01 (Adana)', '16 (Bursa)'];
+    final codes = ['06 Ankara', '34 İstanbul', '35 İzmir', '61 Trabzon', '01 Adana', '16 Bursa'];
     showDialog(
       context: context,
       builder: (ctx) => Dialog(

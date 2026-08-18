@@ -55,7 +55,7 @@ class DashboardQuickFinanceCard extends StatelessWidget {
                 children: [
                   Text(
                     activeLoans.isNotEmpty
-                        ? 'Aktif Kredi Borcu (${activeLoans.length})'
+                        ? 'Aktif Kredi Borcu • ${activeLoans.length}'
                         : 'Banka Kredisi Hazır',
                     style: TextStyle(
                       fontSize: 12.5,

@@ -300,7 +300,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Expanded(
                 child: NeoBrutalButton(
                   icon: Icons.build_rounded,
-                  label: 'MÜŞTERİ İŞLERİ (${_customerJobs.length})',
+                  label: 'MÜŞTERİ İŞLERİ • ${_customerJobs.length}',
                   backgroundColor: _activeTopTab == 1 ? AppColors.brutalGreen : (isDark ? const Color(0xFF141721) : Colors.white),
                   textColor: _activeTopTab == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,
@@ -326,7 +326,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   Expanded(
                     child: Text(
                       hasMechanic && hasApprentice
-                          ? 'Mekanik Usta (%0 Hata Riski) ve Çırak (%50 Hızlı Montaj) atölyede aktif!'
+                          ? 'Mekanik Usta ve Çırak atölyede aktif!'
                           : (hasMechanic ? 'Mekanik Usta devrede: Tamirlerde parça yanma riski %0!' : 'Çırak devrede: Kargo ve montaj süreleri %50 hızlandı!'),
                       style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
                     ),
@@ -334,7 +334,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   const SizedBox(width: 6),
                   NeoBrutalButton(
                     icon: Icons.fastfood_rounded,
-                    label: 'Tost & Çay (₺250)',
+                    label: 'Tost & Çay • ₺250',
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 9.5,
@@ -342,7 +342,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     onPressed: () {
                       final success = ref.read(gameProvider.notifier).treatWorkshopStaffSnack();
                       if (success) {
-                        NotificationService.showSuccess(context, 'Ustalara sanayi tostu ve tavşan kanı çay söylendi (+20 Moral)!');
+                        NotificationService.showSuccess(context, 'Ustalara sanayi tostu ve tavşan kanı çay söylendi • +20 Moral!');
                         setState(() {});
                       } else {
                         NotificationService.showError(context, 'Yetersiz bakiye! ₺250 gerekli.');
@@ -381,7 +381,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      'Dışarıdan gelen müşteri araçlarının arıza tespitini yapmak ve kontratlı tamir işlerini alabilmek için kadronuzda bir Mekanik Usta (Master Mechanic) bulunmalıdır.',
+                      'Dışarıdan gelen müşteri araçlarının arıza tespitini yapmak ve kontratlı tamir işlerini alabilmek için kadronuzda bir Mekanik Usta bulunmalıdır.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                     ),
@@ -617,7 +617,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
               // Car Selector Carousel
               Text(
-                'TAMİR EDİLECEK ARACI SEÇ (${game.ownedCars.length} Araç)',
+                'TAMİR EDİLECEK ARACI SEÇ • ${game.ownedCars.length} Araç',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -716,7 +716,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Piyasa Değeri: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} (Kusursuz: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)}) • ${_selectedCar!.modelYear}',
+                                  'Piyasa Değeri: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} • Kusursuz: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • ${_selectedCar!.modelYear}',
                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                                 ),
                               ],
@@ -754,7 +754,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.oil_barrel_rounded,
-                              label: '10k Bakım (₺3.5k)',
+                              label: '10k Bakım • ₺3.5k',
                               backgroundColor: AppColors.brutalYellow,
                               textColor: Colors.black,
                               fontSize: 10,
@@ -766,7 +766,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 }
                                 final success = ref.read(gameProvider.notifier).performPeriodicMaintenance(_selectedCar!.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, 'Yağ, buji ve filtreler yenilendi (+%15 Kondisyon)!');
+                                  NotificationService.showSuccess(context, 'Yağ, buji ve filtreler yenilendi • +%15 Kondisyon!');
                                   setState(() {
                                     _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                   });
@@ -807,7 +807,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.hardware_rounded,
-                              label: _selectedCar!.hasPdrRepaired ? 'PDR Yapıldı' : 'PDR Göçük (₺3.2k)',
+                              label: _selectedCar!.hasPdrRepaired ? 'PDR Yapıldı' : 'PDR Göçük • ₺3.2k',
                               backgroundColor: _selectedCar!.hasPdrRepaired ? const Color(0xFF1E2330) : const Color(0xFF00E575),
                               textColor: _selectedCar!.hasPdrRepaired ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                               fontSize: 10,
@@ -817,7 +817,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                   : () {
                                       final success = ref.read(gameProvider.notifier).performPdrDentRepair(_selectedCar!.id);
                                       if (success) {
-                                        NotificationService.showSuccess(context, 'Boyasız Göçük Düzeltme (PDR) ile kaporta orijinalliği korundu (+%6 Değer)!');
+                                        NotificationService.showSuccess(context, 'Boyasız Göçük Düzeltme ile kaporta orijinalliği korundu • +%6 Değer!');
                                         setState(() {
                                           _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                         });
@@ -831,7 +831,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.verified_rounded,
-                              label: _selectedCar!.hasTuvturkCertified ? '2 Yıl Muayeneli' : 'TÜVTÜRK (₺1.5k)',
+                              label: _selectedCar!.hasTuvturkCertified ? '2 Yıl Muayeneli' : 'TÜVTÜRK • ₺1.5k',
                               backgroundColor: _selectedCar!.hasTuvturkCertified ? const Color(0xFF1E2330) : const Color(0xFF38BDF8),
                               textColor: _selectedCar!.hasTuvturkCertified ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                               fontSize: 10,
@@ -857,7 +857,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
                       if (_selectedCar!.isBarnFind) ...[
                         NeoBrutalButton(
-                          label: '5-AŞAMALI RESTORASYON MERKEZİ (Aşama: ${_selectedCar!.barnFindStage}/5)',
+                          label: '5-AŞAMALI RESTORASYON MERKEZİ • Aşama ${_selectedCar!.barnFindStage}/5',
                           icon: Icons.auto_fix_high_rounded,
                           backgroundColor: const Color(0xFFA855F7),
                           textColor: Colors.white,
@@ -870,7 +870,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       ],
 
                       NeoBrutalButton(
-                        label: 'YEDEK PARÇA SİPARİŞİ VER (OEM / Hurda / Yan Sanayi)',
+                        label: 'YEDEK PARÇA SİPARİŞİ VER',
                         icon: Icons.local_shipping_rounded,
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
@@ -895,7 +895,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '$partName siparişi kargoya verildi! (${durationSeconds}s içinde teslim edilecek)',
+                                '$partName siparişi kargoya verildi! $durationSeconds sn içinde teslim edilecek',
                               );
                               setState(() {});
                             }
@@ -973,7 +973,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       const SizedBox(height: 8),
 
                       WorkshopRepairTile(
-                        title: '3. Bilgisayarlı OBD-II Beyin (ECU) Arıza Tespiti',
+                        title: '3. Bilgisayarlı OBD-II Beyin Arıza Tespiti',
                         description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
                         cost: 4500.0,
                         bonusText: 'Gizli Kusurlar Silinir',
@@ -996,7 +996,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         title: '4. Kaporta Çekiçleme & Fırın Boya',
                         description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
                         cost: 22000.0 * paintCostMultiplier,
-                        bonusText: hasPaintBooth ? '+%15 Değer (Boya Fırını %50 İndirimi!)' : '+%15 Değer Artışı',
+                        bonusText: hasPaintBooth ? '+%15 Değer • Boya Fırını İndirimi' : '+%15 Değer Artışı',
                         netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(22000.0 * paintCostMultiplier, _selectedCar!.estimatedRealValue * 0.15) : null,
                         badgeColor: const Color(0xFFFFDE59),
                         isDark: isDark,
@@ -1016,7 +1016,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
                         description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
                         cost: 45000.0,
-                        bonusText: hasChassisBench ? '+%20 Süper Değer (Şasi Tezgahı Bonusu!)' : '+%20 Değer',
+                        bonusText: hasChassisBench ? '+%20 Süper Değer • Şasi Tezgahı Bonusu' : '+%20 Değer',
                         netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(45000.0, _selectedCar!.estimatedRealValue * 0.20) : null,
                         badgeColor: const Color(0xFFEF4444),
                         isDark: isDark,
@@ -1039,7 +1039,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               // Pending Part Orders
               if (game.pendingOrders.isNotEmpty) ...[
                 Text(
-                  'BEKLEYEN PARÇA SİPARİŞLERİ (${game.pendingOrders.length})',
+                  'BEKLEYEN PARÇA SİPARİŞLERİ • ${game.pendingOrders.length}',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -1076,7 +1076,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               // Salvaged Parts
               if (game.salvagedParts.isNotEmpty) ...[
                 Text(
-                  'HURDALIKTAN TOPLANAN ÇIKMA PARÇALAR (${game.salvagedParts.length})',
+                  'HURDALIKTAN TOPLANAN ÇIKMA PARÇALAR • ${game.salvagedParts.length}',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,

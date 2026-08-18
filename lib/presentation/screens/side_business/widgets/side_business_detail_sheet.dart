@@ -266,7 +266,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       )
                     else
                       NeoBrutalButton(
-                        label: 'İŞE AL (${CurrencyFormatter.formatShort(business.managerCost)})',
+                        label: 'İŞE AL • ${CurrencyFormatter.formatShort(business.managerCost)}',
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10.5,
@@ -322,7 +322,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isMaxLevel ? 'Maksimum Seviye (Lvl 5)' : 'Seviye ${business.level + 1} Genişletme',
+                            isMaxLevel ? 'Maksimum Seviye • Lvl 5' : 'Seviye ${business.level + 1} Genişletme',
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
@@ -342,7 +342,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       )
                     else
                       NeoBrutalButton(
-                        label: 'GELİŞTİR (${CurrencyFormatter.formatShort(nextLevelCost)})',
+                        label: 'GELİŞTİR • ${CurrencyFormatter.formatShort(nextLevelCost)}',
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 10.5,
@@ -363,7 +363,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               // Modules List
               Text(
-                'DÜKKAN MODÜL & EKİPMANLARI (${business.purchasedUpgradeCount}/${business.upgrades.length})',
+                'DÜKKAN MODÜL & EKİPMANLARI • ${business.purchasedUpgradeCount}/${business.upgrades.length}',
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w900,

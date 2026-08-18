@@ -128,7 +128,7 @@ class AuctionModel {
   String get gavelCallText {
     switch (gavelStage) {
       case AuctionGavelStage.finalHammer:
-        return '3. ÇAĞRI: SATTIM (SATTT-TIM)!';
+        return '3. ÇAĞRI: SATTIM • SATTT-TIM!';
       case AuctionGavelStage.secondCall:
         return '2. ÇAĞRI: Satıyorum...';
       case AuctionGavelStage.firstCall:

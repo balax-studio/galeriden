@@ -53,7 +53,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Ağır Hasarlı Çıktı!',
-          description: 'Ekspertiz yaptırmadan aldığın araç meğer pertten dönmeymiş! Şasisi eğik ve ₺185.000 tramer kaydı çıktı (-%35 değer kaybı).',
+          description: 'Ekspertiz yaptırmadan aldığın araç meğer pertten dönmeymiş! Şasisi eğik ve ₺185.000 tramer kaydı çıktı • -%35 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.65),
         );
 
@@ -71,7 +71,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'KM Düşürülmüş!',
-          description: 'Araç beyin taranınca gerçek kilometrenin +120.000 daha fazla olduğu anlaşıldı (-%20 değer kaybı).',
+          description: 'Araç beyin taranınca gerçek kilometrenin +120.000 daha fazla olduğu anlaşıldı • -%20 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.80),
         );
 
@@ -88,7 +88,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Taksi Çıkması!',
-          description: 'Orijinal boyanın altından sarı boya çıktı! Araç 5 yıl takside çalışmış (-%45 değer kaybı).',
+          description: 'Orijinal boyanın altından sarı boya çıktı! Araç 5 yıl takside çalışmış • -%45 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.55),
         );
 
@@ -97,7 +97,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Hacizli Araç!',
-          description: 'Notere gidince aracın üzerinde haciz ve yakalama kararı olduğu ortaya çıktı. Cezaları ödemek zorunda kaldın (-%25 değer kaybı).',
+          description: 'Notere gidince aracın üzerinde haciz ve yakalama kararı olduğu ortaya çıktı. Cezaları ödemek zorunda kaldın • -%25 değer kaybı.',
           updatedCar: car.copyWith(baseMarketValue: car.baseMarketValue * 0.75),
         );
 
@@ -114,7 +114,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Çalıntı Motor Bloğu!',
-          description: 'Motor numarasının kazındığı ve çalıntı bir blok takıldığı tespit edildi. Yasal süreç ve değişim masrafı yıktı geçti (-%40 değer kaybı).',
+          description: 'Motor numarasının kazındığı ve çalıntı bir blok takıldığı tespit edildi. Yasal süreç ve değişim masrafı yıktı geçti • -%40 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.60),
         );
 
@@ -131,7 +131,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Yanlış Şasi Numarasıyla Sorgu!',
-          description: 'Satıcı plakadan hasar kaydı yok demişti, şasi numarasından sorgulatınca ₺250.000 Ağır Hasar Kaydı çıktı! (-%30 değer kaybı).',
+          description: 'Satıcı plakadan hasar kaydı yok demişti, şasi numarasından sorgulatınca ₺250.000 Ağır Hasar Kaydı çıktı! • -%30 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.70),
         );
 
@@ -140,7 +140,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Airbagler İşlemli!',
-          description: 'Direksiyon ve torpido kaplanmış, hava yastıkları iptal edilip direnç atılmış! Ölüm tehlikesi ve ciddi değer kaybı (-%35 değer kaybı).',
+          description: 'Direksiyon ve torpido kaplanmış, hava yastıkları iptal edilip direnç atılmış! Ölüm tehlikesi ve ciddi değer kaybı • -%35 değer kaybı.',
           updatedCar: car.copyWith(baseMarketValue: car.baseMarketValue * 0.65),
         );
 
@@ -157,7 +157,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Eve Giderken Şanzıman Dağıldı!',
-          description: 'Aracı alıp yola çıktın, 10 km sonra şanzıman kendini kilitledi. Komple revizyon gerekiyor (-%20 değer kaybı).',
+          description: 'Aracı alıp yola çıktın, 10 km sonra şanzıman kendini kilitledi. Komple revizyon gerekiyor • -%20 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.80),
         );
 
@@ -174,7 +174,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Conta Yanık & Su Eksiltme!',
-          description: 'Motora kalın yağ koyup sesi kesmişler. Galeriye dönerken hararet yaptı, motor rektifiye istiyor (-%25 değer kaybı).',
+          description: 'Motora kalın yağ koyup sesi kesmişler. Galeriye dönerken hararet yaptı, motor rektifiye istiyor • -%25 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.75),
         );
 
@@ -183,7 +183,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Çekme Belgeli Çıktı!',
-          description: 'Araç trafikten men edilmiş ve çekme belgeli! Muayene, vergi borçları ve tekrar trafiğe sokma masrafları belini büktü (-%15 değer kaybı).',
+          description: 'Araç trafikten men edilmiş ve çekme belgeli! Muayene, vergi borçları ve tekrar trafiğe sokma masrafları belini büktü • -%15 değer kaybı.',
           updatedCar: car.copyWith(baseMarketValue: car.baseMarketValue * 0.85),
         );
 
@@ -191,8 +191,8 @@ class RiskEngine {
         // İkiz Plaka (Change Araç)
         return PurchaseRiskOutcome(
           isTrapped: true,
-          title: 'Change (İkiz) Araç!',
-          description: 'Aynı renk ve model başka bir aracın şasi numarası kopyalanmış (Change). Emniyet araca el koydu, zor kurtardın (-%55 değer kaybı).',
+          title: 'Change İkiz Araç!',
+          description: 'Aynı renk ve model başka bir aracın şasi numarası kopyalanmış • Change. Emniyet araca el koydu, zor kurtardın • -%55 değer kaybı.',
           updatedCar: car.copyWith(baseMarketValue: car.baseMarketValue * 0.45),
         );
 
@@ -211,7 +211,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Yürüyen Macun Yığını!',
-          description: '"Güneş yanığından boyalı" dedikleri araç komple değişenli ve macun yığını çıktı (-%30 değer kaybı).',
+          description: '"Güneş yanığından boyalı" dedikleri araç komple değişenli ve macun yığını çıktı • -%30 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.70),
         );
 
@@ -219,7 +219,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Gizli Vergi Borcu!',
-          description: 'Noter devrinden sonra aracın sistemde gizlenmiş ciddi vergi ve trafik cezası borcu çıktı. Mecburen sen ödedin (-%15 değer kaybı).',
+          description: 'Noter devrinden sonra aracın sistemde gizlenmiş ciddi vergi ve trafik cezası borcu çıktı. Mecburen sen ödedin • -%15 değer kaybı.',
           updatedCar: car.copyWith(baseMarketValue: car.baseMarketValue * 0.85),
         );
 
@@ -235,7 +235,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Kayıt Dışı Motor Değişimi!',
-          description: 'Ruhsattaki motor numarasıyla araçtaki birbirini tutmuyor. Proje çizdirip ruhsata işletmek aylarca sürdü (-%25 değer kaybı).',
+          description: 'Ruhsattaki motor numarasıyla araçtaki birbirini tutmuyor. Proje çizdirip ruhsata işletmek aylarca sürdü • -%25 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.75),
         );
 
@@ -252,7 +252,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Sel Hasarlı!',
-          description: 'Araç içi taban halısının altı çamur dolu ve tüm elektronik beyinler paslanmış. Araç sel hasarlı çıktı! (-%40 değer kaybı).',
+          description: 'Araç içi taban halısının altı çamur dolu ve tüm elektronik beyinler paslanmış. Araç sel hasarlı çıktı! • -%40 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.60),
         );
 
@@ -270,8 +270,8 @@ class RiskEngine {
         );
         return PurchaseRiskOutcome(
           isTrapped: true,
-          title: 'Ekleme Araç (İki Araç Birleşmiş)!',
-          description: 'İki farklı kazalı aracın şasisi ortadan kaynatılıp birleştirilmiş! Araç tam bir saatli bomba (-%50 değer kaybı).',
+          title: 'Ekleme Araç • İki Araç Birleşmiş!',
+          description: 'İki farklı kazalı aracın şasisi ortadan kaynatılıp birleştirilmiş! Araç tam bir saatli bomba • -%50 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.50),
         );
 
@@ -287,7 +287,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Filo Kiralama Çıkması!',
-          description: 'Tertemiz sandığın araç, yıllarca rent-a-car şirketinde yüzlerce farklı kişide hor kullanılmış (-%20 değer kaybı).',
+          description: 'Tertemiz sandığın araç, yıllarca rent-a-car şirketinde yüzlerce farklı kişide hor kullanılmış • -%20 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.80),
         );
 
@@ -305,7 +305,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Yan Sanayi Parça Tuzağı!',
-          description: '"Orijinal" denilen tüm parçalar en ucuz yan sanayi plastikleriyle değiştirilmiş (-%20 değer kaybı).',
+          description: '"Orijinal" denilen tüm parçalar en ucuz yan sanayi plastikleriyle değiştirilmiş • -%20 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.80),
         );
 
@@ -313,7 +313,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Banka Rehni Kalkmamış!',
-          description: 'Eski sahibinin banka kredisi rehni sistemde kalmış. Satışı geri almak için günlerce mahkemede uğraştın (-%10 değer kaybı).',
+          description: 'Eski sahibinin banka kredisi rehni sistemde kalmış. Satışı geri almak için günlerce mahkemede uğraştın • -%10 değer kaybı.',
           updatedCar: car.copyWith(baseMarketValue: car.baseMarketValue * 0.90),
         );
 
@@ -321,7 +321,7 @@ class RiskEngine {
         return PurchaseRiskOutcome(
           isTrapped: true,
           title: 'Kaçakçılık Zulası Çıktı!',
-          description: 'Bagaj pandizotunda gizli zula bulundu! Polis aracı günlerce kriminal incelemede tuttu, her yeri söküldü (-%30 değer kaybı).',
+          description: 'Bagaj pandizotunda gizli zula bulundu! Polis aracı günlerce kriminal incelemede tuttu, her yeri söküldü • -%30 değer kaybı.',
           updatedCar: car.copyWith(baseMarketValue: car.baseMarketValue * 0.70),
         );
 
@@ -337,8 +337,8 @@ class RiskEngine {
         );
         return PurchaseRiskOutcome(
           isTrapped: true,
-          title: 'Kronik Beyin (ECU) Arızası!',
-          description: 'Kontağı kapattıktan sonra motor beyninin sıfırlandığı ve kronik arızası olduğu ortaya çıktı (-%15 değer kaybı).',
+          title: 'Kronik Beyin ECU Arızası!',
+          description: 'Kontağı kapattıktan sonra motor beyninin sıfırlandığı ve kronik arızası olduğu ortaya çıktı • -%15 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.85),
         );
 
@@ -355,8 +355,8 @@ class RiskEngine {
         );
         return PurchaseRiskOutcome(
           isTrapped: true,
-          title: 'Kusurlu Boya İşçiliği (Portakal Kabuğu)!',
-          description: 'Güneş altında bakınca aracın boyasının çok kötü atıldığı ve portakal kabuğu görünümü yaptığı anlaşıldı (-%10 değer kaybı).',
+          title: 'Kusurlu Boya İşçiliği • Portakal Kabuğu!',
+          description: 'Güneş altında bakınca aracın boyasının çok kötü atıldığı ve portakal kabuğu görünümü yaptığı anlaşıldı • -%10 değer kaybı.',
           updatedCar: car.copyWith(expertise: newExp, baseMarketValue: car.baseMarketValue * 0.90),
         );
 

@@ -91,7 +91,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${part.name} (%${part.conditionPercent} kondisyon) hangi araca takılsın?',
+                  '${part.name} • %${part.conditionPercent} kondisyon hangi araca takılsın?',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 14),
@@ -160,51 +160,18 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
 
   void _showDismantlePartsDialog(BuildContext context, ScrapyardCar car) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final initialParts = car.parts;
 
     showDialog(
       context: context,
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
+        return Consumer(
+          builder: (dialogCtx, ref, _) {
             final game = ref.watch(gameProvider);
             final currentCarIndex = game.scrapyardCars.indexWhere((c) => c.id == car.id);
             final currentCar = currentCarIndex != -1 ? game.scrapyardCars[currentCarIndex] : null;
-
-            if (currentCar == null || currentCar.parts.isEmpty) {
-              return Dialog(
-                backgroundColor: Colors.transparent,
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                  borderRadius: 16,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.check_circle_outline_rounded, color: AppColors.brutalGreen, size: 48),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Tüm Parçalar Söküldü!',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Bu aracın tüm sağlam parçaları depoya aktarıldı. Kalan karkası presleyip hurda demir geliri elde edebilirsin.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 16),
-                      NeoBrutalButton(
-                        label: 'TAMAM',
-                        backgroundColor: AppColors.brutalYellow,
-                        textColor: Colors.black,
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
+            final remainingPartIds = currentCar?.parts.map((p) => p.id).toSet() ?? <String>{};
+            final remainingCount = remainingPartIds.length;
 
             return Dialog(
               backgroundColor: Colors.transparent,
@@ -231,8 +198,12 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                           ),
                         ),
                         NeoBrutalBadge(
-                          text: '${currentCar.parts.length} Parça Kaldı',
-                          backgroundColor: AppColors.brutalOrange,
+                          text: remainingCount > 0
+                              ? '$remainingCount Parça Kaldı'
+                              : 'TAMAMI SÖKÜLDÜ',
+                          backgroundColor: remainingCount > 0
+                              ? AppColors.brutalOrange
+                              : AppColors.brutalGreen,
                           textColor: Colors.black,
                           fontSize: 10,
                         ),
@@ -240,7 +211,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${currentCar.brand} ${currentCar.modelName}',
+                      '${car.brand} ${car.modelName.replaceAll(RegExp(r'\s*\(.*?\)\s*'), '')}',
                       style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 12),
@@ -248,18 +219,24 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                       constraints: const BoxConstraints(maxHeight: 280),
                       child: ListView.builder(
                         shrinkWrap: true,
-                        itemCount: currentCar.parts.length,
+                        itemCount: initialParts.length,
                         itemBuilder: (pCtx, i) {
-                          final part = currentCar.parts[i];
+                          final part = initialParts[i];
+                          final isDismantled = !remainingPartIds.contains(part.id);
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
+                                color: isDismantled
+                                    ? (isDark ? const Color(0xFF0B0D13) : const Color(0xFFF1F5F9))
+                                    : (isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC)),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  color: isDismantled
+                                      ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1))
+                                      : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
                                   width: 2.0,
                                 ),
                               ),
@@ -269,7 +246,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                     width: 10,
                                     height: 10,
                                     decoration: BoxDecoration(
-                                      color: _getTierColor(part.tier),
+                                      color: isDismantled ? const Color(0xFF64748B) : _getTierColor(part.tier),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -280,31 +257,50 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                       children: [
                                         Text(
                                           part.name,
-                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDismantled ? const Color(0xFF64748B) : (isDark ? Colors.white : Colors.black),
+                                            decoration: isDismantled ? TextDecoration.lineThrough : null,
+                                          ),
                                         ),
                                         Text(
-                                          'Kondisyon: %${part.conditionPercent} • ~${CurrencyFormatter.formatShort(part.estimatedValue)}',
-                                          style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B)),
+                                          isDismantled
+                                              ? 'Söküldü • Depoya Aktarıldı'
+                                              : 'Kondisyon: %${part.conditionPercent} • ~${CurrencyFormatter.formatShort(part.estimatedValue)}',
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            color: isDismantled
+                                                ? (isDark ? const Color(0xFF00E575) : const Color(0xFF16A34A))
+                                                : const Color(0xFF64748B),
+                                            fontWeight: isDismantled ? FontWeight.w700 : FontWeight.normal,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
                                   NeoBrutalButton(
-                                    label: 'SÖK & AL',
-                                    icon: Icons.handyman_rounded,
-                                    backgroundColor: AppColors.brutalYellow,
-                                    textColor: Colors.black,
+                                    label: isDismantled ? 'SÖKÜLDÜ' : 'SÖK & AL',
+                                    icon: isDismantled ? Icons.check_circle_rounded : Icons.handyman_rounded,
+                                    backgroundColor: isDismantled
+                                        ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))
+                                        : AppColors.brutalYellow,
+                                    textColor: isDismantled
+                                        ? (isDark ? const Color(0xFF00E575) : const Color(0xFF16A34A))
+                                        : Colors.black,
                                     fontSize: 10,
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    onPressed: () {
-                                      final success = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(currentCar.id, part.id);
-                                      if (success) {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          '${part.name} başarıyla söküldü ve depoya aktarıldı!',
-                                        );
-                                      }
-                                    },
+                                    onPressed: isDismantled
+                                        ? null
+                                        : () {
+                                            final success = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
+                                            if (success) {
+                                              NotificationService.showSuccess(
+                                                context,
+                                                '${part.name} başarıyla söküldü ve depoya aktarıldı!',
+                                              );
+                                            }
+                                          },
                                   ),
                                 ],
                               ),
@@ -315,8 +311,21 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                     ),
                     const SizedBox(height: 10),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        if (remainingCount == 0)
+                          const Row(
+                            children: [
+                              Icon(Icons.check_circle_rounded, color: AppColors.brutalGreen, size: 18),
+                              SizedBox(width: 4),
+                              Text(
+                                'Karkas preslemeye hazır',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
+                              ),
+                            ],
+                          )
+                        else
+                          const SizedBox.shrink(),
                         NeoBrutalButton(
                           label: 'KAPAT',
                           backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
@@ -355,7 +364,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
     if (matchingParts.isEmpty) {
       NotificationService.showError(
         context,
-        'Deponda ${order.mechanicName} ustasının istediği kriterlere (${order.requiredCategory.toUpperCase()}) uygun parça bulunmuyor!',
+        'Deponda ${order.mechanicName} ustasının istediği kriterlere uygun parça bulunmuyor!',
       );
       return;
     }
@@ -404,7 +413,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '${part.name}, ${order.mechanicName} ustaya ${CurrencyFormatter.formatShort(order.offeredPrice)} karşılığı teslim edildi! (+${order.reputationReward} İtibar)',
+                                '${part.name}, ${order.mechanicName} ustaya ${CurrencyFormatter.formatShort(order.offeredPrice)} karşılığı teslim edildi! • +${order.reputationReward} İtibar',
                               );
                             }
                           },
@@ -429,7 +438,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                       style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
                                     ),
                                     Text(
-                                      '${part.carModelName} • %${part.conditionPercent} (${part.tierName})',
+                                      '${part.carModelName} • %${part.conditionPercent} • ${part.tierName}',
                                       style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B)),
                                     ),
                                   ],
@@ -497,9 +506,9 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
         bottom: NeoBrutalTabBar(
           controller: _tabController,
           tabs: [
-            'PERT ARAÇLAR (${scrapCars.where((c) => !c.isPurchased).length})',
-            'ÇIKMA PARÇALAR (${salvagedParts.length})',
-            'SANAYİ B2B (${b2bOrders.length})',
+            'PERT ARAÇLAR • ${scrapCars.where((c) => !c.isPurchased).length}',
+            'ÇIKMA PARÇALAR • ${salvagedParts.length}',
+            'SANAYİ B2B • ${b2bOrders.length}',
           ],
         ),
       ),
@@ -563,7 +572,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                               children: [
                                 Expanded(
                                   child: NeoBrutalButton(
-                                    label: 'ÇIRAKLIK YAP (₺5.000)',
+                                    label: 'ÇIRAKLIK YAP • ₺5.000',
                                     icon: Icons.work_history_rounded,
                                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                     textColor: isDark ? Colors.white : Colors.black,
@@ -664,7 +673,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                     const Icon(Icons.scale_rounded, size: 14, color: Color(0xFF64748B)),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Şasi: ${car.chassisScrapMetalWeightKg} kg (~${CurrencyFormatter.formatShort(car.chassisScrapValue)})',
+                                      'Şasi: ${car.chassisScrapMetalWeightKg} kg • ~${CurrencyFormatter.formatShort(car.chassisScrapValue)}',
                                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
                                     ),
                                   ],
@@ -703,7 +712,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'SÖKÜLEBİLİR PARÇALAR (${car.parts.length} Parça):',
+                                      'SÖKÜLEBİLİR PARÇALAR • ${car.parts.length} Parça:',
                                       style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                                     ),
                                     Text(
@@ -1005,7 +1014,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                         children: [
                                           if (part.canRefurbish) ...[
                                             NeoBrutalButton(
-                                              label: 'REVİZE ET (₺${part.refurbishCost.toInt()})',
+                                              label: 'REVİZE ET • ₺${part.refurbishCost.toInt()}',
                                               icon: Icons.auto_fix_high_rounded,
                                               backgroundColor: AppColors.brutalPurple,
                                               textColor: Colors.white,

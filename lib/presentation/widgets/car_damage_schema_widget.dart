@@ -80,7 +80,7 @@ class CarDamageSchemaWidget extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: _buildPartBox(
-                        'TAVAN\n(Tavan Boyasızlığı Kritik)',
+                        'TAVAN\n• Tavan Boyasızlığı Kritik',
                         bodyParts['Tavan'],
                         p,
                         minHeight: 86,

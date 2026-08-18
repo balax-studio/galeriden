@@ -92,12 +92,15 @@ class ThemePaletteModel {
         errorColor: errorColor,
       );
 
-  // Pre-defined Preset Palettes for In-Game Store (1 Light + 1 Dark Curated)
+  /// Whether this theme can be unlocked by watching a rewarded ad
+  bool get isAdUnlockable => id == 'toksik_asit_cyber' || id == 'egzotik_neo_pop';
+
+  // Pre-defined Preset Palettes for In-Game Store
   static const List<ThemePaletteModel> defaultPalettes = [
     // 1. Light - Sanayi Çırağı (Default Free)
     ThemePaletteModel(
       id: 'sanayi_ciragi_light',
-      name: 'Sanayi Çırağı (Aydınlık)',
+      name: 'Sanayi Çırağı • Aydınlık',
       price: 0,
       isUnlocked: true,
       isDark: false,
@@ -116,7 +119,7 @@ class ThemePaletteModel {
     // 2. Dark - Gece Vardiyası (₺50.000)
     ThemePaletteModel(
       id: 'gece_vardiyasi_dark',
-      name: 'Gece Vardiyası (Karanlık)',
+      name: 'Gece Vardiyası • Karanlık',
       price: 50000,
       isUnlocked: false,
       isDark: true,
@@ -132,10 +135,10 @@ class ThemePaletteModel {
       errorColor: Color(0xFFEF4444),
     ),
 
-    // 3. Absurd Cyber - Toksik Asit & Siber Galeri (₺150.000)
+    // 3. Absurd Cyber - Toksik Asit & Siber Galeri (Reklam veya ₺150.000)
     ThemePaletteModel(
       id: 'toksik_asit_cyber',
-      name: 'Toksik Asit & Siber Galeri (Absürt)',
+      name: 'Toksik Asit & Siber Galeri • Absürt',
       price: 150000,
       isUnlocked: false,
       isDark: true,
@@ -149,6 +152,25 @@ class ThemePaletteModel {
       successColor: Color(0xFF00FF9D),
       warningColor: Color(0xFFFF9900),
       errorColor: Color(0xFFFF1744),
+    ),
+
+    // 4. Exotic Neo-Pop - Egzotik Neon & Lolipop Arcade (Reklamla Açılır)
+    ThemePaletteModel(
+      id: 'egzotik_neo_pop',
+      name: 'Egzotik Neo-Pop • Lolipop Arcade',
+      price: 0,
+      isUnlocked: false,
+      isDark: false,
+      primaryColor: Color(0xFFFFE600),
+      secondaryColor: Color(0xFFFF007F),
+      backgroundColor: Color(0xFF6EFF3B),
+      surfaceColor: Color(0xFFFFFDF0),
+      surfaceBorderColor: Color(0xFF000000),
+      textPrimaryColor: Color(0xFF0F172A),
+      textSecondaryColor: Color(0xFF334155),
+      successColor: Color(0xFF00F076),
+      warningColor: Color(0xFFFF9900),
+      errorColor: Color(0xFFFF0055),
     ),
   ];
 }

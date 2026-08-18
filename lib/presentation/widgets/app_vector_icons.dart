@@ -189,6 +189,62 @@ class _VectorIconPainter extends CustomPainter {
         canvas.drawRect(Rect.fromLTWH(w * 0.25, h * 0.42, w * 0.50, h * 0.16), fillPaint);
         break;
 
+      case 'wash':
+        // Car Wash / Pressure Foam Jet Vector
+        final washPath = Path();
+        washPath.moveTo(w * 0.20, h * 0.30);
+        washPath.lineTo(w * 0.50, h * 0.50);
+        washPath.lineTo(w * 0.40, h * 0.65);
+        washPath.lineTo(w * 0.15, h * 0.45);
+        washPath.close();
+        canvas.drawPath(washPath, fillPaint);
+        // Spray lines
+        canvas.drawLine(Offset(w * 0.55, h * 0.45), Offset(w * 0.85, h * 0.30), paint);
+        canvas.drawLine(Offset(w * 0.55, h * 0.55), Offset(w * 0.90, h * 0.55), paint);
+        canvas.drawLine(Offset(w * 0.55, h * 0.65), Offset(w * 0.85, h * 0.80), paint);
+        break;
+
+      case 'trophy':
+        // Championship Trophy Cup
+        final trophyPath = Path();
+        trophyPath.moveTo(w * 0.25, h * 0.15);
+        trophyPath.lineTo(w * 0.75, h * 0.15);
+        trophyPath.lineTo(w * 0.65, h * 0.55);
+        trophyPath.quadraticBezierTo(w * 0.50, h * 0.70, w * 0.35, h * 0.55);
+        trophyPath.close();
+        canvas.drawPath(trophyPath, fillPaint);
+        // Trophy base & stem
+        canvas.drawLine(Offset(w * 0.50, h * 0.65), Offset(w * 0.50, h * 0.80), paint);
+        canvas.drawRect(Rect.fromLTWH(w * 0.30, h * 0.80, w * 0.40, h * 0.10), fillPaint);
+        break;
+
+      case 'coin':
+        // Coin Vector
+        canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.38, paint);
+        canvas.drawLine(Offset(w * 0.42, h * 0.28), Offset(w * 0.42, h * 0.72), paint);
+        canvas.drawLine(Offset(w * 0.42, h * 0.42), Offset(w * 0.65, h * 0.35), paint);
+        canvas.drawLine(Offset(w * 0.42, h * 0.52), Offset(w * 0.62, h * 0.45), paint);
+        break;
+
+      case 'turbo':
+        // Turbocharger Turbine
+        canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.38, paint);
+        canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.15, fillPaint);
+        final spiral = Path();
+        spiral.moveTo(w * 0.50, h * 0.12);
+        spiral.quadraticBezierTo(w * 0.88, h * 0.20, w * 0.88, h * 0.60);
+        canvas.drawPath(spiral, paint);
+        break;
+
+      case 'check':
+        // Sharp Neo-Brutalist Checkmark
+        final checkPath = Path();
+        checkPath.moveTo(w * 0.20, h * 0.50);
+        checkPath.lineTo(w * 0.42, h * 0.72);
+        checkPath.lineTo(w * 0.80, h * 0.25);
+        canvas.drawPath(checkPath, paint);
+        break;
+
       case 'car':
       default:
         // Minimalist Car Silhouette Icon
@@ -262,9 +318,11 @@ class AvatarIconWidget extends StatelessWidget {
       case 'flashlight':
       case 'guard':
         return VectorIconWidget(type: 'shield', color: color, size: size);
-      case 'star':
       case 'trophy':
+      case 'champion':
       case 'award':
+        return VectorIconWidget(type: 'trophy', color: color, size: size);
+      case 'star':
         return VectorIconWidget(type: 'star', color: color, size: size);
       case 'craftsman':
       case 'hammer':
@@ -274,6 +332,23 @@ class AvatarIconWidget extends StatelessWidget {
       case 'vintage':
       case 'rose':
         return VectorIconWidget(type: 'vintage', color: color, size: size);
+      case 'wash':
+      case 'cleaning':
+      case 'sponge':
+      case 'soap':
+        return VectorIconWidget(type: 'wash', color: color, size: size);
+      case 'turbo':
+      case 'dyno':
+      case 'engine_boost':
+        return VectorIconWidget(type: 'turbo', color: color, size: size);
+      case 'coin':
+      case 'cash':
+      case 'money':
+      case 'lira':
+        return VectorIconWidget(type: 'coin', color: color, size: size);
+      case 'check':
+      case 'verified':
+        return VectorIconWidget(type: 'check', color: color, size: size);
       case 'sparkles':
       case 'sparkle':
         return Icon(Icons.auto_awesome_rounded, color: color, size: size);
@@ -312,8 +387,6 @@ class AvatarIconWidget extends StatelessWidget {
         return Icon(Icons.casino_rounded, color: color, size: size);
       case 'slot':
       case 'casino':
-      case 'cash':
-      case 'money':
         return Icon(Icons.monetization_on_rounded, color: color, size: size);
       case 'siren':
         return Icon(Icons.warning_amber_rounded, color: color, size: size);

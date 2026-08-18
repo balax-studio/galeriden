@@ -1,3 +1,4 @@
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -27,12 +28,23 @@ class AdService {
     return isIOS ? _iosProductionRewardedAdUnitId : _androidProductionRewardedAdUnitId;
   }
 
-  /// Initialize Google Mobile Ads SDK safely
+  /// Initialize Google Mobile Ads SDK safely with Apple ATT compliance
   Future<void> initialize() async {
     if (kIsWeb) return;
     if (_isInitialized) return;
 
     try {
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        try {
+          final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+          if (status == TrackingStatus.notDetermined) {
+            await AppTrackingTransparency.requestTrackingAuthorization();
+          }
+        } catch (attError) {
+          debugPrint('[AdService] ATT request error: $attError');
+        }
+      }
+
       await MobileAds.instance.initialize();
       _isInitialized = true;
       loadRewardedAd();

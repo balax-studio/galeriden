@@ -55,7 +55,7 @@ class DetailingOption {
       ),
       DetailingOption(
         id: 'det_4',
-        title: 'Motor Ses Dindirici Katkı (Riskli Makyaj)',
+        title: 'Motor Ses Dindirici Katkı • Riskli Makyaj',
         description: 'Geçici olarak duman ve sesi keser. Değeri %12 artırır ama %20 ihtimalle müşteri şikayet edebilir!',
         cost: 1500,
         vectorIcon: 'flash',

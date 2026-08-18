@@ -57,7 +57,7 @@ class ShowroomOffersTab extends ConsumerWidget {
               badgeText: 'TEKLİF BEKLENİYOR',
               title: 'Henüz Gelen Teklif Yok',
               description: 'Vitrindeki araçlarına müşteri geldikçe pazarlık teklifleri burada listelenecek. Sayfayı aşağı çekerek müşteri çağırabilirsin.',
-              actionLabel: 'Müşteri Çek (Yenile)',
+              actionLabel: 'Müşteri Çek • Yenile',
               actionIcon: Icons.campaign_rounded,
               onActionPressed: () {
                 ref.read(gameProvider.notifier).triggerOrganicOffers();
@@ -84,18 +84,43 @@ class ShowroomOffersTab extends ConsumerWidget {
           // 1. Trade-in Offers Section (§4.6.2)
           if (game.incomingTradeInOffers.isNotEmpty) ...[
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.sync_alt_rounded, color: Color(0xFFFFDE59), size: 18),
-                const SizedBox(width: 6),
-                Text(
-                  'ARABA TAKAS TEKLİFLERİ (${game.incomingTradeInOffers.length})',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                  ),
+                Row(
+                  children: [
+                    const Icon(Icons.sync_alt_rounded, color: Color(0xFFFFDE59), size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'ARABA TAKAS TEKLİFLERİ • ${game.incomingTradeInOffers.length}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
                 ),
+                if (game.incomingTradeInOffers.length >= 2)
+                  InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      ref.read(gameProvider.notifier).rejectAllTradeInOffers();
+                      NotificationService.showInfo(context, 'Tüm takas teklifleri temizlendi.');
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      child: Text(
+                        'Tümünü Reddet',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 8),
@@ -106,18 +131,43 @@ class ShowroomOffersTab extends ConsumerWidget {
           // 2. Regular Cash Offers Section
           if (game.incomingOffers.isNotEmpty) ...[
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.payments_outlined, color: Color(0xFF00E575), size: 18),
-                const SizedBox(width: 6),
-                Text(
-                  'NAKİT SATIN ALMA TEKLİFLERİ (${game.incomingOffers.length})',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                  ),
+                Row(
+                  children: [
+                    const Icon(Icons.payments_outlined, color: Color(0xFF00E575), size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'NAKİT SATIN ALMA TEKLİFLERİ • ${game.incomingOffers.length}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
                 ),
+                if (game.incomingOffers.length >= 2)
+                  InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      ref.read(gameProvider.notifier).rejectAllOffers();
+                      NotificationService.showInfo(context, 'Tüm nakit teklifleri temizlendi.');
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      child: Text(
+                        'Tümünü Reddet',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 8),
@@ -192,7 +242,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${tradeOffer.customerName} (Takas Teklifi)',
+                        '${tradeOffer.customerName} • Takas Teklifi',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -610,7 +660,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                             ),
                             child: Text(
                               offer.offerType == OfferType.installment
-                                  ? '${offer.installmentMonths} Ay Senetli (${offer.riskLevel})'
+                                  ? '${offer.installmentMonths} Ay Senetli • ${offer.riskLevel}'
                                   : 'Çekli Teklif',
                               style: const TextStyle(
                                 fontSize: 9.5,

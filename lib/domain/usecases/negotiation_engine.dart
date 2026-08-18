@@ -130,7 +130,7 @@ class NegotiationEngine {
       return ExpertiseDiscrepancyInfo(
         hasDiscrepancy: true,
         title: 'SAHTE SAYAÇ / KM DÜŞÜRÜLMÜŞ',
-        description: 'Ekspertiz beyin taramasında aracın kilometresinin düşürüldüğü kanıtlandı! (-%25 Ekstra İndirim Kozu)',
+        description: 'Ekspertiz beyin taramasında aracın kilometresinin düşürüldüğü kanıtlandı! • -%25 Ekstra İndirim Kozu',
         extraDiscountPercent: 0.25,
       );
     }
@@ -144,7 +144,7 @@ class NegotiationEngine {
       return ExpertiseDiscrepancyInfo(
         hasDiscrepancy: true,
         title: 'GİZLİ BOYA / ÇIKINTI PARÇA',
-        description: 'İlanda söylenmeyen $partName parçasında boya/işlem tespit edildi! (-%10 Ekstra İndirim Kozu)',
+        description: 'İlanda söylenmeyen $partName parçasında boya/işlem tespit edildi! • -%10 Ekstra İndirim Kozu',
         extraDiscountPercent: 0.10,
       );
     }
@@ -159,7 +159,7 @@ class NegotiationEngine {
       return ExpertiseDiscrepancyInfo(
         hasDiscrepancy: true,
         title: 'KOZ FIRSATI: GİZLİ DEĞİŞEN / HASARLI PARÇA',
-        description: 'İlanda söylenmeyen $partName parçasında ağır hasar/değişen tespit edildi! (-%18 Ekstra İndirim Kozu)',
+        description: 'İlanda söylenmeyen $partName parçasında ağır hasar/değişen tespit edildi! • -%18 Ekstra İndirim Kozu',
         extraDiscountPercent: 0.18,
       );
     }
@@ -168,7 +168,7 @@ class NegotiationEngine {
       return ExpertiseDiscrepancyInfo(
         hasDiscrepancy: true,
         title: 'GİZLENMİŞ TRAMER KAYDI',
-        description: 'Ekspertiz raporunda ₺${exp.tramerAmount} yüksek tramer kaydı çıktı! (-%15 Ekstra İndirim Kozu)',
+        description: 'Ekspertiz raporunda ₺${exp.tramerAmount} yüksek tramer kaydı çıktı! • -%15 Ekstra İndirim Kozu',
         extraDiscountPercent: 0.15,
       );
     }
@@ -323,7 +323,7 @@ class NegotiationEngine {
     if (wantsTestDrive) {
       final engineCond = (car.expertise.engineCondition + car.expertise.transmissionCondition) / 200.0;
       if (engineCond >= 0.85) {
-        testResult = 'Test sürüşü kusursuz geçti! Motorun ve yürüyen aksamın sesine hayran kaldı (+%5 Memnuniyet).';
+        testResult = 'Test sürüşü kusursuz geçti! Motorun ve yürüyen aksamın sesine hayran kaldı • +%5 Memnuniyet.';
       } else if (engineCond < 0.60) {
         testResult = 'Test sürüşünde motordan gelen tıkırtıyı duydu ve tedirgin oldu!';
       } else {
@@ -376,7 +376,7 @@ class NegotiationEngine {
         return {
           'success': true,
           'bonusChance': 12 + negotiationSkillLevel,
-          'message': 'Ağır esnaf tavrıyla sigara yakıldı. Tok duruşun sayesinde satıcının direnci kırıldı! (+%${12 + negotiationSkillLevel})',
+          'message': 'Ağır esnaf tavrıyla sigara yakıldı. Tok duruşun sayesinde satıcının direnci kırıldı! • +%${12 + negotiationSkillLevel}',
         };
       case 'ortak_arayayim':
         final shiftAmount = (askingPrice - currentOffer) * 0.40;
@@ -596,19 +596,19 @@ class NegotiationEngine {
     if (isExtreme) {
       final options = switch (archetype) {
         CustomerArchetype.skepticalOfficial => [
-          'Alıcı $diff fark yüzünden masadan kalktı! ("Bu paraya bayiden sıfır kilometre araç alırım")',
-          'Alıcı $diff aşırı farkı görünce evrakları çantasına koyup çıktı. ("Piyasa rayicinin çok üstünde")',
+          'Alıcı $diff fark yüzünden masadan kalktı! — "Bu paraya bayiden sıfır kilometre araç alırım"',
+          'Alıcı $diff aşırı farkı görünce evrakları çantasına koyup çıktı. — "Piyasa rayicinin çok üstünde"',
         ],
         CustomerArchetype.impatientYouth => [
-          'Genç alıcı $diff fark yüzünden vazgeçti! ("O paraya üst kasa turbo alırım")',
+          'Genç alıcı $diff fark yüzünden vazgeçti! — "O paraya üst kasa turbo alırım"',
           'Alıcı $diff farkı duyunca kapıyı çarpıp çıktı!',
         ],
         CustomerArchetype.greedyFlipper => [
-          'Al-satçı $diff farkı görünce güldü: ("Bize ekmek bırakmadın usta, kolay gelsin")',
-          'Esnaf $diff fark yüzünden masadan kalktı. ("Bu fiyata kimseye satamazsın")',
+          'Al-satçı $diff farkı görünce güldü: — "Bize ekmek bırakmadın usta, kolay gelsin"',
+          'Esnaf $diff fark yüzünden masadan kalktı. — "Bu fiyata kimseye satamazsın"',
         ],
         _ => [
-          'Alıcı $diff fark yüzünden masadan kalktı! ("Bütçemi fazlasıyla aşıyor, başka arabalara bakacağım")',
+          'Alıcı $diff fark yüzünden masadan kalktı! — "Bütçemi fazlasıyla aşıyor, başka arabalara bakacağım"',
           'Müşteri $diff fiyat farkını görünce teşekkür edip ayrıldı.',
         ],
       };
@@ -617,7 +617,7 @@ class NegotiationEngine {
 
     final options = switch (archetype) {
       CustomerArchetype.skepticalOfficial => [
-        'Alıcı $diff farkla masadan kalktı! ("Hesaplarıma uymadı, hayırlı işler")',
+        'Alıcı $diff farkla masadan kalktı! — "Hesaplarıma uymadı, hayırlı işler"',
         'Alıcı $diff fark yüzünden tereddüt etti ve vazgeçti.',
       ],
       CustomerArchetype.impatientYouth => [
@@ -625,7 +625,7 @@ class NegotiationEngine {
         'Genç alıcı $diff farkı karşılayamadığı için ayrıldı.',
       ],
       _ => [
-        'Alıcı $diff farkla masadan kalktı! ("Bütçemi aştı, başka ilanlara bakacağım")',
+        'Alıcı $diff farkla masadan kalktı! — "Bütçemi aştı, başka ilanlara bakacağım"',
         'Müşteri $diff fark yüzünden anlaşamadı ve ayrıldı.',
       ],
     };

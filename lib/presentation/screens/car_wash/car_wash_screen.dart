@@ -7,6 +7,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/car_wash_job_model.dart';
+import '../../../data/models/expertise_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/side_business_model.dart';
 import '../../providers/game_provider.dart';
@@ -15,6 +16,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/mini_games/car_wash_canvas.dart';
 
 class CarWashScreen extends ConsumerStatefulWidget {
   const CarWashScreen({super.key});
@@ -206,7 +208,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               Expanded(
                 child: NeoBrutalButton(
                   icon: Icons.local_taxi_rounded,
-                  label: 'MÜŞTERİ TALEPLERİ (${_customerWashJobs.length})',
+                  label: 'MÜŞTERİ TALEPLERİ • ${_customerWashJobs.length}',
                   backgroundColor: _activeTopTab == 1 ? const Color(0xFF00E575) : (isDark ? const Color(0xFF141721) : Colors.white),
                   textColor: _activeTopTab == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,
@@ -271,7 +273,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   } else {
                                     NotificationService.showInfo(
                                       context,
-                                      'Personel alımı Seviye 3 (Sanayi Sitesi) gerektirir.',
+                                      'Personel alımı Seviye 3 • Sanayi Sitesi gerektirir.',
                                     );
                                   }
                                 },
@@ -293,7 +295,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   } else {
                                     NotificationService.showInfo(
                                       context,
-                                      'Yan işletmeler Seviye 8 (Mega Holding) gerektirir.',
+                                      'Yan işletmeler Seviye 8 • Mega Holding gerektirir.',
                                     );
                                   }
                                 },
@@ -384,7 +386,8 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                             ),
                             if (job.isVipCustomer)
                               const NeoBrutalBadge(
-                                text: '⭐ VIP MÜŞTERİ',
+                                text: 'VIP MÜŞTERİ',
+                                icon: Icons.star_rounded,
                                 backgroundColor: Color(0xFFA855F7),
                                 textColor: Colors.white,
                                 fontSize: 9.5,
@@ -429,16 +432,42 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   );
                                   return;
                                 }
-                                final success = ref.read(gameProvider.notifier).completeCustomerWashJob(job);
-                                if (success) {
-                                  NotificationService.showSuccess(
-                                    context,
-                                    '${job.vehicleName} pırıl pırıl teslim edildi! +${CurrencyFormatter.format(job.paymentReward)} & +${job.masteryXp} XP kazanıldı.',
-                                  );
-                                  setState(() {
-                                    _customerWashJobs.removeWhere((j) => j.id == job.id);
-                                  });
-                                }
+
+                                final dummyCar = CarModel(
+                                  id: job.id,
+                                  brand: job.customerName,
+                                  modelName: job.vehicleName,
+                                  modelYear: 2022,
+                                  bodyType: 'Sedan',
+                                  colorHex: '#38BDF8',
+                                  currentPurchasePrice: 200000.0,
+                                  baseMarketValue: 200000.0,
+                                  expertise: ExpertiseReport(
+                                    engineCondition: 100,
+                                    transmissionCondition: 100,
+                                    tramerAmount: 0,
+                                    mileage: 50000,
+                                    isMileageTampered: false,
+                                    bodyParts: {},
+                                  ),
+                                );
+
+                                CarWashMiniGameModal.show(
+                                  context,
+                                  car: dummyCar,
+                                  onCleanCompleted: () {
+                                    final success = ref.read(gameProvider.notifier).completeCustomerWashJob(job);
+                                    if (success) {
+                                      NotificationService.showSuccess(
+                                        context,
+                                        '${job.vehicleName} pırıl pırıl teslim edildi! +${CurrencyFormatter.format(job.paymentReward)} & +${job.masteryXp} XP kazanıldı.',
+                                      );
+                                      setState(() {
+                                        _customerWashJobs.removeWhere((j) => j.id == job.id);
+                                      });
+                                    }
+                                  },
+                                );
                               },
                             ),
                           ],
@@ -490,7 +519,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
             else if (selectedCar != null) ...[
               // Garage Car Selection Carousel
               Text(
-                'YIKANACAK ARACI SEÇ (${game.ownedCars.length} Araç)',
+                'YIKANACAK ARACI SEÇ • ${game.ownedCars.length} Araç',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -663,7 +692,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.highlight_rounded,
-                            label: selectedCar.hasRestoredHeadlights ? 'Far Temiz' : 'Far Sil (₺850)',
+                            label: selectedCar.hasRestoredHeadlights ? 'Far Temiz' : 'Far Sil • ₺850',
                             backgroundColor: selectedCar.hasRestoredHeadlights ? const Color(0xFF1E2330) : const Color(0xFF38BDF8),
                             textColor: selectedCar.hasRestoredHeadlights ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                             fontSize: 10,
@@ -673,7 +702,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                 : () {
                                     final success = ref.read(gameProvider.notifier).restoreHeadlights(selectedCar!.id);
                                     if (success) {
-                                      NotificationService.showSuccess(context, 'Sararmış farlar klorobuharla sıfırlandı (+%4 Değer)!');
+                                      NotificationService.showSuccess(context, 'Sararmış farlar klorobuharla sıfırlandı • +%4 Değer!');
                                       setState(() {});
                                     } else {
                                       NotificationService.showError(context, 'Yetersiz bakiye! ₺850 gerekli.');
@@ -685,7 +714,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.flare_rounded,
-                            label: selectedCar.hasIronDecon ? 'Jant Temiz' : 'Jant Decon (₺450)',
+                            label: selectedCar.hasIronDecon ? 'Jant Temiz' : 'Jant Decon • ₺450',
                             backgroundColor: selectedCar.hasIronDecon ? const Color(0xFF1E2330) : const Color(0xFFA855F7),
                             textColor: selectedCar.hasIronDecon ? (isDark ? Colors.white54 : Colors.black54) : Colors.white,
                             fontSize: 10,
@@ -709,6 +738,34 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 ),
               ),
               const SizedBox(height: 18),
+
+              // Interactive Detailing Canvas Trigger
+              NeoBrutalButton(
+                icon: Icons.cleaning_services_rounded,
+                label: 'KÖPÜKLÜ 2D YIKAMA KANVASI',
+                backgroundColor: AppColors.brutalYellow,
+                textColor: Colors.black,
+                fontSize: 11.5,
+                fullWidth: true,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                onPressed: () => CarWashMiniGameModal.show(
+                  context,
+                  car: selectedCar!,
+                  onCleanCompleted: () {
+                    _applyWashService(
+                      car: selectedCar!,
+                      cost: 350.0 * discountMultiplier,
+                      valueBoost: 0.01,
+                      setWashed: true,
+                      setInterior: false,
+                      setPolished: false,
+                      setDetailed: false,
+                      successMsg: 'Köpüklü yıkama tamamlandı! Araç pırıl pırıl parlıyor.',
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 14),
 
               // Wash & Detailing Service Packages
               Text(
@@ -768,7 +825,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 title: '3. Pasta Cila & Çizik Giderme',
                 subtitle: 'Kılcal çizik giderme, teflon koruma ve ayna gibi parlaklık.',
                 cost: 3500.0 * discountMultiplier,
-                bonusText: hasPolisher ? '+%8 Satış Değeri (Polisaj Bonusu!)' : '+%6 Satış Değeri',
+                bonusText: hasPolisher ? '+%8 Satış Değeri • Polisaj Bonusu' : '+%6 Satış Değeri',
                 badgeColor: const Color(0xFFFFDE59),
                 isCompleted: selectedCar.isPolished,
                 isDark: isDark,

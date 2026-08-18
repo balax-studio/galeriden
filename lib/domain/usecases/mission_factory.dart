@@ -25,8 +25,8 @@ class MissionFactory {
       // 1. Buy Cars
       MissionModel(
         id: 'daily_buy_$timestamp',
-        title: 'Pazar Avı (Hediye Başlangıç)',
-        description: 'İkinci el pazarından ${lvl > 2 ? 3 : 2} araç satın al. (1 adım hediye verildi!)',
+        title: 'Pazar Avı • Hediye Başlangıç',
+        description: 'İkinci el pazarından ${lvl > 2 ? 3 : 2} araç satın al. • 1 adım hediye verildi!',
         type: MissionType.buyCars,
         currentProgress: 1, // Endowed Progress §2.3
         targetGoal: lvl > 2 ? 3 : 2,
@@ -38,7 +38,7 @@ class MissionFactory {
       MissionModel(
         id: 'daily_sell_$timestamp',
         title: 'Hızlı Satış & Vitrin',
-        description: 'Galerinden ${lvl > 3 ? 3 : 2} araç satışı gerçekleştir. (1 adım hediye verildi!)',
+        description: 'Galerinden ${lvl > 3 ? 3 : 2} araç satışı gerçekleştir. • 1 adım hediye verildi!',
         type: MissionType.sellCars,
         currentProgress: 1, // Endowed Progress §2.3
         targetGoal: lvl > 3 ? 3 : 2,
@@ -74,7 +74,7 @@ class MissionFactory {
       MissionModel(
         id: 'daily_profit_$timestamp',
         title: 'Kasa Katlama',
-        description: 'Araç alım satımından toplam ₺${(15000 * lvl)} kâr elde et. (₺3.000 hediye başlangıç!)',
+        description: 'Araç alım satımından toplam ₺${(15000 * lvl)} kâr elde et. • ₺3.000 hediye başlangıç!',
         type: MissionType.earnProfit,
         currentProgress: 3000, // Endowed Progress
         targetGoal: 15000 * lvl,
@@ -149,7 +149,7 @@ class MissionFactory {
         MissionModel(
           id: 'daily_repair_$timestamp',
           title: 'Sanayi Mesaisi',
-          description: 'Atölyede ${1 + (lvl ~/ 2)} adet kaporta veya mekanik parça onar. (1 adım hediye!)',
+          description: 'Atölyede ${1 + (lvl ~/ 2)} adet kaporta veya mekanik parça onar. • 1 adım hediye!',
           type: MissionType.repairParts,
           currentProgress: 1, // Endowed Progress
           targetGoal: 1 + (lvl ~/ 2),

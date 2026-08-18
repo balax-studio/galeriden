@@ -211,7 +211,7 @@ class MarketEngine {
     return ListingModel(
       id: 'listing_$id',
       car: car,
-      sellerName: 'İlk Sahibinden Borçtan (${_getRandomSellerName()})',
+      sellerName: 'İlk Sahibinden Borçtan • ${_getRandomSellerName()}',
       sellerTrait: 'Fiyat esnek, tamire ihtiyacı var',
       sellerCity: sellerCity,
       title: '$year ${brandData.name} $modelName',
@@ -536,8 +536,8 @@ class MarketEngine {
       id: 'listing_$id',
       car: car,
       sellerName: isPristine
-          ? 'Titiz Sahibinden (${_getRandomSellerName()})'
-          : '${sellerProfile['name']} (${_getRandomSellerName()})',
+          ? 'Titiz Sahibinden • ${_getRandomSellerName()}'
+          : '${sellerProfile['name']} • ${_getRandomSellerName()}',
       sellerTrait: isPristine
           ? 'Hatasız & Orijinal Garaj Arabası'
           : (isBarnFind

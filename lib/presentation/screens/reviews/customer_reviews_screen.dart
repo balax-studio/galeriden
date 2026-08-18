@@ -115,7 +115,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 // Bot / PR Review Purchase Action
                 NeoBrutalButton(
-                  label: 'SOSYAL MEDYA PR & BOT YORUM AL (${CurrencyFormatter.format(GameConstants.socialMediaPrCost)})',
+                  label: 'SOSYAL MEDYA PR & BOT YORUM AL • ${CurrencyFormatter.format(GameConstants.socialMediaPrCost)}',
                   icon: Icons.campaign_rounded,
                   backgroundColor: AppColors.brutalCyan,
                   textColor: Colors.black,
@@ -123,9 +123,9 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   onPressed: () {
                     final success = ref.read(gameProvider.notifier).buyBotReview();
                     if (success) {
-                      NotificationService.showSuccess(context, 'Sosyal medya ajansı 5 yıldızlı pozitif yorum yayınladı! (+5 İtibar)');
+                      NotificationService.showSuccess(context, 'Sosyal medya ajansı 5 yıldızlı pozitif yorum yayınladı! • +5 İtibar');
                     } else {
-                      NotificationService.showError(context, 'Bakiye yetersiz! (Gereken: ${CurrencyFormatter.format(GameConstants.socialMediaPrCost)})');
+                      NotificationService.showError(context, 'Bakiye yetersiz! • Gereken: ${CurrencyFormatter.format(GameConstants.socialMediaPrCost)}');
                     }
                   },
                 ),
@@ -244,7 +244,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                           if (r.reply == null)
                             Expanded(
                               child: NeoBrutalButton(
-                                label: 'CEVAP YAZ (+1)',
+                                label: 'CEVAP YAZ • +1',
                                 icon: Icons.reply_rounded,
                                 backgroundColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
                                 textColor: isDark ? Colors.white : Colors.black,
@@ -255,16 +255,16 @@ class CustomerReviewsScreen extends ConsumerWidget {
                           if (r.rating <= 2 && !r.isCompensated)
                             Expanded(
                               child: NeoBrutalButton(
-                                label: 'TELAFİ GÖNDER (${CurrencyFormatter.format(GameConstants.customerCompensationCost)})',
+                                label: 'TELAFİ GÖNDER • ${CurrencyFormatter.format(GameConstants.customerCompensationCost)}',
                                 icon: Icons.card_giftcard_rounded,
                                 backgroundColor: AppColors.brutalOrange,
                                 textColor: Colors.white,
                                 onPressed: () {
                                   final success = ref.read(gameProvider.notifier).compensateCustomerReview(r.id);
                                   if (success) {
-                                    NotificationService.showSuccess(context, 'Müşteriye ikram gönderildi, puan 4 yıldıza güncellendi! (+3 İtibar)');
+                                    NotificationService.showSuccess(context, 'Müşteriye ikram gönderildi, puan 4 yıldıza güncellendi! • +3 İtibar');
                                   } else {
-                                    NotificationService.showError(context, 'Bakiye yetersiz! (Gereken: ${CurrencyFormatter.format(GameConstants.customerCompensationCost)})');
+                                    NotificationService.showError(context, 'Bakiye yetersiz! • Gereken: ${CurrencyFormatter.format(GameConstants.customerCompensationCost)}');
                                   }
                                 },
                               ),
@@ -384,7 +384,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                         if (textController.text.trim().isNotEmpty) {
                           ref.read(gameProvider.notifier).replyToCustomerReview(reviewId, textController.text.trim());
                           Navigator.pop(ctx);
-                          NotificationService.showSuccess(context, 'Cevabınız yayınlandı! (+1 İtibar)');
+                          NotificationService.showSuccess(context, 'Cevabınız yayınlandı! • +1 İtibar');
                         }
                       },
                     ),

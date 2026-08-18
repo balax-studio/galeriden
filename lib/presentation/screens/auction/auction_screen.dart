@@ -141,7 +141,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _hasPlayerEnteredBid = true;
       _auction = _auction.copyWith(
         currentBid: nextBid,
-        highestBidderName: '${game.dealershipName} (Sen)',
+        highestBidderName: '${game.dealershipName} • Sen',
         isPlayerHighestBidder: true,
         secondsRemaining: (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
         activeSpeech: isAggressiveFlag ? 'Bayrak kaldırdın! Rakipler tereddütte kaldı.' : null,
@@ -233,7 +233,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   void _handleAuctionEnd() {
     if (!_hasPlayerEnteredBid && !_auction.isPlayerHighestBidder) {
       setState(() {
-        _bidLogs.insert(0, 'İhale sona erdi (${_auction.highestBidderName} kazandı).');
+        _bidLogs.insert(0, 'İhale sona erdi • ${_auction.highestBidderName} kazandı.');
       });
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) _resetAuctionSilently();
@@ -507,7 +507,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   Icon(Icons.list_alt_rounded, size: 14, color: _selectedTabIndex == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'İHALE KATALOĞU (${_upcomingLots.length})',
+                                    'İHALE KATALOĞU • ${_upcomingLots.length}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w900,
@@ -879,7 +879,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               const SizedBox(height: 8),
               NeoBrutalButton(
                 icon: Icons.flag_rounded,
-                label: 'BAYRAK GÖSTER (+₺50.000 AGRESİF ARTIR)',
+                label: 'BAYRAK GÖSTER • +₺50.000 AGRESİF ARTIR',
                 backgroundColor: _auction.isPlayerHighestBidder
                     ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                     : const Color(0xFFFFDE59),
@@ -1077,7 +1077,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       const Icon(Icons.gavel_rounded, size: 12, color: Color(0xFF64748B)),
                       const SizedBox(width: 4),
                       Text(
-                        '${lot.customsNote.legalStatus} (${lot.customsNote.riskRewardFactor})',
+                        '${lot.customsNote.legalStatus} • ${lot.customsNote.riskRewardFactor}',
                         style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
                       ),
                     ],

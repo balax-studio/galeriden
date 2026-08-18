@@ -12,6 +12,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/mini_games/dyno_run_canvas.dart';
 
 class TuningStudioScreen extends ConsumerStatefulWidget {
   const TuningStudioScreen({super.key});
@@ -25,103 +26,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
   int _selectedTabIndex = 0; // 0: Tümü, 1: Motor, 2: Aero, 3: Yürüyen, 4: Egzoz, 5: Hazır Paketler
 
   void _runDynoSimulation(BuildContext context, CarDynoStats dyno) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-          child: NeoBrutalCard(
-            padding: const EdgeInsets.all(20),
-            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-            borderRadius: 12,
-            borderWidth: 2.5,
-            shadowOffset: const Offset(4, 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.speed_rounded, color: AppColors.brutalYellow, size: 24),
-                    SizedBox(width: 8),
-                    Text(
-                      'DYNO GÜÇ TESTİ',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                      width: 2.0,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        '${_selectedCar!.brand} ${_selectedCar!.modelName}',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildDynoStatColumn('BEYGİR GÜCÜ', '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen),
-                          _buildDynoStatColumn('TORK', '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildDynoStatColumn('0-100 KM/S', '${dyno.currentAccel}s', '${dyno.baseAccel}s idi', const Color(0xFF06B6D4)),
-                          _buildDynoStatColumn('EGZOZ SESİ', '${dyno.exhaustDb} dB', dyno.exhaustDb > 95 ? 'YÜKSEK' : 'KONTROLLÜ', const Color(0xFFA855F7)),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Dinamometre ölçümü tamamlandı. Güç ve tork eğrisi sisteme kaydedildi.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 16),
-                NeoBrutalButton(
-                  label: 'RAPORU KAPAT',
-                  backgroundColor: AppColors.brutalYellow,
-                  textColor: Colors.black,
-                  fullWidth: true,
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  static Widget _buildDynoStatColumn(String label, String mainVal, String subVal, Color color) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
-        const SizedBox(height: 2),
-        Text(mainVal, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color)),
-        Text(subVal, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
-      ],
-    );
+    if (_selectedCar == null) return;
+    DynoRunCanvasModal.show(context, car: _selectedCar!, dyno: dyno);
   }
 
   void _applyTuningOption(TuningOptionModel opt) {
@@ -206,7 +112,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     NotificationService.showSuccess(
       context,
-      'Mühendislik projesi onaylandı! Araç TÜVTÜRK & Ruhsata işlendi (+%5 Değer).',
+      'Mühendislik projesi onaylandı! Araç TÜVTÜRK & Ruhsata işlendi • +%5 Değer.',
     );
   }
 
@@ -240,7 +146,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     final dyno = _selectedCar != null ? CarDynoCalculator.calculateDyno(_selectedCar!) : null;
 
     final tabs = [
-      (label: 'TÜMÜ (${TuningCatalog.allOptions.length})', icon: Icons.tune_rounded),
+      (label: 'TÜMÜ • ${TuningCatalog.allOptions.length}', icon: Icons.tune_rounded),
       (label: 'MOTOR', icon: Icons.speed_rounded),
       (label: 'AERO', icon: Icons.palette_rounded),
       (label: 'YÜRÜYEN', icon: Icons.directions_car_rounded),
@@ -459,7 +365,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.shield_rounded,
-                            label: 'RUHSATA İŞLET (₺4.5k)',
+                            label: 'RUHSATA İŞLET • ₺4.5k',
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 10.5,
@@ -683,7 +589,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                               ),
                             if (opt.accelDelta != 0.0)
                               NeoBrutalBadge(
-                                text: '${opt.accelDelta}s (0-100)',
+                                text: '${opt.accelDelta}s 0-100',
                                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                 textColor: const Color(0xFF06B6D4),
                                 fontSize: 9.5,

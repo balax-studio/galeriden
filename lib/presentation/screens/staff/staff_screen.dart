@@ -275,7 +275,7 @@ class StaffScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           Text(
-            'TÜM PERSONEL ROLLERİ & KADRO (${StaffRole.values.length})',
+            'TÜM PERSONEL ROLLERİ & KADRO • ${StaffRole.values.length}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -435,7 +435,7 @@ class StaffScreen extends ConsumerWidget {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.local_cafe_rounded,
-                              label: 'Çay (₺500)',
+                              label: 'Çay • ₺500',
                               backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                               textColor: isDark ? Colors.white : Colors.black,
                               fontSize: 10,
@@ -443,7 +443,7 @@ class StaffScreen extends ConsumerWidget {
                               onPressed: () {
                                 final success = ref.read(gameProvider.notifier).treatStaffTea(hired.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, '${hired.name} çayını yudumladı (+15 Moral)!');
+                                  NotificationService.showSuccess(context, '${hired.name} çayını yudumladı • +15 Moral!');
                                 } else {
                                   NotificationService.showError(context, 'Yetersiz bakiye!');
                                 }
@@ -454,7 +454,7 @@ class StaffScreen extends ConsumerWidget {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.restaurant_rounded,
-                              label: 'Kebap (₺1.5k)',
+                              label: 'Kebap • ₺1.5k',
                               backgroundColor: AppColors.brutalYellow,
                               textColor: Colors.black,
                               fontSize: 10,
@@ -462,7 +462,7 @@ class StaffScreen extends ConsumerWidget {
                               onPressed: () {
                                 final success = ref.read(gameProvider.notifier).treatStaffMeal(hired.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, '${hired.name} öğle yemeğini yedi (+35 Moral)!');
+                                  NotificationService.showSuccess(context, '${hired.name} öğle yemeğini yedi • +35 Moral!');
                                 } else {
                                   NotificationService.showError(context, 'Yetersiz bakiye!');
                                 }
@@ -521,7 +521,7 @@ class StaffScreen extends ConsumerWidget {
                               if (success) {
                                 NotificationService.showSuccess(
                                   context,
-                                  '${newStaff.name} (${role.title}) ekibe katıldı!',
+                                  '${newStaff.name} • ${role.title} ekibe katıldı!',
                                 );
                               }
                             },

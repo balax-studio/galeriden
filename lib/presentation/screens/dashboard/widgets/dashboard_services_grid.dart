@@ -615,7 +615,7 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
       case '/consignment':
         return 'Sıfır sermaye ile emanet lüks araçları komisyonla sat!';
       default:
-        return 'Seviye $reqLevel Şubesi (Ofis/Mülk) ile Otomatik Açılır';
+        return 'Seviye $reqLevel Şubesi Ofis/Mülk ile Otomatik Açılır';
     }
   }
 

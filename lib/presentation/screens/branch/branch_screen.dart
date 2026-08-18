@@ -123,7 +123,7 @@ class BranchScreen extends ConsumerWidget {
                       final reqBranch = DealershipModel.getRequiredBranchName('/showroom-decor');
                       NotificationService.showInfo(
                         context,
-                        'Showroom dekorasyonu Seviye $reqLvl ($reqBranch) gerektirir.',
+                        'Showroom dekorasyonu Seviye $reqLvl • $reqBranch gerektirir.',
                       );
                     }
                   },
@@ -264,10 +264,10 @@ class BranchScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       NeoBrutalButton(
                         label: !isLevelUnlocked
-                            ? 'SEVİYE ${b.targetLevel} GEREKLİ (XP KAZAN)'
+                            ? 'SEVİYE ${b.targetLevel} GEREKLİ'
                             : (canAfford
-                                ? 'MÜLKÜ SATIN AL (${CurrencyFormatter.formatShort(b.requiredBalance)})'
-                                : 'YETERSİZ BAKİYE (${CurrencyFormatter.formatShort(b.requiredBalance)})'),
+                                ? 'MÜLKÜ SATIN AL • ${CurrencyFormatter.formatShort(b.requiredBalance)}'
+                                : 'YETERSİZ BAKİYE • ${CurrencyFormatter.formatShort(b.requiredBalance)}'),
                         backgroundColor: !isLevelUnlocked
                             ? (isDark ? const Color(0xFF1A1F2C) : const Color(0xFFCBD5E1))
                             : (canAfford ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))),

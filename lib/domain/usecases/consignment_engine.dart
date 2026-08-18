@@ -205,9 +205,9 @@ class ConsignmentEngine {
       {'brand': 'Porş', 'model': 'Kayen Patron SUV GTS', 'body': 'SUV', 'minVal': 8000000.0, 'maxVal': 15000000.0, 'minYr': 2021, 'maxYr': 2025},
     ],
     8: [
-      {'brand': 'İngiliz', 'model': 'Fantom Saray Long (Rolls)', 'body': 'Lüks Sedan', 'minVal': 28000000.0, 'maxVal': 52000000.0, 'minYr': 2022, 'maxYr': 2026},
-      {'brand': 'İtalyan', 'model': 'F-Sekiz Haraççı V8 (Ferrari)', 'body': 'Süper Spor', 'minVal': 24000000.0, 'maxVal': 46000000.0, 'minYr': 2022, 'maxYr': 2026},
-      {'brand': 'İtalyan', 'model': 'Hurakan V10 Boğası (Lambo)', 'body': 'Süper Spor', 'minVal': 22000000.0, 'maxVal': 42000000.0, 'minYr': 2021, 'maxYr': 2025},
+      {'brand': 'İngiliz', 'model': 'Fantom Saray Long • Rolls', 'body': 'Lüks Sedan', 'minVal': 28000000.0, 'maxVal': 52000000.0, 'minYr': 2022, 'maxYr': 2026},
+      {'brand': 'İtalyan', 'model': 'F-Sekiz Haraççı V8 • Ferrari', 'body': 'Süper Spor', 'minVal': 24000000.0, 'maxVal': 46000000.0, 'minYr': 2022, 'maxYr': 2026},
+      {'brand': 'İtalyan', 'model': 'Hurakan V10 Boğası • Lambo', 'body': 'Süper Spor', 'minVal': 22000000.0, 'maxVal': 42000000.0, 'minYr': 2021, 'maxYr': 2025},
       {'brand': 'Merso', 'model': 'Maybach S-680 V12 Exclusive', 'body': 'Lüks Sedan', 'minVal': 25000000.0, 'maxVal': 48000000.0, 'minYr': 2023, 'maxYr': 2026},
     ],
   };

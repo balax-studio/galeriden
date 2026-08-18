@@ -239,7 +239,7 @@ class ScrapyardCar {
       {'cat': 'engine', 'name': 'Komple Motor Bloğu', 'baseMult': 0.28},
       {'cat': 'transmission', 'name': 'Otomatik/Manuel Şanzıman', 'baseMult': 0.18},
       {'cat': 'turbo', 'name': 'Orijinal Turbo Şarj', 'baseMult': 0.12},
-      {'cat': 'ecu', 'name': 'Motor Beyni (ECU)', 'baseMult': 0.08},
+      {'cat': 'ecu', 'name': 'Motor Beyni • ECU', 'baseMult': 0.08},
       {'cat': 'catalytic', 'name': 'Katalitik Konvertör & Egzoz', 'baseMult': 0.09},
       {'cat': 'radiator', 'name': 'Alüminyum Radyatör & Fan', 'baseMult': 0.05},
       {'cat': 'brakes', 'name': 'Brembo Fren Kaliperleri', 'baseMult': 0.07},
@@ -419,7 +419,7 @@ class B2BPartOrder {
     final allOrders = [
       B2BPartOrder(
         id: 'order_${day}_haydar',
-        mechanicName: 'Haydar Usta (Motor & Mekanik)',
+        mechanicName: 'Haydar Usta • Motor & Mekanik',
         mechanicAvatar: 'haydar',
         requiredCategory: 'transmission',
         requiredCarBrand: 'Volkswagen',
@@ -431,7 +431,7 @@ class B2BPartOrder {
       ),
       B2BPartOrder(
         id: 'order_${day}_ibo',
-        mechanicName: 'Çıkmacı İbo (Yedek Parça Deposu)',
+        mechanicName: 'Çıkmacı İbo • Yedek Parça Deposu',
         mechanicAvatar: 'ibo',
         requiredCategory: 'engine',
         requiredCarBrand: 'BMW',
@@ -443,7 +443,7 @@ class B2BPartOrder {
       ),
       B2BPartOrder(
         id: 'order_${day}_berk',
-        mechanicName: 'Tuning Berk (Performans Garajı)',
+        mechanicName: 'Tuning Berk • Performans Garajı',
         mechanicAvatar: 'berk',
         requiredCategory: 'turbo',
         requiredCarBrand: null,
@@ -462,7 +462,7 @@ class B2BPartOrder {
         minQualityTier: PartQualityTier.usable,
         offeredPrice: 18000.0,
         reputationReward: 4,
-        description: 'Beyin arızalı bir araç geldi, sağlam ve temiz bir motor beyni (ECU) aranıyor.',
+        description: 'Beyin arızalı bir araç geldi, sağlam ve temiz bir motor beyni aranıyor.',
         expiresInDays: 3,
       ),
       B2BPartOrder(

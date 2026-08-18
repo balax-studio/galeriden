@@ -672,7 +672,7 @@ class DashboardRetentionModals {
                       const Icon(Icons.auto_stories_rounded, color: Color(0xFFA855F7), size: 24),
                       const SizedBox(width: 8),
                       Text(
-                        'KOLEKSİYON ALBÜMÜ (30 ARAÇ)',
+                        'KOLEKSİYON ALBÜMÜ • 30 ARAÇ',
                         style: AppTypography.titleLarge(p.isDark),
                       ),
                     ],
@@ -708,7 +708,7 @@ class DashboardRetentionModals {
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF581C87)),
                         ),
                         Text(
-                          '${progress.discoveredCount} / 30 Araç (%${(progress.completionPercentage * 100).toStringAsFixed(1)})',
+                          '${progress.discoveredCount} / 30 Araç • %${(progress.completionPercentage * 100).toStringAsFixed(1)}',
                           style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: Color(0xFFA855F7)),
                         ),
                       ],
@@ -836,7 +836,7 @@ class DashboardRetentionModals {
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
-                      'GALERİYİ DEVRET (YENİ SEZON)',
+                      'GALERİYİ DEVRET • YENİ SEZON',
                       style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                     ),
                   ),
@@ -866,7 +866,7 @@ class DashboardRetentionModals {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('• +%15 Kalıcı Satış Kâr Çarpanı (Mevcut: Sezon ${game.prestigeLevel})', style: const TextStyle(fontSize: 11)),
+                    Text('• +%15 Kalıcı Satış Kâr Çarpanı • Mevcut: Sezon ${game.prestigeLevel}', style: const TextStyle(fontSize: 11)),
                     const Text('• ₺150.000 Başlangıç Can Suyu Kasası', style: TextStyle(fontSize: 11)),
                     const Text('• Tüm Yetenekler & Başarımlar Korunur', style: TextStyle(fontSize: 11)),
                     const Text('• Araç ve bakiye sıfırlanır, yeni efsane başlar', style: TextStyle(fontSize: 11, color: AppColors.errorRed)),
@@ -888,7 +888,7 @@ class DashboardRetentionModals {
                   Expanded(
                     flex: 2,
                     child: NeoBrutalButton(
-                      label: 'Galeriyi Devret (Sezon Başlat)',
+                      label: 'Galeriyi Devret • Sezon Başlat',
                       icon: Icons.rocket_launch_rounded,
                       backgroundColor: const Color(0xFFFFDE59),
                       textColor: Colors.black,

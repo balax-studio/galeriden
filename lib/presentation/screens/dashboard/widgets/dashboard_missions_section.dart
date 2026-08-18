@@ -280,7 +280,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${car.brand} ${car.modelName} (${car.modelYear})',
+                                  '${car.brand} ${car.modelName} • ${car.modelYear}',
                                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
                                 ),
                                 const SizedBox(height: 2),
@@ -418,14 +418,14 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            '${CurrencyFormatter.formatShort(totalPayout)} (+${CurrencyFormatter.formatShort(contract.rewardBonus)} Prim)',
+                            '${CurrencyFormatter.formatShort(totalPayout)} • +${CurrencyFormatter.formatShort(contract.rewardBonus)} Prim',
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
                           ),
                         ],
                       ),
                       if (matchingCars.isNotEmpty)
                         NeoBrutalButton(
-                          label: 'TESLİM ET (${matchingCars.length})',
+                          label: 'TESLİM ET • ${matchingCars.length}',
                           icon: Icons.local_shipping_rounded,
                           backgroundColor: const Color(0xFF00E575),
                           textColor: Colors.black,

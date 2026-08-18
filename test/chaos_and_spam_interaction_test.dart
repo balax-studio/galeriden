@@ -134,18 +134,18 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Initial State
-      expect(find.text('Koleksiyon Vitrinine Kilitle (+%5 İtibar)'), findsOneWidget);
+      expect(find.text('Koleksiyon Vitrinine Kilitle • +%5 İtibar'), findsOneWidget);
       expect(find.textContaining('Öne Çıkar'), findsOneWidget);
 
       // Lock in showcase
-      final lockBtn = find.text('Koleksiyon Vitrinine Kilitle (+%5 İtibar)');
+      final lockBtn = find.text('Koleksiyon Vitrinine Kilitle • +%5 İtibar');
       await tester.ensureVisible(lockBtn);
       await tester.tap(lockBtn);
       await drainTimers(tester);
 
       // Verify car is locked, badge and button updated
       expect(container.read(gameProvider).ownedCars.first.isLockedInShowcase, true);
-      expect(find.text('Koleksiyon Vitrininden Çıkar (Satışa Aç)'), findsOneWidget);
+      expect(find.text('Koleksiyon Vitrininden Çıkar • Satışa Aç'), findsOneWidget);
       expect(find.text('KOLEKSİYONDA'), findsOneWidget);
 
       final balanceBeforeDoping = container.read(gameProvider).balance;

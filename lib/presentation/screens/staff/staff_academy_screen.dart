@@ -134,7 +134,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Ustalarını ve danışmanlarını akredite sertifika programlarına göndererek kârını katla (${game.purchasedAcademyCourses.length}/${_courses.length} Tamamlandı).',
+                        'Ustalarını ve danışmanlarını akredite sertifika programlarına göndererek kârını katla • ${game.purchasedAcademyCourses.length}/${_courses.length} Tamamlandı.',
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
@@ -147,7 +147,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
 
           // 2. Hired Staff Quick List
           Text(
-            'EĞİTİLECEK PERSONEL (${staffList.length} Aktif)',
+            'EĞİTİLECEK PERSONEL • ${staffList.length} Aktif',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,

@@ -156,7 +156,8 @@ mixin GameTimeMixin on GameBaseNotifier {
     final currentDisputeNotice = dispute.$2;
     newEvents = dispute.$3;
 
-    final updatedIncomingOffers = _processLoyalCustomerOffers(currentCars, offersAfterRentals);
+    final validOffers = offersAfterRentals.where((o) => currentCars.any((c) => c.id == o.carId) && !o.isExpired).toList();
+    final updatedIncomingOffers = _processLoyalCustomerOffers(currentCars, validOffers);
     final updatedBankDeposit = _processBankInterest(state.bankDepositBalance);
     final updatedMissions = _processDailyMissions(List.from(state.activeMissions));
     final updatedContracts = _processVIPContracts(List.from(state.activeContracts));
@@ -270,7 +271,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       }
 
       if (resignedStaff.isNotEmpty) {
-        final names = resignedStaff.map((s) => '${s.name} (${s.role.name})').join(', ');
+        final names = resignedStaff.map((s) => '${s.name} • ${s.role.name}').join(', ');
         events.insert(0, GameEventModel(
           id: 'staff_resignation_${DateTime.now().millisecondsSinceEpoch}',
           title: 'PERSONEL İSTİFASI!',
@@ -283,7 +284,7 @@ mixin GameTimeMixin on GameBaseNotifier {
         events.insert(0, GameEventModel(
           id: 'salary_unpaid_${DateTime.now().millisecondsSinceEpoch}',
           title: 'MAAŞLAR ÖDENEMEDİ!',
-          description: 'Kasada yeterli nakit olmadığı için personellerin günlük maaşı ödenemedi. Personel morali ağır darbe aldı (-35 Moral)!',
+          description: 'Kasada yeterli nakit olmadığı için personellerin günlük maaşı ödenemedi. Personel morali ağır darbe aldı • -35 Moral!',
           type: GameEventType.expense,
           amount: 0.0,
           date: DateTime.now(),
@@ -295,17 +296,19 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   List<CarModel> _processStaffAutomation(List<StaffModel> staff, List<CarModel> cars) {
-    final hasWasher = staff.any((s) => s.role == StaffRole.washer);
+    final hasCarWashBusiness = state.sideBusinesses.any((b) => b.isOwned && b.type == SideBusinessType.carWash);
+    final hasWasher = staff.any((s) => s.role == StaffRole.washer) || hasCarWashBusiness;
     final hasMechanic = staff.any((s) => s.role == StaffRole.masterMechanic);
 
     if (hasWasher && cars.isNotEmpty) {
       int washedCount = 0;
+      final maxCleanPerDay = hasCarWashBusiness ? 5 : 2;
       for (int i = 0; i < cars.length; i++) {
         final car = cars[i];
         if (!car.isWashed || !car.isPolished || !car.isDetailedCleaned) {
           cars[i] = car.copyWith(isWashed: true, isPolished: true, isDetailedCleaned: true);
           washedCount++;
-          if (washedCount >= 2) break;
+          if (washedCount >= maxCleanPerDay) break;
         }
       }
     }
@@ -391,7 +394,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           events.insert(0, GameEventModel(
             id: 'rental_drift_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
             title: 'KİRALIK ARAÇ: KONVOYDA AŞIRI YIPRANMA!',
-            description: '${rental.renterName}, ${car.brand} ${car.modelName} aracında debriyajı yakmış ve lastikleri eritmiş (-%20 Şanzıman, -%10 Motor, ₺${repairDeductible.toInt()} masraf).',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} aracında debriyajı yakmış ve lastikleri eritmiş • -%20 Şanzıman, -%10 Motor, ₺${repairDeductible.toInt()} masraf.',
             type: GameEventType.expense,
             amount: -repairDeductible,
             date: DateTime.now(),
@@ -412,7 +415,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           events.insert(0, GameEventModel(
             id: 'rental_crash_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
             title: 'KİRALIK ARAÇ: TRAFİK KAZASI HASARI!',
-            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile refüje çarptı (+₺$tramerAdd Tramer işlendi${rental.hasInsurance ? ', Ticari Kasko hasarı karşıladı (₺3.000 muafiyet ödendi)' : ', Kasko olmadığı için ₺12.000 masraf yapıldı'}).',
+            description: '${rental.renterName}, ${car.brand} ${car.modelName} ile refüje çarptı (+₺$tramerAdd Tramer işlendi${rental.hasInsurance ? ', Ticari Kasko hasarı karşıladı • ₺3.000 muafiyet ödendi' : ', Kasko olmadığı için ₺12.000 masraf yapıldı'}).',
             type: GameEventType.expense,
             amount: -outOfPocket,
             date: DateTime.now(),
@@ -438,7 +441,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           final buyoutOffer = OfferModel(
             id: 'offer_rent_buyout_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
             carId: car.id,
-            buyerName: '${rental.renterName} (Kiracı)',
+            buyerName: '${rental.renterName} • Kiracı',
             offeredAmount: offerPrice,
             buyerMessage: 'Aracınızdan son derece memnun kaldım. Kiralamayı bitirip aracı doğrudan satın almak istiyorum.',
             createdAt: DateTime.now(),
@@ -448,7 +451,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           events.insert(0, GameEventModel(
             id: 'rental_buyout_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
             title: 'KİRACIDAN SATIN ALMA TEKLİFİ!',
-            description: '${rental.renterName}, kiraladığı ${car.brand} ${car.modelName} için piyasa değerinin %15 fazlasına (₺${offerPrice.toInt()}) peşin teklif sundu!',
+            description: '${rental.renterName}, kiraladığı ${car.brand} ${car.modelName} için piyasa değerinin %15 fazlasına • ₺${offerPrice.toInt()} peşin teklif sundu!',
             type: GameEventType.goodEvent,
             amount: offerPrice,
             date: DateTime.now(),
@@ -533,10 +536,12 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   (double, List<CarModel>, List<LoanModel>, List<String>, List<GameEventModel>) _processBankruptcy(
     int nextDay, double balance, List<CarModel> cars, List<LoanModel> loans, List<String> dynasty, List<GameEventModel> events) {
-    double liquidatableValue = cars.fold(0.0, (s, c) => s + c.estimatedRealValue * 0.70) + state.bankDepositBalance;
+    double liquidatableValue = cars
+        .where((c) => !c.isConsignment)
+        .fold(0.0, (s, c) => s + c.estimatedRealValue * 0.70) + state.bankDepositBalance;
 
     if (balance < -50000.0) {
-      final unlistedSeizableCarIndex = cars.indexWhere((c) => !c.isLockedInShowcase && !c.isRented);
+      final unlistedSeizableCarIndex = cars.indexWhere((c) => !c.isLockedInShowcase && !c.isRented && !c.isConsignment);
       if (unlistedSeizableCarIndex != -1 && balance < -100000.0) {
         final seizedCar = cars.removeAt(unlistedSeizableCarIndex);
         final recovery = (seizedCar.estimatedRealValue * 0.60).roundToDouble();
@@ -568,9 +573,17 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   (double, List<SideBusinessModel>) _processSideBusinesses(double balance, List<CarModel> cars, List<SideBusinessModel> businesses) {
     final double businessMultiplier = state.specializationPath == SpecializationPath.boss ? 1.30 : 1.0;
+    final bool hasBillboard = businesses.any((b) => b.isOwned && b.type == SideBusinessType.billboard);
+
     for (int i = 0; i < businesses.length; i++) {
       final b = businesses[i];
       if (b.isOwned) {
+        // Billboard cross-business synergy: +15% boost on rental fleet income
+        double synergyFactor = 1.0;
+        if (hasBillboard && b.type == SideBusinessType.carRental) {
+          synergyFactor = 1.15;
+        }
+
         final income = b.effectiveIncomeWithUtilization(
           washedLast7Days: state.carsWashedLast7Days,
           expertisesLast7Days: state.expertisesPerformedLast7Days,
@@ -578,7 +591,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           partsRepairedLast7Days: state.partsRepairedLast7Days,
           towedCarsLast7Days: state.towedCarsLast7Days,
           activeRentalsCount: state.activeRentals.length,
-        ) * businessMultiplier;
+        ) * businessMultiplier * synergyFactor;
         balance += income;
         businesses[i] = b.copyWith(totalEarned: b.totalEarned + income);
       }
@@ -680,10 +693,10 @@ mixin GameTimeMixin on GameBaseNotifier {
               reputation = (reputation - repLoss).clamp(0, 200);
               events.insert(0, GameEventModel(
                 id: 'police_raid_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
-                title: hasLegalAdvisor ? 'HUKUK DANIŞMANI CHANGE DAVASINI KURTARDI!' : 'ASAYİŞ KRİMİNAL: SAHTE ŞASİ (CHANGE) TESPİTİ!',
+                title: hasLegalAdvisor ? 'HUKUK DANIŞMANI CHANGE DAVASINI KURTARDI!' : 'ASAYİŞ KRİMİNAL: SAHTE ŞASİ TESPİTİ!',
                 description: hasLegalAdvisor
                     ? 'Avukatınız savcılık kararına yürütmeyi durdurma alarak ${car.brand} ${car.modelName} aracının otoparka çekilmesini engelledi! İdari ceza %75 indirildi: ₺${CurrencyFormatter.formatShort(fine)}.'
-                    : '${car.brand} ${car.modelName} aracının şasisinin başka bir pert araçtan kopyalandığı (Change) tespit edildi. Araç yediemin otoparkına çekildi! ₺35.000 idari para cezası ve -20 İtibar!',
+                    : '${car.brand} ${car.modelName} aracının şasisinin başka bir pert araçtan kopyalandığı tespit edildi. Araç yediemin otoparkına çekildi! ₺35.000 idari para cezası ve -20 İtibar!',
                 type: GameEventType.expense,
                 amount: -fine,
                 date: DateTime.now(),
@@ -806,7 +819,7 @@ mixin GameTimeMixin on GameBaseNotifier {
         events.insert(0, GameEventModel(
           id: 'vandalism_${DateTime.now().millisecondsSinceEpoch}',
           title: 'Gece Park Halinde Çizilme / Vandalizm',
-          description: 'Showroom güvenlik kameranız (CCTV) olmadığı için ${targetCar.brand} ${targetCar.modelName} gece çizildi! Kaporta/boya sağlığı düştü.',
+          description: 'Showroom güvenlik kameranız olmadığı için ${targetCar.brand} ${targetCar.modelName} gece çizildi! Kaporta/boya sağlığı düştü.',
           type: GameEventType.expense,
           amount: 0.0,
           date: DateTime.now(),
@@ -924,8 +937,8 @@ mixin GameTimeMixin on GameBaseNotifier {
 
           events.insert(0, GameEventModel(
             id: 'ipo_listed_${ipo.id}_$nextDay',
-            title: '${ipo.companyName} (${ipo.symbol}) Borsada Tavan Açtı!',
-            description: '${ipo.symbol} halka arzında tavan serisi gerçekleşti! ₺${playerReq.totalSpent.round()} yatırımın ₺${payout.round()} oldu (+₺${profit.round()} kâr).',
+            title: '${ipo.companyName} • ${ipo.symbol} Borsada Tavan Açtı!',
+            description: '${ipo.symbol} halka arzında tavan serisi gerçekleşti! ₺${playerReq.totalSpent.round()} yatırımın ₺${payout.round()} oldu • +₺${profit.round()} kâr.',
             type: GameEventType.income,
             amount: payout,
             date: DateTime.now(),
@@ -1049,9 +1062,9 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   List<OfferModel> _processLoyalCustomerOffers(List<CarModel> cars, List<OfferModel> offers) {
-    if (state.loyalCustomerNames.isNotEmpty && cars.any((c) => c.isListed) && random.nextDouble() < 0.25) {
-      final listedCars = cars.where((c) => c.isListed).toList();
-      final randomCar = listedCars[random.nextInt(listedCars.length)];
+    final availableCars = cars.where((c) => c.isListed && !c.isRented && !c.isLockedInShowcase).toList();
+    if (state.loyalCustomerNames.isNotEmpty && availableCars.isNotEmpty && random.nextDouble() < 0.25) {
+      final randomCar = availableCars[random.nextInt(availableCars.length)];
       final randomCustomer = state.loyalCustomerNames[random.nextInt(state.loyalCustomerNames.length)];
       final loyalOffer = NegotiationEngine.generateLoyalCustomerOffer(car: randomCar, customerName: randomCustomer);
       offers.add(loyalOffer);
@@ -1091,10 +1104,15 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   List<TradeInOfferModel> _processTradeInOffers(int nextDay, List<CarModel> cars, List<TradeInOfferModel> offers) {
-    offers = offers.where((t) => t.expiresInDays > 1).map((t) => t.copyWith(expiresInDays: t.expiresInDays - 1)).toList();
-    if (cars.any((c) => c.isListed) && random.nextDouble() < 0.35) {
-      final listedCars = cars.where((c) => c.isListed).toList();
-      final targetCar = listedCars[random.nextInt(listedCars.length)];
+    // Retain only offers whose target cars still exist and are tradeable
+    offers = offers
+        .where((t) => t.expiresInDays > 1 && cars.any((c) => c.id == t.targetCarId && !c.isRented && !c.isConsignment && !c.isLockedInShowcase))
+        .map((t) => t.copyWith(expiresInDays: t.expiresInDays - 1))
+        .toList();
+
+    final tradeableCars = cars.where((c) => c.isListed && !c.isRented && !c.isConsignment && !c.isLockedInShowcase).toList();
+    if (tradeableCars.isNotEmpty && random.nextDouble() < 0.35) {
+      final targetCar = tradeableCars[random.nextInt(tradeableCars.length)];
       final tradeOffer = TradeInEngine.generateTradeInOffer(targetCar: targetCar, inGameDay: nextDay);
       offers.insert(0, tradeOffer);
       if (offers.length > 5) offers = offers.sublist(0, 5);
@@ -1122,6 +1140,9 @@ mixin GameTimeMixin on GameBaseNotifier {
     if (index == -1) return {'success': false, 'message': 'Araç bulunamadı.'};
 
     final car = state.ownedCars[index];
+    if (car.isRented) {
+      return {'success': false, 'message': 'Araç kirada olduğu için torpido aranamaz.'};
+    }
     if (car.hasGloveboxSearched) {
       return {'success': false, 'message': 'Torpido gözü daha önce zaten arandı.'};
     }
@@ -1148,7 +1169,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       'success': true,
       'item': item,
       'cashBonus': cashBonus,
-      'message': 'Torpido gözünde "$item" bulundu! (+₺${cashBonus.round()})',
+      'message': 'Torpido gözünde "$item" bulundu! • +₺${cashBonus.round()}',
     };
   }
 
@@ -1218,6 +1239,9 @@ mixin GameTimeMixin on GameBaseNotifier {
       reputationScore: newReputation,
       clearPendingRandomEvent: true,
     );
+    if (choice.xpGain > 0) {
+      addXP(choice.xpGain);
+    }
     saveState();
   }
 
@@ -1280,7 +1304,7 @@ mixin GameTimeMixin on GameBaseNotifier {
           final bargainCar = CarModel(
             id: 'car_sofor_bargain_${DateTime.now().millisecondsSinceEpoch}',
             brand: 'Bemeve',
-            modelName: 'Bemeve E36 Coupe (Koleksiyon / Kelepir)',
+            modelName: 'Bemeve E36 Coupe • Koleksiyon / Kelepir',
             modelYear: 1993,
             bodyType: 'Klasik',
             colorHex: '0xFF1E3A8A',
@@ -1338,7 +1362,7 @@ mixin GameTimeMixin on GameBaseNotifier {
             final husnuOffer = OfferModel(
               id: 'offer_husnu_${DateTime.now().millisecondsSinceEpoch}',
               carId: targetCar.id,
-              buyerName: 'Hüsnü Bey (İkramlı Müşteri)',
+              buyerName: 'Hüsnü Bey • İkramlı Müşteri',
               offeredAmount: bonusOfferPrice,
               buyerMessage: 'Kahve ve ikramlar için teşekkürler, bu fiyata el sıkışalım!',
               offerType: OfferType.cash,
@@ -1435,7 +1459,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       ScrapyardCar(
         id: 'scrap_${day}_1',
         brand: 'Bemeve',
-        modelName: 'Bemeve 3.20d Yanlama E-90 (Ağır Pert)',
+        modelName: 'Bemeve 3.20d Yanlama E-90 • Ağır Pert',
         modelYear: 2016,
         scrapPrice: 140000.0,
         estimatedPartTotalValue: 280000.0,
@@ -1454,7 +1478,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       ScrapyardCar(
         id: 'scrap_${day}_2',
         brand: 'Vosgen',
-        modelName: 'Vosgen Golf Sekiz R-Line (Pert Kayıtlı)',
+        modelName: 'Vosgen Golf Sekiz R-Line • Pert Kayıtlı',
         modelYear: 2018,
         scrapPrice: 190000.0,
         estimatedPartTotalValue: 360000.0,
@@ -1473,7 +1497,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       ScrapyardCar(
         id: 'scrap_${day}_3',
         brand: 'Merso',
-        modelName: 'Merso C-200 Makam AMG (Yanık/Pert)',
+        modelName: 'Merso C-200 Makam AMG • Yanık/Pert',
         modelYear: 2017,
         scrapPrice: 165000.0,
         estimatedPartTotalValue: 310000.0,
@@ -1497,7 +1521,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       BlackMarketCarModel(
         id: 'bm_${day}_1',
         brand: 'Porş',
-        modelName: 'Porş Pana-Mera 4S Lüks (%50 Kelepir / Soruşturmalı)',
+        modelName: 'Porş Pana-Mera 4S Lüks • %50 Kelepir / Soruşturmalı',
         modelYear: 2019,
         askingPrice: 1200000.0,
         realMarketValue: 2400000.0,
@@ -1509,7 +1533,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       BlackMarketCarModel(
         id: 'bm_${day}_2',
         brand: 'Merso',
-        modelName: 'Merso G-63 Tuğla V8 (%60 İndirimli / Hacizli)',
+        modelName: 'Merso G-63 Tuğla V8 • %60 İndirimli / Hacizli',
         modelYear: 2021,
         askingPrice: 2800000.0,
         realMarketValue: 6500000.0,
@@ -1521,7 +1545,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       BlackMarketCarModel(
         id: 'bm_${day}_3',
         brand: 'Avdi',
-        modelName: 'Avdi RS-Altı Canavar (%45 İndirimli / Çifte Şasi)',
+        modelName: 'Avdi RS-Altı Canavar • %45 İndirimli / Çifte Şasi',
         modelYear: 2020,
         askingPrice: 1950000.0,
         realMarketValue: 4200000.0,

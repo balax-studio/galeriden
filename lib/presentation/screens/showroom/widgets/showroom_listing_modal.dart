@@ -360,7 +360,7 @@ class ShowroomListingModal {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${car.brand} ${car.modelName} (${car.modelYear})',
+                                '${car.brand} ${car.modelName} • ${car.modelYear}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -523,22 +523,22 @@ class ShowroomListingModal {
                                 badgeColor = AppColors.brutalGreen;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.bolt_rounded;
-                                badgeText = '-%${diffPct.abs().toStringAsFixed(0)} FIRSAT FİYAT (Çok Hızlı Teklif Gelir)';
+                                badgeText = '-%${diffPct.abs().toStringAsFixed(0)} FIRSAT FİYAT • Çok Hızlı Teklif';
                               } else if (diffPct <= 5) {
                                 badgeColor = AppColors.brutalYellow;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.balance_rounded;
-                                badgeText = 'PİYASA DENGESİNDE (Normal Satış Hızı)';
+                                badgeText = 'PİYASA DENGESİNDE • Normal Satış Hızı';
                               } else if (diffPct <= 20) {
                                 badgeColor = AppColors.brutalOrange;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.hourglass_bottom_rounded;
-                                badgeText = '+%${diffPct.toStringAsFixed(0)} YÜKSEK FİYAT (Yavaş Satış / Tok Satıcı)';
+                                badgeText = '+%${diffPct.toStringAsFixed(0)} YÜKSEK FİYAT • Yavaş Satış';
                               } else {
                                 badgeColor = AppColors.errorRed;
                                 textColor = Colors.white;
                                 badgeIcon = Icons.warning_amber_rounded;
-                                badgeText = '+%${diffPct.toStringAsFixed(0)} RİSKLİ FİYAT (Alıcılar Pas Geçebilir)';
+                                badgeText = '+%${diffPct.toStringAsFixed(0)} RİSKLİ FİYAT • Riskli Fiyat';
                               }
 
                               return Container(
@@ -655,7 +655,7 @@ class ShowroomListingModal {
                         Expanded(
                           child: _buildTactileLocationCard(
                             title: 'Manzaralı',
-                            subtitle: '-₺800 (+%3 İlgi)',
+                            subtitle: '-₺800 • +%3 İlgi',
                             icon: Icons.landscape_rounded,
                             activeColor: AppColors.brutalCyan,
                             isSelected: selectedPhotoLocation == 'scenic',
@@ -667,7 +667,7 @@ class ShowroomListingModal {
                         Expanded(
                           child: _buildTactileLocationCard(
                             title: 'VIP Stüdyo',
-                            subtitle: '-₺1.500 (+%5 İlgi)',
+                            subtitle: '-₺1.500 • +%5 İlgi',
                             icon: Icons.camera_rounded,
                             activeColor: AppColors.brutalPink,
                             isSelected: selectedPhotoLocation == 'studio',
@@ -716,8 +716,8 @@ class ShowroomListingModal {
                                     icon: const Icon(Icons.arrow_drop_down_rounded, size: 28),
                                     items: const [
                                       DropdownMenuItem(value: 4, child: Text('4 Fotoğraf', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 8, child: Text('8 Fotoğraf (+%2)', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 12, child: Text('12 Detaylı (+%4)', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(value: 8, child: Text('8 Fotoğraf • +%2', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(value: 12, child: Text('12 Detaylı • +%4', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
                                     ],
                                     onChanged: (val) => setState(() => selectedPhotoCount = val ?? 4),
                                   ),
@@ -778,10 +778,10 @@ class ShowroomListingModal {
                     // SECTION 3: TACTILE TOGGLE CARDS (Senetle & Hasar Gizleme)
                     _buildTactileToggleRow(
                       title: 'Vadeli / Senet / Çek Satışına Aç',
-                      subtitle: 'Vadeli senet ve çek tekliflerine izin ver (+%20 vade farkı). Kapalıyken SADECE %100 PEŞİN NAKİT teklif gelir.',
+                      subtitle: 'Vadeli senet ve çek tekliflerine izin ver • +%20 vade farkı. Kapalıyken SADECE %100 PEŞİN NAKİT teklif gelir.',
                       icon: Icons.payments_rounded,
                       isActive: allowsInstallments,
-                      activeLabel: 'AÇIK (VADELİ/ÇEK)',
+                      activeLabel: 'AÇIK • VADELİ/ÇEK',
                       inactiveLabel: 'SADECE NAKİT',
                       activeColor: AppColors.brutalGreen,
                       onToggle: () => setState(() => allowsInstallments = !allowsInstallments),
@@ -790,10 +790,10 @@ class ShowroomListingModal {
                     const SizedBox(height: 8),
                     _buildTactileToggleRow(
                       title: 'Hasarlı Açıları Fotoğrafta Gizle',
-                      subtitle: 'Kusurlu bölgeleri kadraj dışı bırak (Ekspertizde yakalanma riski taşır)',
+                      subtitle: 'Kusurlu bölgeleri kadraj dışı bırak • Ekspertizde yakalanma riski',
                       icon: Icons.hide_image_rounded,
                       isActive: hideDamagedPhotos,
-                      activeLabel: 'GİZLE (RİSKLİ)',
+                      activeLabel: 'GİZLE • RİSKLİ',
                       inactiveLabel: 'ŞEFFAF & AÇIK',
                       activeColor: AppColors.brutalOrange,
                       onToggle: () => setState(() => hideDamagedPhotos = !hideDamagedPhotos),
@@ -808,7 +808,7 @@ class ShowroomListingModal {
                         const Icon(Icons.gavel_rounded, size: 16, color: AppColors.brutalOrange),
                         const SizedBox(width: 6),
                         Text(
-                          'İLAN BEYANI (STRATEJİK SEÇİM)',
+                          'İLAN BEYANI • STRATEJİK SEÇİM',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,

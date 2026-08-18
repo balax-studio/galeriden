@@ -109,7 +109,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'İŞLEM ADEDİ (LOT):',
+                      'İŞLEM ADEDİ • LOT:',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -172,7 +172,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           setDialogState(() {});
                         }, isDark),
                         const SizedBox(width: 6),
-                        _buildQuickChip('MAX ($maxBuyable)', () {
+                        _buildQuickChip('MAX • $maxBuyable', () {
                           lotController.text = maxBuyable.toString();
                           setDialogState(() {});
                         }, isDark),
@@ -202,7 +202,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Borsa Komisyonu (%0.2):', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                              const Text('Borsa Komisyonu • %0.2:', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
                               Text(CurrencyFormatter.formatShort(commission), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                             ],
                           ),
@@ -248,7 +248,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           const SizedBox(width: 10),
                           Expanded(
                             child: NeoBrutalButton(
-                              label: 'SAT ($sharesOwned)',
+                              label: 'SAT • $sharesOwned',
                               icon: Icons.sell_rounded,
                               backgroundColor: AppColors.errorRed,
                               textColor: Colors.white,
@@ -343,7 +343,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'MİKTAR (${forex.symbol == 'GOLD' ? 'GRAM' : 'BİRİM'}):',
+                      'MİKTAR • ${forex.symbol == 'GOLD' ? 'GRAM' : 'BİRİM'}:',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -417,7 +417,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Alış Maliyeti (TRY):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                              const Text('Alış Maliyeti:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                               Text(CurrencyFormatter.formatShort(buyCost), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.brutalGreen)),
                             ],
                           ),
@@ -425,7 +425,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Satış Geliri (TRY):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                              const Text('Satış Geliri:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                               Text(CurrencyFormatter.formatShort(sellRevenue), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.errorRed)),
                             ],
                           ),
@@ -566,7 +566,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
             Tab(text: 'BİST HİSSELERİ'),
             Tab(text: 'PORTFÖY & TEMETTÜ'),
             Tab(text: 'DÖVİZ & ALTIN'),
-            Tab(text: 'HALKA ARZ (IPO)'),
+            Tab(text: 'HALKA ARZ • IPO'),
           ],
         ),
       ),
@@ -961,7 +961,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
         ),
         const SizedBox(height: 14),
 
-        Text('ELDEKİ HİSSELER (${game.ownedStocks.length})', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+        Text('ELDEKİ HİSSELER • ${game.ownedStocks.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
         const SizedBox(height: 8),
 
         ...game.ownedStocks.map((owned) {
@@ -1276,7 +1276,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Talep: ${userReq.requestedLots} Lot (₺${userReq.totalSpent.round()})', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+                          Text('Talep: ${userReq.requestedLots} Lot • ₺${userReq.totalSpent.round()}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
                           Row(
                             children: const [
                               Icon(Icons.check_circle_rounded, size: 14, color: AppColors.brutalGreen),

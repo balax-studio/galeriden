@@ -8,9 +8,9 @@ void main() {
   SharedPreferences.setMockInitialValues({});
 
   group('Tycoon Theme Engine Tests', () {
-    test('ThemePaletteModel contains 3 curated preset palettes with prices', () {
+    test('ThemePaletteModel contains 4 curated preset palettes with prices', () {
       final palettes = ThemePaletteModel.defaultPalettes;
-      expect(palettes.length, equals(3));
+      expect(palettes.length, equals(4));
 
       final freePalette = palettes.firstWhere((p) => p.id == 'sanayi_ciragi_light');
       expect(freePalette.price, equals(0));
@@ -23,6 +23,10 @@ void main() {
       final cyberPalette = palettes.firstWhere((p) => p.id == 'toksik_asit_cyber');
       expect(cyberPalette.price, equals(150000));
       expect(cyberPalette.isUnlocked, isFalse);
+
+      final exoticPalette = palettes.firstWhere((p) => p.id == 'egzotik_neo_pop');
+      expect(exoticPalette.isAdUnlockable, isTrue);
+      expect(exoticPalette.isUnlocked, isFalse);
     });
 
     test('ThemePaletteModel serializes and deserializes to JSON correctly', () {

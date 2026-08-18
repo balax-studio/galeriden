@@ -218,7 +218,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
           _buildSkillCard(
             context,
             ref: ref,
-            title: 'Çevre & Tanınırlık (Network)',
+            title: 'Çevre & Tanınırlık • Network',
             desc: 'Daha prestijli koleksiyonluk araçların ve zengin alıcıların gelmesi.',
             perk: skills.reputation >= 5 ? 'Nadir Koleksiyon Düşme Şansı +%15' : 'Lv 5: Nadir Koleksiyon Düşüşü %15 Artar',
             level: skills.reputation,
@@ -245,7 +245,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
 
           // 5. Achievements Section
           Text(
-            'BAŞARIMLAR (${game.achievements.where((a) => a.isUnlocked).length}/${game.achievements.length})',
+            'BAŞARIMLAR • ${game.achievements.where((a) => a.isUnlocked).length}/${game.achievements.length}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -328,7 +328,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'UZMANLIK YOLU (PRESTİJ SINIFI)',
+              'UZMANLIK YOLU • PRESTİJ SINIFI',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -358,7 +358,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Seviye 4\'e ulaştığında galerici uzmanlık sınıfını seçebilirsin (Restoratör Usta, Pazar Kurdu veya Galeri Baronu).',
+                    'Seviye 4\'e ulaştığında galerici uzmanlık sınıfını seçebilirsin: Restoratör Usta, Pazar Kurdu veya Galeri Baronu.',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                   ),
                 ),
@@ -384,7 +384,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref,
             game: game,
             path: SpecializationPath.trader,
-            title: 'Pazar Kurdu (Trader)',
+            title: 'Pazar Kurdu • Trader',
             icon: Icons.trending_up_rounded,
             color: AppColors.brutalGreen,
             desc: 'Pazarlığın kitabını yazdın. En ucuzdan alır, en yüksek teklifle masadan kalkarsın.',
@@ -397,7 +397,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref,
             game: game,
             path: SpecializationPath.boss,
-            title: 'Oto Galeri Baronu (Boss)',
+            title: 'Oto Galeri Baronu • Boss',
             icon: Icons.domain_rounded,
             color: const Color(0xFF3B82F6),
             desc: 'Büyük ölçekli imparatorluk kurdun. Yan işletmeler ve personel senin için çalışır.',
@@ -503,7 +503,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
     final npcs = [
       {
         'id': 'haydar_usta',
-        'name': 'Haydar Usta (Ekspertiz)',
+        'name': 'Haydar Usta • Ekspertiz',
         'role': 'Oto Ekspertiz & Diagnostik',
         'icon': Icons.car_repair_rounded,
         'color': const Color(0xFFF97316),
@@ -511,7 +511,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
       },
       {
         'id': 'cikmaci_ibo',
-        'name': 'Çıkmacı İbo (Yedek Parça)',
+        'name': 'Çıkmacı İbo • Yedek Parça',
         'role': 'Oto Sanayi Çıkma Parçacısı',
         'icon': Icons.settings_input_component_rounded,
         'color': const Color(0xFF8B5CF6),
@@ -519,7 +519,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
       },
       {
         'id': 'golge_ibrahim',
-        'name': 'Gölge İbrahim (Karaborsa)',
+        'name': 'Gölge İbrahim • Karaborsa',
         'role': 'Gizli İhaleler & Acil Nakit',
         'icon': Icons.visibility_off_rounded,
         'color': const Color(0xFFEF4444),
@@ -527,7 +527,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
       },
       {
         'id': 'vlogger_berk',
-        'name': 'Vlogger Berk (Oto Medya)',
+        'name': 'Vlogger Berk • Oto Medya',
         'role': 'YouTube & Sosyal Medya İncelemesi',
         'icon': Icons.video_camera_front_rounded,
         'color': const Color(0xFF06B6D4),
@@ -535,7 +535,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
       },
       {
         'id': 'necati',
-        'name': 'Necati Dayı (Kahvehane)',
+        'name': 'Necati Dayı • Kahvehane',
         'role': 'Sanayi & Mahalle İstihbaratı',
         'icon': Icons.coffee_rounded,
         'color': const Color(0xFFEAB308),

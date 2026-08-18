@@ -75,7 +75,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Faktoring & İskonto Kesintisi (%8):', style: TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w700)),
+                        const Text('Faktoring & İskonto Kesintisi • %8:', style: TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w700)),
                         Text('-${CurrencyFormatter.format(fee)}', style: const TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
                       ],
                     ),
@@ -172,7 +172,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Müşteriye Erken Kapama İndirimi (%5):', style: TextStyle(fontSize: 12, color: AppColors.brutalOrange, fontWeight: FontWeight.w700)),
+                        const Text('Müşteriye Erken Kapama İndirimi • %5:', style: TextStyle(fontSize: 12, color: AppColors.brutalOrange, fontWeight: FontWeight.w700)),
                         Text('-${CurrencyFormatter.format(discount)}', style: const TextStyle(fontSize: 12, color: AppColors.brutalOrange, fontWeight: FontWeight.w800)),
                       ],
                     ),
@@ -454,7 +454,7 @@ class FinanceScreen extends ConsumerWidget {
                           style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
                         ),
                         Text(
-                          'Günlük gece devrinde otomatik kesilir (${CurrencyFormatter.format(game.dailyTaxRate)}/gün)',
+                          'Günlük gece devrinde otomatik kesilir • ${CurrencyFormatter.format(game.dailyTaxRate)}/gün',
                           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                         ),
                       ],
@@ -477,7 +477,7 @@ class FinanceScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'AKTİF BANKA KREDİLERİ (${game.activeLoans.length})',
+                'AKTİF BANKA KREDİLERİ • ${game.activeLoans.length}',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -604,7 +604,7 @@ class FinanceScreen extends ConsumerWidget {
 
           // 4. Active Installments
           Text(
-            'AKTİF SENETLİ / TAKSİTLİ SÖZLEŞMELER (${game.activeInstallments.length})',
+            'AKTİF SENETLİ / TAKSİTLİ SÖZLEŞMELER • ${game.activeInstallments.length}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -634,7 +634,7 @@ class FinanceScreen extends ConsumerWidget {
 
           // 5. Pending Cheques
           Text(
-            'BEKLEYEN TİCARİ ÇEKLER (${game.activeCheques.length})',
+            'BEKLEYEN TİCARİ ÇEKLER • ${game.activeCheques.length}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -819,7 +819,7 @@ class FinanceScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${contract.paidInstallments}/${contract.totalInstallments} Taksit Ödendi (Aylık: ${CurrencyFormatter.formatShort(contract.installmentAmount)})',
+                  '${contract.paidInstallments}/${contract.totalInstallments} Taksit Ödendi • Aylık ${CurrencyFormatter.formatShort(contract.installmentAmount)}',
                   style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 if (contract.lateFee > 0)
@@ -833,7 +833,7 @@ class FinanceScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
             NeoBrutalButton(
-              label: 'ERKEN KAPAT & PEŞİN AL (%5 İndirim)',
+              label: 'ERKEN KAPAT & PEŞİN AL • %5 İndirim',
               icon: Icons.done_all_rounded,
               backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
               textColor: isDark ? Colors.white : Colors.black,
@@ -899,7 +899,7 @@ class FinanceScreen extends ConsumerWidget {
                 if (cheque.inLegalCollection)
                   NeoBrutalBadge(
                     icon: Icons.gavel_rounded,
-                    text: 'İcrada (${cheque.legalCollectionDaysRemaining} Gün)',
+                    text: 'İcrada • ${cheque.legalCollectionDaysRemaining} Gün',
                     backgroundColor: AppColors.brutalOrange,
                     textColor: Colors.black,
                     fontSize: 10,
@@ -945,7 +945,7 @@ class FinanceScreen extends ConsumerWidget {
               ),
             ] else if (cheque.isDefaulted) ...[
               NeoBrutalButton(
-                label: 'AVUKATA VER / İCRAYA KOY (₺1.500)',
+                label: 'AVUKATA VER / İCRAYA KOY • ₺1.500',
                 icon: Icons.gavel_rounded,
                 backgroundColor: AppColors.brutalOrange,
                 textColor: Colors.black,
@@ -957,13 +957,13 @@ class FinanceScreen extends ConsumerWidget {
                   if (success) {
                     NotificationService.showSuccess(context, 'Çek icra takibine alındı!');
                   } else {
-                    NotificationService.showError(context, 'Yetersiz bakiye (Avukat masrafı: ₺1.500)!');
+                    NotificationService.showError(context, 'Yetersiz bakiye • Avukat masrafı ₺1.500!');
                   }
                 },
               ),
             ] else ...[
               NeoBrutalButton(
-                label: 'ÇEKİ KIRDIR / ERKEN TAHSİL ET (%8 İskonto)',
+                label: 'ÇEKİ KIRDIR / ERKEN TAHSİL ET • %8 İskonto',
                 icon: Icons.currency_exchange_rounded,
                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                 textColor: isDark ? Colors.white : Colors.black,

@@ -122,11 +122,16 @@ class OfflineProgression {
     final hasMechanic = dealership.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
 
     if (hasWasher) {
-      updatedCars = updatedCars.map((c) => c.copyWith(isWashed: true, isPolished: true)).toList();
+      updatedCars = updatedCars.map((c) {
+        if (!c.isRented && !c.isConsignment) {
+          return c.copyWith(isWashed: true, isPolished: true);
+        }
+        return c;
+      }).toList();
     }
     if (hasMechanic) {
       updatedCars = updatedCars.map((c) {
-        if (c.expertise.engineCondition < 70 || c.expertise.transmissionCondition < 70) {
+        if (!c.isRented && !c.isConsignment && (c.expertise.engineCondition < 70 || c.expertise.transmissionCondition < 70)) {
           return c.copyWith(
             expertise: c.expertise.copyWith(
               engineCondition: max(c.expertise.engineCondition, 85.0),
@@ -138,9 +143,11 @@ class OfflineProgression {
       }).toList();
     }
 
+    final eligibleOfferCars = updatedCars.where((c) => c.isListed && !c.isRented && !c.isLockedInShowcase).toList();
+
     for (int i = 0; i < potentialOffers; i++) {
-      if (updatedCars.isNotEmpty && updatedOffers.length < maxOffersLimit) {
-        final car = updatedCars[i % updatedCars.length];
+      if (eligibleOfferCars.isNotEmpty && updatedOffers.length < maxOffersLimit) {
+        final car = eligibleOfferCars[i % eligibleOfferCars.length];
         final offer = NegotiationEngine.generateBuyerOffer(car, car.listingPrice);
         updatedOffers.add(offer);
         newOffersGenerated++;

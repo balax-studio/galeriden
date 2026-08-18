@@ -19,6 +19,7 @@ import '../../../data/models/customer_review_model.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
+import '../../../domain/usecases/smart_office_hook_engine.dart';
 import 'game_base_notifier.dart';
 
 mixin GameInventoryMixin on GameBaseNotifier {
@@ -31,6 +32,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
     final car = state.ownedCars[carIndex];
+    if (car.isRented || car.isLockedInShowcase || car.isConsignment) return false;
 
     // Validate requirements
     if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase()) return false;
@@ -237,12 +239,24 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isLockedInShowcase || car.isRented) return false;
 
-    final profit = sellingPrice - car.currentPurchasePrice;
+    final isConsignment = car.isConsignment;
+    final double profit;
+    final double cashReceived;
+
+    if (isConsignment) {
+      final commRate = car.consignmentCommissionRate > 0 ? car.consignmentCommissionRate : 0.10;
+      final commissionAmount = (sellingPrice * commRate).roundToDouble();
+      profit = commissionAmount;
+      cashReceived = commissionAmount;
+    } else {
+      profit = sellingPrice - car.currentPurchasePrice;
+      cashReceived = sellingPrice;
+    }
 
     final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(carIndex);
     
     state = state.copyWith(
-      balance: state.balance + sellingPrice,
+      balance: state.balance + cashReceived,
       ownedCars: updatedCars,
       totalProfit: state.totalProfit + profit,
       carsSold: state.carsSold + 1,
@@ -535,7 +549,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (targetIndex == -1) return false;
 
     final targetCar = state.ownedCars[targetIndex];
-    if (targetCar.isLockedInShowcase || targetCar.isRented) return false;
+    if (targetCar.isLockedInShowcase || targetCar.isRented || targetCar.isConsignment) return false;
 
     // Check if player has enough money if cashDifference is negative
     if (offer.cashDifference < 0 && state.balance < -offer.cashDifference) {
@@ -632,7 +646,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
         isWon: false,
         prizeMoney: 0,
         reputationBonus: 0,
-        raceSummary: 'Bugünkü tüm yarış haklarınızı (3/3) kullandınız! Gece yarışları yarın tekrar açılacak.',
+        raceSummary: 'Bugünkü tüm 3 yarış hakkınızı kullandınız! Gece yarışları yarın tekrar açılacak.',
         rivalName: 'Yarış Hakemleri',
         rivalCarName: 'Pist Kapalı',
       );
@@ -869,7 +883,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
         final corpNames = ['Anadolu Filo & Lojistik', 'Kuzey Holding A.Ş.', 'Mavi Bulut Danışmanlık', 'Atlas Medikal'];
         resolvedRenterName = corpNames[DateTime.now().millisecondsSinceEpoch % corpNames.length];
       } else if (renterType == 'young_driver') {
-        final youngNames = ['Bora & Ceyda (Düğün)', 'Gurbetçi Berkcan', 'Kürşat & Arkadaşları (Tatil)', 'Cengiz (Hızlı Sürücü)'];
+        final youngNames = ['Bora & Ceyda • Düğün', 'Gurbetçi Berkcan', 'Kürşat & Arkadaşları • Tatil', 'Cengiz • Hızlı Sürücü'];
         resolvedRenterName = youngNames[DateTime.now().millisecondsSinceEpoch % youngNames.length];
       } else {
         final indivNames = ['Av. Mehmet Bey', 'Mimar Sinan Bey', 'Doktor Ayşe Hanım', 'Öğretmen Kemal'];
@@ -1032,7 +1046,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     String msg = '${scrapCar.brand} ${scrapCar.modelName} şasisi preslendi! ₺${scrapMetalVal.toInt()} hurda demir geliri kazanıldı.';
     if (surpriseName != null && surpriseVal > 0) {
-      msg += ' Torpidodan "$surpriseName" çıktı (+₺${surpriseVal.toInt()})!';
+      msg += ' Torpidodan "$surpriseName" çıktı • +₺${surpriseVal.toInt()}!';
     }
 
     return ChassisCrushResult(
@@ -1137,7 +1151,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     final part = state.salvagedParts[partIndex];
     final car = state.ownedCars[carIndex];
-    if (car.isRented) return false;
+    if (car.isRented || car.isConsignment) return false;
 
     // Brand compatibility check
     final isBrandMatch = part.carModelName.toLowerCase().contains(car.brand.toLowerCase());
@@ -1372,12 +1386,15 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Complete a customer repair contract job
   bool completeCustomerRepairJob(CustomerRepairJob job) {
+    if (state.balance < job.partsCost) return false;
     final netGain = job.laborReward - job.partsCost;
     state = state.copyWith(
       balance: state.balance + netGain,
       totalProfit: state.totalProfit + (netGain > 0 ? netGain : 0.0),
+      partsRepairedLast7Days: state.partsRepairedLast7Days + 1,
     );
     addXP(job.masteryXpReward);
+    updateMissionProgress(MissionType.repairParts, 1);
     saveState();
     return true;
   }
@@ -1391,6 +1408,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
     final exp = car.expertise;
 
     final updatedExp = exp.copyWith(
@@ -1423,6 +1441,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
 
     final updatedCar = car.copyWith(
       colorHex: paint.hex,
@@ -1447,13 +1466,14 @@ mixin GameInventoryMixin on GameBaseNotifier {
   bool washAllCars() {
     if (state.ownedCars.isEmpty) return false;
     final hasWasher = state.hiredStaff.any((s) => s.role == StaffRole.washer);
-    final unwashedCars = state.ownedCars.where((c) => !c.isWashed || !c.isPolished || !c.isDetailedCleaned).toList();
+    final unwashedCars = state.ownedCars.where((c) => !c.isRented && (!c.isWashed || !c.isPolished || !c.isDetailedCleaned)).toList();
     if (unwashedCars.isEmpty) return false;
 
     final totalCost = hasWasher ? 0.0 : (unwashedCars.length * 600.0);
     if (state.balance < totalCost) return false;
 
     final updatedCars = state.ownedCars.map((c) {
+      if (c.isRented) return c;
       return c.copyWith(
         isWashed: true,
         isPolished: true,
@@ -1476,7 +1496,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
   bool claimEmergencyBailout() {
     final totalAssets = state.balance +
         state.bankDepositBalance +
-        state.ownedCars.fold<double>(0.0, (s, c) => s + c.estimatedRealValue);
+        state.ownedCars
+            .where((c) => !c.isConsignment)
+            .fold<double>(0.0, (s, c) => s + c.estimatedRealValue);
     if (totalAssets > 15000) return false;
 
     state = state.copyWith(
@@ -1530,6 +1552,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
     final updatedOptions = car.appliedDetailingOptionIds.where((id) => !id.startsWith('scent_')).toList();
     updatedOptions.add(scent.id);
 
@@ -1558,7 +1581,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.hasRestoredHeadlights) return false;
+    if (car.isRented || car.hasRestoredHeadlights) return false;
 
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('headlight_restoration');
     final updatedCar = car.copyWith(
@@ -1586,7 +1609,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.hasIronDecon) return false;
+    if (car.isRented || car.hasIronDecon) return false;
 
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('iron_decon');
     final updatedCar = car.copyWith(
@@ -1614,7 +1637,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.hasPdrRepaired) return false;
+    if (car.isRented || car.hasPdrRepaired) return false;
 
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('pdr_repaired');
     final updatedCar = car.copyWith(
@@ -1642,7 +1665,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.hasTuvturkCertified) return false;
+    if (car.isRented || car.hasTuvturkCertified) return false;
 
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('tuvturk_certified');
     final updatedCar = car.copyWith(
@@ -1754,12 +1777,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return null;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented || car.isConsignment) return null;
+    if (car.appliedDetailingOptionIds.contains('dyno_certified')) return null;
+
     final report = DynoTestReport.generate(car);
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds);
-    if (!updatedOptions.contains('dyno_certified')) {
-      updatedOptions.add('dyno_certified');
-    }
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('dyno_certified');
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
@@ -1788,10 +1811,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds);
-    if (!updatedOptions.contains(stage.id)) {
-      updatedOptions.add(stage.id);
-    }
+    if (car.isRented || car.isConsignment) return false;
+    if (car.appliedDetailingOptionIds.contains(stage.id)) return false;
+
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add(stage.id);
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
@@ -1822,10 +1845,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds);
-    if (!updatedOptions.contains('bodykit_tint')) {
-      updatedOptions.add('bodykit_tint');
-    }
+    if (car.isRented || car.isConsignment) return false;
+    if (car.appliedDetailingOptionIds.contains('bodykit_tint')) return false;
+
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('bodykit_tint');
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
@@ -1868,6 +1891,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented || car.isConsignment) return false;
+
     final updatedCar = car.copyWith(
       plateNumber: '$cityCode GAL 34',
     );
@@ -1934,6 +1959,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented || car.isConsignment || car.isChassisRepaired) return false;
+
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('chassis_restamped');
 
     final updatedCar = car.copyWith(
@@ -1957,12 +1984,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
   /// 10. Çıkma Parçaları Sanayi Toptancısına Satma (§17)
   double sellScrapPartsInBulk() {
     if (state.salvagedParts.isEmpty) {
-      // Bonus toptan koli satışı
-      const payout = 5000.0;
-      state = state.copyWith(balance: state.balance + payout);
-      addXP(25);
-      saveState();
-      return payout;
+      return 0.0;
     }
 
     final totalPayout = state.salvagedParts.length * 1500.0;
@@ -1981,12 +2003,24 @@ mixin GameInventoryMixin on GameBaseNotifier {
     const cost = 500.0;
     if (state.balance < cost) return null;
 
-    final foundCash = 3500.0;
+    final roll = random.nextDouble();
+    double foundCash;
+    if (roll < 0.35) {
+      // Boş / Değersiz hurda yığını
+      foundCash = 0.0;
+    } else if (roll < 0.80) {
+      // Çıkma radyo & kriko gibi orta buluntu
+      foundCash = 750.0 + (random.nextInt(4) * 250);
+    } else {
+      // Nadir hurdalık hazinesi
+      foundCash = 2500.0 + (random.nextInt(3) * 500);
+    }
+
     state = state.copyWith(
       balance: state.balance - cost + foundCash,
     );
 
-    addXP(20);
+    addXP(foundCash > 0 ? 25 : 10);
     saveState();
     return foundCash;
   }
@@ -2018,7 +2052,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.isRented) return false;
+    if (car.isRented || car.isConsignment || car.appliedDetailingOptionIds.contains('ozone_sanitized')) return false;
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('ozone_sanitized');
 
     final updatedCar = car.copyWith(
@@ -2045,6 +2079,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
+    if (car.isRented || car.isLockedInShowcase) return false;
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: List<String>.from(car.appliedDetailingOptionIds)..add('rented_to_film_set'),
     );
@@ -2096,13 +2131,101 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     state = state.copyWith(
       balance: state.balance - cost,
-      reputationScore: (state.reputationScore + 15).clamp(0, 100),
+      reputationScore: (state.reputationScore + 15).clamp(0, 1000),
     );
 
     triggerOrganicOffers();
     addXP(100);
     saveState();
     return true;
+  }
+
+  /// 17. Ofis Reklam Desteği: Gurbetçi Dayı Zarf Fonu (+₺25.000)
+  double claimOfficeAdGrant() {
+    const grantAmount = 25000.0;
+    state = state.copyWith(
+      balance: state.balance + grantAmount,
+    );
+    addXP(50);
+    saveState();
+    return grantAmount;
+  }
+
+  /// 18. Dinamik Akıllı Kanca (Smart Hook) Reklam Ödülü İnfazı
+  bool executeSmartOfficeHook(SmartHookType hookType) {
+    switch (hookType) {
+      case SmartHookType.dirtyCarsWash:
+        // Tüm garaj araçlarını yıka, cila çek ve detaylı temizle
+        final updatedCars = state.ownedCars.map((c) {
+          if (c.isRented) return c;
+          return c.copyWith(
+            isWashed: true,
+            isPolished: true,
+            isDetailedCleaned: true,
+          );
+        }).toList();
+        state = state.copyWith(ownedCars: updatedCars);
+        addXP(75);
+        saveState();
+        return true;
+
+      case SmartHookType.damagedCarRepair:
+        // En düşük kondisyondaki araca sandık motor ve tamir uygula
+        final candidates = state.ownedCars
+            .where((c) => !c.isRented && (c.expertise.engineCondition < 100 || c.expertise.transmissionCondition < 100))
+            .toList()
+          ..sort((a, b) => a.expertise.engineCondition.compareTo(b.expertise.engineCondition));
+
+        if (candidates.isNotEmpty) {
+          final targetCar = candidates.first;
+          final repairedParts = Map<String, PartStatus>.from(targetCar.expertise.bodyParts);
+          repairedParts.updateAll((key, value) => PartStatus.original);
+
+          final repairedReport = targetCar.expertise.copyWith(
+            engineCondition: 100.0,
+            transmissionCondition: 100.0,
+            bodyParts: repairedParts,
+          );
+
+          final updatedCar = targetCar.copyWith(expertise: repairedReport);
+          final updatedCars = state.ownedCars.map((c) => c.id == updatedCar.id ? updatedCar : c).toList();
+          state = state.copyWith(ownedCars: updatedCars);
+        }
+        addXP(75);
+        saveState();
+        return true;
+
+      case SmartHookType.lowBalanceGrant:
+        // Çıkmacı İbo Dayı acil nakit hibesi (+₺35.000)
+        state = state.copyWith(balance: state.balance + 35000.0);
+        addXP(50);
+        saveState();
+        return true;
+
+      case SmartHookType.emptyGarageSpawn:
+        // Gümrük muhafaza kelepir harçlığı (+₺10.000)
+        state = state.copyWith(balance: state.balance + 10000.0);
+        addXP(50);
+        saveState();
+        return true;
+
+      case SmartHookType.viralReputationBoost:
+        // Fenomen Berkcan viral reels: +25 Prestij ve vitrin dopingi
+        final dopedCars = state.ownedCars.map((c) {
+          if (c.isListed) {
+            return c.copyWith(isDoped: true);
+          }
+          return c;
+        }).toList();
+        state = state.copyWith(
+          ownedCars: dopedCars,
+          reputationScore: (state.reputationScore + 25).clamp(0, 1000),
+        );
+        triggerOrganicOffers();
+        addXP(100);
+        saveState();
+        return true;
+    }
   }
 }
 

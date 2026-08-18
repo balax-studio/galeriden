@@ -99,7 +99,7 @@ class RentACarScreen extends ConsumerWidget {
 
           // 2. Active Rentals Section
           Text(
-            'KİRADAKİ AKTİF ARAÇLAR (${game.activeRentals.length})',
+            'KİRADAKİ AKTİF ARAÇLAR • ${game.activeRentals.length}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -444,7 +444,7 @@ class RentACarScreen extends ConsumerWidget {
                               children: [
                                 const Text('Ticari Rent a Car Kaskosu', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
                                 Text(
-                                  'Günlük ${CurrencyFormatter.formatShort(insuranceDailyFee)} (Kaza & radar muafiyeti)',
+                                  'Günlük ${CurrencyFormatter.formatShort(insuranceDailyFee)} • Kaza & radar muafiyeti',
                                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                                 ),
                               ],

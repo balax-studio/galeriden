@@ -376,7 +376,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '28 Günlük Mevsim Döngüsü (${game.currentSeasonName})',
+                '28 Günlük Mevsim Döngüsü • ${game.currentSeasonName}',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,

@@ -167,7 +167,7 @@ class NeoBrutalAppBar extends ConsumerWidget implements PreferredSizeWidget {
               ),
             ),
           ),
-          ?bottom,
+          if (bottom != null) bottom!,
         ],
       ),
     ),

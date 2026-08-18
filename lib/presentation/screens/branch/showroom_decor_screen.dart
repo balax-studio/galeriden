@@ -96,7 +96,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '$unlockedCount / $totalCount Mimari Eşya İnşa Edildi (+${totalRepGained.toInt()} İtibar)',
+                            '$unlockedCount / $totalCount Mimari Eşya İnşa Edildi • +${totalRepGained.toInt()} İtibar',
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                           ),
                         ],

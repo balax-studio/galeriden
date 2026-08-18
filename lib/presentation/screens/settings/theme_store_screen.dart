@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -73,7 +74,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Sermayeni kullanarak özel tema paletlerinin kilidini aç.',
+                          'Sermayeni veya ücretsiz reklam ödüllerini kullanarak özel temaları aç.',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -148,17 +149,17 @@ class ThemeStoreScreen extends ConsumerWidget {
                               Text(
                                 'VİTRİN KARTI',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w900,
                                   color: p.textPrimaryColor,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 4),
                               Text(
-                                'Canlı renk uyumu test ediliyor',
+                                'BMW 3.20d • 2021',
                                 style: TextStyle(
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
                                   color: p.textSecondaryColor,
                                 ),
                               ),
@@ -167,21 +168,37 @@ class ThemeStoreScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      NeoBrutalButton(
-                        label: 'TEST ET',
-                        appliedLabel: 'TEST EDİLDİ',
-                        icon: Icons.touch_app_rounded,
-                        backgroundColor: p.secondaryColor,
-                        textColor: Colors.white,
-                        fontSize: 10,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        onPressed: () {
-                          HapticFeedback.heavyImpact();
-                          NotificationService.showSuccess(
-                            context,
-                            '${p.name} buton stili ve dokunsal geri bildirimi test edildi! 🎨',
-                          );
-                        },
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: p.surfaceColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: p.surfaceBorderColor, width: 1.5),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ÖNE ÇIKAN BUTON',
+                                style: TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: p.primaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '₺1.450.000',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: p.successColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -190,43 +207,51 @@ class ThemeStoreScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
 
-            Text(
+            // 3. Theme List Header
+            const Text(
               'MEVCUT TEMA PALETLERİ',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-                color: isDark ? p.textPrimaryColor : const Color(0xFF0F172A),
-              ),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: Color(0xFF64748B)),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
-            // 3. Palettes List
+            // 4. Palette Cards
             ...themeState.availablePalettes.map((palette) {
-              final isActive = themeState.activePalette.id == palette.id;
+              final isActive = palette.id == themeState.activePalette.id;
               final isAbsurd = palette.id == 'toksik_asit_cyber';
+              final isExotic = palette.id == 'egzotik_neo_pop';
 
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? (isActive ? p.surfaceColor : const Color(0xFF141721)) : Colors.white,
+                  padding: const EdgeInsets.all(12),
+                  backgroundColor: isActive
+                      ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9))
+                      : (isDark ? palette.surfaceColor : Colors.white),
                   borderColor: isActive
-                      ? (isAbsurd ? AppColors.toxicLime : AppColors.brutalYellow)
-                      : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
-                  borderWidth: isActive ? 2.5 : 2.0,
-                  borderRadius: 14,
-                  showBlueprintGrid: isAbsurd,
-                  patternType: BlueprintPatternType.cyberGrid,
+                      ? palette.primaryColor
+                      : (isDark ? palette.surfaceBorderColor : const Color(0xFF0F172A)),
+                  borderWidth: isActive ? 2.5 : 1.8,
+                  borderRadius: 12,
                   child: Row(
                     children: [
-                      Row(
+                      // Palette Swatch preview
+                      Column(
                         children: [
-                          _buildColorDot(palette.primaryColor, isDark),
-                          const SizedBox(width: 4),
-                          _buildColorDot(palette.secondaryColor, isDark),
-                          const SizedBox(width: 4),
-                          _buildColorDot(palette.backgroundColor, isDark),
+                          Row(
+                            children: [
+                              _buildColorDot(palette.primaryColor, isDark),
+                              const SizedBox(width: 4),
+                              _buildColorDot(palette.secondaryColor, isDark),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              _buildColorDot(palette.backgroundColor, isDark),
+                              const SizedBox(width: 4),
+                              _buildColorDot(palette.surfaceColor, isDark),
+                            ],
+                          ),
                         ],
                       ),
                       const SizedBox(width: 12),
@@ -258,50 +283,91 @@ class ThemeStoreScreen extends ConsumerWidget {
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ],
+                                if (isExotic) ...[
+                                  const SizedBox(width: 4),
+                                  const NeoBrutalBadge(
+                                    text: 'EGZOTİK',
+                                    backgroundColor: Color(0xFFFF5EAE),
+                                    textColor: Colors.white,
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ],
                               ],
                             ),
                             const SizedBox(height: 2),
                             Text(
                               palette.price == 0
-                                  ? 'Ücretsiz Varsayılan'
+                                  ? (palette.isUnlocked ? 'Açık • Ücretsiz' : 'Reklamla Ücretsiz Açılır')
                                   : (palette.isUnlocked
                                       ? 'Satın Alındı'
-                                      : 'Fiyat: ${CurrencyFormatter.formatShort(palette.price.toDouble())}'),
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                      : (palette.isAdUnlockable
+                                          ? 'Reklamla Ücretsiz veya ${CurrencyFormatter.formatShort(palette.price.toDouble())}'
+                                          : 'Fiyat: ${CurrencyFormatter.formatShort(palette.price.toDouble())}')),
+                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
                       ),
-                      NeoBrutalButton(
-                        label: isActive ? 'AKTİF' : (palette.isUnlocked ? 'KULLAN' : 'SATIN AL'),
-                        backgroundColor: isActive
-                            ? (isAbsurd ? AppColors.toxicLime : AppColors.brutalYellow)
-                            : (palette.isUnlocked
-                                ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                                : (isAbsurd ? AppColors.hotMagenta : AppColors.brutalGreen)),
-                        textColor: isActive
-                            ? Colors.black
-                            : (palette.isUnlocked ? (isDark ? Colors.white : Colors.black) : (isAbsurd ? Colors.white : Colors.black)),
-                        fontSize: 11,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        onPressed: isActive
-                            ? null
-                            : () {
-                                if (palette.isUnlocked) {
-                                  ref.read(themeProvider.notifier).selectPalette(palette.id);
-                                } else {
-                                  final success =
-                                      ref.read(themeProvider.notifier).unlockPalette(palette.id, game.balance);
-                                  if (success) {
-                                    ref.read(gameProvider.notifier).deductBalance(palette.price.toDouble());
-                                    NotificationService.showSuccess(
-                                        context, '${palette.name} Paleti Açıldı ve Aktif Edildi!');
-                                  } else {
-                                    NotificationService.showError(context, 'Yetersiz Sermaye!');
-                                  }
-                                }
+                      if (isActive)
+                        const NeoBrutalBadge(
+                          text: 'AKTİF',
+                          backgroundColor: AppColors.brutalYellow,
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                        )
+                      else if (palette.isUnlocked)
+                        NeoBrutalButton(
+                          label: 'KULLAN',
+                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          textColor: isDark ? Colors.white : Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          onPressed: () {
+                            ref.read(themeProvider.notifier).selectPalette(palette.id);
+                          },
+                        )
+                      else if (palette.isAdUnlockable)
+                        NeoBrutalButton(
+                          label: 'REKLAMLA AÇ',
+                          icon: Icons.play_circle_filled_rounded,
+                          backgroundColor: isExotic ? const Color(0xFFFF5EAE) : (isAbsurd ? AppColors.hotMagenta : AppColors.brutalGreen),
+                          textColor: Colors.white,
+                          fontSize: 10.5,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          onPressed: () {
+                            HapticFeedback.heavyImpact();
+                            AdService.instance.showRewardedAd(
+                              onRewardEarned: () {
+                                ref.read(themeProvider.notifier).unlockPaletteViaAd(palette.id);
+                                NotificationService.showSuccess(
+                                  context,
+                                  'Reklam Ödülü: ${palette.name} Paleti Başarıyla Açıldı ve Aktif Edildi!',
+                                );
                               },
-                      ),
+                            );
+                          },
+                        )
+                      else
+                        NeoBrutalButton(
+                          label: 'SATIN AL',
+                          backgroundColor: AppColors.brutalGreen,
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          onPressed: () {
+                            final success =
+                                ref.read(themeProvider.notifier).unlockPalette(palette.id, game.balance);
+                            if (success) {
+                              ref.read(gameProvider.notifier).deductBalance(palette.price.toDouble());
+                              NotificationService.showSuccess(
+                                  context, '${palette.name} Paleti Açıldı ve Aktif Edildi!');
+                            } else {
+                              NotificationService.showError(context, 'Yetersiz Sermaye!');
+                            }
+                          },
+                        ),
                     ],
                   ),
                 ),

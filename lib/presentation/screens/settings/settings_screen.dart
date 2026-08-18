@@ -68,7 +68,7 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${game.dealershipName} (${game.playerName})',
+                          '${game.dealershipName} • ${game.playerName}',
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                         ),
                       ],
@@ -176,7 +176,7 @@ class SettingsScreen extends ConsumerWidget {
                       ],
                     ),
                     NeoBrutalBadge(
-                      text: settings.languageCode == 'tr' ? 'Türkçe (TR)' : 'English (EN)',
+                      text: settings.languageCode == 'tr' ? 'Türkçe' : 'English',
                       backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white : Colors.black,
                       fontSize: 11,
@@ -198,7 +198,7 @@ class SettingsScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'SPONSOR DESTEK FONU (OPSİYONEL)',
+                  'SPONSOR DESTEK FONU',
                   style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 4),
@@ -208,7 +208,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 NeoBrutalButton(
-                  label: 'VİDEO İZLE (+₺25.000 KAZAN)',
+                  label: 'VİDEO İZLE • +₺25.000 KAZAN',
                   icon: Icons.play_circle_fill_rounded,
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
@@ -250,7 +250,7 @@ class SettingsScreen extends ConsumerWidget {
                           Icon(Icons.bolt_rounded, color: Color(0xFF8B5CF6), size: 20),
                           SizedBox(width: 6),
                           Text(
-                            'GELİŞTİRİCİ PANELİ (GOD MODE)',
+                            'GELİŞTİRİCİ PANELİ • GOD MODE',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
@@ -293,7 +293,7 @@ class SettingsScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: NeoBrutalButton(
-                          label: 'SEVİYE 4 & FULL AÇ',
+                          label: 'SEVİYE 8 & FULL AÇ',
                           icon: Icons.workspace_premium_rounded,
                           backgroundColor: const Color(0xFF8B5CF6),
                           textColor: Colors.white,
@@ -301,25 +301,45 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).unlockAllPropertiesAndMaxLevel();
-                            NotificationService.showSuccess(context, 'Seviye 4 (Mega Otomotiv Kalesi) ve Tüm Özellikler Açıldı!');
+                            NotificationService.showSuccess(context, 'Seviye 8 Mega Otomotiv Holding Plazası ve Tüm Özellikler Açıldı!');
                           },
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  NeoBrutalButton(
-                    label: 'GARAJI TEMİZLE (BOŞALT)',
-                    icon: Icons.cleaning_services_rounded,
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white70 : const Color(0xFF334155),
-                    fontSize: 10.5,
-                    fullWidth: true,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    onPressed: () {
-                      ref.read(gameProvider.notifier).clearGarage();
-                      NotificationService.showInfo(context, 'Garaj temizlendi.');
-                    },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: NeoBrutalButton(
+                          label: 'SEVİYE 4 BUTİK GALERİ AÇ',
+                          icon: Icons.storefront_rounded,
+                          backgroundColor: const Color(0xFF38BDF8),
+                          textColor: Colors.black,
+                          fontSize: 10.5,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          onPressed: () {
+                            ref.read(gameProvider.notifier).setLevel(4);
+                            NotificationService.showSuccess(context, 'Seviye 4 Butik Galeri & Tuning Stüdyosu Açıldı!');
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: NeoBrutalButton(
+                          label: 'GARAJI TEMİZLE',
+                          icon: Icons.cleaning_services_rounded,
+                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          textColor: isDark ? Colors.white70 : const Color(0xFF334155),
+                          fontSize: 10.5,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          onPressed: () {
+                            ref.read(gameProvider.notifier).clearGarage();
+                            NotificationService.showInfo(context, 'Garaj temizlendi.');
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -327,7 +347,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 14),
           ],
 
-          // 6. Dynasty & Season Reset (Prestige Miras Döngüsü §2.7)
+          // 6. Dynasty & Season Reset
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF161F30) : const Color(0xFFFAF5FF),
@@ -353,7 +373,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Galeri bayrağını sonraki nesle devreder. Koleksiyon vitrinine kilitlediğin yadigâr araçlar (${game.ownedCars.where((c) => c.isLockedInShowcase).length} adet) ve unvan mirası sonraki kuşağa aynen aktarılır.',
+                  'Galeri bayrağını sonraki nesle devreder. Koleksiyon vitrinine kilitlediğin yadigâr araçlar • ${game.ownedCars.where((c) => c.isLockedInShowcase).length} adet ve unvan mirası sonraki kuşağa aynen aktarılır.',
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 if (game.dynastyHistoryLog.isNotEmpty) ...[
@@ -381,7 +401,7 @@ class SettingsScreen extends ConsumerWidget {
                 ],
                 const SizedBox(height: 12),
                 NeoBrutalButton(
-                  label: 'GALERİYİ YENİ NESLE DEVRET (DEVİR)',
+                  label: 'GALERİYİ YENİ NESLE DEVRET',
                   icon: Icons.auto_awesome_rounded,
                   backgroundColor: (game.level >= 5 || game.balance >= 1000000) ? const Color(0xFFA855F7) : const Color(0xFF64748B),
                   textColor: Colors.white,
@@ -471,7 +491,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Oyunu başlangıç durumuna (₺50.000 başlangıç sermayesi) sıfırlar.',
+                  'Oyunu başlangıç durumuna • ₺50.000 başlangıç sermayesi ile sıfırlar.',
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
@@ -655,15 +675,15 @@ class SettingsScreen extends ConsumerWidget {
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Text(
-                    'GİZLİLİK POLİTİKASI (PRIVACY POLICY)\n\n'
+                    'GİZLİLİK POLİTİKASI • PRIVACY POLICY\n\n'
                     'Son Güncelleme: 16 Ağustos 2026\n'
                     'Geliştirici: Balax Studio\n'
-                    'Uygulama: Galeriden (Car Dealer Tycoon)\n\n'
+                    'Uygulama: Galeriden • Car Dealer Tycoon\n\n'
                     '1. VERİ TOPLAMA VE KULLANIMI\n'
-                    'Galeriden oyunu, kullanıcıların kişisel olarak tanımlanabilir bilgilerini (ad, e-posta, telefon, konum vb.) toplamaz veya harici sunucularda depolamaz. Oyun içi ilerleme, bakiye, sahip olunan araçlar ve ayarlar yalnızca kullanıcının kendi cihazında yerel (Hive veritabanı) olarak saklanır.\n\n'
-                    '2. ÜÇÜNCÜ TARAF REKLAM SERVİSLERİ (GOOGLE ADMOB)\n'
-                    'Uygulama, isteğe bağlı ödüllü video reklamlar sunmak amacıyla Google AdMob SDK kullanmaktadır. Google AdMob, reklam sunumu, sıklık sınırlandırması ve sahtekarlık tespiti amacıyla cihaz tanımlayıcıları (IDFA/GAID) gibi anonim teknik verileri işleyebilir. Bu veriler Google Gizlilik Politikası uyarınca yönetilir.\n\n'
-                    '3. ÇOCUKLARIN GİZLİLİĞİ (COPPA / GDPR-K)\n'
+                    'Galeriden oyunu, kullanıcıların ad, e-posta, telefon ve konum gibi kişisel olarak tanımlanabilir bilgilerini toplamaz veya harici sunucularda depolamaz. Oyun içi ilerleme, bakiye, sahip olunan araçlar ve ayarlar yalnızca kullanıcının kendi cihazında yerel Hive olarak saklanır.\n\n'
+                    '2. ÜÇÜNCÜ TARAF REKLAM SERVİSLERİ • GOOGLE ADMOB\n'
+                    'Uygulama, isteğe bağlı ödüllü video reklamlar sunmak amacıyla Google AdMob SDK kullanmaktadır. Google AdMob, reklam sunumu, sıklık sınırlandırması ve sahtekarlık tespiti amacıyla IDFA ve GAID gibi cihaz tanımlayıcısı anonim teknik verileri işleyebilir. Bu veriler Google Gizlilik Politikası uyarınca yönetilir.\n\n'
+                    '3. ÇOCUKLARIN GİZLİLİĞİ • COPPA / GDPR-K\n'
                     'Oyunumuz 13 yaşın altındaki çocuklardan bilerek herhangi bir kişisel veri toplamaz. Ebeveynler istedikleri zaman yerel kayıtları oyun içi "İlerlemeyi Sıfırla" butonuyla tamamen silebilir.\n\n'
                     '4. İLETİŞİM\n'
                     'Gizlilik politikamız veya oyun içi haklarınızla ilgili her türlü soru için destek ekibimize ulaşabilirsiniz: support@balaxstudio.com',

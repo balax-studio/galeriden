@@ -182,7 +182,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'SATIŞ KAYITLARI (${filteredHistory.length})',
+                'SATIŞ KAYITLARI • ${filteredHistory.length}',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,

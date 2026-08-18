@@ -138,7 +138,7 @@ class DailyCashflowScreen extends ConsumerWidget {
 
     final String statusText = isProfitable
         ? 'POZİTİF KÂR AKIŞI'
-        : (isNeutral ? 'BAŞABAŞ (NÖTR)' : 'NAKİT AÇIĞI (ZARAR)');
+        : (isNeutral ? 'BAŞABAŞ • NÖTR' : 'NAKİT AÇIĞI • ZARAR');
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(16),
@@ -364,7 +364,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _buildProjectionPill(
-                  title: 'Haftalık Beklenti (7g)',
+                  title: 'Haftalık Beklenti • 7 Gün',
                   amount: weekProjection,
                   isDark: isDark,
                 ),
@@ -372,7 +372,7 @@ class DailyCashflowScreen extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildProjectionPill(
-                  title: 'Aylık Beklenti (30g)',
+                  title: 'Aylık Beklenti • 30 Gün',
                   amount: monthProjection,
                   isDark: isDark,
                 ),
@@ -522,10 +522,10 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.storefront_rounded,
           iconColor: const Color(0xFF00E575),
-          title: 'Yan İşletmeler (${sideBusinesses.length} Aktif)',
+          title: 'Yan İşletmeler • ${sideBusinesses.length} Aktif',
           subtitle: sideBusinesses.isEmpty
               ? 'Henüz satın alınmış yan işletme yok'
-              : sideBusinesses.map((b) => '${b.name} (Sv.${b.level})').join(', '),
+              : sideBusinesses.map((b) => '${b.name} • Sv.${b.level}').join(', '),
           amount: sideBusinessIncome,
           isIncome: true,
           badgeText: businessMultiplier > 1.0 ? '+%30 Patron Bonusu' : null,
@@ -538,7 +538,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.car_rental_rounded,
           iconColor: const Color(0xFF38BDF8),
-          title: 'Rent a Car Kiralamaları ($rentalsCount Araç)',
+          title: 'Rent a Car Kiralamaları • $rentalsCount Araç',
           subtitle: rentalsCount == 0
               ? 'Kirada olan araç bulunmuyor'
               : '$rentalsCount adet sözleşmeli kiralık araç günlük tarifesi',
@@ -555,7 +555,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           iconColor: const Color(0xFFFFDE59),
           title: 'Vadeli Mevduat Faiz Getirisi',
           subtitle: depositBalance > 0
-              ? '${CurrencyFormatter.format(depositBalance)} mevduat bakiyesi (%24 Yıllık Faiz)'
+              ? '${CurrencyFormatter.format(depositBalance)} mevduat bakiyesi • %24 Yıllık Faiz'
               : 'Vadeli hesapta para bulunmuyor',
           amount: depositInterest,
           isIncome: true,
@@ -600,10 +600,10 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.badge_rounded,
           iconColor: const Color(0xFFEF4444),
-          title: 'Personel Maaşları (${staffList.length} Çalışan)',
+          title: 'Personel Maaşları • ${staffList.length} Çalışan',
           subtitle: staffList.isEmpty
               ? 'İşe alınmış personel bulunmuyor'
-              : staffList.map((s) => '${s.name} (${s.role.title})').join(', '),
+              : staffList.map((s) => '${s.name} • ${s.role.title}').join(', '),
           amount: staffSalaries,
           isIncome: false,
           badgeText: hasBossPerk ? '-%20 Patron İndirimi' : null,
@@ -630,7 +630,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             isDark: isDark,
             icon: Icons.credit_score_rounded,
             iconColor: const Color(0xFFEF4444),
-            title: 'Banka Kredisi Geri Ödemeleri (${activeLoans.length} Kredi)',
+            title: 'Banka Kredisi Geri Ödemeleri • ${activeLoans.length} Kredi',
             subtitle: 'Aktif ticari kredilerin günlük faiz ve anapara taksit payı',
             amount: loanDailyPayment,
             isIncome: false,

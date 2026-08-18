@@ -104,7 +104,7 @@ class IndustryGossipScreen extends ConsumerWidget {
             )
           else ...[
             Text(
-              'GÜNCEL DUYUMLAR (${gossips.length})',
+              'GÜNCEL DUYUMLAR • ${gossips.length}',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,

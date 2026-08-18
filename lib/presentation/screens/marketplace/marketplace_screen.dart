@@ -209,7 +209,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         const SizedBox(height: 2),
                         if (marketSenseLevel >= 3)
                           Text(
-                            'Piyasa Sezgisi (Lv $marketSenseLevel): SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
+                            'Piyasa Sezgisi Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
                             style: TextStyle(
                               color: p.primaryColor,
                               fontSize: 10.5,
@@ -238,7 +238,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             child: Row(
               children: [
-                _buildFilterChip('all', 'Tüm İlanlar (${allListings.length})', Icons.directions_car_rounded, p, isDark),
+                _buildFilterChip('all', 'Tüm İlanlar • ${allListings.length}', Icons.directions_car_rounded, p, isDark),
                 const SizedBox(width: 8),
                 _buildFilterChip('bargain', 'Kelepir Fırsatlar', Icons.local_fire_department_rounded, p, isDark),
                 const SizedBox(width: 8),

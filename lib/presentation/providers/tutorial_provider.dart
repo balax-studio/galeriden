@@ -33,7 +33,7 @@ class TutorialState {
       case TutorialStep.checkPart:
         return 'Hasarlı kaput veya motorun durumunu ve tamir seçeneklerini incele.';
       case TutorialStep.tryRepair:
-        return 'Bütçene uygun tamir seçeneğine karar ver (Geçici / Usta / Yeni).';
+        return 'Bütçene uygun tamir seçeneğine karar ver: Geçici / Usta / Yeni.';
       case TutorialStep.orderPart:
         return 'Parça veya usta tamir siparişini ver.';
       case TutorialStep.waitDelivery:

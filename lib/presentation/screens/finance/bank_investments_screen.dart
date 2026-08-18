@@ -183,7 +183,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     const SizedBox(width: 6),
                     _buildPercentageChip('%50', () => _setDepositPercentage(0.50, game.balance), isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip('TÜMÜ (%100)', () => _setDepositPercentage(1.0, game.balance), isDark),
+                    _buildPercentageChip('TÜMÜ • %100', () => _setDepositPercentage(1.0, game.balance), isDark),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -195,7 +195,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         keyboardType: TextInputType.number,
                         style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Yatırılacak Tutar (₺)',
+                          hintText: 'Yatırılacak Tutar ₺',
                           filled: true,
                           fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                           border: OutlineInputBorder(
@@ -280,7 +280,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     const SizedBox(width: 6),
                     _buildPercentageChip('%50', () => _setWithdrawPercentage(0.50, game.bankDepositBalance), isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip('TÜMÜ (%100)', () => _setWithdrawPercentage(1.0, game.bankDepositBalance), isDark),
+                    _buildPercentageChip('TÜMÜ • %100', () => _setWithdrawPercentage(1.0, game.bankDepositBalance), isDark),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -292,7 +292,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         keyboardType: TextInputType.number,
                         style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Çekilecek Tutar (₺)',
+                          hintText: 'Çekilecek Tutar ₺',
                           filled: true,
                           fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                           border: OutlineInputBorder(
@@ -376,7 +376,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Kredi Skoru: AAA (Mükemmel)',
+                              'Kredi Skoru: AAA • Mükemmel',
                               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                             ),
                             const SizedBox(height: 2),
@@ -397,7 +397,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       child: NeoBrutalButton(
                         label: isMaxCreditLimit
                             ? 'LİMİT MAKSİMUM'
-                            : 'LİMİTİ ₺25M YAP (₺50.000)',
+                            : 'LİMİTİ ₺25M YAP • ₺50.000',
                         icon: isMaxCreditLimit ? Icons.check_circle_rounded : Icons.trending_up_rounded,
                         backgroundColor: isMaxCreditLimit ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
                         textColor: isMaxCreditLimit ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
@@ -446,7 +446,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
 
           // 5. Active Bank Loans Section
           Text(
-            'AKTİF BANKA KREDİLERİ & BORÇLAR (${game.activeLoans.length}/3)',
+            'AKTİF BANKA KREDİLERİ & BORÇLAR • ${game.activeLoans.length}/3',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -665,11 +665,11 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      _buildMonthOption(3, '3 Ay (%10 Faiz)', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      _buildMonthOption(3, '3 Ay • %10 Faiz', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
                       const SizedBox(width: 8),
-                      _buildMonthOption(6, '6 Ay (%18 Faiz)', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      _buildMonthOption(6, '6 Ay • %18 Faiz', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
                       const SizedBox(width: 8),
-                      _buildMonthOption(12, '12 Ay (%28 Faiz)', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      _buildMonthOption(12, '12 Ay • %28 Faiz', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -702,7 +702,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   ),
                   const SizedBox(height: 18),
                   NeoBrutalButton(
-                    label: 'KREDİYİ KULLAN (${CurrencyFormatter.formatShort(selectedAmount)})',
+                    label: 'KREDİYİ KULLAN • ${CurrencyFormatter.formatShort(selectedAmount)}',
                     icon: Icons.check_circle_rounded,
                     backgroundColor: AppColors.brutalGreen,
                     textColor: Colors.black,

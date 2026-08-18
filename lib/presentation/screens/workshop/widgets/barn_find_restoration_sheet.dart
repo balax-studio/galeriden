@@ -139,7 +139,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                         ),
                       ),
                       Text(
-                        '${currentCar.brand} ${currentCar.modelName} (${currentCar.modelYear})',
+                        '${currentCar.brand} ${currentCar.modelName} • ${currentCar.modelYear}',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -215,13 +215,13 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Orijinal Çıkma & Sıfır Parça Kullan (+%65 Koleksiyonluk Değer)',
+                          'Orijinal Çıkma & Sıfır Parça Kullan • +%65 Koleksiyonluk Değer',
                           style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800),
                         ),
                         Text(
                           _useOriginalParts
                             ? 'Maliyet +%25 artar fakat araç tamamlandığında 1.65x efsanevi koleksiyon çarpanı kazanır.'
-                            : 'Yan sanayi parçalarla maliyet düşük tutulur (1.25x standart çarpan).',
+                            : 'Yan sanayi parçalarla maliyet düşük tutulur • 1.25x standart çarpan.',
                           style: TextStyle(
                             fontSize: 9.5,
                             color: isDark ? Colors.white60 : const Color(0xFF64748B),
@@ -331,7 +331,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                 final cost = _useOriginalParts ? (nextStageInfo.cost * 1.25) : nextStageInfo.cost;
 
                 return NeoBrutalButton(
-                  label: '${nextStageInfo.title} Tamamla (${CurrencyFormatter.formatShort(cost)})',
+                  label: '${nextStageInfo.title} Tamamla • ${CurrencyFormatter.formatShort(cost)}',
                   icon: Icons.handyman_rounded,
                   backgroundColor: const Color(0xFFFFDE59),
                   textColor: Colors.black,

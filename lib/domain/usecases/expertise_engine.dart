@@ -122,15 +122,15 @@ class ExpertiseEngine {
 
     String overallGrade;
     if (damagePercentage < 10) {
-      overallGrade = 'A+ (Kusursuz / Koleksiyonluk)';
+      overallGrade = 'A+ • Kusursuz / Koleksiyonluk';
     } else if (damagePercentage < 22) {
-      overallGrade = 'A (Temiz / Masrafsız)';
+      overallGrade = 'A • Temiz / Masrafsız';
     } else if (damagePercentage < 35) {
-      overallGrade = 'B (İyi Durumda / Lokal Boyalı)';
+      overallGrade = 'B • İyi Durumda / Lokal Boyalı';
     } else if (damagePercentage < 50) {
-      overallGrade = 'C (Orta / Bakım Gerekli)';
+      overallGrade = 'C • Orta / Bakım Gerekli';
     } else {
-      overallGrade = 'D (Ağır Hasarlı / Onarım Gerekli)';
+      overallGrade = 'D • Ağır Hasarlı / Onarım Gerekli';
     }
 
     final noteBuffer = StringBuffer('Ekspertiz Notu: ');
@@ -141,7 +141,7 @@ class ExpertiseEngine {
       noteBuffer.write('Geçmiş hasar kaydı yüksek, tramer bedeli ₺${exp.tramerAmount}. ');
     }
     if (exp.bodyParts['Şasi/Podye'] == PartStatus.damaged || exp.bodyParts['Tavan'] == PartStatus.damaged) {
-      noteBuffer.write('Kritik iskelet (şasi/podye/tavan) hasarı mevcut! ');
+      noteBuffer.write('Kritik iskelet şasi, podye veya tavan hasarı mevcut! ');
     } else if (exp.bodyParts.values.every((p) => p == PartStatus.original)) {
       noteBuffer.write('Tüm kaporta aksamı ve şasi fabrikasyon orijinaldir. ');
     } else {

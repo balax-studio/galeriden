@@ -81,9 +81,9 @@ class AuctionEngine {
   ];
 
   static final List<String> _riskRewardFactors = [
-    'Kusursuz Kondisyon (Muhafaza Altında Tutulmuş)',
+    'Kusursuz Kondisyon • Muhafaza Altında Tutulmuş',
     'Hafif Kaporta İzi / Çekme Belgeli',
-    'Piyango Fırsatı (Düşük KM & Servis Bakımlı)',
+    'Piyango Fırsatı • Düşük KM & Servis Bakımlı',
     'Anahtarsız Yediemin Girişli',
     'Motor Diri / Ekspertiz Onaylı',
     'Koleksiyonluk Kasa / Orijinal Hatlar',

@@ -125,7 +125,7 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        isReady ? (_isInstalling ? 'Monte Ediliyor...' : 'Teslimat Tamamlandı!') : 'Kargoda ($remainingSec sn kaldı)',
+                        isReady ? (_isInstalling ? 'Monte Ediliyor...' : 'Teslimat Tamamlandı!') : 'Kargoda • $remainingSec sn kaldı',
                         style: AppTypography.labelSmall(p.isDark).copyWith(
                           color: isReady ? p.successColor : p.warningColor,
                           fontSize: 11,

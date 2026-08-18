@@ -58,7 +58,7 @@ class ExpertiseReportSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('RESMİ EKSPERTİZ RAPORU', style: AppTypography.titleLarge(p.isDark)),
-                    Text('${car.brand} ${car.modelName} (${car.modelYear})', style: AppTypography.labelSmall(p.isDark)),
+                    Text('${car.brand} ${car.modelName} • ${car.modelYear}', style: AppTypography.labelSmall(p.isDark)),
                   ],
                 ),
                 Container(

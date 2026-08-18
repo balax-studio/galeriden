@@ -117,7 +117,7 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
 
       // Choose 06 Ankara
-      await tester.tap(find.text('06 (Ankara)'));
+      await tester.tap(find.text('06 Ankara'));
       await tester.pumpAndSettle();
 
       expect(plateChosen, '06');

@@ -94,13 +94,13 @@ void main() {
     });
 
     test('DealershipModel branch names and aliases work as expected', () {
-      expect(DealershipModel.getRequiredBranchName('/car-wash'), 'Mahalle Tipi Açık Oto Galeri (Seviye 2)');
-      expect(DealershipModel.getRequiredBranchName('/workshop'), 'Sanayi Sitesi Esnaf Galerisi (Seviye 3)');
-      expect(DealershipModel.getRequiredBranchName('/tuning-studio'), 'Cadde Üstü Butik Oto Galeri (Seviye 4)');
-      expect(DealershipModel.getRequiredBranchName('/auction'), 'Oto Center Kurumsal Galeri (Seviye 5)');
-      expect(DealershipModel.getRequiredBranchName('/stock-market'), 'Premium Cam Showroom Plaza (Seviye 6)');
-      expect(DealershipModel.getRequiredBranchName('/rent-a-car'), 'Lüks Koleksiyoner VIP Galeri (Seviye 7)');
-      expect(DealershipModel.getRequiredBranchName('/scrapyard'), 'Mega Otomotiv Holding Plazası (Seviye 8)');
+      expect(DealershipModel.getRequiredBranchName('/car-wash'), 'Mahalle Tipi Açık Oto Galeri • Seviye 2');
+      expect(DealershipModel.getRequiredBranchName('/workshop'), 'Sanayi Sitesi Esnaf Galerisi • Seviye 3');
+      expect(DealershipModel.getRequiredBranchName('/tuning-studio'), 'Cadde Üstü Butik Oto Galeri • Seviye 4');
+      expect(DealershipModel.getRequiredBranchName('/auction'), 'Oto Center Kurumsal Galeri • Seviye 5');
+      expect(DealershipModel.getRequiredBranchName('/stock-market'), 'Premium Cam Showroom Plaza • Seviye 6');
+      expect(DealershipModel.getRequiredBranchName('/rent-a-car'), 'Lüks Koleksiyoner VIP Galeri • Seviye 7');
+      expect(DealershipModel.getRequiredBranchName('/scrapyard'), 'Mega Otomotiv Holding Plazası • Seviye 8');
 
       // Aliases
       expect(DealershipModel.getRequiredLevel('/gossip-hotline'), 7);

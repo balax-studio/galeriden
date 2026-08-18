@@ -589,7 +589,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Kasadaki nakit kritik seviyeye düştü (₺${CurrencyFormatter.formatShort(game.balance)}). Gelir yaratmak için aşağıdaki acil durum eylemlerini kullanabilirsin.',
+            'Kasadaki nakit kritik seviyeye düştü: ₺${CurrencyFormatter.formatShort(game.balance)}. Gelir yaratmak için aşağıdaki acil durum eylemlerini kullanabilirsin.',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -602,7 +602,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
               // 1. Scrapyard Gig
               Expanded(
                 child: NeoBrutalButton(
-                  label: canWorkGig ? 'Hurdalık Çıraklığı (+₺5.000)' : 'Çıraklık (Tamamlandı)',
+                  label: canWorkGig ? 'Hurdalık Çıraklığı • +₺5.000' : 'Çıraklık • Tamamlandı',
                   icon: canWorkGig ? Icons.handyman_rounded : Icons.check_circle_rounded,
                   backgroundColor: canWorkGig
                       ? const Color(0xFFFFDE59)
@@ -631,7 +631,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
                 // 2. Emergency Bailout (Dede Mirası)
                 Expanded(
                   child: NeoBrutalButton(
-                    label: 'Dede Mirası (+₺50.000)',
+                    label: 'Dede Mirası • +₺50.000',
                     icon: Icons.volunteer_activism_rounded,
                     backgroundColor: const Color(0xFF00E575),
                     textColor: Colors.black,

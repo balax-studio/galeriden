@@ -357,7 +357,7 @@ class ForexGoldModel {
         ),
         ForexGoldModel(
           symbol: 'GOLD',
-          name: 'Gram Altın (24 Ayar)',
+          name: 'Gram Altın • 24 Ayar',
           buyRate: 2850.0,
           sellRate: 2820.0,
           previousRate: 2835.0,

@@ -60,7 +60,7 @@ class NightMarketEngine {
       name: 'Çırak Samet',
       title: 'Sanayi Çaylağı',
       carName: 'Tofaş Doğan SLX',
-      modificationSummary: 'Açık Filtre & Düz Boru (+6 HP)',
+      modificationSummary: 'Açık Filtre & Düz Boru • +6 HP',
       tier: 1,
       basePower: 86,
       badge: 'ÇAYLAK',
@@ -80,7 +80,7 @@ class NightMarketEngine {
       name: 'Kurye Emre',
       title: 'Otoban Faresi',
       carName: 'Fiat Fiorino 1.3 MJet',
-      modificationSummary: 'Dumansız Stage 1 Yazılım (+15 HP)',
+      modificationSummary: 'Dumansız Stage 1 Yazılım • +15 HP',
       tier: 1,
       basePower: 105,
       badge: 'TİCARİ',
@@ -102,7 +102,7 @@ class NightMarketEngine {
       name: 'Yazılımcı Alper',
       title: 'Cadde Yarışçısı',
       carName: 'VW Polo GTI 1.4 TSI',
-      modificationSummary: 'Pop & Bang Yazılım & Downpipe (+35 HP)',
+      modificationSummary: 'Pop & Bang Yazılım & Downpipe • +35 HP',
       tier: 2,
       basePower: 215,
       badge: 'CADDE',
@@ -112,7 +112,7 @@ class NightMarketEngine {
       name: 'Egzozcu Yaşar Usta',
       title: 'Atmosferikçi',
       carName: 'Honda Civic 1.6 VTi',
-      modificationSummary: 'VTEC Açan Headers & Düz Boru (+30 HP)',
+      modificationSummary: 'VTEC Açan Headers & Düz Boru • +30 HP',
       tier: 2,
       basePower: 190,
       badge: 'USTA',
@@ -122,7 +122,7 @@ class NightMarketEngine {
       name: 'Gece Kuşu Kemal',
       title: 'Çevre Yolu Hayaleti',
       carName: 'BMW 3.20d E90 M-Tech',
-      modificationSummary: 'Stage 2 Dumancı Hibrit Turbo (+65 HP)',
+      modificationSummary: 'Stage 2 Dumancı Hibrit Turbo • +65 HP',
       tier: 2,
       basePower: 245,
       badge: 'DUMANCI',
@@ -132,7 +132,7 @@ class NightMarketEngine {
       name: 'Sanayi Fenomeni Berk',
       title: 'Pist Heveslisi',
       carName: 'VW Golf 7 GTI Performance',
-      modificationSummary: 'Intercooler & Forge Blow-Off (+80 HP)',
+      modificationSummary: 'Intercooler & Forge Blow-Off • +80 HP',
       tier: 2,
       basePower: 300,
       badge: 'FENOMEN',
@@ -274,7 +274,7 @@ class NightMarketEngine {
     String summary;
     if (isWon) {
       if (margin >= 12) {
-        summary = 'Açık ara zafer! ${playerCar.modelName} müthiş bir kalkış yaparak ${activeRival.name} (${activeRival.carName}) karşısında ilk 200 metrede 3 boy fark açtı ve finişi ezici bir üstünlükle geçti!';
+        summary = 'Açık ara zafer! ${playerCar.modelName} müthiş bir kalkış yaparak ${activeRival.name} • ${activeRival.carName} karşısında ilk 200 metrede 3 boy fark açtı ve finişi ezici bir üstünlükle geçti!';
       } else {
         summary = 'Nefes kesen mücadele! Son 100 metrede ${activeRival.name} ile tampon tampona girdin. Vites geçişindeki kusursuz refleksinle yarım boy farkla çizgiyi önde geçtin!';
       }
@@ -292,9 +292,9 @@ class NightMarketEngine {
       );
     } else {
       if (margin <= -12) {
-        summary = 'Rakip çok güçlüydü! ${activeRival.name} (${activeRival.modificationSummary}) yüksek turbo basıncı ve üstün çekişiyle düzlükte farkı açarak yarışı kazandı.';
+        summary = 'Rakip çok güçlüydü! ${activeRival.name} • ${activeRival.modificationSummary} yüksek turbo basıncı ve üstün çekişiyle düzlükte farkı açarak yarışı kazandı.';
       } else {
-        summary = 'Kıl payı kaçtı! ${activeRival.name} (${activeRival.carName}) viraj çıkışındaki agresif hamlesiyle son anda öne geçti. Küçük bir modifiye veya motor bakımıyla bir dahaki sefere alırsın!';
+        summary = 'Kıl payı kaçtı! ${activeRival.name} • ${activeRival.carName} viraj çıkışındaki agresif hamlesiyle son anda öne geçti. Küçük bir modifiye veya motor bakımıyla bir dahaki sefere alırsın!';
       }
 
       return NightRaceResult(

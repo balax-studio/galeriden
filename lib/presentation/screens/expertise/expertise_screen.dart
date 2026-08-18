@@ -22,6 +22,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/slam_stamp_widget.dart';
+import '../../widgets/mini_games/micron_body_scan_canvas.dart';
 
 class ExpertiseScreen extends ConsumerStatefulWidget {
   final ListingModel listing;
@@ -151,10 +152,10 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                       final discount = game.skills.expertiseCostDiscount;
                       final haydarFactor = game.hasHighNpcTrust('haydar_usta') ? 0.50 : 1.0;
                       final fee = hasAppraiser ? 0.0 : (GameConstants.expertiseBaseCost * (1.0 - discount) * haydarFactor).roundToDouble();
-                      final feeFormatted = hasAppraiser ? '₺0 (Kadroda Uzman Var)' : CurrencyFormatter.format(fee);
+                      final feeFormatted = hasAppraiser ? '₺0 • Kadroda Uzman Var' : CurrencyFormatter.format(fee);
                       final perkLabel = hasAppraiser
-                          ? ' (Ekspertiz Uzmanı Ücretsiz Raporladı)'
-                          : (game.hasHighNpcTrust('haydar_usta') ? ' (Haydar Usta %50 Dost İndirimi)' : '');
+                          ? ' • Ekspertiz Uzmanı Ücretsiz Raporladı'
+                          : (game.hasHighNpcTrust('haydar_usta') ? ' • Haydar Usta %50 Dost İndirimi' : '');
 
                       return Column(
                         children: [
@@ -168,8 +169,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           const SizedBox(height: 16),
                           NeoBrutalButton(
                             label: hasAppraiser
-                                ? 'UZMAN RAPORUNU AÇ (₺0 - Ücretsiz)'
-                                : 'EKSPERTİZ YAPTIR ($feeFormatted)$perkLabel',
+                                ? 'UZMAN RAPORUNU AÇ • ₺0 Ücretsiz'
+                                : 'EKSPERTİZ YAPTIR • $feeFormatted$perkLabel',
                             icon: hasAppraiser ? Icons.verified_user_rounded : Icons.fact_check_rounded,
                             backgroundColor: hasAppraiser ? AppColors.brutalGreen : AppColors.brutalYellow,
                             textColor: Colors.black,
@@ -341,7 +342,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                             ),
                             const SizedBox(height: 10),
                             NeoBrutalButton(
-                              label: 'NOTER İHTARI ÇEK (+$compFormatted TAZMİNAT)',
+                              label: 'NOTER İHTARI ÇEK • +$compFormatted TAZMİNAT',
                               icon: Icons.assignment_turned_in_rounded,
                               backgroundColor: AppColors.errorRed,
                               textColor: Colors.white,
@@ -349,7 +350,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                               onPressed: () {
                                 final success = ref.read(gameProvider.notifier).claimNotaryFraudCompensation(car.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, 'Noter ihtarnamesi satıcıya tebliğ edildi! $compFormatted tazminat hesabınıza aktarıldı. (+2 İtibar)');
+                                  NotificationService.showSuccess(context, 'Noter ihtarnamesi satıcıya tebliğ edildi! $compFormatted tazminat hesabınıza aktarıldı • +2 İtibar');
                                   setState(() {});
                                 } else {
                                   NotificationService.showError(context, 'Tazminat talebi gerçekleştirilemedi.');
@@ -413,7 +414,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
 
             // Interactive Micron Gauge Mini-Game
             Text(
-              'BOYA MİKRON ÖLÇER (İNTERAKTİF CİHAZ)',
+              'BOYA MİKRON ÖLÇER',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -422,7 +423,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            _MicronGaugeMiniGame(bodyParts: exp.bodyParts, isDark: isDark),
+            MicronBodyScanCanvasWidget(bodyParts: exp.bodyParts, isDark: isDark),
             const SizedBox(height: 16),
 
             // Fair Market Value vs Asking Price Summary Card
@@ -488,7 +489,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                             Expanded(
                               child: Text(
                                 isOverpriced
-                                    ? 'Satıcı ${CurrencyFormatter.formatShort(diff)} yüksek istiyor (Pazarlık Kozu!)'
+                                    ? 'Satıcı ${CurrencyFormatter.formatShort(diff)} yüksek istiyor • Pazarlık Kozu!'
                                     : 'Piyasanın ${CurrencyFormatter.formatShort(-diff)} altında kelepir fırsat!',
                                 style: const TextStyle(
                                   color: Colors.black,
@@ -638,7 +639,7 @@ class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
                   ),
                   Text(
-                    '$_measuredMicrons µm (Mikron)',
+                    '$_measuredMicrons µm',
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.black),
                   ),
                 ],

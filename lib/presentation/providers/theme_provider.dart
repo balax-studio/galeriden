@@ -321,4 +321,23 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
     _saveThemeState();
     return true;
   }
+
+  /// Unlock theme instantly by watching a rewarded ad
+  bool unlockPaletteViaAd(String paletteId) {
+    final index = state.availablePalettes.indexWhere((p) => p.id == paletteId);
+    if (index == -1) return false;
+
+    final target = state.availablePalettes[index];
+    final updated = target.copyWith(isUnlocked: true);
+    final newList = List<ThemePaletteModel>.from(state.availablePalettes);
+    newList[index] = updated;
+
+    state = ThemeState(
+      activePalette: updated, // Automatically activate upon ad reward
+      availablePalettes: newList,
+    );
+
+    _saveThemeState();
+    return true;
+  }
 }

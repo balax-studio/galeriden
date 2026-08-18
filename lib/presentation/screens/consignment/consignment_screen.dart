@@ -203,7 +203,7 @@ class ConsignmentScreen extends ConsumerWidget {
           // 2. Active in-showroom consignment vehicles
           if (activeConsignmentCars.isNotEmpty) ...[
             Text(
-              'VİTRİNDEKİ EMANET ARAÇLARINIZ (${activeConsignmentCars.length})',
+              'VİTRİNDEKİ EMANET ARAÇLARINIZ • ${activeConsignmentCars.length}',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -218,7 +218,7 @@ class ConsignmentScreen extends ConsumerWidget {
 
           // 3. New incoming consignment offers
           Text(
-            'YENİ KONSİNYE TALEPLERİ (${availableOffers.length})',
+            'YENİ KONSİNYE TALEPLERİ • ${availableOffers.length}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -390,7 +390,7 @@ class ConsignmentScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        '₺0 (Ücretsiz)',
+                        '₺0 • Ücretsiz',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                       ),
                     ],

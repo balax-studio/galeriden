@@ -118,7 +118,8 @@ class GameCoreNotifier extends GameBaseNotifier
         return;
       } catch (e) {
         debugPrint('GameCoreProvider save load error: $e');
-        // Fallback: Clear corrupted storage key if load fails
+        // Fallback: Backup corrupted state for diagnostics and clear primary key
+        await prefs.setString('${_storageKey}_corrupted_backup', jsonString);
         await prefs.remove(_storageKey);
       }
     }
@@ -381,12 +382,113 @@ class GameCoreNotifier extends GameBaseNotifier
     saveState();
   }
 
-  /// Dev / God Mode: Unlock All Properties & Level 4 (Mega Otomotiv Kalesi)
+  /// Dev / God Mode: Unlock All Properties & Level 8 (Mega Otomotiv Holding Plazası)
   void unlockAllPropertiesAndMaxLevel() {
+    final allPropertiesAndRoutes = {
+      'property_tier_2',
+      'property_tier_3',
+      'property_tier_4',
+      'property_tier_5',
+      'property_tier_6',
+      'property_tier_7',
+      'property_tier_8',
+      '/marketplace',
+      '/showroom',
+      '/expertise',
+      '/branches',
+      '/character-growth',
+      '/settings',
+      '/dealership-identity',
+      '/theme-store',
+      '/car-wash',
+      '/history',
+      '/workshop',
+      '/staff',
+      '/staff-academy',
+      '/tuning-studio',
+      '/showroom-decor',
+      '/auction',
+      '/finance',
+      '/reviews',
+      '/bank-investments',
+      '/stock-market',
+      '/rent-a-car',
+      '/black-market',
+      '/district-market',
+      '/districts',
+      '/gossip-hotline',
+      '/gossip',
+      '/scrapyard',
+      '/side-businesses',
+      '/consignment-market',
+      '/consignment',
+      '/second-branch',
+      '/vip-appointments',
+      '/customs-import',
+      '/guild-chamber',
+      '/franchise',
+      '/prestige-dynasty',
+      '/night-market',
+    };
+
+    final updatedSkills = state.skills.copyWith(
+      xp: 250000,
+      negotiationLevel: 10,
+      eyeForDetail: 10,
+      marketSense: 10,
+      reputation: 10,
+      financeSense: 10,
+    );
+
     state = state.copyWith(
-      level: 4,
-      maxGarageSlots: 15,
+      level: 8,
+      maxGarageSlots: 20,
       reputationScore: 100,
+      skills: updatedSkills,
+      unlockedBuildings: {...state.unlockedBuildings, ...allPropertiesAndRoutes},
+    );
+    saveState();
+  }
+
+  /// Dev / God Mode: Set Specific Level (1 to 8) and unlock appropriate properties
+  void setLevel(int targetLevel) {
+    final clamped = targetLevel.clamp(1, 8);
+    final updatedBuildings = Set<String>.from(state.unlockedBuildings);
+
+    int slots = 3;
+    if (clamped >= 2) {
+      slots = 4;
+      updatedBuildings.addAll({'property_tier_2', '/car-wash', '/history'});
+    }
+    if (clamped >= 3) {
+      slots = 6;
+      updatedBuildings.addAll({'property_tier_3', '/workshop', '/staff', '/staff-academy'});
+    }
+    if (clamped >= 4) {
+      slots = 8;
+      updatedBuildings.addAll({'property_tier_4', '/tuning-studio', '/showroom-decor'});
+    }
+    if (clamped >= 5) {
+      slots = 10;
+      updatedBuildings.addAll({'property_tier_5', '/auction', '/finance', '/reviews'});
+    }
+    if (clamped >= 6) {
+      slots = 13;
+      updatedBuildings.addAll({'property_tier_6', '/bank-investments', '/stock-market'});
+    }
+    if (clamped >= 7) {
+      slots = 16;
+      updatedBuildings.addAll({'property_tier_7', '/rent-a-car', '/black-market', '/district-market', '/districts', '/gossip-hotline', '/gossip'});
+    }
+    if (clamped >= 8) {
+      slots = 20;
+      updatedBuildings.addAll({'property_tier_8', '/scrapyard', '/side-businesses', '/consignment-market', '/consignment', '/second-branch', '/vip-appointments', '/customs-import', '/guild-chamber', '/franchise', '/prestige-dynasty'});
+    }
+
+    state = state.copyWith(
+      level: clamped,
+      maxGarageSlots: slots,
+      unlockedBuildings: updatedBuildings,
     );
     saveState();
   }

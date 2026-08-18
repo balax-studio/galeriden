@@ -48,7 +48,7 @@ class InstallmentContract {
         'lateFee': lateFee,
       };
 
-  String get carModelName => 'Taksitli Satış ($customerName)';
+  String get carModelName => 'Taksitli Satış • $customerName';
   int get nextPaymentDay => daysUntilNextPayment;
 
   factory InstallmentContract.fromJson(Map<String, dynamic> json) =>

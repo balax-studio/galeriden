@@ -99,7 +99,7 @@ class ChipTuningModal extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Karbon Bodykit & Film', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5)),
-                        Text('Agresif spoiler & 2 numara film (+%8 Değer)', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                        Text('Agresif spoiler & 2 numara film • +%8 Değer', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
                       ],
                     ),
                   ),

@@ -163,7 +163,7 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
               if (hasScrapParts) ...[
                 _buildOrderTypeTile(
                   title: 'Çıkma Depo',
-                  time: '$durationSeconds sn (₺0)',
+                  time: '$durationSeconds sn • ₺0',
                   type: OrderType.salvagedScrap,
                   selected: _selectedType,
                   isDark: isDark,
@@ -218,7 +218,7 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                   children: [
                     const Text('Sipariş Maliyeti', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
                     Text(
-                      _selectedType == OrderType.salvagedScrap ? '₺0 (Stoktan)' : CurrencyFormatter.format(cost),
+                      _selectedType == OrderType.salvagedScrap ? '₺0 • Stoktan' : CurrencyFormatter.format(cost),
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                     ),
                   ],

@@ -6,14 +6,13 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/animated_rolling_counter.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/pulsing_dot.dart';
-import '../../widgets/slam_stamp_widget.dart';
+import '../../widgets/mini_games/drag_race_canvas.dart';
 
 class NightMarketScreen extends ConsumerStatefulWidget {
   const NightMarketScreen({super.key});
@@ -250,11 +249,11 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
             ? 'Hafif Üstünsün'
             : (winChance >= 45 ? 'Denk Mücadele' : 'Zorlu Rakip'));
 
-    String prizeRangeText = '₺20.000 - ₺35.000 (+4 İtibar)';
+    String prizeRangeText = '₺20.000 - ₺35.000 • +4 İtibar';
     if (rival.tier == 2) {
-      prizeRangeText = '₺40.000 - ₺65.000 (+6 İtibar)';
+      prizeRangeText = '₺40.000 - ₺65.000 • +6 İtibar';
     } else if (rival.tier == 3) {
-      prizeRangeText = '₺75.000 - ₺120.000 (+10 İtibar)';
+      prizeRangeText = '₺75.000 - ₺120.000 • +10 İtibar';
     }
 
     return NeoBrutalCard(
@@ -326,7 +325,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
                       ),
                       Text(
-                        'Güç: $playerPower HP (Kond: %${car.expertise.engineCondition.round()})',
+                        'Güç: $playerPower HP • Kond: %${car.expertise.engineCondition.round()}',
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                       ),
                     ],
@@ -359,7 +358,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
                       ),
                       Text(
-                        '${rival.carName} (~${rival.basePower} HP)',
+                        '${rival.carName} • ~${rival.basePower} HP',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalYellow),
@@ -388,7 +387,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                       Icon(Icons.query_stats_rounded, size: 16, color: winChanceColor),
                       const SizedBox(width: 6),
                       Text(
-                        'Kazanma Tahmini: %$winChance ($winStatusText)',
+                        'Kazanma Tahmini: %$winChance • $winStatusText',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -438,7 +437,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'KAZANILACAK ÖDÜL (GİRİŞ: ${CurrencyFormatter.format(GameConstants.nightRaceEntryFee)})',
+                    'KAZANILACAK ÖDÜL • GİRİŞ ${CurrencyFormatter.format(GameConstants.nightRaceEntryFee)}',
                     style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
                   ),
                   Text(
@@ -448,149 +447,29 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                 ],
               ),
               NeoBrutalButton(
-                label: dailyRacesRemaining > 0 ? 'GAZLA & YARIŞ (${CurrencyFormatter.format(GameConstants.nightRaceEntryFee)})' : 'GÜNLÜK HAK BİTTİ',
+                label: dailyRacesRemaining > 0 ? 'GAZLA & YARIŞ • ${CurrencyFormatter.format(GameConstants.nightRaceEntryFee)}' : 'GÜNLÜK HAK BİTTİ',
                 backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalPink : const Color(0xFF475569),
                 textColor: Colors.white,
                 onPressed: dailyRacesRemaining > 0
                     ? () {
                         final result = ref.read(gameProvider.notifier).enterNightRace(car, rival: rival);
-                        _showRaceResultDialog(context, result);
-                        setState(() {
-                          _currentRival = NightMarketEngine.getMatchedRival(car);
-                        });
+                        DragRaceMiniGameModal.show(
+                          context,
+                          car: car,
+                          rival: rival,
+                          raceResult: result,
+                          onFinished: () {
+                            setState(() {
+                              _currentRival = NightMarketEngine.getMatchedRival(car);
+                            });
+                          },
+                        );
                       }
                     : null,
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  void _showRaceResultDialog(BuildContext context, NightRaceResult result) {
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-        child: NeoBrutalCard(
-          padding: const EdgeInsets.all(18),
-          backgroundColor: const Color(0xFF141721),
-          borderColor: result.isWon ? AppColors.brutalGreen : AppColors.errorRed,
-          borderWidth: 2.5,
-          borderRadius: 16,
-          shadowOffset: const Offset(4, 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: result.isWon ? AppColors.brutalGreen : AppColors.errorRed,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black, width: 2.0),
-                    ),
-                    child: Icon(
-                      result.isWon ? Icons.emoji_events_rounded : Icons.sports_score_rounded,
-                      color: Colors.black,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      result.isWon ? 'YARIŞI KAZANDIN!' : 'YARIŞ KAYBEDİLDİ',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SlamStampWidget(
-                    text: result.isWon ? 'ŞAMPİYON' : 'ELENDİ',
-                    color: result.isWon ? AppColors.brutalGreen : AppColors.errorRed,
-                    fontSize: 10,
-                    angle: result.isWon ? -0.1 : 0.08,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0C0E14),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF262C3D), width: 1.5),
-                ),
-                child: Text(
-                  result.raceLog,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFE2E8F0),
-                    height: 1.4,
-                  ),
-                ),
-              ),
-              if (result.isWon) ...[
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.brutalGreen.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.brutalGreen, width: 2.0),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.stars_rounded, color: AppColors.brutalGreen, size: 20),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Ödül: +',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.brutalGreen,
-                        ),
-                      ),
-                      AnimatedRollingCounter(
-                        value: result.prizeMoney,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.brutalGreen,
-                        ),
-                      ),
-                      Text(
-                        ' & +${result.reputationBonus} İtibar',
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.brutalGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 16),
-              NeoBrutalButton(
-                label: 'TAMAM',
-                fullWidth: true,
-                backgroundColor: result.isWon ? AppColors.brutalGreen : AppColors.errorRed,
-                textColor: Colors.black,
-                onPressed: () => Navigator.of(ctx).pop(),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

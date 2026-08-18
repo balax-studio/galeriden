@@ -94,7 +94,7 @@ class StoryCardModel {
       dialogue:
           '“Patron, garajdaki arabanın şasisi şüpheli duruyor. Normalde ekspertiz makinesi yarım saat sürer ama ben eski usül kulağımı kaportaya dayar ciğerini okurum. Bir çırağa çay ısmarla, sana bu araba yatırımlık mı hurdalık mı hemen fısıldayayım!”',
       rewardDescription: 'Bekleme süresi olmadan anında tam ekspertiz raporu & kusur tespiti.',
-      acceptLabel: 'ÇAYA ÇORBAYA DESTEK (REKLAMI İZLE)',
+      acceptLabel: 'ÇAYA ÇORBAYA DESTEK • REKLAMI İZLE',
       declineLabel: 'Hayır, Usta Dinlensin',
       rewardType: StoryAdRewardType.instantExpertise,
     ),
@@ -110,7 +110,7 @@ class StoryCardModel {
       dialogue:
           '“Selam usta. Patronum bu gece acilen yurt dışına uçuyor. Garajdaki koleksiyonluk arabayı piyasanın yarı fiyatına elden çıkaracak. Konumu sana vermem için bana ufak bir sponsorluk jesti yapman lazım...”',
       rewardDescription: 'Pazara %50 indirimli, yüksek kâr marjlı kelepir fırsat aracı eklenir.',
-      acceptLabel: 'KONUMU AL (REKLAMI İZLE)',
+      acceptLabel: 'KONUMU AL • REKLAMI İZLE',
       declineLabel: 'Bana Güven Vermedi',
       rewardType: StoryAdRewardType.bargainCarSpawn,
     ),
@@ -125,8 +125,8 @@ class StoryCardModel {
       icon: Icons.format_paint_rounded,
       dialogue:
           '“Usta mesai bitti gidiyoruz ama çıraklara bir enerji içeceği ısmarlarsan gece vardiyasına kalırız! Arabaya sabaha kadar seramik kaplama ve pasta cila atarız. Yarın vitrinde iki katı fiyata parlar!”',
-      rewardDescription: 'Araca anında %100 kusursuz boya/kaporta ve +%15 Vitrin Cazibesi (Değer Artışı).',
-      acceptLabel: 'GECE VARDİYASINI AÇ (REKLAMI İZLE)',
+      rewardDescription: 'Araca anında %100 kusursuz boya/kaporta ve +%15 Vitrin Cazibesi • Değer Artışı.',
+      acceptLabel: 'GECE VARDİYASINI AÇ • REKLAMI İZLE',
       declineLabel: 'Mesaiye Kalmasınlar',
       rewardType: StoryAdRewardType.expressDetailing,
     ),
@@ -142,7 +142,7 @@ class StoryCardModel {
       dialogue:
           '“Bu fiyat bana çok patron, ben masadan kalkıyorum... Dur bakalım sekreter bir orta şekerli Türk kahvesiyle ikram masasını donatırsa masaya geri oturur, istediğin fiyata el sıkışırız!”',
       rewardDescription: 'Müşterinin direnci kırılır: Araca anında liste fiyatının %10 üzerine hazır satış fırsatı.',
-      acceptLabel: 'İKRÂM MASASINI DONAT (REKLAMI İZLE)',
+      acceptLabel: 'İKRÂM MASASINI DONAT • REKLAMI İZLE',
       declineLabel: 'Normal Fiyata Razıyım',
       rewardType: StoryAdRewardType.bonusSaleBoost,
     ),
@@ -158,7 +158,7 @@ class StoryCardModel {
       dialogue:
           '“Selam patron! Galerindeki şu yatan arabayla ilgili YouTube kanalında efsane bir reels patlatabilirim. Sponsorluk bütçemi karşıla, yarım saate kapında 3 tane hazır alıcı sıraya girsin!”',
       rewardDescription: 'İlandaki araç için anında 3 adet hazır alıcı teklifi yağar ve hızla satılır.',
-      acceptLabel: 'VİRAL VİDEOYU PATLAT (REKLAMI İZLE)',
+      acceptLabel: 'VİRAL VİDEOYU PATLAT • REKLAMI İZLE',
       declineLabel: 'Gerek Yok, Kendi Satılır',
       rewardType: StoryAdRewardType.viralBuyerOffers,
     ),
@@ -174,7 +174,7 @@ class StoryCardModel {
       dialogue:
           '“İhaledeki araçların gerçek hasar dosyalarına ve kâr analizlerine erişimim var. Bir çayımı tazelersen bir sonraki ihale için +%20 net kâr sağlayan gizli eksper dosyasını önüne sereyim.”',
       rewardDescription: 'Galeri sermayene ₺30.000 analiz desteği ve ihale kâr marjı bonusu aktarılır.',
-      acceptLabel: 'DOSYAYI İNCELE (REKLAMI İZLE)',
+      acceptLabel: 'DOSYAYI İNCELE • REKLAMI İZLE',
       declineLabel: 'Riske Girerim',
       rewardType: StoryAdRewardType.auctionMarginReport,
     ),
@@ -190,7 +190,7 @@ class StoryCardModel {
       dialogue:
           '“Almanya’dan tır dolusu orijinal sıfır ayarında yedek parça indirdim! Çıraklara ufak bir destek atarsan atölye masrafların için sana ₺35.000 değerinde parça kredisi hibe ediyorum!”',
       rewardDescription: 'Atölye tamirat ve yedek parça kasana ₺35.000 nakit hibe eklenir.',
-      acceptLabel: 'PARÇA KREDİSİNİ AL (REKLAMI İZLE)',
+      acceptLabel: 'PARÇA KREDİSİNİ AL • REKLAMI İZLE',
       declineLabel: 'Orijinal Parçadan Şaşmam',
       rewardType: StoryAdRewardType.partsDiscountCredit,
     ),
@@ -206,7 +206,7 @@ class StoryCardModel {
       dialogue:
           '“Hurdalıktan veya sanayiden çekeceğin araçlar için boş dönüyordum. Bana bir çorba parası bırak, bir sonraki nakliye operasyonunu ve ₺25.000 lojistik bedelini şirkete yazayım!”',
       rewardDescription: 'Lojistik ve nakliye fonuna ₺25.000 hibe kredisi tanımlanır.',
-      acceptLabel: 'ÇEKİCİYİ YÖNLENDİR (REKLAMI İZLE)',
+      acceptLabel: 'ÇEKİCİYİ YÖNLENDİR • REKLAMI İZLE',
       declineLabel: 'Kendi Çekicimiz Var',
       rewardType: StoryAdRewardType.scrapyardFreeTowCredit,
     ),

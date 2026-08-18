@@ -82,7 +82,7 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildTierOption(
-            title: 'Çırak İşi (%68 Başarı Şansı)',
+            title: 'Çırak İşi • %68 Başarı Şansı',
             subtitle: 'Hızlı ve ucuz onarım, ancak ayar tutturamama riski var.',
             cost: baseCost * 0.55,
             successRate: '%68',
@@ -92,7 +92,7 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _buildTierOption(
-            title: 'Kalfa İşi (%88 Başarı Şansı)',
+            title: 'Kalfa İşi • %88 Başarı Şansı',
             subtitle: 'Dengeli sanayi standardı işçilik ve kaliteli parça montajı.',
             cost: baseCost * 1.0,
             successRate: '%88',
@@ -102,7 +102,7 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _buildTierOption(
-            title: 'Usta İşi (%100 Kesin Başarı)',
+            title: 'Usta İşi • %100 Kesin Başarı',
             subtitle: 'Kusursuz işçilik, sıfır hata toleransı ile fabrika kondisyonu.',
             cost: baseCost * 1.75,
             successRate: '%100',

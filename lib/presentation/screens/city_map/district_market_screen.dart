@@ -274,7 +274,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           NeoBrutalButton(
-                            label: 'Yerel El İlanı & Reklam (₺10.000 -> +%5 Pay)',
+                            label: 'Yerel El İlanı & Reklam • ₺10.000 ➔ +%5 Pay',
                             icon: Icons.campaign_rounded,
                             backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                             textColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -292,7 +292,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                                 if (game.balance < 10000) {
                                   NotificationService.showError(context, 'Reklam kampanyası için ₺10.000 bakiye gereklidir.');
                                 } else {
-                                  NotificationService.showInfo(context, 'Bu semtte maksimum hakimiyete (%100) ulaşıldı!');
+                                  NotificationService.showInfo(context, 'Bu semtte %100 maksimum hakimiyete ulaşıldı!');
                                 }
                               }
                             },

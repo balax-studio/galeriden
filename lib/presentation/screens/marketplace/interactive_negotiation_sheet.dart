@@ -17,6 +17,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/pulsing_dot.dart';
+import '../../widgets/mini_games/handshake_stamp_canvas.dart';
 
 /// Neo-Brutalist & Industrial "Pazarlık Masası" (Live Deal Room Sheet)
 /// Elevated with maximalist aesthetics, tactical esnaf action cards, analog bidding dial, and haptic feedback.
@@ -59,13 +60,13 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
     _fomoText = PsychologyEngine.getRandomFomoText();
   }
 
-  int _calculateSuccessChance(int negotiationSkillLevel) {
+  int _calculateSuccessChance(int negotiationSkillLevel, {double decorBonusPercent = 0.0}) {
     final baseChance = NegotiationEngine.calculateMarketplaceBuyerSuccessChance(
       askingPrice: widget.listing.askingPrice,
       offeredPrice: _offeredPrice,
       negotiationSkillLevel: negotiationSkillLevel,
     );
-    return (baseChance + _bonusChancePercent).clamp(5, 95);
+    return (baseChance + _bonusChancePercent + decorBonusPercent.toInt()).clamp(5, 95);
   }
 
   void _snapToDiscount(double asking, double discountPercent) {
@@ -94,7 +95,8 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
     final asking = currentListing.askingPrice;
     final car = currentListing.car;
 
-    final chancePercent = _calculateSuccessChance(game.skills.negotiationLevel);
+    final decorBonus = game.negotiationPersuasionBonusPercent;
+    final chancePercent = _calculateSuccessChance(game.skills.negotiationLevel, decorBonusPercent: decorBonus);
     final discountAmount = asking - _offeredPrice;
     final discountRatio = ((discountAmount / asking) * 100).toStringAsFixed(1);
 
@@ -537,7 +539,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             ),
                             Text(
                               discountAmount > 0
-                                  ? 'İndirim: ${CurrencyFormatter.formatShort(discountAmount)} (-%$discountRatio)'
+                                  ? 'İndirim: ${CurrencyFormatter.formatShort(discountAmount)} • -%$discountRatio'
                                   : 'Tam Fiyat Teklifi',
                               style: TextStyle(
                                 fontSize: 11,
@@ -886,7 +888,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Ekspertiz raporu satıcının beyanıyla %100 örtüşüyor. Güvenilir esnaf/araç sahibiyle dürüstlük üzerinden pazarlık yapabilirsin (+%10 Anlaşma Bonusu)!',
+                                    'Ekspertiz raporu satıcının beyanıyla %100 örtüşüyor. Güvenilir esnaf/araç sahibiyle dürüstlük üzerinden pazarlık yapabilirsin • +%10 Anlaşma Bonusu!',
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w600,
@@ -898,7 +900,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                     children: [
                                       Expanded(
                                         child: NeoBrutalButton(
-                                          label: _hasUsedHonestDiscount ? 'Dostça İkram Alındı' : 'Dostça İndirim İste (+%10 Şans)',
+                                          label: _hasUsedHonestDiscount ? 'Dostça İkram Alındı' : 'Dostça İndirim İste • +%10 Şans',
                                           icon: Icons.handshake_rounded,
                                           backgroundColor: _hasUsedHonestDiscount ? const Color(0xFF059669) : const Color(0xFF10B981),
                                           textColor: Colors.white,
@@ -914,14 +916,14 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                                     _bonusChancePercent += 10;
                                                     _sellerResponse = 'Dürüstlüğümüzün hatrına araç başında küçük bir ikram yaparız elbet, teklifini ilet bakalım.';
                                                   });
-                                                  NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! (+%10 Şans)');
+                                                  NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! • +%10 Şans');
                                                 },
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: NeoBrutalButton(
-                                          label: 'Blöf Yap (-%15)',
+                                          label: 'Blöf Yap • -%15',
                                           icon: Icons.psychology_alt_rounded,
                                           backgroundColor: isDark ? const Color(0xFF24142B) : const Color(0xFFFAF5FF),
                                           textColor: const Color(0xFFA855F7),
@@ -1020,7 +1022,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 ),
                                 const SizedBox(height: 8),
                                 NeoBrutalButton(
-                                  label: 'Kusuru Masaya Vur (-%${(disc.extraDiscountPercent * 100).toInt()} İndirim)',
+                                  label: 'Kusuru Masaya Vur • -%${(disc.extraDiscountPercent * 100).toInt()} İndirim',
                                   icon: Icons.gavel_rounded,
                                   backgroundColor: const Color(0xFFD97706),
                                   textColor: Colors.white,
@@ -1159,90 +1161,106 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             onPressed: (game.balance < (_agreedFinalPrice ?? _offeredPrice) || _isProcessing)
                                 ? null
                                 : () {
-                                    HapticFeedback.heavyImpact();
-                                    setState(() => _isProcessing = true);
+                                    if (game.ownedCars.length >= game.maxGarageSlots) {
+                                      NotificationService.showError(
+                                        context,
+                                        'Garajınız dolu: ${game.ownedCars.length}/${game.maxGarageSlots}! Yeni araç almadan önce bir aracınızı satmalı veya garajınızı genişletmelisiniz.',
+                                      );
+                                      return;
+                                    }
                                     final finalPayPrice = _agreedFinalPrice ?? _offeredPrice;
-                                    final outcome = ref.read(gameProvider.notifier).buyCar(
-                                          currentListing.car,
-                                          finalPayPrice,
-                                          isExpertiseCompleted: currentListing.isExpertiseCompleted,
-                                        );
-                                    if (outcome != null) {
-                                      ref.read(marketProvider.notifier).removeListing(currentListing.id);
-                                      final nav = Navigator.of(context);
-                                      nav.pop(); // Close sheet
-                                      if (nav.canPop()) {
-                                        nav.pop(); // Return to market if on detail screen
-                                      }
 
-                                      if (outcome.isTrapped) {
-                                        showDialog(
-                                          context: context,
-                                          builder: (ctx) => Dialog(
-                                            backgroundColor: Colors.transparent,
-                                            child: NeoBrutalCard(
-                                              backgroundColor: isDark ? const Color(0xFF161922) : Colors.white,
-                                              borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                              borderWidth: 2.5,
-                                              borderRadius: 16,
-                                              padding: const EdgeInsets.all(20),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Row(
+                                    HandshakeStampModal.show(
+                                      context,
+                                      sellerName: _customer.name,
+                                      carModel: currentListing.car.modelName,
+                                      agreedPrice: finalPayPrice,
+                                      onConfirmed: () {
+                                        HapticFeedback.heavyImpact();
+                                        setState(() => _isProcessing = true);
+                                        final outcome = ref.read(gameProvider.notifier).buyCar(
+                                              currentListing.car,
+                                              finalPayPrice,
+                                              isExpertiseCompleted: currentListing.isExpertiseCompleted,
+                                            );
+                                        if (outcome != null) {
+                                          ref.read(marketProvider.notifier).removeListing(currentListing.id);
+                                          final nav = Navigator.of(context);
+                                          nav.pop(); // Close sheet
+                                          if (nav.canPop()) {
+                                            nav.pop(); // Return to market if on detail screen
+                                          }
+
+                                          if (outcome.isTrapped) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => Dialog(
+                                                backgroundColor: Colors.transparent,
+                                                child: NeoBrutalCard(
+                                                  backgroundColor: isDark ? const Color(0xFF161922) : Colors.white,
+                                                  borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                                  borderWidth: 2.5,
+                                                  borderRadius: 16,
+                                                  padding: const EdgeInsets.all(20),
+                                                  child: Column(
+                                                    mainAxisSize: MainAxisSize.min,
                                                     children: [
-                                                      Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 32),
-                                                      const SizedBox(width: 12),
-                                                      Expanded(
-                                                        child: Text(
-                                                          outcome.title,
-                                                          style: TextStyle(color: p.errorColor, fontWeight: FontWeight.w900, fontSize: 18),
+                                                      Row(
+                                                        children: [
+                                                          Icon(Icons.warning_amber_rounded, color: p.errorColor, size: 32),
+                                                          const SizedBox(width: 12),
+                                                          Expanded(
+                                                            child: Text(
+                                                              outcome.title,
+                                                              style: TextStyle(color: p.errorColor, fontWeight: FontWeight.w900, fontSize: 18),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 16),
+                                                      Text(
+                                                        outcome.description,
+                                                        style: TextStyle(
+                                                          color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                                                          fontSize: 13.5,
+                                                          fontWeight: FontWeight.w600,
                                                         ),
+                                                      ),
+                                                      const SizedBox(height: 24),
+                                                      NeoBrutalButton(
+                                                        label: 'Anladım',
+                                                        icon: Icons.check_circle_outline,
+                                                        backgroundColor: const Color(0xFFFFDE59),
+                                                        textColor: Colors.black,
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w900,
+                                                        fullWidth: true,
+                                                        onPressed: () => Navigator.pop(ctx),
                                                       ),
                                                     ],
                                                   ),
-                                                  const SizedBox(height: 16),
-                                                  Text(
-                                                    outcome.description,
-                                                    style: TextStyle(
-                                                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                                                      fontSize: 13.5,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 24),
-                                                  NeoBrutalButton(
-                                                    label: 'Anladım',
-                                                    icon: Icons.check_circle_outline,
-                                                    backgroundColor: const Color(0xFFFFDE59),
-                                                    textColor: Colors.black,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w900,
-                                                    fullWidth: true,
-                                                    onPressed: () => Navigator.pop(ctx),
-                                                  ),
-                                                ],
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          'Tebrikler! ${currentListing.car.brand} ${currentListing.car.modelName} ${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!',
-                                        );
-                                      }
-                                    }
-                                    if (mounted) {
-                                      setState(() => _isProcessing = false);
-                                    }
+                                            );
+                                          } else {
+                                            NotificationService.showSuccess(
+                                              context,
+                                              'Tebrikler! ${currentListing.car.brand} ${currentListing.car.modelName} ${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!',
+                                            );
+                                          }
+                                        }
+                                        if (mounted) {
+                                          setState(() => _isProcessing = false);
+                                        }
+                                      },
+                                    );
                                   },
                           ),
                         )
                       else if (!_isLockedOut)
                         Expanded(
                           child: NeoBrutalButton(
-                            label: 'TEKLİFİ REVİZE ET (${3 - _counterOfferCount} Hak Kaldı)',
+                            label: 'TEKLİFİ REVİZE ET • ${3 - _counterOfferCount} Hak Kaldı',
                             icon: Icons.refresh_rounded,
                             backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white : const Color(0xFF0F172A),

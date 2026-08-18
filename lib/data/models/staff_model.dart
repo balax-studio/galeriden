@@ -33,7 +33,7 @@ extension StaffRoleExtension on StaffRole {
   String get description {
     switch (this) {
       case StaffRole.washer:
-        return 'Araçları otomatik yıkar ve parlatır (Resale Değeri +%7)';
+        return 'Araçları otomatik yıkar ve parlatır • Resale Değeri +%7';
       case StaffRole.apprentice:
         return 'Yedek parça kargo ve tamir sürelerini %30 hızlandırır';
       case StaffRole.salesman:
@@ -101,13 +101,13 @@ extension StaffPerkExtension on StaffPerk {
   String get title {
     switch (this) {
       case StaffPerk.thrifty:
-        return 'Tutumlu (-%20 Maaş)';
+        return 'Tutumlu • -%20 Maaş';
       case StaffPerk.hardWorker:
-        return 'Çalışkan (+%25 Hız)';
+        return 'Çalışkan • +%25 Hız';
       case StaffPerk.silverTongue:
-        return 'Tatlı Dilli (+%15 İkna)';
+        return 'Tatlı Dilli • +%15 İkna';
       case StaffPerk.meticulous:
-        return 'Titiz Usta (+%15 Kalite)';
+        return 'Titiz Usta • +%15 Kalite';
     }
   }
 

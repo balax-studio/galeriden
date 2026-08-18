@@ -76,7 +76,7 @@ class ShowroomDecorModel {
         id: 'decor_leather_chair_desk',
         title: 'Hakiki Deri Patron Koltuğu & Ceviz Masa',
         description: 'Ağır ceviz kaplama makam masası ve yüksek sırtlı deri koltuk. Galeri sahibinin otoritesini hissettirir.',
-        perkSummary: '+%4 Pazarlık İkna Gücü (Alıcı indirim direncini kırar)',
+        perkSummary: '+%4 Pazarlık İkna Gücü • Alıcı indirim direncini kırar',
         category: DecorCategory.makam,
         cost: 40000,
         reputationBonus: 5.0,

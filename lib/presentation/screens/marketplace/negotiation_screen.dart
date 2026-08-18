@@ -545,7 +545,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                         ),
                         Text(
                           discountAmount > 0
-                              ? 'İndirim: ${CurrencyFormatter.formatShort(discountAmount)} (-%$discountRatio)'
+                              ? 'İndirim: ${CurrencyFormatter.formatShort(discountAmount)} • -%$discountRatio'
                               : 'Tam Fiyat Teklifi',
                           style: TextStyle(
                             fontSize: 11.5,
@@ -894,7 +894,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Ekspertiz raporu satıcının beyanıyla %100 örtüşüyor. Güvenilir esnaf/araç sahibiyle dürüstlük üzerinden pazarlık yapabilirsin (+%10 Anlaşma Bonusu)!',
+                                'Ekspertiz raporu satıcının beyanıyla %100 örtüşüyor. Güvenilir esnaf/araç sahibiyle dürüstlük üzerinden pazarlık yapabilirsin • +%10 Anlaşma Bonusu!',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -906,7 +906,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                 children: [
                                   Expanded(
                                     child: NeoBrutalButton(
-                                      label: _hasUsedHonestDiscount ? 'Dostça İkram Alındı' : 'Dostça İndirim İste (+%10 Şans)',
+                                      label: _hasUsedHonestDiscount ? 'Dostça İkram Alındı' : 'Dostça İndirim İste • +%10 Şans',
                                       icon: Icons.handshake_rounded,
                                       backgroundColor: _hasUsedHonestDiscount ? const Color(0xFF059669) : const Color(0xFF10B981),
                                       textColor: Colors.white,
@@ -922,14 +922,14 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                                 _bonusChancePercent += 10;
                                                 _sellerResponse = 'Dürüstlüğümüzün hatrına araç başında küçük bir ikram yaparız elbet, teklifini ilet bakalım.';
                                               });
-                                              NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! (+%10 Şans)');
+                                              NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! • +%10 Şans');
                                             },
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: NeoBrutalButton(
-                                      label: 'Blöf Yap (-%15)',
+                                      label: 'Blöf Yap • -%15',
                                       icon: Icons.psychology_alt_rounded,
                                       backgroundColor: isDark ? const Color(0xFF24142B) : const Color(0xFFFAF5FF),
                                       textColor: const Color(0xFFA855F7),
@@ -1028,7 +1028,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                             ),
                             const SizedBox(height: 8),
                             NeoBrutalButton(
-                              label: 'Kusuru Masaya Vur (-%${(disc.extraDiscountPercent * 100).toInt()} İndirim)',
+                              label: 'Kusuru Masaya Vur • -%${(disc.extraDiscountPercent * 100).toInt()} İndirim',
                               icon: Icons.gavel_rounded,
                               backgroundColor: const Color(0xFFD97706),
                               textColor: Colors.white,
@@ -1167,6 +1167,13 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                         onPressed: (game.balance < (_agreedFinalPrice ?? _offeredPrice) || _isProcessing)
                             ? null
                             : () {
+                                if (game.ownedCars.length >= game.maxGarageSlots) {
+                                  NotificationService.showError(
+                                    context,
+                                    'Garajınız dolu: ${game.ownedCars.length}/${game.maxGarageSlots}! Yeni araç almadan önce bir aracınızı satmalı veya garajınızı genişletmelisiniz.',
+                                  );
+                                  return;
+                                }
                                 HapticFeedback.heavyImpact();
                                 setState(() => _isProcessing = true);
                                 final finalPayPrice = _agreedFinalPrice ?? _offeredPrice;
@@ -1257,7 +1264,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                   else if (!_isLockedOut)
                     Expanded(
                       child: NeoBrutalButton(
-                        label: 'TEKLİFİ REVİZE ET (${3 - _counterOfferCount} Hak Kaldı)',
+                        label: 'TEKLİFİ REVİZE ET • ${3 - _counterOfferCount} Hak Kaldı',
                         icon: Icons.refresh_rounded,
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : const Color(0xFF0F172A),

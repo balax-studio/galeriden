@@ -154,7 +154,9 @@ mixin GameMarketMixin on GameBaseNotifier {
   /// Buy stocks with realistic %0.2 commission
   bool buyStock(String symbol, int amount) {
     if (amount <= 0) return false;
-    final stock = state.marketStocks.firstWhere((s) => s.symbol == symbol, orElse: () => throw Exception('Hisse bulunamadı'));
+    final stockIndex = state.marketStocks.indexWhere((s) => s.symbol == symbol);
+    if (stockIndex == -1) return false;
+    final stock = state.marketStocks[stockIndex];
     double grossCost = stock.currentPrice * amount;
     double commission = grossCost * stockCommissionRate;
     double totalCost = grossCost + commission;
@@ -421,10 +423,10 @@ mixin GameMarketMixin on GameBaseNotifier {
   void triggerOrganicOffers() {
     if (state.ownedCars.isEmpty) return;
 
-    // Sadece İLANA KONULMUŞ, kiralanmamış ve üzerinde 3'ten az aktif teklif olan araçlara organik teklif gelsin
+    // Sadece İLANA KONULMUŞ, kiralanmamış, vitrinde kilitli olmayan ve üzerinde 3'ten az aktif teklif olan araçlara organik teklif gelsin
     final eligibleCars = <CarModel>[];
     for (final car in state.ownedCars) {
-      if (!car.isListed || car.isRented) continue;
+      if (!car.isListed || car.isRented || car.isLockedInShowcase) continue;
       int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
       if (activeOffers < 3) {
         eligibleCars.add(car);
@@ -493,7 +495,7 @@ mixin GameMarketMixin on GameBaseNotifier {
         final blockedEvent = GameEventModel(
           id: 'notary_blocked_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
           title: 'NOTER SATIŞ BLOKESİ: ŞASİ ÇAKIŞMASI!',
-          description: 'Noter memuru devir işlemi sırasında ${car.brand} ${car.modelName} için sistemde ikiz plaka / haciz uyarısı verdi! Satış iptal edildi, alıcı ${offer.buyerName} karakola şikayette bulundu (-12 İtibar, ₺8.000 noter ve idari harç).',
+          description: 'Noter memuru devir işlemi sırasında ${car.brand} ${car.modelName} için sistemde ikiz plaka / haciz uyarısı verdi! Satış iptal edildi, alıcı ${offer.buyerName} karakola şikayette bulundu • -12 İtibar, ₺8.000 noter ve idari harç.',
           type: GameEventType.expense,
           amount: -notaryFine,
           date: DateTime.now(),
@@ -546,7 +548,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final record = SaleRecordModel(
       id: 'sale_${DateTime.now().millisecondsSinceEpoch}',
-      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}${isConsignment ? ' (Konsinye)' : ''}',
+      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}${isConsignment ? ' • Konsinye' : ''}',
       buyerName: offer.buyerName,
       purchasePrice: isConsignment ? (offer.offeredAmount - profit) : car.currentPurchasePrice,
       salePrice: offer.offeredAmount,
@@ -679,6 +681,18 @@ mixin GameMarketMixin on GameBaseNotifier {
     saveState();
   }
 
+  /// Reject all cash offers
+  void rejectAllOffers() {
+    state = state.copyWith(incomingOffers: []);
+    saveState();
+  }
+
+  /// Reject all trade-in offers
+  void rejectAllTradeInOffers() {
+    state = state.copyWith(incomingTradeInOffers: []);
+    saveState();
+  }
+
   /// Add a new offer
   void addOffer(OfferModel offer) {
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
@@ -689,13 +703,31 @@ mixin GameMarketMixin on GameBaseNotifier {
   NegotiationOutcome counterOffer(String offerId, double playerTargetPrice, {String? strategy}) {
     final offerIndex = state.incomingOffers.indexWhere((o) => o.id == offerId);
     if (offerIndex == -1) {
-      throw Exception('Teklif bulunamadı');
+      return NegotiationOutcome(
+        updatedOffer: OfferModel(
+          id: offerId,
+          carId: '',
+          buyerName: 'Müşteri',
+          offeredAmount: 0,
+          buyerMessage: 'Geçersiz teklif',
+          createdAt: DateTime.now(),
+          status: OfferStatus.rejected,
+        ),
+        responseMessage: 'Teklif süresi dolmuş veya iptal edilmiş.',
+        isAccepted: false,
+        isWalkaway: true,
+      );
     }
 
     final offer = state.incomingOffers[offerIndex];
     final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);
     if (carIndex == -1) {
-      throw Exception('Araç bulunamadı');
+      return NegotiationOutcome(
+        updatedOffer: offer.copyWith(status: OfferStatus.rejected),
+        responseMessage: 'İlgili araç artık galeride bulunmuyor.',
+        isAccepted: false,
+        isWalkaway: true,
+      );
     }
 
     final car = state.ownedCars[carIndex];

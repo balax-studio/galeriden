@@ -126,7 +126,7 @@ class SideBusinessModel {
     if (hasManager) {
       expense += managerSalary;
     }
-    return expense;
+    return (expense * 100).roundToDouble() / 100.0;
   }
 
   double get effectiveDailyIncome {

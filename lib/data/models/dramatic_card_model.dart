@@ -220,7 +220,7 @@ class DramaticCardModel {
         DramaticChoiceModel(
           id: 'A1_give',
           label: '₺40.000 Borç Ver',
-          shortDescription: '%55 ihtimalle ₺80.000 döner (+5 İtibar), %45 parayı alıp kaybolur.',
+          shortDescription: '%55 ihtimalle ₺80.000 döner • +5 İtibar, %45 parayı alıp kaybolur.',
           upfrontCost: 40000.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -247,8 +247,8 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'A1_refuse',
-          label: 'Yardım Etme (Reddet)',
-          shortDescription: 'Paran cebinde kalır, ancak esnafta soğuk bir dedikodu yayılır (-3 İtibar).',
+          label: 'Yardım Etme • Reddet',
+          shortDescription: 'Paran cebinde kalır, ancak esnafta soğuk bir dedikodu yayılır • -3 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -281,8 +281,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'A2_accept',
-          label: 'Raporu Satın Al (-₺8.000)',
-          shortDescription: '%70 aracın değeri fırlar (+₺35.000), %30 müşteri uyanıp şikayet eder (-15 İtibar & Ceza).',
+          label: 'Raporu Satın Al • -₺8.000',
+          shortDescription: '%70 aracın değeri fırlar • +₺35.000, %30 müşteri uyanıp şikayet eder • -15 İtibar & Ceza.',
           upfrontCost: 8000.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -309,8 +309,8 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'A2_reject',
-          label: 'Teklifi Kov (Dürüstlük)',
-          shortDescription: 'Kirli parayı reddedersin. Galerinin onuru korunur (+4 İtibar).',
+          label: 'Teklifi Kov • Dürüstlük',
+          shortDescription: 'Kirli parayı reddedersin. Galerinin onuru korunur • +4 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -343,8 +343,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'A3_pay',
-          label: 'Aracıya Öde (-₺15.000)',
-          shortDescription: '%75 sorun sessizce kapanır, %25 rüşvet söylentisi sızar (-8 İtibar).',
+          label: 'Aracıya Öde • -₺15.000',
+          shortDescription: '%75 sorun sessizce kapanır, %25 rüşvet söylentisi sızar • -8 İtibar.',
           upfrontCost: 15000.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -370,8 +370,8 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'A3_risk',
-          label: 'Ödeme Yapma (Riske Gir)',
-          shortDescription: '%80 denetim uğramaz (0 masraf), %20 gerçek ceza kesilir (-₺35.000).',
+          label: 'Ödeme Yapma • Riske Gir',
+          shortDescription: '%80 denetim uğramaz • 0 masraf, %20 gerçek ceza kesilir • -₺35.000.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -418,8 +418,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'B1_investigate',
-          label: 'Özel Dedektif & Takip (-₺5.000)',
-          shortDescription: '%45 araç hasarlı da olsa bulunur (%60 değer), %55 araç tamamen kaybolur.',
+          label: 'Özel Dedektif & Takip • -₺5.000',
+          shortDescription: '%45 araç hasarlı da olsa bulunur • %60 değer, %55 araç tamamen kaybolur.',
           upfrontCost: 5000.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -480,8 +480,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'B2_raise',
-          label: 'Zammı Kabul Et (+%40 Maaş)',
-          shortDescription: 'Personel dükkanda kalır, sadakatle çalışır (+%15 Servis Verimi).',
+          label: 'Zammı Kabul Et • +%40 Maaş',
+          shortDescription: 'Personel dükkanda kalır, sadakatle çalışır • +%15 Servis Verimi.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -498,7 +498,7 @@ class DramaticCardModel {
         DramaticChoiceModel(
           id: 'B2_refuse',
           label: 'Zammı Reddet',
-          shortDescription: '%50 sessizce ayrılır, %50 müşteri portföyünü çalıp rakibe geçer (-8 İtibar).',
+          shortDescription: '%50 sessizce ayrılır, %50 müşteri portföyünü çalıp rakibe geçer • -8 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -522,7 +522,7 @@ class DramaticCardModel {
         DramaticChoiceModel(
           id: 'B2_fire',
           label: 'Hemen Kov!',
-          shortDescription: 'Hainliği affetmezsin. %25 haksız fesih davası (-₺15.000), %75 temiz ayrılık.',
+          shortDescription: 'Hainliği affetmezsin. %25 haksız fesih davası • -₺15.000, %75 temiz ayrılık.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -563,8 +563,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'B3_trust',
-          label: 'Anahtarı Ver (Güven)',
-          shortDescription: '%65 gerçekten dönüp aracı alır (+₺40.000 Kâr), %35 gaza basıp çalar!',
+          label: 'Anahtarı Ver • Güven',
+          shortDescription: '%65 gerçekten dönüp aracı alır • +₺40.000 Kâr, %35 gaza basıp çalar!',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -589,7 +589,7 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'B3_refuse',
-          label: 'Önce Parayı Gör (Tedbir)',
+          label: 'Önce Parayı Gör • Tedbir',
           shortDescription: 'Alıcı gücenip gider, sıfır riskle araç güvende kalır.',
           upfrontCost: 0.0,
           outcomes: [
@@ -624,7 +624,7 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'B4_bribe',
-          label: 'Bedeli Öde (-₺25.000)',
+          label: 'Bedeli Öde • -₺25.000',
           shortDescription: 'Dosya sessizce kapanır, araç güvenle galeride kalır.',
           upfrontCost: 25000.0,
           outcomes: [
@@ -642,7 +642,7 @@ class DramaticCardModel {
         DramaticChoiceModel(
           id: 'B4_ignore',
           label: 'Blöf Say, Ödeme Yapma',
-          shortDescription: '%50 blöftür hiçbir şey olmaz, %50 araca el konur (-20 İtibar).',
+          shortDescription: '%50 blöftür hiçbir şey olmaz, %50 araca el konur • -20 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -686,8 +686,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'C1_honest',
-          label: 'Gerçek Değerini Söyle (₺150.000 Teklif Et)',
-          shortDescription: 'Daha az kâr edersin ama büyük itibar ve vicdan rahatlığı kazanırsın (+10 İtibar).',
+          label: 'Gerçek Değerini Söyle • ₺150.000 Teklif Et',
+          shortDescription: 'Daha az kâr edersin ama büyük itibar ve vicdan rahatlığı kazanırsın • +10 İtibar.',
           upfrontCost: 150000.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -704,8 +704,8 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'C1_exploit',
-          label: 'Kadının Dediği Fiyata Al (₺70.000)',
-          shortDescription: 'Muazzam kâr marjı (+₺110.000 değer), sıfır mekanik ceza, tamamen senin vicdanın.',
+          label: 'Kadının Dediği Fiyata Al • ₺70.000',
+          shortDescription: 'Muazzam kâr marjı • +₺110.000 değer, sıfır mekanik ceza, tamamen senin vicdanın.',
           upfrontCost: 70000.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -738,7 +738,7 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'C2_buy',
-          label: 'Fırsatı Kaçırma, Satın Al (-₺80.000)',
+          label: 'Fırsatı Kaçırma, Satın Al • -₺80.000',
           shortDescription: 'Kelepir aracı envanterine katarsın, kârlı bir alım.',
           upfrontCost: 80000.0,
           outcomes: [
@@ -756,7 +756,7 @@ class DramaticCardModel {
         DramaticChoiceModel(
           id: 'C2_help',
           label: 'Dayanışma Göster, Alma',
-          shortDescription: 'Centilmen esnaf tavrı sergilersin (+6 İtibar).',
+          shortDescription: 'Centilmen esnaf tavrı sergilersin • +6 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -778,7 +778,7 @@ class DramaticCardModel {
       category: DramaticCategory.conscience,
       severity: DramaticSeverity.low,
       title: 'Genç Çiftin İlk Arabası',
-      characterName: 'Genç Çift (Emre & Selin)',
+      characterName: 'Genç Çift • Emre & Selin',
       characterRole: 'Yeni Evliler',
       characterAvatar: 'couple',
       icon: Icons.favorite_rounded,
@@ -788,8 +788,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'C3_discount',
-          label: 'Fiyatı Kır, Gençleri Sevindir (-₺30.000 Kâr)',
-          shortDescription: 'Kârdan feragat edersin, sıcak müşteri sevgisi kazanırsın (+7 İtibar).',
+          label: 'Fiyatı Kır, Gençleri Sevindir • -₺30.000 Kâr',
+          shortDescription: 'Kârdan feragat edersin, sıcak müşteri sevgisi kazanırsın • +7 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -805,7 +805,7 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'C3_insist',
-          label: 'Fiyatta Israr Et (Pazarlık Yok)',
+          label: 'Fiyatta Israr Et • Pazarlık Yok',
           shortDescription: 'Standart kârını korursun, çift üzgün ayrılır.',
           upfrontCost: 0.0,
           outcomes: [
@@ -842,8 +842,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'D1_keep',
-          label: 'Miras Olarak Kilitle (Aile Yadigarı)',
-          shortDescription: 'Araç satılamaz koleksiyon statüsü kazanır, kalıcı itibar sağlar (+8 İtibar).',
+          label: 'Miras Olarak Kilitle • Aile Yadigarı',
+          shortDescription: 'Araç satılamaz koleksiyon statüsü kazanır, kalıcı itibar sağlar • +8 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -893,7 +893,7 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'D2_continue',
-          label: 'Fotoğrafı Masana Koy (+100 XP)',
+          label: 'Fotoğrafı Masana Koy • +100 XP',
           shortDescription: 'Duygusal an, motivasyonunu ve vizyonunu güçlendirir.',
           upfrontCost: 0.0,
           outcomes: [
@@ -943,7 +943,7 @@ class DramaticCardModel {
         DramaticChoiceModel(
           id: 'D3_bargain',
           label: 'Sert Pazarlık Et',
-          shortDescription: '%50 ihtimalle ₺25.000\'e razı olur, %50 mahkemeye gider (-₺70.000 & -6 İtibar).',
+          shortDescription: '%50 ihtimalle ₺25.000\'e razı olur, %50 mahkemeye gider • -₺70.000 & -6 İtibar.',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -987,8 +987,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'E1_gamble',
-          label: 'Zarfı Satın Al (-₺50.000)',
-          shortDescription: '%15 Efsane Spor Araç (+₺250.000), %35 İyi Araç (+₺90.000), %50 Hurda Çıkar.',
+          label: 'Zarfı Satın Al • -₺50.000',
+          shortDescription: '%15 Efsane Spor Araç • +₺250.000, %35 İyi Araç • +₺90.000, %50 Hurda Çıkar.',
           upfrontCost: 50000.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -1024,7 +1024,7 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'E1_pass',
-          label: 'Pasa Geç (Sıfır Risk)',
+          label: 'Pasa Geç • Sıfır Risk',
           shortDescription: 'Paran kasanda kalır, kumara girmezsin.',
           upfrontCost: 0.0,
           outcomes: [
@@ -1059,8 +1059,8 @@ class DramaticCardModel {
       choices: [
         DramaticChoiceModel(
           id: 'E2_flip',
-          label: 'Yazı Tura At! (Çifte veya Hiç)',
-          shortDescription: '%50 Tura: Dev Kazanç (+%80 Ekstra Kâr), %50 Yazı: Araç Bedavaya Gider!',
+          label: 'Yazı Tura At! • Çifte veya Hiç',
+          shortDescription: '%50 Tura: Dev Kazanç • +%80 Ekstra Kâr, %50 Yazı: Araç Bedavaya Gider!',
           upfrontCost: 0.0,
           outcomes: [
             DramaticOutcomeModel(
@@ -1085,7 +1085,7 @@ class DramaticCardModel {
         ),
         DramaticChoiceModel(
           id: 'E2_reject',
-          label: 'Kumarı Reddet (Standart Satış)',
+          label: 'Kumarı Reddet • Standart Satış',
           shortDescription: 'Riske girmezsin, aracın güvende kalır.',
           upfrontCost: 0.0,
           outcomes: [

@@ -128,7 +128,7 @@ class ListingDetailScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   _buildSpecRow('İlan No', '#${listing.id.hashCode.abs().toString().padLeft(10, '0')}', p),
-                  _buildSpecRow('İlan Tarihi', 'Bugün (Canlı Akış)', p),
+                  _buildSpecRow('İlan Tarihi', 'Bugün • Canlı Akış', p),
                   _buildSpecRow('Konum / Şehir', listing.sellerCity, p),
                   _buildSpecRow('Marka / Model', '${car.brand} ${car.modelName}', p),
                   _buildSpecRow('Model Yılı', '${car.modelYear}', p),

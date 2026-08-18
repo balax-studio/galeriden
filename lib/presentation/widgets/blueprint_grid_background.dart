@@ -40,6 +40,9 @@ class BlueprintGridBackground extends StatelessWidget {
     } else if (activePalette != null && activePalette.id == 'toksik_asit_cyber') {
       // Absurd theme uses glowing neon acid / magenta grid
       effectiveColor = const Color(0xFFCCFF00).withValues(alpha: 0.08);
+    } else if (activePalette != null && activePalette.id == 'egzotik_neo_pop') {
+      // Exotic pop theme uses crisp neo-brutalist pop dots/grid
+      effectiveColor = const Color(0xFF111827).withValues(alpha: 0.09);
     } else if (isDark) {
       effectiveColor = Colors.white.withValues(alpha: opacity);
     } else {
