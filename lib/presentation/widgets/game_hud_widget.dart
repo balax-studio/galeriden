@@ -33,7 +33,31 @@ class GameHudHeaderWidget extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         child: Row(
           children: [
-            // GÜN Pill (Interactive -> Sales & Day Ledger History)
+            // 1. KASA Pill (Interactive -> Finance & Banking with Smooth Rolling Counter) - EN SOLDA
+            _buildPill(
+              context,
+              icon: Icons.account_balance_wallet_rounded,
+              accentColor: const Color(0xFF00E575),
+              title: 'KASA',
+              valueWidget: AnimatedRollingCounter(
+                value: game.balance,
+                isShort: true,
+                style: AppTypography.monoSpec(isDark).copyWith(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              bold: true,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                context.push('/finance');
+              },
+              isDark: isDark,
+            ),
+            const SizedBox(width: 8),
+
+            // 2. GÜN Pill (Interactive -> Sales & Day Ledger History)
             _buildPill(
               context,
               icon: Icons.calendar_month_rounded,
@@ -46,79 +70,55 @@ class GameHudHeaderWidget extends ConsumerWidget {
               },
               isDark: isDark,
             ),
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
 
-          // MEVSİM Pill (Interactive -> Season Details & Market Multipliers)
-          _buildPill(
-            context,
-            icon: game.currentSeason == GameSeason.spring
-                ? Icons.local_florist_rounded
-                : (game.currentSeason == GameSeason.summer
-                    ? Icons.wb_sunny_rounded
-                    : (game.currentSeason == GameSeason.autumn
-                        ? Icons.park_rounded
-                        : Icons.ac_unit_rounded)),
-            accentColor: game.currentSeason == GameSeason.spring
-                ? const Color(0xFF10B981)
-                : (game.currentSeason == GameSeason.summer
-                    ? const Color(0xFFF59E0B)
-                    : (game.currentSeason == GameSeason.autumn
-                        ? const Color(0xFFEA580C)
-                        : const Color(0xFF38BDF8))),
-            title: game.currentSeasonName.toUpperCase(),
-            value: '${game.daysRemainingInSeason}g',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showSeasonInfo(context, game, isDark);
-            },
-            isDark: isDark,
-          ),
-          const SizedBox(width: 8),
-
-          // HAVA DURUMU Pill (Interactive -> Dynamic Weather & Market Multipliers §4.6.5)
-          _buildPill(
-            context,
-            icon: game.currentWeather.icon,
-            accentColor: game.currentWeather == WeatherType.sunny
-                ? const Color(0xFFFBBF24)
-                : (game.currentWeather == WeatherType.rainy
-                    ? const Color(0xFF60A5FA)
-                    : (game.currentWeather == WeatherType.snowy
-                        ? const Color(0xFFE2E8F0)
-                        : const Color(0xFF94A3B8))),
-            title: 'HAVA',
-            value: game.currentWeather.displayName,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showWeatherInfo(context, game, isDark);
-            },
-            isDark: isDark,
-          ),
-          const SizedBox(width: 8),
-
-          // KASA Pill (Interactive -> Finance & Banking with Smooth Rolling Counter §4.2)
-          _buildPill(
-            context,
-            icon: Icons.account_balance_wallet_rounded,
-            accentColor: const Color(0xFF00E575),
-            title: 'KASA',
-            valueWidget: AnimatedRollingCounter(
-              value: game.balance,
-              isShort: true,
-              style: AppTypography.monoSpec(isDark).copyWith(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
-              ),
+            // 3. MEVSİM Pill (Interactive -> Season Details & Market Multipliers)
+            _buildPill(
+              context,
+              icon: game.currentSeason == GameSeason.spring
+                  ? Icons.local_florist_rounded
+                  : (game.currentSeason == GameSeason.summer
+                      ? Icons.wb_sunny_rounded
+                      : (game.currentSeason == GameSeason.autumn
+                          ? Icons.park_rounded
+                          : Icons.ac_unit_rounded)),
+              accentColor: game.currentSeason == GameSeason.spring
+                  ? const Color(0xFF10B981)
+                  : (game.currentSeason == GameSeason.summer
+                      ? const Color(0xFFF59E0B)
+                      : (game.currentSeason == GameSeason.autumn
+                          ? const Color(0xFFEA580C)
+                          : const Color(0xFF38BDF8))),
+              title: game.currentSeasonName.toUpperCase(),
+              value: '${game.daysRemainingInSeason}g',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                _showSeasonInfo(context, game, isDark);
+              },
+              isDark: isDark,
             ),
-            bold: true,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.push('/finance');
-            },
-            isDark: isDark,
-          ),
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
+
+            // 4. HAVA DURUMU Pill (Interactive -> Dynamic Weather & Market Multipliers §4.6.5)
+            _buildPill(
+              context,
+              icon: game.currentWeather.icon,
+              accentColor: game.currentWeather == WeatherType.sunny
+                  ? const Color(0xFFFBBF24)
+                  : (game.currentWeather == WeatherType.rainy
+                      ? const Color(0xFF60A5FA)
+                      : (game.currentWeather == WeatherType.snowy
+                          ? const Color(0xFFE2E8F0)
+                          : const Color(0xFF94A3B8))),
+              title: 'HAVA',
+              value: game.currentWeather.displayName,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                _showWeatherInfo(context, game, isDark);
+              },
+              isDark: isDark,
+            ),
+            const SizedBox(width: 8),
 
           // GARAJ STOK Pill (Interactive -> Showroom / Garage)
           _buildPill(
