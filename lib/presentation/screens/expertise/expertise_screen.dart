@@ -23,6 +23,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/slam_stamp_widget.dart';
 import '../../widgets/mini_games/micron_body_scan_canvas.dart';
+import '../../widgets/mini_games/vehicle_inspection_canvas.dart';
 
 class ExpertiseScreen extends ConsumerStatefulWidget {
   final ListingModel listing;
@@ -35,6 +36,7 @@ class ExpertiseScreen extends ConsumerStatefulWidget {
 
 class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
   bool _isInspected = false;
+  String? _inspectionStampText;
 
   @override
   void initState() {
@@ -365,6 +367,71 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 ),
               ),
             ],
+            const SizedBox(height: 12),
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(12),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: _inspectionStampText != null ? AppColors.brutalGreen : const Color(0xFF38BDF8),
+              borderRadius: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.verified_user_rounded, color: Color(0xFF38BDF8), size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'TÜVTÜRK ARAÇ MUAYENE HATTI',
+                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                          ),
+                        ],
+                      ),
+                      if (_inspectionStampText != null)
+                        NeoBrutalBadge(
+                          text: _inspectionStampText!,
+                          backgroundColor: AppColors.brutalGreen,
+                          textColor: Colors.black,
+                          fontSize: 9.5,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Dinamik fren silindiri ve optik far hizalama testini interaktif olarak uygulayarak araç değerini artırın.',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 10),
+                  NeoBrutalButton(
+                    label: _inspectionStampText != null
+                        ? 'MUAYENE TESTİ TAMAMLANDI • TEKRAR TEST ET'
+                        : 'FREN VE FAR TESTİNİ BAŞLAT • MİNİ OYUN',
+                    icon: Icons.play_arrow_rounded,
+                    backgroundColor: _inspectionStampText != null ? const Color(0xFF1E293B) : const Color(0xFF38BDF8),
+                    textColor: _inspectionStampText != null ? Colors.white : Colors.black,
+                    fontSize: 11.5,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    onPressed: () {
+                      VehicleInspectionModal.show(
+                        context,
+                        car: car,
+                        onInspectionFinished: (passed, brakeScore, headlightScore, reportBadge) {
+                          setState(() {
+                            _inspectionStampText = reportBadge;
+                          });
+                          NotificationService.showSuccess(
+                            context,
+                            '$reportBadge • Araç muayene testinden başarıyla geçti!',
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
 
             // Body Part Inspection Grid

@@ -13,6 +13,8 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/mini_games/dyno_run_canvas.dart';
+import '../../widgets/mini_games/engine_timing_canvas.dart';
+import 'dart:math' as math;
 
 class TuningStudioScreen extends ConsumerStatefulWidget {
   const TuningStudioScreen({super.key});
@@ -28,6 +30,29 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
   void _runDynoSimulation(BuildContext context, CarDynoStats dyno) {
     if (_selectedCar == null) return;
     DynoRunCanvasModal.show(context, car: _selectedCar!, dyno: dyno);
+  }
+
+  void _runEngineTimingCalibration(BuildContext context) {
+    if (_selectedCar == null) return;
+    EngineTimingModal.show(
+      context,
+      car: _selectedCar!,
+      onTimingCalibrated: (isPerfect, hpBonus, message) {
+        final updatedCar = _selectedCar!.copyWith(
+          expertise: _selectedCar!.expertise.copyWith(
+            engineCondition: math.min(100.0, _selectedCar!.expertise.engineCondition + (isPerfect ? 10.0 : 4.0)),
+          ),
+        );
+        ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, 0.0);
+        setState(() {
+          _selectedCar = updatedCar;
+        });
+        NotificationService.showSuccess(
+          context,
+          '$message • Motor sağlığı ve performansı güncellendi!',
+        );
+      },
+    );
   }
 
   void _applyTuningOption(TuningOptionModel opt) {
@@ -417,7 +442,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                       Expanded(
                         child: NeoBrutalButton(
                           icon: Icons.speed_rounded,
-                          label: 'DYNO ÇEKİMİ YAP',
+                          label: 'DYNO TESTİ',
                           backgroundColor: AppColors.brutalYellow,
                           textColor: Colors.black,
                           fontSize: 11,
@@ -425,12 +450,24 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           onPressed: () => _runDynoSimulation(context, dyno),
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: NeoBrutalButton(
+                          icon: Icons.build_circle_rounded,
+                          label: 'SENTE AYARI',
+                          backgroundColor: AppColors.brutalOrange,
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          onPressed: () => _runEngineTimingCalibration(context),
+                        ),
+                      ),
                       if (!dyno.isInspectionCompliant) ...[
                         const SizedBox(width: 8),
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.shield_rounded,
-                            label: 'RUHSATA İŞLET • ₺4.5k',
+                            label: 'RUHSATA İŞLET',
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 10.5,

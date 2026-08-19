@@ -11,6 +11,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/mini_games/hidden_stash_canvas.dart';
 
 class BlackMarketScreen extends ConsumerWidget {
   const BlackMarketScreen({super.key});
@@ -185,34 +186,63 @@ class BlackMarketScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          NeoBrutalButton(
-                            label: 'RİSKİ AL & SATIN AL',
-                            icon: Icons.gavel_rounded,
-                            backgroundColor: AppColors.errorRed,
-                            textColor: Colors.white,
-                            fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            onPressed: () {
-                              if (game.ownedCars.length >= game.maxGarageSlots) {
-                                NotificationService.showError(context, 'Garajında boş yer yok! Şubeni büyüt veya bir araç sat.');
-                                return;
-                              }
-                              final effectiveCost = game.hasHighNpcTrust('golge_ibrahim')
-                                  ? (car.askingPrice * 0.85).roundToDouble()
-                                  : car.askingPrice;
-                              if (game.balance < effectiveCost) {
-                                NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(effectiveCost)} gerekli.');
-                                return;
-                              }
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              NeoBrutalButton(
+                                label: 'ZULA TARA • MİNİ OYUN',
+                                icon: Icons.radar_rounded,
+                                backgroundColor: const Color(0xFF6366F1),
+                                textColor: Colors.white,
+                                fontSize: 10,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                onPressed: () {
+                                  HiddenStashModal.show(
+                                    context,
+                                    car: car,
+                                    onInspectionCompleted: (stashFound, rewardCash, itemDesc) {
+                                      if (stashFound) {
+                                        ref.read(gameProvider.notifier).addMoney(rewardCash);
+                                        NotificationService.showSuccess(
+                                          context,
+                                          'Zula Ele Geçirildi! +${CurrencyFormatter.format(rewardCash)} kasaya aktarıldı.',
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 6),
+                              NeoBrutalButton(
+                                label: 'RİSKİ AL & SATIN AL',
+                                icon: Icons.gavel_rounded,
+                                backgroundColor: AppColors.errorRed,
+                                textColor: Colors.white,
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                onPressed: () {
+                                  if (game.ownedCars.length >= game.maxGarageSlots) {
+                                    NotificationService.showError(context, 'Garajında boş yer yok! Şubeni büyüt veya bir araç sat.');
+                                    return;
+                                  }
+                                  final effectiveCost = game.hasHighNpcTrust('golge_ibrahim')
+                                      ? (car.askingPrice * 0.85).roundToDouble()
+                                      : car.askingPrice;
+                                  if (game.balance < effectiveCost) {
+                                    NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(effectiveCost)} gerekli.');
+                                    return;
+                                  }
 
-                              final success = ref.read(gameProvider.notifier).buyBlackMarketCar(car.id);
-                              if (success) {
-                                NotificationService.showSuccess(
-                                  context,
-                                  '${car.modelName} karaborsadan satın alındı! Garajına eklendi.',
-                                );
-                              }
-                            },
+                                  final success = ref.read(gameProvider.notifier).buyBlackMarketCar(car.id);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${car.modelName} karaborsadan satın alındı! Garajına eklendi.',
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),

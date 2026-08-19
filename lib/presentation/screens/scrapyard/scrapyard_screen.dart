@@ -6,6 +6,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/mini_games/scrapyard_teardown_canvas.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -330,24 +331,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                     onPressed: (isDismantled || currentCar?.isPurchased != true)
                                         ? null
-                                        : () {
-                                            final result = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
-                                            if (result.success) {
-                                              if (result.isSalvaged) {
-                                                NotificationService.showSuccess(
-                                                  context,
-                                                  result.message,
-                                                );
-                                              } else {
-                                                NotificationService.showWarning(
-                                                  context,
-                                                  result.message,
-                                                );
-                                              }
-                                            } else {
-                                              NotificationService.showError(context, result.message);
-                                            }
-                                          },
+                                        : () => _handleDismantleChoice(context, car, part),
                                   ),
                                 ],
                               ),
@@ -390,6 +374,92 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
           },
         );
       },
+    );
+  }
+
+  void _handleDismantleChoice(BuildContext context, ScrapyardCar car, SalvagedPart part) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(16),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: AppColors.brutalYellow,
+          borderRadius: 14,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'PARÇA SÖKÜM YÖNTEMİ SEÇİN',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${part.name} • Mevcut Kondisyon: %${part.conditionPercent}',
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+              ),
+              const SizedBox(height: 14),
+              NeoBrutalButton(
+                label: 'MANUEL SÖKÜM • MİNİ OYUN • +%15 BONUS',
+                icon: Icons.build_circle_rounded,
+                backgroundColor: AppColors.brutalYellow,
+                textColor: Colors.black,
+                fontSize: 11.5,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  ScrapyardTeardownModal.show(
+                    context,
+                    partName: part.name,
+                    carName: '${car.brand} ${car.modelName}',
+                    initialCondition: part.conditionPercent,
+                    onCompleted: (isSuccess, finalCondition, message) {
+                      final result = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
+                      if (isSuccess) {
+                        NotificationService.showSuccess(
+                          context,
+                          'Kusursuz söküm! ${part.name} %$finalCondition kondisyonla depoya aktarıldı.',
+                        );
+                      } else {
+                        NotificationService.showWarning(context, result.message);
+                      }
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              NeoBrutalButton(
+                label: 'HIZLI OTOMATİK SÖKÜM',
+                icon: Icons.flash_on_rounded,
+                backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                textColor: isDark ? Colors.white : Colors.black,
+                fontSize: 11.5,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  final result = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
+                  if (result.success) {
+                    if (result.isSalvaged) {
+                      NotificationService.showSuccess(context, result.message);
+                    } else {
+                      NotificationService.showWarning(context, result.message);
+                    }
+                  } else {
+                    NotificationService.showError(context, result.message);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

@@ -6,7 +6,6 @@ import 'package:galeriden/data/models/customer_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/notary_event_model.dart';
 import 'package:galeriden/domain/usecases/gossip_engine.dart';
-import 'package:galeriden/domain/usecases/market_engine.dart';
 import 'package:galeriden/domain/usecases/negotiation_engine.dart';
 import 'package:galeriden/domain/usecases/review_engine.dart';
 
