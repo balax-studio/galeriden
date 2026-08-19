@@ -38,173 +38,335 @@ class CustomerModel {
     }
   }
 
-  static CustomerModel generateRandomCustomer() {
-    final archetypes = [
-      CustomerModel(
-        id: 'cust_1',
-        name: 'Mustafa Bey',
-        archetype: CustomerArchetype.skepticalOfficial,
-        archetypeTitle: 'Şüpheci Emekli Memur',
-        avatarType: 'shield',
-        personalityDescription: 'Aracın en ufak çizik ve ekspertiz detayına takılır. Dürüstlük ve şeffaflık ister.',
-        preferredDialogueTrait: 'Şeffaflık & Güven',
-      ),
-      CustomerModel(
-        id: 'cust_2',
-        name: 'Mertcan',
-        archetype: CustomerArchetype.impatientYouth,
-        archetypeTitle: 'Sabırsız Genç Sürücü',
-        avatarType: 'flash',
-        personalityDescription: 'Beygir gücü ve karizmaya bakar. Bütçesi esnektir, beğendiyse %15 fazla öder!',
-        preferredDialogueTrait: 'Performans & Karizma',
-      ),
-      CustomerModel(
-        id: 'cust_3',
-        name: 'Çakal Selim',
-        archetype: CustomerArchetype.greedyFlipper,
-        archetypeTitle: 'Açgözlü Oto Al-Satçı',
-        avatarType: 'craftsman',
-        personalityDescription: 'Ölücü teklifler verir ama anında nakit kapatmak ister.',
-        preferredDialogueTrait: 'Hızlı Nakit Kapatma',
-      ),
-      CustomerModel(
-        id: 'cust_4',
-        name: 'Ahmet Bey',
-        archetype: CustomerArchetype.familyMan,
-        archetypeTitle: 'Hassas Aile Babası',
-        avatarType: 'rare',
-        personalityDescription: 'Bagaj hacmi, tramer temizliği ve aile güvenliği arar.',
-        preferredDialogueTrait: 'Aile Güvenliği & Konfor',
-      ),
-      CustomerModel(
-        id: 'cust_5',
-        name: 'Avukat Deniz Hanım',
-        archetype: CustomerArchetype.skepticalOfficial,
-        archetypeTitle: 'Titiz Hukukçu',
-        avatarType: 'shield',
-        personalityDescription: 'Tüm noter ve ruhsat evraklarını satır satır inceler. Masrafsız araç arar.',
-        preferredDialogueTrait: 'Hukuki Şeffaflık',
-      ),
-      CustomerModel(
-        id: 'cust_6',
-        name: 'Müteahhit Burhan',
-        archetype: CustomerArchetype.impatientYouth,
-        archetypeTitle: 'Agresif Şantiye Patronu',
-        avatarType: 'flash',
-        personalityDescription: '4x4 ve SUV hastasıdır. Paraya bakmaz, araba diri dursun yeter.',
-        preferredDialogueTrait: 'Prestij & Heybet',
-      ),
-      CustomerModel(
-        id: 'cust_7',
-        name: 'Gurbetçi Şükrü',
-        archetype: CustomerArchetype.greedyFlipper,
-        archetypeTitle: 'Almanya Emeklisi',
-        avatarType: 'craftsman',
-        personalityDescription: 'Euro hesabını iyi bilir. Kelepir yakaladı mı affetmez, peşin sayar.',
-        preferredDialogueTrait: 'Sıkı Pazarlık',
-      ),
-      CustomerModel(
-        id: 'cust_8',
-        name: 'Öğretmen Emre Bey',
-        archetype: CustomerArchetype.familyMan,
-        archetypeTitle: 'Tasarruflu Eğitimci',
-        avatarType: 'rare',
-        personalityDescription: 'Yakıt tüketimi az, kronik arızası olmayan temiz sedanların peşindedir.',
-        preferredDialogueTrait: 'Ekonomik Güven',
-      ),
-      CustomerModel(
-        id: 'cust_9',
-        name: 'Yazılımcı Batuhan',
-        archetype: CustomerArchetype.impatientYouth,
-        archetypeTitle: 'Teknoloji Meraklısı',
-        avatarType: 'flash',
-        personalityDescription: 'Multimedya ekranı, ses sistemi ve sürüş asistanlarına bayılır.',
-        preferredDialogueTrait: 'Donanım & Teknoloji',
-      ),
-      CustomerModel(
-        id: 'cust_10',
-        name: 'Koleksiyoner Ekrem Bey',
-        archetype: CustomerArchetype.skepticalOfficial,
-        archetypeTitle: 'Klasik Otomobil Gurmesi',
-        avatarType: 'shield',
-        personalityDescription: 'Orijinal boya mikronuna bakar. Nadir kupon araçlara rekor teklifler verir.',
-        preferredDialogueTrait: 'Orijinallik & Geçmiş',
-      ),
-      CustomerModel(
-        id: 'cust_11',
-        name: 'Taksici Rasim Usta',
-        archetype: CustomerArchetype.greedyFlipper,
-        archetypeTitle: 'Eski Kurt Taksici',
-        avatarType: 'craftsman',
-        personalityDescription: 'Motorun sesinden subap ayarını anlar. Esnafa hızlı devir yapar.',
-        preferredDialogueTrait: 'Mekanik Sağlamlık',
-      ),
-      CustomerModel(
-        id: 'cust_12',
-        name: 'Doktor Nazlı Hanım',
-        archetype: CustomerArchetype.familyMan,
-        archetypeTitle: 'Güvenlik Odaklı Hekim',
-        avatarType: 'rare',
-        personalityDescription: 'Hava yastıkları ve fren sistemleri kusursuz olmalı. Pazarlıkta nettir.',
-        preferredDialogueTrait: 'Maksimum Güvenlik',
-      ),
-    ];
+  static final List<CustomerModel> _allArchetypePool = [
+    // Şüpheci & Titizler (skepticalOfficial)
+    CustomerModel(
+      id: 'cust_1',
+      name: 'Mustafa Bey',
+      archetype: CustomerArchetype.skepticalOfficial,
+      archetypeTitle: 'Emekli Şube Müdürü',
+      avatarType: 'shield',
+      personalityDescription: 'Aracın en ufak çizik ve ekspertiz detayına takılır. Dürüstlük ve şeffaflık ister.',
+      preferredDialogueTrait: 'Şeffaflık & Güven',
+    ),
+    CustomerModel(
+      id: 'cust_5',
+      name: 'Avukat Deniz Hanım',
+      archetype: CustomerArchetype.skepticalOfficial,
+      archetypeTitle: 'Ceza Hukukçusu',
+      avatarType: 'shield',
+      personalityDescription: 'Tüm noter ve ruhsat evraklarını satır satır inceler. Hukuki risk kabul etmez.',
+      preferredDialogueTrait: 'Hukuki Şeffaflık',
+    ),
+    CustomerModel(
+      id: 'cust_10',
+      name: 'Koleksiyoner Ekrem Bey',
+      archetype: CustomerArchetype.skepticalOfficial,
+      archetypeTitle: 'Klasik Otomobil Gurmesi',
+      avatarType: 'shield',
+      personalityDescription: 'Orijinal boya mikronuna bakar. Nadir kupon araçlara rekor teklifler verir.',
+      preferredDialogueTrait: 'Orijinallik & Geçmiş',
+    ),
+    CustomerModel(
+      id: 'cust_13',
+      name: 'Müfettiş Tarık Bey',
+      archetype: CustomerArchetype.skepticalOfficial,
+      archetypeTitle: 'Hesap Uzmanı',
+      avatarType: 'shield',
+      personalityDescription: 'Aracın servis kayıt faturalarını ve kilometre tutarlılığını titizlikle denetler.',
+      preferredDialogueTrait: 'Kayıtlı Geçmiş',
+    ),
+    CustomerModel(
+      id: 'cust_14',
+      name: 'Bankacı Serdar Bey',
+      archetype: CustomerArchetype.skepticalOfficial,
+      archetypeTitle: 'Kredi Risk Uzmanı',
+      avatarType: 'shield',
+      personalityDescription: 'Piyasa değerlemesini kuruşu kuruşuna bilir. Rapor harici sürprize tahammülü yoktur.',
+      preferredDialogueTrait: 'Finansal Netlik',
+    ),
+    CustomerModel(
+      id: 'cust_15',
+      name: 'Sigortacı Fuat Bey',
+      archetype: CustomerArchetype.skepticalOfficial,
+      archetypeTitle: 'Kıdemli Eksper',
+      avatarType: 'shield',
+      personalityDescription: 'Tramer ve boya kalınlığını gözü kapalı anlar. Orijinal parça hassasiyeti yüksektir.',
+      preferredDialogueTrait: 'Teknik Detay',
+    ),
+    CustomerModel(
+      id: 'cust_16',
+      name: 'Emekli Albay Rıza Bey',
+      archetype: CustomerArchetype.skepticalOfficial,
+      archetypeTitle: 'Disiplinli Asker',
+      avatarType: 'shield',
+      personalityDescription: 'Sözleşme şartlarına ve verilen sözlere harfiyen uyulmasını bekler.',
+      preferredDialogueTrait: 'Disiplin & Netlik',
+    ),
 
-    archetypes.shuffle();
-    return archetypes.first;
+    // Sabırsız & Genç & Prestij Arayanlar (impatientYouth)
+    CustomerModel(
+      id: 'cust_2',
+      name: 'Mertcan Yıldız',
+      archetype: CustomerArchetype.impatientYouth,
+      archetypeTitle: 'Genç Yazılımcı',
+      avatarType: 'flash',
+      personalityDescription: 'Beygir gücü ve karizmaya bakar. Bütçesi esnektir, beğendiyse fazla öder.',
+      preferredDialogueTrait: 'Performans & Karizma',
+    ),
+    CustomerModel(
+      id: 'cust_6',
+      name: 'Müteahhit Burhan Bey',
+      archetype: CustomerArchetype.impatientYouth,
+      archetypeTitle: 'Şantiye Patronu',
+      avatarType: 'flash',
+      personalityDescription: '4x4 ve SUV hastasıdır. Paraya bakmaz, araba diri dursun ve heybetli olsun yeter.',
+      preferredDialogueTrait: 'Prestij & Heybet',
+    ),
+    CustomerModel(
+      id: 'cust_9',
+      name: 'Yazılımcı Batuhan',
+      archetype: CustomerArchetype.impatientYouth,
+      archetypeTitle: 'Teknoloji Meraklısı',
+      avatarType: 'flash',
+      personalityDescription: 'Multimedya ekranı, ses sistemi ve sürüş asistanlarına bayılır.',
+      preferredDialogueTrait: 'Donanım & Teknoloji',
+    ),
+    CustomerModel(
+      id: 'cust_17',
+      name: 'Caner Eren',
+      archetype: CustomerArchetype.impatientYouth,
+      archetypeTitle: 'E-Ticaret Girişimcisi',
+      avatarType: 'flash',
+      personalityDescription: 'Premium spor araçlarla prestij kazanmak ister. İşlemler hemen bitsin ister.',
+      preferredDialogueTrait: 'Hızlı Teslimat',
+    ),
+    CustomerModel(
+      id: 'cust_18',
+      name: 'Üniversiteli Can',
+      archetype: CustomerArchetype.impatientYouth,
+      archetypeTitle: 'Mühendislik Öğrencisi',
+      avatarType: 'flash',
+      personalityDescription: 'Genç işi modifiyeli ve çekici hatchback modellerin hayranıdır.',
+      preferredDialogueTrait: 'Tarz & Görsellik',
+    ),
+    CustomerModel(
+      id: 'cust_19',
+      name: 'Kuaför Murat',
+      archetype: CustomerArchetype.impatientYouth,
+      archetypeTitle: 'Stil Danışmanı',
+      avatarType: 'flash',
+      personalityDescription: 'Jant, egzoz ve boya kondisyonuna aşık olur. Vitrin arabası arar.',
+      preferredDialogueTrait: 'Estetik Çizgiler',
+    ),
+    CustomerModel(
+      id: 'cust_20',
+      name: 'Prodüktör Arda',
+      archetype: CustomerArchetype.impatientYouth,
+      archetypeTitle: 'Medya Yöneticisi',
+      avatarType: 'flash',
+      personalityDescription: 'Şehir içi dikkat çeken spor ve egzotik kasaların peşindedir.',
+      preferredDialogueTrait: 'Hava & Karizma',
+    ),
+
+    // Açgözlü & Esnaf & Al-Satçılar (greedyFlipper)
+    CustomerModel(
+      id: 'cust_3',
+      name: 'Çakal Selim',
+      archetype: CustomerArchetype.greedyFlipper,
+      archetypeTitle: 'Oto Al-Satçı',
+      avatarType: 'craftsman',
+      personalityDescription: 'Ölücü teklifler verir ama anında nakit kapatmak ister.',
+      preferredDialogueTrait: 'Hızlı Nakit Kapatma',
+    ),
+    CustomerModel(
+      id: 'cust_7',
+      name: 'Gurbetçi Şükrü',
+      archetype: CustomerArchetype.greedyFlipper,
+      archetypeTitle: 'Almanya Emeklisi',
+      avatarType: 'craftsman',
+      personalityDescription: 'Döviz hesabını iyi bilir. Kelepir yakaladı mı affetmez, peşin sayar.',
+      preferredDialogueTrait: 'Sıkı Pazarlık',
+    ),
+    CustomerModel(
+      id: 'cust_11',
+      name: 'Taksici Rasim Usta',
+      archetype: CustomerArchetype.greedyFlipper,
+      archetypeTitle: 'Eski Kurt Taksici',
+      avatarType: 'craftsman',
+      personalityDescription: 'Motorun sesinden subap ayarını anlar. Esnafa hızlı devir yapar.',
+      preferredDialogueTrait: 'Mekanik Sağlamlık',
+    ),
+    CustomerModel(
+      id: 'cust_21',
+      name: 'Çıkmacı Vahit',
+      archetype: CustomerArchetype.greedyFlipper,
+      archetypeTitle: 'Yedek Parça Tüccarı',
+      avatarType: 'craftsman',
+      personalityDescription: 'Hasarlı veya masraflı araçları ucuza toplayıp sanayide ayağa kaldırır.',
+      preferredDialogueTrait: 'Kelepir Fiyat',
+    ),
+    CustomerModel(
+      id: 'cust_22',
+      name: 'Galerici Cengiz',
+      archetype: CustomerArchetype.greedyFlipper,
+      archetypeTitle: 'Oto Galericiler Sitesi Esnafı',
+      avatarType: 'craftsman',
+      personalityDescription: 'Piyasa dalgalanmalarını takip eder, toplu araç alımlarında sert kırar.',
+      preferredDialogueTrait: 'Toptan Alım',
+    ),
+    CustomerModel(
+      id: 'cust_23',
+      name: 'Emlakçı Vedat Bey',
+      archetype: CustomerArchetype.greedyFlipper,
+      archetypeTitle: 'Takas & Ticaret Uzmanı',
+      avatarType: 'craftsman',
+      personalityDescription: 'Nakit ve takas fırsatlarını iyi koklar. Hızlı elden çıkarma ustasıdır.',
+      preferredDialogueTrait: 'Takas Esnekliği',
+    ),
+    CustomerModel(
+      id: 'cust_24',
+      name: 'Nakliyeci Dursun Usta',
+      archetype: CustomerArchetype.greedyFlipper,
+      archetypeTitle: 'Filo İşletmecisi',
+      avatarType: 'craftsman',
+      personalityDescription: 'Ticari ve dayanıklı araçları peşin parayla ucuza kapatır.',
+      preferredDialogueTrait: 'Peşin İndirim',
+    ),
+
+    // Hassas Aile & Güvenlik Odaklılar (familyMan)
+    CustomerModel(
+      id: 'cust_4',
+      name: 'Ahmet Bey',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Hassas Aile Babası',
+      avatarType: 'rare',
+      personalityDescription: 'Bagaj hacmi, tramer temizliği ve aile güvenliği arar.',
+      preferredDialogueTrait: 'Aile Güvenliği & Konfor',
+    ),
+    CustomerModel(
+      id: 'cust_8',
+      name: 'Öğretmen Emre Bey',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Tasarruflu Eğitimci',
+      avatarType: 'rare',
+      personalityDescription: 'Yakıt tüketimi az, kronik arızası olmayan temiz sedanların peşindedir.',
+      preferredDialogueTrait: 'Ekonomik Güven',
+    ),
+    CustomerModel(
+      id: 'cust_12',
+      name: 'Doktor Nazlı Hanım',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Güvenlik Odaklı Hekim',
+      avatarType: 'rare',
+      personalityDescription: 'Hava yastıkları ve fren sistemleri kusursuz olmalı. Pazarlıkta nettir.',
+      preferredDialogueTrait: 'Maksimum Güvenlik',
+    ),
+    CustomerModel(
+      id: 'cust_25',
+      name: 'Eczacı Kemal Bey',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Mahalle Eczacısı',
+      avatarType: 'rare',
+      personalityDescription: 'Konforlu, temiz iç mekanlı ve sessiz sürüş sunan aile araçlarını tercih eder.',
+      preferredDialogueTrait: 'Konfor & Sessizlik',
+    ),
+    CustomerModel(
+      id: 'cust_26',
+      name: 'Mimar Selin Hanım',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Tasarımcı & Anne',
+      avatarType: 'rare',
+      personalityDescription: 'Geniş görüş açısı, ferah kabin ve çocuk güvenliği donanımlarına önem verir.',
+      preferredDialogueTrait: 'Ergonomi & Güvenlik',
+    ),
+    CustomerModel(
+      id: 'cust_27',
+      name: 'Çiftçi Halil Ağa',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Toprak Sahibi',
+      avatarType: 'rare',
+      personalityDescription: 'Geniş bagajlı, köy yoluna dayanıklı ve masrafsız araç arar.',
+      preferredDialogueTrait: 'Sağlam Şasi',
+    ),
+    CustomerModel(
+      id: 'cust_28',
+      name: 'Diş Hekimi Beren Hanım',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Titiz Sağlıkçı',
+      avatarType: 'rare',
+      personalityDescription: 'İçi dışı tertemiz, sigara içilmemiş ve düzenli yetkili servis bakımlı araç ister.',
+      preferredDialogueTrait: 'Temiz Geçmiş',
+    ),
+    CustomerModel(
+      id: 'cust_29',
+      name: 'Veteriner Tarık Bey',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'Doğa Dostu Hekim',
+      avatarType: 'rare',
+      personalityDescription: 'Geniş bagajlı station wagon ve SUV modelleriyle hafta sonu seyahatlerini sever.',
+      preferredDialogueTrait: 'Hacim & Dayanıklılık',
+    ),
+    CustomerModel(
+      id: 'cust_30',
+      name: 'Sanayici Kerem Bey',
+      archetype: CustomerArchetype.familyMan,
+      archetypeTitle: 'İş İnsanı',
+      avatarType: 'rare',
+      personalityDescription: 'Ailesi için üst düzey konforlu ve prestijli Alman kasalarını tercih eder.',
+      preferredDialogueTrait: 'Maksimum Konfor',
+    ),
+  ];
+
+  static final List<String> _recentGeneratedIds = [];
+
+  static CustomerModel generateRandomCustomer() {
+    final pool = List<CustomerModel>.from(_allArchetypePool);
+    pool.shuffle();
+
+    // Anti-repetition: avoid the last 6 generated customers
+    for (final customer in pool) {
+      if (!_recentGeneratedIds.contains(customer.id)) {
+        _trackRecentCustomer(customer.id);
+        return customer;
+      }
+    }
+
+    // Fallback if all were recently used
+    final selected = pool.first;
+    _trackRecentCustomer(selected.id);
+    return selected;
+  }
+
+  static void _trackRecentCustomer(String id) {
+    _recentGeneratedIds.add(id);
+    if (_recentGeneratedIds.length > 8) {
+      _recentGeneratedIds.removeAt(0);
+    }
   }
 
   static CustomerModel generate(CustomerArchetype archetype) {
-    switch (archetype) {
-      case CustomerArchetype.skepticalOfficial:
-        return CustomerModel(
-          id: 'cust_official_${DateTime.now().microsecondsSinceEpoch}',
-          name: 'Mustafa Bey',
-          archetype: CustomerArchetype.skepticalOfficial,
-          archetypeTitle: 'Şüpheci Emekli Memur',
-          avatarType: 'shield',
-          personalityDescription: 'Aracın en ufak çizik ve ekspertiz detayına takılır. Dürüstlük ve şeffaflık ister.',
-          preferredDialogueTrait: 'Şeffaflık & Güven',
-        );
-      case CustomerArchetype.impatientYouth:
-        return CustomerModel(
-          id: 'cust_youth_${DateTime.now().microsecondsSinceEpoch}',
-          name: 'Mertcan',
-          archetype: CustomerArchetype.impatientYouth,
-          archetypeTitle: 'Sabırsız Genç Sürücü',
-          avatarType: 'flash',
-          personalityDescription: 'Beygir gücü ve karizmaya bakar. Bütçesi esnektir, beğendiyse %15 fazla öder!',
-          preferredDialogueTrait: 'Performans & Karizma',
-        );
-      case CustomerArchetype.greedyFlipper:
-        return CustomerModel(
-          id: 'cust_flipper_${DateTime.now().microsecondsSinceEpoch}',
-          name: 'Çakal Selim',
-          archetype: CustomerArchetype.greedyFlipper,
-          archetypeTitle: 'Açgözlü Oto Al-Satçı',
-          avatarType: 'craftsman',
-          personalityDescription: 'Ölücü teklifler verir ama anında nakit kapatmak ister.',
-          preferredDialogueTrait: 'Hızlı Nakit Kapatma',
-        );
-      case CustomerArchetype.familyMan:
-        return CustomerModel(
-          id: 'cust_family_${DateTime.now().microsecondsSinceEpoch}',
-          name: 'Ahmet Bey',
-          archetype: CustomerArchetype.familyMan,
-          archetypeTitle: 'Hassas Aile Babası',
-          avatarType: 'rare',
-          personalityDescription: 'Bagaj hacmi, tramer temizliği ve aile güvenliği arar.',
-          preferredDialogueTrait: 'Aile Güvenliği & Konfor',
-        );
+    final matching = _allArchetypePool.where((c) => c.archetype == archetype).toList();
+    matching.shuffle();
+
+    for (final customer in matching) {
+      if (!_recentGeneratedIds.contains(customer.id)) {
+        _trackRecentCustomer(customer.id);
+        return customer;
+      }
     }
+
+    final selected = matching.isNotEmpty ? matching.first : generateRandomCustomer();
+    _trackRecentCustomer(selected.id);
+    return selected;
   }
 
   static CustomerModel generateSellerFromListing(String sellerName) {
     final lower = sellerName.toLowerCase();
     
-    if (lower.contains('doktor')) {
+    if (lower.contains('doktor') || lower.contains('hekim')) {
       return CustomerModel(
-        id: 'seller_doc',
+        id: 'seller_doc_${DateTime.now().microsecondsSinceEpoch}',
         name: sellerName,
         archetype: CustomerArchetype.skepticalOfficial,
         archetypeTitle: 'Titiz Doktor',
@@ -212,9 +374,9 @@ class CustomerModel {
         personalityDescription: 'Aracına gözü gibi bakmış, pazarlığı pek sevmez, saygı bekler.',
         preferredDialogueTrait: 'Saygı & Şeffaflık',
       );
-    } else if (lower.contains('memur') || lower.contains('öğretmen')) {
+    } else if (lower.contains('memur') || lower.contains('öğretmen') || lower.contains('albay') || lower.contains('müfettiş')) {
       return CustomerModel(
-        id: 'seller_memur',
+        id: 'seller_memur_${DateTime.now().microsecondsSinceEpoch}',
         name: sellerName,
         archetype: CustomerArchetype.skepticalOfficial,
         archetypeTitle: 'Düzenli Memur',
@@ -222,9 +384,9 @@ class CustomerModel {
         personalityDescription: 'Tüm bakımları yetkili serviste yapmış, her şeyin kaydı var.',
         preferredDialogueTrait: 'Güven & Şeffaflık',
       );
-    } else if (lower.contains('al-sat') || lower.contains('galeri')) {
+    } else if (lower.contains('al-sat') || lower.contains('galeri') || lower.contains('taksici') || lower.contains('çıkmacı')) {
       return CustomerModel(
-        id: 'seller_alsat',
+        id: 'seller_alsat_${DateTime.now().microsecondsSinceEpoch}',
         name: sellerName,
         archetype: CustomerArchetype.greedyFlipper,
         archetypeTitle: 'Oto Al-Satçı',
@@ -232,9 +394,9 @@ class CustomerModel {
         personalityDescription: 'Piyasayı iyi bilir, ucuza bırakmaz ama peşin paraya zaafı vardır.',
         preferredDialogueTrait: 'Hızlı Nakit',
       );
-    } else if (lower.contains('genç') || lower.contains('yazılımcı')) {
+    } else if (lower.contains('genç') || lower.contains('yazılımcı') || lower.contains('müteahhit') || lower.contains('öğrenci')) {
       return CustomerModel(
-        id: 'seller_genc',
+        id: 'seller_genc_${DateTime.now().microsecondsSinceEpoch}',
         name: sellerName,
         archetype: CustomerArchetype.impatientYouth,
         archetypeTitle: 'Sabırsız Genç',
@@ -242,9 +404,9 @@ class CustomerModel {
         personalityDescription: 'Acil paraya sıkışmış, modeli yükseltmek için hızlıca elden çıkarmak istiyor.',
         preferredDialogueTrait: 'Hızlı İşlem',
       );
-    } else if (lower.contains('aile') || lower.contains('emekli')) {
+    } else if (lower.contains('aile') || lower.contains('emekli') || lower.contains('çiftçi') || lower.contains('eczacı')) {
       return CustomerModel(
-        id: 'seller_aile',
+        id: 'seller_aile_${DateTime.now().microsecondsSinceEpoch}',
         name: sellerName,
         archetype: CustomerArchetype.familyMan,
         archetypeTitle: 'Aile Babası',
@@ -256,7 +418,7 @@ class CustomerModel {
     
     // Default fallback
     return CustomerModel(
-      id: 'seller_def',
+      id: 'seller_def_${DateTime.now().microsecondsSinceEpoch}',
       name: sellerName,
       archetype: CustomerArchetype.familyMan,
       archetypeTitle: 'Bireysel Satıcı',

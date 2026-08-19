@@ -1157,43 +1157,10 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   List<BlackMarketCarModel> _generateRandomBlackMarketCars(int day) {
-    return [
-      BlackMarketCarModel(
-        id: 'bm_${day}_1',
-        brand: 'Porş',
-        modelName: 'Porş Pana-Mera 4S Lüks • %50 Kelepir / Soruşturmalı',
-        modelYear: 2019,
-        askingPrice: 1200000.0,
-        realMarketValue: 2400000.0,
-        riskType: 'change_vin',
-        riskLevelPercent: 25,
-        sellerAlias: 'Gece Kuşu Selim',
-        riskDescription: 'Şasi numarası yurt dışı gümrük kaçakçılığı şüphesiyle takipli. Satışta %25 Polis Yakalama Riski!',
-      ),
-      BlackMarketCarModel(
-        id: 'bm_${day}_2',
-        brand: 'Merso',
-        modelName: 'Merso G-63 Tuğla V8 • %60 İndirimli / Hacizli',
-        modelYear: 2021,
-        askingPrice: 2800000.0,
-        realMarketValue: 6500000.0,
-        riskType: 'stolen_paperwork',
-        riskLevelPercent: 35,
-        sellerAlias: 'Karanlık Kenan',
-        riskDescription: 'Yurt dışından kaçak sokulmuş sahte plaka Merso G-Kasa Tuğla. Satış esnasında %35 Polis El Koyma Riski!',
-      ),
-      BlackMarketCarModel(
-        id: 'bm_${day}_3',
-        brand: 'Avdi',
-        modelName: 'Avdi RS-Altı Canavar • %45 İndirimli / Çifte Şasi',
-        modelYear: 2020,
-        askingPrice: 1950000.0,
-        realMarketValue: 4200000.0,
-        riskType: 'salvage_hidden',
-        riskLevelPercent: 20,
-        sellerAlias: 'Gölge İbrahim',
-        riskDescription: 'İki kazalı araç kaynağı ile yapılmış Change Avdi RS-Altı. Yakalanırsa araç kaza enkazı sayılarak bağlanır!',
-      ),
-    ];
+    return BlackMarketEngine.generateBlackMarketCars(
+      day: day,
+      count: 4,
+      playerLevel: state.level,
+    );
   }
 }

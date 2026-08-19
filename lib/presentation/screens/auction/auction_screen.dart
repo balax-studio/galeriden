@@ -29,6 +29,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   List<UpcomingLotModel> _upcomingLots = [];
   Timer? _timer;
   bool _hasPlayerEnteredBid = false;
+  bool _isHandlingAuctionEnd = false;
   final List<String> _bidLogs = [];
   late AnimationController _pulseController;
   int _closedCountdown = 0;
@@ -63,17 +64,21 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       if (!mounted) return;
 
       final windowNow = AuctionEngine.isAuctionActiveNow();
+
+      // Only transition to closed if not currently handling an active player round/dialog
       if (windowNow != _isWindowOpen) {
-        setState(() {
-          _isWindowOpen = windowNow;
-          if (_isWindowOpen) {
-            final game = ref.read(gameProvider);
-            _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-            _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
-            _isOfficerConsulted = false;
-            _officerSpeech = null;
-          }
-        });
+        if (windowNow || (!_isHandlingAuctionEnd && !_hasPlayerEnteredBid && _auction.secondsRemaining <= 0)) {
+          setState(() {
+            _isWindowOpen = windowNow;
+            if (_isWindowOpen) {
+              final game = ref.read(gameProvider);
+              _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+              _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
+              _isOfficerConsulted = false;
+              _officerSpeech = null;
+            }
+          });
+        }
       }
 
       if (!_isWindowOpen) {
@@ -94,6 +99,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       }
 
       if (_auction.secondsRemaining <= 1) {
+        _timer?.cancel();
+        if (_isHandlingAuctionEnd) return;
+        _isHandlingAuctionEnd = true;
+
         setState(() {
           _auction = _auction.copyWith(secondsRemaining: 0, status: AuctionStatus.ended);
         });
@@ -155,14 +164,23 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     _timer?.cancel();
     if (!mounted) return;
     final game = ref.read(gameProvider);
+    final isNowOpen = AuctionEngine.isAuctionActiveNow();
+
     setState(() {
-      _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-      _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
-      _bidLogs.clear();
-      _bidLogs.add('Yeni Araç İhale Masasında!');
-      _bidLogs.add('Başlangıç Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      _isHandlingAuctionEnd = false;
       _hasPlayerEnteredBid = false;
+      _isWindowOpen = isNowOpen;
+      _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
+
+      if (_isWindowOpen) {
+        _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+        _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
+        _bidLogs.clear();
+        _bidLogs.add('Yeni Araç İhale Masasında!');
+        _bidLogs.add('Başlangıç Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      }
     });
+
     _startAuctionTimer();
   }
 
@@ -184,7 +202,18 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(loot.icon, style: const TextStyle(fontSize: 48)),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.brutalYellow,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      width: 2.0,
+                    ),
+                  ),
+                  child: const Icon(Icons.inventory_2_rounded, color: Colors.black, size: 36),
+                ),
                 const SizedBox(height: 12),
                 const Text(
                   'GÜMRÜK BAGAJ SÜRPRİZİ!',
@@ -218,8 +247,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   onPressed: () {
                     ref.read(gameProvider.notifier).addMoney(loot.value);
                     Navigator.of(ctx).pop();
-                    NotificationService.showSuccess(context, '${CurrencyFormatter.format(loot.value)} kasaya eklendi!');
-                    _resetAuctionSilently();
+                    if (mounted) {
+                      NotificationService.showSuccess(context, '${CurrencyFormatter.format(loot.value)} kasaya eklendi!');
+                      _resetAuctionSilently();
+                    }
                   },
                 ),
               ],
@@ -310,7 +341,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     fullWidth: true,
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      _showTrunkLootDialog(_auction.customsNote.trunkLoot);
+                      if (mounted) {
+                        _showTrunkLootDialog(_auction.customsNote.trunkLoot);
+                      }
                     },
                   ),
                   const SizedBox(height: 8),
@@ -321,7 +354,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     fullWidth: true,
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      _resetAuctionSilently();
+                      if (mounted) {
+                        _resetAuctionSilently();
+                      }
                     },
                   ),
                 ],
@@ -378,7 +413,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     fullWidth: true,
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      _resetAuctionSilently();
+                      if (mounted) {
+                        _resetAuctionSilently();
+                      }
                     },
                   ),
                 ],

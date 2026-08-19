@@ -24,6 +24,7 @@ import '../../../domain/usecases/market_engine.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
+import '../../../domain/usecases/review_engine.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
 
@@ -781,45 +782,19 @@ mixin GameMarketMixin on GameBaseNotifier {
   }
 
   (CustomerReviewModel, int) _generateCustomerReview(CarModel car, String buyerName) {
-    double reviewRating = 4.5;
-    String reviewComment = 'Güvenilir esnaf, söylediği neyse o çıktı. Tavsiye ederim.';
-    int reputationChange = 3;
-
-    final isClean = car.isWashed || car.isDetailedCleaned;
-    final isGoodEngine = car.expertise.engineCondition >= 80;
-
     final hasVipConcierge = state.purchasedAcademyCourses.contains('course_vip_concierge');
     final hasVipLounge = state.hasDecor('decor_vip_lounge');
     final hasTrophy = state.hasDecor('decor_trophy_cabinet');
 
-    if (car.declarationType == ListingDeclarationType.honest) {
-      if (isClean && isGoodEngine) {
-        reviewRating = 5.0;
-        reviewComment = 'Aracı pırıl pırıl teslim aldım. Ekspertizde sürpriz çıkmadı, elinize sağlık!';
-        reputationChange = 5 + (hasVipConcierge || hasVipLounge ? 2 : 0) + (hasTrophy ? 1 : 0);
-      } else {
-        reviewRating = (hasVipConcierge || hasVipLounge) ? 4.5 : 4.0;
-        reviewComment = (hasVipConcierge || hasVipLounge)
-            ? 'VIP karşılamaları ve samimi ikramları harikaydı. Dürüst esnaf, teşekkürler.'
-            : 'Dürüst satıcı, ufak tefek masraflarını baştan belirtti. Teşekkürler.';
-        reputationChange = 2 + (hasVipConcierge ? 1 : 0) + (hasTrophy ? 1 : 0);
-      }
-    } else {
-      reviewRating = (hasVipConcierge || hasVipLounge) ? 2.5 : 2.0;
-      reviewComment = 'İlanda yazmayan boya ve mekanik kusurlar çıktı. Pek memnun kalmadım.';
-      reputationChange = -4;
-    }
-
-    final review = CustomerReviewModel(
-      id: 'rev_${DateTime.now().millisecondsSinceEpoch}',
-      reviewerName: buyerName,
-      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}',
-      rating: reviewRating,
-      comment: reviewComment,
-      createdAt: DateTime.now(),
+    final result = ReviewEngine.generateSaleReview(
+      car: car,
+      buyerName: buyerName,
+      hasVipConcierge: hasVipConcierge,
+      hasVipLounge: hasVipLounge,
+      hasTrophy: hasTrophy,
     );
 
-    return (review, reputationChange);
+    return (result.review, result.reputationChange);
   }
 
   /// Reject or dismiss an offer
@@ -1210,7 +1185,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     final newCar = CarModel(
       id: 'bm_owned_${DateTime.now().millisecondsSinceEpoch}',
       brand: bmCar.brand,
-      modelName: '${bmCar.modelName} [Karaborsa]',
+      modelName: '${bmCar.modelName} • Karaborsa',
       modelYear: bmCar.modelYear,
       bodyType: 'Spor',
       colorHex: '0xFF111111',

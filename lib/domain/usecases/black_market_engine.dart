@@ -1,8 +1,11 @@
 import 'dart:math';
 import '../../core/utils/currency_formatter.dart';
+import '../../data/models/black_market_car_model.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/game_event_model.dart';
+
+import '../../core/constants/game_constants.dart';
 
 /// Result data structure for black market raid evaluations
 class BlackMarketRaidResult {
@@ -23,6 +26,133 @@ class BlackMarketRaidResult {
 
 /// Pure domain usecase for black market transactions, notary risks, and police raids
 class BlackMarketEngine {
+  static final List<String> _sellerAliases = [
+    'Karanlık Kenan',
+    'Gece Kuşu Selim',
+    'Gölge İbrahim',
+    'Çıkmacı Vahit',
+    'Gümrükçü Haydar',
+    'Tefeci Mahmut',
+    'Şasi Ustası Bedri',
+    'Perte Çıkaran Nuri',
+    'Gümrük Kaçakçısı Rıza',
+    'Kaportacı Sırrı',
+    'Gizemli Faruk',
+    'Kurt Salih',
+    'Sanayi Tilkisi Cevdet',
+    'Yeraltı Komisyoncusu Tayfun',
+  ];
+
+  static final List<Map<String, String>> _riskProfiles = [
+    {
+      'type': 'change_vin',
+      'tag': 'Change Şasi',
+      'desc': 'Şasi numarası pert bir araçtan aktarılmış. Asayiş incelemesinde tespit edilirse araç yediemin otoparkına çekilir.',
+    },
+    {
+      'type': 'stolen_paperwork',
+      'tag': 'Sahte Evrak / Çalıntı Şüphesi',
+      'desc': 'Ruhsat ve tescil evraklarında sahtecilik şüphesi bulunuyor. Asıl hak sahibi veya savcılık kararıyla el konulabilir.',
+    },
+    {
+      'type': 'smuggled_exotic',
+      'tag': 'Gümrük Kaçakçılığı',
+      'desc': 'Yurt dışından kaçak sokulmuş tescilsiz araç. Gümrük Muhafaza denetiminde yüklü para cezası ve müsadere riski taşır.',
+    },
+    {
+      'type': 'salvage_hidden',
+      'tag': 'Ortadan Kaynaklı Kasa',
+      'desc': 'İki farklı kazalı aracın ortadan kaynakla birleştirilmesiyle toplanmış. Ağır mekanik ve şasi kusuru riski yüksektir.',
+    },
+    {
+      'type': 'mafia_debt',
+      'tag': 'Tefeci Şerhli',
+      'desc': 'Önceki sahibinin gayriresmi borçları ve senet şerhi nedeniyle ihtilaflı. Gece baskını ve rehin riski mevcuttur.',
+    },
+  ];
+
+  /// Generates dynamic black market vehicle listings with realistic base pricing and risk-reward scaling
+  static List<BlackMarketCarModel> generateBlackMarketCars({
+    required int day,
+    int count = 3,
+    int playerLevel = 1,
+    Random? random,
+  }) {
+    final rng = random ?? Random();
+    final List<BlackMarketCarModel> cars = [];
+
+    // Filter brands from game constants, prioritizing interesting segments
+    final allBrands = List<CarBrandData>.from(GameConstants.carBrands);
+    allBrands.shuffle(rng);
+
+    final aliases = List<String>.from(_sellerAliases)..shuffle(rng);
+    final profiles = List<Map<String, String>>.from(_riskProfiles)..shuffle(rng);
+
+    for (int i = 0; i < count; i++) {
+      final brandData = allBrands[i % allBrands.length];
+      final modelName = brandData.models[rng.nextInt(brandData.models.length)];
+
+      final isClassic = brandData.segment == 'klasik' || brandData.segment == 'efsane';
+      final year = isClassic
+          ? (1985 + rng.nextInt(20))
+          : (2012 + rng.nextInt(12)); // 2012-2024 for modern cars
+
+      // Calculate realistic base market value
+      final double realMarketValue = _calculateEstimatedMarketValue(brandData.segment, year, isClassic, rng);
+
+      // Dynamic discount between 18% and 52%
+      final int discountInt = 18 + rng.nextInt(35); // 18% to 52%
+      final double discountRate = discountInt / 100.0;
+      final double askingPrice = (realMarketValue * (1.0 - discountRate) / 1000).round() * 1000.0;
+
+      // Dynamic risk formula: higher discount = higher risk
+      final int jitter = rng.nextInt(7) - 3; // -3 to +3
+      final int riskPercent = ((discountInt * 0.95) + jitter).clamp(15, 60).round();
+
+      final profile = profiles[i % profiles.length];
+      final seller = aliases[i % aliases.length];
+
+      final title = '${brandData.name} $modelName • %$discountInt İndirim - ${profile['tag']}';
+      final riskDescription = '$seller tarafından el altından sunulan araç. ${profile['desc']} Satış ve muhafaza esnasında %$riskPercent risk taşımaktadır.';
+
+      cars.add(BlackMarketCarModel(
+        id: 'bm_${day}_${i + 1}_${rng.nextInt(9999)}',
+        brand: brandData.name,
+        modelName: title,
+        modelYear: year,
+        askingPrice: askingPrice,
+        realMarketValue: realMarketValue,
+        riskType: profile['type']!,
+        riskLevelPercent: riskPercent,
+        sellerAlias: seller,
+        riskDescription: riskDescription,
+      ));
+    }
+
+    return cars;
+  }
+
+  static double _calculateEstimatedMarketValue(String segment, int year, bool isClassic, Random rng) {
+    if (isClassic) {
+      return (85000.0 + rng.nextInt(250000)).roundToDouble();
+    }
+    final int yearBonus = (year - 2010).clamp(0, 15) * 35000;
+    switch (segment) {
+      case 'süperspor':
+      case 'egzotik':
+        return (2800000.0 + yearBonus * 4.0 + rng.nextInt(900000)).roundToDouble();
+      case 'lüks':
+      case 'premium':
+        return (1100000.0 + yearBonus * 2.5 + rng.nextInt(500000)).roundToDouble();
+      case 'popüler':
+      case 'halk':
+        return (350000.0 + yearBonus * 1.5 + rng.nextInt(200000)).roundToDouble();
+      case 'ekonomi':
+      default:
+        return (220000.0 + yearBonus * 1.0 + rng.nextInt(120000)).roundToDouble();
+    }
+  }
+
   /// Evaluates notary block probability based on vehicle risk level
   static bool isNotaryBlocked(int riskLevelPercent, {Random? random}) {
     final rng = random ?? Random();
