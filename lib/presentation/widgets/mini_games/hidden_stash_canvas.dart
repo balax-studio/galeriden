@@ -72,17 +72,16 @@ class _HiddenStashModalState extends State<HiddenStashModal>
     super.dispose();
   }
 
-  void _onPanUpdate(DragUpdateDetails details, Size size) {
+  void _processPointerPosition(Offset pos, Size size) {
     if (_isFinished) return;
 
-    final pos = details.localPosition;
     _scannedSpots.add(pos);
 
-    // Distance to stash target
+    // Target boot / chassis area
     final dist = (pos - _stashTarget).distance;
 
-    if (dist < 40.0) {
-      _stashDiscoveryProgress = (_stashDiscoveryProgress + 0.05).clamp(0.0, 1.0);
+    if (dist < 65.0) {
+      _stashDiscoveryProgress = (_stashDiscoveryProgress + 0.15).clamp(0.0, 1.0);
       HapticFeedback.selectionClick();
 
       if (_stashDiscoveryProgress >= 1.0 && !_isFound) {
@@ -94,7 +93,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
         _statusMessage = 'Sinyal güçleniyor! Zula noktasını taramaya devam et (%${(_stashDiscoveryProgress * 100).round()})...';
       }
     } else {
-      _statusMessage = 'Gövde taranıyor • Gizli bölme aranıyor...';
+      _statusMessage = 'Gövde taranıyor • UV dedektörünü gezdirerek zulayı yakala...';
     }
 
     setState(() {
@@ -169,13 +168,14 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                 children: [
                   LayoutBuilder(
                     builder: (context, constraints) {
+                      final size = Size(constraints.maxWidth, constraints.maxHeight);
                       return GestureDetector(
-                        onPanUpdate: (details) => _onPanUpdate(
-                          details,
-                          Size(constraints.maxWidth, constraints.maxHeight),
-                        ),
+                        behavior: HitTestBehavior.opaque,
+                        onTapDown: (details) => _processPointerPosition(details.localPosition, size),
+                        onPanStart: (details) => _processPointerPosition(details.localPosition, size),
+                        onPanUpdate: (details) => _processPointerPosition(details.localPosition, size),
                         child: CustomPaint(
-                          size: Size(constraints.maxWidth, constraints.maxHeight),
+                          size: size,
                           painter: _HiddenStashPainter(
                             flashlightPos: _flashlightPos,
                             stashTarget: _stashTarget,

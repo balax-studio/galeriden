@@ -1108,8 +1108,14 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
   }
 
-  /// Dismantle a single specific part from a scrap car with %85 extraction success dice roll
-  SinglePartDismantleResult dismantleSinglePartFromScrap(String scrapCarId, String partId, {Random? random}) {
+  /// Dismantle a single specific part from a scrap car with %85 extraction success dice roll or mini game result
+  SinglePartDismantleResult dismantleSinglePartFromScrap(
+    String scrapCarId,
+    String partId, {
+    Random? random,
+    bool? forceSuccess,
+    int? customCondition,
+  }) {
     final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
     if (scrapIndex == -1) {
       return const SinglePartDismantleResult(
@@ -1136,7 +1142,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
       );
     }
 
-    final part = scrapCar.parts[partIndex];
+    final originalPart = scrapCar.parts[partIndex];
+    final part = customCondition != null ? originalPart.copyWith(conditionPercent: customCondition) : originalPart;
     final updatedParts = List<SalvagedPart>.from(scrapCar.parts)..removeAt(partIndex);
     final updatedScrapCar = scrapCar.copyWith(parts: updatedParts);
 
@@ -1144,8 +1151,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     updatedScrapCars[scrapIndex] = updatedScrapCar;
 
     final rng = random ?? Random();
-    // %85 success rate, %15 stripped bolt / damaged part during manual extraction
-    final isSuccess = rng.nextDouble() < 0.85;
+    // %85 success rate on quick dismantle, or deterministic result from mini-game
+    final isSuccess = forceSuccess ?? (rng.nextDouble() < 0.85);
 
     if (isSuccess) {
       state = state.copyWith(

@@ -421,8 +421,13 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                     carName: '${car.brand} ${car.modelName}',
                     initialCondition: part.conditionPercent,
                     onCompleted: (isSuccess, finalCondition, message) {
-                      final result = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
-                      if (isSuccess) {
+                      final result = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(
+                        car.id,
+                        part.id,
+                        forceSuccess: isSuccess,
+                        customCondition: isSuccess ? finalCondition : null,
+                      );
+                      if (isSuccess && result.isSalvaged) {
                         NotificationService.showSuccess(
                           context,
                           'Kusursuz söküm! ${part.name} %$finalCondition kondisyonla depoya aktarıldı.',

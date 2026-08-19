@@ -741,29 +741,31 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
               // Interactive Detailing Canvas Trigger
               NeoBrutalButton(
-                icon: Icons.cleaning_services_rounded,
-                label: 'KÖPÜKLÜ 2D YIKAMA KANVASI',
-                backgroundColor: AppColors.brutalYellow,
-                textColor: Colors.black,
+                icon: selectedCar.isWashed ? Icons.check_circle_rounded : Icons.cleaning_services_rounded,
+                label: selectedCar.isWashed ? '2D YIKAMA TAMAMLANDI • TEMİZ' : 'KÖPÜKLÜ 2D YIKAMA KANVASI',
+                backgroundColor: selectedCar.isWashed ? const Color(0xFF1E293B) : AppColors.brutalYellow,
+                textColor: selectedCar.isWashed ? Colors.white54 : Colors.black,
                 fontSize: 11.5,
                 fullWidth: true,
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                onPressed: () => CarWashMiniGameModal.show(
-                  context,
-                  car: selectedCar!,
-                  onCleanCompleted: () {
-                    _applyWashService(
-                      car: selectedCar!,
-                      cost: 350.0 * discountMultiplier,
-                      valueBoost: 0.01,
-                      setWashed: true,
-                      setInterior: false,
-                      setPolished: false,
-                      setDetailed: false,
-                      successMsg: 'Köpüklü yıkama tamamlandı! Araç pırıl pırıl parlıyor.',
-                    );
-                  },
-                ),
+                onPressed: selectedCar.isWashed
+                    ? null
+                    : () => CarWashMiniGameModal.show(
+                          context,
+                          car: selectedCar!,
+                          onCleanCompleted: () {
+                            _applyWashService(
+                              car: selectedCar!,
+                              cost: 350.0 * discountMultiplier,
+                              valueBoost: 0.01,
+                              setWashed: true,
+                              setInterior: false,
+                              setPolished: false,
+                              setDetailed: false,
+                              successMsg: 'Köpüklü yıkama tamamlandı! Araç pırıl pırıl parlıyor.',
+                            );
+                          },
+                        ),
               ),
               const SizedBox(height: 14),
 

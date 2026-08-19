@@ -406,28 +406,30 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   const SizedBox(height: 10),
                   NeoBrutalButton(
                     label: _inspectionStampText != null
-                        ? 'MUAYENE TESTİ TAMAMLANDI • TEKRAR TEST ET'
+                        ? 'MUAYENE TESTİ TAMAMLANDI • GEÇTİ'
                         : 'FREN VE FAR TESTİNİ BAŞLAT • MİNİ OYUN',
-                    icon: Icons.play_arrow_rounded,
+                    icon: _inspectionStampText != null ? Icons.check_circle_rounded : Icons.play_arrow_rounded,
                     backgroundColor: _inspectionStampText != null ? const Color(0xFF1E293B) : const Color(0xFF38BDF8),
-                    textColor: _inspectionStampText != null ? Colors.white : Colors.black,
+                    textColor: _inspectionStampText != null ? Colors.white54 : Colors.black,
                     fontSize: 11.5,
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    onPressed: () {
-                      VehicleInspectionModal.show(
-                        context,
-                        car: car,
-                        onInspectionFinished: (passed, brakeScore, headlightScore, reportBadge) {
-                          setState(() {
-                            _inspectionStampText = reportBadge;
-                          });
-                          NotificationService.showSuccess(
-                            context,
-                            '$reportBadge • Araç muayene testinden başarıyla geçti!',
-                          );
-                        },
-                      );
-                    },
+                    onPressed: _inspectionStampText != null
+                        ? null
+                        : () {
+                            VehicleInspectionModal.show(
+                              context,
+                              car: car,
+                              onInspectionFinished: (passed, brakeScore, headlightScore, reportBadge) {
+                                setState(() {
+                                  _inspectionStampText = reportBadge;
+                                });
+                                NotificationService.showSuccess(
+                                  context,
+                                  '$reportBadge • Araç muayene testinden başarıyla geçti!',
+                                );
+                              },
+                            );
+                          },
                   ),
                 ],
               ),

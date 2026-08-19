@@ -9,15 +9,21 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
-import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/mini_games/hidden_stash_canvas.dart';
 
-class BlackMarketScreen extends ConsumerWidget {
+class BlackMarketScreen extends ConsumerStatefulWidget {
   const BlackMarketScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BlackMarketScreen> createState() => _BlackMarketScreenState();
+}
+
+class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
+  final Set<String> _scannedCarIds = {};
+
+  @override
+  Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
@@ -46,41 +52,48 @@ class BlackMarketScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(14),
         physics: const BouncingScrollPhysics(),
         children: [
-          // 1. Warning Danger Card
+          // Header Banner
           NeoBrutalCard(
-            padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF241414) : const Color(0xFFFEF2F2),
+            padding: const EdgeInsets.all(16),
+            backgroundColor: const Color(0xFF161922),
             borderColor: AppColors.errorRed,
             borderRadius: 14,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.errorRed,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                      width: 2.0,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.masks_rounded, color: AppColors.errorRed, size: 24),
+                        SizedBox(width: 8),
+                        Text(
+                          'YASA DIŞI OTO PAZARI',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+                    const NeoBrutalBadge(
+                      text: 'YÜKSEK RİSK & KÂR',
+                      backgroundColor: AppColors.errorRed,
+                      textColor: Colors.white,
+                      fontSize: 9.5,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'YÜKSEK KÂR / YÜKSEK RİSK',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.errorRed),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        'Change, şasi soruşturmalı veya hacizli araçlar yarı fiyatına satılır. Polis denetiminde yakalanma riski vardır!',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                      ),
-                    ],
+                const SizedBox(height: 8),
+                const Text(
+                  'Buradaki araçlar hacizli, çalıntı kaydı şüpheli veya şasi numarası silinmiş kelepir araçlardır. Satın alıp şasilerini temizleyebilir ya da hurdalıkta parçalayabilirsin. Dikkat: Polis baskını riski taşır!',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: Color(0xFFCBD5E1),
+                    height: 1.35,
                   ),
                 ),
               ],
@@ -88,28 +101,21 @@ class BlackMarketScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          Text(
-            'GECE KUŞU & SORUŞTURMALI ARAÇLAR',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.5,
-              color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // 2. Black Market Vehicles List
+          // Car List
           if (bmCars.isEmpty || bmCars.every((c) => c.isPurchased))
-            const NeoBrutalEmptyState(
-              icon: Icons.nightlight_round,
-              accentColor: AppColors.errorRed,
-              badgeText: 'GECE DEVRİYESİ BEKLENİYOR',
-              title: 'Karaborsada Satılık Araç Yok',
-              description: 'Karaborsada şu an satılık soruşturmalı araç kalmadı. Gece yarısı devriyesiyle yeni gizli ilanlar piyasaya düşecek.',
+            const NeoBrutalCard(
+              padding: EdgeInsets.all(32),
+              child: Center(
+                child: Text(
+                  'Şu an karaborsada araç bulunmuyor.\nGece piyasası yenilendiğinde tekrar kontrol et.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
             )
           else
             ...bmCars.where((c) => !c.isPurchased).map((car) {
+              final isScanned = _scannedCarIds.contains(car.id);
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: NeoBrutalCard(
@@ -124,9 +130,14 @@ class BlackMarketScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              '${car.modelYear} ${car.brand} ${car.modelName}',
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${car.modelYear} ${car.brand} ${car.modelName}',
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                                ),
+                              ],
                             ),
                           ),
                           NeoBrutalBadge(
@@ -190,27 +201,32 @@ class BlackMarketScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               NeoBrutalButton(
-                                label: 'ZULA TARA • MİNİ OYUN',
-                                icon: Icons.radar_rounded,
-                                backgroundColor: const Color(0xFF6366F1),
-                                textColor: Colors.white,
+                                label: isScanned ? 'ZULA TARANDI' : 'ZULA TARA • MİNİ OYUN',
+                                icon: isScanned ? Icons.check_circle_rounded : Icons.radar_rounded,
+                                backgroundColor: isScanned ? const Color(0xFF1E293B) : const Color(0xFF6366F1),
+                                textColor: isScanned ? Colors.white54 : Colors.white,
                                 fontSize: 10,
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                onPressed: () {
-                                  HiddenStashModal.show(
-                                    context,
-                                    car: car,
-                                    onInspectionCompleted: (stashFound, rewardCash, itemDesc) {
-                                      if (stashFound) {
-                                        ref.read(gameProvider.notifier).addMoney(rewardCash);
-                                        NotificationService.showSuccess(
+                                onPressed: isScanned
+                                    ? null
+                                    : () {
+                                        HiddenStashModal.show(
                                           context,
-                                          'Zula Ele Geçirildi! +${CurrencyFormatter.format(rewardCash)} kasaya aktarıldı.',
+                                          car: car,
+                                          onInspectionCompleted: (stashFound, rewardCash, itemDesc) {
+                                            setState(() {
+                                              _scannedCarIds.add(car.id);
+                                            });
+                                            if (stashFound) {
+                                              ref.read(gameProvider.notifier).addMoney(rewardCash);
+                                              NotificationService.showSuccess(
+                                                context,
+                                                'Zula Ele Geçirildi! +${CurrencyFormatter.format(rewardCash)} kasaya aktarıldı.',
+                                              );
+                                            }
+                                          },
                                         );
-                                      }
-                                    },
-                                  );
-                                },
+                                      },
                               ),
                               const SizedBox(height: 6),
                               NeoBrutalButton(

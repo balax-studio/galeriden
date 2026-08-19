@@ -70,6 +70,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..repeat();
+    _rollerController.addListener(_onBrakeTick);
 
     _pulseController = AnimationController(
       vsync: this,
@@ -79,6 +80,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
 
   @override
   void dispose() {
+    _rollerController.removeListener(_onBrakeTick);
     _rollerController.dispose();
     _pulseController.dispose();
     super.dispose();
@@ -88,7 +90,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
     if (_currentStage != 0 || !_isBraking) return;
 
     setState(() {
-      _brakeProgress = (_brakeProgress + 0.02).clamp(0.0, 1.0);
+      _brakeProgress = (_brakeProgress + 0.04).clamp(0.0, 1.0);
 
       // Simulating hydraulic stabilization
       _leftBrakeForce = 3.2 + math.sin(_brakeProgress * 10) * 0.15;
@@ -286,21 +288,31 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
             if (_currentStage == 0) ...[
               GestureDetector(
                 onTapDown: (_) {
-                  _isBraking = true;
+                  setState(() {
+                    _isBraking = true;
+                  });
                   HapticFeedback.selectionClick();
-                  _startBrakeLoop();
                 },
-                onTapUp: (_) => _isBraking = false,
-                onTapCancel: () => _isBraking = false,
+                onTapUp: (_) {
+                  setState(() {
+                    _isBraking = false;
+                  });
+                },
+                onTapCancel: () {
+                  setState(() {
+                    _isBraking = false;
+                  });
+                },
                 child: NeoBrutalButton(
-                  label: _isBraking ? 'FREN KİLİTLENİYOR • BASILI TUT' : 'FREN PEDALINA BASILI TUT',
+                  label: _isBraking
+                      ? 'FREN KİLİTLENİYOR • BASILI TUT (%${(_brakeProgress * 100).round()})'
+                      : 'FREN PEDALINA BASILI TUT',
                   icon: Icons.airline_stops_rounded,
                   backgroundColor: _isBraking ? AppColors.brutalGreen : AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 13,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   onPressed: () {
-                    // For tap fallback / testing
                     setState(() {
                       _isBraking = false;
                       _brakeProgress = 1.0;
@@ -352,13 +364,6 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
         ),
       ),
     );
-  }
-
-  void _startBrakeLoop() async {
-    while (_isBraking && _brakeProgress < 1.0 && mounted) {
-      _onBrakeTick();
-      await Future.delayed(const Duration(milliseconds: 30));
-    }
   }
 }
 

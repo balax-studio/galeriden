@@ -26,10 +26,15 @@ class TuningStudioScreen extends ConsumerStatefulWidget {
 class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
   CarModel? _selectedCar;
   int _selectedTabIndex = 0; // 0: Tümü, 1: Motor, 2: Aero, 3: Yürüyen, 4: Egzoz, 5: Hazır Paketler
+  final Set<String> _timedCalibratedCarIds = {};
+  final Set<String> _dynoTestedCarIds = {};
 
   void _runDynoSimulation(BuildContext context, CarDynoStats dyno) {
     if (_selectedCar == null) return;
     DynoRunCanvasModal.show(context, car: _selectedCar!, dyno: dyno);
+    setState(() {
+      _dynoTestedCarIds.add(_selectedCar!.id);
+    });
   }
 
   void _runEngineTimingCalibration(BuildContext context) {
@@ -46,6 +51,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
         ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, 0.0);
         setState(() {
           _selectedCar = updatedCar;
+          _timedCalibratedCarIds.add(updatedCar.id);
         });
         NotificationService.showSuccess(
           context,
@@ -441,25 +447,25 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     children: [
                       Expanded(
                         child: NeoBrutalButton(
-                          icon: Icons.speed_rounded,
-                          label: 'DYNO TESTİ',
-                          backgroundColor: AppColors.brutalYellow,
-                          textColor: Colors.black,
+                          icon: _dynoTestedCarIds.contains(_selectedCar!.id) ? Icons.check_circle_rounded : Icons.speed_rounded,
+                          label: _dynoTestedCarIds.contains(_selectedCar!.id) ? 'DYNO TAMAM' : 'DYNO TESTİ',
+                          backgroundColor: _dynoTestedCarIds.contains(_selectedCar!.id) ? const Color(0xFF1E293B) : AppColors.brutalYellow,
+                          textColor: _dynoTestedCarIds.contains(_selectedCar!.id) ? Colors.white54 : Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          onPressed: () => _runDynoSimulation(context, dyno),
+                          onPressed: _dynoTestedCarIds.contains(_selectedCar!.id) ? null : () => _runDynoSimulation(context, dyno),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: NeoBrutalButton(
-                          icon: Icons.build_circle_rounded,
-                          label: 'SENTE AYARI',
-                          backgroundColor: AppColors.brutalOrange,
-                          textColor: Colors.black,
+                          icon: _timedCalibratedCarIds.contains(_selectedCar!.id) ? Icons.check_circle_rounded : Icons.build_circle_rounded,
+                          label: _timedCalibratedCarIds.contains(_selectedCar!.id) ? 'SENTE TAMAM' : 'SENTE AYARI',
+                          backgroundColor: _timedCalibratedCarIds.contains(_selectedCar!.id) ? const Color(0xFF1E293B) : AppColors.brutalOrange,
+                          textColor: _timedCalibratedCarIds.contains(_selectedCar!.id) ? Colors.white54 : Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          onPressed: () => _runEngineTimingCalibration(context),
+                          onPressed: _timedCalibratedCarIds.contains(_selectedCar!.id) ? null : () => _runEngineTimingCalibration(context),
                         ),
                       ),
                       if (!dyno.isInspectionCompliant) ...[
