@@ -132,9 +132,22 @@ class AuctionEngine {
     return false;
   }
 
+  /// Syncs in-memory schedule with persisted state timestamp
+  static void syncWithPersistedDate(DateTime? persistedDate) {
+    if (persistedDate != null && DateTime.now().isBefore(persistedDate)) {
+      _nextSessionTime = persistedDate;
+    }
+  }
+
+  /// Returns current scheduled next session time for state persistence
+  static DateTime? getNextSessionDate() => _nextSessionTime;
+
   /// Calculates remaining seconds until next auction window opens
-  static int getSecondsUntilNextAuction() {
+  static int getSecondsUntilNextAuction({DateTime? persistedDate}) {
     final now = DateTime.now();
+    if (_nextSessionTime == null && persistedDate != null && now.isBefore(persistedDate)) {
+      _nextSessionTime = persistedDate;
+    }
     if (_nextSessionTime == null) {
       scheduleNextRandomSession();
     }
@@ -143,10 +156,12 @@ class AuctionEngine {
   }
 
   /// Schedules next random session interval (random between 45 and 180 seconds)
-  static void scheduleNextRandomSession({int minSeconds = 45, int maxSeconds = 180}) {
+  static DateTime scheduleNextRandomSession({int minSeconds = 45, int maxSeconds = 180}) {
     final randomSeconds = minSeconds + _random.nextInt(maxSeconds - minSeconds + 1);
-    _nextSessionTime = DateTime.now().add(Duration(seconds: randomSeconds));
+    final targetTime = DateTime.now().add(Duration(seconds: randomSeconds));
+    _nextSessionTime = targetTime;
     _currentSessionEndTime = null;
+    return targetTime;
   }
 
   /// Force start an active auction session

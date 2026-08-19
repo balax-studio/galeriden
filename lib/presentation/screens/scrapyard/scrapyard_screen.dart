@@ -215,6 +215,44 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                       style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 12),
+                    if (currentCar != null && !currentCar.isPurchased)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.brutalYellow.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.brutalYellow, width: 1.5),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.brutalYellow),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                'Parça sökebilmek için önce hurda aracı satın almalısınız.',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            NeoBrutalButton(
+                              label: 'SATIN AL',
+                              backgroundColor: AppColors.brutalGreen,
+                              textColor: Colors.black,
+                              fontSize: 10,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              onPressed: () {
+                                final ok = ref.read(gameProvider.notifier).buyScrapCar(car.id);
+                                if (ok) {
+                                  NotificationService.showSuccess(context, 'Hurda araç satın alındı!');
+                                } else {
+                                  NotificationService.showError(context, 'Yetersiz bakiye!');
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 280),
                       child: ListView.builder(
@@ -290,7 +328,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                         : Colors.black,
                                     fontSize: 10,
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    onPressed: isDismantled
+                                    onPressed: (isDismantled || currentCar?.isPurchased != true)
                                         ? null
                                         : () {
                                             final result = ref.read(gameProvider.notifier).dismantleSinglePartFromScrap(car.id, part.id);
@@ -661,11 +699,24 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                   ),
                                 ),
                               ),
-                              const NeoBrutalBadge(
-                                text: 'AĞIR PERT',
-                                backgroundColor: AppColors.errorRed,
-                                textColor: Colors.white,
-                                fontSize: 9.5,
+                              Row(
+                                children: [
+                                  if (car.isPurchased) ...[
+                                    const NeoBrutalBadge(
+                                      text: 'SAHİBİSİNİZ',
+                                      backgroundColor: AppColors.brutalGreen,
+                                      textColor: Colors.black,
+                                      fontSize: 9.5,
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  const NeoBrutalBadge(
+                                    text: 'AĞIR PERT',
+                                    backgroundColor: AppColors.errorRed,
+                                    textColor: Colors.white,
+                                    fontSize: 9.5,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -806,7 +857,52 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                               ),
                               Row(
                                 children: [
-                                  if (car.parts.isNotEmpty) ...[
+                                  if (!car.isPurchased) ...[
+                                    NeoBrutalButton(
+                                      label: 'HURDAYI AL',
+                                      icon: Icons.shopping_cart_rounded,
+                                      backgroundColor: AppColors.brutalGreen,
+                                      textColor: Colors.black,
+                                      fontSize: 10.5,
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      onPressed: () {
+                                        if (game.balance < car.scrapPrice) {
+                                          NotificationService.showError(context, 'Yetersiz bakiye • ${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
+                                          return;
+                                        }
+                                        final ok = ref.read(gameProvider.notifier).buyScrapCar(car.id);
+                                        if (ok) {
+                                          NotificationService.showSuccess(context, 'Hurda araç satın alındı!');
+                                        } else {
+                                          NotificationService.showError(context, 'Satın alma başarısız oldu.');
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(width: 6),
+                                    NeoBrutalButton(
+                                      label: 'HEPSİNİ SÖK',
+                                      icon: Icons.all_inbox_rounded,
+                                      backgroundColor: AppColors.brutalYellow,
+                                      textColor: Colors.black,
+                                      fontSize: 10.5,
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      onPressed: () {
+                                        if (game.balance < car.scrapPrice) {
+                                          NotificationService.showError(context, 'Yetersiz bakiye • ${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
+                                          return;
+                                        }
+                                        final res = ref.read(gameProvider.notifier).buyAndDismantleScrapCar(car.id);
+                                        if (res.success) {
+                                          NotificationService.showSuccess(
+                                            context,
+                                            res.message,
+                                          );
+                                        } else {
+                                          NotificationService.showError(context, res.message);
+                                        }
+                                      },
+                                    ),
+                                  ] else if (car.parts.isNotEmpty) ...[
                                     NeoBrutalButton(
                                       label: 'TEK TEK SÖK',
                                       icon: Icons.handyman_rounded,
@@ -825,10 +921,6 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                       fontSize: 10.5,
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                       onPressed: () {
-                                        if (game.balance < car.scrapPrice) {
-                                          NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
-                                          return;
-                                        }
                                         final res = ref.read(gameProvider.notifier).buyAndDismantleScrapCar(car.id);
                                         if (res.success) {
                                           NotificationService.showSuccess(

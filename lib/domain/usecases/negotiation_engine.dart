@@ -1,5 +1,7 @@
 import 'dart:math';
+import '../../core/utils/anti_repetition_queue.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/utils/slot_text_composer.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/customer_model.dart';
 import '../../data/models/expertise_model.dart';
@@ -23,6 +25,9 @@ class EsnafTactic {
   final String successDialogue;
   final String failureDialogue;
   final String walkawayDialogue;
+  final List<String> successDialogues;
+  final List<String> failureDialogues;
+  final List<String> walkawayDialogues;
 
   const EsnafTactic({
     required this.id,
@@ -36,7 +41,25 @@ class EsnafTactic {
     required this.successDialogue,
     required this.failureDialogue,
     required this.walkawayDialogue,
+    this.successDialogues = const [],
+    this.failureDialogues = const [],
+    this.walkawayDialogues = const [],
   });
+
+  String getDynamicSuccessDialogue([Random? rng]) {
+    final list = successDialogues.isNotEmpty ? successDialogues : [successDialogue];
+    return list[(rng ?? Random()).nextInt(list.length)];
+  }
+
+  String getDynamicFailureDialogue([Random? rng]) {
+    final list = failureDialogues.isNotEmpty ? failureDialogues : [failureDialogue];
+    return list[(rng ?? Random()).nextInt(list.length)];
+  }
+
+  String getDynamicWalkawayDialogue([Random? rng]) {
+    final list = walkawayDialogues.isNotEmpty ? walkawayDialogues : [walkawayDialogue];
+    return list[(rng ?? Random()).nextInt(list.length)];
+  }
 }
 
 class TacticRollOutcome {
@@ -235,31 +258,200 @@ class NegotiationEngine {
     );
   }
 
-  static const List<String> buyerMessages = [
-    'Usta araç fotoğraflarda güzel duruyor, fiyatta bir şeyler yaparsan hemen geleyim.',
-    'Selamın aleykum, pazarlık payı var mıdır? Nakit alıcıyım.',
-    'Aracınız tam aradığım kriterlerde. Ekspertize sokup anlaşalım.',
-    'Usta son ne olur? Bütçem kısıtlı ama ciddi alıcıyım.',
-    'Aracı canlı görmek isterim, teklifimi kabul ederseniz bugün noter yaparız.',
-  ];
+  static final AntiRepetitionQueue<String> _dialogueQueue = AntiRepetitionQueue<String>(capacity: 25);
 
-  static const List<String> buyerNames = [
-    'Volkan Y.',
-    'Serkan B.',
-    'Oğuzhan D.',
-    'Tolga K.',
-    'Batuhan T.',
-    'Murat E.',
-    'Hasan R.',
-    'Kemal T.',
-  ];
+  /// Generates a dynamic, culturally rich, non-repetitive buyer message using slot composition
+  static String generateDynamicBuyerMessage({
+    required CustomerArchetype archetype,
+    required double offeredPrice,
+    required double askingPrice,
+    bool isLowball = false,
+    bool isOverTuned = false,
+    bool isCollector = false,
+    Random? rng,
+  }) {
+    final random = rng ?? _random;
+    final formattedPrice = CurrencyFormatter.formatShort(offeredPrice);
 
-  static const List<String> lowballMessages = [
-    'Usta öldürmüş gibi olmasın ama nakit bu kadar çalışır, işine gelirse noter hazır.',
-    'Aracın piyasası ölü usta, bu fiyata veren çıkarsa şükret derim.',
-    'Selamın aleykum, aracın masrafı çok duruyor. Hurda niyetine bu fiyata kapatırım.',
-    'Kardeşim acil nakit lazımsa hemen geleyim, üstüne bir kuruş çıkamam.',
-  ];
+    if (isCollector) {
+      final collectorPool = [
+        'Tam aradığım temizlikte özel bir araç! İlandaki $formattedPrice fiyatınızı kabul ediyorum, hemen notere geçelim.',
+        'Koleksiyonumda eksik olan nadir bir parça. Belirttiğiniz $formattedPrice rakamı fazlasıyla hak ediyor, hayırlı olsun.',
+        'Kondisyonuna ve orijinal hatlarına hayran kaldım. $formattedPrice üzerinden devir işlemlerini başlatalım.',
+        'Özel garajımda saklayacağım nadide bir makine. İlandaki $formattedPrice teklifinizi onaylıyorum.',
+      ];
+      return _dialogueQueue.selectNext(collectorPool, randomInstance: random);
+    }
+
+    if (isLowball) {
+      final slot1 = [
+        'Usta öldürmüş gibi olmasın ama •',
+        'Selamın aleykum usta •',
+        'Piyasa şartları malum •',
+        'Kardeşim acil nakit lazımsa •',
+        'Araç başında konuştuk say •',
+        'Ustam hayırlı işler •',
+        'Galerici dostum kolay gelsin •',
+      ];
+      final slot2 = [
+        'aracın masrafı çok duruyor, piyasası da durgun.',
+        'bu rakamlara müşteri bulamazsın, herkes nakit sıkışıklığında.',
+        'kaporta ve yürüyen elden geçmeli, masrafı boyunu aşar.',
+        'hurda niyetine bu fiyata kapatırım.',
+        'üstüne bir kuruş dahi çıkamam, nakit bu kadar çalışır.',
+        'piyasada yaprak kımıldamıyor, bu parayı veren çıkmaz.',
+        'ağır hasar riski var, fiyatı bu seviyeye çekmemiz lazım.',
+      ];
+      final slot3 = [
+        '$formattedPrice nakit çalışır, işine gelirse noter hazır.',
+        '$formattedPrice veririm, anında hesaba geçerim.',
+        '$formattedPrice peşin teklifimdir, düşünürsen ara.',
+        '$formattedPrice deste nakit masada, hemen devri alalım.',
+        '$formattedPrice son teklifim, başka kapıya bakma.',
+      ];
+      final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
+      _dialogueQueue.push(composed);
+      return composed;
+    }
+
+    if (isOverTuned && archetype == CustomerArchetype.impatientYouth) {
+      final slot1 = [
+        'Reis makine alev atıyor •',
+        'Ustam popcorn yazılımına bittim •',
+        'Caddede dikkat çeker bu makine •',
+        'Valla garajda gördüm kanım kaynadı •',
+        'Sesi caddeleri inletir bunun •',
+        'Basıklığı ve duruşu efsane olmuş •',
+      ];
+      final slot2 = [
+        'Bu basıklık ve egzoz sesi tam bizim semte göre.',
+        'Arabayı bu akşam alıp caddeye çıkmam lazım.',
+        'Jantlar ve bodykit harika duruyor.',
+        'Duruşu kordonu mermi gibi maşallah.',
+        'Mekanik ciğeri diriyse ufak tefek sürtmelere bakmam.',
+        'Tam aradığım hot hatch duruşu.',
+      ];
+      final slot3 = [
+        '$formattedPrice peşin veriyorum, hemen el sıkışalım.',
+        '$formattedPrice say hemen IBAN at, noter harcını ben ödeyeyim.',
+        '$formattedPrice teklif ediyorum, direkt notere geçelim.',
+        '$formattedPrice nakite bu akşam anahtarı teslim alayım.',
+      ];
+      final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
+      _dialogueQueue.push(composed);
+      return composed;
+    }
+
+    switch (archetype) {
+      case CustomerArchetype.skepticalOfficial:
+        final slot1 = [
+          'İyi günler beyefendi •',
+          'Hayırlı işler ustam •',
+          'İlanınızı memurlar lokalinde gördüm •',
+          'Aracın sicil kaydını inceledim •',
+          'Selamlar ustam •',
+          'Hayırlı ticaretler beyefendi •',
+        ];
+        final slot2 = [
+          'Maaşımız belli, sürpriz masraf kaldıracak durumum yok.',
+          'Şasilerde ve podyelerde en ufak oynama varsa noterden dönerim.',
+          'Triger seti ve periyodik bakım faturalarını görmek isterim.',
+          'Kilometre orijinal mi yoksa beyinle oynandı mı ekspertizde netleşir.',
+          'Ailemizle uzun yola çıkacağız, masrafsız binilecek araç arıyorum.',
+          'Yetkili servis kayıtları tamsa almayı ciddi düşünüyorum.',
+        ];
+        final slot3 = [
+          'Bütçem ancak $formattedPrice nakite elveriyor, uygunsa ekspertize geçelim.',
+          'Ekspertiz masrafını yarı yarıya bölüşürsek $formattedPrice peşin verebilirim.',
+          'Son limitim $formattedPrice, kabul ederseniz randevuyu oluşturalım.',
+          'Maksimum bütçem $formattedPrice, uygun görürseniz aracı görmek isterim.',
+        ];
+        final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
+        _dialogueQueue.push(composed);
+        return composed;
+
+      case CustomerArchetype.impatientYouth:
+        final slot1 = [
+          'Selamın aleykum reis •',
+          'Ustam makine çok diri duruyor •',
+          'Caddede dikkat çeker bu kasa •',
+          'Hayırlı cumalar kral •',
+          'İlanda gördüm hemen yazdım •',
+          'Reis hayırlı işler •',
+        ];
+        final slot2 = [
+          'Duruşu ve kordonu mermi gibi maşallah.',
+          'Bu akşam sahil turuna çıkmam lazım, acil alıp geçeceğim.',
+          'Egzoz sesi ve jantlar tam aradığım tarzda.',
+          'Mekanik yürüyeni diriyse ufak çiziklerine takılmam.',
+          'Kasa diri olsun gerisini sanayide hallederiz.',
+          'Motor sesi ciğerli geliyor.',
+        ];
+        final slot3 = [
+          'Cebimde net $formattedPrice hazır, yarım saate noterdeyim.',
+          'Reis $formattedPrice say hemen IBAN at, noter harcını ben ödeyeyim.',
+          '$formattedPrice nakit veriyorum, direkt ruhsatı üstüme alayım.',
+          '$formattedPrice peşin elden veririm, hemen devredelim.',
+        ];
+        final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
+        _dialogueQueue.push(composed);
+        return composed;
+
+      case CustomerArchetype.greedyFlipper:
+        final slot1 = [
+          'Hayırlı ticaretler kardeşim •',
+          'Usta kolay gelsin, piyasa durgun •',
+          'Biz de bu işin içindeyiz •',
+          'Hayırlı pazarlar esnaf dostum •',
+          'Selamın aleykum hayırlı işler •',
+          'Bereketli olsun usta •',
+        ];
+        final slot2 = [
+          'Bu kasanın piyasası ağır gidiyor, hızlı erimiyor.',
+          'Boya takıntım yok ama müşteriye satarken fiyat kırmak zorundayım.',
+          'Kaportada ufak dalga var, masrafını düşmek durumundayım.',
+          'Tramer kaydını ve piyasa durgunluğunu göz önüne alıyorum.',
+          'Piyasada yaprak kımıldamıyor, nakit dönen tek adam benim.',
+          'İki günde satmam lazım, sermayeyi bağlayamam.',
+        ];
+        final slot3 = [
+          'Bana da üç beş ekmek kalsın, $formattedPrice peşin verip arabayı şimdi kaldırayım.',
+          'Gözünü seveyim beni yorma, $formattedPrice nakit deste masada.',
+          '$formattedPrice nakit hemen hesaba geçsin, arabayı çekiciye yükleyelim.',
+          '$formattedPrice peşine bağlayalım, iki esnaf helalleşelim.',
+        ];
+        final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
+        _dialogueQueue.push(composed);
+        return composed;
+
+      case CustomerArchetype.familyMan:
+        final slot1 = [
+          'Selamlar ustam •',
+          'Cümleten hayırlı işler •',
+          'Çocukları okula bırakıp geldik •',
+          'Ailemiz için temiz bir araç arıyoruz •',
+          'Hayırlı günler evladım •',
+          'Kolay gelsin ustam •',
+        ];
+        final slot2 = [
+          'Bagaj hacmi ve çocuk koltuğu konforu bizim için çok önemli.',
+          'Kliması ve kaloriferi sorunsuz üflüyor mu, çoluk çocuk yolda kalmayalım.',
+          'İç döşemeleri temiz olsun, sigara kokusu sinmemişse talibiz.',
+          'LPG tank tarihi ve muayenesi güncelse sanayiyle uğraşmak istemem.',
+          'Eşimle konuştuk, temizliğine güvenirsek almak istiyoruz.',
+          'Geniş ferah bir aile arabasına ihtiyacımız var.',
+        ];
+        final slot3 = [
+          'Bütçemiz en fazla $formattedPrice nakite yetiyor, kabul ederseniz duamızı alırsınız.',
+          'Kısmetse $formattedPrice teklif ediyorum, hayrını görelim inşallah.',
+          '$formattedPrice peşin verebilirim, ailemize uğur getirsin.',
+          '$formattedPrice nakit denkleştirdik, helali hoş olsun.',
+        ];
+        final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
+        _dialogueQueue.push(composed);
+        return composed;
+    }
+  }
 
   /// Generates a realistic buyer offer with customer archetype and test drive request
   static OfferModel generateBuyerOffer(
@@ -290,7 +482,6 @@ class NegotiationEngine {
 
     double baseOffer;
     String message;
-    String buyerName = buyerNames[_random.nextInt(buyerNames.length)];
     bool isLowball = false;
 
     // Archetype assignment: Over-tuned vehicles heavily attract young enthusiasts
@@ -302,30 +493,31 @@ class NegotiationEngine {
       assignedArchetype = archetypes[_random.nextInt(archetypes.length)];
     }
     final customer = CustomerModel.generate(assignedArchetype);
-    buyerName = customer.name;
+    String buyerName = customer.name;
 
     // Realistic market ceiling: Buyers won't pay unlimited money just because an asking price is inflated
     final bool isOverpriced = askingPrice > (realVal * 1.05);
     final double maxRealisticWillingness = realVal * (1.05 + (listingQualityBonus - 1.0) + (car.isRare ? 0.10 : 0.0));
 
-    final List<String> overTunedBuyerMessages = [
-      'Reis makine alev atıyor! Bu basıklık ve egzoz sesi tam bizim semte göre, ${CurrencyFormatter.formatShort(askingPrice * 0.92)} peşin veriyorum!',
-      'Ustam popcorn yazılımına ve duruşuna bittim. Arabayı bu akşam almam lazım, ${CurrencyFormatter.formatShort(askingPrice * 0.95)} olur mu?',
-      'Valla garajda gördüm kanım kaynadı! Jantlar ve bodykit harika, ${CurrencyFormatter.formatShort(askingPrice * 0.90)} nakite el sıkışalım.',
-      'Sesi caddeleri inletir bunun! ${CurrencyFormatter.formatShort(askingPrice * 0.93)} teklif ediyorum, hemen notere geçelim.',
-    ];
-
     if (distRoll < 0.05) {
       // 1) Collector / Serious Buyer match (%5 chance): Accepts asking price only if reasonably priced or rare, otherwise caps at realistic willingness
       baseOffer = isOverpriced && !car.isRare ? min(askingPrice, maxRealisticWillingness) : askingPrice;
       buyerName = 'Koleksiyoner $buyerName';
-      message = 'Tam aradığım temizlikte özel bir araç! İlandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyatınızı kabul ediyorum, hemen notere geçelim.';
+      message = generateDynamicBuyerMessage(
+        archetype: assignedArchetype,
+        offeredPrice: baseOffer,
+        askingPrice: askingPrice,
+        isCollector: true,
+      );
     } else if (distRoll < 0.15) {
       // 2) Asking Price Match (%10 chance): Exactly asking price (capped at market willingness if overpriced)
       baseOffer = isOverpriced ? min(askingPrice, maxRealisticWillingness) : askingPrice;
-      message = car.isOverTuned
-          ? 'Reis ilandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyata helali hoş olsun, makine harika yapılmış direkt alıyorum!'
-          : 'Fiyat gayet makul. İlandaki ${CurrencyFormatter.formatShort(baseOffer)} fiyattan pazarlıksız alıyorum.';
+      message = generateDynamicBuyerMessage(
+        archetype: assignedArchetype,
+        offeredPrice: baseOffer,
+        askingPrice: askingPrice,
+        isOverTuned: car.isOverTuned,
+      );
     } else if (distRoll < 0.35) {
       // 3) Lowball / Ölücü (%20 chance): %60 - %78 of asking price (anchored to min of askingPrice and realVal)
       isLowball = true;
@@ -334,7 +526,12 @@ class NegotiationEngine {
       if (baseOffer >= askingPrice) {
         baseOffer = (askingPrice * 0.75).roundToDouble();
       }
-      message = lowballMessages[_random.nextInt(lowballMessages.length)];
+      message = generateDynamicBuyerMessage(
+        archetype: assignedArchetype,
+        offeredPrice: baseOffer,
+        askingPrice: askingPrice,
+        isLowball: true,
+      );
     } else {
       // 4) Standard Normal Offer (%65 chance): %85 - %97 of fair anchor price
       final discountPercent = 0.03 + (_random.nextDouble() * 0.12);
@@ -343,9 +540,12 @@ class NegotiationEngine {
       if (baseOffer > askingPrice) {
         baseOffer = askingPrice;
       }
-      message = (car.isOverTuned && assignedArchetype == CustomerArchetype.impatientYouth)
-          ? overTunedBuyerMessages[_random.nextInt(overTunedBuyerMessages.length)]
-          : buyerMessages[_random.nextInt(buyerMessages.length)];
+      message = generateDynamicBuyerMessage(
+        archetype: assignedArchetype,
+        offeredPrice: baseOffer,
+        askingPrice: askingPrice,
+        isOverTuned: car.isOverTuned,
+      );
     }
 
     // Strict ceiling clamp for cash baseline
@@ -726,13 +926,14 @@ class NegotiationEngine {
       if (tacticUsageIndex >= 2) bonusMultiplier = 0.50;
 
       final int bonus = ((tactic.baseBonusPercent + (negotiationSkillLevel * 2)) * bonusMultiplier).round();
+      final msg = tactic.getDynamicSuccessDialogue(_random);
       return TacticRollOutcome(
         isSuccess: true,
         isWalkaway: false,
         diceRoll: roll,
         threshold: threshold,
         bonusChance: bonus,
-        message: '${tactic.successDialogue} • +%$bonus',
+        message: '$msg • +%$bonus',
         tacticTitle: tactic.title,
       );
     }
@@ -752,7 +953,7 @@ class NegotiationEngine {
         diceRoll: roll,
         threshold: threshold,
         bonusChance: -15,
-        message: tactic.walkawayDialogue,
+        message: tactic.getDynamicWalkawayDialogue(_random),
         tacticTitle: tactic.title,
       );
     }
@@ -764,7 +965,7 @@ class NegotiationEngine {
       diceRoll: roll,
       threshold: threshold,
       bonusChance: penalty,
-      message: '${tactic.failureDialogue} • $penalty%',
+      message: '${tactic.getDynamicFailureDialogue(_random)} • $penalty%',
       tacticTitle: tactic.title,
     );
   }

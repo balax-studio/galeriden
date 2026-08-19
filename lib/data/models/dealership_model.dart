@@ -164,6 +164,7 @@ class DealershipModel {
   final WeatherType currentWeather;                   // Dinamik Hava Durumu (§4.6.5)
   final List<CarModel> consignmentOffers;             // Konsinye & Emanet Araçlar (§4.6.1)
   final int dailyRacesRemaining;                      // Gece Yarışı Günlük Kalan Hak (Exploit Koruması)
+  final DateTime? nextAuctionAvailableDate;           // İhale Oturumu Kalıcı Bekleme Süresi (Exploit Koruması)
 
   // Ofis ve Günlük Reklam Fırsatları Takibi
   final int lastOfficeGrantClaimDay;
@@ -592,6 +593,7 @@ class DealershipModel {
     this.currentWeather = WeatherType.sunny,
     this.consignmentOffers = const [],
     this.dailyRacesRemaining = 3,
+    this.nextAuctionAvailableDate,
     this.completedFirstTimeActions = const {},
     this.lastOfficeGrantClaimDay = 0,
     this.lastSmartHookUsedDay = 0,
@@ -959,6 +961,7 @@ class DealershipModel {
       'purchasedAcademyCourses': purchasedAcademyCourses,
       'unlockedDecorIds': unlockedDecorIds,
       'lastScrapyardGigDate': lastScrapyardGigDate?.toIso8601String(),
+      'nextAuctionAvailableDate': nextAuctionAvailableDate?.toIso8601String(),
       'pendingDopedOffers': pendingDopedOffers,
       'activeContracts': activeContracts.map((c) => c.toJson()).toList(),
       'hasStreakFreeze': hasStreakFreeze,
@@ -1093,6 +1096,7 @@ class DealershipModel {
       purchasedAcademyCourses: (json['purchasedAcademyCourses'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       unlockedDecorIds: (json['unlockedDecorIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       lastScrapyardGigDate: json['lastScrapyardGigDate'] != null ? DateTime.tryParse(json['lastScrapyardGigDate'] as String) : null,
+      nextAuctionAvailableDate: json['nextAuctionAvailableDate'] != null ? DateTime.tryParse(json['nextAuctionAvailableDate'] as String) : null,
       pendingDopedOffers: (json['pendingDopedOffers'] as List<dynamic>?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? const [],
       activeContracts: parseList(json['activeContracts'] as List<dynamic>?, WantedCarContract.fromJson),
       hasStreakFreeze: json['hasStreakFreeze'] as bool? ?? false,
@@ -1250,6 +1254,7 @@ class DealershipModel {
     List<String>? purchasedAcademyCourses,
     List<String>? unlockedDecorIds,
     DateTime? lastScrapyardGigDate,
+    DateTime? nextAuctionAvailableDate,
     List<Map<String, dynamic>>? pendingDopedOffers,
     List<WantedCarContract>? activeContracts,
     bool? hasStreakFreeze,
@@ -1345,6 +1350,7 @@ class DealershipModel {
       purchasedAcademyCourses: purchasedAcademyCourses ?? this.purchasedAcademyCourses,
       unlockedDecorIds: unlockedDecorIds ?? this.unlockedDecorIds,
       lastScrapyardGigDate: lastScrapyardGigDate ?? this.lastScrapyardGigDate,
+      nextAuctionAvailableDate: nextAuctionAvailableDate ?? this.nextAuctionAvailableDate,
       pendingDopedOffers: pendingDopedOffers ?? this.pendingDopedOffers,
       activeContracts: activeContracts ?? this.activeContracts,
       hasStreakFreeze: hasStreakFreeze ?? this.hasStreakFreeze,

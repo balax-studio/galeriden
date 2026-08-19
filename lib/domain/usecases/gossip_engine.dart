@@ -191,26 +191,155 @@ class GossipEngine {
       targetSegment: 'Lüks',
       inGameDay: day,
     ),
-    // 14. Borsa Simsarı Vedat - Faiz & Kredi Esintisi
+    // 15. Egzozcu Tayfun - Modifiyeli Varex & Yazılım
     (int day) => GossipItemModel(
-      id: 'gossip_vedat_faiz_$day',
-      sourceNpc: 'simsar_vedat',
-      sourceNpcName: 'Borsa Simsarı Vedat',
-      sourceAvatar: 'simsar_vedat',
-      title: 'Taşıt Kredisi Faiz Dalgalanması',
-      teaser: 'Bankalar taşıt kredi musluğunu kısıyor, nakit parası olan galip gelecek.',
-      content: 'Piyasada nakit kral oldu. Alıcılar kredi yerine doğrudan nakit indirimi yapan galerilere akıyor.',
-      cost: 11000.0,
-      accuracy: 0.91,
+      id: 'gossip_tayfun_egzoz_$day',
+      sourceNpc: 'egzozcu_tayfun',
+      sourceNpcName: 'Egzozcu Tayfun',
+      sourceAvatar: 'tayfun',
+      title: 'Cadde Trendi: Varex ve Popcorn',
+      teaser: 'Maslak gençliği çift çıkış varex egzozlu hızlı hatchback arıyor.',
+      content: 'Modifiye görmüş ve yazılımlı spor araçlarda talep %25 artacak. Garajdaki genç işi araçlar prim yapacak.',
+      cost: 6500.0,
+      accuracy: 0.86,
       type: GossipType.marketTrend,
+      targetSegment: 'Spor',
+      inGameDay: day,
+    ),
+    // 16. Kaportacı Rıza Usta - Vakumlu Göçük & Dolu Düzeltme
+    (int day) => GossipItemModel(
+      id: 'gossip_riza_gocuk_$day',
+      sourceNpc: 'kaportaci_riza',
+      sourceNpcName: 'Kaportacı Rıza',
+      sourceAvatar: 'riza',
+      title: 'Boyasız Göçük Onarım Fırsatı',
+      teaser: 'Sanayiye yeni vakum cihazı aldık, tavanı göçük araçları boyasız sıfır gibi yapıyoruz.',
+      content: 'Dolu hasarlı kelepir araçları ucuza toplayıp boyasız düzelterek galeri kârını katlama şansı.',
+      cost: 4500.0,
+      accuracy: 0.93,
+      type: GossipType.bargainTip,
+      inGameDay: day,
+    ),
+    // 17. Lastikçi Cengiz - 4x4 Kış Hazırlığı
+    (int day) => GossipItemModel(
+      id: 'gossip_cengiz_lastik_$day',
+      sourceNpc: 'lastikci_cengiz',
+      sourceNpcName: 'Lastikçi Cengiz',
+      sourceAvatar: 'cengiz',
+      title: 'Mevsim Geçişi ve SUV Talebi',
+      teaser: 'Şantiyeler ve yaylacılar kış lastikli 4x4 arazi araçlarını şimdiden kapatmaya başladı.',
+      content: 'SUV ve pick-up modellerine gelen alıcı teklifleri hızla tırmanıyor. Arazi araçlarını vitrine çıkar.',
+      cost: 3500.0,
+      accuracy: 0.88,
+      type: GossipType.marketTrend,
+      targetSegment: 'SUV',
+      inGameDay: day,
+    ),
+    // 18. Döşemeci Hamdi - VIP Deri Restorasyon
+    (int day) => GossipItemModel(
+      id: 'gossip_hamdi_doseme_$day',
+      sourceNpc: 'dosemeci_hamdi',
+      sourceNpcName: 'Döşemeci Hamdi',
+      sourceAvatar: 'hamdi',
+      title: 'İç Kondisyon ve Makam Talebi',
+      teaser: 'Hakiki nappa deri ithal ettik, eskiyen makam koltuklarını sıfırlıyoruz.',
+      content: 'Lüks ve E segmenti sedan araçların iç restorasyonu ekspertiz ve müşteri puanını doğrudan tavan yaptırır.',
+      cost: 5000.0,
+      accuracy: 0.90,
+      type: GossipType.hiddenDefect,
+      inGameDay: day,
+    ),
+    // 19. Yazılımcı Koray - Beyin Kilometre Manipülasyonu
+    (int day) => GossipItemModel(
+      id: 'gossip_koray_ecu_$day',
+      sourceNpc: 'yazilimci_koray',
+      sourceNpcName: 'Yazılımcı Koray',
+      sourceAvatar: 'koray',
+      title: 'ECU Şanzıman Beyin İncelemesi',
+      teaser: 'Pazarda gösterge kilometresi 120 binde ama şanzıman beyninde 350 bin yazan araçlar var.',
+      content: 'Şüpheli araçların şanzıman ve ABS beynindeki gerçek çalışma saatini doğrudan tespit eder.',
+      cost: 7500.0,
+      accuracy: 0.99,
+      type: GossipType.hiddenDefect,
+      inGameDay: day,
+    ),
+    // 20. Elektrikçi Nazmi - Gizli Akü & Tesisat Kaçağı
+    (int day) => GossipItemModel(
+      id: 'gossip_nazmi_elektrik_$day',
+      sourceNpc: 'elektrikci_nazmi',
+      sourceNpcName: 'Elektrikçi Nazmi',
+      sourceAvatar: 'nazmi',
+      title: 'Kaçak Akım ve Beyin Isınması',
+      teaser: 'Ses sistemi sökülürken tesisatı delik deşik edilmiş iki araç pazarda dolaşıyor.',
+      content: 'Kronik elektrik ve şarj arızası olan araçları önceden haber vererek akü boşalma riskini engeller.',
+      cost: 4200.0,
+      accuracy: 0.94,
+      type: GossipType.hiddenDefect,
+      inGameDay: day,
+    ),
+    // 21. Boyacı Şükrü - Lokal Mikron Geçişleri
+    (int day) => GossipItemModel(
+      id: 'gossip_sukru_boya_$day',
+      sourceNpc: 'boyaci_sukru',
+      sourceNpcName: 'Boyacı Şükrü',
+      sourceAvatar: 'sukru',
+      title: 'Kordon Vernik Hileleri',
+      teaser: 'Direkleri kesilip eklenmiş araçları vernikle gizlemeye çalışan dolandırıcılar türedi.',
+      content: 'Kesme ve ekleme araçları tespit eder, ağır noter tazminatından ve itibar kaybından korur.',
+      cost: 6200.0,
+      accuracy: 0.97,
+      type: GossipType.hiddenDefect,
+      inGameDay: day,
+    ),
+    // 22. Rot Balansçı Erdem - Eğri Dingil Uyarısı
+    (int day) => GossipItemModel(
+      id: 'gossip_erdem_rot_$day',
+      sourceNpc: 'rot_erdem',
+      sourceNpcName: 'Rot Balansçı Erdem',
+      sourceAvatar: 'erdem',
+      title: 'Arka Dingil Kayıklığı',
+      teaser: 'Kaldırıma sert çıkıp arka dingili yamulmuş araç test sürüşünde sağa çekiyor.',
+      content: 'Yürüyen aksamdaki gizli mekanik kusurları ve rot ayarı tutmayan araçları anında listeler.',
+      cost: 3800.0,
+      accuracy: 0.91,
+      type: GossipType.hiddenDefect,
+      inGameDay: day,
+    ),
+    // 23. Çekici Niyazi - Otoban Arıza Kelepirleri
+    (int day) => GossipItemModel(
+      id: 'gossip_niyazi_cekici_$day',
+      sourceNpc: 'cekici_niyazi',
+      sourceNpcName: 'Çekici Niyazi',
+      sourceAvatar: 'niyazi',
+      title: 'Otoban Kenarı Acil Satış',
+      teaser: 'Şanzımanı kilitlendiği için sahibinin yol kenarında satmaya razı olduğu bir araç aldım.',
+      content: 'Çok küçük bir mekanik tamirle piyasa değerinin iki katına satılabilecek acil kelepir partisi.',
+      cost: 8200.0,
+      accuracy: 0.92,
+      type: GossipType.bargainTip,
+      inGameDay: day,
+    ),
+    // 24. Hurda Simsarı Cevdet - Nadir Parça Stoğu
+    (int day) => GossipItemModel(
+      id: 'gossip_cevdet_hurda_$day',
+      sourceNpc: 'simsar_cevdet',
+      sourceNpcName: 'Hurda Simsarı Cevdet',
+      sourceAvatar: 'cevdet',
+      title: 'Klasik Mercedes & BMW Parça Deposu',
+      teaser: 'Gümrük deposundan 80ler ve 90lar orijinal stop ve tampon stoğu kapattık.',
+      content: 'Klasik restorasyon projelerinde hurdalık parça maliyetlerini %40 aşağı çeker.',
+      cost: 5800.0,
+      accuracy: 0.95,
+      type: GossipType.marketTrend,
+      targetSegment: 'Klasik',
       inGameDay: day,
     ),
   ];
 
   /// Generates daily industry gossips available in the district (§4.6.3)
   static List<GossipItemModel> generateDailyGossips(int inGameDay) {
-    // Select 4 varied gossips deterministically based on day seed
-    final random = Random(inGameDay * 37 + 101);
+    // Select 4 varied gossips deterministically based on day seed with wide rotation
+    final random = Random(inGameDay * 41 + 17);
     final indices = List<int>.generate(_gossipPool.length, (i) => i);
     indices.shuffle(random);
 

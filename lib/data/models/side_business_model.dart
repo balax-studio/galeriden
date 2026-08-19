@@ -135,7 +135,7 @@ class SideBusinessModel {
     return net;
   }
 
-  /// Calculates the dynamic utilization multiplier (0.25 to 1.60) based on player's recent activities (§1.2)
+  /// Calculates the dynamic utilization multiplier (0.05 to 1.60) based on player's recent activities (§1.2)
   double calculateUtilizationMultiplier({
     int washedLast7Days = 0,
     int expertisesLast7Days = 0,
@@ -144,6 +144,19 @@ class SideBusinessModel {
     int towedCarsLast7Days = 0,
     int activeRentalsCount = 0,
   }) {
+    // Inactivity Decay: If the dealership has 0 inventory and 0 operational activity in the last 7 days,
+    // side business customer footfall drops dramatically to prevent day-skip infinite wealth generation.
+    final bool isGalleryDormant = listedCarsCount == 0 &&
+        washedLast7Days == 0 &&
+        expertisesLast7Days == 0 &&
+        partsRepairedLast7Days == 0 &&
+        towedCarsLast7Days == 0 &&
+        activeRentalsCount == 0;
+
+    if (isGalleryDormant) {
+      return 0.05; // Minimal dormant maintenance utilization
+    }
+
     switch (type) {
       case SideBusinessType.carWash:
         // 0 wash = 0.25, 4+ wash = 1.60

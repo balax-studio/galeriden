@@ -309,18 +309,27 @@ class CarModel {
     factor += (0.30 - damageRatio * 0.25 - paintedRatio * 0.10 - structuralPenalty)
         .clamp(0.05, 0.30);
 
-    // 1. Cleaning & Washing Bonus (Capped at +8%)
+    // 1. Cleaning & Washing Bonus (Capped at +8% with absolute cap of ₺35.000 to prevent supercar exploits)
+    double cleanBonusFactor = 0.0;
     if (isDetailedCleaned || (isWashed && isPolished)) {
-      factor += 0.08;
+      cleanBonusFactor = 0.08;
     } else if (isWashed || isPolished) {
-      factor += 0.04;
+      cleanBonusFactor = 0.04;
+    }
+    if (cleanBonusFactor > 0) {
+      final maxAllowedCleanFactor = (35000.0 / baseMarketValue).clamp(0.0, cleanBonusFactor);
+      factor += maxAllowedCleanFactor;
     }
 
-    // 2. Cosmetic & Certification Detailing Bonus (Far, Demir tozu, PDR, Dyno, Ozon, TÜVTÜRK - +2.5% each, Capped at +10%)
+    // 2. Cosmetic & Certification Detailing Bonus (Far, Demir tozu, PDR, Dyno, Ozon, TÜVTÜRK - +2.5% each, Capped at +10% with max ₺50.000)
     final detailingCount = appliedDetailingOptionIds
         .where((id) => !id.startsWith('tune_') && !id.startsWith('stage_'))
         .length;
-    factor += (detailingCount * 0.025).clamp(0.0, 0.10);
+    final rawDetailingFactor = (detailingCount * 0.025).clamp(0.0, 0.10);
+    if (rawDetailingFactor > 0) {
+      final maxAllowedDetailingFactor = (50000.0 / baseMarketValue).clamp(0.0, rawDetailingFactor);
+      factor += maxAllowedDetailingFactor;
+    }
 
     // 3. Performance & Stance Tuning Bonus (Stage 1/2/3, Turbo, Bodykit, Coilover, Exhaust - +4% each, Capped at +25%)
     double rawTuningBoost = 0.0;

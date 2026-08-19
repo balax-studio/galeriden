@@ -1,5 +1,7 @@
 import 'dart:math';
 import '../../core/constants/game_constants.dart';
+import '../../core/utils/anti_repetition_queue.dart';
+import '../../core/utils/slot_text_composer.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/listing_model.dart';
@@ -297,12 +299,55 @@ class MarketEngine {
     }
   }
 
+  static final AntiRepetitionQueue<String> _titlePrefixQueue = AntiRepetitionQueue<String>(capacity: 10);
+  static final AntiRepetitionQueue<String> _descriptionQueue = AntiRepetitionQueue<String>(capacity: 25);
+
   static String _generateTitle(int year, String brand, String modelName, bool isBarnFind, bool isRare, {bool isPristine = false}) {
-    String title = '$year $brand $modelName';
-    if (isBarnFind) return '[SAMANLIK KELEPİRİ] $title';
-    if (isPristine) return '[HATASIZ BOYASIZ] $title';
-    if (isRare) return '[KOLEKSİYON] $title';
-    return title;
+    final baseTitle = '$year $brand $modelName';
+    if (isBarnFind) {
+      final prefixes = [
+        'SAMANLIK BULUNTUSU KELEPİR',
+        'GARAJ BULUNTUSU RESTORASYONLUK',
+        'YILLARIN NOSTALJİSİ',
+        'ÖZEL PROJE ARACI',
+      ];
+      final prefix = _titlePrefixQueue.selectNext(prefixes, randomInstance: _random);
+      return '$prefix • $baseTitle';
+    }
+    if (isPristine) {
+      final prefixes = [
+        'HATASIZ BOYASIZ EMSALSİZ',
+        'FABRİKASYON İLK GÜNKÜ GİBİ',
+        'SIFIR KOKUSU ÜZERİNDE',
+        'SERVİS BAKIMLI KUSURSUZ',
+      ];
+      final prefix = _titlePrefixQueue.selectNext(prefixes, randomInstance: _random);
+      return '$prefix • $baseTitle';
+    }
+    if (isRare) {
+      final prefixes = [
+        'ÖZEL KOLEKSİYONLUK',
+        'NADİR BULUNAN KASA',
+        'MERAKLISINA ÖZEL SERİ',
+        'GARAJDA SAKLANMIŞ NADİDE',
+      ];
+      final prefix = _titlePrefixQueue.selectNext(prefixes, randomInstance: _random);
+      return '$prefix • $baseTitle';
+    }
+
+    final normalPrefixes = [
+      'İLK SAHİBİNDEN TİTİZLİKLE',
+      'MASRAFSIZ DOSTA GİDER',
+      'MEMURDAN TEMİZ KULLANILMIŞ',
+      'BAKIMLARI YENİ MASRAFSIZ',
+      'KORDONU DÜZGÜN DİRİ KASA',
+      'AİLE ARACI EKSPERTİZE AÇIK',
+    ];
+    if (_random.nextDouble() < 0.65) {
+      final prefix = _titlePrefixQueue.selectNext(normalPrefixes, randomInstance: _random);
+      return '$prefix • $baseTitle';
+    }
+    return baseTitle;
   }
 
   static String _generateDescription({
@@ -314,71 +359,164 @@ class MarketEngine {
     int tramerAmount = 0,
   }) {
     if (isBarnFind) {
-      final barnDescriptions = [
-        'Köydeki dede yadigarı garajdan/samanlıktan yeni çıkarıldı! Yıllardır dokunulmadı, restorasyon projesi için bulunmaz fırsat.',
-        'Kapalı depoda uzun yıllar muhafaza edilmiş orijinal gövde. Klasik restorasyon meraklısına kelepir fiyata devredilecektir.',
-        'Samanlık buluntusu! Motor ve yürüyen elden geçmeli, gövde hatları düzgün. Proje aracı arayanlar için kaçırılmayacak fırsat.',
+      final slot1 = [
+        'Köydeki dede yadigarı samanlıktan yeni gün yüzüne çıkarıldı.',
+        'Kapalı depoda uzun yıllar muhafaza edilmiş orijinal gövde.',
+        'Yıllardır dokunulmamış, nostalji kokan özel bir garaj buluntusu.',
+        'Tozlu garajdan çekiciyle kurtarılmış hakiki klasik kasa.',
       ];
-      return barnDescriptions[_random.nextInt(barnDescriptions.length)];
+      final slot2 = [
+        'Motor ve yürüyen aksam restorasyon istiyor, kaporta hatları şaşırtıcı derecede düzgün.',
+        'Gövde panelleri ve orijinal detayları üzerinde duruyor, proje meraklısına bulunmaz fırsat.',
+        'Taban sacında çürük az, motor blok numarası ve şasisi orijinal.',
+        'İç döşemeleri elden geçmeli fakat restorasyon sonrası iki katı değer kazanır.',
+      ];
+      final slot3 = [
+        'Klasik meraklısına kelepir fiyata devredilecektir • Proje aracı arayanlar kaçırmasın.',
+        'Çekiciyle teslim edilir • Ciddi restorasyon ustalarına hayırlı olsun.',
+        'Pazarlık araç başında cüzi miktarda olur • Alıcısına şimdiden hayırlı uğurlu olsun.',
+      ];
+      final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
+      _descriptionQueue.push(res);
+      return res;
     }
+
     if (isPristine) {
-      final pristineDescriptions = [
-        'FABRİKASYON HATASIZ & BOYASIZ! İlk sahibinden yetkili servis bakımlı, tek kuruş masrafsız garaj arabası.',
-        'Boya, değişen, tramer kesinlikle YOKTUR. Tüm gövde panelleri ve cıvataları orijinaldir. Ekspertize açıktır.',
-        'Sıfır kokusu üzerinde! Nokta hatasız, tamponlarında dahi çizik yoktur. Kapalı garajda muhafaza edilmiştir.',
+      final slot1 = [
+        'FABRİKASYON HATASIZ VE BOYASIZ! İlk sahibinden yetkili servis bakımlı.',
+        'Sıfır kondisyonunda kapalı garaj arabası! Nokta kadar ezik çizik dahi yoktur.',
+        'Tüm fabrika etiketleri ve orijinal mühürleri üzerindedir • Kusursuz temizliktedir.',
+        'İlk günden beri tek elden titizlikle kullanılmış emsalsiz bir araçtır.',
       ];
-      return pristineDescriptions[_random.nextInt(pristineDescriptions.length)];
+      final slot2 = [
+        'Boya, değişen, tramer kaydı kesinlikle YOKTUR • Tüm paneller fabrikasyon mikrondadır.',
+        'Motor ve şanzıman saat gibi çalışır, en ufak ses veya yağ kaçağı bulunmaz.',
+        'İç döşemelerinde, direksiyonunda ve butonlarında sıfır deformasyon vardır.',
+        'Periyodik bakımları eksiksiz yapılmış, lastikleri ve aküsü sıfır ayarındadır.',
+      ];
+      final slot3 = [
+        'Dilediğiniz kurumsal ekspertize ve yetkili servise açıktır • Tek kuruş masrafsızdır.',
+        'Kapalı garajda yeni sahibini bekliyor • Pazarlık semboliktir.',
+        'Kuruş masrafsız dosta gidecek nadide araç • Alıcısına hayırlı olsun.',
+      ];
+      final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
+      _descriptionQueue.push(res);
+      return res;
     }
+
     if (declarationType == ListingDeclarationType.flawlessClaim) {
-      final flawlessClaimDescriptions = [
-        'HATASIZ BOYASIZ TRAMERSİZ! İlk sahibinden, nokta kusuru olmayan garaj arabası.',
-        'Kazasız belasız, hasar kaydı kesinlikle yoktur. Ekspertize dilediğiniz gibi açıktır.',
+      final slot1 = [
+        'KUSURSUZ VE HATASIZ İDDİASIYLA SATILIK! İlk sahibinden garaj aracı.',
+        'Kazasız belasız, tek elden kullanılmış masrafsız aile aracı.',
+        'İddia ediyoruz bu temizlikte bu fiyata ikinci bir araç bulamazsınız.',
       ];
-      return flawlessClaimDescriptions[_random.nextInt(flawlessClaimDescriptions.length)];
+      final slot2 = [
+        'Motoru yürüyeni sorunsuzdur, masraf istemez.',
+        'Kaportası diridir, içi dışı pırıl pırıl temizliktedir.',
+        'Tüm bakımları zamanında yapılmıştır.',
+      ];
+      final slot3 = [
+        'Ekspertize açıktır • Pazarlık araç başında usulünce yapılır.',
+        'Nakit satılıktır • Alıcısına şimdiden hayırlı olsun.',
+      ];
+      final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
+      _descriptionQueue.push(res);
+      return res;
     }
+
     if (isFlashDeal) {
-      final flashDescriptions = [
-        'ACİL NAKİT İHTİYACINDAN KELEPİR FİYAT! İlk gelen alır, araç başında usulünce pazarlık olur.',
-        'Yurtdışına taşınma sebebiyle çok acil satılık! Fiyatı piyasa değerinin altında tuttum, kaçıran üzülür.',
-        'Ödemelerim sebebiyle birkaç günlüğüne bu fiyattır. Takas teklif etmeyiniz, sadece nakit satılık.',
+      final slot1 = [
+        'ACİL NAKİT İHTİYACINDAN DOLAYI KELEPİR FİYAT!',
+        'Yurtdışına taşınma sebebiyle çok acil satılıktır!',
+        'Ödemelerim sebebiyle birkaç günlüğüne piyasa değerinin altında bırakıyorum!',
+        'Fırsat aracı! Nakit ihtiyacından ötürü rakamı dibe çektim.',
       ];
-      return flashDescriptions[_random.nextInt(flashDescriptions.length)];
+      final slot2 = [
+        'Aracın yürüyeninde motorunda hiçbir sıkıntı yoktur, bakımları tazedir.',
+        'İlk gelen alır, araç başında ufak bir ikramım olur.',
+        'Gönül rahatlığıyla binilecek diri bir kasadır.',
+      ];
+      final slot3 = [
+        'Takas teklif etmeyiniz, sadece nakit satılıktır • Kaçıran üzülür.',
+        'Noter hemen verilir • Alıcısına şimdiden hayırlı olsun.',
+      ];
+      final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
+      _descriptionQueue.push(res);
+      return res;
     }
+
     if (isRare) {
-      final rareDescriptions = [
-        'Koleksiyon kondisyonunda, özenle saklanmış nadide araç! Kapalı garajda muhafaza edilmektedir.',
-        'Özel seri, düşük kilometre ve temiz kondisyonda. Değerini bilen gerçek meraklısına hayırlı olsun.',
-        'Hafta sonları keyifle binilmiş pırıl pırıl koleksiyon arabası. Tüm fabrika etiketleri ve orijinal parçaları üzerindedir.',
+      final slot1 = [
+        'Koleksiyon kondisyonunda, özenle saklanmış nadide bir kasa!',
+        'Özel donanımlı ve düşük kilometreli nadir bulunan seri.',
+        'Hafta sonları keyifle binilmiş pırıl pırıl koleksiyon arabası.',
       ];
-      return rareDescriptions[_random.nextInt(rareDescriptions.length)];
+      final slot2 = [
+        'Tüm orijinal fabrika etiketleri ve aksesuarları üzerindedir.',
+        'Kapalı garajda muhafaza edilmekte olup mekanik kondisyonu zirvededir.',
+        'Döşemeleri ve kokpiti ilk günkü tazeliğini korumaktadır.',
+      ];
+      final slot3 = [
+        'Değerini bilen gerçek meraklısına ve koleksiyonere hayırlı olsun.',
+        'Ciddi alıcılar iletişime geçsin • Araç başında pazarlık yapılır.',
+      ];
+      final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
+      _descriptionQueue.push(res);
+      return res;
     }
 
     if (declarationType == ListingDeclarationType.honest) {
-      if (tramerAmount > 0) {
-        final honestTramerDescriptions = [
-          'Bakımları zamanında eksiksiz yapılmıştır. Geçmişten sadece ₺$tramerAmount tramer hasar kaydı vardır, şasiler tavan orijinaldir.',
-          'İlk sahibinden temiz aile aracı. Tramer kaydı ₺$tramerAmount olup boyalı parçalar ilanda dürüstçe belirtilmiştir.',
-          'Memurdan kullanılmış araç. ₺$tramerAmount ufak trameri vardır, motoru ve yürüyeni kusursuzdur.',
-        ];
-        return honestTramerDescriptions[_random.nextInt(honestTramerDescriptions.length)];
-      } else {
-        final honestCleanDescriptions = [
-          'Bakımları zamanında eksiksiz yapılmıştır. Tramer hasar kaydı YOKTUR, şasiler tavan orijinaldir.',
-          'İlk sahibinden temiz aile aracı. Hasar kayıtsız olup yürüyeni kusursuzdur.',
-          'Memurdan kullanılmış araç. Tüm periyodik bakımları serviste yapılmış olup tramer kaydı bulunmamaktadır.',
-        ];
-        return honestCleanDescriptions[_random.nextInt(honestCleanDescriptions.length)];
-      }
+      final slot1 = [
+        'İlk sahibinden temiz kullanılmış aile aracı.',
+        'Memurdan titizlikle kullanılmış, uzun yolda yorulmamış diri araç.',
+        'Bakımları aksatılmadan zamanında eksiksiz yapılmıştır.',
+        'Şehir içi iş ev arası kullanılmış, kurcalanmamış orijinal kasa.',
+      ];
+      final slot2 = tramerAmount > 0
+          ? [
+              'Geçmişten sadece ₺$tramerAmount tramer hasar kaydı vardır • Şasiler, direkler ve tavan orijinaldir.',
+              'Tramer kaydı ₺$tramerAmount olup boyalı parçalar ilanda dürüstçe belirtilmiştir.',
+              'Ufak sürtmelerden kaynaklı ₺$tramerAmount trameri vardır • Yürüyen aksamı kusursuzdur.',
+            ]
+          : [
+              'Tramer hasar kaydı YOKTUR • Şasiler, podyeler ve tavan tamamen orijinaldir.',
+              'Hasar kayıtsız olup yürüyeni ve motoru ilk günkü diriliğindedir.',
+              'Tramer kaydı bulunmamaktadır • Ekspertiz raporunda tam puan almıştır.',
+            ];
+      final slot3 = [
+        'Lastikleri yeni, muayenesi günceldir • Masrafsız binilecek araçtır.',
+        'İç döşemelerinde yanık yırtık yoktur, klima ve tüm elektronik aksam faaldir.',
+        'Yedek anahtarı ve kitapçıkları mevcuttur • Kuruş masrafı yoktur.',
+      ];
+      final slot4 = [
+        'Ekspertize açıktır • Pazarlık araç başında usulünce yapılır.',
+        'Alıcısına şimdiden hayırlı uğurlu olsun.',
+        'Dosta gidecek temizliktedir • Yeni sahibine hayırlı olsun.',
+      ];
+      final res = SlotTextComposer.compose4(slot1: slot1, slot2: slot2, slot3: slot3, slot4: slot4, randomInstance: _random);
+      _descriptionQueue.push(res);
+      return res;
     }
 
-    final standardDescriptions = [
-      'Bakımları zamanında eksiksiz yapılmıştır. Yürüyen aksamı ve motoru kusursuzdur, masrafsız binilecek araçtır.',
-      'İlk sahibinden temiz aile aracı. İç döşemelerinde yanık yırtık yoktur, periyodik bakımları yeni tamamlandı.',
-      'Memurdan temiz kullanılmış, uzun yolda yorulmamış araç. Lastikleri yeni, muayenesi günceldir.',
-      'Şehir içi iş-ev arası titizlikle kullanılmıştır. Ekspertiz raporuna açıktır, alıcısına şimdiden hayırlı uğurlu olsun.',
-      'Kapalı garaj arabasıdır. Yedek anahtarı ve kitapçıkları mevcuttur. Pazarlık araç başında usulünce yapılır.',
+    final standardSlot1 = [
+      'Bakımları zamanında eksiksiz yapılmış masrafsız araç.',
+      'Temiz kullanılmış, yürüyeni ve motoru diri aile arabası.',
+      'Şehir içi düzenli kullanılmış, yıpranmamış sağlam kasa.',
+      'Kapalı garajda muhafaza edilmiş temiz kondisyonda araç.',
     ];
-    return standardDescriptions[_random.nextInt(standardDescriptions.length)];
+    final standardSlot2 = [
+      'Motorunda ve şanzımanında en ufak bir sorun veya yağ kaçağı yoktur.',
+      'Ön takım ve amortisörler elden geçmiş, alt takımı sessizdir.',
+      'İç kozmetiği temizdir, döşemelerinde yırtık bulunmaz.',
+    ];
+    final standardSlot3 = [
+      'Yedek anahtarı ve muayenesi mevcuttur • Masrafsız binilecek durumdadır.',
+      'Lastikleri iyi durumda, periyodik bakımı yeni yapılmıştır.',
+      'Ekspertiz raporuna açıktır • Pazarlık araç başında usulünce yapılır.',
+    ];
+    final res = SlotTextComposer.compose3(slot1: standardSlot1, slot2: standardSlot2, slot3: standardSlot3, randomInstance: _random);
+    _descriptionQueue.push(res);
+    return res;
   }
 
   static ListingModel _generateSingleListing(

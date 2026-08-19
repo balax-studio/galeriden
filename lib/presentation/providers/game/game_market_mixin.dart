@@ -563,8 +563,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     final fraudResult = NegotiationEngine.evaluatePlayerFraudInspection(car: car, customer: customer);
 
     if (fraudResult.caughtFraud) {
-      final newBalance = (state.balance - fraudResult.fineAmount).clamp(0.0, double.infinity);
-      final newReputation = (state.reputationScore - fraudResult.reputationPenalty).clamp(0, 100);
+      final newBalance = state.balance - fraudResult.fineAmount;
+      final newReputation = (state.reputationScore - fraudResult.reputationPenalty).clamp(0, 1000);
       final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
 
       state = state.copyWith(
@@ -613,7 +613,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       addXP(notaryResult.bonusXp);
     }
     if (notaryResult.bonusReputation > 0) {
-      final newRep = (state.reputationScore + notaryResult.bonusReputation).clamp(0, 100);
+      final newRep = (state.reputationScore + notaryResult.bonusReputation).clamp(0, 1000);
       state = state.copyWith(reputationScore: newRep);
       saveState();
     }
@@ -639,7 +639,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       if (math.Random().nextDouble() < notaryBlockChance) {
         const notaryFine = 8000.0;
         final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
-        final newReputation = (state.reputationScore - 12).clamp(0, 200);
+        final newReputation = (state.reputationScore - 12).clamp(0, 1000);
         
         final blockedEvent = GameEventModel(
           id: 'notary_blocked_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
@@ -651,7 +651,7 @@ mixin GameMarketMixin on GameBaseNotifier {
         );
 
         state = state.copyWith(
-          balance: (state.balance - notaryFine).clamp(0.0, double.infinity),
+          balance: state.balance - notaryFine,
           reputationScore: newReputation,
           incomingOffers: updatedOffers,
           recentEvents: [blockedEvent, ...state.recentEvents],
@@ -717,7 +717,7 @@ mixin GameMarketMixin on GameBaseNotifier {
         : rawReputationChange;
 
     final updatedReviews = [review, ...state.customerReviews];
-    final newReputation = (state.reputationScore + reputationChange).clamp(0, 200);
+    final newReputation = (state.reputationScore + reputationChange).clamp(0, 1000);
 
     state = state.copyWith(
       balance: state.balance + cashReceived,
@@ -1114,7 +1114,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
     if (isDuplicate) return;
 
-    final newReputation = (state.reputationScore + (review.rating >= 4.0 ? 5 : -10)).clamp(0, 200);
+    final newReputation = (state.reputationScore + (review.rating >= 4.0 ? 5 : -10)).clamp(0, 1000);
     state = state.copyWith(
       customerReviews: [review, ...state.customerReviews],
       reputationScore: newReputation,

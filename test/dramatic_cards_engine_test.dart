@@ -330,7 +330,7 @@ void main() {
       expect(result.updatedState.hiredStaff.first.dailySalary, closeTo(3500 * 1.40, 0.001));
     });
 
-    test('Dramatic card upfront cost is clamped defensively if player balance is low', () {
+    test('Dramatic card upfront cost is strictly deducted causing debt when balance is insufficient', () {
       final cardA1 = DramaticCardModel.defaultCards.firstWhere((c) => c.id == 'A1'); // Upfront 40k
       final choice1 = cardA1.choices.first;
 
@@ -339,8 +339,7 @@ void main() {
       );
 
       final result = DramaticCardEngine.resolveChoice(state, cardA1, choice1, fixedRoll: 0.80); // Loss
-      expect(result.updatedState.balance, greaterThanOrEqualTo(0.0));
-      expect(result.updatedState.balance, 0.0);
+      expect(result.updatedState.balance, -30000.0);
     });
   });
 }

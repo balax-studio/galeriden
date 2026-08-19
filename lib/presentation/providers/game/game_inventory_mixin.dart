@@ -154,7 +154,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     int newRep = state.reputationScore;
     if (newLocked) {
-      newRep = (state.reputationScore + 5).clamp(0, 100);
+      newRep = (state.reputationScore + 5).clamp(0, 1000);
       addXP(50);
     }
 
@@ -426,7 +426,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (state.balance < cost) return false;
 
     final updatedDecors = [...state.unlockedDecorIds, decorId];
-    final updatedReputation = (state.reputationScore + reputationBonus.toInt()).clamp(0, 500);
+    final updatedReputation = (state.reputationScore + reputationBonus.toInt()).clamp(0, 1000);
 
     state = state.copyWith(
       balance: state.balance - cost,
@@ -579,6 +579,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     final targetCar = state.ownedCars[targetIndex];
     if (targetCar.isLockedInShowcase || targetCar.isRented || targetCar.isConsignment) return false;
+    // Block black market and hot cars from trade-in to prevent money laundering
+    if (targetCar.isBlackMarket || targetCar.id.startsWith('bm_')) return false;
 
     // Check if player has enough money if cashDifference is negative
     if (offer.cashDifference < 0 && state.balance < -offer.cashDifference) {
@@ -673,7 +675,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Enters an underground night modification street race (§4.4)
   NightRaceResult enterNightRace(CarModel car, {NightRivalModel? rival}) {
-    const entryFee = 5000.0;
+    final activeRival = rival ?? NightMarketEngine.getMatchedRival(car);
+    final entryFee = NightMarketEngine.getEntryFeeForRival(activeRival);
     if (state.dailyRacesRemaining <= 0) {
       return const NightRaceResult(
         isWon: false,
@@ -686,11 +689,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
     }
 
     if (state.balance < entryFee) {
-      return const NightRaceResult(
+      return NightRaceResult(
         isWon: false,
         prizeMoney: 0,
         reputationBonus: 0,
-        raceSummary: 'Yarışa katılmak için ₺5.000 giriş bahsi gereklidir!',
+        raceSummary: 'Bu yarışa katılmak için ₺${entryFee.toInt()} giriş bahsi gereklidir!',
         rivalName: 'Bahis Masası',
         rivalCarName: 'Kasa Yetersiz',
       );
@@ -716,7 +719,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedCar = car.copyWith(expertise: updatedExpertise);
     final updatedCars = state.ownedCars.map((c) => c.id == car.id ? updatedCar : c).toList();
 
-    final result = NightMarketEngine.simulateNightRace(updatedCar, rival: rival);
+    final result = NightMarketEngine.simulateNightRace(updatedCar, rival: activeRival);
     final remainingRaces = (state.dailyRacesRemaining - 1).clamp(0, 3);
 
     if (result.isWon) {
@@ -1000,6 +1003,40 @@ mixin GameInventoryMixin on GameBaseNotifier {
     }
   }
 
+  /// Buys a scrap car from the scrapyard so player owns it and can dismantle parts or crush chassis
+  bool buyScrapCar(String scrapCarId) {
+    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+    if (scrapIndex == -1) return false;
+
+    final scrapCar = state.scrapyardCars[scrapIndex];
+    if (scrapCar.isPurchased) return true;
+
+    double effectivePrice = scrapCar.scrapPrice;
+    if (state.hasHighNpcTrust('cikmaci_ibo')) {
+      effectivePrice = (effectivePrice * 0.75).roundToDouble(); // Çıkmacı İbo dost indirimi -%25!
+    }
+    if (state.balance < effectivePrice) return false;
+
+    final updatedScrapCar = scrapCar.copyWith(
+      isPurchased: true,
+      parts: scrapCar.parts.isNotEmpty
+          ? scrapCar.parts
+          : ScrapyardCar.generateRandomParts('${scrapCar.brand} ${scrapCar.modelName}', scrapCar.scrapPrice * 1.5),
+    );
+    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars);
+    updatedScrapCars[scrapIndex] = updatedScrapCar;
+
+    state = state.copyWith(
+      balance: state.balance - effectivePrice,
+      scrapyardCars: updatedScrapCars,
+    );
+
+    adjustNpcRelationship('cikmaci_ibo', 2);
+    addXP(40);
+    saveState();
+    return true;
+  }
+
   /// Purchase and dismantle a scrap car into salvaged parts with realistic RNG loss risk
   BulkScrapDismantleResult buyAndDismantleScrapCar(String scrapCarId, {Random? random}) {
     final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
@@ -1083,6 +1120,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
     }
 
     final scrapCar = state.scrapyardCars[scrapIndex];
+    if (!scrapCar.isPurchased) {
+      return const SinglePartDismantleResult(
+        success: false,
+        isSalvaged: false,
+        message: 'Parça sökebilmek için önce hurda aracı satın almalısınız.',
+      );
+    }
     final partIndex = scrapCar.parts.indexWhere((p) => p.id == partId);
     if (partIndex == -1) {
       return const SinglePartDismantleResult(
@@ -1144,6 +1188,14 @@ mixin GameInventoryMixin on GameBaseNotifier {
     }
 
     final scrapCar = state.scrapyardCars[scrapIndex];
+    if (!scrapCar.isPurchased) {
+      return const ChassisCrushResult(
+        success: false,
+        scrapMetalEarned: 0,
+        surpriseEarned: 0,
+        message: 'Şasiyi presleyebilmek için önce hurda aracı satın almalısınız.',
+      );
+    }
     final scrapMetalVal = scrapCar.chassisScrapValue;
     final surpriseVal = scrapCar.surpriseFindValue;
     final surpriseName = scrapCar.surpriseFindItem;
@@ -1230,7 +1282,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     state = state.copyWith(
       balance: state.balance + order.offeredPrice,
-      reputationScore: (state.reputationScore + order.reputationReward).clamp(0, 100),
+      reputationScore: (state.reputationScore + order.reputationReward).clamp(0, 1000),
       salvagedParts: updatedParts,
       b2bPartOrders: updatedOrders,
     );

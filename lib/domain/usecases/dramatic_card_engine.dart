@@ -99,12 +99,12 @@ class DramaticCardEngine {
     }
 
     // 2. Mutate Dealership State
-    // Defensive check: Clamp upfront cost so player balance cannot be manipulated
-    final double actualUpfrontCost = choice.upfrontCost <= state.balance ? choice.upfrontCost : state.balance;
-    double newBalance = state.balance - actualUpfrontCost + selectedOutcome.moneyDelta;
-    if (newBalance < 0) newBalance = 0;
+    // Strict upfront cost deduction - prevent ₺0 balance exploit where expensive choices are taken for free
+    final double upfrontCost = choice.upfrontCost;
+    double newBalance = state.balance - upfrontCost + selectedOutcome.moneyDelta;
+    // Allow debt if upfront cost was paid, but if player had 0, they incur realistic debt
 
-    int newReputation = (state.reputation + selectedOutcome.reputationDelta).clamp(0, 100);
+    int newReputation = (state.reputation + selectedOutcome.reputationDelta).clamp(0, 1000);
     int newXP = state.experience + selectedOutcome.xpReward;
 
     List<CarModel> updatedCars = List.from(state.ownedCars);

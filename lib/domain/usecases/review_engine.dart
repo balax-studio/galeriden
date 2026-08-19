@@ -1,4 +1,6 @@
 import 'dart:math';
+import '../../core/utils/anti_repetition_queue.dart';
+import '../../core/utils/slot_text_composer.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/customer_review_model.dart';
 
@@ -13,48 +15,64 @@ class CustomerReviewResult {
   });
 }
 
-/// Pure domain usecase for generating rich, context-aware customer reviews
+/// Pure domain usecase for generating rich, context-aware customer reviews with anti-slop slots
 class ReviewEngine {
   static final Random _defaultRng = Random();
+  static final AntiRepetitionQueue<String> _reviewQueue = AntiRepetitionQueue<String>(capacity: 25);
 
-  static final List<String> _honestFlawlessReviews = [
-    'Aracı pırıl pırıl teslim aldım. Ekspertizde tek bir sürpriz çıkmadı, esnaflık budur!',
-    'Tam ilanında anlatıldığı gibi diri ve masrafsız. Motor sesi saat gibi, hayırlı işler.',
-    'Noter ve teslimat süreci çok hızlı ve şeffaf ilerledi. Gönül rahatlığıyla tavsiye ederim.',
-    'Koltuklarından kaportasına kadar tertemiz araç. İlgi ve alaka için çok teşekkürler.',
-    'Dürüst ve samimi ticaret. Söylediklerinin haricinde tek bir kusur çıkmadı.',
-    'Aracın kondisyonu beklediğimden bile iyi çıktı. Harika bir galeri esnafı.',
-    'Ekspertiz raporuyla birebir uyuştu. Tertemiz teslim ettiler, helal olsun.',
-    'Sanayideki ustama da gösterdim, nokta hatasız dedi. Gözünüz kapalı güvenebilirsiniz.',
-    'Satış öncesi ve sonrası iletişim kusursuzdu. Çok memnun kaldım.',
+  static final List<String> _honestFlawlessSlot1 = [
+    'Aracı pırıl pırıl teslim aldım.',
+    'Tam ilanında anlatıldığı gibi diri ve masrafsız.',
+    'Noter ve teslimat süreci çok hızlı ve şeffaf ilerledi.',
+    'Koltuklarından kaportasına kadar tertemiz bir araç.',
+    'Dürüst ve samimi esnaflık örneği.',
+    'Aracın kondisyonu beklediğimden bile daha diri çıktı.',
+    'Ekspertiz raporuyla beyanlar birebir uyuştu.',
+    'Sanayideki ustama da gösterdim, nokta kusursuz dedi.',
+  ];
+
+  static final List<String> _honestFlawlessSlot2 = [
+    'Motor sesi saat gibi, yürüyen aksam lokum gibi çalışıyor.',
+    'İç kozmetiğinde ve butonlarında en ufak yıpranma yok.',
+    'Şanzıman geçişleri kusursuz, tek kuruş masraf istemiyor.',
+    'Yedek anahtarı ve tüm belgeleri eksiksiz teslim edildi.',
+    'Satış öncesi ve sonrası esnaf ilgisi takdire şayan.',
+  ];
+
+  static final List<String> _honestFlawlessSlot3 = [
+    'Gönül rahatlığıyla tavsiye ederim • Helal olsun.',
+    'Hayırlı bereketli kazançlar dilerim.',
+    'Gözünüz kapalı güvenebilirsiniz • Teşekkürler.',
+    'Gerçek esnaflık budur • Dosta tavsiye edilir.',
   ];
 
   static final List<String> _honestVipReviews = [
-    'VIP karşılama ve samimi ikramları harikaydı. Dürüst esnaf, keyifli bir alışveriş oldu.',
-    'Lounge alanında kahvemizi içerken noter evrakları hazırlandı. Kurumsal ve şeffaf hizmet!',
-    'Örnek bir otomotiv işletmesi. Hem dürüstler hem de müşteriye çok kıymet veriyorlar.',
-    'Prestijli galeri ortamı ve sıfır sürprizle tamamlanan devir. Herkese tavsiye ediyorum.',
+    'VIP karşılama ve ikramlar harikaydı • Dürüst esnaf, son derece keyifli bir alışveriş oldu.',
+    'Lounge alanında kahvemizi içerken noter evrakları hazırlandı • Kurumsal ve şeffaf hizmet!',
+    'Örnek bir otomotiv işletmesi • Hem dürüstler hem de müşteriye çok kıymet veriyorlar.',
+    'Prestijli galeri ortamı ve sıfır sürprizle tamamlanan devir • Herkese tavsiye ediyorum.',
+    'Müşteri memnuniyetini ön planda tutan nezih bir galeri • Çok memnun kaldık.',
   ];
 
   static final List<String> _honestFairReviews = [
-    'Ufak tefek masraflarını baştan dürüstçe belirttiler. Teşekkürler.',
+    'Ufak tefek bakım masraflarını baştan dürüstçe belirttiler • Teşekkürler.',
     'Yaşına göre normal yıpranmaları vardı, satıcı hepsini şeffaf şekilde izah etti.',
-    'Fiyatta esneklik sağladılar ve eksikleri gizlemediler. Güvenilir esnaf.',
+    'Fiyatta esneklik sağladılar ve eksikleri gizlemediler • Güvenilir esnaf.',
     'Pazarlıkta yardımcı oldular, şeffaf ekspertiz tutumu için teşekkür ederim.',
-    'Dürüst yaklaşım sergilediler. Masraflarını bilerek aldım, memnun kaldım.',
-    'Araç söylediği gibi çıktı. Ufak bakım ihtiyaçlarını fiyattan düştüler.',
-    'Sözünün eri esnaf. Eksikleri baştan duymak içimizi rahatlattı.',
+    'Dürüst yaklaşım sergilediler • Masraflarını bilerek aldım, memnun kaldım.',
+    'Araç söylediği gibi çıktı • Ufak bakım masraflarını fiyattan düştüler.',
+    'Sözünün eri esnaf • Eksikleri baştan duymak içimizi rahatlattı.',
   ];
 
   static final List<String> _dishonestReviews = [
-    'İlanda yazmayan boya ve mekanik kusurlar çıktı. Pek memnun kalmadım.',
-    'Ekspertizde sürpriz masraflar tespit edildi. İlan detayları maalesef gerçeği yansıtmıyordu.',
-    'Aracın motorundan garip sesler geliyor, ilanda hatasız yazılmıştı. Hayal kırıklığı oldu.',
-    'Noterden sonra sanayiye çekmek zorunda kaldım. Şeffaf esnaflık göremedim.',
-    'Gizlenen kusurlar canımı sıktı. Bir daha bu galeriden araç almayı düşünmüyorum.',
-    'Boya ve tramer ilandakinden farklı çıktı. Ticaret ahlakına uygun bir deneyim olmadı.',
+    'İlanda yazmayan boya ve mekanik kusurlar çıktı • Pek memnun kalmadım.',
+    'Ekspertizde sürpriz masraflar tespit edildi • İlan detayları maalesef gerçeği yansıtmıyordu.',
+    'Aracın motorundan garip sesler geliyor, ilanda hatasız yazılmıştı • Hayal kırıklığı oldu.',
+    'Noterden sonra sanayiye çekmek zorunda kaldım • Şeffaf esnaflık göremedim.',
+    'Gizlenen kusurlar canımı sıktı • Bir daha bu galeriden araç almayı düşünmüyorum.',
+    'Boya ve tramer ilandakinden farklı çıktı • Ticaret ahlakına uygun bir deneyim olmadı.',
     'İlanda kusursuz yazılan araçta gizli yağ kaçağı ve şanzıman vuruntusu çıktı.',
-    'Ekspertiz yaptırmasaydık ağır masrafa girecektik. Hiç şeffaf davranılmadı.',
+    'Ekspertiz yaptırmasaydık ağır masrafa girecektik • Hiç şeffaf davranılmadı.',
   ];
 
   /// Generates a dynamic customer review based on car condition, honesty, and dealer prestige
@@ -79,28 +97,42 @@ class ReviewEngine {
       if (isClean && isGoodEngine && isLowTramer) {
         reviewRating = 5.0;
         if ((hasVipConcierge || hasVipLounge) && rng.nextBool()) {
-          reviewComment = _honestVipReviews[rng.nextInt(_honestVipReviews.length)];
+          reviewComment = _reviewQueue.selectNext(_honestVipReviews, randomInstance: rng);
         } else {
-          reviewComment = _honestFlawlessReviews[rng.nextInt(_honestFlawlessReviews.length)];
+          final composed = SlotTextComposer.compose3(
+            slot1: _honestFlawlessSlot1,
+            slot2: _honestFlawlessSlot2,
+            slot3: _honestFlawlessSlot3,
+            randomInstance: rng,
+          );
+          _reviewQueue.push(composed);
+          reviewComment = composed;
         }
         reputationChange = 5 + (hasVipConcierge || hasVipLounge ? 2 : 0) + (hasTrophy ? 1 : 0);
       } else if (isGoodEngine) {
         reviewRating = (hasVipConcierge || hasVipLounge) ? 4.5 : 4.0;
         if (hasVipConcierge || hasVipLounge) {
-          reviewComment = _honestVipReviews[rng.nextInt(_honestVipReviews.length)];
+          reviewComment = _reviewQueue.selectNext(_honestVipReviews, randomInstance: rng);
         } else {
-          reviewComment = _honestFlawlessReviews[rng.nextInt(_honestFlawlessReviews.length)];
+          final composed = SlotTextComposer.compose3(
+            slot1: _honestFlawlessSlot1,
+            slot2: _honestFlawlessSlot2,
+            slot3: _honestFlawlessSlot3,
+            randomInstance: rng,
+          );
+          _reviewQueue.push(composed);
+          reviewComment = composed;
         }
         reputationChange = 3 + (hasVipConcierge ? 1 : 0) + (hasTrophy ? 1 : 0);
       } else {
         reviewRating = (hasVipConcierge || hasVipLounge) ? 4.0 : 3.5;
-        reviewComment = _honestFairReviews[rng.nextInt(_honestFairReviews.length)];
+        reviewComment = _reviewQueue.selectNext(_honestFairReviews, randomInstance: rng);
         reputationChange = 2 + (hasVipConcierge ? 1 : 0) + (hasTrophy ? 1 : 0);
       }
     } else {
       // Dishonest declaration
       reviewRating = (hasVipConcierge || hasVipLounge) ? 2.5 : 2.0;
-      reviewComment = _dishonestReviews[rng.nextInt(_dishonestReviews.length)];
+      reviewComment = _reviewQueue.selectNext(_dishonestReviews, randomInstance: rng);
       reputationChange = -4;
     }
 

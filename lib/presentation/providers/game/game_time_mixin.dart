@@ -872,8 +872,8 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   /// Resolves the contextual random event choice outcome and mutates state
   void resolveRandomEvent(GameEventChoice choice) {
-    final newBalance = (state.balance + choice.balanceChange).clamp(0.0, double.infinity);
-    final newReputation = (state.reputationScore + choice.reputationChange).clamp(0, 100);
+    final newBalance = state.balance + choice.balanceChange;
+    final newReputation = (state.reputationScore + choice.reputationChange).clamp(0, 1000);
     state = state.copyWith(
       balance: newBalance,
       reputationScore: newReputation,

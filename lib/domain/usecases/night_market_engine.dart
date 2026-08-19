@@ -52,6 +52,20 @@ class NightRaceResult {
 class NightMarketEngine {
   static final _random = Random();
 
+  /// Dynamic entry fee scaling by rival tier to prevent low-risk farming
+  static double getEntryFeeForRival(NightRivalModel rival) {
+    switch (rival.tier) {
+      case 1:
+        return 5000.0;
+      case 2:
+        return 20000.0;
+      case 3:
+        return 50000.0;
+      default:
+        return 5000.0;
+    }
+  }
+
   /// Comprehensive roster of 12 authentic street opponents across 3 difficulty tiers
   static const List<NightRivalModel> allRivals = [
     // --- Tier 1: Sanayi Çırakları & Mahalle Gazcıları (Güç: 75 - 130 HP) ---

@@ -24,6 +24,8 @@ class GameConstants {
   static const double startingBalance = 50000.0;
   static const int startingLevel = 1;
   static const int maxShowroomSlotsInitial = 3;
+  static const int minReputationScore = 0;
+  static const int maxReputationScore = 1000;
 
   // Costs & Fee Constants
   static const double expertiseBaseCost = 1500.0;
