@@ -12,6 +12,7 @@ import 'package:galeriden/presentation/screens/expertise/expertise_screen.dart';
 import 'package:galeriden/presentation/screens/night_market/night_market_screen.dart';
 import 'package:galeriden/presentation/screens/showroom/widgets/showroom_car_card.dart';
 import 'package:galeriden/presentation/widgets/dot_grid_background.dart';
+import 'package:galeriden/presentation/widgets/game_hud_widget.dart';
 import 'package:galeriden/presentation/widgets/hazard_stripe_widget.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_card.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_stamp.dart';
@@ -264,6 +265,111 @@ void main() {
       expect(find.text('GECE SANAYİSİ & YARIŞ'), findsOneWidget);
       expect(find.text('GECE MEZATI & DRAG YARIŞI'), findsOneWidget);
       expect(find.byType(HazardStripeWidget), findsWidgets);
+
+      await tester.pumpWidget(const SizedBox());
+      container.dispose();
+      await tester.pump(const Duration(seconds: 1));
+    });
+
+    testWidgets('7. Season Modal Renders with Neo-Brutalist Cards, Badges and Progress', (tester) async {
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: testTheme,
+            home: const Scaffold(
+              body: GameHudHeaderWidget(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Find and tap the season pill
+      final seasonFinder = find.text('İLKBAHAR ');
+      expect(seasonFinder, findsOneWidget);
+      await tester.tap(seasonFinder);
+      await tester.pumpAndSettle();
+
+      // Verify Neo-Brutalist Season Dialog elements
+      expect(find.text('28 GÜNLÜK MEVSİM DÖNGÜSÜ'), findsOneWidget);
+      expect(find.text('AKTİF MEVSİM'), findsOneWidget);
+      expect(find.text('MEVSİM İLERLEMESİ'), findsOneWidget);
+      expect(find.text('MEVSİMSEL PİYASA TALEPLERİ & DEĞER FARKLARI'), findsOneWidget);
+      expect(find.text('İlkbahar'), findsOneWidget);
+      expect(find.text('Yaz'), findsOneWidget);
+      expect(find.text('Sonbahar'), findsOneWidget);
+      expect(find.text('Kış'), findsOneWidget);
+      expect(find.text('+%15 Talep'), findsWidgets);
+      expect(find.text('+%30 Değer'), findsOneWidget);
+      expect(find.text('PİYASA ETKİSİNİ ANLADIM'), findsOneWidget);
+
+      // Close modal
+      await tester.tap(find.text('PİYASA ETKİSİNİ ANLADIM'));
+      await tester.pumpAndSettle();
+
+      await tester.pumpWidget(const SizedBox());
+      container.dispose();
+      await tester.pump(const Duration(seconds: 1));
+    });
+
+    testWidgets('8. Weather Modal Renders with Neo-Brutalist Live Impact Cards and Badges', (tester) async {
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: testTheme,
+            home: const Scaffold(
+              body: GameHudHeaderWidget(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Find and tap the weather pill
+      final weatherFinder = find.text('HAVA ');
+      expect(weatherFinder, findsOneWidget);
+      await tester.tap(weatherFinder);
+      await tester.pumpAndSettle();
+
+      // Verify Neo-Brutalist Weather Dialog elements
+      expect(find.text('HAVA DURUMU & PİYASA'), findsOneWidget);
+      expect(find.text('CANLI ETKİ'), findsOneWidget);
+      expect(find.text('GÜNCEL PİYASA ÇARPANLARI'), findsOneWidget);
+      expect(find.text('Ziyaretçi Trafiği'), findsOneWidget);
+      expect(find.text('Oto Yıkama Talebi'), findsOneWidget);
+      expect(find.text('SUV & 4x4 Talebi'), findsOneWidget);
+      expect(find.text('Spor Araç Talebi'), findsOneWidget);
+      expect(find.text('Oto Çekici Çağrıları'), findsOneWidget);
+      expect(find.text('Kusur Sezgi Doğruluğu'), findsOneWidget);
+      expect(find.text('TAMAM'), findsOneWidget);
+
+      // Close modal
+      await tester.tap(find.text('TAMAM'));
+      await tester.pumpAndSettle();
 
       await tester.pumpWidget(const SizedBox());
       container.dispose();
