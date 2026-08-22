@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/first_time_action_keys.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -50,6 +51,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
   int _counterOfferCount = 0;
   bool _isNearMiss = false;
   bool _isLockedOut = false;
+  bool _hasRescuedWithTea = false;
   late CustomerModel _customer;
   late String _fomoText;
   int _bonusChancePercent = 0;
@@ -877,6 +879,36 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                             ],
                           ),
                         ),
+                        if (!_hasRescuedWithTea) ...[
+                          const SizedBox(height: 8),
+                          NeoBrutalButton(
+                            label: 'TAVŞAN KANI ÇAY ISMARLA • MASAYA GERİ ÇAĞIR',
+                            icon: Icons.local_cafe_rounded,
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 11,
+                            fullWidth: true,
+                            onPressed: () {
+                              AdService.instance.showRewardedAdWithFallback(
+                                context: context,
+                                customRewardTitle: 'Esnaf Çayı İkramı ile Masayı Kurtarma',
+                                onRewardEarned: () {
+                                  setState(() {
+                                    _isLockedOut = false;
+                                    _hasRescuedWithTea = true;
+                                    _counterOfferCount = 1;
+                                    _sellerResponse = null;
+                                    _isNearMiss = false;
+                                  });
+                                  NotificationService.showSuccess(
+                                    context,
+                                    'Sıcak çayı gören satıcı masaya geri oturdu! Son bir teklif fırsatın var.',
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
                       ],
                     ],
                   ),

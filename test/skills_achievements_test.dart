@@ -9,10 +9,10 @@ void main() {
 
   group('Skill Tree and Exponential XP Math Tests', () {
     test('Exponential required XP calculation', () {
-      expect(PlayerSkills.requiredXpForLevel(1), 1250);
-      expect(PlayerSkills.requiredXpForLevel(2), 3500);
-      expect(PlayerSkills.requiredXpForLevel(3), 8000);
-      expect(PlayerSkills.requiredXpForLevel(4), 15000);
+      expect(PlayerSkills.requiredXpForLevel(1), 1500);
+      expect(PlayerSkills.requiredXpForLevel(2), 4000);
+      expect(PlayerSkills.requiredXpForLevel(3), 9000);
+      expect(PlayerSkills.requiredXpForLevel(4), 18000);
     });
 
     test('Player level & XP in level based on total XP', () {
@@ -20,9 +20,9 @@ void main() {
       expect(skillsLvl1.currentLevel, 1);
       expect(skillsLvl1.xpInCurrentLevel, 150);
 
-      final skillsLvl2 = PlayerSkills(xp: 1400);
+      final skillsLvl2 = PlayerSkills(xp: 1650);
       expect(skillsLvl2.currentLevel, 2);
-      expect(skillsLvl2.xpInCurrentLevel, 150); // 1400 - 1250
+      expect(skillsLvl2.xpInCurrentLevel, 150); // 1650 - 1500
     });
 
     test('Skill multipliers calculate correctly', () {

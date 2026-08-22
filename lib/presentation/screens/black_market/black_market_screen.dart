@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -21,6 +22,7 @@ class BlackMarketScreen extends ConsumerStatefulWidget {
 
 class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
   final Set<String> _scannedCarIds = {};
+  final Set<String> _cleansedRiskCarIds = {};
 
   @override
   Widget build(BuildContext context) {
@@ -116,12 +118,15 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
           else
             ...bmCars.where((c) => !c.isPurchased).map((car) {
               final isScanned = _scannedCarIds.contains(car.id);
+              final isCleansed = _cleansedRiskCarIds.contains(car.id);
+              final displayRisk = isCleansed ? 0 : car.riskLevelPercent;
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(14),
                   backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: AppColors.errorRed,
+                  borderColor: isCleansed ? AppColors.brutalGreen : AppColors.errorRed,
                   borderRadius: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,9 +146,9 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                             ),
                           ),
                           NeoBrutalBadge(
-                            text: 'POLİS RİSKİ: %${car.riskLevelPercent}',
-                            backgroundColor: AppColors.errorRed,
-                            textColor: Colors.white,
+                            text: isCleansed ? 'POLİS RİSKİ: %0 • TEMİZ SİCİL' : 'POLİS RİSKİ: %$displayRisk',
+                            backgroundColor: isCleansed ? AppColors.brutalGreen : AppColors.errorRed,
+                            textColor: isCleansed ? Colors.black : Colors.white,
                             fontSize: 10,
                           ),
                         ],
@@ -155,8 +160,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        car.riskDescription,
-                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFFEF4444)),
+                        isCleansed ? 'Sahte plaka ve sahte evrak hazırlandı. Araç güvenle garaja çekilebilir.' : car.riskDescription,
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: isCleansed ? AppColors.brutalGreen : const Color(0xFFEF4444)),
                       ),
                       const SizedBox(height: 12),
                       Row(
@@ -228,6 +233,32 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                                         );
                                       },
                               ),
+                              if (!isCleansed) ...[
+                                const SizedBox(height: 6),
+                                NeoBrutalButton(
+                                  label: 'SAHTE PLAKA • RİSKİ SIFIRLA',
+                                  icon: Icons.shield_rounded,
+                                  backgroundColor: const Color(0xFF10B981),
+                                  textColor: Colors.black,
+                                  fontSize: 10,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  onPressed: () {
+                                    AdService.instance.showRewardedAdWithFallback(
+                                      context: context,
+                                      customRewardTitle: 'Gölge Muhbir & Sahte Plaka Evrakı',
+                                      onRewardEarned: () {
+                                        setState(() {
+                                          _cleansedRiskCarIds.add(car.id);
+                                        });
+                                        NotificationService.showSuccess(
+                                          context,
+                                          '${car.brand} ${car.modelName} için sahte plaka takıldı - Polis riski %0 oldu!',
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
                               const SizedBox(height: 6),
                               NeoBrutalButton(
                                 label: 'RİSKİ AL & SATIN AL',

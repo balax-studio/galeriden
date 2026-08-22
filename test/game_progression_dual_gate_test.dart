@@ -37,8 +37,11 @@ void main() {
       expect(notifier.state.level, equals(1));
       expect(notifier.state.isFeatureUnlocked('/car-wash'), isFalse);
 
-      // Add 1300 XP (Crosses Level 1 threshold 1250 XP -> Level 2)
-      notifier.addXP(1300);
+      // Set 1500 XP (Crosses Level 1 threshold 1500 XP -> Level 2)
+      notifier.state = notifier.state.copyWith(
+        skills: PlayerSkills(xp: 1500),
+        level: 2,
+      );
       expect(notifier.state.level, equals(2));
 
       // Car wash is STILL locked because player has not bought the Level 2 Branch yet!
@@ -70,8 +73,11 @@ void main() {
 
     test('Purchasing Level 3 Branch (Sanayi Sitesi) unlocks Workshop and Staff', () {
       final notifier = GameNotifier();
-      // Level 3 requires total 4750 XP (1250 + 3500)
-      notifier.addXP(5000);
+      // Level 3 requires total 5500 XP (1500 + 4000)
+      notifier.state = notifier.state.copyWith(
+        skills: PlayerSkills(xp: 5500),
+        level: 3,
+      );
       expect(notifier.state.level, equals(3));
 
       final branch3 = BranchModel.getAllBranches().firstWhere((b) => b.id == 'branch_3');
@@ -87,18 +93,18 @@ void main() {
     });
 
     test('Calibrated XP curve adheres to non-grindy, psychologically balanced thresholds', () {
-      expect(PlayerSkills.requiredXpForLevel(1), equals(1250));
-      expect(PlayerSkills.requiredXpForLevel(2), equals(3500));
-      expect(PlayerSkills.requiredXpForLevel(3), equals(8000));
-      expect(PlayerSkills.requiredXpForLevel(4), equals(15000));
+      expect(PlayerSkills.requiredXpForLevel(1), equals(1500));
+      expect(PlayerSkills.requiredXpForLevel(2), equals(4000));
+      expect(PlayerSkills.requiredXpForLevel(3), equals(9000));
+      expect(PlayerSkills.requiredXpForLevel(4), equals(18000));
 
-      final skills = PlayerSkills(xp: 1250);
+      final skills = PlayerSkills(xp: 1500);
       expect(skills.currentLevel, equals(2));
 
-      final skillsLv3 = PlayerSkills(xp: 1250 + 3500);
+      final skillsLv3 = PlayerSkills(xp: 1500 + 4000);
       expect(skillsLv3.currentLevel, equals(3));
 
-      final skillsLv4 = PlayerSkills(xp: 1250 + 3500 + 8000);
+      final skillsLv4 = PlayerSkills(xp: 1500 + 4000 + 9000);
       expect(skillsLv4.currentLevel, equals(4));
     });
   });

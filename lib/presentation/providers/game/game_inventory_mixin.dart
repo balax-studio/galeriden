@@ -2315,9 +2315,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
-  /// 17. Ofis Reklam Desteği: Gurbetçi Dayı Zarf Fonu (+₺25.000)
-  double claimOfficeAdGrant() {
-    const grantAmount = 25000.0;
+  /// 17. Ofis Reklam Desteği: Gurbetçi Dayı Zarf Fonu / Dinamik Esnaf Katkısı
+  double claimOfficeAdGrant([double? customAmount]) {
+    final grantAmount = customAmount ?? 25000.0;
     state = state.copyWith(
       balance: state.balance + grantAmount,
       lastOfficeGrantClaimDay: state.currentDay,
@@ -2422,6 +2422,40 @@ mixin GameInventoryMixin on GameBaseNotifier {
   /// 19. Ofis Ekranı Dinamik Metin & Tavsiye Yenileme
   void refreshOfficeSeed() {
     state = state.copyWith(officeSeed: state.officeSeed + 1);
+  }
+
+  /// 20. Özel Plaka Satın Alma ve Araca Atama
+  bool buyAndAssignPlate({
+    required String carId,
+    required String plateNumber,
+    required String plateRarity,
+    required double cost,
+    required int reputationBonus,
+  }) {
+    if (state.balance < cost) return false;
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.isRented) return false;
+
+    final updatedCar = car.copyWith(
+      plateNumber: plateNumber,
+      plateRarity: plateRarity,
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+      reputationScore: (state.reputationScore + reputationBonus).clamp(0, 1000),
+    );
+
+    addXP(reputationBonus * 10);
+    saveState();
+    return true;
   }
 }
 

@@ -12,6 +12,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class IndustryGossipScreen extends ConsumerWidget {
   const IndustryGossipScreen({super.key});
@@ -94,7 +95,13 @@ class IndustryGossipScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
+
+          // Sektör Bülteni Native Ad / Fallback
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.gossip,
+            margin: EdgeInsets.only(bottom: 14),
+          ),
 
           if (gossips.isEmpty)
             const NeoBrutalEmptyState(

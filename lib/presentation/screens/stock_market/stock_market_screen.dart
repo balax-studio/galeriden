@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class StockMarketScreen extends ConsumerStatefulWidget {
   const StockMarketScreen({super.key});
@@ -703,6 +704,12 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           ),
         ),
         const SizedBox(height: 14),
+
+        // Native Ad / Analist Bülteni
+        const NeoBrutalNativeAdCard(
+          contextType: NativeAdContextType.stockMarket,
+          margin: EdgeInsets.only(bottom: 12),
+        ),
 
         // 3. STOCKS LIST
         ...filteredStocks.map((stock) {

@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
 import '../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../../widgets/neo_brutal_random_event_dialog.dart';
+import '../../widgets/whats_new_dialog.dart';
 import '../auction/auction_screen.dart';
 import '../showroom/showroom_screen.dart';
 import 'widgets/dashboard_banners.dart';
@@ -58,6 +59,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final recap = ref.read(gameProvider.notifier).consumePendingOfflineRecap();
       if (recap != null && mounted) {
         DashboardRetentionModals.showOfflineRecapModal(context, recap);
+      }
+
+      // Check Post-Update What's New Dialog
+      if (mounted) {
+        WhatsNewDialog.checkAndShow(context, ref);
       }
     });
   }

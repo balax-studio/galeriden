@@ -171,6 +171,9 @@ class DealershipModel {
   final int lastSmartHookUsedDay;
   final int officeSeed;
 
+  // Mağaza Puanlama & Öneri Tek Seferlik Ödül Takibi
+  final bool hasReceivedReviewReward;
+
   bool get isOfficeGrantClaimedToday => lastOfficeGrantClaimDay >= currentDay;
   bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
 
@@ -598,6 +601,7 @@ class DealershipModel {
     this.lastOfficeGrantClaimDay = 0,
     this.lastSmartHookUsedDay = 0,
     this.officeSeed = 0,
+    this.hasReceivedReviewReward = false,
   });
 
   factory DealershipModel.initial() {
@@ -992,6 +996,7 @@ class DealershipModel {
       'lastOfficeGrantClaimDay': lastOfficeGrantClaimDay,
       'lastSmartHookUsedDay': lastSmartHookUsedDay,
       'officeSeed': officeSeed,
+      'hasReceivedReviewReward': hasReceivedReviewReward,
     };
   }
 
@@ -1156,6 +1161,7 @@ class DealershipModel {
       lastOfficeGrantClaimDay: json['lastOfficeGrantClaimDay'] as int? ?? 0,
       lastSmartHookUsedDay: json['lastSmartHookUsedDay'] as int? ?? 0,
       officeSeed: json['officeSeed'] as int? ?? 0,
+      hasReceivedReviewReward: json['hasReceivedReviewReward'] as bool? ?? false,
     );
   }
 
@@ -1286,6 +1292,7 @@ class DealershipModel {
     int? lastOfficeGrantClaimDay,
     int? lastSmartHookUsedDay,
     int? officeSeed,
+    bool? hasReceivedReviewReward,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1381,6 +1388,7 @@ class DealershipModel {
       lastOfficeGrantClaimDay: lastOfficeGrantClaimDay ?? this.lastOfficeGrantClaimDay,
       lastSmartHookUsedDay: lastSmartHookUsedDay ?? this.lastSmartHookUsedDay,
       officeSeed: officeSeed ?? this.officeSeed,
+      hasReceivedReviewReward: hasReceivedReviewReward ?? this.hasReceivedReviewReward,
     );
   }
 

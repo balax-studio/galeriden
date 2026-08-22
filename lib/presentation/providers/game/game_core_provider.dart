@@ -247,9 +247,30 @@ class GameCoreNotifier extends GameBaseNotifier
     state = state.copyWith(achievements: list);
   }
 
+  final List<DateTime> _recentXpTimestamps = [];
+
   @override
   void addXP(int amount) {
-    final updatedSkills = state.skills.copyWith(xp: state.skills.xp + amount);
+    if (amount <= 0) return;
+
+    // 1. Anti-Exploit Single Transaction Ceiling
+    final rawAmount = amount.clamp(1, 500);
+
+    // 2. Anti-Exploit Rolling Frequency Decay (Last 60 seconds)
+    final now = DateTime.now();
+    _recentXpTimestamps.removeWhere((t) => now.difference(t).inSeconds > 60);
+
+    double multiplier = 1.0;
+    if (_recentXpTimestamps.length >= 15) {
+      multiplier = 0.25; // High decay if >15 rapid actions in 60s
+    } else if (_recentXpTimestamps.length >= 8) {
+      multiplier = 0.60; // Mild decay if >8 rapid actions in 60s
+    }
+
+    _recentXpTimestamps.add(now);
+
+    final int effectiveXp = (rawAmount * multiplier).round().clamp(1, 500);
+    final updatedSkills = state.skills.copyWith(xp: state.skills.xp + effectiveXp);
     final calculatedLevel = updatedSkills.currentLevel;
     final newLevel = calculatedLevel > state.level ? calculatedLevel : state.level;
     
@@ -263,6 +284,20 @@ class GameCoreNotifier extends GameBaseNotifier
     );
     checkAndUnlockFeatures();
     saveState();
+  }
+
+  /// Mağaza Puanlama & Geri Bildirim Tek Seferlik Teşvik Fonu (₺100.000 + 100 XP)
+  bool claimReviewReward() {
+    if (state.hasReceivedReviewReward) return false;
+
+    state = state.copyWith(
+      balance: state.balance + 100000.0,
+      hasReceivedReviewReward: true,
+      reputationScore: (state.reputationScore + 15).clamp(0, 1000),
+    );
+    addXP(100);
+    saveState();
+    return true;
   }
 
   void checkAndUnlockFeatures() {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -30,6 +31,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   Timer? _timer;
   bool _hasPlayerEnteredBid = false;
   bool _isHandlingAuctionEnd = false;
+  bool _hasExtendedAuction = false;
   final List<String> _bidLogs = [];
   late AnimationController _pulseController;
   int _closedCountdown = 0;
@@ -169,6 +171,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     setState(() {
       _isHandlingAuctionEnd = false;
       _hasPlayerEnteredBid = false;
+      _hasExtendedAuction = false;
       _isWindowOpen = isNowOpen;
       _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
 
@@ -406,6 +409,39 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 18),
+                  if (!_hasExtendedAuction) ...[
+                    NeoBrutalButton(
+                      label: 'GÜMRÜK MEMURUNA RİCADA BULUN • SEANSI 15 SN UZAT',
+                      icon: Icons.access_time_filled_rounded,
+                      backgroundColor: AppColors.brutalYellow,
+                      textColor: Colors.black,
+                      fontSize: 11,
+                      fullWidth: true,
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        AdService.instance.showRewardedAdWithFallback(
+                          context: context,
+                          customRewardTitle: 'Gümrük Ekstra Süre İntikali',
+                          onRewardEarned: () {
+                            setState(() {
+                              _isHandlingAuctionEnd = false;
+                              _hasExtendedAuction = true;
+                              _auction = _auction.copyWith(
+                                secondsRemaining: 15,
+                                status: AuctionStatus.active,
+                              );
+                              _startAuctionTimer();
+                            });
+                            NotificationService.showSuccess(
+                              context,
+                              'Gümrük memuru çekici masaya vurdu! Seans 15 saniye uzatıldı.',
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   NeoBrutalButton(
                     label: 'SONRAKİ İHALEYE BAK',
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),

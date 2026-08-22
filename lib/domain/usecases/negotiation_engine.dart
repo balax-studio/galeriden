@@ -1030,73 +1030,88 @@ class NegotiationEngine {
     final double previousOffer = currentOffer.offeredAmount;
     final double carRealValue = car.estimatedRealValue;
     final activeCustomer = customer ?? currentOffer.buyerCustomer;
+    final double declaredListingPrice = car.listingPrice > 0 ? car.listingPrice : (car.estimatedRealValue * 1.15);
     final double maxCeiling = dynamicMaxMultiplier ?? getDynamicCeilingMultiplier(car, offer: currentOffer);
     double strategyBonus = 0.0;
     double walkawayModifier = 0.0;
 
+    // Strict Rule: If counter offer is above the advertised listing sticker price, customer immediately rejects
+    if (car.listingPrice > 0 && playerTargetPrice > car.listingPrice + 500) {
+      final listedFormatted = CurrencyFormatter.format(car.listingPrice);
+      final targetFormatted = CurrencyFormatter.format(playerTargetPrice);
+      final msg = 'Alıcı şaşkınlıkla masadan kalktı! — "Usta camdaki ilana $listedFormatted yazmışsın, pazarlıkta benden $targetFormatted istiyorsun! Böyle ticaret olmaz."';
+      return NegotiationOutcome(
+        updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
+        responseMessage: msg,
+        isAccepted: false,
+        isWalkaway: true,
+      );
+    }
+
     // Staff Academy & Specialization Trader Perks
     if (purchasedAcademyCourses.contains('course_sales_master')) {
-      strategyBonus += 0.10;
+      strategyBonus += 0.08;
     }
     if (isTraderSpecialization) {
-      strategyBonus += 0.15;
+      strategyBonus += 0.12;
     }
 
     if (strategy == 'ikna_et') {
       if (car.declarationType == ListingDeclarationType.honest) {
-        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.20 : 0.12;
+        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.16 : 0.10;
       } else {
-        strategyBonus -= 0.10;
-        walkawayModifier += 0.15;
+        strategyBonus -= 0.12;
+        walkawayModifier += 0.18;
       }
     } else if (strategy == 'baska_alici_var') {
       if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || activeCustomer?.archetype == CustomerArchetype.greedyFlipper) {
-        strategyBonus += 0.22;
+        strategyBonus += 0.18;
       } else {
-        strategyBonus += 0.08;
-        walkawayModifier += 0.10;
+        strategyBonus += 0.06;
+        walkawayModifier += 0.12;
       }
     } else if (strategy == 'emsalsiz_kondisyon') {
       if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || car.isPristineOriginal) {
-        strategyBonus += 0.24;
+        strategyBonus += 0.20;
       } else {
-        strategyBonus += 0.12;
+        strategyBonus += 0.10;
       }
     } else if (strategy == 'dost_isi_ikram') {
       if (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) {
-        strategyBonus += 0.20;
+        strategyBonus += 0.16;
         walkawayModifier -= 0.10;
       } else {
-        strategyBonus += 0.12;
+        strategyBonus += 0.10;
       }
     } else if (strategy == 'cay_soyle_satis' || strategy == 'cay_soyle') {
-      strategyBonus += 0.15;
-      walkawayModifier -= 0.15;
+      strategyBonus += 0.14;
+      walkawayModifier -= 0.14;
     } else if (strategy == 'fiyat_sabit_tok' || strategy == 'sert_dur') {
       if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || activeCustomer?.archetype == CustomerArchetype.greedyFlipper) {
-        strategyBonus += 0.18;
+        strategyBonus += 0.15;
       } else {
-        walkawayModifier += 0.15;
+        walkawayModifier += 0.16;
       }
-    } else if (strategy == 'expertiz_guvencesi' || strategy == 'ikna_et') {
+    } else if (strategy == 'expertiz_guvencesi') {
       if (car.declarationType == ListingDeclarationType.honest) {
-        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.22 : 0.14;
+        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.20 : 0.12;
       } else {
-        strategyBonus -= 0.10;
-        walkawayModifier += 0.15;
+        strategyBonus -= 0.12;
+        walkawayModifier += 0.18;
       }
     } else if (strategy == 'hizli_teslimat' || strategy == 'hizli_kapat') {
-      strategyBonus += 0.20;
-    } else if (strategy == 'sigara_yak') {
       strategyBonus += 0.16;
-      walkawayModifier += 0.05;
+    } else if (strategy == 'sigara_yak') {
+      strategyBonus += 0.12;
+      walkawayModifier += 0.08;
     } else if (strategy == 'ortak_arayayim') {
-      strategyBonus += 0.18;
+      strategyBonus += 0.15;
     }
 
-    double skillBonus = ((negotiationSkillLevel - 1) * 0.03) + strategyBonus;
-    double diffRatio = (playerTargetPrice - previousOffer) / previousOffer;
+    double skillBonus = ((negotiationSkillLevel - 1) * 0.025) + strategyBonus;
+    double diffRatio = previousOffer > 0 ? (playerTargetPrice - previousOffer) / previousOffer : 0.0;
 
+    // Instant accept if player met or went below customer's offer
     if (playerTargetPrice <= previousOffer) {
       final msg = _getAcceptedMessage(activeCustomer?.archetype, playerTargetPrice);
       return NegotiationOutcome(
@@ -1111,18 +1126,20 @@ class NegotiationEngine {
       );
     }
 
+    // Tough archetype modifiers
     double archetypeAcceptModifier = switch (activeCustomer?.archetype) {
-      CustomerArchetype.greedyFlipper => -0.25,
-      CustomerArchetype.skepticalOfficial => -0.18,
-      CustomerArchetype.familyMan => -0.10,
-      CustomerArchetype.impatientYouth => 0.10,
-      _ => 0.0,
+      CustomerArchetype.greedyFlipper => -0.28,
+      CustomerArchetype.skepticalOfficial => -0.22,
+      CustomerArchetype.familyMan => -0.14,
+      CustomerArchetype.impatientYouth => 0.06,
+      _ => -0.10,
     };
 
-    if (diffRatio <= 0.06 + skillBonus) {
-      double acceptChance = (0.50 + skillBonus + archetypeAcceptModifier).clamp(0.15, 0.85);
+    // 1. Direct Acceptance on Small Step (<3.5% gap)
+    if (diffRatio <= 0.035 + (skillBonus * 0.4)) {
+      double acceptChance = (0.35 + skillBonus + archetypeAcceptModifier).clamp(0.08, 0.75);
       if (_random.nextDouble() < acceptChance) {
-        final msg = _getAcceptedMessage(customer?.archetype, playerTargetPrice);
+        final msg = _getAcceptedMessage(activeCustomer?.archetype, playerTargetPrice);
         return NegotiationOutcome(
           updatedOffer: currentOffer.copyWith(
             offeredAmount: playerTargetPrice,
@@ -1139,9 +1156,10 @@ class NegotiationEngine {
     final nearMissDiff = (playerTargetPrice - previousOffer).abs().toInt();
     final diffFormatted = '₺${nearMissDiff.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
 
-    // Check walkaway threshold adjusted by dynamic ceiling
-    if (diffRatio > 0.50 || playerTargetPrice > carRealValue * (maxCeiling + 0.10)) {
-      final msg = _getWalkawayMessage(customer?.archetype, diffFormatted, isExtreme: true);
+    // 2. High Outrage Walkaway Threshold (Asking >22% higher or asking above dynamic ceiling)
+    final bool isExtremeDiff = diffRatio > 0.35 || playerTargetPrice > carRealValue * (maxCeiling + 0.05);
+    if (isExtremeDiff) {
+      final msg = _getWalkawayMessage(activeCustomer?.archetype, diffFormatted, isExtreme: true);
       return NegotiationOutcome(
         updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
         responseMessage: msg,
@@ -1150,9 +1168,12 @@ class NegotiationEngine {
       );
     }
 
-    if (diffRatio > (0.30 - walkawayModifier) || playerTargetPrice > carRealValue * maxCeiling) {
-      if (_random.nextDouble() > (0.15 + skillBonus)) {
-        final msg = _getWalkawayMessage(customer?.archetype, diffFormatted, isExtreme: false);
+    // 3. Moderate Resistance Walkaway Check (Asking >16% higher or nearing ceiling)
+    final double walkawayThreshold = (0.18 - walkawayModifier).clamp(0.08, 0.35);
+    if (diffRatio > walkawayThreshold || playerTargetPrice > carRealValue * maxCeiling) {
+      double walkawayChance = (0.38 - (skillBonus * 0.6) + (currentOffer.counterCount * 0.15)).clamp(0.10, 0.80);
+      if (_random.nextDouble() < walkawayChance) {
+        final msg = _getWalkawayMessage(activeCustomer?.archetype, diffFormatted, isExtreme: false);
         return NegotiationOutcome(
           updatedOffer: currentOffer.copyWith(status: OfferStatus.rejected, counterStrategy: strategy),
           responseMessage: msg,
@@ -1162,18 +1183,28 @@ class NegotiationEngine {
       }
     }
 
-    // Buyer makes a middle counter-offer
-    double buyerNewOffer = (previousOffer + (playerTargetPrice - previousOffer) * (0.45 + _random.nextDouble() * 0.20 + skillBonus)).roundToDouble();
-    
-    // Dynamic Ceiling constraint (§1.1)
+    // 4. Buyer makes a realistic, tight incremental step (20% - 35% of the requested gap)
+    double stepFraction = (0.20 + (_random.nextDouble() * 0.15) + (skillBonus * 0.35)).clamp(0.10, 0.50);
+    double buyerNewOffer = (previousOffer + (playerTargetPrice - previousOffer) * stepFraction).roundToDouble();
+
+    // Clamp by declared listing price and vehicle dynamic ceiling
+    if (buyerNewOffer > declaredListingPrice) {
+      buyerNewOffer = declaredListingPrice;
+    }
     if (buyerNewOffer > carRealValue * maxCeiling) {
       buyerNewOffer = (carRealValue * maxCeiling).roundToDouble();
     }
+
+    // Ensure step moves forward at least ₺1.000 if gap allows
+    if (buyerNewOffer <= previousOffer && playerTargetPrice > previousOffer) {
+      buyerNewOffer = min(playerTargetPrice, previousOffer + 1000);
+    }
+
     int newCount = currentOffer.counterCount + 1;
 
     if (newCount >= currentOffer.maxCounters) {
-      // Max counters reached -> Buyer gives final offer
-      final msg = _getFinalOfferMessage(customer?.archetype, buyerNewOffer);
+      // Max counters reached -> Buyer gives final ultimatum offer
+      final msg = _getFinalOfferMessage(activeCustomer?.archetype, buyerNewOffer);
       return NegotiationOutcome(
         updatedOffer: currentOffer.copyWith(
           offeredAmount: buyerNewOffer,
@@ -1187,7 +1218,7 @@ class NegotiationEngine {
       );
     }
 
-    final msg = _getMiddleCounterMessage(customer?.archetype, buyerNewOffer, playerTargetPrice);
+    final msg = _getMiddleCounterMessage(activeCustomer?.archetype, buyerNewOffer, playerTargetPrice);
     return NegotiationOutcome(
       updatedOffer: currentOffer.copyWith(
         offeredAmount: buyerNewOffer,
@@ -1202,27 +1233,31 @@ class NegotiationEngine {
   }
 
   static String _getAcceptedMessage(CustomerArchetype? archetype, double price) {
-    final priceStr = '₺${price.round()}';
+    final priceStr = CurrencyFormatter.format(price);
     final options = switch (archetype) {
       CustomerArchetype.skepticalOfficial => [
-        'Anlaştık, $priceStr benim için makul. Noter evraklarını hazırlayalım.',
-        'Hayırlı olsun. Ekspertiz raporundaki şeffaflık için teşekkür ederim, $priceStr kabulümdür.',
-        'Fiyatta anlaştık. Devir işlemlerini hemen başlatalım.',
+        'Anlaştık ustam. $priceStr memur bütçeme uydu, evrakları hazırlayıp notere geçelim.',
+        'Hayırlı olsun. Ekspertizdeki şeffaflık ve dürüstlüğün için teşekkür ederim, $priceStr kabulümdür.',
+        'Kafamdaki soru işaretleri giderildi. $priceStr nakit devir için bankadan parayı çekiyorum.',
+        'Dürüst esnaflık kalmamış derlerdi, helal olsun. $priceStr fiyata anlaştık.',
       ],
       CustomerArchetype.impatientYouth => [
-        'Tamamdır usta! $priceStr fiyata araba benimdir, anahtarı ver gazlayalım!',
-        'Süper oldu! Yarın ilk iş egzoz ve jant bakacağım, $priceStr kabul!',
-        'Harika rakam, el sıkıştık say!',
+        'Tamamdır usta! $priceStr fiyata makine benimdir, hemen notere geçip anahtarı alayım!',
+        'Reis adamsın! $priceStr saydım gitti, bu akşam sahil turunda gazlıyoruz!',
+        'Harika rakam, el sıkıştık say! Yarın ilk iş jant ve egzoz siparişini veriyorum.',
+        'Helal olsun usta, kırmadın bizi! $priceStr nakit hemen hesaba geçiyorum.',
       ],
       CustomerArchetype.greedyFlipper => [
-        'Kurtardı esnafım. $priceStr nakit hesaba geçiyorum, satışı ver.',
-        'Tamam, kırmadın bizi. $priceStr peşin sayıyorum, hayrını gör.',
-        'Peki usta, aramızda kalsın bu rakam. Notere geçelim.',
+        'Kurtardı esnafım. Bize de üç kuruş ekmek bıraktın, $priceStr peşin hesaba geçiyorum.',
+        'Tamamdır usta, esnaf esnafı kırmaz. $priceStr deste masada, çekiciyi yanaştırıyorum.',
+        'Peki usta, aramızda kalsın bu rakam. Hemen notere geçip satışı verelim.',
+        'İki esnaf helalleştik. $priceStr nakit çalışır, hayırlı bereketli olsun.',
       ],
       _ => [
-        'Anlaştık usta! $priceStr aile bütçemize uydu, hayırlı olsun.',
-        'Güzel ticaret oldu. $priceStr nakit devir için notere geçebiliriz.',
-        'İkna oldum, esnaflığın için sağ ol. $priceStr fiyata anlaştık.',
+        'Anlaştık ustam! $priceStr aile bütçemize uydu, Allah utandırmasın hayırlı olsun.',
+        'Güzel samimi ticaret oldu. $priceStr nakit devir için notere geçebiliriz.',
+        'İkna oldum, esnaflığın ve ikramın için sağ ol. $priceStr fiyata el sıkışalım.',
+        'Çoluk çocuk çok beğendi arabayı. $priceStr helali hoş olsun, devri alalım.',
       ],
     };
     return options[_random.nextInt(options.length)];
@@ -1232,20 +1267,24 @@ class NegotiationEngine {
     if (isExtreme) {
       final options = switch (archetype) {
         CustomerArchetype.skepticalOfficial => [
-          'Alıcı $diff fark yüzünden masadan kalktı! — "Bu paraya bayiden sıfır kilometre araç alırım"',
-          'Alıcı $diff aşırı farkı görünce evrakları çantasına koyup çıktı. — "Piyasa rayicinin çok üstünde"',
+          'Alıcı $diff aşırı farkı görünce çantasını topladı: — "Bu paraya bayiden sıfır araç bakarım usta, hayırlı işler."',
+          'Memur bey $diff uçurum farkı duyunca evrakları masaya bıraktı: — "Piyasa rayicinin çok üstünde, benim bütçemi aşar."',
+          'Alıcı şaşkınlıkla masadan kalktı: — "Biz buraya ciddi araç almaya geldik ama bu rakam akıl kârı değil."',
         ],
         CustomerArchetype.impatientYouth => [
-          'Genç alıcı $diff fark yüzünden vazgeçti! — "O paraya üst kasa turbo alırım"',
-          'Alıcı $diff farkı duyunca kapıyı çarpıp çıktı!',
+          'Genç alıcı $diff farkı duyunca rest çekti: — "Reis o paraya üst kasa turbolu makine alırım, kolay gelsin!"',
+          'Alıcı kapıyı çarpıp çıktı: — "Bu fiyata satamazsın kral, altın kaplama sanki!"',
+          'Genç hevesle gelmişti ama $diff farkı görünce vazgeçti: — "Sanayide sıfırdan toplasam bu kadar tutmaz."',
         ],
         CustomerArchetype.greedyFlipper => [
-          'Al-satçı $diff farkı görünce güldü: — "Bize ekmek bırakmadın usta, kolay gelsin"',
-          'Esnaf $diff fark yüzünden masadan kalktı. — "Bu fiyata kimseye satamazsın"',
+          'Al-satçı esnaf $diff farkı görünce güldü: — "Bize hiç ekmek bırakmadın usta, bu fiyata müşteri bulursan bana da haber et."',
+          'Galerici $diff fark yüzünden masadan kalktı: — "Piyasa durgun diyoruz sen liste fiyatının üstüne çıkıyorsun, kurtarmaz."',
+          'Esnaf çayını yarıda bıraktı: — "Böyle ticaret olmaz usta, piyasada nakit dönen tek adamım yine de kurtarmıyor."',
         ],
         _ => [
-          'Alıcı $diff fark yüzünden masadan kalktı! — "Bütçemi fazlasıyla aşıyor, başka arabalara bakacağım"',
-          'Müşteri $diff fiyat farkını görünce teşekkür edip ayrıldı.',
+          'Alıcı $diff fark yüzünden masadan kalktı: — "Bütçemi fazlasıyla aşıyor, başka arabalara bakacağım."',
+          'Müşteri $diff fiyat farkını görünce teşekkür edip ayrıldı: — "Bu rakam ailemizi aşar ustam."',
+          'Alıcı pazarlığı bitirdi: — "Fiyat çok şişirilmiş, piyasada daha uygun emsalleri var."',
         ],
       };
       return options[_random.nextInt(options.length)];
@@ -1253,52 +1292,73 @@ class NegotiationEngine {
 
     final options = switch (archetype) {
       CustomerArchetype.skepticalOfficial => [
-        'Alıcı $diff farkla masadan kalktı! — "Hesaplarıma uymadı, hayırlı işler"',
-        'Alıcı $diff fark yüzünden tereddüt etti ve vazgeçti.',
+        'Alıcı $diff fark yüzünden tereddüt etti ve vazgeçti: — "Hesaplarıma uymadı, kısmet değilmiş."',
+        'Alıcı masadan kalktı: — "Maaşımın üstünde bir fark, riske giremem usta."',
       ],
       CustomerArchetype.impatientYouth => [
-        'Alıcı $diff fark yüzünden başka ilana yöneldi.',
-        'Genç alıcı $diff farkı karşılayamadığı için ayrıldı.',
+        'Genç alıcı $diff farkı karşılayamadığı için ayrıldı: — "Cebimdeki limit bu kadardı usta, nasip."',
+        'Alıcı başka ilana yöneldi: — "Bütçem yetmiyor kral, başka araba bakacağım."',
+      ],
+      CustomerArchetype.greedyFlipper => [
+        'Al-satçı $diff fark yüzünden masadan kalktı: — "Marj kalmadı esnafım, dükkana koyamam bu fiyata."',
+        'Esnaf kafasını salladı: — "Zararına araba bağlayamam, hayırlı pazarlar."',
       ],
       _ => [
-        'Alıcı $diff farkla masadan kalktı! — "Bütçemi aştı, başka ilanlara bakacağım"',
-        'Müşteri $diff fark yüzünden anlaşamadı ve ayrıldı.',
+        'Alıcı $diff farkla masadan kalktı: — "Bütçemi aştı, biraz daha birikim yapıp bakayım."',
+        'Müşteri $diff fark yüzünden anlaşamadı ve ayrıldı: — "Hayırlı müşteriler usta."',
       ],
     };
     return options[_random.nextInt(options.length)];
   }
 
   static String _getMiddleCounterMessage(CustomerArchetype? archetype, double buyerOffer, double targetPrice) {
-    final buyerStr = '₺${buyerOffer.round()}';
-    final targetStr = '₺${targetPrice.round()}';
+    final buyerStr = CurrencyFormatter.format(buyerOffer);
+    final targetStr = CurrencyFormatter.format(targetPrice);
     final options = switch (archetype) {
       CustomerArchetype.skepticalOfficial => [
-        '$targetStr biraz bütçemi aşıyor. Raporu inceledim, en fazla $buyerStr verebilirim.',
-        'Maaş hesabımı dengelemem lazım. $buyerStr nakit ödeyebilirim, ne dersin?',
+        '$targetStr memur maaşımı aşıyor usta. Ekspertiz raporunu inceledim, bütçemi zorlayıp $buyerStr verebilirim.',
+        'Maaş hesabımı ve kışlık bakım masraflarını hesapladım. En son $buyerStr nakit ödeyebilirim, ne dersin?',
+        'Triger seti ve lastik masrafını da üstüme alıyorum. $buyerStr peşin vereyim, el sıkışalım.',
       ],
       CustomerArchetype.impatientYouth => [
-        'Usta $targetStr çok zorlar. Kredi kartı limitimi de ekleyip $buyerStr yapayım, bitirelim!',
-        'Arabayı çok beğendim ama param $buyerStr kadar çıkıyor. Orta yolu bulalım.',
+        'Usta $targetStr beni çok zorlar. Kredi kartı nakit avansını da ekleyip $buyerStr yapayım, bitirelim bu işi!',
+        'Arabayı çok tuttum ama param $buyerStr kadar çıkıyor. Orta yolu bulalım, bu akşam notere geçelim.',
+        'Reis kırma beni, $buyerStr hazır sayıyorum hemen devri alayım!',
       ],
       CustomerArchetype.greedyFlipper => [
-        'Esnafım $targetStr kurtarmaz. Ben de ekmek yiyeceğim, $buyerStr peşin çalışır.',
-        'Bana $buyerStr bırakırsan yarım saate noterde devri alırız.',
+        'Esnafım $targetStr kurtarmaz, dükkanda yatar bu araba. Ben de ekmek yiyeceğim, $buyerStr peşin deste masada.',
+        'Piyasada nakit dönmüyor usta. Bana $buyerStr bırakırsan yarım saate noterde devri alırız.',
+        'Biz de esnafız usta, $buyerStr nakit çalışır. İşine gelirse çekiciyi çağırayım.',
       ],
       _ => [
-        '$targetStr biraz yüksek geldi ama bütçemi zorlayıp $buyerStr verebilirim.',
-        'Ailemiz için bu araç uygun ama limitimiz $buyerStr. Uyarsa el sıkışalım.',
+        '$targetStr bütçemizi biraz aşıyor ama ailemiz çok beğendi. Bütçemizi zorlayıp $buyerStr verebiliriz.',
+        'Çocukların okul masrafı var usta. $buyerStr nakit denkleştirdik, uyarsa hayrını görelim.',
+        'Temizliğine güvendik geldik. $buyerStr peşin verelim, helalleşelim.',
       ],
     };
     return options[_random.nextInt(options.length)];
   }
 
   static String _getFinalOfferMessage(CustomerArchetype? archetype, double buyerOffer) {
-    final buyerStr = '₺${buyerOffer.round()}';
-    final options = [
-      'Usta son sözüm $buyerStr. Üstüne bir kuruş çıkamam, kabul ediyorsan hayırlı olsun.',
-      'Bütçemin son damlası $buyerStr. Vermezsen başka araca bakacağım.',
-      'Son teklifim $buyerStr nakit. Karar senin.',
-    ];
+    final buyerStr = CurrencyFormatter.format(buyerOffer);
+    final options = switch (archetype) {
+      CustomerArchetype.skepticalOfficial => [
+        'Ustam son sözüm $buyerStr. Üstüne bir kuruş dahi çıkamam, kabul ediyorsan notere geçelim.',
+        'Memur bütçemin son damlası $buyerStr. Uymazsa başka araca bakacağım, karar senin.',
+      ],
+      CustomerArchetype.impatientYouth => [
+        'Reis cebimdeki son kuruş $buyerStr! Veriyorsan ver, vermiyorsan başka kasaya bakacağım.',
+        'Son teklifim $buyerStr nakit kral. Anahtarı veriyorsan hemen alayım, yoksa masadan kalkıyorum.',
+      ],
+      CustomerArchetype.greedyFlipper => [
+        'Esnafım son limitim $buyerStr. Deste nakit masada, verdin verdin vermedin araba sende kalır.',
+        'Bu paraya başkası almaz usta, son teklifim $buyerStr. Kararını ver.',
+      ],
+      _ => [
+        'Ustam ailece bütçemizin son sınırı $buyerStr. Kabul edersen el sıkışalım, yoksa nasip değilmiş deriz.',
+        'Son teklifimiz $buyerStr peşin. Düşün taşın, karar senin ustam.',
+      ],
+    };
     return options[_random.nextInt(options.length)];
   }
 

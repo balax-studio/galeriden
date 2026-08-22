@@ -10,10 +10,12 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/feedback_dialog.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/whats_new_dialog.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -225,6 +227,153 @@ class SettingsScreen extends ConsumerWidget {
                       },
                     );
                   },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 5. Review & Store Rating Reward Card
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: game.hasReceivedReviewReward
+                ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1))
+                : const Color(0xFFEAB308),
+            borderWidth: 2.2,
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'DESTEK & MAĞAZA PUANLAMA',
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                    ),
+                    NeoBrutalBadge(
+                      text: game.hasReceivedReviewReward ? 'ÖDÜL ALINDI' : 'TEK SEFERLİK ₺100.000',
+                      backgroundColor: game.hasReceivedReviewReward
+                          ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))
+                          : AppColors.brutalYellow,
+                      textColor: game.hasReceivedReviewReward
+                          ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                          : Colors.black,
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Oyunu mağazada 5 yıldızla değerlendirip görüşünüzü belirterek bağımsız yerli stüdyomuza destek olun • Tek seferlik ₺100.000 ve 100 XP teşvik ödülü kazanın!',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                if (!game.hasReceivedReviewReward)
+                  NeoBrutalButton(
+                    label: '5 YILDIZ VER & DEĞERLENDİR • +₺100.000 KAZAN',
+                    icon: Icons.star_rounded,
+                    backgroundColor: AppColors.brutalGreen,
+                    textColor: Colors.black,
+                    fontSize: 11.5,
+                    fullWidth: true,
+                    onPressed: () {
+                      final success = ref.read(gameProvider.notifier).claimReviewReward();
+                      if (success) {
+                        NotificationService.showSuccess(
+                          context,
+                          'Harika! Desteğiniz için teşekkür ederiz. ₺100.000 ve +100 XP kasanıza eklendi!',
+                        );
+                      }
+                    },
+                  )
+                else
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF2E384D) : const Color(0xFFCBD5E1),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.brutalGreen),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Puanlama Ödülü Alındı • Desteğiniz İçin Teşekkürler',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white70 : const Color(0xFF475569),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 6. Community & Feedback Desk
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'TOPLULUK & GERİ BİLDİRİM MASASI',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Oyundan çıkmadan doğrudan geliştiriciye hata bildirebilir, yeni araç ve özellik önerilerinde bulunabilirsiniz.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: NeoBrutalButton(
+                        label: 'GELİŞTİRİCİYE BİLDİR',
+                        icon: Icons.rate_review_rounded,
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 11,
+                        padding: const EdgeInsets.symmetric(vertical: 9),
+                        onPressed: () => FeedbackDialog.show(context),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 2,
+                      child: NeoBrutalButton(
+                        label: 'NELER GELDİ?',
+                        icon: Icons.new_releases_rounded,
+                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        textColor: isDark ? Colors.white : Colors.black,
+                        fontSize: 11,
+                        padding: const EdgeInsets.symmetric(vertical: 9),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => const WhatsNewDialog(),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

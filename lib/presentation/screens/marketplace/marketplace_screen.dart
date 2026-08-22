@@ -24,6 +24,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_skeleton.dart';
 import '../../widgets/pulsing_dot.dart';
 import '../../widgets/staggered_item_entry.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import 'sms_tramer_sheet.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
@@ -332,7 +333,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             final carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xFF')));
                             final persona = SellerPersona.fromString(item.sellerTrait);
 
-                            return StaggeredItemEntry(
+                            final showAdBefore = index > 0 && index % 4 == 0;
+                            final listingWidget = StaggeredItemEntry(
                               index: index,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
@@ -588,6 +590,18 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                 ),
                               ),
                             );
+
+                            if (showAdBefore) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const NeoBrutalNativeAdCard(contextType: NativeAdContextType.marketplace),
+                                  listingWidget,
+                                ],
+                              );
+                            }
+                            return listingWidget;
                           },
                         ),
             ),

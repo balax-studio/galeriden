@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/ad_reward_calculator.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
@@ -104,6 +106,11 @@ class DashboardOfficeView extends ConsumerWidget {
             builder: (context) {
               final dailyGrant = SmartOfficeHookEngine.getDailyGrantVariant(game);
               final isGrantUsed = game.isOfficeGrantClaimedToday;
+              final garageTotal = game.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+              final outcome = AdRewardCalculator.calculateDynamicReward(
+                playerLevel: game.level,
+                totalGarageValue: garageTotal,
+              );
 
               return NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
@@ -135,7 +142,7 @@ class DashboardOfficeView extends ConsumerWidget {
                           )
                         else
                           NeoBrutalBadge(
-                            text: '+₺25.000 HİBE',
+                            text: '+${CurrencyFormatter.formatShort(outcome.moneyAmount)} HİBE',
                             icon: Icons.play_circle_filled_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
@@ -222,7 +229,7 @@ class DashboardOfficeView extends ConsumerWidget {
                               onPressed: null,
                             )
                           : NeoBrutalButton(
-                              label: 'ZARFI AÇ • +₺25.000 NAKİT AL',
+                              label: 'ZARFI AÇ • +${CurrencyFormatter.formatShort(outcome.moneyAmount)} NAKİT AL',
                               icon: Icons.play_circle_filled_rounded,
                               backgroundColor: const Color(0xFFEAB308),
                               textColor: Colors.black,
@@ -230,12 +237,15 @@ class DashboardOfficeView extends ConsumerWidget {
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed: () {
                                 HapticFeedback.heavyImpact();
-                                AdService.instance.showRewardedAd(
+                                AdService.instance.showRewardedAdWithFallback(
+                                  context: context,
+                                  customRewardTitle: outcome.title,
+                                  outcome: outcome,
                                   onRewardEarned: () {
-                                    ref.read(gameProvider.notifier).claimOfficeAdGrant();
+                                    ref.read(gameProvider.notifier).claimOfficeAdGrant(outcome.moneyAmount);
                                     NotificationService.showSuccess(
                                       context,
-                                      '${dailyGrant.callerName} Desteği Alındı! Kasaya +₺25.000 Eklendi!',
+                                      '${dailyGrant.callerName} Desteği Alındı! Kasaya +${CurrencyFormatter.format(outcome.moneyAmount)} Eklendi!',
                                     );
                                   },
                                 );
@@ -574,6 +584,20 @@ class DashboardOfficeView extends ConsumerWidget {
             actionLabel: game.isFeatureUnlocked('/history') ? 'Görüntüle' : 'KİLİTLİ',
             route: '/history',
             isUnlocked: game.isFeatureUnlocked('/history'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 12),
+
+          // Special License Plates (Emniyet & Noter Tescil)
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.confirmation_number_rounded,
+            color: const Color(0xFFFFDE59),
+            title: 'Özel Plaka Tescil Masası',
+            subtitle: 'Efsanevi, Takım ve Özel Plaka Satın Al • Araca Ata',
+            actionLabel: 'Tescil',
+            route: '/special-plates',
+            isUnlocked: true,
             isDark: isDark,
           ),
           const SizedBox(height: 12),

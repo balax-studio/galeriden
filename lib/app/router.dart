@@ -36,6 +36,7 @@ import '../presentation/screens/black_market/black_market_screen.dart';
 import '../presentation/screens/gossip/industry_gossip_screen.dart';
 import '../presentation/screens/consignment/consignment_screen.dart';
 import '../presentation/screens/night_market/night_market_screen.dart';
+import '../presentation/screens/office/special_plate_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
   return CupertinoPage(
@@ -202,6 +203,10 @@ final appRouter = GoRouter(
         }
         return _buildCupertinoPage(NegotiationScreen(listing: listing), state);
       },
+    ),
+    GoRoute(
+      path: '/special-plates',
+      pageBuilder: (context, state) => _buildCupertinoPage(const SpecialPlateScreen(), state),
     ),
   ],
 );

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,10 @@ class ShowroomListingModal {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
-    double targetPrice = (offer.offeredAmount * 1.08).roundToDouble();
+    final effectiveListingPrice = (car.listingPrice > 0 ? car.listingPrice : (car.estimatedRealValue * 1.15)).roundToDouble();
+    final double minOfferPrice = offer.offeredAmount;
+    final double maxOfferPrice = max(minOfferPrice, effectiveListingPrice);
+    double targetPrice = (minOfferPrice + (maxOfferPrice - minOfferPrice) * 0.4).roundToDouble().clamp(minOfferPrice, maxOfferPrice);
 
     final dynamicTactics = NegotiationEngine.generateTactics(
       isBuying: false,
@@ -49,6 +53,31 @@ class ShowroomListingModal {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            final double priceGap = maxOfferPrice - minOfferPrice;
+            final double progressRatio = priceGap > 0 ? (targetPrice - minOfferPrice) / priceGap : 0.0;
+
+            Color tensionColor;
+            IconData tensionIcon;
+            String tensionText;
+
+            if (progressRatio <= 0.20) {
+              tensionColor = AppColors.brutalGreen;
+              tensionIcon = Icons.sentiment_very_satisfied_rounded;
+              tensionText = 'YUMUŞAK TEKLİF • Müşterinin Kabul Etme Olasılığı Yüksek';
+            } else if (progressRatio <= 0.55) {
+              tensionColor = AppColors.brutalYellow;
+              tensionIcon = Icons.balance_rounded;
+              tensionText = 'DENGELİ PAZARLIK • Karşılıklı Adımlarla Orta Yolda Buluşulabilir';
+            } else if (progressRatio <= 0.85) {
+              tensionColor = AppColors.brutalOrange;
+              tensionIcon = Icons.hourglass_top_rounded;
+              tensionText = 'ÇETİN PAZARLIK • Müşteri Direnç Gösterecek, Strateji Kartı Şart';
+            } else {
+              tensionColor = AppColors.errorRed;
+              tensionIcon = Icons.warning_amber_rounded;
+              tensionText = 'RİSKLİ TAVAN TEKLİF • Müşteri Rest Çekip Masadan Kalkabilir';
+            }
+
             return Padding(
               padding: EdgeInsets.only(
                 left: 18,
@@ -147,6 +176,27 @@ class ShowroomListingModal {
                                 ],
                               ),
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'İlan Tavan Fiyatı',
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                  Text(
+                                    CurrencyFormatter.format(maxOfferPrice),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark ? AppColors.brutalYellow : const Color(0xFFB45309),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
@@ -180,16 +230,42 @@ class ShowroomListingModal {
                               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10, elevation: 2),
                             ),
                             child: Slider(
-                              value: targetPrice.clamp(offer.offeredAmount, (car.estimatedRealValue * 1.25).roundToDouble()),
-                              min: offer.offeredAmount,
-                              max: (car.estimatedRealValue * 1.25).roundToDouble(),
-                              divisions: 40,
+                              value: targetPrice.clamp(minOfferPrice, maxOfferPrice),
+                              min: minOfferPrice,
+                              max: maxOfferPrice,
+                              divisions: max(1, ((maxOfferPrice - minOfferPrice) / 1000).round()),
                               onChanged: (val) {
                                 HapticFeedback.selectionClick();
                                 setState(() {
                                   targetPrice = val.roundToDouble();
                                 });
                               },
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: tensionColor.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: tensionColor, width: 1.5),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(tensionIcon, size: 16, color: tensionColor),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    tensionText,
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
