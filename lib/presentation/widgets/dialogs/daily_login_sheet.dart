@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -40,6 +41,7 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final game = ref.watch(gameProvider);
+    final langCode = Localizations.localeOf(context).languageCode;
     final now = DateTime.now();
     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final canClaim = game.canClaimTodayStreak(todayStr);
@@ -48,8 +50,8 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
     final currentStreakDay = game.currentStreakDay.clamp(1, 28);
     final weekRewards = allRewards.where((r) => r.weekNumber == _selectedWeek).toList();
     final todayReward = allRewards.firstWhere((r) => r.dayNumber == currentStreakDay);
-    final seasonTitle = DailyLoginRewardModel.getSeasonTitle(game.streakCycleCount);
-    final seasonDesc = DailyLoginRewardModel.getSeasonDescription(game.streakCycleCount);
+    final seasonTitle = DailyLoginRewardModel.getSeasonTitle(game.streakCycleCount, langCode: langCode);
+    final seasonDesc = DailyLoginRewardModel.getSeasonDescription(game.streakCycleCount, langCode: langCode);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -79,34 +81,42 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    seasonTitle,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                      color: AppColors.brutalYellow,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      seasonTitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: AppColors.brutalYellow,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  Text(
-                    'Döngü #${game.streakCycleCount + 1} • Gün $currentStreakDay / 28',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    Text(
+                      context.tr('streak_cycle_day', {
+                        'cycle': game.streakCycleCount + 1,
+                        'day': currentStreakDay,
+                      }),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               NeoBrutalBadge(
-                text: canClaim ? 'SİFTAH HAZIR' : 'YARIN GEL',
+                text: canClaim ? context.tr('streak_ready_badge') : context.tr('streak_come_back'),
                 icon: canClaim ? Icons.check_circle_rounded : Icons.lock_clock_rounded,
                 backgroundColor: canClaim ? AppColors.brutalGreen : (isDark ? const Color(0xFF242C3D) : const Color(0xFFE2E8F0)),
                 textColor: canClaim ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
-                fontSize: 11,
+                fontSize: 10.5,
               ),
             ],
           ),
@@ -163,9 +173,9 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                       ),
                       child: Center(
                         child: Text(
-                          '$weekNum. HAFTA',
+                          context.tr('week_tab_label', {'week': weekNum}),
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w900,
                             color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                           ),
@@ -210,7 +220,7 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'G.${reward.dayNumber}',
+                              'D.${reward.dayNumber}',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
@@ -231,7 +241,7 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                         Text(
                           reward.moneyAmount > 0
                               ? '+${CurrencyFormatter.formatShort(reward.moneyAmount)}'
-                              : '+${reward.reputationAmount} İtibar',
+                              : '+${reward.reputationAmount}',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 10,
@@ -272,9 +282,25 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        todayReward.title,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              todayReward.title,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                            ),
+                          ),
+                          if (!canClaim) ...[
+                            const SizedBox(width: 6),
+                            NeoBrutalBadge(
+                              text: context.tr('streak_unlocks_tomorrow'),
+                              icon: Icons.lock_clock_rounded,
+                              backgroundColor: isDark ? const Color(0xFF242C3D) : const Color(0xFFE2E8F0),
+                              textColor: isDark ? Colors.white70 : Colors.black87,
+                              fontSize: 9.5,
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -296,8 +322,8 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
           // Claim Action Button
           NeoBrutalButton(
             label: canClaim
-                ? 'GÜN $currentStreakDay SİFTAHINI KASAYA AT'
-                : 'BUGÜNÜN ÖDÜLÜ ALINDI • YARIN GEL',
+                ? context.tr('streak_claim_btn', {'day': currentStreakDay})
+                : context.tr('streak_already_claimed_btn'),
             icon: canClaim ? Icons.card_giftcard_rounded : Icons.check_circle_rounded,
             backgroundColor: canClaim ? AppColors.brutalGreen : (isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0)),
             textColor: canClaim ? Colors.black : (isDark ? Colors.white54 : Colors.black45),
@@ -306,9 +332,15 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                 ? () {
                     final claimed = ref.read(gameProvider.notifier).claimDailyLoginReward();
                     if (claimed != null) {
+                      final rewardSummary = claimed.moneyAmount > 0
+                          ? '+${CurrencyFormatter.formatShort(claimed.moneyAmount)}'
+                          : '+${claimed.reputationAmount}';
                       NotificationService.showSuccess(
                         context,
-                        'Tebrikler! Gün ${claimed.dayNumber} ödülü kasanıza tanımlandı.',
+                        context.tr('toast_daily_reward_claimed', {
+                          'day': claimed.dayNumber,
+                          'reward': rewardSummary,
+                        }),
                       );
                       setState(() {});
                     }

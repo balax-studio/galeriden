@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/services/ad_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/notification_service.dart';
@@ -51,7 +52,7 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   NeoBrutalBadge(
-                    text: 'ÖZEL KARŞILAŞMA',
+                    text: context.tr('badge_special_encounter'),
                     backgroundColor: const Color(0xFFF59E0B),
                     textColor: Colors.black,
                     fontSize: 10,
@@ -59,7 +60,7 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   ),
                   NeoBrutalBadge(
-                    text: 'OPSİYONEL FIRSAT',
+                    text: context.tr('badge_optional_opportunity'),
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white70 : const Color(0xFF475569),
                     fontSize: 9.5,
@@ -177,9 +178,9 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'KAZANILACAK ÖDÜL & AVANTAJ:',
-                            style: TextStyle(
+                          Text(
+                            context.tr('label_reward_advantage'),
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w900,
                               color: AppColors.brutalGreen,
@@ -221,7 +222,7 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                       Navigator.of(context, rootNavigator: true).pop();
                       NotificationService.showSuccess(
                         context,
-                        'Fırsat değerlendirildi! Ödül ve avantajlar başarıyla uygulandı.',
+                        context.tr('toast_opportunity_accepted'),
                       );
                     },
                     onAdUnavailable: () {
@@ -233,7 +234,7 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                       Navigator.of(context, rootNavigator: true).pop();
                       NotificationService.showSuccess(
                         context,
-                        'Ödül başarıyla hesabınıza aktarıldı.',
+                        context.tr('toast_reward_claimed'),
                       );
                     },
                   );
@@ -260,7 +261,7 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                   Navigator.of(context, rootNavigator: true).pop();
                   NotificationService.showInfo(
                     context,
-                    'Teklifi geri çevirdin. Bir sonraki fırsatta görüşmek üzere!',
+                    context.tr('toast_opportunity_declined'),
                   );
                 },
               ),

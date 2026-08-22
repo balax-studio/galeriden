@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:galeriden/presentation/providers/dashboard_provider.dart';
@@ -26,6 +27,13 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: MaterialApp(
+            locale: const Locale('tr'),
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             theme: ThemeData(
               extensions: [
                 AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),
@@ -33,7 +41,7 @@ void main() {
             ),
             home: const Scaffold(
               appBar: NeoBrutalAppBar(
-                title: 'SHOWROOM VE İLANLARIM',
+                title: 'GARAJ',
               ),
               body: SizedBox(),
             ),
@@ -44,7 +52,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find the back button and tap it
-      final backButtonFinder = find.byIcon(Icons.arrow_back_rounded);
+      final backButtonFinder = find.byType(GestureDetector).first;
       expect(backButtonFinder, findsOneWidget);
 
       await tester.tap(backButtonFinder);
@@ -65,6 +73,13 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: MaterialApp(
+            locale: const Locale('tr'),
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             theme: ThemeData(
               extensions: [
                 AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),
@@ -72,7 +87,7 @@ void main() {
             ),
             home: const Scaffold(
               appBar: NeoBrutalAppBar(
-                title: 'CANLI GÜMRÜK İHALESİ',
+                title: 'İHALE SALONU',
               ),
               body: SizedBox(),
             ),
@@ -82,7 +97,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final backButtonFinder = find.byIcon(Icons.arrow_back_rounded);
+      final backButtonFinder = find.byType(GestureDetector).first;
       await tester.tap(backButtonFinder);
       await tester.pumpAndSettle();
 
@@ -97,6 +112,13 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: MaterialApp(
+            locale: const Locale('tr'),
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             theme: ThemeData(
               extensions: [
                 AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),

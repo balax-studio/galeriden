@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../core/utils/currency_formatter.dart';
@@ -50,14 +51,14 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const NeoBrutalBadge(
-                      text: 'RESMİ GALERİ BELGESİ',
+                    NeoBrutalBadge(
+                      text: context.tr('dealership_certificate_title'),
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
                       fontSize: 10,
                     ),
                     Text(
-                      '${game.currentDay}. GÜN',
+                      context.tr('dealership_day_badge', {'day': game.currentDay}),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -124,7 +125,7 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: _buildStatBox(
-                        title: 'TOPLAM KÂR',
+                        title: context.tr('label_total_profit'),
                         value: CurrencyFormatter.formatShort(game.totalProfit),
                         color: AppColors.brutalGreen,
                         isDark: isDark,
@@ -133,8 +134,8 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: _buildStatBox(
-                        title: 'SATILAN ARAÇ',
-                        value: '${game.carsSold} Adet',
+                        title: context.tr('label_sold_cars'),
+                        value: context.tr('label_sold_count', {'count': game.carsSold}),
                         color: AppColors.brutalYellow,
                         isDark: isDark,
                       ),
@@ -146,7 +147,7 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: _buildStatBox(
-                        title: 'İTİBAR PUANI',
+                        title: context.tr('label_reputation_pts'),
                         value: '${game.reputationScore} / 100',
                         color: AppColors.brutalCyan,
                         isDark: isDark,
@@ -155,7 +156,7 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: _buildStatBox(
-                        title: 'GARAJ DEĞERİ',
+                        title: context.tr('label_garage_value'),
                         value: CurrencyFormatter.formatShort(
                           game.ownedCars.fold<double>(0, (sum, c) => sum + c.estimatedRealValue),
                         ),
@@ -188,9 +189,9 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'VİTRİN GÖZDESİ',
-                                style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: AppColors.textSecondaryLight),
+                              Text(
+                                context.tr('label_showcase_star'),
+                                style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: AppColors.textSecondaryLight),
                               ),
                               Text(
                                 bestCar.modelName,
@@ -223,7 +224,7 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: NeoBrutalButton(
-                        label: 'KAPAT',
+                        label: context.tr('btn_close'),
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
                         onPressed: () => Navigator.of(context).pop(),
@@ -232,15 +233,15 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: NeoBrutalButton(
-                        label: 'METNİ KOPYALA',
+                        label: context.tr('btn_copy_text'),
                         icon: Icons.copy_rounded,
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         onPressed: () {
                           final shareText =
-                              '${game.dealershipName} • ${game.rpgTitle}\nToplam Kâr: ${CurrencyFormatter.format(game.totalProfit)}\nSatılan Araç: ${game.carsSold} adet\nİtibar: ${game.reputationScore}\nGalerisinden: Oto Galeri Simülatörü!';
+                              '${game.dealershipName} • ${game.rpgTitle}\n${context.tr('label_total_profit')}: ${CurrencyFormatter.format(game.totalProfit)}\n${context.tr('label_sold_cars')}: ${context.tr('label_sold_count', {'count': game.carsSold})}\n${context.tr('label_reputation_pts')}: ${game.reputationScore}\n${context.tr('app_name')}!';
                           Clipboard.setData(ClipboardData(text: shareText));
-                          NotificationService.showSuccess(context, 'Galeri kartı panoya kopyalandı!');
+                          NotificationService.showSuccess(context, context.tr('toast_card_copied'));
                         },
                       ),
                     ),

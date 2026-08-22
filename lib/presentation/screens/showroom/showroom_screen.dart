@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/notification_service.dart';
@@ -25,7 +26,7 @@ class ShowroomScreen extends ConsumerStatefulWidget {
 }
 
 class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
-  String _selectedFilter = 'Tümü';
+  String _selectedFilterKey = 'filter_all';
   Timer? _countdownTimer;
 
   @override
@@ -57,16 +58,16 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
     // Filter cars: Rented cars are excluded from showroom and displayed only in Rent-A-Car
     List<CarModel> filteredCars = game.ownedCars.where((c) {
       if (c.isRented) return false;
-      switch (_selectedFilter) {
-        case 'Onarım Bekliyor':
+      switch (_selectedFilterKey) {
+        case 'filter_needs_repair':
           return c.expertise.engineCondition < 80 || c.expertise.transmissionCondition < 80 || !c.isWashed;
-        case 'İlana Hazır':
+        case 'filter_ready_to_list':
           return !c.isListed && !c.isLockedInShowcase && c.expertise.engineCondition >= 80 && c.expertise.transmissionCondition >= 80;
-        case 'İlanda':
+        case 'filter_listed':
           return c.isListed;
-        case 'Teklif Var':
+        case 'filter_has_offers':
           return game.incomingOffers.any((o) => o.carId == c.id && !o.isExpired);
-        case 'Tümü':
+        case 'filter_all':
         default:
           return true;
       }
@@ -89,11 +90,11 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
       child: Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(
-          title: 'SHOWROOM VE İLANLARIM',
+          title: context.tr('showroom_title'),
           bottom: NeoBrutalTabBar(
             tabs: [
-              'Galerideki Araçlar • ${game.ownedCars.length}',
-              'Gelen Teklifler • ${game.incomingOffers.length}',
+              context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
+              context.tr('showroom_tab_offers', {'count': game.incomingOffers.length}),
             ],
           ),
         ),
@@ -107,10 +108,10 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                       const SizedBox(height: 40),
                       NeoBrutalEmptyState(
                         icon: Icons.directions_car_filled_rounded,
-                        badgeText: 'VİTRİN BOŞ',
-                        title: 'Galerinde Satılık Araç Yok',
-                        description: 'Galerini doldurmak ve kâr elde etmek için ikinci el pazarından veya ihale salonundan fırsat araçları satın alabilirsin.',
-                        actionLabel: 'Pazara Git',
+                        badgeText: context.tr('empty_showroom_badge'),
+                        title: context.tr('empty_showroom_title'),
+                        description: context.tr('empty_showroom_desc'),
+                        actionLabel: context.tr('go_to_market_btn'),
                         actionIcon: Icons.storefront_rounded,
                         onActionPressed: () => context.push('/marketplace'),
                       ),
@@ -149,7 +150,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'TOPLU VİTRİN İŞLEMLERİ',
+                                    context.tr('batch_operations_title'),
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w900,
@@ -187,7 +188,9 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                       ),
                                     ] else ...[
                                       NeoBrutalButton(
-                                        label: unwashedCount > 0 ? 'Tümünü Yıka • $unwashedCount' : 'Tümü Temiz',
+                                        label: unwashedCount > 0
+                                            ? context.tr('wash_all_btn', {'count': unwashedCount})
+                                            : context.tr('all_clean_label'),
                                         icon: Icons.local_car_wash_rounded,
                                         backgroundColor: unwashedCount > 0 ? const Color(0xFF3B82F6) : (isDark ? Colors.white12 : Colors.black12),
                                         textColor: Colors.white,
@@ -207,7 +210,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                     ],
                                     const SizedBox(width: 6),
                                     NeoBrutalButton(
-                                      label: 'Tümünü İlana Koy',
+                                      label: context.tr('publish_all_btn'),
                                       icon: Icons.publish_rounded,
                                       backgroundColor: const Color(0xFF00E575),
                                       textColor: Colors.black,
@@ -224,7 +227,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                     ),
                                     const SizedBox(width: 6),
                                     NeoBrutalButton(
-                                      label: 'Flaş İndirim • %10',
+                                      label: context.tr('flash_discount_btn'),
                                       icon: Icons.local_fire_department_rounded,
                                       backgroundColor: const Color(0xFFFFDE59),
                                       textColor: Colors.black,
@@ -270,18 +273,18 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                           physics: const BouncingScrollPhysics(),
                           child: Row(
                             children: [
-                              'Tümü',
-                              'Teklif Var',
-                              'İlanda',
-                              'İlana Hazır',
-                              'Onarım Bekliyor',
-                            ].map((filter) {
-                              final isSelected = _selectedFilter == filter;
+                              'filter_all',
+                              'filter_has_offers',
+                              'filter_listed',
+                              'filter_ready_to_list',
+                              'filter_needs_repair',
+                            ].map((filterKey) {
+                              final isSelected = _selectedFilterKey == filterKey;
                               return Padding(
                                 padding: const EdgeInsets.only(right: 6),
                                 child: ChoiceChip(
                                   label: Text(
-                                    filter,
+                                    context.tr(filterKey),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w800,
@@ -300,7 +303,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                     width: 1.4,
                                   ),
                                   onSelected: (sel) {
-                                    if (sel) setState(() => _selectedFilter = filter);
+                                    if (sel) setState(() => _selectedFilterKey = filterKey);
                                   },
                                 ),
                               );

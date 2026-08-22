@@ -15,6 +15,51 @@ enum WashJobType {
     required this.baseDuration,
     required this.icon,
   });
+
+  String getLocalizedName([String lang = 'tr']) {
+    switch (this) {
+      case WashJobType.foamWash:
+        return switch (lang) {
+          'en' => 'Foam Wash',
+          'de' => 'Schaumwäsche',
+          'pt' => 'Lavagem com Espuma',
+          'es' => 'Lavado con Espuma',
+          'ru' => 'Пенная мойка',
+          'ar' => 'غسيل رغوي',
+          _ => name,
+        };
+      case WashJobType.interiorSteam:
+        return switch (lang) {
+          'en' => 'Steam Interior & Exterior Cleaning',
+          'de' => 'Dampf-Innen- & Außenreinigung',
+          'pt' => 'Limpeza a Vapor Interna e Externa',
+          'es' => 'Limpieza a Vapor Interior y Exterior',
+          'ru' => 'Паровая химчистка салона и мойка',
+          'ar' => 'تنظيف داخلي وخارجي بالبخار',
+          _ => name,
+        };
+      case WashJobType.polishWax:
+        return switch (lang) {
+          'en' => 'Polishing Wax & Paint Protection',
+          'de' => 'Politur & Lackschutz',
+          'pt' => 'Polimento e Proteção de Pintura',
+          'es' => 'Pulido y Protección de Pintura',
+          'ru' => 'Полировка и защита ЛКП',
+          'ar' => 'تلميع وحماية الطلاء',
+          _ => name,
+        };
+      case WashJobType.ceramicVip:
+        return switch (lang) {
+          'en' => 'VIP Nano Ceramic Coating',
+          'de' => 'VIP Nano-Keramikversiegelung',
+          'pt' => 'Revestimento Cerâmico VIP',
+          'es' => 'Recubrimiento Cerámico VIP',
+          'ru' => 'VIP нано-керамическое покрытие',
+          'ar' => 'طلاء نانو سيراميك VIP',
+          _ => name,
+        };
+    }
+  }
 }
 
 class CustomerWashJob {
@@ -133,6 +178,100 @@ class CarScent {
     required this.badgeColor,
     required this.icon,
   });
+
+  String getLocalizedName([String lang = 'tr']) {
+    switch (id) {
+      case 'scent_melon':
+        return switch (lang) {
+          'en' => 'Nostalgic Melon & Bubblegum',
+          'de' => 'Nostalgische Melone & Kaugummi',
+          'pt' => 'Melão Nostálgico e Chiclete',
+          'es' => 'Melón Nostálgico y Chicle',
+          'ru' => 'Ностальгическая дыня и баблгам',
+          'ar' => 'شمام نوستالجي وعلكة',
+          _ => name,
+        };
+      case 'scent_pine':
+        return switch (lang) {
+          'en' => 'Pine Forest Breeze',
+          'de' => 'Kiefernwald-Frische',
+          'pt' => 'Brisa de Floresta de Pinho',
+          'es' => 'Brisa de Bosque de Pinos',
+          'ru' => 'Свежесть хвойного леса',
+          'ar' => 'نسيم غابات الصنوبر',
+          _ => name,
+        };
+      case 'scent_amber':
+        return switch (lang) {
+          'en' => 'VIP Leather & Oriental Amber',
+          'de' => 'VIP-Leder & Orientalischer Bernstein',
+          'pt' => 'Couro VIP e Âmbar Oriental',
+          'es' => 'Cuero VIP y Ámbar Oriental',
+          'ru' => 'VIP кожа и восточный янтарь',
+          'ar' => 'جلد فاخر وعنبر شرقي VIP',
+          _ => name,
+        };
+      case 'scent_ocean':
+        return switch (lang) {
+          'en' => 'Aegean Ocean Breeze',
+          'de' => 'Ägäis-Ozeanbrise',
+          'pt' => 'Brisa do Oceano Egeu',
+          'es' => 'Brisa del Océano Egeo',
+          'ru' => 'Эгейский морской бриз',
+          'ar' => 'نسيم بحر إيجه',
+          _ => name,
+        };
+      default:
+        return name;
+    }
+  }
+
+  String getLocalizedDescription([String lang = 'tr']) {
+    switch (id) {
+      case 'scent_melon':
+        return switch (lang) {
+          'en' => 'Nostalgic vibe! Catches the eye of young buyers immediately.',
+          'de' => 'Nostalgisches Feeling! Zieht junge Käufer sofort an.',
+          'pt' => 'Vibe nostálgica! Chama a atenção de compradores jovens.',
+          'es' => '¡Vibra nostálgica! Atrae la atención de compradores jóvenes.',
+          'ru' => 'Ностальгический вайб! Привлекает молодых покупателей.',
+          'ar' => 'أجواء كلاسيكية مميزة تجذب المشترين الشباب فوراً.',
+          _ => description,
+        };
+      case 'scent_pine':
+        return switch (lang) {
+          'en' => 'Fresh forest scent, softens negotiation resistance from family buyers.',
+          'de' => 'Frischer Waldduft, bricht die Verhandlungssturheit von Familienkäufern.',
+          'pt' => 'Aroma fresco de floresta, quebra a resistência de famílias.',
+          'es' => 'Aroma fresco a bosque, ablanda la negociación con familias.',
+          'ru' => 'Свежий лесной аромат, смягчает торг семейных покупателей.',
+          'ar' => 'عطر الغابة المنعش يلين عناد التفاوض لدى العائلات.',
+          _ => description,
+        };
+      case 'scent_amber':
+        return switch (lang) {
+          'en' => 'Adds a refined premium ambiance to luxury executive cars.',
+          'de' => 'Verleiht Luxus- und Oberklasse-Fahrzeugen ein edles Ambiente.',
+          'pt' => 'Adiciona uma atmosfera sofisticada e requintada a carros de luxo.',
+          'es' => 'Añade una atmósfera elegante y refinada a coches de lujo.',
+          'ru' => 'Придает премиальный статус и солидность люксовым авто.',
+          'ar' => 'يضفي لمسة فخامة وهيبة على مقصورة السيارات الفاخرة.',
+          _ => description,
+        };
+      case 'scent_ocean':
+        return switch (lang) {
+          'en' => 'Leaves a fresh new-car aroma throughout the cabin.',
+          'de' => 'Verleiht dem Innenraum den Duft eines frisch gewaschenen Neuwagens.',
+          'pt' => 'Deixa um aroma de carro novo recém-lavado por toda a cabine.',
+          'es' => 'Deja un aroma a coche nuevo recién lavado en todo el habitáculo.',
+          'ru' => 'Оставляет в салоне запах свежевымытого нового автомобиля.',
+          'ar' => 'يمنح مقصورة السيارة رائحة الانتعاش كأنها جديدة تماماً.',
+          _ => description,
+        };
+      default:
+        return description;
+    }
+  }
 
   static const List<CarScent> availableScents = [
     CarScent(

@@ -37,6 +37,91 @@ enum GameSeason {
   winter, // Kış (Days 22-28, 50-56...)
 }
 
+extension GameSeasonExtension on GameSeason {
+  String getLocalizedName([String langCode = 'tr']) {
+    switch (langCode) {
+      case 'en':
+        switch (this) {
+          case GameSeason.spring:
+            return 'Spring';
+          case GameSeason.summer:
+            return 'Summer';
+          case GameSeason.autumn:
+            return 'Autumn';
+          case GameSeason.winter:
+            return 'Winter';
+        }
+      case 'de':
+        switch (this) {
+          case GameSeason.spring:
+            return 'Frühling';
+          case GameSeason.summer:
+            return 'Sommer';
+          case GameSeason.autumn:
+            return 'Herbst';
+          case GameSeason.winter:
+            return 'Winter';
+        }
+      case 'pt':
+        switch (this) {
+          case GameSeason.spring:
+            return 'Primavera';
+          case GameSeason.summer:
+            return 'Verão';
+          case GameSeason.autumn:
+            return 'Outono';
+          case GameSeason.winter:
+            return 'Inverno';
+        }
+      case 'es':
+        switch (this) {
+          case GameSeason.spring:
+            return 'Primavera';
+          case GameSeason.summer:
+            return 'Verano';
+          case GameSeason.autumn:
+            return 'Otoño';
+          case GameSeason.winter:
+            return 'Invierno';
+        }
+      case 'ru':
+        switch (this) {
+          case GameSeason.spring:
+            return 'Весна';
+          case GameSeason.summer:
+            return 'Лето';
+          case GameSeason.autumn:
+            return 'Осень';
+          case GameSeason.winter:
+            return 'Зима';
+        }
+      case 'ar':
+        switch (this) {
+          case GameSeason.spring:
+            return 'الربيع';
+          case GameSeason.summer:
+            return 'الصيف';
+          case GameSeason.autumn:
+            return 'الخريف';
+          case GameSeason.winter:
+            return 'الشتاء';
+        }
+      case 'tr':
+      default:
+        switch (this) {
+          case GameSeason.spring:
+            return 'İlkbahar';
+          case GameSeason.summer:
+            return 'Yaz';
+          case GameSeason.autumn:
+            return 'Sonbahar';
+          case GameSeason.winter:
+            return 'Kış';
+        }
+    }
+  }
+}
+
 enum CharacterOrigin {
   sanayiCiragi,     // Sanayi Çırağı: Onarım maliyetleri -%15, +2 Ekspertiz Sezgisi, Başlangıç Sermayesi ₺50.000
   tuccarTorunu,     // Tüccar Torunu: Alım fiyatlarında -%8, +2 Pazarlık, Atölye kilitli (Lv3'e kadar)
@@ -221,7 +306,7 @@ class DealershipModel {
   }
 
   bool canClaimTodayStreak(String todayStr) {
-    if (lastRealLoginDateStr == todayStr && claimedStreakDays.contains(currentStreakDay)) {
+    if (lastRealLoginDateStr == todayStr) {
       return false;
     }
     return true;
@@ -328,18 +413,9 @@ class DealershipModel {
     return GameSeason.winter;
   }
 
-  String get currentSeasonName {
-    switch (currentSeason) {
-      case GameSeason.spring:
-        return 'İlkbahar';
-      case GameSeason.summer:
-        return 'Yaz';
-      case GameSeason.autumn:
-        return 'Sonbahar';
-      case GameSeason.winter:
-        return 'Kış';
-    }
-  }
+  String get currentSeasonName => getLocalizedSeasonName();
+
+  String getLocalizedSeasonName([String langCode = 'tr']) => currentSeason.getLocalizedName(langCode);
 
   int get daysRemainingInSeason {
     final dayInCycle = ((currentDay - 1) % 28) + 1;
@@ -348,40 +424,250 @@ class DealershipModel {
   }
 
   /// Dynamic RPG Title combining Level and Esnaf Rep Score (§1.3, §2.3)
-  String get rpgTitle {
-    if (level <= 2) {
-      if (reputationScore >= 80) return 'Dürüst Çırak';
-      if (reputationScore >= 40) return 'Sanayi Çırağı';
-      return 'Kurnaz Çırak';
-    } else if (level <= 4) {
-      if (reputationScore >= 80) return 'Güvenilir Esnaf';
-      if (reputationScore >= 40) return 'Sanayi Esnafı';
-      return 'Açıkgöz Galerici';
-    } else if (level <= 7) {
-      if (reputationScore >= 80) return 'Sanayinin Namuslu Adamı';
-      if (reputationScore >= 40) return 'Usta Galerici';
-      return 'Piyasa Kurdu';
-    } else if (level <= 11) {
-      if (reputationScore >= 80) return 'Duayen Galerici';
-      if (reputationScore >= 40) return 'Oto Plaza Sahibi';
-      return 'Oto Tüccarı';
-    } else {
-      if (reputationScore >= 80) return 'Galeriler Şahı';
-      if (reputationScore >= 40) return 'Otomotiv Baronu';
-      return 'Piyasa Hakimi';
+  String get rpgTitle => getLocalizedRpgTitle();
+
+  String getLocalizedRpgTitle([String langCode = 'tr']) {
+    switch (langCode) {
+      case 'en':
+        if (level <= 2) {
+          if (reputationScore >= 80) return 'Honest Apprentice';
+          if (reputationScore >= 40) return 'Workshop Apprentice';
+          return 'Shrewd Apprentice';
+        } else if (level <= 4) {
+          if (reputationScore >= 80) return 'Trusted Merchant';
+          if (reputationScore >= 40) return 'Auto Merchant';
+          return 'Cunning Dealer';
+        } else if (level <= 7) {
+          if (reputationScore >= 80) return 'Respected Auto Master';
+          if (reputationScore >= 40) return 'Master Car Dealer';
+          return 'Market Veteran';
+        } else if (level <= 11) {
+          if (reputationScore >= 80) return 'Dean of Dealerships';
+          if (reputationScore >= 40) return 'Auto Plaza Owner';
+          return 'Auto Tycoon';
+        } else {
+          if (reputationScore >= 80) return 'King of Dealerships';
+          if (reputationScore >= 40) return 'Automotive Baron';
+          return 'Market Emperor';
+        }
+      case 'de':
+        if (level <= 2) {
+          if (reputationScore >= 80) return 'Ehrlicher Lehrling';
+          if (reputationScore >= 40) return 'Werkstattlehrling';
+          return 'Schlauer Lehrling';
+        } else if (level <= 4) {
+          if (reputationScore >= 80) return 'Vertrauenswürdiger Händler';
+          if (reputationScore >= 40) return 'Autohändler';
+          return 'Gewiefter Händler';
+        } else if (level <= 7) {
+          if (reputationScore >= 80) return 'Angesehener Automeister';
+          if (reputationScore >= 40) return 'Meister-Autohändler';
+          return 'Markt-Veteran';
+        } else if (level <= 11) {
+          if (reputationScore >= 80) return 'Doyen des Autohandels';
+          if (reputationScore >= 40) return 'Autohaus-Inhaber';
+          return 'Auto-Tycoon';
+        } else {
+          if (reputationScore >= 80) return 'König der Autohäuser';
+          if (reputationScore >= 40) return 'Automobil-Baron';
+          return 'Markt-Imperator';
+        }
+      case 'pt':
+        if (level <= 2) {
+          if (reputationScore >= 80) return 'Aprendiz Honesto';
+          if (reputationScore >= 40) return 'Aprendiz da Oficina';
+          return 'Aprendiz Esperto';
+        } else if (level <= 4) {
+          if (reputationScore >= 80) return 'Comerciante Confiável';
+          if (reputationScore >= 40) return 'Lojista de Carros';
+          return 'Negociante Esperto';
+        } else if (level <= 7) {
+          if (reputationScore >= 80) return 'Mestre Respeitado';
+          if (reputationScore >= 40) return 'Lojista Mestre';
+          return 'Veterano de Mercado';
+        } else if (level <= 11) {
+          if (reputationScore >= 80) return 'Magnata Eminente';
+          if (reputationScore >= 40) return 'Dono de Concessionária';
+          return 'Tubarão dos Carros';
+        } else {
+          if (reputationScore >= 80) return 'Rei das Concessionárias';
+          if (reputationScore >= 40) return 'Barão Automotivo';
+          return 'Imperador do Mercado';
+        }
+      case 'es':
+        if (level <= 2) {
+          if (reputationScore >= 80) return 'Aprendiz Honesto';
+          if (reputationScore >= 40) return 'Aprendiz de Taller';
+          return 'Aprendiz Astuto';
+        } else if (level <= 4) {
+          if (reputationScore >= 80) return 'Comerciante de Confianza';
+          if (reputationScore >= 40) return 'Comerciante de Coches';
+          return 'Comerciante Astuto';
+        } else if (level <= 7) {
+          if (reputationScore >= 80) return 'Maestro Respetado';
+          if (reputationScore >= 40) return 'Maestro Concesionario';
+          return 'Veterano del Mercado';
+        } else if (level <= 11) {
+          if (reputationScore >= 80) return 'Decano de Concesionarios';
+          if (reputationScore >= 40) return 'Dueño de Gran Concesionario';
+          return 'Magnate de Ocasión';
+        } else {
+          if (reputationScore >= 80) return 'Rey de los Concesionarios';
+          if (reputationScore >= 40) return 'Barón Automovilístico';
+          return 'Emperador del Mercado';
+        }
+      case 'ru':
+        if (level <= 2) {
+          if (reputationScore >= 80) return 'Честный ученик';
+          if (reputationScore >= 40) return 'Ученик автосервиса';
+          return 'Хитрый ученик';
+        } else if (level <= 4) {
+          if (reputationScore >= 80) return 'Надежный продавец';
+          if (reputationScore >= 40) return 'Автодилер';
+          return 'Изворотливый перекупщик';
+        } else if (level <= 7) {
+          if (reputationScore >= 80) return 'Уважаемый автомастер';
+          if (reputationScore >= 40) return 'Опытный автодилер';
+          return 'Рыночный волк';
+        } else if (level <= 11) {
+          if (reputationScore >= 80) return 'Мэтр автобизнеса';
+          if (reputationScore >= 40) return 'Владелец автокомплекса';
+          return 'Крупный автоторговец';
+        } else {
+          if (reputationScore >= 80) return 'Король автосалонов';
+          if (reputationScore >= 40) return 'Автомобильный барон';
+          return 'Император рынка';
+        }
+      case 'ar':
+        if (level <= 2) {
+          if (reputationScore >= 80) return 'المساعد الصادق';
+          if (reputationScore >= 40) return 'مساعد الورشة';
+          return 'المساعد الداهية';
+        } else if (level <= 4) {
+          if (reputationScore >= 80) return 'التاجر الموثوق';
+          if (reputationScore >= 40) return 'تاجر السيارات';
+          return 'المراوغ الماهر';
+        } else if (level <= 7) {
+          if (reputationScore >= 80) return 'خبير السوق النزيه';
+          if (reputationScore >= 40) return 'تاجر سيارات محترف';
+          return 'مخضرم السوق';
+        } else if (level <= 11) {
+          if (reputationScore >= 80) return 'عميد تجار السيارات';
+          if (reputationScore >= 40) return 'مالك مجمع المعارض';
+          return 'كبير تجار السيارات';
+        } else {
+          if (reputationScore >= 80) return 'إمبراطور معارض السيارات';
+          if (reputationScore >= 40) return 'بارون السيارات';
+          return 'زعيم السوق المطلق';
+        }
+      case 'tr':
+      default:
+        if (level <= 2) {
+          if (reputationScore >= 80) return 'Dürüst Çırak';
+          if (reputationScore >= 40) return 'Sanayi Çırağı';
+          return 'Kurnaz Çırak';
+        } else if (level <= 4) {
+          if (reputationScore >= 80) return 'Güvenilir Esnaf';
+          if (reputationScore >= 40) return 'Sanayi Esnafı';
+          return 'Açıkgöz Galerici';
+        } else if (level <= 7) {
+          if (reputationScore >= 80) return 'Sanayinin Namuslu Adamı';
+          if (reputationScore >= 40) return 'Usta Galerici';
+          return 'Piyasa Kurdu';
+        } else if (level <= 11) {
+          if (reputationScore >= 80) return 'Duayen Galerici';
+          if (reputationScore >= 40) return 'Oto Plaza Sahibi';
+          return 'Oto Tüccarı';
+        } else {
+          if (reputationScore >= 80) return 'Galeriler Şahı';
+          if (reputationScore >= 40) return 'Otomotiv Baronu';
+          return 'Piyasa Hakimi';
+        }
     }
   }
 
-  String get originTitle {
-    switch (characterOrigin) {
-      case CharacterOrigin.sanayiCiragi:
-        return 'Sanayi Çırağı';
-      case CharacterOrigin.tuccarTorunu:
-        return 'Tüccar Torunu';
-      case CharacterOrigin.sehirliYatirimci:
-        return 'Şehirli Yatırımcı';
-      case CharacterOrigin.koleksiyoncuYegeni:
-        return 'Koleksiyoncu Yeğeni';
+  String get originTitle => getLocalizedOriginTitle();
+
+  String getLocalizedOriginTitle([String langCode = 'tr']) {
+    switch (langCode) {
+      case 'en':
+        switch (characterOrigin) {
+          case CharacterOrigin.sanayiCiragi:
+            return 'Workshop Apprentice';
+          case CharacterOrigin.tuccarTorunu:
+            return 'Merchant Heir';
+          case CharacterOrigin.sehirliYatirimci:
+            return 'Urban Investor';
+          case CharacterOrigin.koleksiyoncuYegeni:
+            return 'Collector Nephew';
+        }
+      case 'de':
+        switch (characterOrigin) {
+          case CharacterOrigin.sanayiCiragi:
+            return 'Werkstattlehrling';
+          case CharacterOrigin.tuccarTorunu:
+            return 'Händler-Erbe';
+          case CharacterOrigin.sehirliYatirimci:
+            return 'Stadt-Investor';
+          case CharacterOrigin.koleksiyoncuYegeni:
+            return 'Sammler-Neffe';
+        }
+      case 'pt':
+        switch (characterOrigin) {
+          case CharacterOrigin.sanayiCiragi:
+            return 'Aprendiz da Oficina';
+          case CharacterOrigin.tuccarTorunu:
+            return 'Herdeiro do Comércio';
+          case CharacterOrigin.sehirliYatirimci:
+            return 'Investidor Urbano';
+          case CharacterOrigin.koleksiyoncuYegeni:
+            return 'Sobrinho do Colecionador';
+        }
+      case 'es':
+        switch (characterOrigin) {
+          case CharacterOrigin.sanayiCiragi:
+            return 'Aprendiz de Taller';
+          case CharacterOrigin.tuccarTorunu:
+            return 'Heredero Comercial';
+          case CharacterOrigin.sehirliYatirimci:
+            return 'Inversor Urbano';
+          case CharacterOrigin.koleksiyoncuYegeni:
+            return 'Sobrino del Coleccionista';
+        }
+      case 'ru':
+        switch (characterOrigin) {
+          case CharacterOrigin.sanayiCiragi:
+            return 'Ученик автосервиса';
+          case CharacterOrigin.tuccarTorunu:
+            return 'Потомок торговца';
+          case CharacterOrigin.sehirliYatirimci:
+            return 'Городской инвестор';
+          case CharacterOrigin.koleksiyoncuYegeni:
+            return 'Племянник коллекционера';
+        }
+      case 'ar':
+        switch (characterOrigin) {
+          case CharacterOrigin.sanayiCiragi:
+            return 'مساعد الورشة';
+          case CharacterOrigin.tuccarTorunu:
+            return 'حفيد التاجر';
+          case CharacterOrigin.sehirliYatirimci:
+            return 'المستثمر المدني';
+          case CharacterOrigin.koleksiyoncuYegeni:
+            return 'ابن أخ الهاوي';
+        }
+      case 'tr':
+      default:
+        switch (characterOrigin) {
+          case CharacterOrigin.sanayiCiragi:
+            return 'Sanayi Çırağı';
+          case CharacterOrigin.tuccarTorunu:
+            return 'Tüccar Torunu';
+          case CharacterOrigin.sehirliYatirimci:
+            return 'Şehirli Yatırımcı';
+          case CharacterOrigin.koleksiyoncuYegeni:
+            return 'Koleksiyoncu Yeğeni';
+        }
     }
   }
 

@@ -205,7 +205,7 @@ class SideBusinessScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      business.name,
+                                      business.type.getLocalizedName(Localizations.localeOf(context).languageCode),
                                       style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
                                     ),
                                     if (isOwned && business.upgrades.isNotEmpty)

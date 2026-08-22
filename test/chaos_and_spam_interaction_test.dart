@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/constants/first_time_action_keys.dart';
@@ -31,6 +32,23 @@ void main() {
     ],
   );
 
+  Widget buildTestApp({required Widget home, required ProviderContainer container}) {
+    return UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        locale: const Locale('tr'),
+        supportedLocales: const [Locale('tr'), Locale('en')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        theme: testTheme,
+        home: home,
+      ),
+    );
+  }
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
@@ -48,14 +66,14 @@ void main() {
   CarModel createSampleCar({
     String id = 'spam_test_car_1',
     double price = 500000,
+    double engineCondition = 100,
+    double transmissionCondition = 100,
     bool isListed = false,
     bool isDoped = false,
     bool isHeroShowcase = false,
     bool isWashed = false,
     bool isPolished = false,
     bool isDetailedCleaned = false,
-    double engineCondition = 80,
-    double transmissionCondition = 80,
   }) {
     return CarModel(
       id: id,
@@ -100,25 +118,22 @@ void main() {
       final container = ProviderContainer();
 
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: Consumer(
-                  builder: (context, ref, _) {
-                    final game = ref.watch(gameProvider);
-                    final theme = ref.watch(themeProvider);
-                    final car = game.ownedCars.first;
-                    return ShowroomCarCard(
-                      car: car,
-                      game: game,
-                      palette: theme.activePalette,
-                      hasSalesman: false,
-                    );
-                  },
-                ),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final game = ref.watch(gameProvider);
+                  final theme = ref.watch(themeProvider);
+                  final car = game.ownedCars.first;
+                  return ShowroomCarCard(
+                    car: car,
+                    game: game,
+                    palette: theme.activePalette,
+                    hasSalesman: false,
+                  );
+                },
               ),
             ),
           ),
@@ -150,7 +165,7 @@ void main() {
       // Balance deducted only once for doping (₺2,500)
       expect(container.read(gameProvider).balance, balanceBeforeDoping - GameConstants.dopingCost);
       expect(container.read(gameProvider).ownedCars.first.isDoped, true);
-      expect(find.text('Dopingli'), findsOneWidget);
+      expect(find.text('DOPİNGLİ'), findsWidgets);
 
       // Now test Lock in showcase
       final lockBtn = find.text('Koleksiyon Vitrinine Kilitle • +%5 İtibar');
@@ -180,12 +195,9 @@ void main() {
       final container = ProviderContainer();
 
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const CarWashScreen(),
-          ),
+          home: const CarWashScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -238,12 +250,9 @@ void main() {
       final container = ProviderContainer();
 
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const ThemeStoreScreen(),
-          ),
+          home: const ThemeStoreScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -279,12 +288,9 @@ void main() {
       final container = ProviderContainer();
 
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const StaffScreen(),
-          ),
+          home: const StaffScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -314,12 +320,9 @@ void main() {
 
       // Test Staff Academy Course Enrollment Spam with active hired staff
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const StaffAcademyScreen(),
-          ),
+          home: const StaffAcademyScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -342,12 +345,9 @@ void main() {
 
       // Return to StaffScreen and SPAM CLICK "İŞTEN ÇIKAR"
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const StaffScreen(),
-          ),
+          home: const StaffScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -383,12 +383,9 @@ void main() {
 
       // Test Showroom Decor Screen
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const ShowroomDecorScreen(),
-          ),
+          home: const ShowroomDecorScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -418,12 +415,9 @@ void main() {
 
       // Test Side Business Screen
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const SideBusinessScreen(),
-          ),
+          home: const SideBusinessScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -461,12 +455,9 @@ void main() {
       final container = ProviderContainer();
 
       await tester.pumpWidget(
-        UncontrolledProviderScope(
+        buildTestApp(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            home: const WorkshopScreen(),
-          ),
+          home: const WorkshopScreen(),
         ),
       );
       await tester.pumpAndSettle();

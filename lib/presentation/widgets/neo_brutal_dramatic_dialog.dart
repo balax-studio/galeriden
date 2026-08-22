@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/utils/notification_service.dart';
 import '../../data/models/dramatic_card_model.dart';
 import '../../domain/usecases/dramatic_card_engine.dart';
@@ -51,28 +52,28 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
   String _getCategoryLabel(DramaticCategory category) {
     switch (category) {
       case DramaticCategory.loss:
-        return 'KAYIP & RİSK';
+        return context.tr('category_loss');
       case DramaticCategory.betrayal:
-        return 'İHANET & TEHLİKE';
+        return context.tr('category_betrayal');
       case DramaticCategory.conscience:
-        return 'VİCDAN İKİLEMİ';
+        return context.tr('category_conscience');
       case DramaticCategory.legacy:
-        return 'MİRAS & VEFA';
+        return context.tr('category_legacy');
       case DramaticCategory.gamble:
-        return 'KUMAR & ŞANS';
+        return context.tr('category_gamble');
     }
   }
 
   String _getSeverityLabel(DramaticSeverity severity) {
     switch (severity) {
       case DramaticSeverity.low:
-        return 'DÜŞÜK RİSK';
+        return context.tr('severity_low');
       case DramaticSeverity.medium:
-        return 'ORTA RİSK';
+        return context.tr('severity_medium');
       case DramaticSeverity.high:
-        return 'YÜKSEK RİSK';
+        return context.tr('severity_high');
       case DramaticSeverity.extreme:
-        return 'EKSTREM RİSK';
+        return context.tr('severity_extreme');
     }
   }
 
@@ -81,7 +82,7 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
     if (choice.upfrontCost > 0 && state.balance < choice.upfrontCost) {
       NotificationService.showError(
         context,
-        'Bu seçeneği seçmek için ₺${choice.upfrontCost.toStringAsFixed(0)} nakit gereklidir.',
+        context.tr('err_insufficient_cash_choice', {'amount': choice.upfrontCost.toStringAsFixed(0)}),
       );
       return;
     }
@@ -457,7 +458,7 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
               ),
             if (outcome.reputationDelta != 0)
               NeoBrutalBadge(
-                text: '${outcome.reputationDelta > 0 ? '+' : ''}${outcome.reputationDelta} İTİBAR',
+                text: '${outcome.reputationDelta > 0 ? '+' : ''}${context.tr('badge_reputation_pts', {'val': outcome.reputationDelta})}',
                 backgroundColor: outcome.reputationDelta > 0 ? const Color(0xFF3B82F6) : const Color(0xFFF43F5E),
                 textColor: Colors.white,
                 fontWeight: FontWeight.w900,
@@ -470,16 +471,16 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
                 fontWeight: FontWeight.w900,
               ),
             if (outcome.loseTargetCar)
-              const NeoBrutalBadge(
-                text: 'ARAÇ KAYBEDİLDİ',
-                backgroundColor: Color(0xFF991B1B),
+              NeoBrutalBadge(
+                text: context.tr('badge_car_lost'),
+                backgroundColor: const Color(0xFF991B1B),
                 textColor: Colors.white,
                 fontWeight: FontWeight.w900,
               ),
             if (outcome.makeFamilyHeirloom)
-              const NeoBrutalBadge(
-                text: 'AİLE YADİGARI TESCİLLENDİ',
-                backgroundColor: Color(0xFFD97706),
+              NeoBrutalBadge(
+                text: context.tr('badge_heirloom_registered'),
+                backgroundColor: const Color(0xFFD97706),
                 textColor: Colors.white,
                 fontWeight: FontWeight.w900,
               ),
@@ -489,7 +490,7 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
 
         // 4. Continue Button
         NeoBrutalButton(
-          label: 'DEVAM ET',
+          label: context.tr('btn_continue'),
           fullWidth: true,
           backgroundColor: const Color(0xFF00E575),
           textColor: Colors.black,

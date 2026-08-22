@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../providers/market_provider.dart';
@@ -67,24 +68,24 @@ class _DashboardServicesGridContent extends ConsumerWidget {
       // Level 1: Core Dealership
       _ServiceItem(
         icon: Icons.directions_car_filled_rounded,
-        title: 'Araç Satın Al',
-        subtitle: 'İkinci El Pazar',
-        badge: '${marketListings.length} İlan',
+        title: context.tr('service_buy_car'),
+        subtitle: context.tr('service_buy_car_sub'),
+        badge: '${marketListings.length}',
         color: const Color(0xFF3B82F6),
         route: '/marketplace',
       ),
       _ServiceItem(
         icon: Icons.storefront_rounded,
-        title: 'Showroom & Galerim',
-        subtitle: 'Stoktaki Araçlar',
-        badge: '${game.ownedCars.length}/${game.maxGarageSlots} Araç',
+        title: context.tr('service_showroom'),
+        subtitle: context.tr('service_showroom_sub'),
+        badge: '${game.ownedCars.length}/${game.maxGarageSlots}',
         color: const Color(0xFFFFDE59),
         route: '/showroom',
       ),
       _ServiceItem(
         icon: Icons.local_car_wash_rounded,
-        title: 'Oto Yıkama',
-        subtitle: 'Detailing & Parlatma',
+        title: context.tr('service_car_wash'),
+        subtitle: context.tr('service_car_wash_sub'),
         color: const Color(0xFF00F0FF),
         route: '/car-wash',
       ),
@@ -92,30 +93,30 @@ class _DashboardServicesGridContent extends ConsumerWidget {
       // Level 2: Workshop & Staff (Oto Galericiler Sitesi Dükkânı)
       _ServiceItem(
         icon: Icons.build_circle_rounded,
-        title: 'Tamir & Atölye',
-        subtitle: 'Onarım & Servis',
-        badge: pendingOrdersCount > 0 ? '$pendingOrdersCount Sipariş' : null,
+        title: context.tr('service_workshop'),
+        subtitle: context.tr('service_workshop_sub'),
+        badge: pendingOrdersCount > 0 ? '$pendingOrdersCount' : null,
         color: const Color(0xFFFF7A00),
         route: '/workshop',
       ),
       _ServiceItem(
         icon: Icons.speed_rounded,
-        title: 'Tuning Stüdyosu',
-        subtitle: 'Performans & Modifiye',
+        title: context.tr('service_tuning'),
+        subtitle: context.tr('service_tuning_sub'),
         color: const Color(0xFFA855F7),
         route: '/tuning-studio',
       ),
       _ServiceItem(
         icon: Icons.people_alt_rounded,
-        title: 'Personel Kadrosu',
-        subtitle: '${game.hiredStaff.length} Personel',
+        title: context.tr('service_staff'),
+        subtitle: context.tr('service_staff_sub', {'count': game.hiredStaff.length}),
         color: const Color(0xFFEC4899),
         route: '/staff',
       ),
       _ServiceItem(
         icon: Icons.history_edu_rounded,
-        title: 'Satış Raporları',
-        subtitle: 'İşlem Geçmişi',
+        title: context.tr('service_history'),
+        subtitle: context.tr('service_history_sub'),
         color: const Color(0xFF14B8A6),
         route: '/history',
       ),
@@ -123,37 +124,37 @@ class _DashboardServicesGridContent extends ConsumerWidget {
       // Level 3: Investment, Auction & Finance (Maslak Otomotiv Plazası)
       _ServiceItem(
         icon: Icons.gavel_rounded,
-        title: 'Canlı İhale',
-        subtitle: 'Kelepir Teklifler',
-        badge: 'CANLI',
+        title: context.tr('service_auction'),
+        subtitle: context.tr('service_auction_sub'),
+        badge: context.tr('weather_live_impact'),
         color: const Color(0xFFEF4444),
         route: '/auction',
       ),
       _ServiceItem(
         icon: Icons.account_balance_rounded,
-        title: 'Finans & Banka',
-        subtitle: 'Krediler & Mevduat',
+        title: context.tr('service_finance'),
+        subtitle: context.tr('service_finance_sub'),
         color: const Color(0xFF00E575),
         route: '/finance',
       ),
       _ServiceItem(
         icon: Icons.trending_up_rounded,
-        title: 'Borsa & Yatırım',
-        subtitle: 'Hisseler & Fonlar',
+        title: context.tr('service_stocks'),
+        subtitle: context.tr('service_stocks_sub'),
         color: const Color(0xFF6366F1),
         route: '/stock-market',
       ),
       _ServiceItem(
         icon: Icons.reviews_rounded,
-        title: 'Müşteri Yorumları',
-        subtitle: '${game.reputationScore} İtibar',
+        title: context.tr('service_reviews'),
+        subtitle: context.tr('service_reviews_sub', {'rep': game.reputationScore}),
         color: const Color(0xFFF59E0B),
         route: '/reviews',
       ),
       _ServiceItem(
         icon: Icons.palette_rounded,
-        title: 'Showroom Mimari',
-        subtitle: 'Lüks Dekorasyon',
+        title: context.tr('service_decor'),
+        subtitle: context.tr('service_decor_sub'),
         color: const Color(0xFF06B6D4),
         route: '/showroom-decor',
       ),
@@ -161,66 +162,66 @@ class _DashboardServicesGridContent extends ConsumerWidget {
       // Level 4+: Empire Expansion (Etiler & Bodrum Lüks Motor World)
       _ServiceItem(
         icon: Icons.delete_outline_rounded,
-        title: 'Hurdalık & Parça',
-        subtitle: 'Çıkma Yedek Parça',
+        title: context.tr('service_scrapyard'),
+        subtitle: context.tr('service_scrapyard_sub'),
         color: const Color(0xFF64748B),
         route: '/scrapyard',
       ),
       _ServiceItem(
         icon: Icons.car_rental_rounded,
-        title: 'Rent-a-Car',
-        subtitle: 'Günlük Kiralama',
+        title: context.tr('service_rent_car'),
+        subtitle: context.tr('service_rent_car_sub'),
         color: const Color(0xFF38BDF8),
         route: '/rent-a-car',
       ),
       _ServiceItem(
         icon: Icons.masks_rounded,
-        title: 'Karaborsa',
-        subtitle: 'Gizli Kelepirler',
+        title: context.tr('service_black_market'),
+        subtitle: context.tr('service_black_market_sub'),
         color: const Color(0xFFDC2626),
         route: '/black-market',
       ),
       _ServiceItem(
         icon: Icons.apartment_rounded,
-        title: 'Şube Yönetimi',
-        subtitle: 'Plaza & Mülkler',
+        title: context.tr('service_branches'),
+        subtitle: context.tr('service_branches_sub'),
         color: const Color(0xFF8B5CF6),
         route: '/branches',
       ),
       _ServiceItem(
         icon: Icons.business_center_rounded,
-        title: 'Yan İşletmeler',
-        subtitle: 'Pasif Gelirler',
+        title: context.tr('service_side_biz'),
+        subtitle: context.tr('service_side_biz_sub'),
         color: const Color(0xFF10B981),
         route: '/side-businesses',
       ),
       _ServiceItem(
         icon: Icons.map_rounded,
-        title: 'Semt Hakimiyeti',
-        subtitle: 'Pazar Payı & Avantaj',
+        title: context.tr('service_district'),
+        subtitle: context.tr('service_district_sub'),
         color: const Color(0xFF38BDF8),
         route: '/districts',
       ),
       _ServiceItem(
         icon: Icons.record_voice_over_rounded,
-        title: 'Dedikodu Hattı',
-        subtitle: 'Asimetrik İstihbarat',
-        badge: game.activeGossips.isNotEmpty ? '${game.activeGossips.length} Kulis' : null,
+        title: context.tr('service_gossip'),
+        subtitle: context.tr('service_gossip_sub'),
+        badge: game.activeGossips.isNotEmpty ? '${game.activeGossips.length}' : null,
         color: const Color(0xFFFFDE59),
         route: '/gossip',
       ),
       _ServiceItem(
         icon: Icons.handshake_rounded,
-        title: 'Konsinye & Emanet',
-        subtitle: 'Sıfır Sermaye Satış',
-        badge: game.consignmentOffers.isNotEmpty ? '${game.consignmentOffers.length} Teklif' : null,
+        title: context.tr('service_consignment'),
+        subtitle: context.tr('service_consignment_sub'),
+        badge: game.consignmentOffers.isNotEmpty ? '${game.consignmentOffers.length}' : null,
         color: const Color(0xFF00E575),
         route: '/consignment',
       ),
       _ServiceItem(
         icon: Icons.sports_score_rounded,
-        title: 'Gece Sanayisi',
-        subtitle: 'Modifiye & Drag',
+        title: context.tr('service_night_market'),
+        subtitle: context.tr('service_night_market_sub'),
         color: const Color(0xFFF43F5E),
         route: '/night-market',
       ),
@@ -578,44 +579,44 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
     }
   }
 
-  String _getMotivationalBenefit(String route, int reqLevel) {
+  String _getMotivationalBenefit(BuildContext context, String route, int reqLevel) {
     switch (route) {
       case '/car-wash':
-        return 'Araçları yıka & detaylandır, kâr marjını %10-15 artır!';
+        return context.tr('benefit_car_wash');
       case '/workshop':
-        return 'Hasarlı araçları kelepire topla, onarıp yüksek kârla sat!';
+        return context.tr('benefit_workshop');
       case '/tuning-studio':
-        return 'Stage yazılım & egzoz tak, gece yarışlarına hükmet!';
+        return context.tr('benefit_tuning');
       case '/staff':
-        return 'Usta & satış danışmanı kirala, galerini otomatik işlet!';
+        return context.tr('benefit_staff');
       case '/history':
-        return 'Tüm kâr-zarar geçmişini & satış trendlerini analiz et!';
+        return context.tr('benefit_history');
       case '/auction':
-        return 'İcra ve gümrük ihalelerinden kelepir araçlar topla!';
+        return context.tr('benefit_auction');
       case '/finance':
-        return 'Ticari kredi & mevduatla dev araç filoları finanse et!';
+        return context.tr('benefit_finance');
       case '/stock-market':
-        return 'Otomotiv hisselerine yatırım yap, pasif servet kazan!';
+        return context.tr('benefit_stocks');
       case '/reviews':
-        return 'Müşteri memnuniyetini yükselt, elit VIP alıcıları çek!';
+        return context.tr('benefit_reviews');
       case '/showroom-decor':
-        return 'Lüks ofis mobilyaları ve dekorasyonla itibarını katla!';
+        return context.tr('benefit_decor');
       case '/scrapyard':
-        return 'Hurda araçları parçala, çıkma orijinal yedek parça sat!';
+        return context.tr('benefit_scrapyard');
       case '/rent-a-car':
-        return 'Filo kur, araçları kiraya verip günlük nakit akışı sağla!';
+        return context.tr('benefit_rent_car');
       case '/black-market':
-        return 'Ruhsatsız ve gizli efsane spor arabalara eriş!';
+        return context.tr('benefit_black_market');
       case '/side-businesses':
-        return 'Otopark & benzinlik aç, dükkan kapalıyken bile kazan!';
+        return context.tr('benefit_side_biz');
       case '/districts':
-        return 'İstanbul ilçelerinde pazar payı kap, semt hakimi ol!';
+        return context.tr('benefit_districts');
       case '/gossip':
-        return 'Piyasa kulislerini dinle, fırsatları krizden önce yakala!';
+        return context.tr('benefit_gossip');
       case '/consignment':
-        return 'Sıfır sermaye ile emanet lüks araçları komisyonla sat!';
+        return context.tr('benefit_consignment');
       default:
-        return 'Seviye $reqLevel Şubesi Ofis/Mülk ile Otomatik Açılır';
+        return context.tr('benefit_auto_branch', {'level': reqLevel});
     }
   }
 
@@ -625,7 +626,7 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
 
     final currentItem = widget.lockedItems[_currentIndex % widget.lockedItems.length];
     final reqLevel = DealershipModel.getRequiredLevel(currentItem.route);
-    final benefit = _getMotivationalBenefit(currentItem.route, reqLevel);
+    final benefit = _getMotivationalBenefit(context, currentItem.route, reqLevel);
     final isDark = widget.isDark;
 
     return AnimatedBuilder(
@@ -720,7 +721,7 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
                             ),
                             const SizedBox(width: 6),
                             NeoBrutalBadge(
-                              text: 'SIRADAKİ HEDEF',
+                              text: context.tr('next_target'),
                               backgroundColor: const Color(0xFF6366F1),
                               textColor: Colors.white,
                               fontSize: 8.5,
@@ -758,7 +759,7 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
 
                 // ŞUBELER Action Button
                 NeoBrutalButton(
-                  label: 'ŞUBELER',
+                  label: context.tr('branches_btn'),
                   fontSize: 10.5,
                   backgroundColor: const Color(0xFF6366F1),
                   textColor: Colors.white,
@@ -776,4 +777,3 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
     );
   }
 }
-

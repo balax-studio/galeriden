@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/game_constants.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -31,8 +32,8 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'AYARLAR & PROFİL',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('settings_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -65,9 +66,9 @@ class SettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'GALERİ & PROFİL KİMLİĞİ',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                        Text(
+                          context.tr('dealership_identity'),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -111,9 +112,9 @@ class SettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'TEMA & GÖRÜNÜM MAĞAZASI',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                        Text(
+                          context.tr('theme_store'),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -141,16 +142,16 @@ class SettingsScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Ses Efektleri',
-                          style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                          context.tr('audio_effects'),
+                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
                         ),
                         Text(
-                          'Motor ve buton sesleri',
-                          style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          context.tr('audio_desc'),
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
@@ -170,16 +171,16 @@ class SettingsScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Dil Seçeneği',
-                              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                              context.tr('language_select'),
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
                             ),
                             Text(
-                              'Arayüz ve oyun dili • 7 Dil Desteklenir',
-                              style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                              context.tr('language_desc'),
+                              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                             ),
                           ],
                         ),

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -19,6 +20,7 @@ class StaffScreen extends ConsumerWidget {
   const StaffScreen({super.key});
 
   void _showRoleTrainingSheet(BuildContext context, WidgetRef ref, StaffModel staff) {
+    final lang = Localizations.localeOf(context).languageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final game = ref.read(gameProvider);
     final courses = StaffRoleSpecializations.coursesForRole(staff.role);
@@ -50,12 +52,12 @@ class StaffScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      '${staff.name} • Uzmanlık Eğitimi',
+                      context.tr('staff_training_title', {'name': staff.name}),
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                     ),
                   ),
                   NeoBrutalBadge(
-                    text: staff.role.title,
+                    text: staff.role.getLocalizedTitle(lang),
                     backgroundColor: const Color(0xFFA855F7),
                     textColor: Colors.white,
                     fontSize: 9.5,
@@ -63,9 +65,9 @@ class StaffScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Personelinize role özel uzmanlık modülleri aldırarak verimliliğini, hızını ve kârlılığını kalıcı olarak yükseltin.',
-                style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              Text(
+                context.tr('staff_training_desc'),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
               ...courses.map((course) {
@@ -92,7 +94,7 @@ class StaffScreen extends ConsumerWidget {
                                 Icon(course.icon, color: course.color, size: 18),
                                 const SizedBox(width: 8),
                                 Text(
-                                  course.title,
+                                  course.getLocalizedTitle(lang),
                                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                                 ),
                               ],
@@ -133,7 +135,7 @@ class StaffScreen extends ConsumerWidget {
                             ),
                             if (!isCompleted)
                               NeoBrutalButton(
-                                label: 'EĞİTİME GÖNDER',
+                                label: context.tr('btn_train_staff'),
                                 backgroundColor: canAfford ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                                 textColor: canAfford ? Colors.black : (isDark ? Colors.white38 : Colors.black38),
                                 fontSize: 10,
@@ -145,7 +147,7 @@ class StaffScreen extends ConsumerWidget {
                                         if (success) {
                                           NotificationService.showSuccess(
                                             context,
-                                            '${staff.name} • ${course.title} eğitimini başarıyla tamamladı!',
+                                            '${staff.name} • ${course.getLocalizedTitle(lang)}',
                                           );
                                         }
                                       }
@@ -231,6 +233,7 @@ class StaffScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = Localizations.localeOf(context).languageCode;
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final isDark = themeExt?.palette.isDark ?? (Theme.of(context).brightness == Brightness.dark);
@@ -238,7 +241,7 @@ class StaffScreen extends ConsumerWidget {
     if (!game.isFeatureUnlocked('/staff')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'PERSONEL & EKİP YÖNETİMİ'),
+        appBar: NeoBrutalAppBar(title: context.tr('staff_title')),
         body: const NeoBrutalLockedFeatureView(
           route: '/staff',
           featureTitle: 'PERSONEL KADROSU',
@@ -251,8 +254,8 @@ class StaffScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'PERSONEL & EKİP YÖNETİMİ',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('staff_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -338,7 +341,7 @@ class StaffScreen extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                '${syn.title}: ${syn.description}',
+                                '${syn.getLocalizedTitle(lang)}: ${syn.getLocalizedDescription(lang)}',
                                 style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
                               ),
                             ),
@@ -492,12 +495,12 @@ class StaffScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      isHired ? hired.name : role.title,
+                                      isHired ? hired.name : role.getLocalizedTitle(lang),
                                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                                     ),
                                     Text(
                                       isHired
-                                          ? '${hired.masteryTitle} • ${role.title}'
+                                          ? '${hired.masteryTitle} • ${role.getLocalizedTitle(lang)}'
                                           : (!isFacilityUnlocked
                                               ? 'Tesis Kilitli • ${role.requiredFacilityName}'
                                               : 'Açık Kadro'),
@@ -573,7 +576,7 @@ class StaffScreen extends ConsumerWidget {
                               ],
                               if (hired.perk != null)
                                 NeoBrutalBadge(
-                                  text: '${hired.perk!.icon} ${hired.perk!.title}',
+                                  text: '${hired.perk!.icon} ${hired.perk!.getLocalizedTitle(lang)}',
                                   backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                   textColor: isDark ? Colors.white : Colors.black,
                                   fontSize: 9.5,
@@ -614,9 +617,9 @@ class StaffScreen extends ConsumerWidget {
                           ),
                           InkWell(
                             onTap: () => ref.read(gameProvider.notifier).fireStaff(hired.id),
-                            child: const Text(
-                              'İŞTEN ÇIKAR',
-                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                            child: Text(
+                              context.tr('btn_fire_staff'),
+                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: AppColors.errorRed),
                             ),
                           ),
                         ],
@@ -637,7 +640,7 @@ class StaffScreen extends ConsumerWidget {
                               onPressed: () {
                                 final success = ref.read(gameProvider.notifier).treatStaffTea(hired.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, '${hired.name} çayını yudumladı • +15 Moral!');
+                                  NotificationService.showSuccess(context, '${hired.name} • +15 Moral');
                                 } else {
                                   NotificationService.showError(context, 'Yetersiz bakiye!');
                                 }
@@ -656,7 +659,7 @@ class StaffScreen extends ConsumerWidget {
                               onPressed: () {
                                 final success = ref.read(gameProvider.notifier).treatStaffMeal(hired.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, '${hired.name} öğle yemeğini yedi • +35 Moral!');
+                                  NotificationService.showSuccess(context, '${hired.name} • +35 Moral');
                                 } else {
                                   NotificationService.showError(context, 'Yetersiz bakiye!');
                                 }
@@ -684,7 +687,7 @@ class StaffScreen extends ConsumerWidget {
                         width: double.infinity,
                         child: NeoBrutalButton(
                           icon: Icons.school_rounded,
-                          label: 'UZMANLIK EĞİTİMİ VER',
+                          label: context.tr('btn_train_staff'),
                           backgroundColor: const Color(0xFFA855F7),
                           textColor: Colors.white,
                           fontSize: 11,
@@ -725,7 +728,7 @@ class StaffScreen extends ConsumerWidget {
                           ),
                           if (isFacilityUnlocked)
                             NeoBrutalButton(
-                              label: 'İŞE AL',
+                              label: context.tr('btn_hire_staff'),
                               icon: Icons.person_add_alt_1_rounded,
                               backgroundColor: AppColors.brutalYellow,
                               textColor: Colors.black,
@@ -754,7 +757,7 @@ class StaffScreen extends ConsumerWidget {
                                 if (success) {
                                   NotificationService.showSuccess(
                                     context,
-                                    '${newStaff.name} • ${role.title} ekibe katıldı!',
+                                    '${newStaff.name} • ${role.getLocalizedTitle(lang)}',
                                   );
                                 }
                               },

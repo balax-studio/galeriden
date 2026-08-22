@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:galeriden/app/router.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_button.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_locked_feature_view.dart';
+
+Widget buildTestApp(Widget child) {
+  return MaterialApp(
+    locale: const Locale('tr'),
+    supportedLocales: const [
+      Locale('tr'),
+      Locale('en'),
+    ],
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    home: Scaffold(body: Center(child: child)),
+  );
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -14,17 +31,13 @@ void main() {
       int tapCount = 0;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: NeoBrutalButton(
-                label: 'HIZLI SATIN AL',
-                debounceDuration: const Duration(milliseconds: 350),
-                onPressed: () {
-                  tapCount++;
-                },
-              ),
-            ),
+        buildTestApp(
+          NeoBrutalButton(
+            label: 'HIZLI SATIN AL',
+            debounceDuration: const Duration(milliseconds: 350),
+            onPressed: () {
+              tapCount++;
+            },
           ),
         ),
       );
@@ -56,18 +69,14 @@ void main() {
       int tapCount = 0;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: NeoBrutalButton(
-                label: 'UYGULA',
-                appliedLabel: 'UYGULANDI',
-                isApplied: true,
-                onPressed: () {
-                  tapCount++;
-                },
-              ),
-            ),
+        buildTestApp(
+          NeoBrutalButton(
+            label: 'UYGULA',
+            appliedLabel: 'UYGULANDI',
+            isApplied: true,
+            onPressed: () {
+              tapCount++;
+            },
           ),
         ),
       );
@@ -85,17 +94,13 @@ void main() {
       int tapCount = 0;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: NeoBrutalButton(
-                label: 'İŞLEMİ YAP',
-                isLoading: true,
-                onPressed: () {
-                  tapCount++;
-                },
-              ),
-            ),
+        buildTestApp(
+          NeoBrutalButton(
+            label: 'İŞLEMİ YAP',
+            isLoading: true,
+            onPressed: () {
+              tapCount++;
+            },
           ),
         ),
       );
@@ -111,14 +116,12 @@ void main() {
 
     testWidgets('4. NeoBrutalLockedFeatureView navigation buttons route to /branches and /dashboard without error', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: NeoBrutalLockedFeatureView(
-                route: '/workshop',
-                featureTitle: 'SANAYİ ATÖLYESİ',
-                icon: Icons.build_rounded,
-              ),
+        ProviderScope(
+          child: buildTestApp(
+            const NeoBrutalLockedFeatureView(
+              route: '/workshop',
+              featureTitle: 'SANAYİ ATÖLYESİ',
+              icon: Icons.build_rounded,
             ),
           ),
         ),

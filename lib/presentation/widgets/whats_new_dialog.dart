@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/game_constants.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../providers/game_provider.dart';
@@ -78,12 +79,12 @@ class WhatsNewDialog extends ConsumerWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'YENİ GÜNCELLEME NOTLARI',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                          Text(
+                            context.tr('whats_new_title'),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                           ),
                           Text(
-                            'Sürüm v${GameConstants.appVersion} Yayında',
+                            context.tr('whats_new_version_subtitle', {'version': GameConstants.appVersion}),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -95,7 +96,7 @@ class WhatsNewDialog extends ConsumerWidget {
                     ],
                   ),
                   NeoBrutalBadge(
-                    text: 'GÜNCEL',
+                    text: context.tr('whats_new_badge_current'),
                     backgroundColor: AppColors.brutalGreen,
                     textColor: Colors.black,
                     fontSize: 9.5,
@@ -179,7 +180,7 @@ class WhatsNewDialog extends ConsumerWidget {
                         const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: AppColors.brutalYellow),
                         const SizedBox(width: 6),
                         Text(
-                          'BİR EKSİK VEYA HATA MI GÖRDÜNÜZ?',
+                          context.tr('whats_new_feedback_title'),
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w900,
@@ -191,7 +192,7 @@ class WhatsNewDialog extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Oyundan çıkmadan geliştirici ekibimize anonim hata bildirebilir veya yeni fikirlerinizi paylaşabilirsiniz.',
+                      context.tr('whats_new_feedback_desc'),
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w500,
@@ -200,7 +201,7 @@ class WhatsNewDialog extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     NeoBrutalButton(
-                      label: 'GELİŞTİRİCİYE ÖNERİ / HATA BİLDİR',
+                      label: context.tr('whats_new_feedback_btn'),
                       icon: Icons.rate_review_rounded,
                       backgroundColor: isDark ? const Color(0xFF2A3142) : Colors.white,
                       textColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -218,7 +219,7 @@ class WhatsNewDialog extends ConsumerWidget {
 
               // Main Confirm Button
               NeoBrutalButton(
-                label: 'HARİKA, OYUNA BAŞLA',
+                label: context.tr('whats_new_start_game_btn'),
                 icon: Icons.check_circle_rounded,
                 backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,

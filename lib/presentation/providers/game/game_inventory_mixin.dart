@@ -2618,10 +2618,35 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final nextCycleCount = isCycleCompleted ? state.streakCycleCount + 1 : state.streakCycleCount;
     final nextClaimedDays = isCycleCompleted ? <int>[] : updatedClaimed;
 
+    final lastDateStr = state.lastRealLoginDateStr;
+    int newStreak = state.loginStreak;
+    if (lastDateStr != null) {
+      try {
+        final parts = lastDateStr.split('-');
+        if (parts.length == 3) {
+          final lastDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+          final today = DateTime(now.year, now.month, now.day);
+          final diff = today.difference(lastDate).inDays;
+          if (diff == 1) {
+            newStreak = state.loginStreak + 1;
+          } else if (diff > 1) {
+            newStreak = 1;
+          }
+        }
+      } catch (_) {
+        newStreak = state.loginStreak + 1;
+      }
+    } else {
+      newStreak = 1;
+    }
+
     state = state.copyWith(
       balance: state.balance + reward.moneyAmount,
       reputationScore: (state.reputationScore + reward.reputationAmount).clamp(0, 1000),
       lastRealLoginDateStr: todayStr,
+      lastLoginDate: now,
+      lastRewardClaimDate: now,
+      loginStreak: newStreak,
       currentStreakDay: nextStreakDay,
       streakCycleCount: nextCycleCount,
       claimedStreakDays: nextClaimedDays,

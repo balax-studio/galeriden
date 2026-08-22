@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/localization/app_localizations.dart';
 
 /// Turkish Oto Galeri Windshield Price Sticker Widget
 /// Rendered with an angled, high-contrast tape/sticker aesthetic with bold monetary value and label.
@@ -48,7 +49,7 @@ class WindshieldPriceSticker extends StatelessWidget {
           children: [
             if (subtitle != null || isBargain) ...[
               Text(
-                (subtitle ?? (isBargain ? 'KELEPİR FİYAT' : 'SATIŞ FİYATI')).toUpperCase(),
+                (subtitle ?? (isBargain ? context.tr('sticker_bargain_price') : context.tr('sticker_sale_price'))).toUpperCase(),
                 style: TextStyle(
                   color: isBargain ? const Color(0xFFB91C1C) : textColor.withValues(alpha: 0.8),
                   fontSize: 8.5,

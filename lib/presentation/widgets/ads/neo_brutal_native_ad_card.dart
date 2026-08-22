@@ -1,10 +1,12 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../providers/game_provider.dart';
 import '../neo_brutal_badge.dart';
 import '../neo_brutal_card.dart';
 
@@ -37,7 +39,12 @@ class InGameSponsorSnippet {
 /// Neo-Brutalist Native Advanced Ad Container.
 /// Displays an AdMob Native Ad when available, or seamlessly renders in-universe
 /// automotive / trade lore cards if AdMob returns no fill or is offline.
-class NeoBrutalNativeAdCard extends StatefulWidget {
+///
+/// Features:
+/// 1. First 7 In-Game Days Protection: Completely closed during days 1-7 (returns SizedBox.shrink).
+/// 2. Dynamic Pacing Algorithm: From day 8 onwards, activates on randomized in-game days
+///    to provide a balanced, natural esnaf experience.
+class NeoBrutalNativeAdCard extends ConsumerStatefulWidget {
   final NativeAdContextType contextType;
   final EdgeInsetsGeometry margin;
 
@@ -48,13 +55,14 @@ class NeoBrutalNativeAdCard extends StatefulWidget {
   });
 
   @override
-  State<NeoBrutalNativeAdCard> createState() => _NeoBrutalNativeAdCardState();
+  ConsumerState<NeoBrutalNativeAdCard> createState() => _NeoBrutalNativeAdCardState();
 }
 
-class _NeoBrutalNativeAdCardState extends State<NeoBrutalNativeAdCard> {
+class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
   NativeAd? _nativeAd;
   bool _isAdLoaded = false;
   late InGameSponsorSnippet _fallbackSnippet;
+  int _lastDayEvaluated = -1;
 
   static final List<InGameSponsorSnippet> _marketplaceSnippets = [
     const InGameSponsorSnippet(
@@ -105,7 +113,6 @@ class _NeoBrutalNativeAdCardState extends State<NeoBrutalNativeAdCard> {
   void initState() {
     super.initState();
     _pickFallbackSnippet();
-    _loadNativeAd();
   }
 
   void _pickFallbackSnippet() {
@@ -120,6 +127,29 @@ class _NeoBrutalNativeAdCardState extends State<NeoBrutalNativeAdCard> {
       case NativeAdContextType.stockMarket:
         _fallbackSnippet = _stockSnippets[random.nextInt(_stockSnippets.length)];
         break;
+    }
+  }
+
+  void _evaluateAdLoading(int currentDay) {
+    if (_lastDayEvaluated == currentDay) return;
+    _lastDayEvaluated = currentDay;
+
+    final bool shouldShow = AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
+    if (!shouldShow) {
+      if (_nativeAd != null) {
+        _nativeAd?.dispose();
+        _nativeAd = null;
+        if (mounted) {
+          setState(() {
+            _isAdLoaded = false;
+          });
+        }
+      }
+      return;
+    }
+
+    if (_nativeAd == null && !_isAdLoaded) {
+      _loadNativeAd();
     }
   }
 
@@ -158,6 +188,15 @@ class _NeoBrutalNativeAdCardState extends State<NeoBrutalNativeAdCard> {
 
   @override
   Widget build(BuildContext context) {
+    final currentDay = ref.watch(gameProvider.select((g) => g.currentDay));
+    final shouldShow = AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
+
+    _evaluateAdLoading(currentDay);
+
+    if (!shouldShow) {
+      return const SizedBox.shrink();
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isAdLoaded && _nativeAd != null) {

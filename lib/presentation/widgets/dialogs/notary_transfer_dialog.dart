@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/notary_event_model.dart';
@@ -144,7 +145,7 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      'T.C. NOTERLİĞİ • ARAÇ DEVİR TESCİLİ',
+                      context.tr('notary_title'),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -208,7 +209,7 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Model Yılı: ${widget.car.modelYear} • Şasi / Ruhsat: ONAYLI',
+                    context.tr('notary_specs', {'year': widget.car.modelYear}),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -221,7 +222,7 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                     children: [
                       Expanded(
                         child: Text(
-                          'Satıcı: ${widget.sellerName}',
+                          context.tr('notary_seller', {'name': widget.sellerName}),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -229,7 +230,7 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Alıcı: ${widget.buyerName}',
+                          context.tr('notary_buyer', {'name': widget.buyerName}),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
                           textAlign: TextAlign.end,
                           overflow: TextOverflow.ellipsis,
@@ -241,9 +242,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Tescil Satış Bedeli:',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                      Text(
+                        context.tr('notary_sale_price'),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(width: 8),
                       Flexible(
@@ -329,11 +330,13 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                           ),
                         ),
                         child: Text(
-                          isCancelled ? 'İŞLEM İPTAL' : 'MÜHÜRLENDİ',
+                          isCancelled
+                              ? context.tr('notary_cancelled_stamp')
+                              : context.tr('notary_approved_stamp'),
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 2.0,
+                            letterSpacing: 1.5,
                             color: isCancelled
                                 ? const Color(0xFFEF4444).withValues(alpha: 0.9)
                                 : const Color(0xFF00E575).withValues(alpha: 0.9),
@@ -349,7 +352,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
 
             // Action Button
             NeoBrutalButton(
-              label: isCancelled ? 'GARAJA DÖN' : 'DEVİR VE TESCİLİ TAMAMLA',
+              label: isCancelled
+                  ? context.tr('notary_return_garage')
+                  : context.tr('notary_complete_transfer'),
               backgroundColor: isCancelled ? const Color(0xFFEF4444) : const Color(0xFF00E575),
               textColor: const Color(0xFF0F172A),
               onPressed: () {

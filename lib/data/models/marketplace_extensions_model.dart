@@ -73,6 +73,176 @@ enum SellerPersona {
     required this.discountFlexibility,
   });
 
+  String getLocalizedTitle([String lang = 'tr']) {
+    switch (this) {
+      case SellerPersona.urgentCash:
+        return switch (lang) {
+          'en' => 'Urgent Cash Seller',
+          'de' => 'Dringender Barzahler',
+          'pt' => 'Vendedor Urgente',
+          'es' => 'Venta Urgente',
+          'ru' => 'Срочная продажа',
+          'ar' => 'بيع عاجل',
+          _ => title,
+        };
+      case SellerPersona.meticulousOfficer:
+        return switch (lang) {
+          'en' => 'Meticulous Officer',
+          'de' => 'Sorgfältiger Beamter',
+          'pt' => 'Oficial Meticuloso',
+          'es' => 'Oficial Meticuloso',
+          'ru' => 'Аккуратный служащий',
+          'ar' => 'موظف دقيق',
+          _ => title,
+        };
+      case SellerPersona.colleagueDealer:
+        return switch (lang) {
+          'en' => 'Fellow Dealer',
+          'de' => 'Autohändler-Kollege',
+          'pt' => 'Colega Lojista',
+          'es' => 'Colega Concesionario',
+          'ru' => 'Коллега-автодилер',
+          'ar' => 'تاجر سيارات',
+          _ => title,
+        };
+      case SellerPersona.expat:
+        return switch (lang) {
+          'en' => 'Expat Seller',
+          'de' => 'Auswanderer',
+          'pt' => 'Expatriado',
+          'es' => 'Expatriado',
+          'ru' => 'Экспат',
+          'ar' => 'مغترب',
+          _ => title,
+        };
+      case SellerPersona.firstHandElder:
+        return switch (lang) {
+          'en' => 'Retired First Owner',
+          'de' => 'Erstbesitzer Rentner',
+          'pt' => 'Primeiro Dono Aposentado',
+          'es' => 'Primer Dueño Jubilado',
+          'ru' => 'Пенсионер (1-й владелец)',
+          'ar' => 'المالك الأول متقاعد',
+          _ => title,
+        };
+      case SellerPersona.tunedEnthusiast:
+        return switch (lang) {
+          'en' => 'Tuned Enthusiast',
+          'de' => 'Tuning-Liebhaber',
+          'pt' => 'Entusiasta Tuner',
+          'es' => 'Entusiasta del Tuning',
+          'ru' => 'Тюнинг-энтузиаст',
+          'ar' => 'عاشق التعديل',
+          _ => title,
+        };
+      case SellerPersona.fleetManager:
+        return switch (lang) {
+          'en' => 'Fleet Manager',
+          'de' => 'Flottenmanager',
+          'pt' => 'Gestor de Frota',
+          'es' => 'Gestor de Flota',
+          'ru' => 'Менеджер автопарка',
+          'ar' => 'مسؤول أسطول',
+          _ => title,
+        };
+      case SellerPersona.collector:
+        return switch (lang) {
+          'en' => 'Collector',
+          'de' => 'Sammler',
+          'pt' => 'Colecionador',
+          'es' => 'Coleccionista',
+          'ru' => 'Коллекционер',
+          'ar' => 'جامع سيارات',
+          _ => title,
+        };
+    }
+  }
+
+  String getLocalizedBadge([String lang = 'tr']) {
+    switch (this) {
+      case SellerPersona.urgentCash:
+        return switch (lang) {
+          'en' => 'URGENT CASH • -20% Flexible',
+          'de' => 'DRINGEND • -20% Flexibel',
+          'pt' => 'URGÊNCIA • -20% Flexível',
+          'es' => 'URGENTE • -20% Flexible',
+          'ru' => 'СРОЧНО • -20% Уступка',
+          'ar' => 'عاجل • خصم 20%',
+          _ => badgeText,
+        };
+      case SellerPersona.meticulousOfficer:
+        return switch (lang) {
+          'en' => 'METICULOUS • Flawless',
+          'de' => 'SORGFÄLTIG • Makellos',
+          'pt' => 'METICULOSO • Impecável',
+          'es' => 'METICULOSO • Impecable',
+          'ru' => 'БЕРЕЖНЫЙ • Без дефектов',
+          'ar' => 'دقيق • بدون عيوب',
+          _ => badgeText,
+        };
+      case SellerPersona.colleagueDealer:
+        return switch (lang) {
+          'en' => 'DEALER • Tough Negotiator',
+          'de' => 'HÄNDLER • Harte Verhandlung',
+          'pt' => 'LOJISTA • Negociação Firme',
+          'es' => 'COMERCIANTE • Negociación Firme',
+          'ru' => 'ДИЛЕР • Жесткий торг',
+          'ar' => 'تاجر • تفاوض صارم',
+          _ => badgeText,
+        };
+      case SellerPersona.expat:
+        return switch (lang) {
+          'en' => 'EXPAT • Bargain',
+          'de' => 'EXPAT • Schnäppchen',
+          'pt' => 'EXPATRIADO • Oportunidade',
+          'es' => 'EXPATRIADO • Oportunidad',
+          'ru' => 'ЭКСПАТ • Выгодно',
+          'ar' => 'مغترب • لقطة',
+          _ => badgeText,
+        };
+      case SellerPersona.firstHandElder:
+        return switch (lang) {
+          'en' => 'FIRST OWNER • Low Mileage',
+          'de' => 'ERSTBESITZER • Wenig KM',
+          'pt' => 'ÚNICO DONO • Baixa KM',
+          'es' => 'ÚNICO DUEÑO • Bajo KM',
+          'ru' => '1-Й ВЛАДЕЛЕЦ • Малый пробег',
+          'ar' => 'مالك أول • عداد منخفض',
+          _ => badgeText,
+        };
+      case SellerPersona.tunedEnthusiast:
+        return switch (lang) {
+          'en' => 'TUNED • Stage Remap',
+          'de' => 'GETUNT • Software-Optimiert',
+          'pt' => 'TUNADO • Remapeado',
+          'es' => 'MODIFICADO • Reprogramado',
+          'ru' => 'ТЮНИНГ • С прошивкой',
+          'ar' => 'معدلة • برمجة خاصة',
+          _ => badgeText,
+        };
+      case SellerPersona.fleetManager:
+        return switch (lang) {
+          'en' => 'FLEET VEHICLE • Invoiced',
+          'de' => 'FLOTTENFAHRZEUG • Mit Rechnung',
+          'pt' => 'DE FROTA • Com Nota',
+          'es' => 'VEHÍCULO DE FLOTA • Con Factura',
+          'ru' => 'ИЗ АВТОПАРКА • С НДС',
+          'ar' => 'سيارة شركات • بفاتورة',
+          _ => badgeText,
+        };
+      case SellerPersona.collector:
+        return switch (lang) {
+          'en' => 'COLLECTION • Connoisseur',
+          'de' => 'SAMMLER • Liebhaberstück',
+          'pt' => 'COLEÇÃO • Para Conhecedores',
+          'es' => 'COLECCIÓN • Para Conocedores',
+          'ru' => 'КОЛЛЕКЦИЯ • Для ценителей',
+          'ar' => 'مجموعة نادرة • للمقتنين',
+          _ => badgeText,
+        };
+    }
+  }
+
   static SellerPersona fromString(String trait) {
     if (trait.contains('Acil') || trait.contains('Fırsat')) return SellerPersona.urgentCash;
     if (trait.contains('Memur') || trait.contains('Doktor')) return SellerPersona.meticulousOfficer;
@@ -97,6 +267,71 @@ enum MarketSortOption {
   final IconData icon;
 
   const MarketSortOption({required this.label, required this.icon});
+
+  String getLocalizedLabel([String lang = 'tr']) {
+    switch (this) {
+      case MarketSortOption.defaultSort:
+        return switch (lang) {
+          'en' => 'Default',
+          'de' => 'Standard',
+          'pt' => 'Padrão',
+          'es' => 'Por defecto',
+          'ru' => 'По умолчанию',
+          'ar' => 'افتراضي',
+          _ => label,
+        };
+      case MarketSortOption.priceAsc:
+        return switch (lang) {
+          'en' => 'Price: Lowest',
+          'de' => 'Preis: Aufsteigend',
+          'pt' => 'Preço: Menor',
+          'es' => 'Precio: Menor',
+          'ru' => 'Цена: по возрастанию',
+          'ar' => 'السعر: الأدنى',
+          _ => label,
+        };
+      case MarketSortOption.priceDesc:
+        return switch (lang) {
+          'en' => 'Price: Highest',
+          'de' => 'Preis: Absteigend',
+          'pt' => 'Preço: Maior',
+          'es' => 'Precio: Mayor',
+          'ru' => 'Цена: по убыванию',
+          'ar' => 'السعر: الأعلى',
+          _ => label,
+        };
+      case MarketSortOption.mileageAsc:
+        return switch (lang) {
+          'en' => 'KM: Lowest',
+          'de' => 'KM: Geringste',
+          'pt' => 'KM: Menor',
+          'es' => 'KM: Menor',
+          'ru' => 'Пробег: наименьший',
+          'ar' => 'العداد: الأقل',
+          _ => label,
+        };
+      case MarketSortOption.roiDesc:
+        return switch (lang) {
+          'en' => 'Profitability: Highest',
+          'de' => 'Rentabilität: Höchste',
+          'pt' => 'Lucro: Maior',
+          'es' => 'Rentabilidad: Mayor',
+          'ru' => 'Прибыль: наибольшая',
+          'ar' => 'الربحية: الأعلى',
+          _ => label,
+        };
+      case MarketSortOption.yearDesc:
+        return switch (lang) {
+          'en' => 'Year: Newest',
+          'de' => 'Baujahr: Neueste',
+          'pt' => 'Ano: Mais Novo',
+          'es' => 'Año: Más Nuevo',
+          'ru' => 'Год: новейшие',
+          'ar' => 'سنة الصنع: الأحدث',
+          _ => label,
+        };
+    }
+  }
 
   List<ListingModel> sortListings(List<ListingModel> listings) {
     final copy = List<ListingModel>.from(listings);

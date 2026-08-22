@@ -49,6 +49,24 @@ class AdService {
 
   int _retryAttempt = 0;
 
+  /// Determines if a native ad or in-game sponsored window should be active on a given in-game day.
+  ///
+  /// Rule 1: First 7 in-game days (currentDay <= 7) are completely ad-free and sponsor-free (closed).
+  /// Rule 2: From Day 8 onwards, uses a pseudo-random deterministic pacing algorithm
+  /// based on game days (~55% active days, alternating randomly to prevent ad fatigue).
+  static bool shouldShowNativeAdForDay(int currentDay, [dynamic contextType]) {
+    if (currentDay <= 7) {
+      return false;
+    }
+
+    final contextOffset = contextType != null ? contextType.hashCode.abs() % 13 : 0;
+    // Multiplicative pseudo-random hashing based on in-game day & context
+    final hash = ((currentDay * 37 + contextOffset * 17 + 101) * 2654435761) & 0x7FFFFFFF;
+    final dayScore = hash % 100;
+
+    return dayScore < 55;
+  }
+
   /// Initialize Google Mobile Ads SDK safely with Apple ATT compliance
   Future<void> initialize() async {
     if (kIsWeb) return;

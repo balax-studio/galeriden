@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -763,7 +764,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
     if (!game.isFeatureUnlocked('/scrapyard')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'HURDALIK & SÖKÜM TESİSİ'),
+        appBar: NeoBrutalAppBar(title: context.tr('scrapyard')),
         body: const NeoBrutalLockedFeatureView(
           route: '/scrapyard',
           featureTitle: 'HURDALIK & SÖKÜM TESİSİ',
@@ -795,7 +796,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: 'HURDALIK & SÖKÜM TESİSİ',
+        title: context.tr('scrapyard'),
         bottom: NeoBrutalTabBar(
           controller: _tabController,
           tabs: [

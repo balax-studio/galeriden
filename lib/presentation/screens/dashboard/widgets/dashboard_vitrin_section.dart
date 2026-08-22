@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
@@ -29,10 +30,10 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
       return NeoBrutalCard(
         padding: const EdgeInsets.all(16),
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        child: const Center(
+        child: Center(
           child: Text(
-            'Şu an pazarda aktif ilan bulunmuyor.',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            context.tr('no_market_listings'),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ),
       );
@@ -129,11 +130,9 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           NeoBrutalBadge(
-                            text: exp.engineCondition >= 80
-                                ? 'Motor: %${exp.engineCondition.round()}'
-                                : (exp.engineCondition >= 50
-                                    ? 'Motor: %${exp.engineCondition.round()}'
-                                    : 'Hasarlı'),
+                            text: exp.engineCondition >= 50
+                                ? '%${exp.engineCondition.round()}'
+                                : context.tr('damaged_label'),
                             backgroundColor: exp.engineCondition >= 80
                                 ? const Color(0xFF00E575)
                                 : (exp.engineCondition >= 50
@@ -145,12 +144,12 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                           ),
                           if (isGoodDeal) ...[
                             const SizedBox(width: 4),
-                            const NeoBrutalBadge(
-                              text: 'Kelepir',
-                              backgroundColor: Color(0xFF3B82F6),
+                            NeoBrutalBadge(
+                              text: context.tr('good_deal_badge'),
+                              backgroundColor: const Color(0xFF3B82F6),
                               textColor: Colors.white,
                               fontSize: 9.5,
-                              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                             ),
                           ],
                         ],
@@ -170,7 +169,7 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            'Piyasa: ${CurrencyFormatter.formatShort(car.baseMarketValue)}',
+                            context.tr('market_price_label', {'price': CurrencyFormatter.formatShort(car.baseMarketValue)}),
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w700,

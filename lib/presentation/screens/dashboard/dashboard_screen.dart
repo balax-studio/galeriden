@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/theme_palette_model.dart';
@@ -201,11 +202,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   child: AppFloatingDock(
                     currentIndex: selectedIndex,
                     onTap: (index) => ref.read(dashboardTabProvider.notifier).state = index,
-                    items: const [
-                      FloatingDockItem(icon: Icons.dashboard_rounded, label: 'Ana Sayfa'),
-                      FloatingDockItem(icon: Icons.storefront_rounded, label: 'Galeri'),
-                      FloatingDockItem(icon: Icons.gavel_rounded, label: 'İhale'),
-                      FloatingDockItem(icon: Icons.business_center_rounded, label: 'Ofis'),
+                    items: [
+                      FloatingDockItem(icon: Icons.dashboard_rounded, label: context.tr('nav_home')),
+                      FloatingDockItem(icon: Icons.storefront_rounded, label: context.tr('nav_showroom')),
+                      FloatingDockItem(icon: Icons.gavel_rounded, label: context.tr('nav_auction')),
+                      FloatingDockItem(icon: Icons.business_center_rounded, label: context.tr('nav_office')),
                     ],
                   ),
                 ),
@@ -271,8 +272,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
         // 3. Sahibinden-Style "Hızlı Hizmetler & Kategoriler" (Monolithic Block Grid)
         _buildSectionHeader(
-          title: 'HIZLI İŞLEMLER & SERVİSLER',
-          subtitle: 'Galerini yönet, alım-satım yap ve atölyeni işlet',
+          title: context.tr('section_quick_services'),
+          subtitle: context.tr('section_quick_services_sub'),
           isDark: isDark,
           p: p,
         ),
@@ -282,9 +283,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
         // 4. "Günün Vitrin İlanları" (Sahibinden.com Vitrin Bölümü)
         _buildSectionHeader(
-          title: 'GÜNÜN VİTRİN İLANLARI',
-          subtitle: 'Pazardaki en kârlı ve kelepir araç fırsatları',
-          actionText: 'Tümünü Gör',
+          title: context.tr('section_vitrin'),
+          subtitle: context.tr('section_vitrin_sub'),
+          actionText: context.tr('see_all'),
           onActionTap: () => context.push('/marketplace'),
           isDark: isDark,
           p: p,
@@ -295,8 +296,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
         // 5. Piyasa Trendi & Otomotiv Bülteni (Monolithic Market Pulse)
         _buildSectionHeader(
-          title: 'PİYASA TRENDİ & OTOMOTİV BÜLTENİ',
-          subtitle: 'Fiyat hareketleri ve pazar talep analizi',
+          title: context.tr('section_market_trends'),
+          subtitle: context.tr('section_market_trends_sub'),
           isDark: isDark,
           p: p,
         ),
@@ -306,9 +307,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
         // 6. Günün Görevleri & Hedefler
         _buildSectionHeader(
-          title: 'GÜNÜN GÖREVLERİ & HEDEFLER',
-          subtitle: '$completedMissions/${game.activeMissions.length} Tamamlandı',
-          badgeText: claimableExists ? 'ÖDÜL VAR' : null,
+          title: context.tr('section_missions'),
+          subtitle: '$completedMissions/${game.activeMissions.length} ${context.tr('completed_status')}',
+          badgeText: claimableExists ? context.tr('reward_available') : null,
           badgeColor: const Color(0xFF00E575),
           isDark: isDark,
           p: p,

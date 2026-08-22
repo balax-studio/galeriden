@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/first_time_action_keys.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
@@ -25,6 +26,7 @@ import '../../widgets/neo_brutal_skeleton.dart';
 import '../../widgets/pulsing_dot.dart';
 import '../../widgets/staggered_item_entry.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../../core/services/ad_service.dart';
 import 'sms_tramer_sheet.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
@@ -96,7 +98,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: 'İKİNCİ EL PAZARI',
+        title: context.tr('marketplace_title'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -142,7 +144,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Marka, model veya kasa tipi ara...',
+                  hintText: context.tr('search_cars_hint'),
                   hintStyle: TextStyle(
                     fontSize: 12,
                     color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
@@ -239,13 +241,13 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             child: Row(
               children: [
-                _buildFilterChip('all', 'Tüm İlanlar • ${allListings.length}', Icons.directions_car_rounded, p, isDark),
+                _buildFilterChip('all', context.tr('filter_all_listings', {'count': allListings.length}), Icons.directions_car_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('bargain', 'Kelepir Fırsatlar', Icons.local_fire_department_rounded, p, isDark),
+                _buildFilterChip('bargain', context.tr('filter_bargains'), Icons.local_fire_department_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('clean', 'Hatasız / Boyasız', Icons.verified_user_rounded, p, isDark),
+                _buildFilterChip('clean', context.tr('filter_clean'), Icons.verified_user_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('affordable', 'Bütçeme Uygun', Icons.account_balance_wallet_rounded, p, isDark),
+                _buildFilterChip('affordable', context.tr('filter_budget'), Icons.account_balance_wallet_rounded, p, isDark),
                 const SizedBox(width: 8),
                 _buildSortMenuButton(p, isDark),
               ],
@@ -268,7 +270,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Listelenen: ${listings.length} Araç',
+                  context.tr('listed_cars_count', {'count': listings.length}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -276,7 +278,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   ),
                 ),
                 Text(
-                  'Kasa: ${CurrencyFormatter.formatShort(game.balance)}',
+                  context.tr('cash_balance_label', {'amount': CurrencyFormatter.formatShort(game.balance)}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -314,7 +316,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             const SizedBox(height: 80),
                             Center(
                               child: Text(
-                                'Aranan kriterde araç bulunamadı.',
+                                context.tr('empty_cars_found'),
                                 style: AppTypography.bodyMedium(p.isDark),
                               ),
                             ),
@@ -325,6 +327,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                           itemCount: listings.length,
                           itemBuilder: (context, index) {
+                            final lang = Localizations.localeOf(context).languageCode;
                             final item = listings[index];
                             final car = item.car;
                             final exp = car.expertise;
@@ -333,7 +336,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             final carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xFF')));
                             final persona = SellerPersona.fromString(item.sellerTrait);
 
-                            final showAdBefore = index > 0 && index % 4 == 0;
+                            final showAdBefore = AdService.shouldShowNativeAdForDay(game.currentDay, NativeAdContextType.marketplace) && index > 0 && index % 4 == 0;
                             final listingWidget = StaggeredItemEntry(
                               index: index,
                               child: Padding(
@@ -364,7 +367,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                           Row(
                                             children: [
                                               NeoBrutalBadge(
-                                                text: persona.badgeText,
+                                                text: persona.getLocalizedBadge(lang),
                                                 backgroundColor: persona.color.withValues(alpha: 0.2),
                                                 textColor: isDark ? Colors.white : const Color(0xFF0F172A),
                                                 borderColor: persona.color,
@@ -380,17 +383,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               ),
                                               if (car.isBarnFind) ...[
                                                 const SizedBox(width: 6),
-                                                const NeoBrutalBadge(
-                                                  text: 'SAMANLIK KELEPİRİ',
-                                                  backgroundColor: Color(0xFFD97706),
+                                                NeoBrutalBadge(
+                                                  text: context.tr('badge_barn_find'),
+                                                  backgroundColor: const Color(0xFFD97706),
                                                   textColor: Colors.white,
                                                   fontSize: 9.5,
                                                 ),
                                               ] else if (car.isRare) ...[
                                                 const SizedBox(width: 6),
-                                                const NeoBrutalBadge(
-                                                  text: 'NADİR KOLEKSİYON',
-                                                  backgroundColor: Color(0xFFA855F7),
+                                                NeoBrutalBadge(
+                                                  text: context.tr('badge_rare'),
+                                                  backgroundColor: const Color(0xFFA855F7),
                                                   textColor: Colors.white,
                                                   fontSize: 9.5,
                                                 ),
@@ -405,7 +408,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                '$viewerCount kişi bakıyor',
+                                                context.tr('viewers_count', {'count': viewerCount}),
                                                 style: TextStyle(
                                                   fontSize: 10.5,
                                                   fontWeight: FontWeight.w700,
@@ -483,15 +486,15 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                           ),
                                           NeoBrutalBadge(
                                             text: exp.tramerAmount == 0
-                                                ? 'Tramer: ₺0'
-                                                : 'Tramer: ${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
+                                                ? context.tr('tramer_label', {'amount': '₺0'})
+                                                : context.tr('tramer_label', {'amount': CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}),
                                             backgroundColor: StatColors.getTramerColor(exp.tramerAmount).withValues(alpha: 0.2),
                                             textColor: isDark ? Colors.white : const Color(0xFF0F172A),
                                             borderColor: StatColors.getTramerColor(exp.tramerAmount),
                                             fontSize: 10,
                                           ),
                                           NeoBrutalBadge(
-                                            text: 'Motor: %${exp.engineCondition.round()}',
+                                            text: context.tr('engine_condition_label', {'percent': exp.engineCondition.round()}),
                                             backgroundColor: StatColors.getEngineColor(exp.engineCondition).withValues(alpha: 0.2),
                                             textColor: isDark ? Colors.white : const Color(0xFF0F172A),
                                             borderColor: StatColors.getEngineColor(exp.engineCondition),
@@ -499,16 +502,16 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                           ),
                                           if (item.askingPrice < car.estimatedRealValue)
                                             NeoBrutalBadge(
-                                              text: '+%${(((car.estimatedRealValue - item.askingPrice) / item.askingPrice) * 100).round()} Kâr Potansiyeli',
+                                              text: context.tr('profit_potential_badge', {'percent': (((car.estimatedRealValue - item.askingPrice) / item.askingPrice) * 100).round()}),
                                               backgroundColor: const Color(0xFF00E575).withValues(alpha: 0.2),
                                               textColor: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
                                               borderColor: const Color(0xFF00E575),
                                               fontSize: 10,
                                             ),
                                           if (exp.isMileageTampered && item.isExpertiseCompleted)
-                                            const NeoBrutalBadge(
-                                              text: 'ŞÜPHELİ KM!',
-                                              backgroundColor: Color(0xFFEF4444),
+                                            NeoBrutalBadge(
+                                              text: context.tr('mileage_tamper_badge'),
+                                              backgroundColor: const Color(0xFFEF4444),
                                               textColor: Colors.white,
                                               fontSize: 10,
                                             ),
@@ -524,7 +527,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'İlan Fiyatı',
+                                                context.tr('listing_price_label'),
                                                 style: TextStyle(
                                                   fontSize: 10.5,
                                                   fontWeight: FontWeight.w700,
@@ -544,7 +547,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                           Row(
                                             children: [
                                               NeoBrutalButton(
-                                                label: '5664 SMS',
+                                                label: context.tr('sms_tramer_btn'),
                                                 icon: Icons.sms_outlined,
                                                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                                 textColor: const Color(0xFF38BDF8),
@@ -559,7 +562,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               ),
                                               const SizedBox(width: 6),
                                               NeoBrutalButton(
-                                                label: item.isExpertiseCompleted ? 'RAPOR' : 'EKSPERTİZ',
+                                                label: item.isExpertiseCompleted ? context.tr('report_btn') : context.tr('expertise_btn'),
                                                 icon: Icons.assignment_outlined,
                                                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                                 textColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -571,7 +574,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               ),
                                               const SizedBox(width: 6),
                                               NeoBrutalButton(
-                                                label: 'PAZARLIK',
+                                                label: context.tr('negotiate_btn'),
                                                 icon: Icons.handshake_rounded,
                                                 backgroundColor: const Color(0xFFFFDE59),
                                                 textColor: Colors.black,
@@ -612,6 +615,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   }
 
   Widget _buildSortMenuButton(ThemePaletteModel p, bool isDark) {
+    final lang = Localizations.localeOf(context).languageCode;
     return PopupMenuButton<MarketSortOption>(
       initialValue: _selectedSort,
       onSelected: (sort) {
@@ -646,7 +650,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             ),
             const SizedBox(width: 4),
             Text(
-              _selectedSort.label,
+              _selectedSort.getLocalizedLabel(lang),
               style: TextStyle(
                 color: _selectedSort != MarketSortOption.defaultSort ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
                 fontWeight: FontWeight.w800,
@@ -670,7 +674,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               Icon(opt.icon, size: 16, color: isDark ? Colors.white : Colors.black),
               const SizedBox(width: 8),
               Text(
-                opt.label,
+                opt.getLocalizedLabel(lang),
                 style: TextStyle(
                   fontWeight: _selectedSort == opt ? FontWeight.w900 : FontWeight.w600,
                   fontSize: 12,

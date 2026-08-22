@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/dealership_model.dart';
 import 'neo_brutal_badge.dart';
@@ -54,7 +55,7 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                '$featureTitle KİLİTLİ',
+                context.tr('locked_feature_title', {'title': featureTitle}),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -68,14 +69,14 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   NeoBrutalBadge(
-                    text: 'SEVİYE $reqLevel GEREKLİ',
+                    text: context.tr('level_required_badge', {'level': reqLevel}),
                     backgroundColor: AppColors.errorRed,
                     textColor: Colors.white,
                     fontSize: 11,
                   ),
                   const SizedBox(width: 8),
-                  const NeoBrutalBadge(
-                    text: 'ÖZEL MÜLK',
+                  NeoBrutalBadge(
+                    text: context.tr('special_property_badge'),
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 11,
@@ -85,7 +86,7 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 customDescription ??
-                    'Bu modüle erişebilmek için $reqBranch mülkünü satın almalı ve galerini bir üst lige taşımalısın.',
+                    context.tr('locked_feature_desc', {'branch': reqBranch}),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
@@ -96,7 +97,7 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               NeoBrutalButton(
-                label: 'ŞUBELERE GİT & KİLİDİ AÇ',
+                label: context.tr('btn_unlock_branches'),
                 icon: Icons.store_mall_directory_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
@@ -110,7 +111,7 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               NeoBrutalButton(
-                label: 'GERİ DÖN',
+                label: context.tr('btn_go_back'),
                 icon: Icons.arrow_back_rounded,
                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                 textColor: isDark ? Colors.white : Colors.black,

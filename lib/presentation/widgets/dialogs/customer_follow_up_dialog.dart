@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -76,7 +77,7 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                     ],
                   ),
                 ),
-                NeoBrutalBadge(
+                const NeoBrutalBadge(
                   text: 'CRM',
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
@@ -111,13 +112,13 @@ class CustomerFollowUpDialog extends ConsumerWidget {
 
             // Action Buttons
             if (isDispute) ...[
-              const Text(
-                'ESNAF DURUŞUNU SEÇ',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+              Text(
+                context.tr('crm_choose_stance'),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
               ),
               const SizedBox(height: 10),
               NeoBrutalButton(
-                label: 'ÜCRETSİZ ONAR - ESNAFLIK GÖSTER',
+                label: context.tr('crm_repair_free'),
                 icon: Icons.handyman_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
@@ -130,13 +131,13 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                   Navigator.of(context).pop();
                   NotificationService.showSuccess(
                     context,
-                    'Müşteri memnun edildi! Galeriye +25 itibar eklendi.',
+                    '+25 ${context.tr('reputation')}',
                   );
                 },
               ),
               const SizedBox(height: 8),
               NeoBrutalButton(
-                label: 'İSKONTOLU TAKAS TEKLİF ET',
+                label: context.tr('crm_discounted_trade'),
                 icon: Icons.sync_rounded,
                 backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,
@@ -149,13 +150,13 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                   Navigator.of(context).pop();
                   NotificationService.showInfo(
                     context,
-                    'Takas teklifi yapıldı. Galeriye +10 itibar eklendi.',
+                    '+10 ${context.tr('reputation')}',
                   );
                 },
               ),
               const SizedBox(height: 8),
               NeoBrutalButton(
-                label: 'SÖZLEŞMEYİ GÖSTER - İTİRAZI REDDET',
+                label: context.tr('crm_reject_claim'),
                 icon: Icons.close_rounded,
                 backgroundColor: isDark ? const Color(0xFF222838) : const Color(0xFFF1F5F9),
                 textColor: isDark ? Colors.white70 : Colors.black87,
@@ -168,7 +169,7 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                   Navigator.of(context).pop();
                   NotificationService.showWarning(
                     context,
-                    'İtiraz reddedildi. Müşteri sosyal medyada şikayet yazdı.',
+                    'OK',
                   );
                 },
               ),
@@ -184,7 +185,7 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Kazanım:',
+                      context.tr('gain_label'),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -192,7 +193,7 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '+${CurrencyFormatter.formatShort(event.financialImpact)} • +${event.reputationImpact} İtibar',
+                      '+${CurrencyFormatter.formatShort(event.financialImpact)} • +${event.reputationImpact}',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
@@ -204,7 +205,7 @@ class CustomerFollowUpDialog extends ConsumerWidget {
               ),
               const SizedBox(height: 14),
               NeoBrutalButton(
-                label: 'ÖDÜLÜ VE İTİBARI AL',
+                label: context.tr('claim_reward_rep'),
                 icon: Icons.check_circle_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
@@ -214,7 +215,7 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                   Navigator.of(context).pop();
                   NotificationService.showSuccess(
                     context,
-                    'Kazanımlar kasanıza ve itibarınıza eklendi!',
+                    'OK',
                   );
                 },
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/dealership_model.dart';
@@ -107,7 +108,7 @@ class DashboardProfileBanner extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${game.playerName} • Koleksiyon: $collectionCount/30 • Satış: $carsSold Araç',
+                      '${game.playerName} • ${context.tr('collection_stat', {'count': collectionCount})} • ${context.tr('sales_stat', {'count': carsSold})}',
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
@@ -147,7 +148,7 @@ class DashboardProfileBanner extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'Seviye ${game.level + 1}\'e $remainingXp XP',
+                context.tr('next_level_xp', {'level': game.level + 1, 'xp': remainingXp}),
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w900,
@@ -176,6 +177,7 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = palette.isDark;
+    final lang = Localizations.localeOf(context).languageCode;
     final event = WeeklyEventEngine.getEventForDay(game.currentDay);
     final dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
     final dayName = dayNames[(event.dayOfWeek - 1).clamp(0, 6)];
@@ -229,7 +231,7 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '${game.currentDay}. Gün',
+                      '${game.currentDay}. ${context.tr('hud_day')}',
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
@@ -240,7 +242,7 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  event.title,
+                  event.getLocalizedTitle(langCode: lang),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
@@ -249,7 +251,7 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  event.description,
+                  event.getLocalizedDescription(langCode: lang),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -287,19 +289,19 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
     if (game.ownedCars.isNotEmpty) {
       final hasListedCar = game.ownedCars.any((c) => c.isListed);
       if (!hasListedCar) {
-        questTitle = '1. HEDEF: Dede Yadigarı Aracı Vitrine Çıkar!';
-        questSubtitle = 'Showroom\'a gir, Murat 124\'e fiyat biç ve ilana koy.';
+        questTitle = context.tr('quest_title_1');
+        questSubtitle = context.tr('quest_sub_1');
         questIcon = Icons.storefront_rounded;
         onQuestTap = onGoToShowroom;
       } else {
-        questTitle = '2. HEDEF: Gelen Teklifleri İncele & İlk Satışını Yap!';
-        questSubtitle = 'Showroom\'da müşterilerle pazarlık yap, kârını cebe koy.';
+        questTitle = context.tr('quest_title_2');
+        questSubtitle = context.tr('quest_sub_2');
         questIcon = Icons.handshake_rounded;
         onQuestTap = onGoToShowroom;
       }
     } else {
-      questTitle = '1. HEDEF: Pazardan İlk Kelepir Aracını Satın Al!';
-      questSubtitle = 'Pazara göz at, ekspertiz raporunu incele ve ilk arabanı al.';
+      questTitle = context.tr('quest_title_buy');
+      questSubtitle = context.tr('quest_sub_buy');
       questIcon = Icons.shopping_cart_rounded;
       onQuestTap = () => context.push('/marketplace');
     }
@@ -330,28 +332,28 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     NeoBrutalBadge(
-                      text: 'BAŞLANGIÇ GÖREVİ',
+                      text: context.tr('starter_quest_badge'),
                       backgroundColor: Colors.black,
-                      textColor: Color(0xFFFFDE59),
+                      textColor: const Color(0xFFFFDE59),
                       fontSize: 9,
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Hemen Git',
-                          style: TextStyle(
+                          context.tr('go_now'),
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
                             color: Colors.black,
                           ),
                         ),
-                        SizedBox(width: 3),
-                        Icon(Icons.arrow_forward_rounded, size: 13, color: Colors.black),
+                        const SizedBox(width: 3),
+                        const Icon(Icons.arrow_forward_rounded, size: 13, color: Colors.black),
                       ],
                     ),
                   ],
@@ -410,47 +412,47 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
     final carsWithOffers = game.ownedCars.where((c) => game.incomingOffers.any((o) => o.carId == c.id && !o.isExpired)).toList();
 
     if (carsWithOffers.isNotEmpty) {
-      adviceTitle = 'Müşteri Teklifleri Masada Bekliyor!';
-      adviceSubtitle = '${carsWithOffers.length} araç için yeni alıcı teklifleri var. Showroom\'da pazarlığa otur.';
+      adviceTitle = context.tr('advisor_offers_title');
+      adviceSubtitle = context.tr('advisor_offers_sub', {'count': carsWithOffers.length});
       adviceIcon = Icons.handshake_rounded;
       onAdviceTap = onGoToShowroom;
     } else if (game.ownedCars.isEmpty) {
-      adviceTitle = 'Galerin Boş Kaldı!';
-      adviceSubtitle = 'İkinci El Pazarından kelepir araç bak, stoğunu güçlendir.';
+      adviceTitle = context.tr('advisor_empty_title');
+      adviceSubtitle = context.tr('advisor_empty_sub');
       adviceIcon = Icons.shopping_cart_rounded;
       onAdviceTap = () => context.push('/marketplace');
     } else if (dirtyCars.isNotEmpty) {
       if (game.isFeatureUnlocked('/car-wash')) {
-        adviceTitle = '${dirtyCars.length} Araç Yıkama Bekliyor!';
-        adviceSubtitle = 'Kirli araçlar satış hızını düşürür. Oto Yıkama\'da parlat ve vitrine koy.';
+        adviceTitle = context.tr('advisor_dirty_title', {'count': dirtyCars.length});
+        adviceSubtitle = context.tr('advisor_dirty_sub');
         adviceIcon = Icons.local_car_wash_rounded;
         onAdviceTap = () => context.push('/car-wash');
       } else {
-        adviceTitle = 'Şubeni Büyüt, Yıkamayı Aç!';
-        adviceSubtitle = 'Seviye 2 Mahalle Galerisi açarak Oto Yıkama istasyonu kurabilirsin.';
+        adviceTitle = context.tr('advisor_unlock_wash_title');
+        adviceSubtitle = context.tr('advisor_unlock_wash_sub');
         adviceIcon = Icons.store_rounded;
         onAdviceTap = () => context.push('/branches');
       }
     } else if (damagedCars.isNotEmpty) {
       if (game.isFeatureUnlocked('/workshop')) {
-        adviceTitle = 'Atölyede Onarım Fırsatı!';
-        adviceSubtitle = '${damagedCars.length} aracın motor/kaporta masrafı var. Sanayide toparlayıp kâr marjını katla.';
+        adviceTitle = context.tr('advisor_damaged_title');
+        adviceSubtitle = context.tr('advisor_damaged_sub', {'count': damagedCars.length});
         adviceIcon = Icons.build_circle_rounded;
         onAdviceTap = () => context.push('/workshop');
       } else {
-        adviceTitle = 'Sanayi Şubesini Aç & Onar!';
-        adviceSubtitle = 'Hasarlı araçları tamir etmek için Seviye 3 Sanayi Sitesi şubesine geçmelisin.';
+        adviceTitle = context.tr('advisor_unlock_workshop_title');
+        adviceSubtitle = context.tr('advisor_unlock_workshop_sub');
         adviceIcon = Icons.build_circle_rounded;
         onAdviceTap = () => context.push('/branches');
       }
     } else if (unlistedCars.isNotEmpty) {
-      adviceTitle = '${unlistedCars.length} Araç İlanda Değil!';
-      adviceSubtitle = 'Showroom\'a gir, araçlarına fiyat biç ve ilana aç.';
+      adviceTitle = context.tr('advisor_unlisted_title', {'count': unlistedCars.length});
+      adviceSubtitle = context.tr('advisor_unlisted_sub');
       adviceIcon = Icons.storefront_rounded;
       onAdviceTap = onGoToShowroom;
     } else {
-      adviceTitle = 'Pazar Hareketli, İşler Yolunda!';
-      adviceSubtitle = 'Piyasa trendlerini takip et, VIP siparişleri tamamla veya personele yatırım yap.';
+      adviceTitle = context.tr('advisor_all_good_title');
+      adviceSubtitle = context.tr('advisor_all_good_sub');
       adviceIcon = Icons.trending_up_rounded;
       onAdviceTap = () => context.push('/marketplace');
     }
@@ -476,28 +478,28 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     NeoBrutalBadge(
-                      text: 'DANIŞMAN TAVSİYESİ',
-                      backgroundColor: Color(0xFF10B981),
+                      text: context.tr('advisor_badge'),
+                      backgroundColor: const Color(0xFF10B981),
                       textColor: Colors.black,
                       fontSize: 8.5,
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'İncele',
-                          style: TextStyle(
+                          context.tr('inspect_btn'),
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF10B981),
                           ),
                         ),
-                        SizedBox(width: 3),
-                        Icon(Icons.arrow_forward_rounded, size: 13, color: Color(0xFF10B981)),
+                        const SizedBox(width: 3),
+                        const Icon(Icons.arrow_forward_rounded, size: 13, color: Color(0xFF10B981)),
                       ],
                     ),
                   ],
@@ -567,7 +569,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
               const Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 22),
               const SizedBox(width: 8),
               Text(
-                'ACİL DURUM & NAKİT DESTEĞİ',
+                context.tr('emergency_title'),
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w900,
@@ -578,7 +580,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Kasadaki nakit kritik seviyeye düştü: ₺${CurrencyFormatter.formatShort(game.balance)}. Gelir yaratmak için aşağıdaki acil durum eylemlerini kullanabilirsin.',
+            context.tr('emergency_desc', {'balance': CurrencyFormatter.formatShort(game.balance)}),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -591,7 +593,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
               // 1. Scrapyard Gig
               Expanded(
                 child: NeoBrutalButton(
-                  label: canWorkGig ? 'Hurdalık Çıraklığı • +₺5.000' : 'Çıraklık • Tamamlandı',
+                  label: canWorkGig ? context.tr('scrapyard_gig_btn') : context.tr('scrapyard_gig_done'),
                   icon: canWorkGig ? Icons.handyman_rounded : Icons.check_circle_rounded,
                   backgroundColor: canWorkGig
                       ? const Color(0xFFFFDE59)
@@ -620,7 +622,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
                 // 2. Emergency Bailout (Dede Mirası)
                 Expanded(
                   child: NeoBrutalButton(
-                    label: 'Dede Mirası • +₺50.000',
+                    label: context.tr('emergency_bailout_btn'),
                     icon: Icons.volunteer_activism_rounded,
                     backgroundColor: const Color(0xFF00E575),
                     textColor: Colors.black,
@@ -694,7 +696,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ŞEHİR LİGİ',
+                        context.tr('city_league'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -702,7 +704,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '5 Rakip Galeri',
+                        context.tr('rivals_count', {'count': 5}),
                         style: TextStyle(
                           fontSize: 10,
                           color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
@@ -741,7 +743,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ALBÜM',
+                        context.tr('album_title'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -749,7 +751,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '$discoveredCount/30 Araç',
+                        context.tr('album_count', {'count': discoveredCount}),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -785,17 +787,17 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                     child: const Icon(Icons.stars_rounded, color: Color(0xFFFFDE59), size: 18),
                   ),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'DEVRET',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
+                          context.tr('prestige_transfer'),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
                         ),
                         Text(
-                          'Yeni Sezon',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+                          context.tr('prestige_new_season'),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
                         ),
                       ],
                     ),
@@ -856,7 +858,7 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${game.loginStreak} Günlük Giriş Serisi!',
+                    context.tr('daily_streak_title', {'count': game.loginStreak}),
                     style: const TextStyle(
                       color: Color(0xFF0F172A),
                       fontSize: 13.5,
@@ -864,9 +866,9 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    'Bugünün bonus ödülünü hemen kasana ekle.',
-                    style: TextStyle(
+                  Text(
+                    context.tr('daily_streak_sub'),
+                    style: const TextStyle(
                       color: Color(0xFF334155),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -877,7 +879,7 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             NeoBrutalButton(
-              label: 'TOPLA',
+              label: context.tr('claim_btn'),
               icon: Icons.attach_money_rounded,
               backgroundColor: const Color(0xFF00E575),
               textColor: Colors.black,
@@ -952,7 +954,7 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'GÜNLÜK NET NAKİT AKIŞI',
+                    context.tr('daily_net_cashflow'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -964,7 +966,7 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    '${netDailyFlow >= 0 ? '+' : ''}${CurrencyFormatter.formatShort(netDailyFlow)}/gün',
+                    '${netDailyFlow >= 0 ? '+' : ''}${CurrencyFormatter.formatShort(netDailyFlow)}/${context.tr('hud_day').toLowerCase()}',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
@@ -986,11 +988,11 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Yan Gelirler: +${CurrencyFormatter.formatShort(dailyPassiveIncome)}',
+                context.tr('side_incomes', {'amount': CurrencyFormatter.formatShort(dailyPassiveIncome)}),
                 style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
               ),
               Text(
-                'Maaşlar: -${CurrencyFormatter.formatShort(dailySalaries)}',
+                context.tr('salaries', {'amount': CurrencyFormatter.formatShort(dailySalaries)}),
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -999,7 +1001,7 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
               ),
               if (dailyLoanPayment > 0)
                 Text(
-                  'Krediler: -${CurrencyFormatter.formatShort(dailyLoanPayment)}',
+                  context.tr('loans', {'amount': CurrencyFormatter.formatShort(dailyLoanPayment)}),
                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
                 ),
             ],

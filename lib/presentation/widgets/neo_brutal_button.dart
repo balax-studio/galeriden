@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 
 enum NeoHapticType { selection, light, heavy, none }
@@ -166,7 +167,7 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'İŞLENİYOR...',
+                    context.tr('btn_processing'),
                     style: TextStyle(
                       color: effectiveText,
                       fontSize: widget.fontSize,

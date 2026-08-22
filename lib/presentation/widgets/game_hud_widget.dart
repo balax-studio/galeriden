@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../core/theme/app_typography.dart';
@@ -26,6 +27,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
+    final lang = Localizations.localeOf(context).languageCode;
 
     return RepaintBoundary(
       child: SingleChildScrollView(
@@ -39,7 +41,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
               context,
               icon: Icons.account_balance_wallet_rounded,
               accentColor: const Color(0xFF00E575),
-              title: 'KASA',
+              title: context.tr('hud_balance'),
               valueWidget: AnimatedRollingCounter(
                 value: game.balance,
                 isShort: true,
@@ -63,7 +65,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
               context,
               icon: Icons.calendar_month_rounded,
               accentColor: const Color(0xFFFFB703),
-              title: 'GÜN',
+              title: context.tr('hud_day'),
               value: '${game.currentDay}',
               onTap: () {
                 HapticFeedback.lightImpact();
@@ -90,11 +92,11 @@ class GameHudHeaderWidget extends ConsumerWidget {
                       : (game.currentSeason == GameSeason.autumn
                           ? const Color(0xFFEA580C)
                           : const Color(0xFF38BDF8))),
-              title: game.currentSeasonName.toUpperCase(),
-              value: '${game.daysRemainingInSeason}g',
+              title: game.getLocalizedSeasonName(lang).toUpperCase(),
+              value: '${game.daysRemainingInSeason}d',
               onTap: () {
                 HapticFeedback.lightImpact();
-                _showSeasonInfo(context, game, isDark);
+                _showSeasonInfo(context, game, isDark, lang);
               },
               isDark: isDark,
             ),
@@ -111,96 +113,96 @@ class GameHudHeaderWidget extends ConsumerWidget {
                       : (game.currentWeather == WeatherType.snowy
                           ? const Color(0xFFE2E8F0)
                           : const Color(0xFF94A3B8))),
-              title: 'HAVA',
-              value: game.currentWeather.displayName,
+              title: context.tr('hud_weather'),
+              value: game.currentWeather.getLocalizedTitle(langCode: lang),
               onTap: () {
                 HapticFeedback.lightImpact();
-                _showWeatherInfo(context, game, isDark);
+                _showWeatherInfo(context, game, isDark, lang);
               },
               isDark: isDark,
             ),
             const SizedBox(width: 8),
 
-          // GARAJ STOK Pill (Interactive -> Showroom / Garage)
-          _buildPill(
-            context,
-            icon: Icons.directions_car_rounded,
-            accentColor: const Color(0xFF00F0FF),
-            title: 'GARAJ',
-            value: '${game.ownedCars.length}/${game.maxGarageSlots}',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              ref.read(dashboardTabProvider.notifier).state = 1;
-              bool popped = false;
-              try {
-                if (context.canPop()) {
-                  context.pop();
-                  popped = true;
-                }
-              } catch (_) {
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
-                  popped = true;
-                }
-              }
-              if (!popped) {
+            // GARAJ STOK Pill (Interactive -> Showroom / Garage)
+            _buildPill(
+              context,
+              icon: Icons.directions_car_rounded,
+              accentColor: const Color(0xFF00F0FF),
+              title: context.tr('hud_garage'),
+              value: '${game.ownedCars.length}/${game.maxGarageSlots}',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                ref.read(dashboardTabProvider.notifier).state = 1;
+                bool popped = false;
                 try {
-                  context.go('/dashboard');
-                } catch (_) {}
-              }
-            },
-            isDark: isDark,
-          ),
-          const SizedBox(width: 8),
+                  if (context.canPop()) {
+                    context.pop();
+                    popped = true;
+                  }
+                } catch (_) {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                    popped = true;
+                  }
+                }
+                if (!popped) {
+                  try {
+                    context.go('/dashboard');
+                  } catch (_) {}
+                }
+              },
+              isDark: isDark,
+            ),
+            const SizedBox(width: 8),
 
-          // İTİBAR Pill (Interactive -> Customer Reviews & Dealer Rating)
-          _buildPill(
-            context,
-            icon: Icons.star_rounded,
-            accentColor: const Color(0xFFFFDE59),
-            title: 'İTİBAR',
-            value: '%${game.reputationScore}',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.push('/reviews');
-            },
-            isDark: isDark,
-          ),
-          const SizedBox(width: 8),
+            // İTİBAR Pill (Interactive -> Customer Reviews & Dealer Rating)
+            _buildPill(
+              context,
+              icon: Icons.star_rounded,
+              accentColor: const Color(0xFFFFDE59),
+              title: context.tr('hud_reputation'),
+              value: '%${game.reputationScore}',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                context.push('/reviews');
+              },
+              isDark: isDark,
+            ),
+            const SizedBox(width: 8),
 
-          // GÖREV Pill (Interactive -> Daily Missions Modal)
-          _buildPill(
-            context,
-            icon: Icons.task_alt_rounded,
-            accentColor: const Color(0xFFA855F7),
-            title: 'GÖREV',
-            value: '${game.activeMissions.where((m) => m.isCompleted).length}/${game.activeMissions.length}',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showMissionsModal(context, isDark, p);
-            },
-            isDark: isDark,
-          ),
-          const SizedBox(width: 8),
+            // GÖREV Pill (Interactive -> Daily Missions Modal)
+            _buildPill(
+              context,
+              icon: Icons.task_alt_rounded,
+              accentColor: const Color(0xFFA855F7),
+              title: context.tr('hud_missions'),
+              value: '${game.activeMissions.where((m) => m.isCompleted).length}/${game.activeMissions.length}',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                _showMissionsModal(context, isDark, p);
+              },
+              isDark: isDark,
+            ),
+            const SizedBox(width: 8),
 
-          // SEVİYE & XP Pill (Goal Gradient §2.2)
-          _buildPill(
-            context,
-            icon: Icons.military_tech_rounded,
-            accentColor: const Color(0xFFFF7A00),
-            title: 'SEVİYE ${game.level}',
-            value: '${(game.skills.currentLevelTargetXp - game.skills.xpInCurrentLevel).clamp(0, game.skills.currentLevelTargetXp)} XP',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.push('/character-growth');
-            },
-            isDark: isDark,
-          ),
-        ],
+            // SEVİYE & XP Pill (Goal Gradient §2.2)
+            _buildPill(
+              context,
+              icon: Icons.military_tech_rounded,
+              accentColor: const Color(0xFFFF7A00),
+              title: '${context.tr('hud_level')} ${game.level}',
+              value: '${(game.skills.currentLevelTargetXp - game.skills.xpInCurrentLevel).clamp(0, game.skills.currentLevelTargetXp)} XP',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                context.push('/character-growth');
+              },
+              isDark: isDark,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   void _showMissionsModal(BuildContext context, bool isDark, ThemePaletteModel p) {
     showDialog(
@@ -236,10 +238,10 @@ class GameHudHeaderWidget extends ConsumerWidget {
                         child: const Icon(Icons.task_alt_rounded, color: Colors.black, size: 20),
                       ),
                       const SizedBox(width: 10),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'GÜNLÜK GÖREVLER',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                          context.tr('daily_missions'),
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                         ),
                       ),
                       IconButton(
@@ -359,11 +361,11 @@ class GameHudHeaderWidget extends ConsumerWidget {
     );
   }
 
-  void _showSeasonInfo(BuildContext context, dynamic game, bool isDark) {
+  void _showSeasonInfo(BuildContext context, DealershipModel game, bool isDark, String lang) {
     Color seasonAccentColor;
     IconData seasonIcon;
 
-    switch (game.currentSeason as GameSeason) {
+    switch (game.currentSeason) {
       case GameSeason.spring:
         seasonAccentColor = const Color(0xFF10B981);
         seasonIcon = Icons.local_florist_rounded;
@@ -424,7 +426,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '28 GÜNLÜK MEVSİM DÖNGÜSÜ',
+                              context.tr('season_cycle_title'),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
@@ -433,7 +435,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              game.currentSeasonName.toUpperCase(),
+                              game.getLocalizedSeasonName(lang).toUpperCase(),
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                             ),
                           ],
@@ -441,7 +443,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
                       ],
                     ),
                     NeoBrutalBadge(
-                      text: 'AKTİF MEVSİM',
+                      text: context.tr('season_active'),
                       backgroundColor: seasonAccentColor,
                       textColor: Colors.black,
                       fontSize: 9.5,
@@ -467,12 +469,12 @@ class GameHudHeaderWidget extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'MEVSİM İLERLEMESİ',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                          Text(
+                            context.tr('season_progress'),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                           ),
                           Text(
-                            'Kalan Süre: ${game.daysRemainingInSeason} Gün',
+                            context.tr('remaining_time', {'days': game.daysRemainingInSeason}),
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                           ),
                         ],
@@ -490,7 +492,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
                         ),
                         child: FractionallySizedBox(
                           alignment: Alignment.centerLeft,
-                          widthFactor: ((7 - (game.daysRemainingInSeason as int)) / 7.0).clamp(0.0, 1.0),
+                          widthFactor: ((7 - game.daysRemainingInSeason) / 7.0).clamp(0.0, 1.0),
                           child: Container(
                             decoration: BoxDecoration(
                               color: seasonAccentColor,
@@ -506,7 +508,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
 
                 // 3. Section Title
                 Text(
-                  'MEVSİMSEL PİYASA TALEPLERİ & DEĞER FARKLARI',
+                  context.tr('market_demands_title'),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -518,36 +520,36 @@ class GameHudHeaderWidget extends ConsumerWidget {
 
                 // 4. Season Cards
                 _buildSeasonCard(
-                  name: 'İlkbahar',
-                  targetVehicles: 'Sedan & Hatchback Modelleri',
-                  effectBadge: '+%15 Talep',
+                  name: GameSeason.spring.getLocalizedName(lang),
+                  targetVehicles: 'Sedan & Hatchback',
+                  effectBadge: '+%15',
                   icon: Icons.local_florist_rounded,
                   accentColor: const Color(0xFF10B981),
                   isCurrent: game.currentSeason == GameSeason.spring,
                   isDark: isDark,
                 ),
                 _buildSeasonCard(
-                  name: 'Yaz',
-                  targetVehicles: 'Spor, Klasik & Cabrio Araçlar',
-                  effectBadge: '+%30 Değer',
+                  name: GameSeason.summer.getLocalizedName(lang),
+                  targetVehicles: 'Sports, Classic & Cabrio',
+                  effectBadge: '+%30',
                   icon: Icons.wb_sunny_rounded,
                   accentColor: const Color(0xFFF59E0B),
                   isCurrent: game.currentSeason == GameSeason.summer,
                   isDark: isDark,
                 ),
                 _buildSeasonCard(
-                  name: 'Sonbahar',
-                  targetVehicles: 'Aile Sedanları & Ticari Araçlar',
-                  effectBadge: '+%15 Talep',
+                  name: GameSeason.autumn.getLocalizedName(lang),
+                  targetVehicles: 'Family Sedans & Commercial',
+                  effectBadge: '+%15',
                   icon: Icons.park_rounded,
                   accentColor: const Color(0xFFEA580C),
                   isCurrent: game.currentSeason == GameSeason.autumn,
                   isDark: isDark,
                 ),
                 _buildSeasonCard(
-                  name: 'Kış',
-                  targetVehicles: 'SUV & 4x4 Arazi Araçları',
-                  effectBadge: '+%35 Talep • Spor: -%25',
+                  name: GameSeason.winter.getLocalizedName(lang),
+                  targetVehicles: 'SUV & 4x4 Offroad',
+                  effectBadge: '+%35',
                   icon: Icons.ac_unit_rounded,
                   accentColor: const Color(0xFF38BDF8),
                   isCurrent: game.currentSeason == GameSeason.winter,
@@ -557,7 +559,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
 
                 // 5. Bottom Button
                 NeoBrutalButton(
-                  label: 'PİYASA ETKİSİNİ ANLADIM',
+                  label: context.tr('understood_button'),
                   icon: Icons.check_circle_rounded,
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
@@ -615,26 +617,13 @@ class GameHudHeaderWidget extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
-                    ),
-                    if (isCurrent) ...[
-                      const SizedBox(width: 6),
-                      NeoBrutalBadge(
-                        text: 'ŞU AN',
-                        backgroundColor: accentColor,
-                        textColor: Colors.black,
-                        fontSize: 8.5,
-                      ),
-                    ],
-                  ],
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
                 ),
                 Text(
                   targetVehicles,
@@ -659,7 +648,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
     );
   }
 
-  void _showWeatherInfo(BuildContext context, DealershipModel game, bool isDark) {
+  void _showWeatherInfo(BuildContext context, DealershipModel game, bool isDark, String lang) {
     final w = game.currentWeather;
 
     showDialog(
@@ -704,7 +693,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'HAVA DURUMU & PİYASA',
+                              context.tr('weather_market_title'),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
@@ -713,15 +702,15 @@ class GameHudHeaderWidget extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              w.displayName.toUpperCase(),
+                              w.getLocalizedTitle(langCode: lang).toUpperCase(),
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                             ),
                           ],
                         ),
                       ],
                     ),
-                    const NeoBrutalBadge(
-                      text: 'CANLI ETKİ',
+                    NeoBrutalBadge(
+                      text: context.tr('weather_live_impact'),
                       icon: Icons.sensors_rounded,
                       backgroundColor: AppColors.brutalGreen,
                       textColor: Colors.black,
@@ -745,7 +734,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
                     ),
                   ),
                   child: Text(
-                    w.flavorDescription,
+                    w.getLocalizedDescription(langCode: lang),
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
@@ -758,7 +747,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
 
                 // 3. Section Title
                 Text(
-                  'GÜNCEL PİYASA ÇARPANLARI',
+                  context.tr('current_multipliers_title'),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -771,42 +760,42 @@ class GameHudHeaderWidget extends ConsumerWidget {
                 // 4. Metric rows
                 _buildWeatherImpactRow(
                   icon: Icons.people_rounded,
-                  title: 'Ziyaretçi Trafiği',
+                  title: context.tr('visitor_traffic'),
                   multiplierPercent: (w.visitorMultiplier * 100).round(),
                   iconBgColor: AppColors.brutalBlue,
                   isDark: isDark,
                 ),
                 _buildWeatherImpactRow(
                   icon: Icons.local_car_wash_rounded,
-                  title: 'Oto Yıkama Talebi',
+                  title: context.tr('car_wash_demand'),
                   multiplierPercent: (w.carWashDemandMultiplier * 100).round(),
                   iconBgColor: AppColors.brutalGreen,
                   isDark: isDark,
                 ),
                 _buildWeatherImpactRow(
                   icon: Icons.terrain_rounded,
-                  title: 'SUV & 4x4 Talebi',
+                  title: context.tr('suv_demand'),
                   multiplierPercent: (w.suvDemandMultiplier * 100).round(),
                   iconBgColor: AppColors.brutalYellow,
                   isDark: isDark,
                 ),
                 _buildWeatherImpactRow(
                   icon: Icons.speed_rounded,
-                  title: 'Spor Araç Talebi',
+                  title: context.tr('sport_demand'),
                   multiplierPercent: (w.sportCarDemandMultiplier * 100).round(),
                   iconBgColor: AppColors.brutalOrange,
                   isDark: isDark,
                 ),
                 _buildWeatherImpactRow(
                   icon: Icons.car_crash_rounded,
-                  title: 'Oto Çekici Çağrıları',
+                  title: context.tr('tow_truck_calls'),
                   multiplierPercent: (w.towTruckBonusMultiplier * 100).round(),
                   iconBgColor: AppColors.brutalCyan,
                   isDark: isDark,
                 ),
                 _buildWeatherImpactRow(
                   icon: Icons.search_rounded,
-                  title: 'Kusur Sezgi Doğruluğu',
+                  title: context.tr('eye_detail_accuracy'),
                   multiplierPercent: (w.eyeForDetailAccuracyMultiplier * 100).round(),
                   iconBgColor: const Color(0xFFA855F7),
                   isDark: isDark,
@@ -815,7 +804,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
 
                 // 5. Action Button
                 NeoBrutalButton(
-                  label: 'TAMAM',
+                  label: context.tr('ok_button'),
                   icon: Icons.thumb_up_rounded,
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
@@ -845,7 +834,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
     final badgeTextColor = (isPositive || isNegative) ? Colors.black : (isDark ? Colors.white70 : Colors.black87);
     final badgeText = isPositive
         ? '+%${multiplierPercent - 100}'
-        : (isNegative ? '-%${100 - multiplierPercent}' : 'Standart %100');
+        : (isNegative ? '-%${100 - multiplierPercent}' : '100%');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 6),

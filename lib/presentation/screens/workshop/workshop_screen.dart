@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -69,17 +70,17 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Özel Fırın Boya & Renk Değişimi', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
-                  NeoBrutalBadge(text: '+%20 Alıcı İlgisi', backgroundColor: AppColors.brutalYellow, textColor: Colors.black, fontSize: 10),
+                  Text(context.tr('custom_paint_title'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+                  NeoBrutalBadge(text: context.tr('custom_paint_sub'), backgroundColor: AppColors.brutalYellow, textColor: Colors.black, fontSize: 10),
                 ],
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Aracını popüler trend renklere fırında boyayarak pazar çekiciliğini ve değerini artır.',
-                style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              Text(
+                context.tr('custom_paint_hint'),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 14),
               ...CustomPaintColor.palette.map((paint) {
@@ -115,7 +116,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           ],
                         ),
                         NeoBrutalButton(
-                          label: 'BOYA',
+                          label: context.tr('paint_action_btn'),
                           backgroundColor: AppColors.brutalYellow,
                           textColor: Colors.black,
                           fontSize: 10.5,
@@ -275,8 +276,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'TAMİR, KAPORTA & ATÖLYE',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('workshop_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -288,7 +289,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Expanded(
                 child: NeoBrutalButton(
                   icon: Icons.directions_car_rounded,
-                  label: 'GARAJ ARAÇLARIM',
+                  label: context.tr('tab_garage_repairs'),
                   backgroundColor: _activeTopTab == 0 ? AppColors.brutalYellow : (isDark ? const Color(0xFF141721) : Colors.white),
                   textColor: _activeTopTab == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,
@@ -300,7 +301,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Expanded(
                 child: NeoBrutalButton(
                   icon: Icons.build_rounded,
-                  label: 'MÜŞTERİ İŞLERİ • ${_customerJobs.length}',
+                  label: '${context.tr('tab_customer_repairs')} • ${_customerJobs.length}',
                   backgroundColor: _activeTopTab == 1 ? AppColors.brutalGreen : (isDark ? const Color(0xFF141721) : Colors.white),
                   textColor: _activeTopTab == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,

@@ -329,6 +329,72 @@ enum HealthGrade {
     required this.color,
   });
 
+  String getLocalizedLabel([String? lang]) {
+    final l = lang ?? 'tr';
+    switch (this) {
+      case HealthGrade.aPlus:
+        switch (l) {
+          case 'en': return 'Flawless Financial Strength';
+          case 'de': return 'Makellose Finanzkraft';
+          case 'pt': return 'Força Financeira Impecável';
+          case 'es': return 'Poder Financiero Impecable';
+          case 'ru': return 'Безупречная финансовая сила';
+          case 'ar': return 'قوة مالية لا تشوبها شائبة';
+          default: return label;
+        }
+      case HealthGrade.a:
+        switch (l) {
+          case 'en': return 'Strong Cash & Liquidity';
+          case 'de': return 'Starke Liquidität & Barbestand';
+          case 'pt': return 'Forte Caixa & Liquidez';
+          case 'es': return 'Fuerte Liquidez y Efectivo';
+          case 'ru': return 'Высокая ликвидность и наличные';
+          case 'ar': return 'سيولة ونقدية قوية';
+          default: return label;
+        }
+      case HealthGrade.b:
+        switch (l) {
+          case 'en': return 'Balanced Business Balance Sheet';
+          case 'de': return 'Ausgeglichene Bilanz';
+          case 'pt': return 'Balanço Comercial Equilibrado';
+          case 'es': return 'Balance Comercial Equilibrado';
+          case 'ru': return 'Сбалансированный баланс';
+          case 'ar': return 'ميزانية تجارية متوازنة';
+          default: return label;
+        }
+      case HealthGrade.c:
+        switch (l) {
+          case 'en': return 'Caution: High Debt Burden';
+          case 'de': return 'Achtung: Hohe Schuldenlast';
+          case 'pt': return 'Atenção: Alto Endividamento';
+          case 'es': return 'Atención: Alta Carga de Deuda';
+          case 'ru': return 'Внимание: высокая долговая нагрузка';
+          case 'ar': return 'تحذير: عبء ديون مرتفع';
+          default: return label;
+        }
+      case HealthGrade.d:
+        switch (l) {
+          case 'en': return 'Risky: Cash Flow Crunch';
+          case 'de': return 'Riskant: Liquiditätsengpass';
+          case 'pt': return 'Arriscado: Crise de Liquidez';
+          case 'es': return 'Riesgoso: Falta de Liquidez';
+          case 'ru': return 'Рискованно: дефицит ликвидности';
+          case 'ar': return 'عالي المخاطر: أزمة سيولة نقدية';
+          default: return label;
+        }
+      case HealthGrade.f:
+        switch (l) {
+          case 'en': return 'Bankruptcy Danger & Foreclosure Risk';
+          case 'de': return 'Insolvenzgefahr & Pfändungsrisiko';
+          case 'pt': return 'Perigo de Falência & Risco de Penhora';
+          case 'es': return 'Peligro de Quiebra y Embargo';
+          case 'ru': return 'Угроза банкротства и риск ареста';
+          case 'ar': return 'خطر الإفلاس ومصادرة الممتلكات';
+          default: return label;
+        }
+    }
+  }
+
   static HealthGrade calculate({
     required double balance,
     required double totalDebt,

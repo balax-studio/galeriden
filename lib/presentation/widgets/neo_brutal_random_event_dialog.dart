@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/services/game_sound_haptic_service.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/notification_service.dart';
@@ -36,20 +37,20 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
       case GameEventType.goodEvent:
       case GameEventType.income:
         headerBadgeColor = const Color(0xFF00E575);
-        headerBadgeText = 'FIRSAT & MÜJDE';
+        headerBadgeText = context.tr('event_type_good');
         break;
       case GameEventType.badEvent:
       case GameEventType.expense:
         headerBadgeColor = const Color(0xFFEF4444);
-        headerBadgeText = 'BEKLENMEDİK KRİZ';
+        headerBadgeText = context.tr('event_type_bad');
         break;
       case GameEventType.meme:
         headerBadgeColor = const Color(0xFFFFDE59);
-        headerBadgeText = 'SANAYİ EFSANESİ';
+        headerBadgeText = context.tr('event_type_meme');
         break;
       case GameEventType.neutral:
         headerBadgeColor = const Color(0xFF38BDF8);
-        headerBadgeText = 'GÜNLÜK GELİŞME';
+        headerBadgeText = context.tr('event_type_neutral');
         break;
     }
 
@@ -82,7 +83,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   ),
                   NeoBrutalBadge(
-                    text: 'GÜNLÜK OLAY',
+                    text: context.tr('event_type_daily'),
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white70 : const Color(0xFF475569),
                     fontSize: 9.5,
@@ -157,7 +158,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
 
               // Choices list
               Text(
-                'NE YAPACAKSIN?',
+                context.tr('event_what_will_you_do'),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
@@ -189,7 +190,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                         context,
                         '${choice.resultText}\n'
                         '${choice.balanceChange != 0 ? (choice.balanceChange > 0 ? "+${CurrencyFormatter.formatShort(choice.balanceChange)}" : CurrencyFormatter.formatShort(choice.balanceChange)) : ""} '
-                        '${choice.reputationChange != 0 ? "• ${choice.reputationChange > 0 ? "+" : ""}${choice.reputationChange} İtibar" : ""}',
+                        '${choice.reputationChange != 0 ? "• ${choice.reputationChange > 0 ? "+" : ""}${context.tr('label_reputation_delta', {'val': choice.reputationChange})}" : ""}',
                       );
                     },
                     child: Container(

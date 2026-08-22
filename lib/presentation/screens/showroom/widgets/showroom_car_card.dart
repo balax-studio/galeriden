@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/game_constants.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
@@ -94,13 +95,13 @@ class ShowroomCarCard extends ConsumerWidget {
                   if (hasOffer) ...[
                     Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        PulsingDot(color: Color(0xFF00E575), size: 6.0),
-                        SizedBox(width: 4),
+                      children: [
+                        const PulsingDot(color: Color(0xFF00E575), size: 6.0),
+                        const SizedBox(width: 4),
                         NeoBrutalBadge(
-                          text: 'TEKLİF VAR',
+                          text: context.tr('badge_has_offer'),
                           icon: Icons.local_fire_department_rounded,
-                          backgroundColor: Color(0xFF00E575),
+                          backgroundColor: const Color(0xFF00E575),
                           textColor: Colors.black,
                           fontSize: 9.5,
                         ),
@@ -109,16 +110,16 @@ class ShowroomCarCard extends ConsumerWidget {
                     const SizedBox(width: 6),
                   ],
                   if (car.isLockedInShowcase) ...[
-                    const NeoBrutalBadge(
-                      text: 'VİTRİNE KİLİTLİ',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_showcase_locked'),
                       icon: Icons.lock_rounded,
                       backgroundColor: AppColors.brutalCyan,
                       textColor: Colors.black,
                       fontSize: 9.5,
                     ),
                   ] else if (car.isRented) ...[
-                    const NeoBrutalBadge(
-                      text: 'KİRADA',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_rented'),
                       icon: Icons.key_rounded,
                       backgroundColor: AppColors.brutalPurple,
                       textColor: Colors.white,
@@ -126,7 +127,7 @@ class ShowroomCarCard extends ConsumerWidget {
                     ),
                   ] else ...[
                     NeoBrutalBadge(
-                      text: car.isListed ? 'İLANDA' : 'GARAJDA',
+                      text: car.isListed ? context.tr('badge_listed') : context.tr('badge_in_garage'),
                       backgroundColor: car.isListed
                           ? const Color(0xFF00E575)
                           : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
@@ -136,8 +137,8 @@ class ShowroomCarCard extends ConsumerWidget {
                   ],
                   if (car.isOverTuned) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'AŞIRI MODİFİYE',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_overtuned'),
                       icon: Icons.speed_rounded,
                       backgroundColor: AppColors.brutalOrange,
                       textColor: Colors.black,
@@ -146,77 +147,77 @@ class ShowroomCarCard extends ConsumerWidget {
                   ],
                   if (car.isHeroShowcase) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'VİTRİN BAŞKÖŞESİ • +%30',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_hero_showcase'),
                       icon: Icons.star_rounded,
-                      backgroundColor: Color(0xFFFFDE59),
+                      backgroundColor: const Color(0xFFFFDE59),
                       textColor: Colors.black,
                       fontSize: 9.5,
                     ),
                   ],
                   if (car.isStaleListing) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'ESKİ İLAN • -%40',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_stale_listing'),
                       icon: Icons.warning_amber_rounded,
-                      backgroundColor: Color(0xFFEF4444),
+                      backgroundColor: const Color(0xFFEF4444),
                       textColor: Colors.white,
                       fontSize: 9.5,
                     ),
                   ],
                   if (car.isBarnFindRestored) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'RESTORE EDİLDİ • +%45',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_barn_restored'),
                       icon: Icons.auto_awesome_rounded,
-                      backgroundColor: Color(0xFF10B981),
+                      backgroundColor: const Color(0xFF10B981),
                       textColor: Colors.black,
                       fontSize: 9.5,
                     ),
                   ] else if (car.isBarnFind) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'SAMANLIK KELEPİRİ',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_barn_find'),
                       icon: Icons.handyman_rounded,
-                      backgroundColor: Color(0xFFD97706),
+                      backgroundColor: const Color(0xFFD97706),
                       textColor: Colors.white,
                       fontSize: 9.5,
                     ),
                   ],
                   if (car.hasNonOriginalParts) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'YAN SANAYİ PARÇA',
-                      backgroundColor: Color(0xFF64748B),
+                    NeoBrutalBadge(
+                      text: context.tr('badge_aftermarket_parts'),
+                      backgroundColor: const Color(0xFF64748B),
                       textColor: Colors.white,
                       fontSize: 9.5,
                     ),
                   ],
                   if (car.isDoped) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'DOPİNGLİ',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_doped'),
                       icon: Icons.bolt_rounded,
-                      backgroundColor: Color(0xFFFFDE59),
+                      backgroundColor: const Color(0xFFFFDE59),
                       textColor: Colors.black,
                       fontSize: 9.5,
                     ),
                   ],
                   if (car.isLockedInShowcase) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'KOLEKSİYONDA',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_in_collection'),
                       icon: Icons.workspace_premium_rounded,
-                      backgroundColor: Color(0xFFA855F7),
+                      backgroundColor: const Color(0xFFA855F7),
                       textColor: Colors.white,
                       fontSize: 9.5,
                     ),
                   ] else if (car.isRare) ...[
                     const SizedBox(width: 6),
-                    const NeoBrutalBadge(
-                      text: 'NADİR',
+                    NeoBrutalBadge(
+                      text: context.tr('badge_rare'),
                       icon: Icons.diamond_rounded,
-                      backgroundColor: Color(0xFFA855F7),
+                      backgroundColor: const Color(0xFFA855F7),
                       textColor: Colors.white,
                       fontSize: 9.5,
                     ),
@@ -247,7 +248,7 @@ class ShowroomCarCard extends ConsumerWidget {
                         const Icon(Icons.timer_rounded, size: 16, color: Color(0xFFF59E0B)),
                         const SizedBox(width: 6),
                         Text(
-                          'Sonraki Müşteri: ~${(nextSec ~/ 60).toString().padLeft(2, '0')}:${(nextSec % 60).toString().padLeft(2, '0')}',
+                          context.tr('next_customer_time', {'time': '${(nextSec ~/ 60).toString().padLeft(2, '0')}:${(nextSec % 60).toString().padLeft(2, '0')}'}),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -300,7 +301,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      isDoped ? 'Paylaşıldı' : 'Paylaş • -%50',
+                                      isDoped ? context.tr('shared_badge') : context.tr('share_boost_action'),
                                       style: TextStyle(
                                         fontSize: 9.5,
                                         fontWeight: FontWeight.bold,
@@ -357,7 +358,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      !canCutPrice ? 'Dip Fiyat' : 'Fiyat Kır • -%5',
+                                      !canCutPrice ? context.tr('floor_price_badge') : context.tr('cut_price_action'),
                                       style: TextStyle(
                                         fontSize: 9.5,
                                         fontWeight: FontWeight.bold,
@@ -389,14 +390,14 @@ class ShowroomCarCard extends ConsumerWidget {
                               color: const Color(0xFF3B82F6),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.share_rounded, size: 11, color: Colors.white),
-                                SizedBox(width: 4),
+                                const Icon(Icons.share_rounded, size: 11, color: Colors.white),
+                                const SizedBox(width: 4),
                                 Text(
-                                  'Paylaş & Çağır',
-                                  style: TextStyle(
+                                  context.tr('share_call_action'),
+                                  style: const TextStyle(
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -523,7 +524,7 @@ class ShowroomCarCard extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Alış Maliyeti',
+                              context.tr('purchase_cost_label'),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -556,7 +557,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      'Net Kâr Analizi',
+                                      context.tr('net_profit_analysis'),
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w700,
@@ -592,7 +593,7 @@ class ShowroomCarCard extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              car.isListed ? 'İlan Fiyatı' : 'Piyasa Değeri',
+                              car.isListed ? context.tr('listing_price_label') : context.tr('market_value'),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -625,7 +626,7 @@ class ShowroomCarCard extends ConsumerWidget {
                   children: [
                     if (car.isListed) ...[
                       Text(
-                        'İlanda: ${car.daysListed} gün',
+                        context.tr('days_listed_label', {'days': car.daysListed}),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -653,14 +654,14 @@ class ShowroomCarCard extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: Colors.black, width: 1.0),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.search_rounded, size: 11, color: Colors.black),
-                              SizedBox(width: 3),
+                              const Icon(Icons.search_rounded, size: 11, color: Colors.black),
+                              const SizedBox(width: 3),
                               Text(
-                                'Torpido Ara',
-                                style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Colors.black),
+                                context.tr('glovebox_search_btn'),
+                                style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Colors.black),
                               ),
                             ],
                           ),
@@ -671,10 +672,10 @@ class ShowroomCarCard extends ConsumerWidget {
                 ),
                 NeoBrutalBadge(
                   text: car.declarationType == ListingDeclarationType.honest
-                      ? 'Dürüst İlan'
+                      ? context.tr('honest_listing_badge')
                       : (car.declarationType == ListingDeclarationType.flawlessClaim
-                          ? 'Hatasız Boyasız Hilesi'
-                          : 'Sayaç Düşürme Hilesi'),
+                          ? context.tr('flawless_claim_badge')
+                          : context.tr('mileage_tamper_badge')),
                   backgroundColor: car.declarationType == ListingDeclarationType.honest
                       ? const Color(0xFF00E575)
                       : (car.declarationType == ListingDeclarationType.flawlessClaim
@@ -693,8 +694,8 @@ class ShowroomCarCard extends ConsumerWidget {
                 Expanded(
                   child: NeoBrutalButton(
                     label: car.isLockedInShowcase
-                        ? 'Vitrine Kilitli'
-                        : (car.isRented ? 'Kirada Çalışıyor' : 'Fiyat & İlanı Düzenle'),
+                        ? context.tr('badge_showcase_locked')
+                        : (car.isRented ? context.tr('badge_rented') : context.tr('edit_listing_btn')),
                     icon: car.isLockedInShowcase
                         ? Icons.lock_rounded
                         : (car.isRented ? Icons.key_rounded : Icons.edit_note_rounded),
@@ -712,7 +713,7 @@ class ShowroomCarCard extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: NeoBrutalButton(
-                    label: car.isDoped ? 'Dopingli' : 'Öne Çıkar • ${CurrencyFormatter.formatShort(GameConstants.dopingCost)}',
+                    label: car.isDoped ? context.tr('badge_doped') : context.tr('doping_boost_btn', {'cost': CurrencyFormatter.formatShort(GameConstants.dopingCost)}),
                     icon: Icons.bolt_rounded,
                     backgroundColor: car.isDoped
                         ? (isDark ? Colors.white12 : Colors.black12)
@@ -763,7 +764,7 @@ class ShowroomCarCard extends ConsumerWidget {
             if (car.isStaleListing) ...[
               const SizedBox(height: 8),
               NeoBrutalButton(
-                label: 'İlanı Güncelle & Yenile • ${CurrencyFormatter.format(GameConstants.refreshListingCost)}',
+                label: context.tr('refresh_listing_btn', {'cost': CurrencyFormatter.format(GameConstants.refreshListingCost)}),
                 icon: Icons.refresh_rounded,
                 backgroundColor: const Color(0xFFEF4444),
                 textColor: Colors.white,
@@ -790,8 +791,8 @@ class ShowroomCarCard extends ConsumerWidget {
               const SizedBox(height: 8),
               NeoBrutalButton(
                 label: car.isHeroShowcase
-                    ? 'Vitrin Başköşesinden İndir'
-                    : 'Vitrin Başköşesine Koy • +%30 Müşteri Trafiği',
+                    ? context.tr('hero_showcase_remove')
+                    : context.tr('hero_showcase_add'),
                 icon: car.isHeroShowcase ? Icons.star_border_rounded : Icons.star_rounded,
                 backgroundColor: car.isHeroShowcase
                     ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
@@ -817,8 +818,8 @@ class ShowroomCarCard extends ConsumerWidget {
             const SizedBox(height: 8),
             NeoBrutalButton(
               label: car.isLockedInShowcase
-                    ? 'Koleksiyon Vitrininden Çıkar • Satışa Aç'
-                    : 'Koleksiyon Vitrinine Kilitle • +%5 İtibar',
+                    ? context.tr('unlock_collection_btn')
+                    : context.tr('lock_collection_btn'),
                 icon: car.isLockedInShowcase ? Icons.lock_open_rounded : Icons.workspace_premium_rounded,
                 backgroundColor: car.isLockedInShowcase
                     ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
@@ -845,21 +846,21 @@ class ShowroomCarCard extends ConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'VİTRİNDEN ÇIKARILSIN MI?',
-                                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
+                              Text(
+                                context.tr('dialog_unlock_title'),
+                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
                               ),
                               const SizedBox(height: 10),
-                              const Text(
-                                'Bu araç galeri yadigârı olarak kilitli. Vitrinden çıkarırsan satışa açılacak ve devir sırasında aktarılmayacaktır. Emin misin?',
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                              Text(
+                                context.tr('dialog_unlock_desc'),
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 16),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   NeoBrutalButton(
-                                    label: 'İPTAL',
+                                    label: context.tr('dialog_unlock_cancel'),
                                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                     textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
                                     fontSize: 11,
@@ -868,7 +869,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   NeoBrutalButton(
-                                    label: 'KİLİDİ AÇ',
+                                    label: context.tr('dialog_unlock_confirm'),
                                     icon: Icons.lock_open_rounded,
                                     backgroundColor: AppColors.errorRed,
                                     textColor: Colors.white,

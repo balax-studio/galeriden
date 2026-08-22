@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -38,6 +39,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
   void _showScentSelectionSheet(BuildContext context, CarModel car) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = Localizations.localeOf(context).languageCode;
 
     showModalBottomSheet(
       context: context,
@@ -57,17 +59,17 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Dikiz Aynası Oto Kokusu & Esansı', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
-                  NeoBrutalBadge(text: 'Müşteri İkna Buffı', backgroundColor: AppColors.brutalYellow, textColor: Colors.black, fontSize: 10),
+                  Text(context.tr('wash_scent_title'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+                  NeoBrutalBadge(text: context.tr('wash_scent_sub'), backgroundColor: AppColors.brutalYellow, textColor: Colors.black, fontSize: 10),
                 ],
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Araca asılan koku, pazarlık esnasında müşterinin ruh halini etkileyerek satış kolaylığı sağlar.',
-                style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              Text(
+                context.tr('wash_scent_hint'),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 14),
               ...CarScent.availableScents.map((scent) {
@@ -100,14 +102,14 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Text(scent.name, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
+                                    Text(scent.getLocalizedName(lang), style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
                                     const SizedBox(width: 6),
                                     NeoBrutalBadge(text: scent.buyerAppealBuff, backgroundColor: scent.badgeColor, textColor: Colors.black, fontSize: 8.5),
                                   ],
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '${scent.description} • ${CurrencyFormatter.format(scent.cost)}',
+                                  '${scent.getLocalizedDescription(lang)} • ${CurrencyFormatter.format(scent.cost)}',
                                   style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                                 ),
                               ],
@@ -115,7 +117,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                           ],
                         ),
                         NeoBrutalButton(
-                          label: isCurrent ? 'ASILI' : 'AS',
+                          label: isCurrent ? context.tr('btn_scent_hung') : context.tr('btn_hang_scent'),
                           backgroundColor: isCurrent ? const Color(0xFF00E575) : AppColors.brutalYellow,
                           textColor: Colors.black,
                           fontSize: 10.5,
@@ -183,8 +185,8 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'OTO YIKAMA & DETAILING',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('car_wash_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -196,7 +198,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               Expanded(
                 child: NeoBrutalButton(
                   icon: Icons.directions_car_rounded,
-                  label: 'GARAJ ARAÇLARIM',
+                  label: context.tr('tab_garage_wash'),
                   backgroundColor: _activeTopTab == 0 ? AppColors.brutalYellow : (isDark ? const Color(0xFF141721) : Colors.white),
                   textColor: _activeTopTab == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,
@@ -208,7 +210,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               Expanded(
                 child: NeoBrutalButton(
                   icon: Icons.local_taxi_rounded,
-                  label: 'MÜŞTERİ TALEPLERİ • ${_customerWashJobs.length}',
+                  label: '${context.tr('tab_customer_wash')} • ${_customerWashJobs.length}',
                   backgroundColor: _activeTopTab == 1 ? const Color(0xFF00E575) : (isDark ? const Color(0xFF141721) : Colors.white),
                   textColor: _activeTopTab == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,

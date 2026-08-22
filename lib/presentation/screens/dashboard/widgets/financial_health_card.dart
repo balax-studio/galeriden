@@ -18,6 +18,7 @@ class FinancialHealthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final isDark = themeExt?.palette.isDark ?? true;
 
@@ -74,7 +75,7 @@ class FinancialHealthCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  grade.label,
+                  grade.getLocalizedLabel(lang),
                   style: TextStyle(
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                     fontWeight: FontWeight.w900,

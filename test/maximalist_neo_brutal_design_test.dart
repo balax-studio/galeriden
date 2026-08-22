@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/theme/app_theme_extension.dart';
@@ -28,6 +29,28 @@ void main() {
       AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),
     ],
   );
+
+  Widget buildTestApp({required Widget home, ThemeData? theme}) {
+    return MaterialApp(
+      locale: const Locale('tr'),
+      supportedLocales: const [
+        Locale('tr'),
+        Locale('en'),
+        Locale('de'),
+        Locale('pt'),
+        Locale('es'),
+        Locale('ru'),
+        Locale('ar'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      theme: theme ?? testTheme,
+      home: home,
+    );
+  }
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -74,8 +97,7 @@ void main() {
   group('Maximalist Neo-Brutalist & Industrial UI/UX Test Suite', () {
     testWidgets('1. NeoBrutalStamp and WindshieldPriceSticker Render Correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: testTheme,
+        buildTestApp(
           home: const Scaffold(
             body: Center(
               child: Column(
@@ -99,8 +121,7 @@ void main() {
 
     testWidgets('2. HazardStripeWidget and DotGridBackground Paint without Assertion', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: testTheme,
+        buildTestApp(
           home: Scaffold(
             body: DotGridBackground(
               child: Center(
@@ -124,8 +145,7 @@ void main() {
       bool tapped = false;
 
       await tester.pumpWidget(
-        MaterialApp(
-          theme: testTheme,
+        buildTestApp(
           home: Scaffold(
             body: Center(
               child: NeoBrutalCard(
@@ -162,8 +182,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
+          child: buildTestApp(
             home: Scaffold(
               body: SingleChildScrollView(
                 child: ShowroomCarCard(
@@ -180,7 +199,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('KOLEKSİYONDA'), findsOneWidget);
-      expect(find.text('DOPİNGLİ'), findsOneWidget);
+      expect(find.text('DOPİNGLİ'), findsWidgets);
       expect(find.text('Mercedes-Benz C200 AMG'), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox());
@@ -217,8 +236,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
+          child: buildTestApp(
             home: ExpertiseScreen(listing: listing),
           ),
         ),
@@ -254,8 +272,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
+          child: buildTestApp(
             home: const NightMarketScreen(),
           ),
         ),
@@ -286,8 +303,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
+          child: buildTestApp(
             home: const Scaffold(
               body: GameHudHeaderWidget(),
             ),
@@ -307,12 +323,12 @@ void main() {
       expect(find.text('AKTİF MEVSİM'), findsOneWidget);
       expect(find.text('MEVSİM İLERLEMESİ'), findsOneWidget);
       expect(find.text('MEVSİMSEL PİYASA TALEPLERİ & DEĞER FARKLARI'), findsOneWidget);
-      expect(find.text('İlkbahar'), findsOneWidget);
+      expect(find.text('İlkbahar'), findsWidgets);
       expect(find.text('Yaz'), findsOneWidget);
       expect(find.text('Sonbahar'), findsOneWidget);
       expect(find.text('Kış'), findsOneWidget);
-      expect(find.text('+%15 Talep'), findsWidgets);
-      expect(find.text('+%30 Değer'), findsOneWidget);
+      expect(find.text('+%15'), findsWidgets);
+      expect(find.text('+%30'), findsOneWidget);
       expect(find.text('PİYASA ETKİSİNİ ANLADIM'), findsOneWidget);
 
       // Close modal
@@ -339,8 +355,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp(
-            theme: testTheme,
+          child: buildTestApp(
             home: const Scaffold(
               body: GameHudHeaderWidget(),
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
@@ -32,10 +33,10 @@ class DashboardMissionsList extends ConsumerWidget {
       return NeoBrutalCard(
         padding: const EdgeInsets.all(16),
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        child: const Center(
+        child: Center(
           child: Text(
-            'Tüm görevler tamamlandı! Yeni görevler yarın gelecek.',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            context.tr('all_missions_done'),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ),
       );
@@ -106,16 +107,16 @@ class DashboardMissionsList extends ConsumerWidget {
                 ),
                 if (mission.isClaimed) ...[
                   const SizedBox(width: 10),
-                  const NeoBrutalBadge(
-                    text: 'ALINDI',
-                    backgroundColor: Color(0xFF10B981),
+                  NeoBrutalBadge(
+                    text: context.tr('claimed_badge'),
+                    backgroundColor: const Color(0xFF10B981),
                     textColor: Colors.white,
                     fontSize: 10,
                   ),
                 ] else if (progressRatio >= 1.0) ...[
                   const SizedBox(width: 10),
                   NeoBrutalButton(
-                    label: 'AL',
+                    label: context.tr('claim_action'),
                     icon: Icons.check_circle_rounded,
                     backgroundColor: const Color(0xFF00E575),
                     textColor: Colors.black,
@@ -126,11 +127,11 @@ class DashboardMissionsList extends ConsumerWidget {
                       if (success) {
                         FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
                           mission.rewardMoney.toDouble(),
-                          label: 'Görev Tamam!',
+                          label: 'OK',
                         );
                         NotificationService.showSuccess(
                           context,
-                          '${mission.title} Tamamlandı! ${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} Kazandın.',
+                          '${mission.title} - ${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())}',
                         );
                       }
                     },
@@ -253,7 +254,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        '${contract.clientName} İçin Teslim Edilecek Aracı Seç',
+                        '${contract.clientName} - ${context.tr('deliver_action')}',
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
                       ),
                     ),
@@ -285,7 +286,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Alış: ${CurrencyFormatter.formatShort(car.currentPurchasePrice)} • Kâr: +${CurrencyFormatter.formatShort(profit)}',
+                                  '+${CurrencyFormatter.formatShort(profit)}',
                                   style: const TextStyle(color: Color(0xFF00E575), fontWeight: FontWeight.w800, fontSize: 11),
                                 ),
                               ],
@@ -293,7 +294,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                           ),
                           const SizedBox(width: 8),
                           NeoBrutalButton(
-                            label: 'TESLİM ET',
+                            label: context.tr('deliver_action'),
                             backgroundColor: const Color(0xFF00E575),
                             textColor: Colors.black,
                             fontSize: 11,
@@ -304,11 +305,11 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                               if (success) {
                                 FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
                                   contract.budget + contract.rewardBonus,
-                                  label: 'Sözleşme Tamamlandı!',
+                                  label: 'OK',
                                 );
                                 NotificationService.showSuccess(
                                   context,
-                                  '${contract.clientName} aracını teslim aldı! ${CurrencyFormatter.formatShort(contract.budget + contract.rewardBonus)} kazandın.',
+                                  '${contract.clientName} +${CurrencyFormatter.formatShort(contract.budget + contract.rewardBonus)}',
                                 );
                               }
                             },
@@ -335,9 +336,9 @@ class DashboardWantedContractsSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          title: 'VIP ARANAN ARAÇ SİPARİŞLERİ',
-          subtitle: 'Müşteriler için özel araç temin et, prim kazan',
-          badgeText: '${game.activeContracts.length} SİPARİŞ',
+          title: context.tr('wanted_contracts_title'),
+          subtitle: context.tr('wanted_contracts_sub'),
+          badgeText: '${game.activeContracts.length}',
           badgeColor: const Color(0xFFFF7A00),
           isDark: isDark,
         ),
@@ -384,7 +385,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                             ),
                             Text(
-                              'Aranan: ${contract.targetBrand} • Min. ${contract.minYear} • Max. ${contract.maxMileage ~/ 1000}k km',
+                              '${contract.targetBrand} • Min. ${contract.minYear} • Max. ${contract.maxMileage ~/ 1000}k km',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -395,7 +396,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                         ),
                       ),
                       NeoBrutalBadge(
-                        text: '${contract.deadlineDays} GÜN',
+                        text: '${contract.deadlineDays} ${context.tr('hud_day')}',
                         backgroundColor: contract.deadlineDays <= 2 ? const Color(0xFFEF4444) : const Color(0xFFFFDE59),
                         textColor: Colors.black,
                         fontSize: 9.5,
@@ -410,22 +411,14 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Toplam Ödeme',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                            ),
-                          ),
-                          Text(
-                            '${CurrencyFormatter.formatShort(totalPayout)} • +${CurrencyFormatter.formatShort(contract.rewardBonus)} Prim',
+                            '${CurrencyFormatter.formatShort(totalPayout)} • +${CurrencyFormatter.formatShort(contract.rewardBonus)}',
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
                           ),
                         ],
                       ),
                       if (matchingCars.isNotEmpty)
                         NeoBrutalButton(
-                          label: 'TESLİM ET • ${matchingCars.length}',
+                          label: '${context.tr('deliver_action')} • ${matchingCars.length}',
                           icon: Icons.local_shipping_rounded,
                           backgroundColor: const Color(0xFF00E575),
                           textColor: Colors.black,
@@ -435,7 +428,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                         )
                       else
                         NeoBrutalButton(
-                          label: 'PAZARDA BUL',
+                          label: context.tr('find_in_market'),
                           icon: Icons.search_rounded,
                           backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                           textColor: isDark ? Colors.white : Colors.black,
@@ -455,3 +448,4 @@ class DashboardWantedContractsSection extends ConsumerWidget {
     );
   }
 }
+

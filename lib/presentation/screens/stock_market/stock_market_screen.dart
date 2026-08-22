@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -528,7 +529,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
     if (!game.isFeatureUnlocked('/stock-market')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'BORSA & YATIRIM MERKEZİ'),
+        appBar: NeoBrutalAppBar(title: context.tr('stocks_title')),
         body: const NeoBrutalLockedFeatureView(
           route: '/stock-market',
           featureTitle: 'BORSA & FON PİYASASI',
@@ -540,13 +541,13 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: 'BORSA & YATIRIM MERKEZİ',
+        title: context.tr('stocks_title'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
             child: Center(
               child: NeoBrutalBadge(
-                text: 'Gün ${game.currentDay}',
+                text: '${context.tr('day')} ${game.currentDay}',
                 backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,
                 fontSize: 10.5,
@@ -563,11 +564,11 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           indicatorWeight: 3.5,
           indicatorSize: TabBarIndicatorSize.label,
           labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11.5),
-          tabs: const [
-            Tab(text: 'BİST HİSSELERİ'),
-            Tab(text: 'PORTFÖY & TEMETTÜ'),
-            Tab(text: 'DÖVİZ & ALTIN'),
-            Tab(text: 'HALKA ARZ • IPO'),
+          tabs: [
+            Tab(text: context.tr('tab_stocks')),
+            Tab(text: context.tr('tab_portfolio')),
+            Tab(text: context.tr('tab_commodities')),
+            const Tab(text: 'HALKA ARZ • IPO'),
           ],
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/game_sound_haptic_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -61,10 +62,10 @@ class ShowroomOffersTab extends ConsumerWidget {
             const SizedBox(height: 40),
             NeoBrutalEmptyState(
               icon: Icons.local_offer_outlined,
-              badgeText: 'TEKLİF BEKLENİYOR',
-              title: 'Henüz Gelen Teklif Yok',
-              description: 'Vitrindeki araçlarına müşteri geldikçe pazarlık teklifleri burada listelenecek. Sayfayı aşağı çekerek müşteri çağırabilirsin.',
-              actionLabel: 'Müşteri Çek • Yenile',
+              badgeText: context.tr('badge_awaiting_offers'),
+              title: context.tr('title_no_offers_yet'),
+              description: context.tr('desc_no_offers_yet'),
+              actionLabel: context.tr('btn_pull_customers_refresh'),
               actionIcon: Icons.campaign_rounded,
               onActionPressed: () {
                 final res = ref.read(gameProvider.notifier).manualPullOrganicOffer();
@@ -110,7 +111,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     const Icon(Icons.sync_alt_rounded, color: Color(0xFFFFDE59), size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      'ARABA TAKAS TEKLİFLERİ • ${game.incomingTradeInOffers.length}',
+                      '${context.tr('title_trade_in_offers')} • ${game.incomingTradeInOffers.length}',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
@@ -131,7 +132,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       child: Text(
-                        'Tümünü Reddet',
+                        context.tr('btn_reject'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -157,7 +158,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     const Icon(Icons.payments_outlined, color: Color(0xFF00E575), size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      'NAKİT SATIN ALMA TEKLİFLERİ • ${game.incomingOffers.length}',
+                      '${context.tr('title_cash_offers')} • ${game.incomingOffers.length}',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
@@ -178,7 +179,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       child: Text(
-                        'Tümünü Reddet',
+                        context.tr('btn_reject'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,

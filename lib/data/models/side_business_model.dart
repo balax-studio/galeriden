@@ -12,6 +12,124 @@ enum SideBusinessType {
   wrapStudio,
 }
 
+extension SideBusinessTypeExtension on SideBusinessType {
+  String getLocalizedName([String? lang]) {
+    final l = lang ?? 'tr';
+    switch (this) {
+      case SideBusinessType.carWash:
+        switch (l) {
+          case 'en': return 'Car Wash & Detailing';
+          case 'de': return 'Autowäsche & Detailing';
+          case 'pt': return 'Lava-Jato & Detalhamento';
+          case 'es': return 'Lavado y Detallado de Coches';
+          case 'ru': return 'Автомойка и Детейлинг';
+          case 'ar': return 'غسيل وتلميع السيارات';
+          default: return 'Oto Yıkama & Detaylı Temizlik';
+        }
+      case SideBusinessType.vendingMachine:
+        switch (l) {
+          case 'en': return 'Vending & Coffee Station';
+          case 'de': return 'Verkaufsautomat & Kaffeebar';
+          case 'pt': return 'Máquinas de Venda & Café';
+          case 'es': return 'Máquina Expendedora y Café';
+          case 'ru': return 'Вендинг и Кофе-бар';
+          case 'ar': return 'ماكينة بيع آلي ومحطة قهوة';
+          default: return 'Otomat & Kahve İstasyonu';
+        }
+      case SideBusinessType.towTruck:
+        switch (l) {
+          case 'en': return 'Towing & Recovery Service';
+          case 'de': return 'Abschleppdienst & Pannenhilfe';
+          case 'pt': return 'Guincho & Socorro 24h';
+          case 'es': return 'Servicio de Grúa y Rescate';
+          case 'ru': return 'Эвакуатор и Служба спасения';
+          case 'ar': return 'خدمة سحب وإنقاذ السيارات';
+          default: return 'Oto Kurtarma & Çekici Hizmeti';
+        }
+      case SideBusinessType.billboard:
+        switch (l) {
+          case 'en': return 'Digital Billboard & Ads';
+          case 'de': return 'Digitale Plakatwand & Werbung';
+          case 'pt': return 'Painel Digital & Anúncios';
+          case 'es': return 'Valla Digital y Publicidad';
+          case 'ru': return 'Цифровой билборд и Реклама';
+          case 'ar': return 'لوحة إعلانات رقمية';
+          default: return 'Dijital Reklam & Billboard';
+        }
+      case SideBusinessType.autoShop:
+        switch (l) {
+          case 'en': return 'Quick Lube & Oil Change Shop';
+          case 'de': return 'Schnellservice & Ölwechsel';
+          case 'pt': return 'Troca de Óleo & Manutenção Rápida';
+          case 'es': return 'Cambio de Aceite y Mantenimiento';
+          case 'ru': return 'Экспресс-сервис и Замена масла';
+          case 'ar': return 'خدمة سريعة وتغيير زيت';
+          default: return 'Hızlı Bakım & Yağ Değişim Noktası';
+        }
+      case SideBusinessType.inspectionStation:
+        switch (l) {
+          case 'en': return 'Vehicle Inspection & Pre-Check';
+          case 'de': return 'Fahrzeugprüfstelle & Vorab-Check';
+          case 'pt': return 'Vistoria & Pré-Inspeção Veicular';
+          case 'es': return 'Inspección y Revisión Previa';
+          case 'ru': return 'Пункт техосмотра и Диагностика';
+          case 'ar': return 'فحص فني ومعاينة مسبقة';
+          default: return 'Araç Muayene & Ön Kontrol İstasyonu';
+        }
+      case SideBusinessType.carRental:
+        switch (l) {
+          case 'en': return 'Rent-A-Car & Fleet Leasing';
+          case 'de': return 'Mietwagen & Flottenverleih';
+          case 'pt': return 'Aluguel de Carros & Frotas';
+          case 'es': return 'Alquiler de Coches y Flotas';
+          case 'ru': return 'Прокат авто и Аренда парка';
+          case 'ar': return 'تأجير سيارات وتأجير أساطيل';
+          default: return 'Rent a Car & Filo Kiralama';
+        }
+      case SideBusinessType.evCharging:
+        switch (l) {
+          case 'en': return 'EV Fast Charging Station';
+          case 'de': return 'E-Auto Schnellladestation';
+          case 'pt': return 'Estação de Recarga Rápida EV';
+          case 'es': return 'Estación de Carga Rápida VE';
+          case 'ru': return 'Станция быстрой зарядки электромобилей';
+          case 'ar': return 'محطة شحن سريع للسيارات الكهربائية';
+          default: return 'Elektrikli Araç Şarj İstasyonu';
+        }
+      case SideBusinessType.corporateExpertise:
+        switch (l) {
+          case 'en': return 'Corporate Inspection & Dyno Center';
+          case 'de': return 'Prüfzentrum & Dyno-Messstand';
+          case 'pt': return 'Centro de Perícia & Dyno';
+          case 'es': return 'Centro de Peritaje y Dyno';
+          case 'ru': return 'Экспертный центр и Диностенд';
+          case 'ar': return 'مركز فحص فني وداينو احترافي';
+          default: return 'Kurumsal Ekspertiz & Dyno Merkezi';
+        }
+      case SideBusinessType.sparePartsStore:
+        switch (l) {
+          case 'en': return 'Spare Parts & Accessories Store';
+          case 'de': return 'Ersatzteile- & Zubehör-Shop';
+          case 'pt': return 'Loja de Autopeças & Acessórios';
+          case 'es': return 'Tienda de Recambios y Accesorios';
+          case 'ru': return 'Магазин автозапчастей и Аксессуаров';
+          case 'ar': return 'متجر قطع غيار وإكسسوارات';
+          default: return 'Yedek Parça & Aksesuar Mağazası';
+        }
+      case SideBusinessType.wrapStudio:
+        switch (l) {
+          case 'en': return 'Car Wrap & PPF Studio';
+          case 'de': return 'Folierungs- & PPF-Studio';
+          case 'pt': return 'Estúdio de Envelopamento & PPF';
+          case 'es': return 'Estudio de Vinilado y PPF';
+          case 'ru': return 'Студия оклейки и Защиты PPF';
+          case 'ar': return 'استوديو تجليد وحماية السيارات PPF';
+          default: return 'Araç Kaplama & PPF Koruma Stüdyosu';
+        }
+    }
+  }
+}
+
 class SideBusinessUpgradeModel {
   final String id;
   final String title;

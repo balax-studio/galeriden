@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
@@ -7,6 +10,7 @@ import 'package:galeriden/data/models/scrapyard_model.dart';
 import 'package:galeriden/data/models/side_business_model.dart';
 import 'package:galeriden/domain/usecases/side_business_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
+import 'package:galeriden/presentation/widgets/dialogs/daily_login_sheet.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -27,12 +31,13 @@ void main() {
       expect(milestones.map((m) => m.dayNumber), [7, 14, 21, 28]);
     });
 
-    test('Claiming daily reward advances streak and loops back at day 28', () {
+    test('Claiming daily reward advances streak, blocks same-day double claim, and loops at day 28', () {
       final notifier = GameNotifier();
       notifier.stopPeriodicOrganicOfferTimer();
 
       final initialStreak = notifier.state.currentStreakDay;
       expect(initialStreak, 1);
+      expect(notifier.state.canClaimTodayStreak('2026-08-22'), isTrue);
 
       // Claim Day 1
       final reward = notifier.claimDailyLoginReward(customNow: DateTime(2026, 8, 22));
@@ -40,10 +45,26 @@ void main() {
       expect(reward!.dayNumber, 1);
       expect(notifier.state.currentStreakDay, 2);
       expect(notifier.state.streakCycleCount, 0);
+      expect(notifier.state.lastRealLoginDateStr, '2026-08-22');
 
-      // Advance to Day 28 and test monthly cycle loop
-      notifier.state = notifier.state.copyWith(currentStreakDay: 28, lastRealLoginDateStr: '2026-08-21');
-      final day28Reward = notifier.claimDailyLoginReward(customNow: DateTime(2026, 8, 22));
+      // Double claim on same date MUST be blocked
+      expect(notifier.state.canClaimTodayStreak('2026-08-22'), isFalse);
+      final doubleClaimReward = notifier.claimDailyLoginReward(customNow: DateTime(2026, 8, 22));
+      expect(doubleClaimReward, isNull);
+      expect(notifier.state.currentStreakDay, 2); // Unchanged
+
+      // Next day (2026-08-23) allows Day 2 claim
+      expect(notifier.state.canClaimTodayStreak('2026-08-23'), isTrue);
+      final day2Reward = notifier.claimDailyLoginReward(customNow: DateTime(2026, 8, 23));
+      expect(day2Reward, isNotNull);
+      expect(day2Reward!.dayNumber, 2);
+      expect(notifier.state.currentStreakDay, 3);
+      expect(notifier.state.lastRealLoginDateStr, '2026-08-23');
+
+      // Advance to Day 28 and test monthly cycle loop on a distinct day
+      notifier.state = notifier.state.copyWith(currentStreakDay: 28, lastRealLoginDateStr: '2026-08-23');
+      expect(notifier.state.canClaimTodayStreak('2026-08-24'), isTrue);
+      final day28Reward = notifier.claimDailyLoginReward(customNow: DateTime(2026, 8, 24));
       expect(day28Reward, isNotNull);
       expect(day28Reward!.dayNumber, 28);
       expect(notifier.state.currentStreakDay, 1); // Loops to day 1!
@@ -51,6 +72,48 @@ void main() {
       expect(notifier.state.claimedStreakDays.isEmpty, true); // Reset for new month!
 
       notifier.stopPeriodicOrganicOfferTimer();
+    });
+
+    testWidgets('DailyLoginSheet renders, claims Day 1, and disables button after claim', (tester) async {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            locale: Locale('tr'),
+            supportedLocales: [Locale('tr'), Locale('en')],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: Scaffold(body: DailyLoginSheet()),
+          ),
+        ),
+      );
+
+      // Verify Day 1 claim button is shown and enabled
+      expect(find.text('GÜN 1 SİFTAHINI KASAYA AT'), findsOneWidget);
+      expect(find.text('SİFTAH HAZIR'), findsOneWidget);
+
+      // Tap claim button
+      await tester.tap(find.text('GÜN 1 SİFTAHINI KASAYA AT'));
+      await tester.pumpAndSettle();
+
+      // Button must now be disabled and show already claimed state
+      expect(find.text('BUGÜNÜN ÖDÜLÜ ALINDI • YARIN GEL'), findsOneWidget);
+      expect(find.text('YARIN GEL'), findsWidgets);
+
+      // Tapping disabled button does nothing
+      await tester.tap(find.text('BUGÜNÜN ÖDÜLÜ ALINDI • YARIN GEL'));
+      await tester.pump(const Duration(seconds: 3));
+      expect(container.read(gameProvider).currentStreakDay, 2);
+
+      notifier.stopPeriodicOrganicOfferTimer();
+      container.dispose();
     });
   });
 

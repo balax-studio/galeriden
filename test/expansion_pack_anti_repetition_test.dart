@@ -126,6 +126,7 @@ void main() {
       // Setup company listing
       notifier.addMoney(1000000.0);
       notifier.addXP(10000); // Level up
+      notifier.stopPeriodicOrganicOfferTimer();
       notifier.state = notifier.state.copyWith(carsSold: 15, level: 5);
 
       final ipoResult = notifier.launchPlayerCompanyIpo();

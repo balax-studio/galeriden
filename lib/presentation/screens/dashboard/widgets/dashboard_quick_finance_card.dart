@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
@@ -55,8 +55,8 @@ class DashboardQuickFinanceCard extends StatelessWidget {
                 children: [
                   Text(
                     activeLoans.isNotEmpty
-                        ? 'Aktif Kredi Borcu • ${activeLoans.length}'
-                        : 'Banka Kredisi Hazır',
+                        ? context.tr('active_loans_count', {'count': activeLoans.length})
+                        : context.tr('bank_credit_ready'),
                     style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w900,
@@ -66,8 +66,8 @@ class DashboardQuickFinanceCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     activeLoans.isNotEmpty
-                        ? 'Kalan Borç: ${CurrencyFormatter.formatShort(totalLoanDebt)}'
-                        : 'İhtiyaç anında ₺500.000 limitli kredi çek',
+                        ? context.tr('remaining_debt_label', {'amount': CurrencyFormatter.formatShort(totalLoanDebt)})
+                        : context.tr('bank_credit_sub'),
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
@@ -79,7 +79,7 @@ class DashboardQuickFinanceCard extends StatelessWidget {
             ],
           ),
           NeoBrutalButton(
-            label: activeLoans.isNotEmpty ? 'Yönet' : 'Kredi Çek',
+            label: activeLoans.isNotEmpty ? context.tr('manage_btn') : context.tr('get_loan_btn'),
             backgroundColor: activeLoans.isNotEmpty ? const Color(0xFFFF7A00) : palette.primaryColor,
             textColor: Colors.black,
             fontSize: 11,
