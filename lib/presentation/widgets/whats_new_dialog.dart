@@ -107,37 +107,55 @@ class WhatsNewDialog extends ConsumerWidget {
 
               // Changelog Items
               _buildChangelogItem(
-                icon: Icons.confirmation_number_rounded,
+                icon: Icons.calendar_month_rounded,
                 iconColor: const Color(0xFFFFDE59),
-                title: 'Özel Plaka Tescil Masası',
-                description: 'Ofise özel plaka tescil masası eklendi. Efsanevi, Takım, İsim ve Simetrik Türk plakaları satın alabilir ya da özel plakanı tasarlayıp araçların değerini %10a ve ₺250.000 tavana kadar artırabilirsin.',
+                title: '28 Günlük 4 Sezonluk Esnaf Takvimi',
+                description: 'Aylık giriş serisi yenilendi. İlkbahar, Yaz, Sonbahar ve Kış olmak üzere 4 dinamik sezon teması, her gün büyüyen siftah ödülleri ve haftalık özel kilometre taşı sandıkları seni bekliyor.',
                 isDark: isDark,
               ),
               const SizedBox(height: 10),
 
               _buildChangelogItem(
-                icon: Icons.trending_up_rounded,
-                iconColor: const Color(0xFF38BDF8),
-                title: 'Çetin Pazarlık & Gerilim Göstergesi',
-                description: 'Vitrin ilanlarında karşı teklif verme tavan fiyata bağlandı. Anlık pazarlık gerilimi seviye rozetleri ve esnaf direnç eğrisi ile pazarlıklar artık çok daha gerçekçi.',
-                isDark: isDark,
-              ),
-              const SizedBox(height: 10),
-
-              _buildChangelogItem(
-                icon: Icons.verified_user_rounded,
+                icon: Icons.apartment_rounded,
                 iconColor: const Color(0xFF00E575),
-                title: 'Dürüst Esnaf Prestiji & Güven Puanı',
-                description: 'Temiz satış serileri, müşteri itibar yankısı ve noter güven puanlaması geliştirildi. Hileli işlemler itibar kaybettirir.',
+                title: 'BIST Galeri Holding Halka Arzı • GLRD',
+                description: 'Seviye 4 ve 10 araç satışına ulaşınca şirketini Borsa İstanbul da halka arz et. Kasana dev sermaye aktar, her 30 günde bir çeyreklik bilanço kâr payı topla ve piyasadan hisse geri alımı yap.',
                 isDark: isDark,
               ),
               const SizedBox(height: 10),
 
               _buildChangelogItem(
-                icon: Icons.shield_rounded,
+                icon: Icons.support_agent_rounded,
+                iconColor: const Color(0xFF38BDF8),
+                title: 'Satış Sonrası CRM & Müşteri Olayları',
+                description: 'Araç satışlarının ardından film seti kiralama sözleşmeleri, lojistik filo talepleri, VIP alıcı yönlendirmeleri ve gizli kusur itirazları gibi 10 dan fazla dinamik esnaf olayı eklendi.',
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+
+              _buildChangelogItem(
+                icon: Icons.warehouse_rounded,
+                iconColor: const Color(0xFFFB923C),
+                title: 'Hurdalık 4 Stratejik Bölge & Günlük Tüyolar',
+                description: 'Ostim, Maslak, Şaşmaz ve Terk Edilmiş Harabe bölgelerinde arama yap. Günün sanayi dedikodularını takip ederek samanlık buluntusu efsanevi restorasyon şasilerini keşfet.',
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+
+              _buildChangelogItem(
+                icon: Icons.gavel_rounded,
                 iconColor: const Color(0xFFA855F7),
-                title: 'Dengeli Seviye İlerlemesi & Exploit Koruması',
-                description: 'Kademeli seviye eğrisi ve aşırı seri tıklamalara karşı akıllı XP dengelemesi eklendi. Hakiki esnaflık tecrübesi ön plana çıkarıldı.',
+                title: 'Canlı Müzayede Blöf Hamlesi & Rakipler',
+                description: 'İhalede masaya blöf sürerek rakiplere aracı fahiş fiyattan sat ya da risk al. Baron Selim, Koleksiyoner Ferit ve Al-Satçı Rıza nın psikolojik tepkilerini yönet.',
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+
+              _buildChangelogItem(
+                icon: Icons.groups_rounded,
+                iconColor: const Color(0xFFEC4899),
+                title: 'Personel Morali, İkramlar & Akademi',
+                description: 'Çalışanlarına çay ve yemek ısmarlayarak morallerini yüksek tut. Çırak ve ustalarını sertifikalı akademi eğitimleriyle geliştirerek işlem hızını ve kâr marjını artır.',
                 isDark: isDark,
               ),
               const SizedBox(height: 14),
