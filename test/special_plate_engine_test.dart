@@ -39,7 +39,7 @@ void main() {
       }
     });
 
-    test('Custom Plate Evaluation: Legendary Keyword triggers legendary rarity and +35% boost', () {
+    test('Custom Plate Evaluation: Legendary Keyword triggers legendary rarity and +10% boost', () {
       final evaluated = SpecialPlateEngine.evaluateCustomPlate(
         cityCode: '34',
         letters: 'ATA',
@@ -48,11 +48,11 @@ void main() {
 
       expect(evaluated.plateNumber, equals('34 ATA 1923'));
       expect(evaluated.rarity, equals('legendary'));
-      expect(evaluated.valueBonusPercent, equals(35));
+      expect(evaluated.valueBonusPercent, equals(10));
       expect(evaluated.price, greaterThanOrEqualTo(80000.0));
     });
 
-    test('Custom Plate Evaluation: Symmetrical pattern triggers symmetric rarity and +12% boost', () {
+    test('Custom Plate Evaluation: Symmetrical pattern triggers symmetric rarity and +5% boost', () {
       final evaluated = SpecialPlateEngine.evaluateCustomPlate(
         cityCode: '06',
         letters: 'AB',
@@ -61,11 +61,11 @@ void main() {
 
       expect(evaluated.plateNumber, equals('06 AB 606'));
       expect(evaluated.rarity, equals('symmetric'));
-      expect(evaluated.valueBonusPercent, equals(12));
+      expect(evaluated.valueBonusPercent, equals(5));
       expect(evaluated.price, equals(42000.0));
     });
 
-    test('Custom Plate Evaluation: Repeating numbers trigger repeated rarity and +8% boost', () {
+    test('Custom Plate Evaluation: Repeating numbers trigger repeated rarity and +3% boost', () {
       final evaluated = SpecialPlateEngine.evaluateCustomPlate(
         cityCode: '35',
         letters: 'XY',
@@ -74,11 +74,11 @@ void main() {
 
       expect(evaluated.plateNumber, equals('35 XY 777'));
       expect(evaluated.rarity, equals('repeated'));
-      expect(evaluated.valueBonusPercent, equals(8));
+      expect(evaluated.valueBonusPercent, equals(3));
       expect(evaluated.price, equals(30000.0));
     });
 
-    test('State Integration: buyAndAssignPlate updates car plate and increases estimatedRealValue', () async {
+    test('State Integration: buyAndAssignPlate updates car plate and increases estimatedRealValue with capped boost', () async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
       addTearDown(container.dispose);
@@ -131,7 +131,38 @@ void main() {
 
       final double newRealValue = notifier.state.ownedCars.first.estimatedRealValue;
       expect(newRealValue, greaterThan(initialRealValue));
-      expect(newRealValue / initialRealValue, closeTo(1.35, 0.05)); // ~35% boost
+      expect(newRealValue / initialRealValue, closeTo(1.10, 0.02)); // +10% boost for 1M car
+    });
+
+    test('Luxury Car Exploit Prevention: 10M car plate boost is strictly capped at max ₺250.000', () {
+      final luxuryCar = CarModel(
+        id: 'car_luxury_1',
+        brand: 'Porsche',
+        modelName: '911 GT3',
+        modelYear: 2023,
+        bodyType: 'Coupe',
+        colorHex: '#FFFFFF',
+        baseMarketValue: 10000000.0,
+        currentPurchasePrice: 9500000.0,
+        plateNumber: '34 XYZ 999',
+        plateRarity: 'standard',
+        expertise: ExpertiseReport(
+          engineCondition: 100.0,
+          transmissionCondition: 100.0,
+          tramerAmount: 0,
+          mileage: 5000,
+          isMileageTampered: false,
+          bodyParts: const {},
+        ),
+      );
+
+      final carWithLegendaryPlate = luxuryCar.copyWith(
+        plateRarity: 'legendary',
+        plateNumber: '34 VIP 001',
+      );
+
+      final double gain = carWithLegendaryPlate.estimatedRealValue - luxuryCar.estimatedRealValue;
+      expect(gain, closeTo(250000.0, 1.0)); // Exactly capped at +₺250.000 instead of unbounded +3.5M
     });
   });
 }

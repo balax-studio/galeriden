@@ -110,7 +110,7 @@ class WhatsNewDialog extends ConsumerWidget {
                 icon: Icons.confirmation_number_rounded,
                 iconColor: const Color(0xFFFFDE59),
                 title: 'Özel Plaka Tescil Masası',
-                description: 'Ofise özel plaka tescil masası eklendi. Efsanevi, Takım, İsim ve Simetrik Türk plakaları satın alabilir ya da özel plakanı tasarlayıp garajındaki araçların değerini %35e kadar artırabilirsin.',
+                description: 'Ofise özel plaka tescil masası eklendi. Efsanevi, Takım, İsim ve Simetrik Türk plakaları satın alabilir ya da özel plakanı tasarlayıp araçların değerini %10a ve ₺250.000 tavana kadar artırabilirsin.',
                 isDark: isDark,
               ),
               const SizedBox(height: 10),

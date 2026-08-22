@@ -46,9 +46,9 @@ class SpecialPlateEngine {
       city: 'İstanbul',
       rarity: 'legendary',
       title: 'Ata Özel Serisi',
-      description: 'Cumhuriyet hatırası en prestijli özel tescil plaka • Araç değerini %35 artırır.',
+      description: 'Cumhuriyet hatırası en prestijli özel tescil plaka • Araç değerini %10a kadar • Maks ₺250.000 artırır.',
       price: 150000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 20,
       category: PlateCategory.legendary,
     ),
@@ -60,7 +60,7 @@ class SpecialPlateEngine {
       title: 'Protokol VIP Seri',
       description: 'Zirve iş dünyası ve protokol tescilli özel numara • Prestij ve itibar artışı.',
       price: 120000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 18,
       category: PlateCategory.legendary,
     ),
@@ -72,7 +72,7 @@ class SpecialPlateEngine {
       title: 'Başkent Patron Serisi',
       description: 'Otorite ve saygınlık simgesi tek haneli başkent plakası.',
       price: 110000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 16,
       category: PlateCategory.legendary,
     ),
@@ -84,7 +84,7 @@ class SpecialPlateEngine {
       title: 'Cadde Hükümdarı',
       description: 'Özel taleple basılmış nadide harf grubu • Genç alıcıların gözdesi.',
       price: 95000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 15,
       category: PlateCategory.legendary,
     ),
@@ -96,7 +96,7 @@ class SpecialPlateEngine {
       title: 'Makam Tescili',
       description: 'Resmi makam ağırlığında tescilli nadir plaka.',
       price: 135000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 19,
       category: PlateCategory.legendary,
     ),
@@ -108,7 +108,7 @@ class SpecialPlateEngine {
       title: 'Galeriden Özel İmzası',
       description: 'Galericiler cemiyeti ve cumhuriyet kuruluş hatırası özel seri.',
       price: 105000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 17,
       category: PlateCategory.legendary,
     ),
@@ -120,7 +120,7 @@ class SpecialPlateEngine {
       title: 'Ağır Esnaf Reisi',
       description: 'Sektörün ileri gelenlerine yakışır tescil.',
       price: 90000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 15,
       category: PlateCategory.legendary,
     ),
@@ -134,7 +134,7 @@ class SpecialPlateEngine {
       title: 'Sarı Kırmızı Efsane',
       description: '1905 tescilli sarı kırmızı taraftar gururu • Koleksiyon değeri taşır.',
       price: 85000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 14,
       category: PlateCategory.team,
     ),
@@ -146,7 +146,7 @@ class SpecialPlateEngine {
       title: 'Sarı Lacivert Asalet',
       description: '1907 tescilli sarı lacivert camiasının aranan efsanevi plakası.',
       price: 85000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 14,
       category: PlateCategory.team,
     ),
@@ -158,7 +158,7 @@ class SpecialPlateEngine {
       title: 'Siyah Beyaz Tutku',
       description: '1903 tescilli kartal arması özel taraftar serisi.',
       price: 85000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 14,
       category: PlateCategory.team,
     ),
@@ -170,7 +170,7 @@ class SpecialPlateEngine {
       title: 'Fırtına Karadeniz',
       description: 'Bordo mavi Karadeniz fırtınası efsanevi 1967 kuruluşu.',
       price: 80000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 14,
       category: PlateCategory.team,
     ),
@@ -182,7 +182,7 @@ class SpecialPlateEngine {
       title: 'İzmir Göztepe Ruhu',
       description: 'Ege sahillerinin efsanevi 1925 kuruluş sarı kırmızı serisi.',
       price: 70000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 12,
       category: PlateCategory.team,
     ),
@@ -196,7 +196,7 @@ class SpecialPlateEngine {
       title: 'Çift Şehirli Can Serisi',
       description: 'Hem isim hem il kodu simetrisi taşıyan prestijli plaka.',
       price: 65000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 12,
       category: PlateCategory.names,
     ),
@@ -208,7 +208,7 @@ class SpecialPlateEngine {
       title: 'Başkent Efesi',
       description: 'İsme özel simetrik harf grubu.',
       price: 60000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 11,
       category: PlateCategory.names,
     ),
@@ -220,7 +220,7 @@ class SpecialPlateEngine {
       title: 'Ege Cem Serisi',
       description: 'Özel isim simetrisiyle basılmış nadide tescil.',
       price: 55000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 10,
       category: PlateCategory.names,
     ),
@@ -232,7 +232,7 @@ class SpecialPlateEngine {
       title: 'İstanbul Ali İmzası',
       description: 'Popüler isim tescili • Alıcı ilgisini katlar.',
       price: 58000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 11,
       category: PlateCategory.names,
     ),
@@ -244,7 +244,7 @@ class SpecialPlateEngine {
       title: 'Hanedan Serisi',
       description: 'Kudret ve asalet simgesi tescil.',
       price: 52000.0,
-      valueBonusPercent: 35,
+      valueBonusPercent: 10,
       reputationReward: 10,
       category: PlateCategory.names,
     ),
@@ -256,9 +256,9 @@ class SpecialPlateEngine {
       city: 'İstanbul',
       rarity: 'symmetric',
       title: 'Tam Simetrik Ayna',
-      description: 'İl kodu ve rakam dizilimi ayna gibi örtüşen özel seri.',
+      description: 'İl kodu ve rakam dizilimi ayna gibi örtüşen özel seri • Araç değerini %5e kadar • Maks ₺120.000 artırır.',
       price: 38000.0,
-      valueBonusPercent: 12,
+      valueBonusPercent: 5,
       reputationReward: 8,
       category: PlateCategory.symmetric,
     ),
@@ -268,9 +268,9 @@ class SpecialPlateEngine {
       city: 'Ankara',
       rarity: 'symmetric',
       title: 'Başkent İkiz Rakam',
-      description: 'Simetrik 606 dizilimiyle dikkat çeken plaka.',
+      description: 'Simetrik 606 dizilimiyle dikkat çeken plaka • Araç değerini %5e kadar • Maks ₺120.000 artırır.',
       price: 35000.0,
-      valueBonusPercent: 12,
+      valueBonusPercent: 5,
       reputationReward: 8,
       category: PlateCategory.symmetric,
     ),
@@ -280,9 +280,9 @@ class SpecialPlateEngine {
       city: 'İstanbul',
       rarity: 'repeated',
       title: 'Üçüz Dokuzlar',
-      description: 'Arka arkaya dizilen üçüz rakamlar • Karizmatik duruş.',
+      description: 'Arka arkaya dizilen üçüz rakamlar • Karizmatik duruş • Araç değerini %3e kadar • Maks ₺75.000 artırır.',
       price: 28000.0,
-      valueBonusPercent: 8,
+      valueBonusPercent: 3,
       reputationReward: 6,
       category: PlateCategory.symmetric,
     ),
@@ -292,9 +292,9 @@ class SpecialPlateEngine {
       city: 'İzmir',
       rarity: 'repeated',
       title: 'Üçüz Beşler',
-      description: 'Göz alıcı tekrar eden rakam grubu.',
+      description: 'Göz alıcı tekrar eden rakam grubu • Araç değerini %3e kadar • Maks ₺75.000 artırır.',
       price: 26000.0,
-      valueBonusPercent: 8,
+      valueBonusPercent: 3,
       reputationReward: 6,
       category: PlateCategory.symmetric,
     ),
@@ -304,9 +304,9 @@ class SpecialPlateEngine {
       city: 'Bursa',
       rarity: 'repeated',
       title: 'Dörtlü Birler Serisi',
-      description: 'Bursa tescilli dörtlü seri numara.',
+      description: 'Bursa tescilli dörtlü seri numara • Araç değerini %3e kadar • Maks ₺75.000 artırır.',
       price: 32000.0,
-      valueBonusPercent: 8,
+      valueBonusPercent: 3,
       reputationReward: 7,
       category: PlateCategory.symmetric,
     ),
@@ -364,7 +364,7 @@ class SpecialPlateEngine {
 
     String rarity = 'standard';
     double price = 15000.0;
-    int bonusPercent = 4;
+    int bonusPercent = 2;
     int repReward = 3;
     String title = 'Özel Tescil Plaka';
     String description = 'Kişiye özel harf ve rakam kombinasyonu • Değer artışı sağlar.';
@@ -372,31 +372,31 @@ class SpecialPlateEngine {
     if (isLegendaryWord) {
       rarity = 'legendary';
       price = 80000.0 + (_random.nextInt(4) * 10000.0);
-      bonusPercent = 35;
+      bonusPercent = 10;
       repReward = 15;
       title = 'Efsanevi Kelime Tescili';
-      description = 'Nadir tescilli efsane harf grubu • Araç değerini %35 artırır.';
+      description = 'Nadir tescilli efsane harf grubu • Araç değerini %10a kadar • Maks ₺250.000 artırır.';
     } else if (isRepeatedLetters || isRepeatedDigits) {
       rarity = 'repeated';
       price = 30000.0;
-      bonusPercent = 8;
+      bonusPercent = 3;
       repReward = 6;
       title = 'Tekrarlı Rakam/Harf Serisi';
-      description = 'Tekrar eden karizmatik seri • Araç değerini %8 artırır.';
+      description = 'Tekrar eden karizmatik seri • Araç değerini %3e kadar • Maks ₺75.000 artırır.';
     } else if (isSymmetric || (cleanDigits.endsWith(cleanCity) && cleanDigits.length >= 2)) {
       rarity = 'symmetric';
       price = 42000.0;
-      bonusPercent = 12;
+      bonusPercent = 5;
       repReward = 8;
       title = 'Simetrik Uyumlu Seri';
-      description = 'İl kodu ve rakam uyumlu simetrik tescil • Araç değerini %12 artırır.';
+      description = 'İl kodu ve rakam uyumlu simetrik tescil • Araç değerini %5e kadar • Maks ₺120.000 artırır.';
     } else {
       rarity = 'standard';
       price = 16000.0;
-      bonusPercent = 4;
+      bonusPercent = 2;
       repReward = 4;
       title = 'Özel Talep Plaka';
-      description = 'Kişisel sipariş tescil plakası • Araç değerini %4 artırır.';
+      description = 'Kişisel sipariş tescil plakası • Araç değerini %2ye kadar • Maks ₺50.000 artırır.';
     }
 
     return SpecialPlateItem(

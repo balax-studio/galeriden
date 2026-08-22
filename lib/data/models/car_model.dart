@@ -177,11 +177,11 @@ class CarModel {
   double get plateValueMultiplier {
     switch (plateRarity) {
       case 'legendary':
-        return 1.35; // +35% value
+        return 1.10; // +10% value
       case 'symmetric':
-        return 1.12; // +12% value
+        return 1.05; // +5% value
       case 'repeated':
-        return 1.08; // +8% value
+        return 1.03; // +3% value
       default:
         return 1.0;
     }
@@ -348,8 +348,29 @@ class CarModel {
       factor -= 0.05;
     }
 
-    // Plate & Color value multipliers
-    factor *= plateValueMultiplier;
+    // 4. Plate Value Boost with Fixed TL Cap (Prevents luxury car valuation inflation)
+    double plateBoostFactor = 0.0;
+    if (baseMarketValue > 0) {
+      switch (plateRarity) {
+        case 'legendary':
+          // +10% base boost capped at max ₺250.000
+          plateBoostFactor = (250000.0 / baseMarketValue).clamp(0.0, 0.10);
+          break;
+        case 'symmetric':
+          // +5% base boost capped at max ₺120.000
+          plateBoostFactor = (120000.0 / baseMarketValue).clamp(0.0, 0.05);
+          break;
+        case 'repeated':
+          // +3% base boost capped at max ₺75.000
+          plateBoostFactor = (75000.0 / baseMarketValue).clamp(0.0, 0.03);
+          break;
+        default:
+          plateBoostFactor = 0.0;
+      }
+    }
+    factor += plateBoostFactor;
+
+    // Color value multiplier
     factor *= colorValueMultiplier;
 
     if (isBarnFind && !isBarnFindRestored) {
