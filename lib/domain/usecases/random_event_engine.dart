@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import '../../data/models/game_event_model.dart';
 
 class RandomEventEngine {
@@ -895,8 +896,7 @@ class RandomEventEngine {
         return unseen[_random.nextInt(unseen.length)];
       }
     } catch (e) {
-      // ignore: avoid_print
-      print('RandomEventEngine error: $e');
+      debugPrint('RandomEventEngine error: $e');
     }
 
     if (candidates.isEmpty) return null;

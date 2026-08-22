@@ -23,35 +23,6 @@ class TutorialState {
     required this.step,
     required this.isActive,
   });
-
-  String get stepInstruction {
-    switch (step) {
-      case TutorialStep.inspectCar:
-        return 'Deden Hasan Usta\'dan kalan arabayı garajda incele.';
-      case TutorialStep.openDamageList:
-        return 'Tamirhaneye git ve aracın hasarlı parçalarını listele.';
-      case TutorialStep.checkPart:
-        return 'Hasarlı kaput veya motorun durumunu ve tamir seçeneklerini incele.';
-      case TutorialStep.tryRepair:
-        return 'Bütçene uygun tamir seçeneğine karar ver: Geçici / Usta / Yeni.';
-      case TutorialStep.orderPart:
-        return 'Parça veya usta tamir siparişini ver.';
-      case TutorialStep.waitDelivery:
-        return 'Siparişin teslim edilmesini bekle.';
-      case TutorialStep.installPart:
-        return 'Teslim alınan parçayı monte et ve aracı yenile.';
-      case TutorialStep.startEngine:
-        return 'Aracın performans ve kondisyon artışını kontrol et.';
-      case TutorialStep.seeValueIncrease:
-        return 'Yenilenen aracın piyasa değerinin yükseldiğini gör!';
-      case TutorialStep.listForSale:
-        return 'Galerine git ve miras arabayı ilana çıkar.';
-      case TutorialStep.completeSale:
-        return 'Gelen müşteri teklifini kabul et ve ilk kârını elde et!';
-      case TutorialStep.finished:
-        return 'Tebrikler! Artık kendi oto galeri imparatorluğunu kurmaya hazırsın!';
-    }
-  }
 }
 
 final tutorialProvider = StateNotifierProvider<TutorialNotifier, TutorialState>((ref) {

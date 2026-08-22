@@ -8,6 +8,7 @@ import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/tuning_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -58,6 +59,14 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
           context,
           context.tr('tuning_toast_health_updated'),
         );
+        final luckyOpp = ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
+        if (luckyOpp != null && context.mounted) {
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (context.mounted) {
+              LuckyOpportunityDialog.show(context, luckyOpp);
+            }
+          });
+        }
       },
     );
   }

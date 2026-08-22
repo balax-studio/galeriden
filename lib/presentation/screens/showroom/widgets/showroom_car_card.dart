@@ -17,6 +17,7 @@ import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/pulsing_dot.dart';
+import '../../../widgets/foil_shimmer_widget.dart';
 import 'car_cost_breakdown_sheet.dart';
 import 'showroom_listing_modal.dart';
 
@@ -48,7 +49,9 @@ class ShowroomCarCard extends ConsumerWidget {
     return RepaintBoundary(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: NeoBrutalCard(
+        child: FoilShimmerWidget(
+          isEnabled: car.isRare,
+          child: NeoBrutalCard(
         padding: const EdgeInsets.all(14),
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
         borderColor: hasOffer
@@ -906,6 +909,7 @@ class ShowroomCarCard extends ConsumerWidget {
               ),
           ],
         ),
+      ),
       ),
     ),
   );

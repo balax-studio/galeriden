@@ -15,6 +15,7 @@ import 'game_base_notifier.dart';
 import 'game_finance_mixin.dart';
 import 'game_inventory_mixin.dart';
 import 'game_market_mixin.dart';
+import 'game_monetization_mixin.dart';
 import 'game_staff_mixin.dart';
 import 'game_time_mixin.dart';
 
@@ -23,6 +24,7 @@ class GameCoreNotifier extends GameBaseNotifier
         GameFinanceMixin,
         GameInventoryMixin,
         GameMarketMixin,
+        GameMonetizationMixin,
         GameStaffMixin,
         GameTimeMixin {
   

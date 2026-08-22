@@ -264,6 +264,7 @@ void main() {
       final car = createSampleCar();
       final container = ProviderContainer();
       final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
       notifier.state = notifier.state.copyWith(
         balance: 1000000,
         ownedCars: [car],

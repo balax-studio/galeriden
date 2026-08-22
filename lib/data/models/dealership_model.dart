@@ -294,6 +294,17 @@ class DealershipModel {
   // Galeri Holding BIST Halka Arz
   final bool isCompanyListedOnBist;
 
+  // Monetizasyon & Şanslı Fırsat (Lucky Moment) Alanları
+  final int luckyOpportunityPityCounter;
+  final int lastLuckyOpportunityDay;
+  final bool isStarterBundlePurchased;
+  final bool isScrapyardBundlePurchased;
+  final bool isPlazaBundlePurchased;
+  final bool hasNoAdsLicense;
+  final String activeShowroomThemeId;
+  final List<String> unlockedShowroomThemeIds;
+  final List<String> unlockedCustomPaintIds;
+
   bool get isOfficeGrantClaimedToday => lastOfficeGrantClaimDay >= currentDay;
   bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
   bool get isSiftahDoneToday => lastSiftahDay >= currentDay;
@@ -1011,6 +1022,15 @@ class DealershipModel {
     this.pendingCrmEvents = const [],
     this.activeCrmEvent,
     this.isCompanyListedOnBist = false,
+    this.luckyOpportunityPityCounter = 0,
+    this.lastLuckyOpportunityDay = 0,
+    this.isStarterBundlePurchased = false,
+    this.isScrapyardBundlePurchased = false,
+    this.isPlazaBundlePurchased = false,
+    this.hasNoAdsLicense = false,
+    this.activeShowroomThemeId = 'theme_standard',
+    this.unlockedShowroomThemeIds = const ['theme_standard'],
+    this.unlockedCustomPaintIds = const [],
   });
 
   factory DealershipModel.initial() {
@@ -1421,6 +1441,15 @@ class DealershipModel {
       'pendingCrmEvents': pendingCrmEvents.map((c) => c.toJson()).toList(),
       'activeCrmEvent': activeCrmEvent?.toJson(),
       'isCompanyListedOnBist': isCompanyListedOnBist,
+      'luckyOpportunityPityCounter': luckyOpportunityPityCounter,
+      'lastLuckyOpportunityDay': lastLuckyOpportunityDay,
+      'isStarterBundlePurchased': isStarterBundlePurchased,
+      'isScrapyardBundlePurchased': isScrapyardBundlePurchased,
+      'isPlazaBundlePurchased': isPlazaBundlePurchased,
+      'hasNoAdsLicense': hasNoAdsLicense,
+      'activeShowroomThemeId': activeShowroomThemeId,
+      'unlockedShowroomThemeIds': unlockedShowroomThemeIds,
+      'unlockedCustomPaintIds': unlockedCustomPaintIds,
     };
   }
 
@@ -1603,6 +1632,15 @@ class DealershipModel {
           ? CustomerCrmEventModel.fromJson(Map<String, dynamic>.from(json['activeCrmEvent'] as Map))
           : null,
       isCompanyListedOnBist: json['isCompanyListedOnBist'] as bool? ?? false,
+      luckyOpportunityPityCounter: json['luckyOpportunityPityCounter'] as int? ?? 0,
+      lastLuckyOpportunityDay: json['lastLuckyOpportunityDay'] as int? ?? 0,
+      isStarterBundlePurchased: json['isStarterBundlePurchased'] as bool? ?? false,
+      isScrapyardBundlePurchased: json['isScrapyardBundlePurchased'] as bool? ?? false,
+      isPlazaBundlePurchased: json['isPlazaBundlePurchased'] as bool? ?? false,
+      hasNoAdsLicense: json['hasNoAdsLicense'] as bool? ?? false,
+      activeShowroomThemeId: json['activeShowroomThemeId'] as String? ?? 'theme_standard',
+      unlockedShowroomThemeIds: (json['unlockedShowroomThemeIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const ['theme_standard'],
+      unlockedCustomPaintIds: (json['unlockedCustomPaintIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
     );
   }
 
@@ -1753,6 +1791,15 @@ class DealershipModel {
     CustomerCrmEventModel? activeCrmEvent,
     bool clearActiveCrmEvent = false,
     bool? isCompanyListedOnBist,
+    int? luckyOpportunityPityCounter,
+    int? lastLuckyOpportunityDay,
+    bool? isStarterBundlePurchased,
+    bool? isScrapyardBundlePurchased,
+    bool? isPlazaBundlePurchased,
+    bool? hasNoAdsLicense,
+    String? activeShowroomThemeId,
+    List<String>? unlockedShowroomThemeIds,
+    List<String>? unlockedCustomPaintIds,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1866,6 +1913,15 @@ class DealershipModel {
       pendingCrmEvents: pendingCrmEvents ?? this.pendingCrmEvents,
       activeCrmEvent: clearActiveCrmEvent ? null : (activeCrmEvent ?? this.activeCrmEvent),
       isCompanyListedOnBist: isCompanyListedOnBist ?? this.isCompanyListedOnBist,
+      luckyOpportunityPityCounter: luckyOpportunityPityCounter ?? this.luckyOpportunityPityCounter,
+      lastLuckyOpportunityDay: lastLuckyOpportunityDay ?? this.lastLuckyOpportunityDay,
+      isStarterBundlePurchased: isStarterBundlePurchased ?? this.isStarterBundlePurchased,
+      isScrapyardBundlePurchased: isScrapyardBundlePurchased ?? this.isScrapyardBundlePurchased,
+      isPlazaBundlePurchased: isPlazaBundlePurchased ?? this.isPlazaBundlePurchased,
+      hasNoAdsLicense: hasNoAdsLicense ?? this.hasNoAdsLicense,
+      activeShowroomThemeId: activeShowroomThemeId ?? this.activeShowroomThemeId,
+      unlockedShowroomThemeIds: unlockedShowroomThemeIds ?? this.unlockedShowroomThemeIds,
+      unlockedCustomPaintIds: unlockedCustomPaintIds ?? this.unlockedCustomPaintIds,
     );
   }
 

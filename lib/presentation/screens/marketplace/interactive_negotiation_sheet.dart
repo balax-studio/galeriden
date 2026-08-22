@@ -23,6 +23,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/pulsing_dot.dart';
+import '../../widgets/steam_cup_widget.dart';
 import '../../widgets/mini_games/handshake_stamp_canvas.dart';
 
 /// Neo-Brutalist & Industrial "Pazarlık Masası" (Live Deal Room Sheet)
@@ -218,6 +219,12 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             ),
                           ],
                         ),
+                      ),
+
+                      // Steaming Turkish Tea Cup Micro-Graphic
+                      const Padding(
+                        padding: EdgeInsets.only(right: 8),
+                        child: SteamCupWidget(size: 26),
                       ),
 
                       // Tactile Retro Close Button

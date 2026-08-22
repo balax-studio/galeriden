@@ -22,6 +22,7 @@ import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/neo_brutal_empty_state.dart';
 import '../../../../domain/usecases/negotiation_engine.dart';
+import '../../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../../widgets/dialogs/notary_transfer_dialog.dart';
 import 'showroom_listing_modal.dart';
 
@@ -887,6 +888,14 @@ class ShowroomOffersTab extends ConsumerWidget {
                 'amount': CurrencyFormatter.format(offer.offeredAmount),
               }),
             );
+            final luckyOpp = ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
+            if (luckyOpp != null && context.mounted) {
+              Future.delayed(const Duration(milliseconds: 300), () {
+                if (context.mounted) {
+                  LuckyOpportunityDialog.show(context, luckyOpp);
+                }
+              });
+            }
           } else {
             NotificationService.showWarning(
               context,

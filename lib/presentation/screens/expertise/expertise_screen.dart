@@ -21,6 +21,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/slam_stamp_widget.dart';
 import '../../widgets/mini_games/micron_body_scan_canvas.dart';
@@ -425,6 +426,16 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                                   context,
                                   '$reportBadge • OK',
                                 );
+                                if (passed) {
+                                  final luckyOpp = ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
+                                  if (luckyOpp != null && context.mounted) {
+                                    Future.delayed(const Duration(milliseconds: 300), () {
+                                      if (context.mounted) {
+                                        LuckyOpportunityDialog.show(context, luckyOpp);
+                                      }
+                                    });
+                                  }
+                                }
                               },
                             );
                           },

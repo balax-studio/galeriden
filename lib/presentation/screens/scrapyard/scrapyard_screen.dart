@@ -7,6 +7,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../widgets/mini_games/scrapyard_teardown_canvas.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -431,8 +432,16 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                       if (isSuccess && result.isSalvaged) {
                         NotificationService.showSuccess(
                           context,
-                          'Kusursuz söküm! ${part.name} %$finalCondition kondisyonla depoya aktarıldı.',
+                          context.tr('scrap_dismantle_success_toast', {'name': part.name, 'cond': '$finalCondition'}),
                         );
+                        final luckyOpp = ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
+                        if (luckyOpp != null && context.mounted) {
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            if (context.mounted) {
+                              LuckyOpportunityDialog.show(context, luckyOpp);
+                            }
+                          });
+                        }
                       } else {
                         NotificationService.showWarning(context, result.message);
                       }

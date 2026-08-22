@@ -15,6 +15,7 @@ import '../../../widgets/floating_money_overlay.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/confetti_celebration_overlay.dart';
 
 /// Centralized Modals & Bottom Sheets for Dashboard Retention Mechanics
 class DashboardRetentionModals {
@@ -317,6 +318,9 @@ class DashboardRetentionModals {
   static void showLevelUpModal(BuildContext context, int newLevel, {VoidCallback? onExplore}) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final isDark = themeExt.palette.isDark;
+
+    // Trigger celebratory neo-brutal confetti
+    ConfettiCelebrationOverlay.show(context);
 
     showDialog(
       context: context,

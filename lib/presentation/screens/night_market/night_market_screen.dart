@@ -1,7 +1,7 @@
-import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/game_constants.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/car_model.dart';
@@ -12,7 +12,8 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
-import '../../widgets/pulsing_dot.dart';
+import '../../widgets/neon_sign_widget.dart';
+import '../../widgets/hazard_stripe_widget.dart';
 import '../../widgets/mini_games/drag_race_canvas.dart';
 
 class NightMarketScreen extends ConsumerStatefulWidget {
@@ -53,6 +54,17 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
         padding: const EdgeInsets.all(14),
         physics: const BouncingScrollPhysics(),
         children: [
+          // Animated Caution Hazard Stripe
+          const HazardStripeWidget(
+            height: 8.0,
+            color1: AppColors.brutalPink,
+            color2: Color(0xFF0F172A),
+            stripeWidth: 8.0,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+            isAnimated: true,
+          ),
+          const SizedBox(height: 2),
+
           // 1. Neon Cyber Header
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
@@ -78,24 +90,15 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
-                        children: [
-                          PulsingDot(color: AppColors.brutalPink, size: 7.0),
-                          SizedBox(width: 6),
-                          Text(
-                            'GECE MEZATI & DRAG YARIŞI',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                      NeonSignWidget(
+                        text: context.tr('night_market_banner_title'),
+                        neonColor: AppColors.brutalPink,
+                        fontSize: 12.0,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 6),
                       Text(
                         context.tr('night_market_banner_desc'),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           color: Color(0xFFC084FC),
                           fontWeight: FontWeight.w500,

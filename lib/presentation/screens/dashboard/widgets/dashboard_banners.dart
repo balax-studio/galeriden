@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/dealership_model.dart';
@@ -119,7 +120,16 @@ class DashboardProfileBanner extends StatelessWidget {
                 ),
               ),
 
-              // Quick Settings Icon
+              // Quick Store & Settings Icons
+              IconButton(
+                tooltip: context.tr('store_appbar_title'),
+                icon: const Icon(
+                  Icons.shopping_bag_rounded,
+                  color: AppColors.brutalYellow,
+                  size: 22,
+                ),
+                onPressed: () => context.push('/store'),
+              ),
               IconButton(
                 icon: Icon(
                   Icons.settings_rounded,

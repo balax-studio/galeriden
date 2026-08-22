@@ -16,3 +16,7 @@
 
 ## 5. Strict Zero Git Push Rule
 - Never execute `git push` under any circumstances unless explicitly commanded by the user. All testing, verification, and analysis must run locally.
+
+## 6. Simultaneous 7-Language Localization Standard
+- Every newly developed feature, UI label, dialog, toast notification, event, model key, badge, or button MUST be implemented simultaneously across all 7 supported languages (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) within `lib/core/localization/translations/` and `app_localizations.dart`.
+- Hardcoded user-facing strings or partial single-language implementations are strictly prohibited.

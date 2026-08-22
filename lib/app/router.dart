@@ -39,6 +39,7 @@ import '../presentation/screens/night_market/night_market_screen.dart';
 import '../presentation/screens/office/special_plate_screen.dart';
 import '../presentation/screens/office/media_agency_screen.dart';
 import '../presentation/screens/office/lifestyle_screen.dart';
+import '../presentation/screens/store/store_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
   return CupertinoPage(
@@ -147,6 +148,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/theme-store',
       pageBuilder: (context, state) => _buildCupertinoPage(const ThemeStoreScreen(), state),
+    ),
+    GoRoute(
+      path: '/store',
+      pageBuilder: (context, state) => _buildCupertinoPage(const StoreScreen(), state),
     ),
     GoRoute(
       path: '/character-growth',

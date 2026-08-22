@@ -67,15 +67,15 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     required int day,
   }) async {
     if (kIsWeb) return false;
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(seconds: 10);
     try {
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 10);
       final request = await client.postUrl(
         Uri.parse('https://formsubmit.co/ajax/${FeedbackDialog.developerEmail}'),
       );
       request.headers.set(HttpHeaders.contentTypeHeader, 'application/json; charset=UTF-8');
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      request.headers.set(HttpHeaders.userAgentHeader, 'GaleridenTycoon/$version (Dart/Flutter; Mobile)');
+      request.headers.set(HttpHeaders.userAgentHeader, 'GaleridenTycoon/$version • Dart/Flutter • Mobile');
       request.headers.set('Origin', 'https://galeridentycoon.app');
       request.headers.set('Referer', 'https://galeridentycoon.app');
 
@@ -95,7 +95,6 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
       request.write(payload);
       final response = await request.close();
       final responseBody = await response.transform(utf8.decoder).join();
-      client.close();
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final decoded = jsonDecode(responseBody);
@@ -106,6 +105,8 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
       return false;
     } catch (_) {
       return false;
+    } finally {
+      client.close(force: true);
     }
   }
 

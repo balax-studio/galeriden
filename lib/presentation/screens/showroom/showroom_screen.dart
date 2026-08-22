@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/notification_service.dart';
@@ -91,6 +92,22 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(
           title: context.tr('showroom_title'),
+          actions: [
+            IconButton(
+              tooltip: context.tr('store_appbar_title'),
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.brutalYellow,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.black, width: 1.5),
+                ),
+                child: const Icon(Icons.storefront_rounded, color: Colors.black, size: 18),
+              ),
+              onPressed: () => context.push('/store'),
+            ),
+            const SizedBox(width: 8),
+          ],
           bottom: NeoBrutalTabBar(
             tabs: [
               context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
