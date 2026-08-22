@@ -1,8 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/localization/language_model.dart';
 import '../presentation/providers/game_provider.dart';
 import '../presentation/providers/market_provider.dart';
+import '../presentation/providers/settings_provider.dart';
 import '../presentation/providers/theme_provider.dart';
 import '../presentation/widgets/neo_brutal_touch_feedback_overlay.dart';
 import 'router.dart';
@@ -59,11 +62,19 @@ class _GaleridenAppState extends ConsumerState<GaleridenApp> with WidgetsBinding
   @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
+    final settings = ref.watch(settingsProvider);
 
     return MaterialApp.router(
       title: 'Galeriden',
       debugShowCheckedModeBanner: false,
       theme: themeState.buildThemeData(),
+      locale: Locale(settings.languageCode),
+      supportedLocales: AppLanguage.values.map((e) => e.locale).toList(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routerConfig: appRouter,
       scrollBehavior: const AppScrollBehavior(),
       builder: (context, child) {
@@ -72,10 +83,16 @@ class _GaleridenAppState extends ConsumerState<GaleridenApp> with WidgetsBinding
           minScaleFactor: 0.80,
           maxScaleFactor: 1.15,
         );
-        return MediaQuery(
-          data: mediaQuery.copyWith(textScaler: clampedScaler),
-          child: NeoBrutalTouchFeedbackOverlay(
-            child: child ?? const SizedBox.shrink(),
+
+        final textDirection = settings.isRtl ? TextDirection.rtl : TextDirection.ltr;
+
+        return Directionality(
+          textDirection: textDirection,
+          child: MediaQuery(
+            data: mediaQuery.copyWith(textScaler: clampedScaler),
+            child: NeoBrutalTouchFeedbackOverlay(
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },

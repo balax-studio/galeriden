@@ -10,6 +10,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/dialogs/language_selector_dialog.dart';
 import '../../widgets/feedback_dialog.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -161,29 +162,43 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
                 const Divider(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                InkWell(
+                  onTap: () => LanguageSelectorDialog.show(context),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Dil Seçeneği',
-                          style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Dil Seçeneği',
+                              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                            ),
+                            Text(
+                              'Arayüz ve oyun dili • 7 Dil Desteklenir',
+                              style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Arayüz dili',
-                          style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            NeoBrutalBadge(
+                              text: '${settings.currentLanguage.countryBadge} • ${settings.currentLanguage.nativeName}',
+                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                              textColor: isDark ? Colors.white : Colors.black,
+                              fontSize: 11,
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFF64748B)),
+                          ],
                         ),
                       ],
                     ),
-                    NeoBrutalBadge(
-                      text: settings.languageCode == 'tr' ? 'Türkçe' : 'English',
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                      textColor: isDark ? Colors.white : Colors.black,
-                      fontSize: 11,
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),

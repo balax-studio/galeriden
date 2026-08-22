@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/localization/language_model.dart';
 
 final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
   return SettingsNotifier();
@@ -8,7 +10,7 @@ final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>(
 
 class SettingsState {
   final ThemeMode themeMode;
-  final String languageCode; // 'tr' or 'en'
+  final String languageCode; // 'tr', 'en', 'de', 'pt', 'es', 'ru', 'ar'
   final bool isAudioEnabled;
 
   SettingsState({
@@ -16,6 +18,9 @@ class SettingsState {
     required this.languageCode,
     required this.isAudioEnabled,
   });
+
+  AppLanguage get currentLanguage => AppLanguage.fromCode(languageCode);
+  bool get isRtl => currentLanguage.isRtl;
 
   SettingsState copyWith({
     ThemeMode? themeMode,
@@ -43,7 +48,19 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final isDark = prefs.getBool('is_dark_mode') ?? true;
-    final lang = prefs.getString('language_code') ?? 'tr';
+    
+    // Auto-detect or load saved
+    String lang = prefs.getString('language_code') ?? '';
+    if (lang.isEmpty) {
+      final systemLocale = ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase();
+      final supportedCodes = AppLanguage.values.map((e) => e.code).toSet();
+      if (supportedCodes.contains(systemLocale)) {
+        lang = systemLocale;
+      } else {
+        lang = 'tr';
+      }
+    }
+
     final audio = prefs.getBool('audio_enabled') ?? true;
 
     state = SettingsState(
