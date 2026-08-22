@@ -2462,6 +2462,20 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return grantAmount;
   }
 
+  /// 17b. Koleksiyon Albümü Kilometre Taşı Ödülü Talebi
+  bool claimAlbumMilestone(int milestoneTarget, double rewardAmount) {
+    if (state.claimedAlbumMilestones.contains(milestoneTarget)) return false;
+    final updatedClaimed = [...state.claimedAlbumMilestones, milestoneTarget];
+    state = state.copyWith(
+      balance: state.balance + rewardAmount,
+      reputationScore: (state.reputationScore + 15).clamp(0, 1000),
+      claimedAlbumMilestones: updatedClaimed,
+    );
+    addXP(100);
+    saveState();
+    return true;
+  }
+
   /// 18. Dinamik Akıllı Kanca (Smart Hook) Reklam Ödülü İnfazı
   bool executeSmartOfficeHook(SmartHookType hookType) {
     if (state.lastSmartHookUsedDay == state.currentDay) return false;

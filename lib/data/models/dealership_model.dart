@@ -227,6 +227,7 @@ class DealershipModel {
   final int prestigeLevel;
   final double prestigeMultiplier;
   final List<String> discoveredCarModelIds;
+  final List<int> claimedAlbumMilestones;
   final List<String> loyalCustomerNames;
 
   // Semt Hakimiyeti & Şehir Pazar Payı (§4.1)
@@ -965,6 +966,7 @@ class DealershipModel {
     this.prestigeLevel = 0,
     this.prestigeMultiplier = 1.0,
     this.discoveredCarModelIds = const [],
+    this.claimedAlbumMilestones = const [],
     this.loyalCustomerNames = const [],
     this.characterOrigin = CharacterOrigin.sanayiCiragi,
     this.specializationPath = SpecializationPath.none,
@@ -1326,6 +1328,7 @@ class DealershipModel {
         '/branches',
       },
       discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 • Dede Mirası'],
+      claimedAlbumMilestones: const [],
       pendingDopedOffers: const [],
     );
   }
@@ -1401,6 +1404,7 @@ class DealershipModel {
       'prestigeLevel': prestigeLevel,
       'prestigeMultiplier': prestigeMultiplier,
       'discoveredCarModelIds': discoveredCarModelIds,
+      'claimedAlbumMilestones': claimedAlbumMilestones,
       'loyalCustomerNames': loyalCustomerNames,
       'characterOrigin': characterOrigin.name,
       'specializationPath': specializationPath.name,
@@ -1561,6 +1565,7 @@ class DealershipModel {
       prestigeLevel: json['prestigeLevel'] as int? ?? 0,
       prestigeMultiplier: (json['prestigeMultiplier'] as num?)?.toDouble() ?? 1.0,
       discoveredCarModelIds: (json['discoveredCarModelIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      claimedAlbumMilestones: (json['claimedAlbumMilestones'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? const [],
       loyalCustomerNames: (json['loyalCustomerNames'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       characterOrigin: CharacterOrigin.values.firstWhere(
         (e) => e.name == json['characterOrigin'],
@@ -1746,6 +1751,7 @@ class DealershipModel {
     int? prestigeLevel,
     double? prestigeMultiplier,
     List<String>? discoveredCarModelIds,
+    List<int>? claimedAlbumMilestones,
     List<String>? loyalCustomerNames,
     CharacterOrigin? characterOrigin,
     SpecializationPath? specializationPath,
@@ -1871,6 +1877,7 @@ class DealershipModel {
       prestigeLevel: prestigeLevel ?? this.prestigeLevel,
       prestigeMultiplier: prestigeMultiplier ?? this.prestigeMultiplier,
       discoveredCarModelIds: discoveredCarModelIds ?? this.discoveredCarModelIds,
+      claimedAlbumMilestones: claimedAlbumMilestones ?? this.claimedAlbumMilestones,
       loyalCustomerNames: loyalCustomerNames ?? this.loyalCustomerNames,
       characterOrigin: characterOrigin ?? this.characterOrigin,
       specializationPath: specializationPath ?? this.specializationPath,

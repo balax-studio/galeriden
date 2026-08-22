@@ -18,6 +18,9 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/gavel_shockwave_widget.dart';
+import '../../widgets/bid_paddle_animation.dart';
+import '../../widgets/countdown_heat_ring.dart';
 
 class AuctionScreen extends ConsumerStatefulWidget {
   const AuctionScreen({super.key});
@@ -817,21 +820,19 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       ),
                     ],
                   ),
-                  if (isLastSeconds)
-                    AnimatedBuilder(
-                      animation: _pulseController,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: 1.0 + (_pulseController.value * 0.15),
-                          child: NeoBrutalBadge(
-                            text: context.tr('auction_gavel_strike'),
-                            backgroundColor: AppColors.errorRed,
-                            textColor: Colors.white,
-                            fontSize: 10,
-                          ),
-                        );
-                      },
-                    ),
+                  Row(
+                    children: [
+                      if (isLastSeconds) ...[
+                        const GavelShockwaveWidget(size: 32),
+                        const SizedBox(width: 6),
+                      ],
+                      CountdownHeatRing(
+                        remainingSeconds: _auction.secondsRemaining,
+                        totalSeconds: 15,
+                        size: 38,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ],
@@ -977,16 +978,25 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             color: Color(0xFF64748B),
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        NeoBrutalBadge(
-                          text: _auction.highestBidderName,
-                          backgroundColor: _auction.isPlayerHighestBidder
-                              ? AppColors.brutalGreen
-                              : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-                          textColor: _auction.isPlayerHighestBidder
-                              ? Colors.black
-                              : (isDark ? Colors.white : Colors.black),
-                          fontSize: 10.5,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            BidPaddleAnimation(
+                              paddleNumber: '${(_auction.currentBid.toInt() % 89) + 10}',
+                              bidderName: _auction.highestBidderName,
+                            ),
+                            const SizedBox(width: 6),
+                            NeoBrutalBadge(
+                              text: _auction.highestBidderName,
+                              backgroundColor: _auction.isPlayerHighestBidder
+                                  ? AppColors.brutalGreen
+                                  : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                              textColor: _auction.isPlayerHighestBidder
+                                  ? Colors.black
+                                  : (isDark ? Colors.white : Colors.black),
+                              fontSize: 10.5,
+                            ),
+                          ],
                         ),
                       ],
                     ),

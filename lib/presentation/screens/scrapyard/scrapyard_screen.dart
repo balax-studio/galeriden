@@ -14,6 +14,9 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/pneumatic_nut_particle_widget.dart';
+import '../../widgets/hydraulic_crush_wave_widget.dart';
+import '../../widgets/rust_oil_drop_widget.dart';
 
 class ScrapyardScreen extends ConsumerStatefulWidget {
   const ScrapyardScreen({super.key});
@@ -390,18 +393,26 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: AppColors.brutalYellow,
           borderRadius: 14,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              Text(
-                context.tr('scrap_dismantle_method_title'),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
+              const Positioned(
+                top: -6,
+                right: -4,
+                child: PneumaticNutParticleWidget(size: 55),
               ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    context.tr('scrap_dismantle_method_title'),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
               const SizedBox(height: 4),
               Text(
                 '${part.name} • Mevcut Kondisyon: %${part.conditionPercent}',
@@ -473,8 +484,10 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
               ),
             ],
           ),
-        ),
+        ],
       ),
+    ),
+  ),
     );
   }
 
@@ -806,6 +819,12 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('scrapyard'),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 14),
+            child: RustOilDropWidget(size: 20),
+          ),
+        ],
         bottom: NeoBrutalTabBar(
           controller: _tabController,
           tabs: [
@@ -1211,6 +1230,18 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
                                         final res = ref.read(gameProvider.notifier).crushChassisToScrapMetal(car.id);
                                         if (res.success) {
                                           NotificationService.showSuccess(context, res.message);
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: true,
+                                            builder: (c) => Center(
+                                              child: HydraulicCrushWaveWidget(
+                                                size: 160,
+                                                onComplete: () {
+                                                  if (Navigator.canPop(c)) Navigator.pop(c);
+                                                },
+                                              ),
+                                            ),
+                                          );
                                         }
                                       },
                                     ),

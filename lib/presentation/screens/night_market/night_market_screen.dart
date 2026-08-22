@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neon_sign_widget.dart';
 import '../../widgets/hazard_stripe_widget.dart';
 import '../../widgets/mini_games/drag_race_canvas.dart';
+import '../../widgets/chassis_laser_scan_widget.dart';
 
 class NightMarketScreen extends ConsumerStatefulWidget {
   const NightMarketScreen({super.key});
@@ -125,7 +126,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
               children: [
                 Text(
                   context.tr('night_market_select_car'),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
@@ -260,57 +261,188 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
       prizeRangeText = context.tr('night_market_prize_t3');
     }
 
-    return NeoBrutalCard(
-      padding: const EdgeInsets.all(16),
-      backgroundColor: const Color(0xFF161922),
-      borderColor: AppColors.brutalPink,
-      borderRadius: 10,
-      borderWidth: 2.5,
-      shadowOffset: const Offset(4.0, 4.0),
-      showDotGrid: true,
-      showHazardHeader: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.flash_on_rounded, color: AppColors.brutalYellow, size: 20),
-              const SizedBox(width: 6),
-              Text(
-                context.tr('night_market_matchup_title'),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
+    return ChassisLaserScanWidget(
+      isScanning: true,
+      laserColor: AppColors.brutalPink,
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.all(16),
+        backgroundColor: const Color(0xFF161922),
+        borderColor: AppColors.brutalPink,
+        borderRadius: 10,
+        borderWidth: 2.5,
+        shadowOffset: const Offset(4.0, 4.0),
+        showDotGrid: true,
+        showHazardHeader: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.flash_on_rounded, color: AppColors.brutalYellow, size: 20),
+                const SizedBox(width: 6),
+                Text(
+                  context.tr('night_market_matchup_title'),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              NeoBrutalBadge(
-                text: context.tr('night_market_daily_races_left', {'count': '$dailyRacesRemaining'}),
-                backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalYellow : AppColors.errorRed,
-                textColor: Colors.black,
-                fontSize: 10,
-              ),
-              const SizedBox(width: 4),
-              NeoBrutalBadge(
-                text: rival.badge,
-                backgroundColor: AppColors.brutalPink,
-                textColor: Colors.white,
-                fontSize: 10,
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          // Player vs Rival info
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F1117),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF262C3D), width: 1.5),
+                const Spacer(),
+                NeoBrutalBadge(
+                  text: context.tr('night_market_daily_races_left', {'count': '$dailyRacesRemaining'}),
+                  backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalYellow : AppColors.errorRed,
+                  textColor: Colors.black,
+                  fontSize: 10,
+                ),
+                const SizedBox(width: 4),
+                NeoBrutalBadge(
+                  text: rival.badge,
+                  backgroundColor: AppColors.brutalPink,
+                  textColor: Colors.white,
+                  fontSize: 10,
+                ),
+              ],
             ),
-            child: Row(
+            const SizedBox(height: 14),
+
+            // Player vs Rival info
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F1117),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF262C3D), width: 1.5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('night_market_your_car'),
+                          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          car.modelName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
+                        ),
+                        Text(
+                          context.tr('night_market_power_cond', {'hp': '$playerPower', 'cond': '${car.expertise.engineCondition.round()}'}),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.errorRed,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'VS',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          rival.title.toUpperCase(),
+                          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          rival.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
+                        ),
+                        Text(
+                          '${rival.carName} • ~${rival.basePower} HP',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalYellow),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Odds & Matchmaking Analytics
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: winChanceColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: winChanceColor.withValues(alpha: 0.6), width: 1.5),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.query_stats_rounded, size: 16, color: winChanceColor),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            context.tr('night_market_win_chance', {'rate': '$winChance', 'status': winStatusText}),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: winChanceColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      _currentRival = NightMarketEngine.getRandomRivalForTier(rival.tier, excludeId: rival.id);
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF262C3D),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF475569), width: 1.0),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
+                        SizedBox(width: 4),
+                        Text(
+                          'Rakip Değiş',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // Prize & Stakes
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
@@ -318,175 +450,48 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr('night_market_your_car'),
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        car.modelName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
-                      ),
-                      Text(
-                        context.tr('night_market_power_cond', {'hp': '$playerPower', 'cond': '${car.expertise.engineCondition.round()}'}),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.errorRed,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'VS',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        rival.title.toUpperCase(),
+                        context.tr('night_market_prize_entry', {'fee': CurrencyFormatter.formatShort(GameConstants.nightRaceEntryFee)}),
                         style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        rival.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
                       ),
-                      Text(
-                        '${rival.carName} • ~${rival.basePower} HP',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalYellow),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Odds & Matchmaking Analytics
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: winChanceColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: winChanceColor.withValues(alpha: 0.6), width: 1.5),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.query_stats_rounded, size: 16, color: winChanceColor),
-                      const SizedBox(width: 6),
-                      Expanded(
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
                         child: Text(
-                          context.tr('night_market_win_chance', {'rate': '$winChance', 'status': winStatusText}),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w900,
-                            color: winChanceColor,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          prizeRangeText,
+                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    _currentRival = NightMarketEngine.getRandomRivalForTier(rival.tier, excludeId: rival.id);
-                  });
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF262C3D),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF475569), width: 1.0),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
-                      SizedBox(width: 4),
-                      Text(
-                        'Rakip Değiş',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
-                      ),
-                    ],
-                  ),
+                const SizedBox(width: 8),
+                NeoBrutalButton(
+                  label: dailyRacesRemaining > 0 ? context.tr('night_market_btn_race') : context.tr('night_market_btn_no_fuel'),
+                  backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalPink : const Color(0xFF475569),
+                  textColor: Colors.white,
+                  onPressed: dailyRacesRemaining > 0
+                      ? () {
+                          final result = ref.read(gameProvider.notifier).enterNightRace(car, rival: rival);
+                          DragRaceMiniGameModal.show(
+                            context,
+                            car: car,
+                            rival: rival,
+                            raceResult: result,
+                            onFinished: () {
+                              setState(() {
+                                _currentRival = NightMarketEngine.getMatchedRival(car);
+                              });
+                            },
+                          );
+                        }
+                      : null,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          // Prize & Stakes
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr('night_market_prize_entry', {'fee': CurrencyFormatter.formatShort(GameConstants.nightRaceEntryFee)}),
-                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        prizeRangeText,
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              NeoBrutalButton(
-                label: dailyRacesRemaining > 0 ? context.tr('night_market_btn_race') : context.tr('night_market_btn_no_fuel'),
-                backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalPink : const Color(0xFF475569),
-                textColor: Colors.white,
-                onPressed: dailyRacesRemaining > 0
-                    ? () {
-                        final result = ref.read(gameProvider.notifier).enterNightRace(car, rival: rival);
-                        DragRaceMiniGameModal.show(
-                          context,
-                          car: car,
-                          rival: rival,
-                          raceResult: result,
-                          onFinished: () {
-                            setState(() {
-                              _currentRival = NightMarketEngine.getMatchedRival(car);
-                            });
-                          },
-                        );
-                      }
-                    : null,
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

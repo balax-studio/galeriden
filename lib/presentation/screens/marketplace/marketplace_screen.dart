@@ -28,6 +28,7 @@ import '../../widgets/staggered_item_entry.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../../core/services/ad_service.dart';
 import 'sms_tramer_sheet.dart';
+import '../../widgets/cracked_glass_badge.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
   const MarketplaceScreen({super.key});
@@ -515,6 +516,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               textColor: Colors.white,
                                               fontSize: 10,
                                             ),
+                                          if (exp.tramerAmount > 30000 || exp.bodyParts.values.any((s) => s == PartStatus.damaged || s == PartStatus.changed))
+                                            const CrackedGlassBadge(showLabel: true),
                                         ],
                                       ),
                                       const SizedBox(height: 12),

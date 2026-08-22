@@ -722,7 +722,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
         // 2. Collection Album
         Expanded(
           child: NeoBrutalCard(
-            onTap: () => DashboardRetentionModals.showCollectionAlbumModal(context, game),
+            onTap: () => context.push('/album'),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),

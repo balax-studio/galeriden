@@ -661,6 +661,20 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: true,
             isDark: isDark,
           ),
+          const SizedBox(height: 12),
+
+          // Collection Album
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.auto_stories_rounded,
+            color: const Color(0xFF38BDF8),
+            title: context.tr('album_appbar_title'),
+            subtitle: context.tr('album_subtitle_desc'),
+            actionLabel: context.tr('office_btn_view'),
+            route: '/album',
+            isUnlocked: true,
+            isDark: isDark,
+          ),
         ],
       ),
     );

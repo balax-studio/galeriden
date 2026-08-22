@@ -18,6 +18,7 @@ import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/pulsing_dot.dart';
 import '../../../widgets/foil_shimmer_widget.dart';
+import '../../../widgets/leather_keychain_swing_widget.dart';
 import 'car_cost_breakdown_sheet.dart';
 import 'showroom_listing_modal.dart';
 
@@ -71,15 +72,23 @@ class ShowroomCarCard extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    '${car.brand} ${car.modelName}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      const LeatherKeychainSwingWidget(size: 24),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${car.brand} ${car.modelName}',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),

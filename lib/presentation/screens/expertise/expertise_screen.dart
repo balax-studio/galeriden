@@ -24,6 +24,9 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/slam_stamp_widget.dart';
+import '../../widgets/hydraulic_lift_widget.dart';
+import '../../widgets/engine_pulse_widget.dart';
+import '../../widgets/paint_spark_widget.dart';
 import '../../widgets/mini_games/micron_body_scan_canvas.dart';
 import '../../widgets/mini_games/vehicle_inspection_canvas.dart';
 
@@ -66,70 +69,73 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           physics: const BouncingScrollPhysics(),
           children: [
             // 1. Vehicle Title Header Card (Official Noter / Inspection Style)
-            NeoBrutalCard(
-              padding: const EdgeInsets.all(14),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 10,
-              borderWidth: 2.5,
-              shadowOffset: const Offset(4.0, 4.0),
-              showDotGrid: true,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.brutalYellow,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                        width: 2.2,
+            HydraulicLiftWidget(
+              isLifting: _isInspected,
+              child: NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 10,
+                borderWidth: 2.5,
+                shadowOffset: const Offset(4.0, 4.0),
+                showDotGrid: true,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.brutalYellow,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 2.2,
+                        ),
+                      ),
+                      child: const Icon(Icons.directions_car_rounded, color: Colors.black, size: 26),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '[RAPOR #EXP-${car.id.hashCode.abs().toString().padLeft(6, '0').substring(0, 5)}]',
+                                style: const TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'monospace',
+                                  color: Color(0xFF64748B),
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                              if (_isInspected) ...[
+                                NeoBrutalStamp(
+                                  text: stampInfo.text,
+                                  color: stampInfo.color,
+                                  fontSize: 9.5,
+                                  angle: -0.08,
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${car.brand} ${car.modelName}',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${car.modelYear} • ${car.bodyType} • ${widget.listing.sellerCity}',
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          ),
+                        ],
                       ),
                     ),
-                    child: const Icon(Icons.directions_car_rounded, color: Colors.black, size: 26),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '[RAPOR #EXP-${car.id.hashCode.abs().toString().padLeft(6, '0').substring(0, 5)}]',
-                              style: const TextStyle(
-                                fontSize: 9.5,
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'monospace',
-                                color: Color(0xFF64748B),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            if (_isInspected) ...[
-                              NeoBrutalStamp(
-                                text: stampInfo.text,
-                                color: stampInfo.color,
-                                fontSize: 9.5,
-                                angle: -0.08,
-                              ),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${car.brand} ${car.modelName}',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${car.modelYear} • ${car.bodyType} • ${widget.listing.sellerCity}',
-                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 14),
@@ -621,6 +627,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
 
   Widget _buildProgressStat(String title, double value, bool isDark) {
     final color = value >= 75 ? AppColors.brutalGreen : (value >= 50 ? AppColors.brutalYellow : AppColors.errorRed);
+    final isEngine = title.toLowerCase().contains('motor') || title.toLowerCase().contains('engine');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -628,7 +635,15 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+            Row(
+              children: [
+                if (isEngine) ...[
+                  EnginePulseWidget(engineHealthPercent: value, size: 18),
+                  const SizedBox(width: 6),
+                ],
+                Text(title, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+              ],
+            ),
             Text('%${value.round()}', style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 12)),
           ],
         ),
@@ -726,9 +741,15 @@ class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
                     context.tr('exp_measured_thickness'),
                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
                   ),
-                  Text(
-                    '$_measuredMicrons µm',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.black),
+                  Row(
+                    children: [
+                      PaintSparkWidget(micronValue: _measuredMicrons!.toDouble()),
+                      const SizedBox(width: 6),
+                      Text(
+                        '$_measuredMicrons µm',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.black),
+                      ),
+                    ],
                   ),
                 ],
               ),

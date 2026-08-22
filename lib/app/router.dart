@@ -40,6 +40,7 @@ import '../presentation/screens/office/special_plate_screen.dart';
 import '../presentation/screens/office/media_agency_screen.dart';
 import '../presentation/screens/office/lifestyle_screen.dart';
 import '../presentation/screens/store/store_screen.dart';
+import '../presentation/screens/album/collection_album_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
   return CupertinoPage(
@@ -222,6 +223,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/lifestyle',
       pageBuilder: (context, state) => _buildCupertinoPage(const LifestyleScreen(), state),
+    ),
+    GoRoute(
+      path: '/album',
+      pageBuilder: (context, state) => _buildCupertinoPage(const CollectionAlbumScreen(), state),
     ),
   ],
 );

@@ -2,7 +2,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:galeriden/core/localization/app_localizations.dart';
 import 'package:galeriden/core/theme/app_theme.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/widgets/feedback_dialog.dart';

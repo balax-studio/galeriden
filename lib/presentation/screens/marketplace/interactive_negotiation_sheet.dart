@@ -24,6 +24,8 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/pulsing_dot.dart';
 import '../../widgets/steam_cup_widget.dart';
+import '../../widgets/sweat_drop_widget.dart';
+import '../../widgets/handshake_clash_overlay.dart';
 import '../../widgets/mini_games/handshake_stamp_canvas.dart';
 
 /// Neo-Brutalist & Industrial "Pazarlık Masası" (Live Deal Room Sheet)
@@ -263,24 +265,35 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                     child: Row(
                       children: [
                         // Square Dossier Avatar Box
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFDE59),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                              width: 1.8,
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFDE59),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  width: 1.8,
+                                ),
+                              ),
+                              child: Center(
+                                child: VectorIconWidget(
+                                  type: _customer.avatarType,
+                                  color: Colors.black,
+                                  size: 24,
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Center(
-                            child: VectorIconWidget(
-                              type: _customer.avatarType,
-                              color: Colors.black,
-                              size: 24,
-                            ),
-                          ),
+                            if (_counterOfferCount > 1 || _isNearMiss)
+                              const Positioned(
+                                top: -6,
+                                right: -4,
+                                child: SweatDropWidget(size: 16),
+                              ),
+                          ],
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -803,27 +816,30 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                       borderRadius: 12,
                       shadowOffset: const Offset(3, 3),
                       padding: const EdgeInsets.all(14),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                _isAccepted ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                                color: _isAccepted ? const Color(0xFF00E575) : const Color(0xFFEF4444),
-                                size: 20,
+                              Row(
+                                children: [
+                                  Icon(
+                                    _isAccepted ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                                    color: _isAccepted ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _isAccepted ? context.tr('deal_offer_accepted') : context.tr('deal_offer_rejected'),
+                                    style: TextStyle(
+                                      color: _isAccepted ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                _isAccepted ? context.tr('deal_offer_accepted') : context.tr('deal_offer_rejected'),
-                                style: TextStyle(
-                                  color: _isAccepted ? const Color(0xFF00E575) : const Color(0xFFEF4444),
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 13.5,
-                                ),
-                              ),
-                            ],
-                          ),
                           const SizedBox(height: 6),
                           Text(
                             '${_customer.name}: "${_sellerResponse!}"',
@@ -912,7 +928,15 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                           ],
                         ],
                       ),
-                    ),
+                      if (_isAccepted)
+                        const Positioned(
+                          top: -8,
+                          right: 6,
+                          child: HandshakeClashOverlay(size: 70),
+                        ),
+                    ],
+                  ),
+                ),
                     const SizedBox(height: 12),
                   ],
 

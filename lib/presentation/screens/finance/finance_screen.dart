@@ -15,6 +15,9 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/candle_spark_widget.dart';
+import '../../widgets/fountain_pen_signature_widget.dart';
+import '../../widgets/tax_alert_bell_widget.dart';
 
 class FinanceScreen extends ConsumerWidget {
   const FinanceScreen({super.key});
@@ -84,7 +87,13 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(context.tr('finance_net_cash'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
+                        Row(
+                          children: [
+                            const FountainPenSignatureWidget(width: 60, height: 20),
+                            const SizedBox(width: 6),
+                            Text(context.tr('finance_net_cash'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
+                          ],
+                        ),
                         Text(
                           CurrencyFormatter.format(netCash),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
@@ -332,9 +341,15 @@ class FinanceScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              context.tr('bank_deposit_account_title'),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            Row(
+                              children: [
+                                Text(
+                                  context.tr('bank_deposit_account_title'),
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                                ),
+                                const SizedBox(width: 6),
+                                const CandleSparkWidget(isPositive: true, size: 16),
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -445,7 +460,7 @@ class FinanceScreen extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.receipt_long_rounded, color: AppColors.brutalOrange, size: 20),
+                    TaxAlertBellWidget(size: 22, hasUnpaidTax: game.dailyTaxRate > 0),
                     const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
