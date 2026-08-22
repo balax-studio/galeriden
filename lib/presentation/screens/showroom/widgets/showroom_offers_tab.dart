@@ -213,7 +213,7 @@ class ShowroomOffersTab extends ConsumerWidget {
       orElse: () => CarModel(
         id: '',
         brand: 'Bilinmeyen',
-        modelName: 'Vitrin Aracı',
+        modelName: context.tr('showroom_vitrin_tag'),
         modelYear: 2020,
         bodyType: 'Sedan',
         colorHex: '#000000',
@@ -399,7 +399,7 @@ class ShowroomOffersTab extends ConsumerWidget {
       orElse: () => CarModel(
         id: '',
         brand: 'Bilinmeyen',
-        modelName: 'Araç',
+        modelName: context.tr('car_label'),
         modelYear: 2020,
         bodyType: 'Sedan',
         colorHex: '#000000',

@@ -62,7 +62,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
 
   // Final Evaluation
   bool _isPassed = false;
-  String _stampText = 'KUSURSUZ GEÇTİ';
+  String? _stampText;
 
   @override
   void initState() {
@@ -217,6 +217,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                             imbalance: _brakeImbalancePercent,
                             isBraking: _isBraking,
                             progress: _brakeProgress,
+                            rightForceLabel: context.tr('inspection_right_force'),
                           ),
                         );
                       },
@@ -244,7 +245,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                     Positioned.fill(
                       child: Center(
                         child: SlamStampWidget(
-                          text: _stampText,
+                          text: _stampText ?? context.tr('inspection_passed_perfect'),
                           color: _isPassed ? AppColors.brutalGreen : AppColors.brutalYellow,
                           fontSize: 22,
                           angle: -0.06,
@@ -354,7 +355,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                     _isPassed,
                     _brakeImbalancePercent,
                     _headlightAccuracy,
-                    _stampText,
+                    _stampText ?? context.tr('inspection_passed_perfect'),
                   );
                 },
               ),
@@ -373,6 +374,7 @@ class _BrakeRollerPainter extends CustomPainter {
   final double imbalance;
   final bool isBraking;
   final double progress;
+  final String rightForceLabel;
 
   _BrakeRollerPainter({
     required this.rollerProgress,
@@ -381,6 +383,7 @@ class _BrakeRollerPainter extends CustomPainter {
     required this.imbalance,
     required this.isBraking,
     required this.progress,
+    required this.rightForceLabel,
   });
 
   @override
@@ -431,7 +434,7 @@ class _BrakeRollerPainter extends CustomPainter {
     // 3. Digital Gauges (Left / Right Force)
     final gaugeY = 120.0;
     _drawDigitalNeedle(canvas, Offset(cx - 65, gaugeY), 'SOL: ${leftForce.toStringAsFixed(1)} kN', leftForce / 5.0);
-    _drawDigitalNeedle(canvas, Offset(cx + 65, gaugeY), 'SAĞ: ${rightForce.toStringAsFixed(1)} kN', rightForce / 5.0);
+    _drawDigitalNeedle(canvas, Offset(cx + 65, gaugeY), '$rightForceLabel ${rightForce.toStringAsFixed(1)} kN', rightForce / 5.0);
 
     // 4. Progress bar at bottom
     final barRect = Rect.fromLTWH(30, size.height - 24, size.width - 60, 10);

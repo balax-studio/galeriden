@@ -132,7 +132,7 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
                   fontSize: 11,
                 ),
                 NeoBrutalBadge(
-                  text: 'SPONSOR JESTİ',
+                  text: context.tr('ad_fallback_sponsor_gesture'),
                   backgroundColor: isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0),
                   textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
                   fontSize: 10,
@@ -260,7 +260,7 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
                   const Icon(Icons.check_circle_rounded, color: AppColors.successGreen, size: 15),
                   const SizedBox(width: 6),
                   Text(
-                    'Reklam ağı meşgul - Ödülün %100 eksiksiz sağlandı',
+                    context.tr('ad_fallback_busy_reward'),
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,

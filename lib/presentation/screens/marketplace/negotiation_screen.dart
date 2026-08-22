@@ -386,7 +386,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Satıcı İlan Fiyatı',
+                              context.tr('negotiation_seller_asking_price'),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -447,7 +447,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                           Row(
                             children: [
                               Text(
-                                'Pazarlık:',
+                                context.tr('negotiation_bargaining_label'),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
@@ -507,7 +507,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'SENİN TEKLİFİN',
+                          context.tr('negotiation_your_offer_title'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
@@ -633,7 +633,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'ESNAF KOZLARI & MÜZAKERE TAKTİKLERİ',
+                      context.tr('negotiation_tactics_header'),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -723,7 +723,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 3),
                         child: _buildTacticalCard(
-                          title: isUsed ? '${tactic.title} Kullanıldı' : tactic.title,
+                          title: isUsed ? context.tr('negotiation_toast_tactic_used') : tactic.title,
                           badgeText: tactic.badgeText,
                           icon: _getTacticIcon(tactic.iconKey),
                           activeBgColor: _getTacticColor(tactic.iconKey),

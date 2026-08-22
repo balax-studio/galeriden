@@ -394,7 +394,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  'Satıcı İlan Fiyatı',
+                                  context.tr('negotiation_seller_asking_price'),
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
@@ -455,7 +455,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                               Row(
                                 children: [
                                   Text(
-                                    'Pazarlık:',
+                                    context.tr('negotiation_bargaining_label'),
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w800,
@@ -625,7 +625,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'ESNAF KOZLARI & MÜZAKERE TAKTİKLERİ',
+                          context.tr('negotiation_tactics_header'),
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w900,

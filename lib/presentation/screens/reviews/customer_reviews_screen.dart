@@ -122,14 +122,11 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   textColor: Colors.black,
                   fullWidth: true,
                   onPressed: () {
-                    final currentCost = game.botReviewCost.toDouble();
                     final success = ref.read(gameProvider.notifier).buyBotReview();
                     if (success) {
-                      final botCount = game.botReviewCount;
-                      final repGain = botCount < 3 ? 5 : (botCount < 6 ? 3 : 1);
-                      NotificationService.showSuccess(context, 'Sosyal medya ajansı 5 yıldızlı pozitif yorum yayınladı! • +$repGain İtibar');
+                      NotificationService.showSuccess(context, context.tr('reviews_toast_agency_review'));
                     } else {
-                      NotificationService.showError(context, 'Bakiye yetersiz! • Gereken: ${CurrencyFormatter.format(currentCost)}');
+                      NotificationService.showError(context, context.tr('err_insufficient_cash'));
                     }
                   },
                 ),
@@ -284,7 +281,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                                 onPressed: () {
                                   final success = ref.read(gameProvider.notifier).compensateCustomerReview(r.id);
                                   if (success) {
-                                    NotificationService.showSuccess(context, 'Müşteriye ikram gönderildi, puan 4 yıldıza güncellendi! • +3 İtibar');
+                                    NotificationService.showSuccess(context, context.tr('reviews_toast_gift_sent'));
                                   } else {
                                     NotificationService.showError(context, 'Bakiye yetersiz! • Gereken: ${CurrencyFormatter.format(GameConstants.customerCompensationCost)}');
                                   }
@@ -406,7 +403,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                         if (textController.text.trim().isNotEmpty) {
                           ref.read(gameProvider.notifier).replyToCustomerReview(reviewId, textController.text.trim());
                           Navigator.pop(ctx);
-                          NotificationService.showSuccess(context, 'Cevabınız yayınlandı! • +1 İtibar');
+                          NotificationService.showSuccess(context, context.tr('reviews_toast_reply_published'));
                         }
                       },
                     ),

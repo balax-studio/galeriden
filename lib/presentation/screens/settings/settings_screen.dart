@@ -851,18 +851,7 @@ class SettingsScreen extends ConsumerWidget {
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Text(
-                    'GİZLİLİK POLİTİKASI • PRIVACY POLICY\n\n'
-                    'Son Güncelleme: 16 Ağustos 2026\n'
-                    'Geliştirici: Balax Studio\n'
-                    'Uygulama: Galeriden • Car Dealer Tycoon\n\n'
-                    '1. VERİ TOPLAMA VE KULLANIMI\n'
-                    'Galeriden oyunu, kullanıcıların ad, e-posta, telefon ve konum gibi kişisel olarak tanımlanabilir bilgilerini toplamaz veya harici sunucularda depolamaz. Oyun içi ilerleme, bakiye, sahip olunan araçlar ve ayarlar yalnızca kullanıcının kendi cihazında yerel Hive olarak saklanır.\n\n'
-                    '2. ÜÇÜNCÜ TARAF REKLAM SERVİSLERİ • GOOGLE ADMOB\n'
-                    'Uygulama, isteğe bağlı ödüllü video reklamlar sunmak amacıyla Google AdMob SDK kullanmaktadır. Google AdMob, reklam sunumu, sıklık sınırlandırması ve sahtekarlık tespiti amacıyla IDFA ve GAID gibi cihaz tanımlayıcısı anonim teknik verileri işleyebilir. Bu veriler Google Gizlilik Politikası uyarınca yönetilir.\n\n'
-                    '3. ÇOCUKLARIN GİZLİLİĞİ • COPPA / GDPR-K\n'
-                    'Oyunumuz 13 yaşın altındaki çocuklardan bilerek herhangi bir kişisel veri toplamaz. Ebeveynler istedikleri zaman yerel kayıtları oyun içi "İlerlemeyi Sıfırla" butonuyla tamamen silebilir.\n\n'
-                    '4. İLETİŞİM\n'
-                    'Gizlilik politikamız veya oyun içi haklarınızla ilgili her türlü soru için destek ekibimize ulaşabilirsiniz: support@balaxstudio.com',
+                    context.tr('privacy_policy_content'),
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,

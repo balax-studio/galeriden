@@ -53,7 +53,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
 
   double _rewardCash = 0.0;
   String _foundItemDescription = '';
-  String _statusMessage = 'UV fenerini araba gövdesinde gezdirerek zulayı ara!';
+  String? _statusMessage;
 
   @override
   void initState() {
@@ -89,12 +89,12 @@ class _HiddenStashModalState extends State<HiddenStashModal>
         _isFound = true;
         _isFinished = true;
         HapticFeedback.heavyImpact();
-        _statusMessage = 'Zula bulundu! +${_rewardCash.toInt()} TL Değerinde Kaçak Çip & Nakit!';
+        _statusMessage = context.tr('stash_found_toast');
       } else {
         _statusMessage = 'Sinyal güçleniyor! Zula noktasını taramaya devam et (%${(_stashDiscoveryProgress * 100).round()})...';
       }
     } else {
-      _statusMessage = 'Gövde taranıyor • UV dedektörünü gezdirerek zulayı yakala...';
+      _statusMessage = context.tr('stash_idle_msg');
     }
 
     setState(() {
@@ -212,7 +212,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                 border: Border.all(color: const Color(0xFF2A3449)),
               ),
               child: Text(
-                _statusMessage,
+                _statusMessage ?? context.tr('stash_banner_desc'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 11,
@@ -237,7 +237,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                     _stashDiscoveryProgress = 1.0;
                     _isFound = true;
                     _isFinished = true;
-                    _statusMessage = 'Zula bulundu! +${_rewardCash.toInt()} TL Değerinde Kaçak Çip & Nakit!';
+                    _statusMessage = context.tr('stash_found_toast');
                   });
                 },
               ),

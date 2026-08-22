@@ -56,7 +56,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
         });
         NotificationService.showSuccess(
           context,
-          '$message • Motor sağlığı ve performansı güncellendi!',
+          context.tr('tuning_toast_health_updated'),
         );
       },
     );
@@ -79,10 +79,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       _selectedCar = updatedCar;
     });
 
-    final newMarketValue = updatedCar.estimatedRealValue;
     NotificationService.showSuccess(
       context,
-      '${opt.title} uygulandı! • ${opt.hpGain > 0 ? '+${opt.hpGain} HP • ' : ''}Değer: ${CurrencyFormatter.formatShort(newMarketValue)}',
+      context.tr('tuning_toast_option_applied'),
     );
 
     if (!wasOverTuned && updatedCar.isOverTuned) {
@@ -95,7 +94,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     final discountedCost = preset.getDiscountedCost();
 
     if (game.balance < discountedCost) {
-      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.format(discountedCost)} gerekli.');
+      NotificationService.showError(context, context.tr('err_insufficient_cash'));
       return;
     }
 
@@ -112,10 +111,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       _selectedCar = updatedCar;
     });
 
-    final newMarketValue = updatedCar.estimatedRealValue;
     NotificationService.showSuccess(
       context,
-      '${preset.title} %15 indirimle uygulandı! Araç Pazar Değeri: ${CurrencyFormatter.formatShort(newMarketValue)}',
+      context.tr('tuning_toast_preset_applied'),
     );
 
     if (!wasOverTuned && updatedCar.isOverTuned) {
@@ -195,7 +193,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     NotificationService.showSuccess(
       context,
-      'Mühendislik projesi onaylandı! Araç TÜVTÜRK & Ruhsata işlendi • +%5 Değer.',
+      context.tr('tuning_toast_project_approved'),
     );
   }
 

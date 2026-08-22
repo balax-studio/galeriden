@@ -133,7 +133,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   }
                                   final success = ref.read(gameProvider.notifier).applyCarScent(car.id, scent);
                                   if (success) {
-                                    NotificationService.showSuccess(context, '${car.modelName} aynasına ${scent.name} asıldı!');
+                                    NotificationService.showSuccess(context, context.tr('wash_toast_scent'));
                                     setState(() {});
                                   }
                                 },
@@ -275,7 +275,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   } else {
                                     NotificationService.showInfo(
                                       context,
-                                      'Personel alımı Seviye 3 • Sanayi Sitesi gerektirir.',
+                                      context.tr('wash_toast_level3_req'),
                                     );
                                   }
                                 },
@@ -297,7 +297,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                   } else {
                                     NotificationService.showInfo(
                                       context,
-                                      'Yan işletmeler Seviye 8 • Mega Holding gerektirir.',
+                                      context.tr('wash_toast_level8_req'),
                                     );
                                   }
                                 },
@@ -331,7 +331,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                             setState(() {
                               _customerWashJobs = CustomerWashJob.generateRandomJobs(count: 4);
                             });
-                            NotificationService.showSuccess(context, 'Yeni yıkama müşterileri sıraya girdi!');
+                            NotificationService.showSuccess(context, context.tr('wash_toast_new_queue'));
                           },
                         ),
                       ],
@@ -430,7 +430,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                 if (job.isVipCustomer && !hasPolisher && !hasFoamPump) {
                                   NotificationService.showError(
                                     context,
-                                    'VIP Araç Detailing işlemi için Endüstriyel Polisaj veya Otomatik Köpük Pompası ekipmanı gereklidir!',
+                                    context.tr('wash_toast_vip_equip_req'),
                                   );
                                   return;
                                 }
@@ -462,7 +462,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                     if (success) {
                                       NotificationService.showSuccess(
                                         context,
-                                        '${job.vehicleName} pırıl pırıl teslim edildi! +${CurrencyFormatter.format(job.paymentReward)} & +${job.masteryXp} XP kazanıldı.',
+                                        context.tr('wash_toast_job_delivered'),
                                       );
                                       setState(() {
                                         _customerWashJobs.removeWhere((j) => j.id == job.id);
@@ -704,7 +704,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                 : () {
                                     final success = ref.read(gameProvider.notifier).restoreHeadlights(selectedCar!.id);
                                     if (success) {
-                                      NotificationService.showSuccess(context, 'Sararmış farlar klorobuharla sıfırlandı • +%4 Değer!');
+                                      NotificationService.showSuccess(context, context.tr('wash_toast_headlight_done'));
                                       setState(() {});
                                     } else {
                                       NotificationService.showError(context, 'Yetersiz bakiye! ₺850 gerekli.');
@@ -726,7 +726,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                 : () {
                                     final success = ref.read(gameProvider.notifier).cleanWheelIronDecon(selectedCar!.id);
                                     if (success) {
-                                      NotificationService.showSuccess(context, 'Jantlardaki balata ve demir tozları mor spreyle temizlendi!');
+                                      NotificationService.showSuccess(context, context.tr('wash_toast_iron_decon_done'));
                                       setState(() {});
                                     } else {
                                       NotificationService.showError(context, 'Yetersiz bakiye! ₺450 gerekli.');
@@ -764,7 +764,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               setInterior: false,
                               setPolished: false,
                               setDetailed: false,
-                              successMsg: 'Köpüklü yıkama tamamlandı! Araç pırıl pırıl parlıyor.',
+                              successMsg: context.tr('wash_toast_foam_done'),
                             );
                           },
                         ),
@@ -799,7 +799,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   setInterior: false,
                   setPolished: false,
                   setDetailed: false,
-                  successMsg: 'Köpüklü yıkama tamamlandı! Araç pırıl pırıl parlıyor.',
+                  successMsg: context.tr('wash_toast_foam_done'),
                 ),
               ),
               const SizedBox(height: 8),
@@ -820,7 +820,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   setInterior: true,
                   setPolished: false,
                   setDetailed: false,
-                  successMsg: 'Detaylı iç-dış yıkama bitti! Araç değeri %3 arttı.',
+                  successMsg: context.tr('wash_toast_interior_done'),
                 ),
               ),
               const SizedBox(height: 8),
@@ -841,7 +841,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   setInterior: false,
                   setPolished: true,
                   setDetailed: false,
-                  successMsg: 'Pasta cila çekildi! Kaporta ayna gibi parlıyor.',
+                  successMsg: context.tr('wash_toast_polish_done'),
                 ),
               ),
               const SizedBox(height: 8),
@@ -862,7 +862,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   setInterior: false,
                   setPolished: true,
                   setDetailed: true,
-                  successMsg: 'VIP Seramik kaplama uygulandı! Araç vitrinde hemen alıcı bulacak.',
+                  successMsg: context.tr('wash_toast_ceramic_done'),
                 ),
               ),
               const SizedBox(height: 20),
@@ -1138,7 +1138,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
     final success = ref.read(gameProvider.notifier).purchaseEquipmentUpgrade(eqId, cost);
     if (success) {
-      NotificationService.showReward(context, '$name yıkama istasyonuna kuruldu!');
+      NotificationService.showReward(context, context.tr('wash_toast_equip_installed'));
       setState(() {});
     }
   }

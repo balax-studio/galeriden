@@ -82,7 +82,7 @@ class RentACarScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${CurrencyFormatter.formatShort(dailyRentalIncome)} / Gün',
+                        '${CurrencyFormatter.formatShort(dailyRentalIncome)} ${context.tr('rent_per_day_suffix')}',
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                       ),
                       const SizedBox(height: 2),
@@ -150,7 +150,7 @@ class RentACarScreen extends ConsumerWidget {
     bool isDark,
   ) {
     final car = findFirstWhere(game.ownedCars, (c) => c.id == rental.carId);
-    final carTitle = car != null ? '${car.brand} ${car.modelName}' : 'Kiradaki Araç';
+    final carTitle = car != null ? '${car.brand} ${car.modelName}' : context.tr('rent_badge_rented_car');
 
     final Color profileBadgeColor;
     final String profileLabel;
@@ -247,7 +247,7 @@ class RentACarScreen extends ConsumerWidget {
                   onPressed: () {
                     final success = ref.read(gameProvider.notifier).returnRentedCar(rental.id);
                     if (success) {
-                      NotificationService.showSuccess(context, 'Araç kiralama sonlandırıldı, galeriye döndü.');
+                      NotificationService.showSuccess(context, context.tr('rent_toast_rental_ended'));
                     }
                   },
                 ),
@@ -474,7 +474,7 @@ class RentACarScreen extends ConsumerWidget {
                             children: [
                               Text(context.tr('rent_suggested_rate'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                               Text(
-                                '${CurrencyFormatter.formatShort(suggestedRate)} / Gün',
+                                '${CurrencyFormatter.formatShort(suggestedRate)} ${context.tr('rent_per_day_suffix')}',
                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                               ),
                             ],
@@ -513,7 +513,7 @@ class RentACarScreen extends ConsumerWidget {
                           child: Column(
                             children: [
                               Text(
-                                '${CurrencyFormatter.formatShort(currentRate)} / Gün',
+                                '${CurrencyFormatter.formatShort(currentRate)} ${context.tr('rent_per_day_suffix')}',
                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                               ),
                               if (hasInsurance)
@@ -555,7 +555,7 @@ class RentACarScreen extends ConsumerWidget {
                         if (success) {
                           NotificationService.showSuccess(
                             context,
-                            '${car.brand} günlük ${CurrencyFormatter.formatShort(netRate)} net bedelle kiraya verildi.',
+                            context.tr('rent_toast_rental_started'),
                           );
                         }
                       },

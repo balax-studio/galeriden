@@ -60,7 +60,7 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
   int _failedStrikes = 0;
   bool _isFinished = false;
   bool _isSuccess = false;
-  String _statusMessage = 'Tork ibresi yeşil bölgedeyken cıvatayı gevşet!';
+  String? _statusMessage;
 
   @override
   void initState() {
@@ -96,11 +96,11 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
         _isSuccess = true;
         // Apply bonus condition
         _currentCondition = math.min(100, _currentCondition + 15);
-        _statusMessage = 'Tüm cıvatalar hasarsız söküldü • +%15 Kondisyon Bonusu!';
+        _statusMessage = context.tr('teardown_all_done');
       } else {
         // Advance to next unloosened bolt
         _activeBoltIndex = _boltsLoosened.indexOf(false);
-        _statusMessage = '${_boltsLoosened.where((b) => b).length}/4 Cıvata gevşetildi! Sıradakine geç.';
+        _statusMessage = context.tr('teardown_bolt_progress');
       }
     } else if (sweepValue > 88.0) {
       // Over-torque / Strip zone
@@ -113,9 +113,9 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
         _sweepController.stop();
         _isFinished = true;
         _isSuccess = false;
-        _statusMessage = 'Aşırı tork yüzünden cıvata kırıldı • Parça hasar gördü!';
+        _statusMessage = context.tr('teardown_bolt_broken');
       } else {
-        _statusMessage = 'DİKKAT: Fazla tork cıvatayı yalama yapıyor!';
+        _statusMessage = context.tr('teardown_overtorque_warning');
       }
     } else {
       // Under-torque: Pas sökülmedi
@@ -253,7 +253,7 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                 border: Border.all(color: const Color(0xFF2A3449)),
               ),
               child: Text(
-                _statusMessage,
+                _statusMessage ?? context.tr('teardown_instruction'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 11,
@@ -289,7 +289,7 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   }
-                  widget.onCompleted(_isSuccess, _currentCondition, _statusMessage);
+                  widget.onCompleted(_isSuccess, _currentCondition, _statusMessage ?? context.tr('teardown_instruction'));
                 },
               ),
             ],

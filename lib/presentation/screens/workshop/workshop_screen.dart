@@ -130,7 +130,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             }
                             final success = ref.read(gameProvider.notifier).applyCustomPaintRespray(car.id, paint);
                             if (success) {
-                              NotificationService.showSuccess(context, '${car.modelName} ${paint.name} rengine boyandı!');
+                              NotificationService.showSuccess(context, context.tr('workshop_toast_paint_done'));
                               setState(() {
                                 _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
                               });
@@ -343,7 +343,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     onPressed: () {
                       final success = ref.read(gameProvider.notifier).treatWorkshopStaffSnack();
                       if (success) {
-                        NotificationService.showSuccess(context, 'Ustalara sanayi tostu ve tavşan kanı çay söylendi • +20 Moral!');
+                        NotificationService.showSuccess(context, context.tr('workshop_toast_staff_morale'));
                         setState(() {});
                       } else {
                         NotificationService.showError(context, 'Yetersiz bakiye! ₺250 gerekli.');
@@ -844,7 +844,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                   : () {
                                       final success = ref.read(gameProvider.notifier).certifyTuvturkInspection(_selectedCar!.id);
                                       if (success) {
-                                        NotificationService.showSuccess(context, '2 Yıl TÜVTÜRK Muayene Pulu basıldı! Satış hızı %40 arttı.');
+                                        NotificationService.showSuccess(context, context.tr('workshop_toast_tuvturk_done'));
                                         setState(() {
                                           _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                         });
@@ -898,7 +898,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '$partName siparişi kargoya verildi! $durationSeconds sn içinde teslim edilecek',
+                                context.tr('workshop_toast_order_dispatched'),
                               );
                               setState(() {});
                             }
@@ -1077,7 +1077,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         customRewardTitle: 'Hızlı Kargo Teslimatı',
                         onRewardEarned: () {
                           ref.read(gameProvider.notifier).instantDeliverPartOrder(order.id);
-                          NotificationService.showReward(context, 'Kargo hızlandırıldı! Parça teslim edildi.');
+                          NotificationService.showReward(context, context.tr('workshop_toast_fast_shipping'));
                           setState(() {});
                         },
                       );
@@ -1146,7 +1146,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               if (_selectedCar == null) return;
                               final success = ref.read(gameProvider.notifier).installPartToCar(part.id, _selectedCar!.id);
                               if (success) {
-                                NotificationService.showSuccess(context, '${part.name} araca başarıyla monte edildi!');
+                                NotificationService.showSuccess(context, context.tr('workshop_toast_part_installed'));
                                 setState(() {});
                               }
                             },
@@ -1273,7 +1273,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
     final success = ref.read(gameProvider.notifier).purchaseEquipmentUpgrade(eqId, cost);
     if (success) {
-      NotificationService.showReward(context, '$name atölyene başarıyla kuruldu!');
+      NotificationService.showReward(context, context.tr('workshop_toast_equip_installed'));
       setState(() {});
     }
   }
@@ -1291,7 +1291,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         return;
       }
       if (tier == RepairTier.master && !game.unlockedBuildings.contains('workshop_eq_lift')) {
-        NotificationService.showError(context, 'Ağır motor rektifiyesi için atölyenizde Hidrolik Araç Lifti kurulu olmalıdır!');
+        NotificationService.showError(context, context.tr('workshop_toast_lift_req'));
         return;
       }
       final result = ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
@@ -1309,7 +1309,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         return;
       }
       if (tier == RepairTier.master && !game.unlockedBuildings.contains('workshop_eq_lift')) {
-        NotificationService.showError(context, 'Komple şanzıman indirme ve yenileme için Hidrolik Araç Lifti gereklidir!');
+        NotificationService.showError(context, context.tr('workshop_toast_lift_req'));
         return;
       }
       final result = ref.read(gameProvider.notifier).repairTransmissionWithTier(car, tier);
@@ -1348,7 +1348,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       );
 
       if (success) {
-        NotificationService.showSuccess(context, 'Tüm kaporta parçaları başarıyla onarıldı ve fırın boya tamamlandı!');
+        NotificationService.showSuccess(context, context.tr('workshop_toast_body_all_done'));
         setState(() {
           _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
         });
@@ -1372,7 +1372,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         cost: cost,
       );
       if (success) {
-        NotificationService.showSuccess(context, 'Tüm sensör ve arıza kodları OBD-II ile başarıyla temizlendi!');
+        NotificationService.showSuccess(context, context.tr('workshop_toast_ecu_done'));
         setState(() {
           _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
         });
@@ -1396,7 +1396,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         cost: cost,
       );
       if (success) {
-        NotificationService.showSuccess(context, 'Lazerli şasi düzeltme ve rot-balans kusursuz tamamlandı!');
+        NotificationService.showSuccess(context, context.tr('workshop_toast_chassis_done'));
         setState(() {
           _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
         });

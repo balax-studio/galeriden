@@ -227,7 +227,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                                               ref.read(gameProvider.notifier).addMoney(rewardCash);
                                               NotificationService.showSuccess(
                                                 context,
-                                                'Zula Ele Geçirildi! +${CurrencyFormatter.format(rewardCash)} kasaya aktarıldı.',
+                                                context.tr('black_market_toast_stash_seized'),
                                               );
                                             }
                                           },
@@ -253,7 +253,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                                         });
                                         NotificationService.showSuccess(
                                           context,
-                                          '${car.brand} ${car.modelName} için sahte plaka takıldı - Polis riski %0 oldu!',
+                                          context.tr('black_market_toast_fake_plate'),
                                         );
                                       },
                                     );
@@ -270,7 +270,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                 onPressed: () {
                                   if (game.ownedCars.length >= game.maxGarageSlots) {
-                                    NotificationService.showError(context, 'Garajında boş yer yok! Şubeni büyüt veya bir araç sat.');
+                                    NotificationService.showError(context, context.tr('black_market_toast_no_space'));
                                     return;
                                   }
                                   final effectiveCost = game.hasHighNpcTrust('golge_ibrahim')
@@ -285,7 +285,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                                   if (success) {
                                     NotificationService.showSuccess(
                                       context,
-                                      '${car.modelName} karaborsadan satın alındı! Garajına eklendi.',
+                                      context.tr('black_market_toast_car_bought'),
                                     );
                                   }
                                 },

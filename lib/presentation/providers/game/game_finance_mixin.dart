@@ -12,6 +12,8 @@ enum LiquidityLevel { strong, moderate, tight }
 class LiquidityStatus {
   final LiquidityLevel level;
   final double ratio;
+  final String badgeLabelKey;
+  final String descriptionKey;
   final String badgeLabel;
   final String description;
   final double totalLiquidAssets;
@@ -20,6 +22,8 @@ class LiquidityStatus {
   const LiquidityStatus({
     required this.level,
     required this.ratio,
+    required this.badgeLabelKey,
+    required this.descriptionKey,
     required this.badgeLabel,
     required this.description,
     required this.totalLiquidAssets,
@@ -189,19 +193,27 @@ mixin GameFinanceMixin on GameBaseNotifier {
     final double ratio = totalShortTermDebts <= 0 ? 10.0 : (totalLiquidAssets / totalShortTermDebts);
 
     LiquidityLevel level;
+    String badgeLabelKey;
+    String descriptionKey;
     String badgeLabel;
     String description;
 
     if (ratio >= 2.5) {
       level = LiquidityLevel.strong;
+      badgeLabelKey = 'liquidity_strong_badge';
+      descriptionKey = 'liquidity_strong_desc';
       badgeLabel = 'Sağlam & Likit • Güçlü Nakit';
       description = 'Kasa ve dönen varlıkların borçlarını rahatça karşılıyor. Yeni araç yatırımlarına hazır.';
     } else if (ratio >= 1.2) {
       level = LiquidityLevel.moderate;
+      badgeLabelKey = 'liquidity_moderate_badge';
+      descriptionKey = 'liquidity_moderate_desc';
       badgeLabel = 'Dengeli & İzlemede • Stabil';
       description = 'Alacak ve borç dengesi normal seviyede. Taksit ve çek vadelerini takip et.';
     } else {
       level = LiquidityLevel.tight;
+      badgeLabelKey = 'liquidity_tight_badge';
+      descriptionKey = 'liquidity_tight_desc';
       badgeLabel = 'Nakit Sıkışıklığı • Riskli Likidite';
       description = 'Kısa vadeli borçlar yüksek. Çek kırdırma veya acil araç satışı ile nakit yarat.';
     }
@@ -209,6 +221,8 @@ mixin GameFinanceMixin on GameBaseNotifier {
     return LiquidityStatus(
       level: level,
       ratio: ratio,
+      badgeLabelKey: badgeLabelKey,
+      descriptionKey: descriptionKey,
       badgeLabel: badgeLabel,
       description: description,
       totalLiquidAssets: totalLiquidAssets,

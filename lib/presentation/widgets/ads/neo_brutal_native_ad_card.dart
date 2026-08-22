@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/notification_service.dart';
@@ -68,11 +69,11 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
     const InGameSponsorSnippet(
       title: 'MEGUIARS OTO DETAY VE PASTA CİLA',
       description: 'Sanayinin 1 numaralı boya koruma atölyesi! Güneş yanığını bile gizleriz garantisiyle hizmetinizde.',
-      badgeText: 'SPONSORLU İLAN',
-      actionText: 'ATÖLYEYE GÖZ AT',
+      badgeText: 'ad_native_sponsor_tag',
+      actionText: 'ad_native_cta',
       icon: Icons.auto_fix_high_rounded,
       accentColor: AppColors.brutalYellow,
-      benefitToast: 'Pasta cila ustasının kartvizitini aldın - Boya koruma indirimi devrede!',
+      benefitToast: 'ad_native_card_toast',
     ),
     const InGameSponsorSnippet(
       title: 'TÜRKİYE GENELİ ÇEKİCİ VE OTO KURTARICI',
@@ -248,7 +249,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 NeoBrutalBadge(
-                  text: _fallbackSnippet.badgeText,
+                  text: _resolveLocalized(context, _fallbackSnippet.badgeText),
                   icon: _fallbackSnippet.icon,
                   backgroundColor: _fallbackSnippet.accentColor,
                   textColor: Colors.black,
@@ -288,7 +289,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
               children: [
                 InkWell(
                   onTap: () {
-                    NotificationService.showSuccess(context, _fallbackSnippet.benefitToast);
+                    NotificationService.showSuccess(context, _resolveLocalized(context, _fallbackSnippet.benefitToast));
                   },
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
@@ -302,7 +303,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _fallbackSnippet.actionText,
+                          _resolveLocalized(context, _fallbackSnippet.actionText),
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
@@ -321,5 +322,12 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
         ),
       ),
     );
+  }
+
+  String _resolveLocalized(BuildContext context, String val) {
+    if (val.startsWith('ad_')) {
+      return context.tr(val);
+    }
+    return val;
   }
 }

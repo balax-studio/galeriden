@@ -48,7 +48,7 @@ class ListingDetailScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.share_rounded),
             onPressed: () {
-              NotificationService.showSuccess(context, 'İlan bağlantısı kopyalandı!');
+              NotificationService.showSuccess(context, context.tr('marketplace_toast_link_copied'));
             },
           ),
         ],

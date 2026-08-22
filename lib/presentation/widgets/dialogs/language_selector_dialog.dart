@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/language_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -55,12 +56,12 @@ class LanguageSelectorDialog extends ConsumerWidget {
                     child: const Icon(Icons.language_rounded, color: Colors.black, size: 20),
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'DİL SEÇİMİ',
+                          context.tr('lang_dialog_title'),
                           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                         ),
                         Text(

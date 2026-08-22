@@ -990,7 +990,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                         children: [
                           Text(context.tr('stock_daily_dividend_cashflow'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                           Text(
-                            '+${CurrencyFormatter.formatShort(dailyDividendFlow)} / Gün',
+                            '+${CurrencyFormatter.formatShort(dailyDividendFlow)} ${context.tr('rent_per_day_suffix')}',
                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                           ),
                           Text(

@@ -199,6 +199,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                           isAligned: _isAligned,
                           phase: _phase,
                           sweepProgress: _sweepController.value,
+                          camshaftLabel: context.tr('timing_camshaft_label'),
                         ),
                       );
                     },
@@ -280,7 +281,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
               ),
             ] else ...[
               NeoBrutalButton(
-                label: 'MOTORU ÇALIŞTIR & TEST ET',
+                label: context.tr('timing_test_engine_btn'),
                 icon: Icons.play_arrow_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
@@ -307,6 +308,7 @@ class _EngineTimingPainter extends CustomPainter {
   final bool isAligned;
   final int phase;
   final double sweepProgress;
+  final String camshaftLabel;
 
   _EngineTimingPainter({
     required this.camAngle,
@@ -314,6 +316,7 @@ class _EngineTimingPainter extends CustomPainter {
     required this.isAligned,
     required this.phase,
     required this.sweepProgress,
+    required this.camshaftLabel,
   });
 
   @override
@@ -366,7 +369,7 @@ class _EngineTimingPainter extends CustomPainter {
       canvas.drawPath(path, beltPaint);
 
       // Draw Gears
-      _drawGear(canvas, camCenter, camRadius, camAngle, 'EKSANTRİK');
+      _drawGear(canvas, camCenter, camRadius, camAngle, camshaftLabel);
       _drawGear(canvas, crankCenter, crankRadius, crankAngle, 'KRANK');
     } else {
       // Phase 1: Torque Scale Wrench View

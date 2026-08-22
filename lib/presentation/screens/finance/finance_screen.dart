@@ -105,7 +105,7 @@ class FinanceScreen extends ConsumerWidget {
                   final success = ref.read(gameProvider.notifier).cashOutChequeEarly(cheque.id, discountRate: discountRate);
                   Navigator.pop(ctx);
                   if (success) {
-                    NotificationService.showSuccess(context, '${CurrencyFormatter.format(netCash)} kasaya aktarıldı!');
+                    NotificationService.showSuccess(context, context.tr('finance_toast_cheque_cashed'));
                   }
                 },
               ),
@@ -144,7 +144,7 @@ class FinanceScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(context.tr('finance_promissory_early_close'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
-                  NeoBrutalBadge(text: '%5 İskonto', backgroundColor: AppColors.brutalGreen, textColor: Colors.black, fontSize: 10),
+                  NeoBrutalBadge(text: context.tr('finance_discount_badge'), backgroundColor: AppColors.brutalGreen, textColor: Colors.black, fontSize: 10),
                 ],
               ),
               const SizedBox(height: 10),
@@ -202,7 +202,7 @@ class FinanceScreen extends ConsumerWidget {
                   final success = ref.read(gameProvider.notifier).settleInstallmentEarly(contract.id, discountRate: discountRate);
                   Navigator.pop(ctx);
                   if (success) {
-                    NotificationService.showSuccess(context, 'Senet kapatıldı, ${CurrencyFormatter.format(netCash)} tahsil edildi!');
+                    NotificationService.showSuccess(context, context.tr('finance_toast_promissory_closed'));
                   }
                 },
               ),
@@ -244,7 +244,7 @@ class FinanceScreen extends ConsumerWidget {
                   children: [
                     Text(context.tr('finance_liquidity_badge'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                     NeoBrutalBadge(
-                      text: liquidity.badgeLabel,
+                      text: context.tr(liquidity.badgeLabelKey),
                       backgroundColor: liquidity.level == LiquidityLevel.strong
                           ? AppColors.brutalGreen
                           : (liquidity.level == LiquidityLevel.moderate ? AppColors.brutalYellow : AppColors.errorRed),
@@ -255,7 +255,7 @@ class FinanceScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  liquidity.description,
+                  context.tr(liquidity.descriptionKey),
                   style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: isDark ? Colors.white70 : Colors.black87),
                 ),
                 const SizedBox(height: 10),
@@ -349,7 +349,7 @@ class FinanceScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: game.isFeatureUnlocked('/bank-investments') ? context.tr('finance_open_bank_btn') : 'KİLİTLİ',
+                  label: game.isFeatureUnlocked('/bank-investments') ? context.tr('finance_open_bank_btn') : context.tr('btn_locked'),
                   backgroundColor: game.isFeatureUnlocked('/bank-investments')
                       ? AppColors.brutalGreen
                       : const Color(0xFF64748B),

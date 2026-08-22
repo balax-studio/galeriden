@@ -328,7 +328,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '${gossip.sourceNpcName} istihbaratı verdi! İpuçlarını kontrol et.',
+                                context.tr('gossip_toast_intel_received'),
                               );
                             }
                           }

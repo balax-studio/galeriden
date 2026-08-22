@@ -86,9 +86,9 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
         'Kategori': category,
         'Konu': title,
         'Mesaj': message,
-        'Oyun Sürümü': version,
+        'Oyun Surumu': version,
         'Oyuncu Seviyesi': level,
-        'Oyun Günü': day,
+        'Oyun Gunu': day,
         'Zaman': DateTime.now().toString(),
       });
 

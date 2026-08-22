@@ -361,10 +361,10 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                                     HapticFeedback.heavyImpact();
                                     NotificationService.showSuccess(
                                       context,
-                                      '${item.title} İnşa Edildi! ${item.perkSummary}',
+                                      context.tr('decor_toast_built'),
                                     );
                                   } else {
-                                    NotificationService.showError(context, 'Bu geliştirme zaten yapılmış veya şartlar sağlanmıyor!');
+                                    NotificationService.showError(context, context.tr('decor_toast_already_built'));
                                   }
                                 },
                         ),

@@ -325,7 +325,7 @@ class BranchScreen extends ConsumerWidget {
                                         if (success) {
                                           NotificationService.showSuccess(
                                             context,
-                                            '${b.name} arsa ve mülk tapusu adınıza tescil edildi! Günlük kiranız sıfırlandı.',
+                                            context.tr('branch_toast_deed_owned'),
                                           );
                                         }
                                       }

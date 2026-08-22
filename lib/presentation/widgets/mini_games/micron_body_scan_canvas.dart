@@ -146,7 +146,9 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                       style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                     ),
                     Text(
-                      _selectedPartKey ?? context.tr('micron_probe_hint'),
+                      _selectedPartKey != null
+                          ? _getLocalizedPartName(context, _selectedPartKey!)
+                          : context.tr('micron_probe_hint'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
@@ -365,7 +367,7 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                         Icon(Icons.check_circle_rounded, size: 12, color: isSelected ? Colors.black : statusColor),
                       if (isScanned) const SizedBox(width: 4),
                       Text(
-                        entry.key,
+                        _getLocalizedPartName(context, entry.key),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
@@ -381,6 +383,40 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
         ],
       ),
     );
+  }
+
+  String _getLocalizedPartName(BuildContext context, String partKey) {
+    switch (partKey) {
+      case 'Ön Tampon':
+        return context.tr('part_front_bumper');
+      case 'Kaput':
+        return context.tr('part_hood');
+      case 'Tavan':
+        return context.tr('part_roof');
+      case 'Bagaj':
+      case 'Bagaj Kapağı':
+        return context.tr('part_trunk');
+      case 'Arka Tampon':
+        return context.tr('part_rear_bumper');
+      case 'Sol Ön Çamurluk':
+        return context.tr('part_left_front_fender');
+      case 'Sağ Ön Çamurluk':
+        return context.tr('part_right_front_fender');
+      case 'Sol Ön Kapı':
+        return context.tr('part_left_front_door');
+      case 'Sağ Ön Kapı':
+        return context.tr('part_right_front_door');
+      case 'Sol Arka Kapı':
+        return context.tr('part_left_rear_door');
+      case 'Sağ Arka Kapı':
+        return context.tr('part_right_rear_door');
+      case 'Sol Arka Çamurluk':
+        return context.tr('part_left_rear_fender');
+      case 'Sağ Arka Çamurluk':
+        return context.tr('part_right_rear_fender');
+      default:
+        return partKey;
+    }
   }
 
   Widget _buildTouchTarget({

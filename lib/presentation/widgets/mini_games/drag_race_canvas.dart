@@ -85,19 +85,19 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
   final List<Particle> _particles = [];
   final math.Random _random = math.Random();
 
-  final List<String> _perfectQuotes = [
+  List<String> get _perfectQuotes => [
     'Oley be!',
-    'İşte bu!',
-    'Yürü be aslanım!',
-    'Aç yolu geliyorum!',
+    context.tr('drag_voice_1'),
+    context.tr('drag_voice_2'),
+    context.tr('drag_voice_3'),
     'Harika devir!',
     'Kusursuz vites!',
   ];
 
-  final List<String> _earlyQuotes = [
+  List<String> get _earlyQuotes => [
     'Hadi be!',
-    'Erken attık vitesi!',
-    'Tüh devir düştü!',
+    context.tr('drag_voice_early_1'),
+    context.tr('drag_voice_early_2'),
     'Acele ettik!',
   ];
 
