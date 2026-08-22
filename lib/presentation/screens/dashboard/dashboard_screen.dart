@@ -16,6 +16,8 @@ import '../../widgets/neo_brutal_story_ad_dialog.dart';
 import '../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../../widgets/neo_brutal_random_event_dialog.dart';
 import '../../widgets/whats_new_dialog.dart';
+import '../../widgets/dialogs/daily_login_sheet.dart';
+import '../../widgets/dialogs/customer_follow_up_dialog.dart';
 import '../auction/auction_screen.dart';
 import '../showroom/showroom_screen.dart';
 import 'widgets/dashboard_banners.dart';
@@ -59,6 +61,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final recap = ref.read(gameProvider.notifier).consumePendingOfflineRecap();
       if (recap != null && mounted) {
         DashboardRetentionModals.showOfflineRecapModal(context, recap);
+      }
+
+      // Check 28-Day Monthly Daily Streak
+      final now = DateTime.now();
+      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      if (game.canClaimTodayStreak(todayStr) && mounted) {
+        DailyLoginSheet.show(context);
       }
 
       // Check Post-Update What's New Dialog
@@ -110,6 +119,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             NeoBrutalRandomEventDialog.show(context, next.pendingRandomEvent!);
+          }
+        });
+      }
+
+      if (next.activeCrmEvent != null && (previous?.activeCrmEvent?.id != next.activeCrmEvent?.id)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            CustomerFollowUpDialog.show(context, next.activeCrmEvent!);
           }
         });
       }

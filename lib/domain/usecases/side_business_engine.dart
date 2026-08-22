@@ -33,14 +33,24 @@ class SideBusinessEngine {
           synergyFactor = 1.15;
         }
 
-        final income = b.effectiveIncomeWithUtilization(
+        double operationalBonus = 0.0;
+        // Yan işletme canlı dinamik operasyon olayları (Sadece sahip olunan işletmeler için)
+        if (b.type == SideBusinessType.carWash && carsWashedLast7Days > 5) {
+          operationalBonus += 1500.0; // Yüksek yıkama trafiği primi
+        } else if (b.type == SideBusinessType.towTruck && towedCarsLast7Days > 3) {
+          operationalBonus += 3000.0; // Sanayi çekici filo primi
+        } else if (b.type == SideBusinessType.corporateExpertise && expertisesPerformedLast7Days > 5) {
+          operationalBonus += 4000.0; // Kurumsal filo ekspertiz anlaşması
+        }
+
+        final income = (b.effectiveIncomeWithUtilization(
           washedLast7Days: carsWashedLast7Days,
           expertisesLast7Days: expertisesPerformedLast7Days,
           listedCarsCount: listedCarsCount,
           partsRepairedLast7Days: partsRepairedLast7Days,
           towedCarsLast7Days: towedCarsLast7Days,
           activeRentalsCount: activeRentalsCount,
-        ) * businessMultiplier * synergyFactor;
+        ) * businessMultiplier * synergyFactor) + operationalBonus;
 
         currentBalance += income;
         updatedBusinesses[i] = b.copyWith(totalEarned: b.totalEarned + income);

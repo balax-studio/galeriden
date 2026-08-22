@@ -22,6 +22,7 @@ import '../../../data/models/expertise_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
+import '../../../data/models/customer_crm_event_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/dramatic_card_engine.dart';
 import '../../../domain/usecases/random_event_engine.dart';
@@ -188,6 +189,16 @@ mixin GameTimeMixin on GameBaseNotifier {
       triggerOrganicOffers();
     }
 
+    // Satış Sonrası CRM & Karma Olayları Kuyruk İşleme
+    CustomerCrmEventModel? nextActiveCrm = state.activeCrmEvent;
+    final remainingCrmEvents = List<CustomerCrmEventModel>.from(state.pendingCrmEvents);
+    if (nextActiveCrm == null && remainingCrmEvents.isNotEmpty) {
+      final readyIndex = remainingCrmEvents.indexWhere((e) => e.triggerDay <= nextDay);
+      if (readyIndex != -1) {
+        nextActiveCrm = remainingCrmEvents.removeAt(readyIndex);
+      }
+    }
+
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
@@ -230,6 +241,8 @@ mixin GameTimeMixin on GameBaseNotifier {
       consignmentOffers: updatedConsignmentOffers,
       districtMarketShare: updatedDistrictShares,
       dailyRacesRemaining: 3, // Her gün 3 yarış hakkı yenilenir
+      pendingCrmEvents: remainingCrmEvents,
+      activeCrmEvent: nextActiveCrm,
     );
 
     refreshMarketTrends();
@@ -560,7 +573,7 @@ mixin GameTimeMixin on GameBaseNotifier {
     List<PlayerStockModel> ownedStocks,
     List<GameEventModel> events,
   ) {
-    return StockMarketEngine.processStockFluctuationsAndDividends(
+    final (updatedStocks, updatedBal, updatedEvents) = StockMarketEngine.processStockFluctuationsAndDividends(
       nextDay: nextDay,
       balance: balance,
       stocks: stocks,
@@ -568,6 +581,16 @@ mixin GameTimeMixin on GameBaseNotifier {
       events: events,
       activeNews: state.activeNews,
       random: random,
+    );
+
+    return StockMarketEngine.processQuarterlyFinancialReport(
+      nextDay: nextDay,
+      balance: updatedBal,
+      stocks: updatedStocks,
+      events: updatedEvents,
+      reputationScore: state.reputationScore,
+      totalProfit: state.totalProfit,
+      isCompanyListed: state.isCompanyListedOnBist,
     );
   }
 

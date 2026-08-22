@@ -1,0 +1,322 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/notification_service.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/daily_login_reward_model.dart';
+import '../../providers/game_provider.dart';
+import '../neo_brutal_badge.dart';
+import '../neo_brutal_button.dart';
+import '../neo_brutal_card.dart';
+
+class DailyLoginSheet extends ConsumerStatefulWidget {
+  const DailyLoginSheet({super.key});
+
+  static void show(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => const DailyLoginSheet(),
+    );
+  }
+
+  @override
+  ConsumerState<DailyLoginSheet> createState() => _DailyLoginSheetState();
+}
+
+class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
+  int _selectedWeek = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    final game = ref.read(gameProvider);
+    _selectedWeek = ((game.currentStreakDay - 1) ~/ 7) + 1;
+    if (_selectedWeek < 1 || _selectedWeek > 4) _selectedWeek = 1;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final game = ref.watch(gameProvider);
+    final now = DateTime.now();
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final canClaim = game.canClaimTodayStreak(todayStr);
+
+    final allRewards = DailyLoginRewardModel.getSeasonalCycle(cycleCount: game.streakCycleCount);
+    final currentStreakDay = game.currentStreakDay.clamp(1, 28);
+    final weekRewards = allRewards.where((r) => r.weekNumber == _selectedWeek).toList();
+    final todayReward = allRewards.firstWhere((r) => r.dayNumber == currentStreakDay);
+    final seasonTitle = DailyLoginRewardModel.getSeasonTitle(game.streakCycleCount);
+    final seasonDesc = DailyLoginRewardModel.getSeasonDescription(game.streakCycleCount);
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF10131B) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(color: Colors.black, width: 3.0),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Drag Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black26,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    seasonTitle,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                      color: AppColors.brutalYellow,
+                    ),
+                  ),
+                  Text(
+                    'Döngü #${game.streakCycleCount + 1} • Gün $currentStreakDay / 28',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+              NeoBrutalBadge(
+                text: canClaim ? 'SİFTAH HAZIR' : 'YARIN GEL',
+                icon: canClaim ? Icons.check_circle_rounded : Icons.lock_clock_rounded,
+                backgroundColor: canClaim ? AppColors.brutalGreen : (isDark ? const Color(0xFF242C3D) : const Color(0xFFE2E8F0)),
+                textColor: canClaim ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                fontSize: 11,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Season description card
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.wb_sunny_rounded, size: 16, color: AppColors.brutalYellow),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    seasonDesc,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 4-Week Selector Tabs
+          Row(
+            children: List.generate(4, (index) {
+              final weekNum = index + 1;
+              final isSelected = _selectedWeek == weekNum;
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: index < 3 ? 6.0 : 0.0),
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedWeek = weekNum),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.brutalYellow
+                            : (isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9)),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isSelected ? Colors.black : (isDark ? Colors.white12 : Colors.black12),
+                          width: isSelected ? 2.0 : 1.0,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$weekNum. HAFTA',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 14),
+
+          // 7 Cards of the Selected Week
+          SizedBox(
+            height: 120,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: weekRewards.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (ctx, idx) {
+                final reward = weekRewards[idx];
+                final isCurrentDay = reward.dayNumber == currentStreakDay;
+                final isClaimed = game.claimedStreakDays.contains(reward.dayNumber);
+
+                return SizedBox(
+                  width: 95,
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(8),
+                    backgroundColor: isClaimed
+                        ? (isDark ? const Color(0xFF141923) : const Color(0xFFE2E8F0))
+                        : (isCurrentDay
+                            ? reward.accentColor.withValues(alpha: isDark ? 0.25 : 0.15)
+                            : (isDark ? const Color(0xFF1E2433) : Colors.white)),
+                    borderColor: isCurrentDay ? reward.accentColor : (isClaimed ? AppColors.successGreen : Colors.black),
+                    borderWidth: isCurrentDay ? 2.5 : 1.5,
+                    borderRadius: 12,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'G.${reward.dayNumber}',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: isCurrentDay ? reward.accentColor : (isDark ? Colors.white70 : Colors.black87),
+                              ),
+                            ),
+                            if (isClaimed)
+                              const Icon(Icons.check_circle_rounded, color: AppColors.successGreen, size: 14)
+                            else if (reward.isMilestone)
+                              Icon(Icons.stars_rounded, color: reward.accentColor, size: 14),
+                          ],
+                        ),
+                        Icon(
+                          reward.icon,
+                          size: 24,
+                          color: isClaimed ? Colors.grey : reward.accentColor,
+                        ),
+                        Text(
+                          reward.moneyAmount > 0
+                              ? '+${CurrencyFormatter.formatShort(reward.moneyAmount)}'
+                              : '+${reward.reputationAmount} İtibar',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: isClaimed ? Colors.grey : (isDark ? Colors.white : Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Today's Detailed Reward Box
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: todayReward.accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: todayReward.accentColor, width: 2.0),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: todayReward.accentColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black, width: 1.5),
+                  ),
+                  child: Icon(todayReward.icon, color: Colors.black, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        todayReward.title,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        todayReward.description,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          // Claim Action Button
+          NeoBrutalButton(
+            label: canClaim
+                ? 'GÜN $currentStreakDay SİFTAHINI KASAYA AT'
+                : 'BUGÜNÜN ÖDÜLÜ ALINDI • YARIN GEL',
+            icon: canClaim ? Icons.card_giftcard_rounded : Icons.check_circle_rounded,
+            backgroundColor: canClaim ? AppColors.brutalGreen : (isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0)),
+            textColor: canClaim ? Colors.black : (isDark ? Colors.white54 : Colors.black45),
+            fullWidth: true,
+            onPressed: canClaim
+                ? () {
+                    final claimed = ref.read(gameProvider.notifier).claimDailyLoginReward();
+                    if (claimed != null) {
+                      NotificationService.showSuccess(
+                        context,
+                        'Tebrikler! Gün ${claimed.dayNumber} ödülü kasanıza tanımlandı.',
+                      );
+                      setState(() {});
+                    }
+                  }
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}

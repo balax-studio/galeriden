@@ -1196,11 +1196,128 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
   Widget _buildIpoTab(dynamic game, bool isDark) {
     final List<IpoOfferModel> ipoList = game.activeIpos.isNotEmpty ? game.activeIpos : IpoOfferModel.defaultIpos(game.currentDay);
     final List<PlayerIpoRequestModel> requests = game.playerIpoRequests;
+    final double totalCarVal = (game.ownedCars as List).fold(0.0, (sum, c) => sum + (c.estimatedRealValue as num).toDouble());
+    final double companyValuation = (game.balance + totalCarVal + game.totalDeedValue) * 1.25;
+    final double ipoCapitalPotential = (companyValuation * 0.20).clamp(250000.0, 50000000.0).roundToDouble();
+    final bool canLaunchIpo = !game.isCompanyListedOnBist && game.level >= 4 && game.carsSold >= 10;
 
     return ListView(
       padding: const EdgeInsets.all(14),
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: [
+        // 1. KENDİ ŞİRKETİNİ HALKA ARZ ET (BIST: GLRD)
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(14),
+          backgroundColor: game.isCompanyListedOnBist
+              ? AppColors.brutalGreen.withValues(alpha: 0.15)
+              : (isDark ? const Color(0xFF1B1E2B) : Colors.white),
+          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderRadius: 14,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.brutalYellow,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 1.5),
+                        ),
+                        child: const Icon(Icons.apartment_rounded, color: Colors.black, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${game.dealershipName} Holding A.Ş.',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                          ),
+                          const Text(
+                            'BIST Şirket Halka Arz Masası',
+                            style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  NeoBrutalBadge(
+                    text: game.isCompanyListedOnBist ? 'KOTASYONDA • GLRD' : 'HALKA KAPALI',
+                    backgroundColor: game.isCompanyListedOnBist ? AppColors.brutalGreen : AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    fontSize: 10,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (game.isCompanyListedOnBist) ...[
+                const Text(
+                  'Tebrikler! Şirketiniz BIST kotasyonunda (GLRD) işlem görüyor. Her 30 günde bir çeyreklik bilanço açıklanır ve kârlılığa göre temettü dağıtılır.',
+                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                NeoBrutalButton(
+                  label: 'PİYASADAN HİSSE GERİ AL • ₺50.000',
+                  icon: Icons.published_with_changes_rounded,
+                  backgroundColor: (game.balance >= 50000.0) ? AppColors.brutalYellow : Colors.grey.shade400,
+                  textColor: Colors.black,
+                  fontSize: 11.5,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  fullWidth: true,
+                  onPressed: (game.balance >= 50000.0)
+                      ? () {
+                          final success = ref.read(gameProvider.notifier).buybackPlayerCompanyShares(amount: 50000.0);
+                          if (success && context.mounted) {
+                            NotificationService.showSuccess(
+                              context,
+                              'Hisse Geri Alımı Başarılı! GLRD hisseleri primlendi ve +15 İtibar kazandın.',
+                            );
+                          }
+                        }
+                      : null,
+                ),
+              ] else ...[
+                Text(
+                  'Tahmini Şirket Değeri: ${CurrencyFormatter.formatShort(companyValuation)} • Halka Arz Geliri: +${CurrencyFormatter.formatShort(ipoCapitalPotential)}',
+                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Şartlar: Seviye 4+ - Satılan Araç 10+ • Mevcut: Sev. ${game.level} / ${game.carsSold} Araç',
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 10),
+                NeoBrutalButton(
+                  label: canLaunchIpo ? 'GONG ÇAL & %20 HİSSE HALKA ARZ ET' : 'ŞARTLAR TAMAMLANMADI',
+                  icon: Icons.campaign_rounded,
+                  backgroundColor: canLaunchIpo ? AppColors.brutalGreen : Colors.grey.shade400,
+                  textColor: Colors.black,
+                  fontSize: 12,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  fullWidth: true,
+                  onPressed: canLaunchIpo
+                      ? () {
+                          final raised = ref.read(gameProvider.notifier).launchPlayerCompanyIpo();
+                          if (raised != null && context.mounted) {
+                            NotificationService.showSuccess(
+                              context,
+                              'Şirketiniz BIST te başarıyla halka arz edildi! Kasaya +₺${CurrencyFormatter.formatShort(raised)} girdi.',
+                            );
+                          }
+                        }
+                      : null,
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
         NeoBrutalCard(
           padding: const EdgeInsets.all(14),
           backgroundColor: AppColors.brutalCyan.withValues(alpha: 0.2),

@@ -162,6 +162,64 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     });
   }
 
+  void _executeTrollBluff() {
+    if (_auction.isPlayerHighestBidder) {
+      NotificationService.showWarning(context, 'Zaten lider teklif sende! Blöf için bir rakibin teklif vermesini beklemelisin.');
+      return;
+    }
+
+    final activeRivals = _auction.rivals.where((r) => !r.isFolded).toList();
+    if (activeRivals.isEmpty) {
+      NotificationService.showInfo(context, 'Tüm rakipler çekildi, blöf yapacak rakip kalmadı!');
+      return;
+    }
+
+    final targetRival = activeRivals.first;
+    final rName = targetRival.name;
+    double extraCounter = 10000.0;
+    String dialogue;
+    String toastMsg;
+    int earnedXp = 40;
+
+    if (rName.contains('Baron') || rName.contains('Selim')) {
+      extraCounter = 35000.0;
+      dialogue = '$rName kibirle gülümsedi: "Bu masanın kralı benim, çekilin kenara!"';
+      toastMsg = 'Baron Tuzağa Düştü! $rName aşırı yüksek teklif verip zarara girdi • +75 XP!';
+      earnedXp = 75;
+    } else if (rName.contains('Ferit') || rName.contains('Koleksiyoner')) {
+      extraCounter = 20000.0;
+      dialogue = '$rName heyecanla bayrak kaldırdı: "Koleksiyonumun baş tacı olacak!"';
+      toastMsg = 'Koleksiyoner Kapıştı! $rName nadir parça uğruna bütçesini zorladı • +50 XP!';
+      earnedXp = 50;
+    } else if (rName.contains('Rıza') || rName.contains('Al-Sat')) {
+      extraCounter = 5000.0;
+      dialogue = '$rName tereddütle: "Bu son teklifim, daha kuruş çıkmaz benden!"';
+      toastMsg = 'Al-Satçı Köşeye Sıkıştı! $rName kâr marjını kaybetti • +40 XP!';
+    } else {
+      dialogue = 'Blöfün tuttu! $rName fahiş fiyat verdi ve sen masadan ustaca çekildin.';
+      toastMsg = 'Mükemmel Blöf! $rName araca fahiş fiyat ödemek zorunda kaldı • +40 XP!';
+    }
+
+    final bluffBid = _auction.currentBid + 20000.0;
+    final counterBid = bluffBid + extraCounter;
+
+    setState(() {
+      _hasPlayerEnteredBid = false;
+      _auction = _auction.copyWith(
+        currentBid: counterBid,
+        highestBidderName: targetRival.name,
+        isPlayerHighestBidder: false,
+        activeSpeech: dialogue,
+        activeSpeakerName: targetRival.name,
+        secondsRemaining: 3,
+      );
+      _bidLogs.insert(0, 'BLÖF HAMLESİ: $rName ${CurrencyFormatter.formatShort(counterBid)} teklifle tuzağa düştü!');
+    });
+
+    ref.read(gameProvider.notifier).addXP(earnedXp);
+    NotificationService.showSuccess(context, toastMsg);
+  }
+
   void _resetAuctionSilently() {
     _timer?.cancel();
     if (!mounted) return;
@@ -1024,17 +1082,36 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 ],
               ),
               const SizedBox(height: 8),
-              NeoBrutalButton(
-                icon: Icons.flag_rounded,
-                label: 'BAYRAK GÖSTER • +₺50.000 AGRESİF ARTIR',
-                backgroundColor: _auction.isPlayerHighestBidder
-                    ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                    : const Color(0xFFFFDE59),
-                textColor: Colors.black,
-                fontSize: 11,
-                fullWidth: true,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(50000, isAggressiveFlag: true),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      icon: Icons.flag_rounded,
+                      label: 'BAYRAK • +₺50k',
+                      backgroundColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          : const Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      fontSize: 11,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(50000, isAggressiveFlag: true),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: NeoBrutalButton(
+                      icon: Icons.psychology_rounded,
+                      label: 'BLÖF YAP VE ÇEKİL',
+                      backgroundColor: _auction.isPlayerHighestBidder
+                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          : const Color(0xFFA855F7),
+                      textColor: Colors.white,
+                      fontSize: 11,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      onPressed: _auction.isPlayerHighestBidder ? null : _executeTrollBluff,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

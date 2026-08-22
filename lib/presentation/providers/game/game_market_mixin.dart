@@ -6,6 +6,7 @@ import '../../../data/models/car_model.dart';
 import '../../../data/models/cheque_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/customer_review_model.dart';
+import '../../../data/models/customer_crm_event_model.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/game_event_model.dart';
@@ -750,6 +751,19 @@ mixin GameMarketMixin on GameBaseNotifier {
       completeTutorial();
     }
 
+    // Satış Sonrası CRM & Karma Olayı Kuyruğuna Ekleme (%35 İhtimalle 1-3 Gün Sonra)
+    if (math.Random().nextDouble() < 0.35) {
+      final crmEvent = CustomerCrmEventModel.generateRandom(
+        carName: '${car.brand} ${car.modelName}',
+        currentDay: state.currentDay + 1 + math.Random().nextInt(3),
+        bodyType: car.bodyType,
+        isRare: car.isRare,
+        isOverTuned: car.isOverTuned,
+      );
+      final updatedPendingCrm = List<CustomerCrmEventModel>.from(state.pendingCrmEvents)..add(crmEvent);
+      state = state.copyWith(pendingCrmEvents: updatedPendingCrm);
+    }
+
     saveState();
   }
 
@@ -1350,6 +1364,68 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
     saveState();
     return true;
+  }
+
+  /// Satış Sonrası Müşteri İtirazını Çözme
+  void resolveCustomerDispute({
+    required CustomerCrmEventModel event,
+    required CrmResolutionChoice choice,
+  }) {
+    double cost = 0;
+    int repDelta = 0;
+
+    switch (choice) {
+      case CrmResolutionChoice.generousRepair:
+        cost = 15000.0;
+        repDelta = 25;
+        break;
+      case CrmResolutionChoice.firmContract:
+        cost = 0.0;
+        repDelta = -25;
+        break;
+      case CrmResolutionChoice.discountedTradeIn:
+        cost = 5000.0;
+        repDelta = 10;
+        break;
+    }
+
+    final updatedBalance = (state.balance - cost).clamp(0.0, double.infinity);
+    final updatedReputation = (state.reputationScore + repDelta).clamp(0, 1000);
+    final updatedPending = state.pendingCrmEvents.where((e) => e.id != event.id).toList();
+
+    state = state.copyWith(
+      balance: updatedBalance,
+      reputationScore: updatedReputation,
+      pendingCrmEvents: updatedPending,
+      clearActiveCrmEvent: true,
+    );
+
+    if (repDelta > 0) {
+      addXP(repDelta * 10);
+    }
+    saveState();
+  }
+
+  /// Satış Sonrası Memnun Müşteri / Koleksiyoner Ödülünü Kabul Etme
+  void acceptCustomerCrmAppreciation(CustomerCrmEventModel event) {
+    final updatedBalance = state.balance + event.financialImpact;
+    final updatedReputation = (state.reputationScore + event.reputationImpact).clamp(0, 1000);
+    final updatedPending = state.pendingCrmEvents.where((e) => e.id != event.id).toList();
+
+    state = state.copyWith(
+      balance: updatedBalance,
+      reputationScore: updatedReputation,
+      pendingCrmEvents: updatedPending,
+      clearActiveCrmEvent: true,
+    );
+
+    addXP(event.reputationImpact * 15 + 50);
+    saveState();
+  }
+
+  void dismissActiveCrmEvent() {
+    state = state.copyWith(clearActiveCrmEvent: true);
+    saveState();
   }
 }
 

@@ -187,4 +187,58 @@ class StockMarketEngine {
 
     return (updatedIpos, updatedRequests, currentBalance, updatedEvents);
   }
+
+  /// Processes quarterly financial reports (every 30 days) for player's listed company (GLRD)
+  static (List<StockModel>, double, List<GameEventModel>) processQuarterlyFinancialReport({
+    required int nextDay,
+    required double balance,
+    required List<StockModel> stocks,
+    required List<GameEventModel> events,
+    required int reputationScore,
+    required double totalProfit,
+    required bool isCompanyListed,
+  }) {
+    if (!isCompanyListed || (nextDay % 30 != 0)) {
+      return (stocks, balance, events);
+    }
+
+    final updatedStocks = List<StockModel>.from(stocks);
+    final updatedEvents = List<GameEventModel>.from(events);
+    double currentBalance = balance;
+
+    final glrdIndex = updatedStocks.indexWhere((s) => s.symbol == 'GLRD');
+    if (glrdIndex != -1) {
+      final glrd = updatedStocks[glrdIndex];
+      final isProfitable = reputationScore >= 40 || totalProfit > 100000;
+      final boostMultiplier = isProfitable ? 1.25 : 0.90;
+      final newPrice = (glrd.currentPrice * boostMultiplier).roundToDouble().clamp(10.0, 100000.0);
+      
+      List<double> history = List<double>.from(glrd.priceHistory)..add(newPrice);
+      if (history.length > 30) history = history.sublist(history.length - 30);
+
+      updatedStocks[glrdIndex] = glrd.copyWith(
+        previousPrice: glrd.currentPrice,
+        currentPrice: newPrice,
+        priceHistory: history,
+      );
+
+      final dividendBonus = isProfitable ? (reputationScore * 1000.0).clamp(25000.0, 250000.0) : 0.0;
+      if (dividendBonus > 0) {
+        currentBalance += dividendBonus;
+      }
+
+      updatedEvents.insert(0, GameEventModel(
+        id: 'glrd_quarterly_$nextDay',
+        title: 'GLRD • Çeyreklik Bilanço Açıklandı',
+        description: isProfitable
+            ? 'Şirketin güçlü finansal sonuçları ve yüksek kârlılığı ile GLRD hissesi prim yaptı! Ortaklara +₺${dividendBonus.round()} temettü payı dağıtıldı.'
+            : 'GLRD çeyreklik kâr marjları beklentinin altında kalarak hisse fiyatında geçici düzeltme yaşandı.',
+        type: isProfitable ? GameEventType.income : GameEventType.badEvent,
+        amount: dividendBonus,
+        date: DateTime.now(),
+      ));
+    }
+
+    return (updatedStocks, currentBalance, updatedEvents);
+  }
 }

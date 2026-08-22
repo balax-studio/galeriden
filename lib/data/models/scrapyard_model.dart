@@ -2,10 +2,95 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 enum PartQualityTier {
-  worn,      // Çürük / Ağır Aşınmış (%10 - %25)
-  usable,    // Kullanılabilir / Çıkma (%30 - %60)
-  good,      // İyi Durumda (%65 - %85)
-  pristine,  // Mükemmel / Sıfır Ayarında (%90 - %100)
+  worn,      // Çürük - Ağır Aşınmış
+  usable,    // Kullanılabilir - Çıkma
+  good,      // İyi Durumda
+  pristine,  // Mükemmel - Sıfır Ayarında
+}
+
+enum ScrapyardZoneType {
+  ostim,
+  maslak,
+  sasmaz,
+  harabe,
+}
+
+extension ScrapyardZoneExtension on ScrapyardZoneType {
+  String get title {
+    switch (this) {
+      case ScrapyardZoneType.ostim:
+        return 'Ostim Ağır Sanayi';
+      case ScrapyardZoneType.maslak:
+        return 'Maslak Tuning Hangarları';
+      case ScrapyardZoneType.sasmaz:
+        return 'Şaşmaz Hurdalık Deposu';
+      case ScrapyardZoneType.harabe:
+        return 'Terk Edilmiş Çiftlik';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case ScrapyardZoneType.ostim:
+        return 'Döküm motor blokları, şanzıman ve ağır yürüyen aksamlar';
+      case ScrapyardZoneType.maslak:
+        return 'Yarış beyinleri, spor egzoz, turbo ve alaşım jantlar';
+      case ScrapyardZoneType.sasmaz:
+        return 'Klasik Alman ve Amerikan parça, retro döşeme ve gövde';
+      case ScrapyardZoneType.harabe:
+        return 'Eski samanlıklarda unutulmuş efsanevi şasiler ve ralli sandıkları';
+    }
+  }
+
+  double get cost {
+    switch (this) {
+      case ScrapyardZoneType.ostim:
+        return 2500.0;
+      case ScrapyardZoneType.maslak:
+        return 6000.0;
+      case ScrapyardZoneType.sasmaz:
+        return 4000.0;
+      case ScrapyardZoneType.harabe:
+        return 12000.0;
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case ScrapyardZoneType.ostim:
+        return Icons.factory_rounded;
+      case ScrapyardZoneType.maslak:
+        return Icons.speed_rounded;
+      case ScrapyardZoneType.sasmaz:
+        return Icons.warehouse_rounded;
+      case ScrapyardZoneType.harabe:
+        return Icons.agriculture_rounded;
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case ScrapyardZoneType.ostim:
+        return const Color(0xFFF59E0B);
+      case ScrapyardZoneType.maslak:
+        return const Color(0xFFA855F7);
+      case ScrapyardZoneType.sasmaz:
+        return const Color(0xFF3B82F6);
+      case ScrapyardZoneType.harabe:
+        return const Color(0xFF10B981);
+    }
+  }
+
+  static String getDailySanayiRumor(int currentDay) {
+    const rumors = [
+      'Ostim de gümrük tasfiye tırı yanaştı • Ağır şanzıman ve blok parçaları bol!',
+      'Maslak Tuning Hangarlarında yarış sezonu başladı • Spor parçalar revaçta!',
+      'Şaşmaz Hurdalığında klasik Alman serisi döküldü • Orijinal parçalar keşfedilebilir!',
+      'Terk Edilmiş Çiftlik samanlıklarında eski ralli ve efsane klasik şasileri tespit edildi!',
+      'Geri dönüşüm tesisine taze hurda konvoyu girdi • Söküm kâr marjları yüksek!',
+    ];
+    return rumors[currentDay % rumors.length];
+  }
 }
 
 class SalvagedPart {

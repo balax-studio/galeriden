@@ -19,6 +19,10 @@ import '../../../data/models/car_wash_job_model.dart';
 import '../../../data/models/customer_review_model.dart';
 import '../../../data/models/lifestyle_item_model.dart';
 import '../../../data/models/pr_campaign_model.dart';
+import '../../../data/models/daily_login_reward_model.dart';
+import '../../../data/models/stock_model.dart';
+import '../../../data/models/game_event_model.dart';
+import '../../../core/utils/currency_formatter.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
@@ -2271,24 +2275,53 @@ mixin GameInventoryMixin on GameBaseNotifier {
   }
 
   /// 11. Hurdalıkta Kayıp Hazine Arama (§17)
-  double? searchScrapForTreasures() {
+  double? searchScrapForTreasures({ScrapyardZoneType zone = ScrapyardZoneType.ostim}) {
     final searchCount = (state.lastScrapyardSearchDay == state.currentDay) ? state.scrapyardSearchesToday : 0;
     if (searchCount >= 3) return null;
 
-    final cost = state.nextScrapSearchCost.toDouble();
+    final cost = zone.cost;
     if (state.balance < cost) return null;
 
     final roll = random.nextDouble();
     double foundCash;
-    if (roll < 0.35) {
-      // Boş / Değersiz hurda yığını
-      foundCash = 0.0;
-    } else if (roll < 0.80) {
-      // Çıkma radyo & kriko gibi orta buluntu
-      foundCash = 750.0 + (random.nextInt(4) * 250);
-    } else {
-      // Nadir hurdalık hazinesi
-      foundCash = 2500.0 + (random.nextInt(3) * 500);
+
+    switch (zone) {
+      case ScrapyardZoneType.ostim:
+        if (roll < 0.30) {
+          foundCash = 0.0;
+        } else if (roll < 0.75) {
+          foundCash = 3500.0 + (random.nextInt(4) * 500);
+        } else {
+          foundCash = 8500.0 + (random.nextInt(3) * 1000);
+        }
+        break;
+      case ScrapyardZoneType.maslak:
+        if (roll < 0.35) {
+          foundCash = 0.0;
+        } else if (roll < 0.70) {
+          foundCash = 7500.0 + (random.nextInt(5) * 1000);
+        } else {
+          foundCash = 16000.0 + (random.nextInt(4) * 2000);
+        }
+        break;
+      case ScrapyardZoneType.sasmaz:
+        if (roll < 0.30) {
+          foundCash = 0.0;
+        } else if (roll < 0.75) {
+          foundCash = 5000.0 + (random.nextInt(4) * 750);
+        } else {
+          foundCash = 12000.0 + (random.nextInt(3) * 1500);
+        }
+        break;
+      case ScrapyardZoneType.harabe:
+        if (roll < 0.40) {
+          foundCash = 0.0;
+        } else if (roll < 0.70) {
+          foundCash = 15000.0 + (random.nextInt(4) * 2500);
+        } else {
+          foundCash = 35000.0 + (random.nextInt(5) * 5000);
+        }
+        break;
     }
 
     state = state.copyWith(
@@ -2297,7 +2330,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       lastScrapyardSearchDay: state.currentDay,
     );
 
-    addXP(foundCash > 0 ? 25 : 10);
+    addXP(foundCash > 0 ? 35 : 15);
     saveState();
     return foundCash;
   }
@@ -2557,6 +2590,132 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
 
     addXP(reputationBonus * 10);
+    saveState();
+    return true;
+  }
+
+  /// 21. 28 Günlük Esnaf Takvimi (Aylık Giriş Serisi) Ödülünü Talep Etme
+  DailyLoginRewardModel? claimDailyLoginReward({DateTime? customNow}) {
+    final now = customNow ?? DateTime.now();
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+    if (!state.canClaimTodayStreak(todayStr)) {
+      return null;
+    }
+
+    final allRewards = DailyLoginRewardModel.getSeasonalCycle(cycleCount: state.streakCycleCount);
+    final currentDay = state.currentStreakDay.clamp(1, 28);
+    final reward = allRewards.firstWhere((r) => r.dayNumber == currentDay);
+
+    final updatedClaimed = List<int>.from(state.claimedStreakDays)..add(currentDay);
+    final updatedVouchers = List<String>.from(state.streakVouchers);
+    if (reward.itemCode != null) {
+      updatedVouchers.add(reward.itemCode!);
+    }
+
+    final isCycleCompleted = currentDay == 28;
+    final nextStreakDay = isCycleCompleted ? 1 : currentDay + 1;
+    final nextCycleCount = isCycleCompleted ? state.streakCycleCount + 1 : state.streakCycleCount;
+    final nextClaimedDays = isCycleCompleted ? <int>[] : updatedClaimed;
+
+    state = state.copyWith(
+      balance: state.balance + reward.moneyAmount,
+      reputationScore: (state.reputationScore + reward.reputationAmount).clamp(0, 1000),
+      lastRealLoginDateStr: todayStr,
+      currentStreakDay: nextStreakDay,
+      streakCycleCount: nextCycleCount,
+      claimedStreakDays: nextClaimedDays,
+      streakVouchers: updatedVouchers,
+    );
+
+    addXP(reward.reputationAmount * 15 + 50);
+    saveState();
+    return reward;
+  }
+
+  /// 22. Şirketi Borsa İstanbul'da Halka Arz Etme (BIST: GLRD)
+  double? launchPlayerCompanyIpo() {
+    if (state.isCompanyListedOnBist) return null;
+    if (state.level < 4 || state.carsSold < 10) return null;
+
+    final double totalCarValue = state.ownedCars.fold(0.0, (sum, c) => sum + c.estimatedRealValue);
+    final double totalValuation = (state.balance + totalCarValue + state.totalDeedValue) * 1.25;
+
+    // %20 halka arz payı satışı kasaya nakit girer
+    final double ipoCapitalRaised = (totalValuation * 0.20).clamp(250000.0, 50000000.0).roundToDouble();
+
+    final playerStock = StockModel(
+      symbol: 'GLRD',
+      name: '${state.dealershipName} Holding A.Ş.',
+      currentPrice: 125.0,
+      previousPrice: 100.0,
+      priceHistory: [100.0, 125.0],
+      dividendYield: 0.12,
+      sectorCategory: 'Otomotiv & Perakende',
+    );
+
+    final updatedMarketStocks = List<StockModel>.from(state.marketStocks)..insert(0, playerStock);
+
+    final ipoEvent = GameEventModel(
+      id: 'player_ipo_${state.currentDay}',
+      title: 'ŞİRKETİN BORSAYA AÇILDI: BIST: GLRD',
+      description: '${state.dealershipName} Holding Borsa İstanbul\'da gong çalarak halka arz oldu! %20 hisse satışından kasaya ₺${CurrencyFormatter.formatShort(ipoCapitalRaised)} taze sermaye girdi.',
+      type: GameEventType.income,
+      amount: ipoCapitalRaised,
+      date: DateTime.now(),
+    );
+
+    state = state.copyWith(
+      balance: state.balance + ipoCapitalRaised,
+      isCompanyListedOnBist: true,
+      marketStocks: updatedMarketStocks,
+      reputationScore: (state.reputationScore + 50).clamp(0, 1000),
+      recentEvents: [ipoEvent, ...state.recentEvents],
+    );
+
+    addXP(500);
+    saveState();
+    return ipoCapitalRaised;
+  }
+
+  /// 23. GLRD Şirket Hisse Geri Alımı (Borsadan Kendi Hisselerini Toplama)
+  bool buybackPlayerCompanyShares({required double amount}) {
+    if (!state.isCompanyListedOnBist) return false;
+    if (state.balance < amount || amount < 10000.0) return false;
+
+    final glrdIndex = state.marketStocks.indexWhere((s) => s.symbol == 'GLRD');
+    if (glrdIndex == -1) return false;
+
+    final glrd = state.marketStocks[glrdIndex];
+    // Hisse geri alımı tahtayı primlendirir (+%15)
+    final newPrice = (glrd.currentPrice * 1.15).roundToDouble().clamp(10.0, 100000.0);
+    List<double> history = List<double>.from(glrd.priceHistory)..add(newPrice);
+    if (history.length > 30) history = history.sublist(history.length - 30);
+
+    final updatedStocks = List<StockModel>.from(state.marketStocks);
+    updatedStocks[glrdIndex] = glrd.copyWith(
+      previousPrice: glrd.currentPrice,
+      currentPrice: newPrice,
+      priceHistory: history,
+    );
+
+    final buybackEvent = GameEventModel(
+      id: 'glrd_buyback_${state.currentDay}',
+      title: 'GLRD • Şirket Pay Geri Alımı Tamamlandı',
+      description: 'Piyasadan ${CurrencyFormatter.formatShort(amount)} tutarında şirket hissesi geri alındı. GLRD hissesi değer kazandı!',
+      type: GameEventType.income,
+      amount: amount,
+      date: DateTime.now(),
+    );
+
+    state = state.copyWith(
+      balance: state.balance - amount,
+      marketStocks: updatedStocks,
+      reputationScore: (state.reputationScore + 15).clamp(0, 1000),
+      recentEvents: [buybackEvent, ...state.recentEvents],
+    );
+
+    addXP(100);
     saveState();
     return true;
   }

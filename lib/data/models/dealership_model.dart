@@ -28,6 +28,7 @@ import 'weather_model.dart';
 import 'lifestyle_item_model.dart';
 import 'pr_campaign_model.dart';
 import 'branch_model.dart';
+import 'customer_crm_event_model.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -194,6 +195,20 @@ class DealershipModel {
   final String? equippedAccessoryId;
   final String? equippedOfficeDecorId;
 
+  // 28 Günlük Esnaf Takvimi (Aylık Giriş Serisi)
+  final String? lastRealLoginDateStr;
+  final int currentStreakDay;
+  final int streakCycleCount;
+  final List<int> claimedStreakDays;
+  final List<String> streakVouchers;
+
+  // Satış Sonrası CRM & Karma Olayları
+  final List<CustomerCrmEventModel> pendingCrmEvents;
+  final CustomerCrmEventModel? activeCrmEvent;
+
+  // Galeri Holding BIST Halka Arz
+  final bool isCompanyListedOnBist;
+
   bool get isOfficeGrantClaimedToday => lastOfficeGrantClaimDay >= currentDay;
   bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
   bool get isSiftahDoneToday => lastSiftahDay >= currentDay;
@@ -203,6 +218,13 @@ class DealershipModel {
     if (used == 0) return 500;
     if (used == 1) return 2500;
     return 7500;
+  }
+
+  bool canClaimTodayStreak(String todayStr) {
+    if (lastRealLoginDateStr == todayStr && claimedStreakDays.contains(currentStreakDay)) {
+      return false;
+    }
+    return true;
   }
 
   double get totalDeedValue {
@@ -695,6 +717,14 @@ class DealershipModel {
     this.equippedSuitId,
     this.equippedAccessoryId,
     this.equippedOfficeDecorId,
+    this.lastRealLoginDateStr,
+    this.currentStreakDay = 1,
+    this.streakCycleCount = 0,
+    this.claimedStreakDays = const [],
+    this.streakVouchers = const [],
+    this.pendingCrmEvents = const [],
+    this.activeCrmEvent,
+    this.isCompanyListedOnBist = false,
   });
 
   factory DealershipModel.initial() {
@@ -1093,6 +1123,18 @@ class DealershipModel {
       'scrapyardSearchesToday': scrapyardSearchesToday,
       'lastScrapyardSearchDay': lastScrapyardSearchDay,
       'hasReceivedReviewReward': hasReceivedReviewReward,
+      'ownedLifestyleItems': ownedLifestyleItems.toList(),
+      'equippedSuitId': equippedSuitId,
+      'equippedAccessoryId': equippedAccessoryId,
+      'equippedOfficeDecorId': equippedOfficeDecorId,
+      'lastRealLoginDateStr': lastRealLoginDateStr,
+      'currentStreakDay': currentStreakDay,
+      'streakCycleCount': streakCycleCount,
+      'claimedStreakDays': claimedStreakDays,
+      'streakVouchers': streakVouchers,
+      'pendingCrmEvents': pendingCrmEvents.map((c) => c.toJson()).toList(),
+      'activeCrmEvent': activeCrmEvent?.toJson(),
+      'isCompanyListedOnBist': isCompanyListedOnBist,
     };
   }
 
@@ -1261,6 +1303,20 @@ class DealershipModel {
       scrapyardSearchesToday: json['scrapyardSearchesToday'] as int? ?? 0,
       lastScrapyardSearchDay: json['lastScrapyardSearchDay'] as int? ?? 0,
       hasReceivedReviewReward: json['hasReceivedReviewReward'] as bool? ?? false,
+      ownedLifestyleItems: (json['ownedLifestyleItems'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {},
+      equippedSuitId: json['equippedSuitId'] as String?,
+      equippedAccessoryId: json['equippedAccessoryId'] as String?,
+      equippedOfficeDecorId: json['equippedOfficeDecorId'] as String?,
+      lastRealLoginDateStr: json['lastRealLoginDateStr'] as String?,
+      currentStreakDay: json['currentStreakDay'] as int? ?? 1,
+      streakCycleCount: json['streakCycleCount'] as int? ?? 0,
+      claimedStreakDays: (json['claimedStreakDays'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? const [],
+      streakVouchers: (json['streakVouchers'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      pendingCrmEvents: parseList(json['pendingCrmEvents'] as List<dynamic>?, CustomerCrmEventModel.fromJson),
+      activeCrmEvent: json['activeCrmEvent'] != null && json['activeCrmEvent'] is Map
+          ? CustomerCrmEventModel.fromJson(Map<String, dynamic>.from(json['activeCrmEvent'] as Map))
+          : null,
+      isCompanyListedOnBist: json['isCompanyListedOnBist'] as bool? ?? false,
     );
   }
 
@@ -1402,6 +1458,15 @@ class DealershipModel {
     String? equippedSuitId,
     String? equippedAccessoryId,
     String? equippedOfficeDecorId,
+    String? lastRealLoginDateStr,
+    int? currentStreakDay,
+    int? streakCycleCount,
+    List<int>? claimedStreakDays,
+    List<String>? streakVouchers,
+    List<CustomerCrmEventModel>? pendingCrmEvents,
+    CustomerCrmEventModel? activeCrmEvent,
+    bool clearActiveCrmEvent = false,
+    bool? isCompanyListedOnBist,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1507,6 +1572,14 @@ class DealershipModel {
       equippedSuitId: equippedSuitId ?? this.equippedSuitId,
       equippedAccessoryId: equippedAccessoryId ?? this.equippedAccessoryId,
       equippedOfficeDecorId: equippedOfficeDecorId ?? this.equippedOfficeDecorId,
+      lastRealLoginDateStr: lastRealLoginDateStr ?? this.lastRealLoginDateStr,
+      currentStreakDay: currentStreakDay ?? this.currentStreakDay,
+      streakCycleCount: streakCycleCount ?? this.streakCycleCount,
+      claimedStreakDays: claimedStreakDays ?? this.claimedStreakDays,
+      streakVouchers: streakVouchers ?? this.streakVouchers,
+      pendingCrmEvents: pendingCrmEvents ?? this.pendingCrmEvents,
+      activeCrmEvent: clearActiveCrmEvent ? null : (activeCrmEvent ?? this.activeCrmEvent),
+      isCompanyListedOnBist: isCompanyListedOnBist ?? this.isCompanyListedOnBist,
     );
   }
 
