@@ -217,13 +217,12 @@ class SettingsScreen extends ConsumerWidget {
                   fontSize: 12,
                   fullWidth: true,
                   onPressed: () {
-                    AdService.instance.showRewardedAd(
+                    AdService.instance.showRewardedAdWithFallback(
+                      context: context,
+                      customRewardTitle: '₺25.000 Sponsor Ödülü',
                       onRewardEarned: () {
                         ref.read(gameProvider.notifier).claimAdReward(25000.0);
                         NotificationService.showSuccess(context, 'Tebrikler! ₺25.000 sponsor ödülü kasanıza eklendi.');
-                      },
-                      onAdUnavailable: () {
-                        NotificationService.showWarning(context, 'Reklam henüz hazır değil, lütfen birkaç saniye sonra tekrar deneyin.');
                       },
                     );
                   },

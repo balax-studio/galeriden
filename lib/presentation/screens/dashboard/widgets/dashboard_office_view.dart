@@ -399,7 +399,9 @@ class DashboardOfficeView extends ConsumerWidget {
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed: () {
                                 HapticFeedback.heavyImpact();
-                                AdService.instance.showRewardedAd(
+                                AdService.instance.showRewardedAdWithFallback(
+                                  context: context,
+                                  customRewardTitle: smartHook.rewardBadgeText,
                                   onRewardEarned: () {
                                     ref.read(gameProvider.notifier).executeSmartOfficeHook(smartHook.type);
                                     NotificationService.showSuccess(

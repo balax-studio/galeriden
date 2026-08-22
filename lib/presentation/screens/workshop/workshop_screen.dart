@@ -1071,12 +1071,14 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       }
                     },
                     onFastDeliverWithAd: () {
-                      AdService.instance.showRewardedAd(
+                      AdService.instance.showRewardedAdWithFallback(
+                        context: context,
+                        customRewardTitle: 'Hızlı Kargo Teslimatı',
                         onRewardEarned: () {
                           ref.read(gameProvider.notifier).instantDeliverPartOrder(order.id);
                           NotificationService.showReward(context, 'Kargo hızlandırıldı! Parça teslim edildi.');
                           setState(() {});
-                        }
+                        },
                       );
                     },
                   );

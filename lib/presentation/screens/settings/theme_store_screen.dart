@@ -338,7 +338,9 @@ class ThemeStoreScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                           onPressed: () {
                             HapticFeedback.heavyImpact();
-                            AdService.instance.showRewardedAd(
+                            AdService.instance.showRewardedAdWithFallback(
+                              context: context,
+                              customRewardTitle: '${palette.name} Tema Kilidi',
                               onRewardEarned: () {
                                 ref.read(themeProvider.notifier).unlockPaletteViaAd(palette.id);
                                 NotificationService.showSuccess(
