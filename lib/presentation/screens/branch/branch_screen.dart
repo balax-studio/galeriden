@@ -26,6 +26,7 @@ class BranchScreen extends ConsumerWidget {
       currentSlotCount: game.maxGarageSlots,
       currentLevel: game.level,
       unlockedBuildings: game.unlockedBuildings,
+      ownedDeeds: game.ownedBranchDeeds,
     );
 
     return Scaffold(
@@ -260,6 +261,80 @@ class BranchScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    // Tapu & Gayrimenkul Mülkiyet Durumu
+                    if (isCurrent || b.isUnlocked) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: b.isDeedOwned
+                              ? (isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5))
+                              : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC)),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: b.isDeedOwned ? const Color(0xFF10B981) : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  b.isDeedOwned ? Icons.verified_user_rounded : Icons.real_estate_agent_rounded,
+                                  size: 16,
+                                  color: b.isDeedOwned ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  b.isDeedOwned ? 'TAPULU MÜLKÜNÜZ • KİRA ₺0' : 'MÜLK KİRALIK • TAPU SATIN ALINABİLİR',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    color: b.isDeedOwned ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              b.isDeedOwned
+                                  ? 'Arsa ve şube mülkiyeti adınıza tescillidir. Günlük dükkan kirası tamamen sıfırlanmıştır.'
+                                  : 'Tapuyu satın alarak günlük kirayı sıfırlayın ve banka kredi limitinizi +${CurrencyFormatter.formatShort(b.deedCost * 0.35)} artırın.',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w500,
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                              ),
+                            ),
+                            if (!b.isDeedOwned) ...[
+                              const SizedBox(height: 8),
+                              NeoBrutalButton(
+                                label: game.balance >= b.deedCost
+                                    ? 'TAPUYU SATIN AL • ${CurrencyFormatter.formatShort(b.deedCost)}'
+                                    : 'YETERSİZ BAKİYE • TAPU ${CurrencyFormatter.formatShort(b.deedCost)}',
+                                backgroundColor: game.balance >= b.deedCost ? const Color(0xFF3B82F6) : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                                textColor: game.balance >= b.deedCost ? Colors.white : const Color(0xFF64748B),
+                                fontSize: 10.5,
+                                fullWidth: true,
+                                onPressed: game.balance >= b.deedCost
+                                    ? () {
+                                        final success = ref.read(gameProvider.notifier).buyBranchDeed(b);
+                                        if (success) {
+                                          NotificationService.showSuccess(
+                                            context,
+                                            '${b.name} arsa ve mülk tapusu adınıza tescil edildi! Günlük kiranız sıfırlandı.',
+                                          );
+                                        }
+                                      }
+                                    : null,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
                     if (!isCurrent && !b.isUnlocked) ...[
                       const SizedBox(height: 12),
                       NeoBrutalButton(

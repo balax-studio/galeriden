@@ -173,6 +173,28 @@ void main() {
 
       notifier.state = notifier.state.copyWith(
         balance: 100000.0,
+        ownedCars: [
+          CarModel(
+            id: 'car_active_1',
+            brand: 'Toyota',
+            modelName: 'Corolla',
+            modelYear: 2020,
+            bodyType: 'Sedan',
+            colorHex: '0xFFFFFFFF',
+            baseMarketValue: 800000.0,
+            currentPurchasePrice: 750000.0,
+            customListingPrice: 850000.0,
+            expertise: ExpertiseReport(
+              engineCondition: 95,
+              transmissionCondition: 95,
+              tramerAmount: 0,
+              mileage: 30000,
+              isMileageTampered: false,
+              bodyParts: const {},
+            ),
+          ),
+        ],
+        carsWashedLast7Days: 5,
         hiredStaff: [staff],
         sideBusinesses: [business],
         specializationPath: SpecializationPath.boss,

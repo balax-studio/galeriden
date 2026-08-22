@@ -602,6 +602,36 @@ class DashboardOfficeView extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
 
+          // Media & Influencer PR Agency Desk
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.campaign_rounded,
+            color: const Color(0xFF38BDF8),
+            title: 'Medya & PR Ajansı Masası',
+            subtitle: game.activePrCampaign != null && game.activePrCampaign!.isActive(game.currentDay)
+                ? 'Aktif Lansman Sürüyor • ${game.activePrCampaign!.remainingDays(game.currentDay)} Gün Kaldı'
+                : 'Oto YouTuber & TV Reklam Kampanyası Başlat',
+            actionLabel: 'Lansman',
+            route: '/media-agency',
+            isUnlocked: true,
+            isDark: isDark,
+          ),
+          const SizedBox(height: 12),
+
+          // Lifestyle & Wardrobe Desk
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.dry_cleaning_rounded,
+            color: const Color(0xFFEAB308),
+            title: 'Kişisel Tarz & Prestij Masası',
+            subtitle: 'İtalyan Takım Elbise, Altın Saat, Kehribar Tesbih & Makam',
+            actionLabel: 'Gardırop',
+            route: '/lifestyle',
+            isUnlocked: true,
+            isDark: isDark,
+          ),
+          const SizedBox(height: 12),
+
           // Character Growth
           _buildOfficeItem(
             context: context,

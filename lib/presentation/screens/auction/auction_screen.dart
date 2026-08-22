@@ -470,6 +470,49 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     super.dispose();
   }
 
+  bool _isVipSession = false;
+
+  void _switchToVipAuction() {
+    final game = ref.read(gameProvider);
+    if (game.level < 5) {
+      NotificationService.showWarning(context, 'VIP Müzayede Kulübü Seviye 5 ve üzeri galerilere özeldir.');
+      return;
+    }
+    if (game.balance < 500000) {
+      NotificationService.showWarning(context, 'VIP Müzayedeye katılmak için en az ₺500.000 teminat bakiyesi gereklidir.');
+      return;
+    }
+
+    setState(() {
+      _isVipSession = true;
+      _selectedTabIndex = 1;
+      _auction = AuctionEngine.createVipAuction(playerLevel: game.level);
+      _bidLogs.clear();
+      _bidLogs.add('VIP Kapalı Devre Protokol Müzayedesi Başladı!');
+      _bidLogs.add('Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      _hasPlayerEnteredBid = false;
+      _hasExtendedAuction = false;
+      _isHandlingAuctionEnd = false;
+    });
+    _startAuctionTimer();
+  }
+
+  void _switchToStandardAuction() {
+    final game = ref.read(gameProvider);
+    setState(() {
+      _isVipSession = false;
+      _selectedTabIndex = 0;
+      _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
+      _bidLogs.clear();
+      _bidLogs.add('Gümrük ve Tasfiye İhale Seansı Başladı!');
+      _bidLogs.add('Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      _hasPlayerEnteredBid = false;
+      _hasExtendedAuction = false;
+      _isHandlingAuctionEnd = false;
+    });
+    _startAuctionTimer();
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
@@ -500,14 +543,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: 'CANLI GÜMRÜK İHALESİ',
+        title: _isVipSession ? 'VIP MÜZAYEDE SALONU' : 'CANLI GÜMRÜK İHALESİ',
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
             child: Center(
               child: NeoBrutalBadge(
-                text: _isWindowOpen ? 'CANLI YAYIN' : 'KAPALI',
-                backgroundColor: _isWindowOpen ? AppColors.errorRed : const Color(0xFF64748B),
+                text: _isVipSession ? 'VIP PROTOKOL' : (_isWindowOpen ? 'CANLI YAYIN' : 'KAPALI'),
+                backgroundColor: _isVipSession ? const Color(0xFF7C3AED) : (_isWindowOpen ? AppColors.errorRed : const Color(0xFF64748B)),
                 textColor: Colors.white,
               ),
             ),
@@ -518,7 +561,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           ? _buildClosedWindowView(isDark)
           : Column(
               children: [
-                // Top Tab Selector
+                // Top 3-Way Tab Selector
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
@@ -533,9 +576,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => setState(() => _selectedTabIndex = 0),
+                          onTap: _switchToStandardAuction,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 9),
                             decoration: BoxDecoration(
                               color: _selectedTabIndex == 0
                                   ? (isDark ? AppColors.brutalOrange : AppColors.brutalYellow)
@@ -546,12 +589,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.gavel_rounded, size: 14, color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
-                                  const SizedBox(width: 6),
+                                  Icon(Icons.gavel_rounded, size: 13, color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
+                                  const SizedBox(width: 4),
                                   Text(
-                                    'CANLI MASA',
+                                    'GÜMRÜK',
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w900,
                                       color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                                     ),
@@ -564,11 +607,42 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       ),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => setState(() => _selectedTabIndex = 1),
+                          onTap: _switchToVipAuction,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 9),
                             decoration: BoxDecoration(
                               color: _selectedTabIndex == 1
+                                  ? const Color(0xFF7C3AED)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.stars_rounded, size: 13, color: _selectedTabIndex == 1 ? Colors.white : const Color(0xFFA855F7)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'VIP SALON',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      color: _selectedTabIndex == 1 ? Colors.white : (isDark ? const Color(0xFFA855F7) : const Color(0xFF7C3AED)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _selectedTabIndex = 2),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            decoration: BoxDecoration(
+                              color: _selectedTabIndex == 2
                                   ? (isDark ? AppColors.brutalOrange : AppColors.brutalYellow)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(10),
@@ -577,14 +651,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.list_alt_rounded, size: 14, color: _selectedTabIndex == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
-                                  const SizedBox(width: 6),
+                                  Icon(Icons.list_alt_rounded, size: 13, color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
+                                  const SizedBox(width: 4),
                                   Text(
-                                    'İHALE KATALOĞU • ${_upcomingLots.length}',
+                                    'KATALOG • ${_upcomingLots.length}',
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w900,
-                                      color: _selectedTabIndex == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                      color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                                     ),
                                   ),
                                 ],
@@ -597,7 +671,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                 ),
                 Expanded(
-                  child: _selectedTabIndex == 0
+                  child: (_selectedTabIndex == 0 || _selectedTabIndex == 1)
                       ? _buildLiveAuctionTab(isDark)
                       : _buildUpcomingCatalogTab(isDark),
                 ),

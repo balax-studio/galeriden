@@ -39,7 +39,7 @@ void main() {
       damageNote: 'Ağır Pert',
       chassisScrapValue: 35000.0,
       parts: [initialPart],
-      isPurchased: false,
+      isPurchased: true,
     );
 
     await tester.pumpWidget(
@@ -79,6 +79,11 @@ void main() {
 
     // Tap SÖK & AL
     await tester.tap(find.text('SÖK & AL'));
+    await tester.pumpAndSettle();
+
+    // Select rapid dismantle option
+    expect(find.text('HIZLI OTOMATİK SÖKÜM'), findsOneWidget);
+    await tester.tap(find.text('HIZLI OTOMATİK SÖKÜM'));
     await tester.pumpAndSettle();
 
     // Verify button turned into SÖKÜLDÜ and is disabled (no SÖK & AL remaining)

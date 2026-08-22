@@ -37,6 +37,8 @@ import '../presentation/screens/gossip/industry_gossip_screen.dart';
 import '../presentation/screens/consignment/consignment_screen.dart';
 import '../presentation/screens/night_market/night_market_screen.dart';
 import '../presentation/screens/office/special_plate_screen.dart';
+import '../presentation/screens/office/media_agency_screen.dart';
+import '../presentation/screens/office/lifestyle_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
   return CupertinoPage(
@@ -207,6 +209,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/special-plates',
       pageBuilder: (context, state) => _buildCupertinoPage(const SpecialPlateScreen(), state),
+    ),
+    GoRoute(
+      path: '/media-agency',
+      pageBuilder: (context, state) => _buildCupertinoPage(const MediaAgencyScreen(), state),
+    ),
+    GoRoute(
+      path: '/lifestyle',
+      pageBuilder: (context, state) => _buildCupertinoPage(const LifestyleScreen(), state),
     ),
   ],
 );

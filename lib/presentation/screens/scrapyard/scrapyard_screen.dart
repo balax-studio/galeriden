@@ -640,7 +640,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen> with SingleTi
           // ==================== TAB 1: PERT HURDA ARAÇLAR ====================
           Builder(
             builder: (context) {
-              final activeScrapCars = scrapCars.where((c) => !c.isPurchased).toList();
+              final activeScrapCars = scrapCars;
               return ListView.builder(
                 padding: const EdgeInsets.all(14),
                 physics: const BouncingScrollPhysics(),

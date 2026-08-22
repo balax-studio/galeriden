@@ -142,7 +142,7 @@ void main() {
 
       notifier.state = notifier.state.copyWith(
         ownedCars: [raceCar],
-        balance: 50000.0,
+        balance: 500000.0,
         dailyRacesRemaining: 3,
       );
 

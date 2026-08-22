@@ -70,6 +70,7 @@ void main() {
         scrapPrice: 80000.0,
         estimatedPartTotalValue: 120000.0,
         damageNote: 'Önden Kazalı',
+        isPurchased: true,
         parts: [testPart],
       );
 
@@ -108,6 +109,7 @@ void main() {
         scrapPrice: 80000.0,
         estimatedPartTotalValue: 120000.0,
         damageNote: 'Önden Kazalı',
+        isPurchased: true,
         parts: [testPart],
       );
 

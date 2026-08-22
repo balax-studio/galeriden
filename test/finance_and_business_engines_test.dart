@@ -219,7 +219,7 @@ void main() {
         id: 'rent_1',
         carId: 'car_rent_1',
         renterName: 'Mehmet Yılmaz',
-        renterType: 'individual',
+        renterType: 'corporate',
         dailyRate: 2000.0,
         hasInsurance: true,
         insuranceDailyFee: 300.0,
@@ -231,7 +231,7 @@ void main() {
         rentals: [rental],
         events: [],
         incomingOffers: [],
-        random: Random(999),
+        random: Random(10),
       );
 
       expect(bal, greaterThanOrEqualTo(10000.0 + 1700.0));

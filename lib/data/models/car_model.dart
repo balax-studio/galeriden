@@ -309,7 +309,7 @@ class CarModel {
     factor += (0.30 - damageRatio * 0.25 - paintedRatio * 0.10 - structuralPenalty)
         .clamp(0.05, 0.30);
 
-    // 1. Cleaning & Washing Bonus (Capped at +8% with absolute cap of ₺35.000 to prevent supercar exploits)
+    // 1. Cleaning & Washing Bonus (Capped at +8% with maximum ₺80.000 cap for supercars)
     double cleanBonusFactor = 0.0;
     if (isDetailedCleaned || (isWashed && isPolished)) {
       cleanBonusFactor = 0.08;
@@ -317,17 +317,17 @@ class CarModel {
       cleanBonusFactor = 0.04;
     }
     if (cleanBonusFactor > 0) {
-      final maxAllowedCleanFactor = (35000.0 / baseMarketValue).clamp(0.0, cleanBonusFactor);
+      final maxAllowedCleanFactor = (80000.0 / baseMarketValue).clamp(0.0, cleanBonusFactor);
       factor += maxAllowedCleanFactor;
     }
 
-    // 2. Cosmetic & Certification Detailing Bonus (Far, Demir tozu, PDR, Dyno, Ozon, TÜVTÜRK - +2.5% each, Capped at +10% with max ₺50.000)
+    // 2. Cosmetic & Certification Detailing Bonus (Far, Demir tozu, PDR, Dyno, Ozon, TÜVTÜRK - +2.5% each, Capped at +10% with max ₺100.000)
     final detailingCount = appliedDetailingOptionIds
         .where((id) => !id.startsWith('tune_') && !id.startsWith('stage_'))
         .length;
     final rawDetailingFactor = (detailingCount * 0.025).clamp(0.0, 0.10);
     if (rawDetailingFactor > 0) {
-      final maxAllowedDetailingFactor = (50000.0 / baseMarketValue).clamp(0.0, rawDetailingFactor);
+      final maxAllowedDetailingFactor = (100000.0 / baseMarketValue).clamp(0.0, rawDetailingFactor);
       factor += maxAllowedDetailingFactor;
     }
 

@@ -13,6 +13,9 @@ import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
 
+import 'dart:io' show HttpClient;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 enum FeedbackCategory {
   bugReport('Hata Bildirimi', Icons.bug_report_rounded),
   featureRequest('Yeni Özellik İsteği', Icons.auto_awesome_rounded),
@@ -26,6 +29,8 @@ enum FeedbackCategory {
 
 class FeedbackDialog extends ConsumerStatefulWidget {
   const FeedbackDialog({super.key});
+
+  static const String developerEmail = 'hib0796@gmail.com';
 
   static Future<void> show(BuildContext context) {
     return showDialog(
@@ -50,6 +55,44 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     _titleController.dispose();
     _messageController.dispose();
     super.dispose();
+  }
+
+  Future<bool> _dispatchToEmailEndpoint({
+    required String category,
+    required String title,
+    required String message,
+    required String version,
+    required int level,
+    required int day,
+  }) async {
+    if (kIsWeb) return false;
+    try {
+      final client = HttpClient();
+      client.connectionTimeout = const Duration(seconds: 8);
+      final request = await client.postUrl(
+        Uri.parse('https://formsubmit.co/ajax/${FeedbackDialog.developerEmail}'),
+      );
+      request.headers.set('Content-Type', 'application/json; charset=UTF-8');
+      request.headers.set('Accept', 'application/json');
+
+      final payload = jsonEncode({
+        '_subject': 'Galeriden Tycoon Geri Bildirim • $category • $title',
+        'Kategori': category,
+        'Konu': title,
+        'Mesaj': message,
+        'Oyun Sürümü': version,
+        'Oyuncu Seviyesi': level,
+        'Oyun Günü': day,
+        'Zaman': DateTime.now().toString(),
+      });
+
+      request.write(payload);
+      final response = await request.close();
+      client.close();
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _submitFeedback() async {
@@ -78,25 +121,35 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
         'playerDay': game.currentDay,
       };
 
-      // Save locally to persistent feedback queue
+      // 1. Save locally to persistent feedback queue so data is never lost
       final existingQueue = prefs.getStringList('in_app_feedback_queue') ?? [];
       existingQueue.add(jsonEncode(feedbackEntry));
       await prefs.setStringList('in_app_feedback_queue', existingQueue);
 
-      // Thank-you reward for contributing
+      // 2. Dispatch in background directly to developer's email (hib0796@gmail.com)
+      await _dispatchToEmailEndpoint(
+        category: _selectedCategory.label,
+        title: title,
+        message: message,
+        version: GameConstants.appVersion,
+        level: game.level,
+        day: game.currentDay,
+      );
+
+      // 3. Thank-you reward for contributing
       ref.read(gameProvider.notifier).addXP(15);
 
       if (mounted) {
         Navigator.of(context).pop();
         NotificationService.showSuccess(
           context,
-          'Geri bildiriminiz başarıyla iletildi. Değerli katkınız için teşekkür ederiz!',
+          'Geri bildiriminiz geliştiriciye başarıyla iletildi. Değerli katkınız için teşekkür ederiz!',
         );
       }
     } catch (_) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        NotificationService.showError(context, 'Geri bildirim kaydedilirken bir sorun oluştu.');
+        NotificationService.showError(context, 'Geri bildirim iletilirken bir sorun oluştu.');
       }
     }
   }

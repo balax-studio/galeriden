@@ -17,6 +17,8 @@ import '../../../data/models/trade_in_offer_model.dart';
 import '../../../data/models/workshop_job_model.dart';
 import '../../../data/models/car_wash_job_model.dart';
 import '../../../data/models/customer_review_model.dart';
+import '../../../data/models/lifestyle_item_model.dart';
+import '../../../data/models/pr_campaign_model.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
@@ -437,6 +439,98 @@ mixin GameInventoryMixin on GameBaseNotifier {
     addXP(150);
     saveState();
     return true;
+  }
+
+  /// Purchase Branch Property Deed (Tapu) to drop rent to ₺0 and boost credit limit
+  bool buyBranchDeed(BranchModel branch) {
+    if (state.ownedBranchDeeds.contains(branch.id)) return false;
+    if (state.balance < branch.deedCost) return false;
+
+    final updatedDeeds = {...state.ownedBranchDeeds, branch.id};
+    final creditBoost = branch.deedCost * 0.35;
+    final updatedReputation = (state.reputationScore + 40).clamp(0, 1000);
+
+    state = state.copyWith(
+      balance: state.balance - branch.deedCost,
+      ownedBranchDeeds: updatedDeeds,
+      bankCreditLimit: state.bankCreditLimit + creditBoost,
+      reputationScore: updatedReputation,
+    );
+
+    addXP(300);
+    saveState();
+    return true;
+  }
+
+  /// Start Media & Influencer PR Agency Campaign
+  bool startPrCampaign(PrCampaignModel campaign) {
+    if (state.balance < campaign.cost) return false;
+
+    final activeCampaign = ActivePrCampaign(
+      campaignId: campaign.id,
+      title: campaign.title,
+      startDay: state.currentDay,
+      endDay: state.currentDay + campaign.durationDays - 1,
+      customerFlowMultiplier: campaign.customerFlowMultiplier,
+      offerPriceBoost: campaign.offerPriceBoost,
+      negotiationResistanceReduction: campaign.negotiationResistanceReduction,
+    );
+
+    final updatedReputation = (state.reputationScore + campaign.reputationReward).clamp(0, 1000);
+
+    state = state.copyWith(
+      balance: state.balance - campaign.cost,
+      activePrCampaign: activeCampaign,
+      reputationScore: updatedReputation,
+    );
+
+    addXP(100);
+    saveState();
+    return true;
+  }
+
+  /// Purchase Lifestyle Item (Suit, Watch/Tasbih, Executive Office Luxury)
+  bool buyLifestyleItem(LifestyleItemModel item) {
+    if (state.ownedLifestyleItems.contains(item.id)) return false;
+    if (state.balance < item.price) return false;
+
+    final updatedItems = {...state.ownedLifestyleItems, item.id};
+    final updatedReputation = (state.reputationScore + item.reputationBonus).clamp(0, 1000);
+
+    String? suit = state.equippedSuitId;
+    String? acc = state.equippedAccessoryId;
+    String? decor = state.equippedOfficeDecorId;
+
+    if (item.category == 'suit') suit = item.id;
+    if (item.category == 'accessory') acc = item.id;
+    if (item.category == 'officeDecor') decor = item.id;
+
+    state = state.copyWith(
+      balance: state.balance - item.price,
+      ownedLifestyleItems: updatedItems,
+      equippedSuitId: suit,
+      equippedAccessoryId: acc,
+      equippedOfficeDecorId: decor,
+      reputationScore: updatedReputation,
+    );
+
+    addXP(150);
+    saveState();
+    return true;
+  }
+
+  /// Equip an already owned Lifestyle item
+  void equipLifestyleItem(LifestyleItemModel item) {
+    if (!state.ownedLifestyleItems.contains(item.id)) return;
+
+    if (item.category == 'suit') {
+      state = state.copyWith(equippedSuitId: item.id);
+    } else if (item.category == 'accessory') {
+      state = state.copyWith(equippedAccessoryId: item.id);
+    } else if (item.category == 'officeDecor') {
+      state = state.copyWith(equippedOfficeDecorId: item.id);
+    }
+    saveState();
   }
 
   /// Apply detailing option

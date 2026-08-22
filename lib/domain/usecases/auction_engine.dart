@@ -1,5 +1,7 @@
 import 'dart:math';
 import '../../data/models/auction_model.dart';
+import '../../data/models/car_model.dart';
+import '../../data/models/expertise_model.dart';
 import '../../domain/usecases/market_engine.dart';
 
 class AuctionEngine {
@@ -345,7 +347,22 @@ class AuctionEngine {
       } else if (rival.name == 'Çılgın Kemal') {
         if (_random.nextDouble() < 0.30) {
           shouldBid = true;
-          increment = 3000.0 + _random.nextInt(25000);
+          increment = 5000.0 + _random.nextInt(10000);
+        }
+      } else if (rival.name == 'Baron Selim') {
+        if (_random.nextDouble() < 0.40) {
+          shouldBid = true;
+          increment = 100000.0 + _random.nextInt(150000);
+        }
+      } else if (rival.name == 'Holding Sahibi Kenan') {
+        if (auction.secondsRemaining <= 6 && _random.nextDouble() < 0.65) {
+          shouldBid = true;
+          increment = 150000.0 + _random.nextInt(200000);
+        }
+      } else if (rival.name == 'Koleksiyoner Ferit') {
+        if (_random.nextDouble() < 0.45) {
+          shouldBid = true;
+          increment = 200000.0 + _random.nextInt(300000);
         }
       }
 
@@ -373,5 +390,223 @@ class AuctionEngine {
     }
 
     return null;
+  }
+
+  /// Create a high-roller VIP Prestige auction session
+  static AuctionModel createVipAuction({int playerLevel = 5}) {
+    final vipCars = [
+      CarModel(
+        id: 'car_vip_ferrari_testarossa',
+        brand: 'Ferrari',
+        modelName: 'Testarossa • 4.9 V12 Klasik',
+        modelYear: 1989,
+        bodyType: 'Koleksiyon Spor',
+        colorHex: '0xFFD40000',
+        colorDisplayName: 'Rosso Corsa Kırmızı',
+        colorRarity: 'legendary',
+        plateNumber: '34 VIP 89',
+        plateRarity: 'legendary',
+        baseMarketValue: 8500000.0,
+        currentPurchasePrice: 0.0,
+        isRare: true,
+        expertise: ExpertiseReport(
+          engineCondition: 92.0,
+          transmissionCondition: 88.0,
+          tramerAmount: 0,
+          mileage: 38000,
+          isMileageTampered: false,
+          bodyParts: {
+            'Kaput': PartStatus.original,
+            'Tavan': PartStatus.original,
+            'Sol Kapı': PartStatus.original,
+            'Sağ Kapı': PartStatus.original,
+            'Bagaj': PartStatus.original,
+          },
+          partConditions: {
+            'Kaput': 95.0,
+            'Tavan': 96.0,
+            'Sol Kapı': 94.0,
+            'Sağ Kapı': 94.0,
+            'Bagaj': 95.0,
+          },
+        ),
+      ),
+      CarModel(
+        id: 'car_vip_porsche_911_turbo',
+        brand: 'Porsche',
+        modelName: '911 Turbo S • 993 Kasa',
+        modelYear: 1997,
+        bodyType: 'Koleksiyon Spor',
+        colorHex: '0xFF1E293B',
+        colorDisplayName: 'Gece Mavisi Metalik',
+        colorRarity: 'legendary',
+        plateNumber: '06 PRS 993',
+        plateRarity: 'legendary',
+        baseMarketValue: 6200000.0,
+        currentPurchasePrice: 0.0,
+        isRare: true,
+        expertise: ExpertiseReport(
+          engineCondition: 94.0,
+          transmissionCondition: 91.0,
+          tramerAmount: 0,
+          mileage: 42000,
+          isMileageTampered: false,
+          bodyParts: {
+            'Kaput': PartStatus.original,
+            'Tavan': PartStatus.original,
+            'Sol Kapı': PartStatus.original,
+            'Sağ Kapı': PartStatus.original,
+            'Bagaj': PartStatus.original,
+          },
+          partConditions: {
+            'Kaput': 96.0,
+            'Tavan': 95.0,
+            'Sol Kapı': 93.0,
+            'Sağ Kapı': 93.0,
+            'Bagaj': 94.0,
+          },
+        ),
+      ),
+      CarModel(
+        id: 'car_vip_g63_amg',
+        brand: 'Mercedes-Benz',
+        modelName: 'G63 AMG • V8 BiTurbo Zırhlı',
+        modelYear: 2022,
+        bodyType: 'Zırhlı VIP SUV',
+        colorHex: '0xFF0F172A',
+        colorDisplayName: 'Obsidian Siyah',
+        colorRarity: 'legendary',
+        plateNumber: '34 BARON 63',
+        plateRarity: 'legendary',
+        baseMarketValue: 12500000.0,
+        currentPurchasePrice: 0.0,
+        isRare: true,
+        expertise: ExpertiseReport(
+          engineCondition: 98.0,
+          transmissionCondition: 96.0,
+          tramerAmount: 0,
+          mileage: 19000,
+          isMileageTampered: false,
+          bodyParts: {
+            'Kaput': PartStatus.original,
+            'Tavan': PartStatus.original,
+            'Sol Kapı': PartStatus.original,
+            'Sağ Kapı': PartStatus.original,
+            'Bagaj': PartStatus.original,
+          },
+          partConditions: {
+            'Kaput': 98.0,
+            'Tavan': 99.0,
+            'Sol Kapı': 97.0,
+            'Sağ Kapı': 97.0,
+            'Bagaj': 98.0,
+          },
+        ),
+      ),
+      CarModel(
+        id: 'car_vip_rolls_royce_shadow',
+        brand: 'Rolls-Royce',
+        modelName: 'Silver Shadow • Kraliyet Protokol',
+        modelYear: 1976,
+        bodyType: 'Klasik Makam',
+        colorHex: '0xFFF8FAFC',
+        colorDisplayName: 'İngiliz Fildişi Beyazı',
+        colorRarity: 'legendary',
+        plateNumber: '34 RR 01',
+        plateRarity: 'legendary',
+        baseMarketValue: 9800000.0,
+        currentPurchasePrice: 0.0,
+        isRare: true,
+        expertise: ExpertiseReport(
+          engineCondition: 90.0,
+          transmissionCondition: 87.0,
+          tramerAmount: 0,
+          mileage: 51000,
+          isMileageTampered: false,
+          bodyParts: {
+            'Kaput': PartStatus.original,
+            'Tavan': PartStatus.original,
+            'Sol Kapı': PartStatus.original,
+            'Sağ Kapı': PartStatus.original,
+            'Bagaj': PartStatus.original,
+          },
+          partConditions: {
+            'Kaput': 93.0,
+            'Tavan': 94.0,
+            'Sol Kapı': 91.0,
+            'Sağ Kapı': 91.0,
+            'Bagaj': 92.0,
+          },
+        ),
+      ),
+    ];
+
+    vipCars.shuffle(_random);
+    final car = vipCars.first;
+    final marketValue = car.baseMarketValue;
+    final startingPrice = (marketValue * 0.55).roundToDouble();
+
+    final vipRivals = [
+      AuctionRival(
+        name: 'Baron Selim',
+        avatarType: 'rare',
+        maxBudget: (marketValue * 1.18).roundToDouble(),
+        personality: 'Otomotiv Baronu',
+        dialogues: [
+          'Para benim için sadece rakamdır, bu araba benim!',
+          'Koleksiyonumdaki eksik parça bulundu.',
+          'Rakamı ikiye katlarım, beni zorlamayın!',
+          'Koleksiyonuma başka araç bakayım...',
+        ],
+      ),
+      AuctionRival(
+        name: 'Holding Sahibi Kenan',
+        avatarType: 'shield',
+        maxBudget: (marketValue * 1.10).roundToDouble(),
+        personality: 'Milyarder Yatırımcı',
+        dialogues: [
+          'Şirket filoma prestij katacak bir makine.',
+          'Yatırım değeri çok yüksek, kaçırmam.',
+          'Son saniye hamlemi yapıyorum!',
+          'Maliyet fizibilitesi aşıldı, çekiliyorum.',
+        ],
+      ),
+      AuctionRival(
+        name: 'Koleksiyoner Ferit',
+        avatarType: 'sparkles',
+        maxBudget: (marketValue * 1.25).roundToDouble(),
+        personality: 'Nadir Şaheser Avcısı',
+        dialogues: [
+          'Böyle bir klasik dünya pazarında bile zor çıkar!',
+          'Teklifimi yükseltiyorum, bu şaheser benim!',
+          'Koleksiyonum için son kuruşuna kadar!',
+          'Çok iyi bir teklifti, tebrik ederim.',
+        ],
+      ),
+    ];
+
+    return AuctionModel(
+      id: 'auc_vip_${DateTime.now().microsecondsSinceEpoch}',
+      car: car,
+      startingPrice: startingPrice,
+      estimatedMarketValue: marketValue,
+      currentBid: startingPrice,
+      highestBidderName: 'VIP Tasfiye Komisyonu',
+      isPlayerHighestBidder: false,
+      secondsRemaining: 30,
+      status: AuctionStatus.active,
+      rivals: vipRivals,
+      customsNote: CustomsAnnotation(
+        legalStatus: 'Cumhurbaşkanlığı & Diplomatik Protokol Tasfiyesi',
+        riskRewardFactor: 'Kusursuz Orijinallik • Müzelik Kondisyon & Özel Zırh',
+        originOffice: 'İstanbul Maslak VIP Tasfiye Başmüdürlüğü',
+        trunkLoot: const TrunkLoot(
+          name: 'Pırlanta Kasa Anahtarı & Altın Sertifika',
+          value: 250000.0,
+          type: TrunkLootType.rareTool,
+          description: 'Özel kadife kutuda orijinal fabrika doğum belgesi ve altın anahtar seti.',
+        ),
+      ),
+    );
   }
 }

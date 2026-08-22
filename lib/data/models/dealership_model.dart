@@ -25,6 +25,9 @@ import 'contract_model.dart';
 import 'trade_in_offer_model.dart';
 import 'gossip_item_model.dart';
 import 'weather_model.dart';
+import 'lifestyle_item_model.dart';
+import 'pr_campaign_model.dart';
+import 'branch_model.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -174,8 +177,60 @@ class DealershipModel {
   // Mağaza Puanlama & Öneri Tek Seferlik Ödül Takibi
   final bool hasReceivedReviewReward;
 
+  // Tapu & Gayrimenkul Mülkiyet Alanları
+  final Set<String> ownedBranchDeeds;
+
+  // Medya & Fenomen PR Ajansı Kampanyası
+  final ActivePrCampaign? activePrCampaign;
+
+  // Kişisel Yaşam Tarzı, Gardırop & Prestij Masası
+  final Set<String> ownedLifestyleItems;
+  final String? equippedSuitId;
+  final String? equippedAccessoryId;
+  final String? equippedOfficeDecorId;
+
   bool get isOfficeGrantClaimedToday => lastOfficeGrantClaimDay >= currentDay;
   bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
+
+  double get totalDeedValue {
+    double total = 0;
+    for (final branch in BranchModel.getAllBranches(ownedDeeds: ownedBranchDeeds)) {
+      if (ownedBranchDeeds.contains(branch.id)) {
+        total += branch.deedCost;
+      }
+    }
+    return total;
+  }
+
+  double get lifestyleNegotiationBonus {
+    double bonus = 0.0;
+    for (final item in LifestyleItemModel.allItems) {
+      if (item.id == equippedSuitId || item.id == equippedAccessoryId || item.id == equippedOfficeDecorId) {
+        bonus += item.negotiationBonus;
+      }
+    }
+    return bonus;
+  }
+
+  double get lifestyleRichCustomerBonus {
+    double bonus = 0.0;
+    for (final item in LifestyleItemModel.allItems) {
+      if (item.id == equippedSuitId || item.id == equippedAccessoryId || item.id == equippedOfficeDecorId) {
+        bonus += item.richCustomerBonus;
+      }
+    }
+    return bonus;
+  }
+
+  double get lifestyleInterestDiscount {
+    double discount = 0.0;
+    for (final item in LifestyleItemModel.allItems) {
+      if (item.id == equippedSuitId || item.id == equippedAccessoryId || item.id == equippedOfficeDecorId) {
+        discount += item.interestDiscount;
+      }
+    }
+    return discount;
+  }
 
   int get emblemIndex => int.tryParse(logoEmblemId.replaceAll(RegExp(r'\D'), '')) ?? 0;
 
@@ -602,6 +657,12 @@ class DealershipModel {
     this.lastSmartHookUsedDay = 0,
     this.officeSeed = 0,
     this.hasReceivedReviewReward = false,
+    this.ownedBranchDeeds = const {},
+    this.activePrCampaign,
+    this.ownedLifestyleItems = const {},
+    this.equippedSuitId,
+    this.equippedAccessoryId,
+    this.equippedOfficeDecorId,
   });
 
   factory DealershipModel.initial() {
@@ -1293,6 +1354,13 @@ class DealershipModel {
     int? lastSmartHookUsedDay,
     int? officeSeed,
     bool? hasReceivedReviewReward,
+    Set<String>? ownedBranchDeeds,
+    ActivePrCampaign? activePrCampaign,
+    bool clearActivePrCampaign = false,
+    Set<String>? ownedLifestyleItems,
+    String? equippedSuitId,
+    String? equippedAccessoryId,
+    String? equippedOfficeDecorId,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1389,6 +1457,12 @@ class DealershipModel {
       lastSmartHookUsedDay: lastSmartHookUsedDay ?? this.lastSmartHookUsedDay,
       officeSeed: officeSeed ?? this.officeSeed,
       hasReceivedReviewReward: hasReceivedReviewReward ?? this.hasReceivedReviewReward,
+      ownedBranchDeeds: ownedBranchDeeds ?? this.ownedBranchDeeds,
+      activePrCampaign: clearActivePrCampaign ? null : (activePrCampaign ?? this.activePrCampaign),
+      ownedLifestyleItems: ownedLifestyleItems ?? this.ownedLifestyleItems,
+      equippedSuitId: equippedSuitId ?? this.equippedSuitId,
+      equippedAccessoryId: equippedAccessoryId ?? this.equippedAccessoryId,
+      equippedOfficeDecorId: equippedOfficeDecorId ?? this.equippedOfficeDecorId,
     );
   }
 

@@ -70,6 +70,7 @@ void main() {
         chassisScrapValue: 5700,
         surpriseFindItem: 'Nostaljik Kasetçalar & Altın Künye',
         surpriseFindValue: 2500,
+        isPurchased: true,
         parts: [],
       );
 
