@@ -276,13 +276,13 @@ void main() {
       expect(notifier.state.reputationScore, equals(54)); // +3 rep
       expect(notifier.state.balance, equals(19500.0)); // ₺500 deducted
 
-      // 3. Buy Bot / PR Review Package (₺2.000)
+      // 3. Buy Bot / PR Review Package (₺2.500 first purchase cost)
       final botSuccess = notifier.buyBotReview();
       expect(botSuccess, isTrue);
       expect(notifier.state.customerReviews.length, equals(2));
       expect(notifier.state.customerReviews.first.rating, equals(5));
       expect(notifier.state.reputationScore, equals(59)); // +5 rep
-      expect(notifier.state.balance, equals(17500.0)); // ₺2.000 deducted
+      expect(notifier.state.balance, equals(17000.0)); // ₺2.500 deducted
     });
 
     test('7. Notary Fraud Claim on Tampered Mileage', () async {

@@ -131,17 +131,20 @@ class FraudInspectionResult {
 class NegotiationEngine {
   static final Random _random = Random();
 
-  /// Calculates success probability based on asking price, offered price, and player negotiation skill level
+  /// Calculates success probability based on asking price, offered price, player negotiation skill level and lifestyle bonuses
   static int calculateMarketplaceBuyerSuccessChance({
     required double askingPrice,
     required double offeredPrice,
     required int negotiationSkillLevel,
+    double lifestyleBonusPercent = 0.0,
   }) {
     if (askingPrice <= 0 || offeredPrice >= askingPrice) return 100;
     final discountPercent = ((askingPrice - offeredPrice) / askingPrice) * 100;
     final double baseChance = 100.0 - (discountPercent * 5.2);
     final double skillBonus = negotiationSkillLevel * 4.0;
-    return (baseChance + skillBonus).clamp(5.0, 98.0).round();
+    // Diminishing returns on lifestyle bonus (soft-cap at 8%)
+    final double lifestyleGain = (lifestyleBonusPercent * 100.0).clamp(0.0, 8.0);
+    return (baseChance + skillBonus + lifestyleGain).clamp(5.0, 95.0).round();
   }
 
   /// Evaluates whether a customer inspects player's listing and catches fraud/misleading claims
@@ -1026,6 +1029,7 @@ class NegotiationEngine {
     String? strategy, // 'ikna_et', 'duyguya_oyna', 'sert_dur', 'hizli_kapat', 'cay_soyle', 'sigara_yak', 'ortak_arayayim'
     List<String> purchasedAcademyCourses = const [],
     bool isTraderSpecialization = false,
+    double lifestylePersuasionBonus = 0.0,
   }) {
     final double previousOffer = currentOffer.offeredAmount;
     final double carRealValue = car.estimatedRealValue;
@@ -1108,7 +1112,9 @@ class NegotiationEngine {
       strategyBonus += 0.15;
     }
 
-    double skillBonus = ((negotiationSkillLevel - 1) * 0.025) + strategyBonus;
+    // Diminishing returns on lifestyle persuasion bonus (soft cap at 6%)
+    final double effectiveLifestyleBonus = (lifestylePersuasionBonus / (1.0 + lifestylePersuasionBonus * 2.0)).clamp(0.0, 0.06);
+    double skillBonus = ((negotiationSkillLevel - 1) * 0.025) + strategyBonus + effectiveLifestyleBonus;
     double diffRatio = previousOffer > 0 ? (playerTargetPrice - previousOffer) / previousOffer : 0.0;
 
     // Instant accept if player met or went below customer's offer

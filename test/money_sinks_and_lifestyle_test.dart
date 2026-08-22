@@ -73,37 +73,34 @@ void main() {
       expect(state.reputationScore, equals(initialReputation + campaign.reputationReward));
     });
 
-    test('Lifestyle Wardrobe items purchase, equipping, and passive bonus aggregation', () {
+    test('Lifestyle Wardrobe items purchase, equipping, and passive bonus aggregation with diminishing returns', () {
       final notifier = container.read(gameProvider.notifier);
       notifier.addMoney(10000000.0);
 
       final royalSuit = LifestyleItemModel.allItems.firstWhere((i) => i.id == 'suit_royal_smoking');
       final diamondWatch = LifestyleItemModel.allItems.firstWhere((i) => i.id == 'acc_diamond_tourbillon');
-      final executiveDesk = LifestyleItemModel.allItems.firstWhere((i) => i.id == 'decor_mahogany_executive_desk');
 
-      // Buy all 3 categories
+      // Buy both categories
       expect(notifier.buyLifestyleItem(royalSuit), isTrue);
       expect(notifier.buyLifestyleItem(diamondWatch), isTrue);
-      expect(notifier.buyLifestyleItem(executiveDesk), isTrue);
 
       final state = container.read(gameProvider);
       expect(state.ownedLifestyleItems.contains(royalSuit.id), isTrue);
       expect(state.ownedLifestyleItems.contains(diamondWatch.id), isTrue);
-      expect(state.ownedLifestyleItems.contains(executiveDesk.id), isTrue);
 
       expect(state.equippedSuitId, equals(royalSuit.id));
       expect(state.equippedAccessoryId, equals(diamondWatch.id));
-      expect(state.equippedOfficeDecorId, equals(executiveDesk.id));
 
-      // Check cumulative bonuses
-      // Royal suit (0.18) + Diamond watch (0.15) + Mahogany desk (0.15) = 0.48
-      expect(state.lifestyleNegotiationBonus, closeTo(0.48, 0.001));
+      // Check cumulative bonuses with diminishing returns
+      // Raw: 0.08 + 0.06 = 0.14 -> Diminishing: 0.14 / (1 + 0.14 * 1.5) = ~0.1157 (Capped under 0.12)
+      expect(state.lifestyleNegotiationBonus, closeTo(0.1157, 0.005));
+      expect(state.lifestyleNegotiationBonus, lessThanOrEqualTo(0.12));
 
-      // Royal suit (0.25) + Diamond watch (0.30) + Mahogany desk (0.25) = 0.80
-      expect(state.lifestyleRichCustomerBonus, closeTo(0.80, 0.001));
+      // Royal suit (0.15) + Diamond watch (0.20) = 0.35
+      expect(state.lifestyleRichCustomerBonus, closeTo(0.35, 0.001));
 
-      // Diamond watch (0.10) + Mahogany desk (0.08) = 0.18
-      expect(state.lifestyleInterestDiscount, closeTo(0.18, 0.001));
+      // Diamond watch (0.08) = 0.08
+      expect(state.lifestyleInterestDiscount, closeTo(0.08, 0.001));
     });
 
     test('VIP Auction generates high-end rare supercars and elite rivals', () {

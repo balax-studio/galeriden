@@ -501,8 +501,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     String? acc = state.equippedAccessoryId;
     String? decor = state.equippedOfficeDecorId;
 
-    if (item.category == 'suit') suit = item.id;
-    if (item.category == 'accessory') acc = item.id;
+    if (item.isApparel) suit = item.id;
+    if (item.isAccessory) acc = item.id;
     if (item.category == 'officeDecor') decor = item.id;
 
     state = state.copyWith(
@@ -523,9 +523,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
   void equipLifestyleItem(LifestyleItemModel item) {
     if (!state.ownedLifestyleItems.contains(item.id)) return;
 
-    if (item.category == 'suit') {
+    if (item.isApparel) {
       state = state.copyWith(equippedSuitId: item.id);
-    } else if (item.category == 'accessory') {
+    } else if (item.isAccessory) {
       state = state.copyWith(equippedAccessoryId: item.id);
     } else if (item.category == 'officeDecor') {
       state = state.copyWith(equippedOfficeDecorId: item.id);

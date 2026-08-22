@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
@@ -20,11 +21,12 @@ class LifestyleScreen extends ConsumerStatefulWidget {
 
 class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String _selectedThemeFilter = 'all'; // 'all', 'classic_baron', 'traditional_artisan', 'street_modern', 'motorsport'
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -40,9 +42,13 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     final isDark = p.isDark;
     final game = ref.watch(gameProvider);
 
-    final suits = LifestyleItemModel.allItems.where((i) => i.category == 'suit').toList();
-    final accessories = LifestyleItemModel.allItems.where((i) => i.category == 'accessory').toList();
-    final officeDecors = LifestyleItemModel.allItems.where((i) => i.category == 'officeDecor').toList();
+    var suits = LifestyleItemModel.allItems.where((i) => i.isApparel).toList();
+    var accessories = LifestyleItemModel.allItems.where((i) => i.isAccessory).toList();
+
+    if (_selectedThemeFilter != 'all') {
+      suits = suits.where((i) => i.theme == _selectedThemeFilter).toList();
+      accessories = accessories.where((i) => i.theme == _selectedThemeFilter).toList();
+    }
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -54,7 +60,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
             child: Center(
               child: NeoBrutalBadge(
                 text: CurrencyFormatter.formatShort(game.balance),
-                backgroundColor: const Color(0xFFFFDE59),
+                backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,
               ),
             ),
@@ -156,8 +162,25 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  // Neo Tab Bar
+                  const SizedBox(height: 10),
+
+                  // Cultural Themes Filter Chips
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Row(
+                      children: [
+                        _buildThemeFilterChip('TÜM TARZLAR', 'all', isDark),
+                        _buildThemeFilterChip('PROTOKOL & BARON', 'classic_baron', isDark),
+                        _buildThemeFilterChip('AĞIR ESNAF & ANADOLU', 'traditional_artisan', isDark),
+                        _buildThemeFilterChip('ŞEHİRLİ & SOKAK', 'street_modern', isDark),
+                        _buildThemeFilterChip('PİST & MOTORSPOR', 'motorsport', isDark),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Neo Tab Bar (2 Tabs: Kıyafet & Kombin, Saat & Aksesuar)
                   Container(
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
@@ -180,11 +203,10 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       ),
                       labelColor: Colors.black,
                       unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                      labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11.5),
+                      labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
                       tabs: const [
-                        Tab(text: 'TAKIM ELBİSE'),
-                        Tab(text: 'SAAT & TESBİH'),
-                        Tab(text: 'MAKAM & OFİS'),
+                        Tab(text: 'KIYAFET & KOMBİN'),
+                        Tab(text: 'SAAT & AKSESUAR'),
                       ],
                     ),
                   ),
@@ -198,8 +220,56 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
           children: [
             _buildItemsList(suits, game, isDark),
             _buildItemsList(accessories, game, isDark),
-            _buildItemsList(officeDecors, game, isDark),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeFilterChip(String label, String themeKey, bool isDark) {
+    final isSelected = _selectedThemeFilter == themeKey;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() {
+            _selectedThemeFilter = themeKey;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.brutalYellow
+                : (isDark ? const Color(0xFF141721) : Colors.white),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFF0F172A)
+                  : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+              width: isSelected ? 2.0 : 1.5,
+            ),
+            boxShadow: isSelected
+                ? [
+                    const BoxShadow(
+                      color: Color(0xFF0F172A),
+                      offset: Offset(2, 2),
+                      blurRadius: 0,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
+              color: isSelected
+                  ? Colors.black
+                  : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+            ),
+          ),
         ),
       ),
     );
@@ -230,6 +300,22 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
   }
 
   Widget _buildItemsList(List<LifestyleItemModel> items, dynamic game, bool isDark) {
+    if (items.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'Bu kategoride seçilen temaya ait ürün bulunamadı.',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       physics: const BouncingScrollPhysics(),
@@ -237,9 +323,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
       itemBuilder: (context, index) {
         final item = items[index];
         final isOwned = game.ownedLifestyleItems.contains(item.id);
-        final isEquipped = game.equippedSuitId == item.id ||
-            game.equippedAccessoryId == item.id ||
-            game.equippedOfficeDecorId == item.id;
+        final isEquipped = game.equippedSuitId == item.id || game.equippedAccessoryId == item.id;
         final canAfford = game.balance >= item.price;
 
         return Padding(
@@ -306,11 +390,22 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                             ],
                           ),
                           const SizedBox(height: 4),
-                          NeoBrutalBadge(
-                            text: '+${item.reputationBonus} İtibar Puanı',
-                            backgroundColor: const Color(0xFFFFDE59),
-                            textColor: Colors.black,
-                            fontSize: 10,
+                          Row(
+                            children: [
+                              NeoBrutalBadge(
+                                text: '+${item.reputationBonus} İtibar Puanı',
+                                backgroundColor: const Color(0xFFFFDE59),
+                                textColor: Colors.black,
+                                fontSize: 10,
+                              ),
+                              const SizedBox(width: 6),
+                              NeoBrutalBadge(
+                                text: _getThemeLabel(item.theme),
+                                backgroundColor: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0),
+                                textColor: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                                fontSize: 9,
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -408,6 +503,21 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     );
   }
 
+  String _getThemeLabel(String themeKey) {
+    switch (themeKey) {
+      case 'classic_baron':
+        return 'PROTOKOL';
+      case 'traditional_artisan':
+        return 'AĞIR ESNAF';
+      case 'street_modern':
+        return 'ŞEHİRLİ';
+      case 'motorsport':
+        return 'MOTORSPOR';
+      default:
+        return 'GENEL';
+    }
+  }
+
   Widget _buildMiniBadge(String text, Color color, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -431,16 +541,32 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     switch (type) {
       case 'suit':
         return Icons.dry_cleaning_rounded;
-      case 'tasbih':
-        return Icons.lens_blur_rounded;
+      case 'coat':
+        return Icons.checkroom_rounded;
+      case 'vest':
+        return Icons.shield_rounded;
+      case 'jacket':
+        return Icons.dry_cleaning_rounded;
+      case 'bomber':
+        return Icons.sports_motorsports_rounded;
+      case 'hoodie':
+        return Icons.person_rounded;
+      case 'racing':
+        return Icons.sports_score_rounded;
       case 'watch':
         return Icons.watch_rounded;
-      case 'chair':
-        return Icons.chair_rounded;
-      case 'coffee':
-        return Icons.coffee_maker_rounded;
-      case 'desk':
-        return Icons.table_restaurant_rounded;
+      case 'smartwatch':
+        return Icons.watch_later_rounded;
+      case 'tasbih':
+        return Icons.grain_rounded;
+      case 'ring':
+        return Icons.diamond_rounded;
+      case 'glasses':
+        return Icons.visibility_rounded;
+      case 'wallet':
+        return Icons.account_balance_wallet_rounded;
+      case 'keychain':
+        return Icons.key_rounded;
       default:
         return Icons.stars_rounded;
     }

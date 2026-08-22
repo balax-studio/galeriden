@@ -874,6 +874,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       strategy: strategy,
       purchasedAcademyCourses: state.purchasedAcademyCourses,
       isTraderSpecialization: state.specializationPath == SpecializationPath.trader,
+      lifestylePersuasionBonus: state.lifestyleNegotiationBonus,
     );
 
     List<OfferModel> updatedOffers = List.from(state.incomingOffers);
@@ -1280,10 +1281,14 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Sosyal medya bot/PR inceleme paketi satın alma (₺2.000, 5 Yıldız, +5 İtibar)
+  /// Sosyal medya bot/PR inceleme paketi satın alma (Algoritmik artan maliyet, 5 Yıldız, azalan itibar)
   bool buyBotReview() {
-    const botCost = 2000.0;
+    final botCost = state.botReviewCost.toDouble();
     if (state.balance < botCost) return false;
+
+    final currentBotCount = state.botReviewCount;
+    // Diminishing reputation points: First 3 bots = +5, 4-6 bots = +3, 7+ bots = +1
+    final reputationGain = currentBotCount < 3 ? 5 : (currentBotCount < 6 ? 3 : 1);
 
     final botNames = [
       'Otomobil Meraklısı Can',
@@ -1291,12 +1296,16 @@ mixin GameMarketMixin on GameBaseNotifier {
       'Filo Yöneticisi Selim',
       'Araç Gurmesi Efe',
       'Koleksiyoner Tayfun',
+      'Teknoloji Uzmanı Mert',
+      'Yatırımcı Arda',
+      'Klasik Tutkunu Serdar',
     ];
     final botComments = [
       'Güler yüzlü esnaflık ve şeffaf ekspertiz için teşekkürler, herkese tavsiye ederim!',
       'Galeriden aldığımız araç kusursuz çıktı. Satış sonrası ilgi alaka harikaydı.',
       'Sözlerinin eri bir galeri. Noter işlemleri 10 dakikada bitti, güvenle alışveriş yapabilirsiniz.',
       'Piyasadaki en dürüst esnaflardan biri. Çaylarını içip aracımı keyifle teslim aldım.',
+      'Kurumsal yaklaşım ve net bilgilendirme için teşekkür ederim.',
     ];
 
     final botReview = CustomerReviewModel(
@@ -1311,7 +1320,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     state = state.copyWith(
       balance: state.balance - botCost,
       customerReviews: [botReview, ...state.customerReviews],
-      reputationScore: (state.reputationScore + 5).clamp(0, 1000),
+      reputationScore: (state.reputationScore + reputationGain).clamp(0, 1000),
     );
     saveState();
     return true;

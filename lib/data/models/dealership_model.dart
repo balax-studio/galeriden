@@ -203,33 +203,49 @@ class DealershipModel {
   }
 
   double get lifestyleNegotiationBonus {
-    double bonus = 0.0;
+    double rawBonus = 0.0;
     for (final item in LifestyleItemModel.allItems) {
-      if (item.id == equippedSuitId || item.id == equippedAccessoryId || item.id == equippedOfficeDecorId) {
-        bonus += item.negotiationBonus;
+      if (item.id == equippedSuitId || item.id == equippedAccessoryId) {
+        rawBonus += item.negotiationBonus;
       }
     }
-    return bonus;
+    // Diminishing returns: Soft-capped at 10%, hard cap at 12%
+    return (rawBonus / (1.0 + rawBonus * 1.5)).clamp(0.0, 0.12);
   }
 
   double get lifestyleRichCustomerBonus {
     double bonus = 0.0;
     for (final item in LifestyleItemModel.allItems) {
-      if (item.id == equippedSuitId || item.id == equippedAccessoryId || item.id == equippedOfficeDecorId) {
+      if (item.id == equippedSuitId || item.id == equippedAccessoryId) {
         bonus += item.richCustomerBonus;
       }
     }
-    return bonus;
+    return bonus.clamp(0.0, 0.35);
   }
 
   double get lifestyleInterestDiscount {
     double discount = 0.0;
     for (final item in LifestyleItemModel.allItems) {
-      if (item.id == equippedSuitId || item.id == equippedAccessoryId || item.id == equippedOfficeDecorId) {
+      if (item.id == equippedSuitId || item.id == equippedAccessoryId) {
         discount += item.interestDiscount;
       }
     }
-    return discount;
+    return discount.clamp(0.0, 0.20);
+  }
+
+  /// Current purchased bot review count
+  int get botReviewCount => customerReviews.where((r) => r.id.startsWith('rev_bot_')).length;
+
+  /// Algorithmic cost scaling for bot review PR packages
+  int get botReviewCost {
+    final count = botReviewCount;
+    if (count == 0) return 2500;
+    if (count == 1) return 5000;
+    if (count == 2) return 10000;
+    if (count == 3) return 20000;
+    if (count == 4) return 40000;
+    if (count == 5) return 75000;
+    return 75000 + (count - 5) * 50000;
   }
 
   int get emblemIndex => int.tryParse(logoEmblemId.replaceAll(RegExp(r'\D'), '')) ?? 0;

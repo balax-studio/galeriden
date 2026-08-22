@@ -113,22 +113,43 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // Bot / PR Review Purchase Action
+                // Bot / PR Review Purchase Action with Algorithmic Cost Scaling
                 NeoBrutalButton(
-                  label: 'SOSYAL MEDYA PR & BOT YORUM AL • ${CurrencyFormatter.format(GameConstants.socialMediaPrCost)}',
+                  label: 'SOSYAL MEDYA PR & BOT YORUM AL • ${CurrencyFormatter.format(game.botReviewCost.toDouble())}',
                   icon: Icons.campaign_rounded,
                   backgroundColor: AppColors.brutalCyan,
                   textColor: Colors.black,
                   fullWidth: true,
                   onPressed: () {
+                    final currentCost = game.botReviewCost.toDouble();
                     final success = ref.read(gameProvider.notifier).buyBotReview();
                     if (success) {
-                      NotificationService.showSuccess(context, 'Sosyal medya ajansı 5 yıldızlı pozitif yorum yayınladı! • +5 İtibar');
+                      final botCount = game.botReviewCount;
+                      final repGain = botCount < 3 ? 5 : (botCount < 6 ? 3 : 1);
+                      NotificationService.showSuccess(context, 'Sosyal medya ajansı 5 yıldızlı pozitif yorum yayınladı! • +$repGain İtibar');
                     } else {
-                      NotificationService.showError(context, 'Bakiye yetersiz! • Gereken: ${CurrencyFormatter.format(GameConstants.socialMediaPrCost)}');
+                      NotificationService.showError(context, 'Bakiye yetersiz! • Gereken: ${CurrencyFormatter.format(currentCost)}');
                     }
                   },
                 ),
+                if (game.botReviewCount > 0) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shield_outlined, size: 12, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Satın Alınan Bot: ${game.botReviewCount} • Spam Filtresi Nedeniyle Maliyet Katlanır',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
