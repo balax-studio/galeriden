@@ -254,6 +254,13 @@ mixin GameTimeMixin on GameBaseNotifier {
     } else if (state.unlockedBuildings.contains('property_tier_2')) {
       burn = 750.0;
     }
+
+    // Ek Gayrimenkul Tapu Bakım & Çevre Aidatları
+    final deedCount = state.ownedBranchDeeds.length;
+    if (deedCount > 0) {
+      burn += deedCount * 1250.0;
+    }
+
     return balance - burn;
   }
 
@@ -588,7 +595,8 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   double _processDailyTax(double balance) {
-    final tax = LoanSettlementEngine.calculateDailyTax(state.level);
+    final totalLiquid = state.balance + state.bankDepositBalance;
+    final tax = LoanSettlementEngine.calculateDailyTax(state.level, totalLiquidWealth: totalLiquid);
     return balance - tax;
   }
 

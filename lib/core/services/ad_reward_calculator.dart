@@ -40,22 +40,35 @@ class AdRewardCalculator {
     final random = Random();
 
     // 1. Dynamic base scaling based on player level and garage net worth
-    double baseAmount = 15000.0 + (playerLevel * 5000.0) + (totalGarageValue * 0.025);
+    double baseAmount = 5000.0 + (playerLevel * 2500.0) + (totalGarageValue * 0.015);
 
     if (targetCarPrice != null && targetCarPrice > 0) {
-      // If tied to a specific car context (e.g. black market / negotiation), factor 5% of car value
-      baseAmount = max(baseAmount, targetCarPrice * 0.05);
+      // If tied to a specific car context, factor 3% of car value
+      baseAmount = max(baseAmount, targetCarPrice * 0.03);
     }
 
-    // Hard clamps: minimum 15.000 TL, maximum 500.000 TL to protect game economy balance
-    baseAmount = baseAmount.clamp(15000.0, 500000.0);
+    // Dynamic level-gated clamps to protect early-game progression from instant skips
+    final double maxBaseCap;
+    final double maxJackpotCap;
+    if (playerLevel <= 3) {
+      maxBaseCap = 25000.0;
+      maxJackpotCap = 100000.0;
+    } else if (playerLevel <= 6) {
+      maxBaseCap = 60000.0;
+      maxJackpotCap = 250000.0;
+    } else {
+      maxBaseCap = 125000.0;
+      maxJackpotCap = 500000.0;
+    }
+
+    baseAmount = baseAmount.clamp(5000.0, maxBaseCap);
 
     // 2. Roll variable ratio outcome
     final roll = random.nextInt(100) + 1; // 1 to 100
 
     if (roll >= 98) {
       // 3% Legendary Jackpot
-      final total = baseAmount * 4.0;
+      final total = (baseAmount * 4.0).clamp(0.0, maxJackpotCap);
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.legendaryJackpot,
@@ -67,7 +80,7 @@ class AdRewardCalculator {
       );
     } else if (roll >= 81) {
       // 17% Double Luck
-      final total = baseAmount * 2.0;
+      final total = (baseAmount * 2.0).clamp(0.0, maxJackpotCap);
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.doubleLuck,

@@ -111,11 +111,11 @@ void main() {
     });
 
     test('3. Level 5+ XP curve requirement expands distance between levels', () {
-      expect(PlayerSkills.requiredXpForLevel(1), equals(1500));
-      expect(PlayerSkills.requiredXpForLevel(2), equals(4000));
-      expect(PlayerSkills.requiredXpForLevel(3), equals(9000));
-      expect(PlayerSkills.requiredXpForLevel(4), equals(18000));
-      expect(PlayerSkills.requiredXpForLevel(5), equals(32000));
+      expect(PlayerSkills.requiredXpForLevel(1), equals(3000));
+      expect(PlayerSkills.requiredXpForLevel(2), equals(7500));
+      expect(PlayerSkills.requiredXpForLevel(3), equals(15000));
+      expect(PlayerSkills.requiredXpForLevel(4), equals(28000));
+      expect(PlayerSkills.requiredXpForLevel(5), equals(48000));
 
       final xpLevel5 = PlayerSkills.requiredXpForLevel(5);
       final xpLevel6 = PlayerSkills.requiredXpForLevel(6);

@@ -185,11 +185,25 @@ class LoanSettlementEngine {
     return (currentBalance, updatedCars, updatedLoans, updatedDynasty, updatedEvents);
   }
 
-  /// Calculates progressive daily corporate tax based on dealership level.
-  static double calculateDailyTax(int dealershipLevel) {
-    if (dealershipLevel >= 9) return 3500.0;
-    if (dealershipLevel >= 6) return 1200.0;
-    if (dealershipLevel >= 3) return 450.0;
-    return 150.0;
+  /// Calculates progressive daily corporate tax based on dealership level and liquid wealth.
+  static double calculateDailyTax(int dealershipLevel, {double totalLiquidWealth = 0.0}) {
+    double baseTax;
+    if (dealershipLevel >= 9) {
+      baseTax = 5000.0;
+    } else if (dealershipLevel >= 6) {
+      baseTax = 2000.0;
+    } else if (dealershipLevel >= 3) {
+      baseTax = 750.0;
+    } else {
+      baseTax = 250.0;
+    }
+
+    // Dynamic wealth tax: 0.1% of liquid assets above ₺500.000, capped at max ₺150.000/day
+    double wealthTax = 0.0;
+    if (totalLiquidWealth > 500000.0) {
+      wealthTax = ((totalLiquidWealth - 500000.0) * 0.001).clamp(0.0, 150000.0);
+    }
+
+    return baseTax + wealthTax;
   }
 }

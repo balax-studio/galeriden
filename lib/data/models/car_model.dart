@@ -378,13 +378,13 @@ class CarModel {
       final stageFactor = 0.20 + (barnFindStage * 0.05); // 0.20 up to 0.45
       factor = factor.clamp(0.20, stageFactor);
     } else if (isBarnFind && isBarnFindRestored) {
-      factor += 0.40; // Restored classic gem
+      factor += 0.25; // Restored classic gem (calibrated)
       if (isBarnFindOriginalParts) {
-        factor += 0.25; // Numaratör Orijinal bonus (§4.3)
+        factor += 0.15; // Numaratör Orijinal bonus (§4.3)
       }
     }
 
-    return (baseMarketValue * factor).clamp(baseMarketValue * 0.2, baseMarketValue * 2.5);
+    return (baseMarketValue * factor).clamp(baseMarketValue * 0.2, baseMarketValue * 1.6);
   }
 
   Map<String, dynamic> toJson() {

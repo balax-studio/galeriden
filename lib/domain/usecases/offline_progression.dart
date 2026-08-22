@@ -38,8 +38,8 @@ class OfflineProgression {
     double totalPassiveEarned = 0.0;
     double totalExpenses = 0.0;
 
-    // 1. Calculate simulated days (4 offline minutes = 1 in-game day / §3.6)
-    final simulatedDays = (elapsedMinutes / 4).floor().clamp(1, 240);
+    // 1. Calculate simulated days (4 offline minutes = 1 in-game day, capped at max 7 days / §3.6)
+    final simulatedDays = (elapsedMinutes / 4).floor().clamp(1, 7);
 
     // 2. Property Daily Burn calculation
     double propertyDailyBurn = 300.0;
@@ -62,9 +62,9 @@ class OfflineProgression {
     // 3. Staff Salaries
     double totalDailySalaries = dealership.hiredStaff.fold(0.0, (sum, s) => sum + s.dailySalary);
 
-    // 4. Side businesses passive income with 60% offline baseline efficiency (§3.6)
-    // If offline > 8 hours (480 mins), economy cools down to 30% efficiency
-    final double passiveEfficiency = elapsedMinutes > 480 ? 0.30 : 0.60;
+    // 4. Side businesses passive income with balanced offline baseline efficiency (§3.6)
+    // If offline > 6 hours (360 mins), economy cools down to 35% efficiency
+    final double passiveEfficiency = elapsedMinutes > 360 ? 0.35 : 0.50;
 
     double totalDailyPassive = dealership.sideBusinesses
         .where((b) => b.isOwned)
@@ -77,7 +77,7 @@ class OfflineProgression {
           activeRentalsCount: dealership.activeRentals.length,
         )) * passiveEfficiency;
 
-    for (int day = 0; day < min(simulatedDays, 60); day++) {
+    for (int day = 0; day < simulatedDays; day++) {
       nextDay++;
       // Passive earnings
       newBalance += totalDailyPassive;

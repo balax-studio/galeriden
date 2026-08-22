@@ -34,7 +34,7 @@ void main() {
         totalGarageValue: 50000.0,
       );
 
-      expect(outcome.moneyAmount, greaterThanOrEqualTo(15000.0));
+      expect(outcome.moneyAmount, greaterThanOrEqualTo(5000.0));
       expect(outcome.multiplier, isIn([1.0, 2.0, 4.0]));
       expect(outcome.badgeText, isNotEmpty);
       expect(outcome.title, isNotEmpty);
@@ -51,9 +51,8 @@ void main() {
         totalGarageValue: 4000000.0,
       );
 
-      // Base: 15000 + 15*5000 (75000) + 4000000*0.025 (100000) = 190000 * multiplier (1x/2x/4x)
-      expect(outcome.moneyAmount, greaterThanOrEqualTo(190000.0));
-      expect(outcome.moneyAmount, lessThanOrEqualTo(500000.0 * 4.0));
+      expect(outcome.moneyAmount, greaterThanOrEqualTo(100000.0));
+      expect(outcome.moneyAmount, lessThanOrEqualTo(500000.0));
     });
 
     test('Respects maximum economic cap of 500.000 TL base', () {
@@ -62,7 +61,7 @@ void main() {
         totalGarageValue: 100000000.0,
       );
 
-      expect(outcome.moneyAmount, lessThanOrEqualTo(2000000.0)); // 500k base * 4.0 max jackpot
+      expect(outcome.moneyAmount, lessThanOrEqualTo(500000.0)); // 500k max jackpot
     });
   });
 }

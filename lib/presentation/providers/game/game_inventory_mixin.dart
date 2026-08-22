@@ -2025,6 +2025,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// 1. Sabah Siftahı & Kasa Duası Ritüeli (§5)
   bool performMorningSiftah() {
+    if (state.lastSiftahDay == state.currentDay) return false;
     const siftahCoin = 100.0;
     if (state.balance < siftahCoin) return false;
 
@@ -2035,6 +2036,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     state = state.copyWith(
       balance: state.balance + siftahCoin, // Siftah bereket getirir
       hiredStaff: updatedStaff,
+      lastSiftahDay: state.currentDay,
     );
     triggerOrganicOffers();
     addXP(25);
@@ -2270,7 +2272,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// 11. Hurdalıkta Kayıp Hazine Arama (§17)
   double? searchScrapForTreasures() {
-    const cost = 500.0;
+    final searchCount = (state.lastScrapyardSearchDay == state.currentDay) ? state.scrapyardSearchesToday : 0;
+    if (searchCount >= 3) return null;
+
+    final cost = state.nextScrapSearchCost.toDouble();
     if (state.balance < cost) return null;
 
     final roll = random.nextDouble();
@@ -2288,6 +2293,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     state = state.copyWith(
       balance: state.balance - cost + foundCash,
+      scrapyardSearchesToday: searchCount + 1,
+      lastScrapyardSearchDay: state.currentDay,
     );
 
     addXP(foundCash > 0 ? 25 : 10);
@@ -2411,6 +2418,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// 17. Ofis Reklam Desteği: Gurbetçi Dayı Zarf Fonu / Dinamik Esnaf Katkısı
   double claimOfficeAdGrant([double? customAmount]) {
+    if (state.lastOfficeGrantClaimDay == state.currentDay) return 0.0;
     final grantAmount = customAmount ?? 25000.0;
     state = state.copyWith(
       balance: state.balance + grantAmount,
@@ -2423,6 +2431,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// 18. Dinamik Akıllı Kanca (Smart Hook) Reklam Ödülü İnfazı
   bool executeSmartOfficeHook(SmartHookType hookType) {
+    if (state.lastSmartHookUsedDay == state.currentDay) return false;
     switch (hookType) {
       case SmartHookType.dirtyCarsWash:
         // Tüm garaj araçlarını yıka, cila çek ve detaylı temizle

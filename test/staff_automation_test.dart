@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/staff_model.dart';
+import 'package:galeriden/domain/usecases/loan_settlement_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -99,7 +100,10 @@ void main() {
     test('advanceGameDay deducts daily staff salaries and property overhead accurately', () {
       final startingBalance = gameNotifier.state.balance;
       final totalDailySalary = gameNotifier.state.hiredStaff.fold(0.0, (sum, s) => sum + s.role.dailySalary);
-      final dailyTax = gameNotifier.state.dailyTaxRate;
+      final dailyTax = LoanSettlementEngine.calculateDailyTax(
+        gameNotifier.state.level,
+        totalLiquidWealth: gameNotifier.state.balance + gameNotifier.state.bankDepositBalance,
+      );
 
       gameNotifier.advanceGameDay();
 

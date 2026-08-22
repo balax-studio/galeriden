@@ -37,9 +37,9 @@ void main() {
       expect(notifier.state.level, equals(1));
       expect(notifier.state.isFeatureUnlocked('/car-wash'), isFalse);
 
-      // Set 1500 XP (Crosses Level 1 threshold 1500 XP -> Level 2)
+      // Set 3000 XP (Crosses Level 1 threshold 3000 XP -> Level 2)
       notifier.state = notifier.state.copyWith(
-        skills: PlayerSkills(xp: 1500),
+        skills: PlayerSkills(xp: 3000),
         level: 2,
       );
       expect(notifier.state.level, equals(2));
@@ -73,9 +73,9 @@ void main() {
 
     test('Purchasing Level 3 Branch (Sanayi Sitesi) unlocks Workshop and Staff', () {
       final notifier = GameNotifier();
-      // Level 3 requires total 5500 XP (1500 + 4000)
+      // Level 3 requires total 10500 XP (3000 + 7500)
       notifier.state = notifier.state.copyWith(
-        skills: PlayerSkills(xp: 5500),
+        skills: PlayerSkills(xp: 10500),
         level: 3,
       );
       expect(notifier.state.level, equals(3));
@@ -93,18 +93,18 @@ void main() {
     });
 
     test('Calibrated XP curve adheres to non-grindy, psychologically balanced thresholds', () {
-      expect(PlayerSkills.requiredXpForLevel(1), equals(1500));
-      expect(PlayerSkills.requiredXpForLevel(2), equals(4000));
-      expect(PlayerSkills.requiredXpForLevel(3), equals(9000));
-      expect(PlayerSkills.requiredXpForLevel(4), equals(18000));
+      expect(PlayerSkills.requiredXpForLevel(1), equals(3000));
+      expect(PlayerSkills.requiredXpForLevel(2), equals(7500));
+      expect(PlayerSkills.requiredXpForLevel(3), equals(15000));
+      expect(PlayerSkills.requiredXpForLevel(4), equals(28000));
 
-      final skills = PlayerSkills(xp: 1500);
+      final skills = PlayerSkills(xp: 3000);
       expect(skills.currentLevel, equals(2));
 
-      final skillsLv3 = PlayerSkills(xp: 1500 + 4000);
+      final skillsLv3 = PlayerSkills(xp: 3000 + 7500);
       expect(skillsLv3.currentLevel, equals(3));
 
-      final skillsLv4 = PlayerSkills(xp: 1500 + 4000 + 9000);
+      final skillsLv4 = PlayerSkills(xp: 3000 + 7500 + 15000);
       expect(skillsLv4.currentLevel, equals(4));
     });
   });

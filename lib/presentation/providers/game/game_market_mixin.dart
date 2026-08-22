@@ -735,7 +735,9 @@ mixin GameMarketMixin on GameBaseNotifier {
       reputationScore: newReputation,
     );
 
-    addXP(100 + (profit > 0 ? (profit / 1000).round() : 0));
+    // Balanced logarithmic XP scaling soft-capped at 220 XP max per car sale (§1.3)
+    final int saleXp = 100 + (profit > 0 ? (35.0 * math.log(1.0 + profit / 5000.0)).round() : 0).clamp(0, 120);
+    addXP(saleXp.clamp(0, 220));
     checkAchievement('first_sale');
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarSell);
     updateMissionProgress(MissionType.sellCars, 1);

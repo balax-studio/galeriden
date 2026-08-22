@@ -102,10 +102,10 @@ void main() {
     });
 
     test('calculateDailyTax scales properly by level', () {
-      expect(LoanSettlementEngine.calculateDailyTax(1), equals(150.0));
-      expect(LoanSettlementEngine.calculateDailyTax(4), equals(450.0));
-      expect(LoanSettlementEngine.calculateDailyTax(7), equals(1200.0));
-      expect(LoanSettlementEngine.calculateDailyTax(10), equals(3500.0));
+      expect(LoanSettlementEngine.calculateDailyTax(1), equals(250.0));
+      expect(LoanSettlementEngine.calculateDailyTax(4), equals(750.0));
+      expect(LoanSettlementEngine.calculateDailyTax(7), equals(2000.0));
+      expect(LoanSettlementEngine.calculateDailyTax(10), equals(5000.0));
     });
   });
 
@@ -188,7 +188,7 @@ void main() {
       );
 
       expect(ipos.first.isListed, isTrue);
-      expect(newBal, equals(6500.0)); // 5000 + 1000 * 1.5 = 6500
+      expect(newBal, greaterThanOrEqualTo(5850.0)); // 5000 + 1000 * outcome multiplier
       expect(events.first.id, contains('ipo_listed_ipo_test_10'));
     });
   });

@@ -174,6 +174,11 @@ class DealershipModel {
   final int lastSmartHookUsedDay;
   final int officeSeed;
 
+  // Anti-Exploit & Denge Takip Alanları
+  final int lastSiftahDay;
+  final int scrapyardSearchesToday;
+  final int lastScrapyardSearchDay;
+
   // Mağaza Puanlama & Öneri Tek Seferlik Ödül Takibi
   final bool hasReceivedReviewReward;
 
@@ -191,6 +196,14 @@ class DealershipModel {
 
   bool get isOfficeGrantClaimedToday => lastOfficeGrantClaimDay >= currentDay;
   bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
+  bool get isSiftahDoneToday => lastSiftahDay >= currentDay;
+  int get remainingScrapSearchesToday => (lastScrapyardSearchDay == currentDay) ? (3 - scrapyardSearchesToday).clamp(0, 3) : 3;
+  int get nextScrapSearchCost {
+    final used = (lastScrapyardSearchDay == currentDay) ? scrapyardSearchesToday : 0;
+    if (used == 0) return 500;
+    if (used == 1) return 2500;
+    return 7500;
+  }
 
   double get totalDeedValue {
     double total = 0;
@@ -672,6 +685,9 @@ class DealershipModel {
     this.lastOfficeGrantClaimDay = 0,
     this.lastSmartHookUsedDay = 0,
     this.officeSeed = 0,
+    this.lastSiftahDay = 0,
+    this.scrapyardSearchesToday = 0,
+    this.lastScrapyardSearchDay = 0,
     this.hasReceivedReviewReward = false,
     this.ownedBranchDeeds = const {},
     this.activePrCampaign,
@@ -1073,6 +1089,9 @@ class DealershipModel {
       'lastOfficeGrantClaimDay': lastOfficeGrantClaimDay,
       'lastSmartHookUsedDay': lastSmartHookUsedDay,
       'officeSeed': officeSeed,
+      'lastSiftahDay': lastSiftahDay,
+      'scrapyardSearchesToday': scrapyardSearchesToday,
+      'lastScrapyardSearchDay': lastScrapyardSearchDay,
       'hasReceivedReviewReward': hasReceivedReviewReward,
     };
   }
@@ -1238,6 +1257,9 @@ class DealershipModel {
       lastOfficeGrantClaimDay: json['lastOfficeGrantClaimDay'] as int? ?? 0,
       lastSmartHookUsedDay: json['lastSmartHookUsedDay'] as int? ?? 0,
       officeSeed: json['officeSeed'] as int? ?? 0,
+      lastSiftahDay: json['lastSiftahDay'] as int? ?? 0,
+      scrapyardSearchesToday: json['scrapyardSearchesToday'] as int? ?? 0,
+      lastScrapyardSearchDay: json['lastScrapyardSearchDay'] as int? ?? 0,
       hasReceivedReviewReward: json['hasReceivedReviewReward'] as bool? ?? false,
     );
   }
@@ -1369,6 +1391,9 @@ class DealershipModel {
     int? lastOfficeGrantClaimDay,
     int? lastSmartHookUsedDay,
     int? officeSeed,
+    int? lastSiftahDay,
+    int? scrapyardSearchesToday,
+    int? lastScrapyardSearchDay,
     bool? hasReceivedReviewReward,
     Set<String>? ownedBranchDeeds,
     ActivePrCampaign? activePrCampaign,
@@ -1472,6 +1497,9 @@ class DealershipModel {
       lastOfficeGrantClaimDay: lastOfficeGrantClaimDay ?? this.lastOfficeGrantClaimDay,
       lastSmartHookUsedDay: lastSmartHookUsedDay ?? this.lastSmartHookUsedDay,
       officeSeed: officeSeed ?? this.officeSeed,
+      lastSiftahDay: lastSiftahDay ?? this.lastSiftahDay,
+      scrapyardSearchesToday: scrapyardSearchesToday ?? this.scrapyardSearchesToday,
+      lastScrapyardSearchDay: lastScrapyardSearchDay ?? this.lastScrapyardSearchDay,
       hasReceivedReviewReward: hasReceivedReviewReward ?? this.hasReceivedReviewReward,
       ownedBranchDeeds: ownedBranchDeeds ?? this.ownedBranchDeeds,
       activePrCampaign: clearActivePrCampaign ? null : (activePrCampaign ?? this.activePrCampaign),

@@ -130,16 +130,47 @@ class StockMarketEngine {
 
         final playerReq = findFirstWhere(updatedRequests, (r) => r.ipoId == ipo.id);
         if (playerReq != null) {
-          final double payout = playerReq.totalSpent * ipo.listingMultiplier;
-          final double profit = payout - playerReq.totalSpent;
-          currentBalance += payout;
+          final rand = Random(nextDay * 7919 + ipo.id.hashCode);
+          final outcomeRoll = rand.nextDouble();
+          double outcomeMultiplier;
+          String outcomeTitle;
+          String outcomeDesc;
+          GameEventType eventType;
+
+          if (outcomeRoll < 0.80) {
+            // %80 Tavan Serisi / Başarılı Lansman (1.15x - 1.45x)
+            outcomeMultiplier = 1.15 + rand.nextDouble() * (ipo.listingMultiplier.clamp(1.20, 1.45) - 1.15);
+            final payout = playerReq.totalSpent * outcomeMultiplier;
+            final profit = payout - playerReq.totalSpent;
+            outcomeTitle = '${ipo.companyName} • ${ipo.symbol} Borsada Tavan Açtı!';
+            outcomeDesc = '${ipo.symbol} halka arzında tavan serisi gerçekleşti! ₺${playerReq.totalSpent.round()} yatırımın ₺${payout.round()} oldu • +₺${profit.round()} kâr.';
+            eventType = GameEventType.income;
+            currentBalance += payout;
+          } else if (outcomeRoll < 0.92) {
+            // %12 Durgun / Nötr Açılış (1.0x)
+            outcomeMultiplier = 1.0;
+            final payout = playerReq.totalSpent;
+            outcomeTitle = '${ipo.companyName} • ${ipo.symbol} Halka Arzı Sabit Fiyatla Açıldı';
+            outcomeDesc = '${ipo.symbol} tahtası arz fiyatından dengelendi. ₺${playerReq.totalSpent.round()} anaparanız eksiksiz iade edildi.';
+            eventType = GameEventType.neutral;
+            currentBalance += payout;
+          } else {
+            // %8 Düşük Talep / İskontolu Açılış (0.85x - 0.95x)
+            outcomeMultiplier = 0.85 + (rand.nextDouble() * 0.10);
+            final payout = playerReq.totalSpent * outcomeMultiplier;
+            final loss = playerReq.totalSpent - payout;
+            outcomeTitle = '${ipo.companyName} • ${ipo.symbol} İskontolu Açılış Yaptı';
+            outcomeDesc = '${ipo.symbol} tahtası genel piyasa düşüşüyle arz fiyatının altında açıldı. ₺${payout.round()} tahsil edildi • -₺${loss.round()} zarar.';
+            eventType = GameEventType.expense;
+            currentBalance += payout;
+          }
 
           updatedEvents.insert(0, GameEventModel(
             id: 'ipo_listed_${ipo.id}_$nextDay',
-            title: '${ipo.companyName} • ${ipo.symbol} Borsada Tavan Açtı!',
-            description: '${ipo.symbol} halka arzında tavan serisi gerçekleşti! ₺${playerReq.totalSpent.round()} yatırımın ₺${payout.round()} oldu • +₺${profit.round()} kâr.',
-            type: GameEventType.income,
-            amount: payout,
+            title: outcomeTitle,
+            description: outcomeDesc,
+            type: eventType,
+            amount: playerReq.totalSpent * outcomeMultiplier,
             date: DateTime.now(),
           ));
         }

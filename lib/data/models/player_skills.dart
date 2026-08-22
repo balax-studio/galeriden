@@ -21,17 +21,17 @@ class PlayerSkills {
 
   /// Calibrated progression: Level 1-3 smooth early win curve, then progressive scaling to prevent XP exploits
   static int requiredXpForLevel(int level) {
-    if (level <= 1) return 1500;
-    if (level == 2) return 4000;
-    if (level == 3) return 9000;
-    if (level == 4) return 18000;
-    if (level == 5) return 32000;
-    if (level == 6) return 55000;
-    if (level == 7) return 90000;
-    if (level == 8) return 145000;
-    if (level == 9) return 230000;
-    if (level == 10) return 360000;
-    return (360000 * pow(1.55, level - 10)).round();
+    if (level <= 1) return 3000;
+    if (level == 2) return 7500;
+    if (level == 3) return 15000;
+    if (level == 4) return 28000;
+    if (level == 5) return 48000;
+    if (level == 6) return 78000;
+    if (level == 7) return 125000;
+    if (level == 8) return 195000;
+    if (level == 9) return 300000;
+    if (level == 10) return 450000;
+    return (450000 * pow(1.55, level - 10)).round();
   }
 
   /// Calculates level based on accumulated total XP
