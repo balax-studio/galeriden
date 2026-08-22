@@ -105,7 +105,7 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('GameHudHeaderWidget renders all status pills and Garaj pill sets tab to 1', (tester) async {
+    testWidgets('GameHudHeaderWidget renders all status pills and opens modals on tap', (tester) async {
       final container = ProviderContainer();
 
       await tester.pumpWidget(
@@ -139,13 +139,6 @@ void main() {
       expect(find.textContaining('GARAJ'), findsOneWidget);
       expect(find.textContaining('İTİBAR'), findsOneWidget);
       expect(find.textContaining('GÖREV'), findsOneWidget);
-
-      // Tap Garaj pill
-      await tester.tap(find.textContaining('GARAJ'));
-      await tester.pumpAndSettle();
-
-      // Garaj switches tab to 1 (Showroom)
-      expect(container.read(dashboardTabProvider), equals(1));
 
       // Tap Görev pill to open daily missions modal
       await tester.ensureVisible(find.textContaining('GÖREV'));

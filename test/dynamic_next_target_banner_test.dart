@@ -39,8 +39,6 @@ void main() {
     await tester.pump();
 
     // Verify unlocked core services exist
-    expect(find.text('Araç Satın Al'), findsOneWidget);
-    expect(find.text('Showroom & Galerim'), findsOneWidget);
     expect(find.text('Şube Yönetimi'), findsOneWidget);
 
     // Verify 'SIRADAKİ HEDEF' badge is rendered

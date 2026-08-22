@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
-import '../../../providers/market_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
@@ -60,28 +59,11 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = palette.isDark;
-    final marketListings = ref.watch(marketProvider);
     final pendingOrdersCount = game.pendingOrders.length;
 
     // Full Service Modules List ordered by progression level
     final allServices = [
       // Level 1: Core Dealership
-      _ServiceItem(
-        icon: Icons.directions_car_filled_rounded,
-        title: context.tr('service_buy_car'),
-        subtitle: context.tr('service_buy_car_sub'),
-        badge: '${marketListings.length}',
-        color: const Color(0xFF3B82F6),
-        route: '/marketplace',
-      ),
-      _ServiceItem(
-        icon: Icons.storefront_rounded,
-        title: context.tr('service_showroom'),
-        subtitle: context.tr('service_showroom_sub'),
-        badge: '${game.ownedCars.length}/${game.maxGarageSlots}',
-        color: const Color(0xFFFFDE59),
-        route: '/showroom',
-      ),
       _ServiceItem(
         icon: Icons.local_car_wash_rounded,
         title: context.tr('service_car_wash'),

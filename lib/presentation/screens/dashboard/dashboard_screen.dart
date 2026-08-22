@@ -20,7 +20,6 @@ import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/daily_login_sheet.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
 import '../auction/auction_screen.dart';
-import '../showroom/showroom_screen.dart';
 import 'widgets/dashboard_banners.dart';
 import 'widgets/dashboard_missions_section.dart';
 import 'widgets/dashboard_office_view.dart';
@@ -168,19 +167,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           // Tab 0: Sahibinden Style Neo-Brutal Monolithic Dashboard
                           _buildHomeDashboard(context, game, p),
 
-                          // Tab 1: Showroom (Galerim)
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 78),
-                            child: ShowroomScreen(),
-                          ),
-
-                          // Tab 2: Canlı İhale
+                          // Tab 1: Canlı İhale
                           const Padding(
                             padding: EdgeInsets.only(bottom: 78),
                             child: AuctionScreen(),
                           ),
 
-                          // Tab 3: Ofis & İstatistikler
+                          // Tab 2: Ofis & İstatistikler
                           Padding(
                             padding: const EdgeInsets.only(bottom: 78),
                             child: DashboardOfficeView(game: game, palette: p),
@@ -204,7 +197,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     onTap: (index) => ref.read(dashboardTabProvider.notifier).state = index,
                     items: [
                       FloatingDockItem(icon: Icons.dashboard_rounded, label: context.tr('nav_home')),
-                      FloatingDockItem(icon: Icons.storefront_rounded, label: context.tr('nav_showroom')),
                       FloatingDockItem(icon: Icons.gavel_rounded, label: context.tr('nav_auction')),
                       FloatingDockItem(icon: Icons.business_center_rounded, label: context.tr('nav_office')),
                     ],
@@ -240,7 +232,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (game.carsSold == 0) ...[
           DashboardFirstDayQuestBanner(
             game: game,
-            onGoToShowroom: () => ref.read(dashboardTabProvider.notifier).state = 1,
+            onGoToShowroom: () => context.push('/showroom'),
           ),
           const SizedBox(height: 12),
         ] else ...[
@@ -248,7 +240,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           DashboardAdvisorGuidanceBanner(
             game: game,
             palette: p,
-            onGoToShowroom: () => ref.read(dashboardTabProvider.notifier).state = 1,
+            onGoToShowroom: () => context.push('/showroom'),
           ),
           const SizedBox(height: 12),
         ],
@@ -279,19 +271,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         const SizedBox(height: 10),
         DashboardServicesGrid(game: game, palette: p),
-        const SizedBox(height: 18),
-
-        // 4. "Günün Vitrin İlanları" (Sahibinden.com Vitrin Bölümü)
-        _buildSectionHeader(
-          title: context.tr('section_vitrin'),
-          subtitle: context.tr('section_vitrin_sub'),
-          actionText: context.tr('see_all'),
-          onActionTap: () => context.push('/marketplace'),
-          isDark: isDark,
-          p: p,
-        ),
-        const SizedBox(height: 10),
-        DashboardMarketplaceVitrinList(game: game, palette: p),
         const SizedBox(height: 18),
 
         // 5. Piyasa Trendi & Otomotiv Bülteni (Monolithic Market Pulse)

@@ -9,7 +9,6 @@ import '../../core/theme/app_typography.dart';
 import '../../data/models/dealership_model.dart';
 import '../../data/models/weather_model.dart';
 import '../../data/models/theme_palette_model.dart';
-import '../providers/dashboard_provider.dart';
 import '../providers/game_provider.dart';
 import '../screens/dashboard/widgets/dashboard_missions_section.dart';
 import 'animated_rolling_counter.dart';
@@ -132,24 +131,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
               value: '${game.ownedCars.length}/${game.maxGarageSlots}',
               onTap: () {
                 HapticFeedback.lightImpact();
-                ref.read(dashboardTabProvider.notifier).state = 1;
-                bool popped = false;
-                try {
-                  if (context.canPop()) {
-                    context.pop();
-                    popped = true;
-                  }
-                } catch (_) {
-                  if (Navigator.of(context).canPop()) {
-                    Navigator.of(context).pop();
-                    popped = true;
-                  }
-                }
-                if (!popped) {
-                  try {
-                    context.go('/dashboard');
-                  } catch (_) {}
-                }
+                context.push('/showroom');
               },
               isDark: isDark,
             ),
