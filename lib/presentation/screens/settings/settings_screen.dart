@@ -235,7 +235,7 @@ class SettingsScreen extends ConsumerWidget {
                   onPressed: () {
                     AdService.instance.showRewardedAdWithFallback(
                       context: context,
-                      customRewardTitle: '₺25.000 Sponsor Ödülü',
+                      customRewardTitle: context.tr('sponsor_reward_title'),
                       onRewardEarned: () {
                         ref.read(gameProvider.notifier).claimAdReward(25000.0);
                         NotificationService.showSuccess(context, context.tr('sponsor_reward_success'));
@@ -299,7 +299,7 @@ class SettingsScreen extends ConsumerWidget {
                       if (success) {
                         NotificationService.showSuccess(
                           context,
-                          'Harika! Desteğiniz için teşekkür ederiz. ₺100.000 ve +100 XP kasanıza eklendi!',
+                          context.tr('support_reward_success_toast'),
                         );
                       }
                       try {
@@ -415,12 +415,12 @@ class SettingsScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.bolt_rounded, color: Color(0xFF8B5CF6), size: 20),
-                          SizedBox(width: 6),
+                          const Icon(Icons.bolt_rounded, color: Color(0xFF8B5CF6), size: 20),
+                          const SizedBox(width: 6),
                           Text(
-                            'GELİŞTİRİCİ PANELİ • GOD MODE',
+                            context.tr('settings_dev_panel_title'),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
@@ -430,7 +430,7 @@ class SettingsScreen extends ConsumerWidget {
                         ],
                       ),
                       NeoBrutalBadge(
-                        text: 'DEV TEST',
+                        text: context.tr('settings_dev_test_badge'),
                         backgroundColor: const Color(0xFF8B5CF6),
                         textColor: Colors.white,
                         fontSize: 9.5,
@@ -439,8 +439,8 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Hızlı mekanik doğrulaması ve tüm mülk/modül testleri için tek tıkla sermaye ve seviye hilesi uygula.',
+                  Text(
+                    context.tr('settings_dev_panel_desc'),
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 12),
@@ -448,7 +448,7 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: NeoBrutalButton(
-                          label: '+₺100.000.000',
+                          label: context.tr('settings_dev_add_funds'),
                           icon: Icons.attach_money_rounded,
                           backgroundColor: const Color(0xFF10B981),
                           textColor: Colors.black,
@@ -456,14 +456,14 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).addCheatFunds(100000000.0);
-                            NotificationService.showSuccess(context, '₺100.000.000 Hile Sermayesi Eklendi!');
+                            NotificationService.showSuccess(context, context.tr('settings_dev_funds_added'));
                           },
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: NeoBrutalButton(
-                          label: 'SEVİYE 8 & FULL AÇ',
+                          label: context.tr('settings_dev_max_level'),
                           icon: Icons.workspace_premium_rounded,
                           backgroundColor: const Color(0xFF8B5CF6),
                           textColor: Colors.white,
@@ -471,7 +471,7 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).unlockAllPropertiesAndMaxLevel();
-                            NotificationService.showSuccess(context, 'Seviye 8 Mega Otomotiv Holding Plazası ve Tüm Özellikler Açıldı!');
+                            NotificationService.showSuccess(context, context.tr('settings_dev_unlocked_all'));
                           },
                         ),
                       ),
@@ -482,7 +482,7 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: NeoBrutalButton(
-                          label: 'SEVİYE 4 BUTİK GALERİ AÇ',
+                          label: context.tr('settings_dev_level_4'),
                           icon: Icons.storefront_rounded,
                           backgroundColor: const Color(0xFF38BDF8),
                           textColor: Colors.black,
@@ -490,14 +490,14 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).setLevel(4);
-                            NotificationService.showSuccess(context, 'Seviye 4 Butik Galeri & Tuning Stüdyosu Açıldı!');
+                            NotificationService.showSuccess(context, context.tr('settings_dev_level_4_unlocked'));
                           },
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: NeoBrutalButton(
-                          label: 'GARAJI TEMİZLE',
+                          label: context.tr('settings_dev_clear_garage'),
                           icon: Icons.cleaning_services_rounded,
                           backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                           textColor: isDark ? Colors.white70 : const Color(0xFF334155),
@@ -505,7 +505,7 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).clearGarage();
-                            NotificationService.showInfo(context, 'Garaj temizlendi.');
+                            NotificationService.showInfo(context, context.tr('settings_dev_garage_cleared'));
                           },
                         ),
                       ),
@@ -562,7 +562,7 @@ class SettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('SOY VE MİRAS GEÇMİŞİ:', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                        Text(context.tr('dynasty_history_title'), style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                         const SizedBox(height: 4),
                         ...game.dynastyHistoryLog.reversed.take(3).map((log) => Text('• $log', style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700))),
                       ],

@@ -1,3 +1,4 @@
+import '../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,7 +29,15 @@ class DailyBulletinDialog extends ConsumerWidget {
     final isDark = p.isDark;
 
     final weeklyEvent = WeeklyEventEngine.getEventForDay(game.currentDay);
-    final dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+    final dayNames = [
+      context.tr('day_monday'),
+      context.tr('day_tuesday'),
+      context.tr('day_wednesday'),
+      context.tr('day_thursday'),
+      context.tr('day_friday'),
+      context.tr('day_saturday'),
+      context.tr('day_sunday'),
+    ];
     final currentDayName = dayNames[(weeklyEvent.dayOfWeek - 1).clamp(0, 6)];
     final season = WeeklyEventEngine.getCurrentSeasonName(game.currentDay);
 
@@ -62,7 +71,7 @@ class DailyBulletinDialog extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'GÜN ${game.currentDay}',
+                        context.tr('bulletin_day_header', {'day': game.currentDay}),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -70,7 +79,7 @@ class DailyBulletinDialog extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        'SAYI #1453',
+                        context.tr('bulletin_issue_number'),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -80,8 +89,8 @@ class DailyBulletinDialog extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'OTO SANAYİ GÜNLÜK BÜLTENİ',
+                  Text(
+                    context.tr('bulletin_masthead_title'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
@@ -91,7 +100,7 @@ class DailyBulletinDialog extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '$currentDayName • Mevsim: $season',
+                    context.tr('bulletin_season_info', {'day': currentDayName, 'season': season}),
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
@@ -130,7 +139,7 @@ class DailyBulletinDialog extends ConsumerWidget {
                         ],
                       ),
                       NeoBrutalBadge(
-                        text: 'GÜNÜN MANŞETİ',
+                        text: context.tr('bulletin_headline_badge'),
                         backgroundColor: const Color(0xFFFFDE59),
                         textColor: Colors.black,
                         fontSize: 9,
@@ -168,8 +177,8 @@ class DailyBulletinDialog extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Kasa Durumu',
+                        Text(
+                          context.tr('bulletin_vault_status'),
                           style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
                         ),
                         Text(
@@ -195,12 +204,12 @@ class DailyBulletinDialog extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Esnaf İtibarı',
+                        Text(
+                          context.tr('bulletin_reputation_status'),
                           style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
                         ),
                         Text(
-                          '${game.reputation} Puan',
+                          context.tr('bulletin_reputation_pts', {'score': game.reputation}),
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
                         ),
                       ],
@@ -213,7 +222,7 @@ class DailyBulletinDialog extends ConsumerWidget {
 
             // Close & Start Day Button
             NeoBrutalButton(
-              label: 'BÜLTENİ KAPAT VE GÜNE BAŞLA',
+              label: context.tr('bulletin_close_btn'),
               icon: Icons.check_circle_rounded,
               backgroundColor: const Color(0xFF00E575),
               textColor: Colors.black,

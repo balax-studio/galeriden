@@ -133,13 +133,13 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
           side: const BorderSide(color: AppColors.brutalOrange, width: 2.8),
         ),
         title: Row(
-          children: const [
-            Icon(Icons.warning_amber_rounded, color: AppColors.brutalOrange, size: 24),
-            SizedBox(width: 8),
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: AppColors.brutalOrange, size: 24),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'DİKKAT • AŞIRI MODİFİYE',
-                style: TextStyle(
+                context.tr('tuning_overtuned_dialog_title'),
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
@@ -151,21 +151,21 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
-              'Bu araç artık aşırı modifiyeli statüsüne ulaştı! Standart aile, memur ve filo müşterileri bu aracı tercih etmeyebilir.',
-              style: TextStyle(fontSize: 12.5, color: Color(0xFFFED7AA)),
+              context.tr('tuning_overtuned_dialog_desc'),
+              style: const TextStyle(fontSize: 12.5, color: Color(0xFFFED7AA)),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Gelen teklifler ağırlıklı olarak genç ve modifiye tutkunu kitleye kayacaktır. Pazar teklif sıklığı %30-40 düşebilir.',
-              style: TextStyle(fontSize: 11.5, color: Color(0xFFCBD5E1), fontStyle: FontStyle.italic),
+              context.tr('tuning_overtuned_dialog_sub'),
+              style: const TextStyle(fontSize: 11.5, color: Color(0xFFCBD5E1), fontStyle: FontStyle.italic),
             ),
           ],
         ),
         actions: [
           NeoBrutalButton(
-            label: 'ANLADIM • DEVAM ET',
+            label: context.tr('tuning_overtuned_dialog_btn'),
             backgroundColor: AppColors.brutalOrange,
             textColor: Colors.black,
             onPressed: () => Navigator.pop(ctx),
@@ -229,12 +229,12 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     final dyno = _selectedCar != null ? CarDynoCalculator.calculateDyno(_selectedCar!) : null;
 
     final tabs = [
-      (label: 'TÜMÜ • ${TuningCatalog.allOptions.length}', icon: Icons.tune_rounded),
-      (label: 'MOTOR', icon: Icons.speed_rounded),
-      (label: 'AERO', icon: Icons.palette_rounded),
-      (label: 'YÜRÜYEN', icon: Icons.directions_car_rounded),
-      (label: 'EGZOZ', icon: Icons.volume_up_rounded),
-      (label: 'PAKETLER', icon: Icons.inventory_2_rounded),
+      (label: context.tr('tuning_tab_all', {'count': TuningCatalog.allOptions.length.toString()}), icon: Icons.tune_rounded),
+      (label: context.tr('tuning_tab_motor'), icon: Icons.speed_rounded),
+      (label: context.tr('tuning_tab_aero'), icon: Icons.palette_rounded),
+      (label: context.tr('tuning_tab_stance'), icon: Icons.directions_car_rounded),
+      (label: context.tr('tuning_tab_exhaust'), icon: Icons.volume_up_rounded),
+      (label: context.tr('tuning_tab_packages'), icon: Icons.inventory_2_rounded),
     ];
 
     List<TuningOptionModel> visibleOptions;
@@ -285,18 +285,18 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   child: const Icon(Icons.speed_rounded, color: Colors.black, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'VIP PERFORMANS & MODİFİYE ATÖLYESİ',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                        context.tr('tuning_screen_title'),
+                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        'Stage yazılımlar, aero bodykit ve egzoz sistemleri ile araçlarınızı pist canavarına dönüştürün.',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        context.tr('tuning_screen_subtitle'),
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -308,7 +308,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
           // 2. Car Selector
           Text(
-            'MODİFİYE EDİLECEK ARACI SEÇ',
+            context.tr('tuning_select_car'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -324,10 +324,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Garajında tuning uygulayabileceğin araç yok!',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                  context.tr('tuning_no_cars'),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                 ),
               ),
             )
@@ -406,7 +406,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           const Icon(Icons.speed_rounded, color: AppColors.brutalGreen, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            'DYNO GÜÇ KARNESİ • ${_selectedCar!.brand}',
+                            context.tr('tuning_dyno_card_title', {'brand': _selectedCar!.brand}),
                             style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900),
                           ),
                         ],
@@ -415,14 +415,14 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         spacing: 4,
                         children: [
                           if (_selectedCar!.isOverTuned)
-                            const NeoBrutalBadge(
-                              text: 'AŞIRI MODİFİYE • GENÇ KİTLE',
+                            NeoBrutalBadge(
+                              text: context.tr('tuning_overtuned_badge'),
                               backgroundColor: AppColors.brutalOrange,
                               textColor: Colors.black,
                               fontSize: 9.0,
                             ),
                           NeoBrutalBadge(
-                            text: dyno.isInspectionCompliant ? 'TÜVTÜRK UYGUN' : 'MUAYENEDEN GEÇMEZ',
+                            text: dyno.isInspectionCompliant ? context.tr('tuning_tuvturk_ok') : context.tr('tuning_tuvturk_fail'),
                             backgroundColor: dyno.isInspectionCompliant ? AppColors.brutalGreen : AppColors.errorRed,
                             textColor: dyno.isInspectionCompliant ? Colors.black : Colors.white,
                             fontSize: 9.0,
@@ -434,13 +434,13 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(child: _buildMetricTile('GÜÇ', '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen, isDark)),
+                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_power'), '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen, isDark)),
                       const SizedBox(width: 6),
-                      Expanded(child: _buildMetricTile('TORK', '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange, isDark)),
+                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_torque'), '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange, isDark)),
                       const SizedBox(width: 6),
-                      Expanded(child: _buildMetricTile('0-100', '${dyno.currentAccel}s', '${dyno.baseAccel}s idi', const Color(0xFF06B6D4), isDark)),
+                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_accel'), '${dyno.currentAccel}s', context.tr('tuning_metric_was', {'accel': dyno.baseAccel.toString()}), const Color(0xFF06B6D4), isDark)),
                       const SizedBox(width: 6),
-                      Expanded(child: _buildMetricTile('DESİBEL', '${dyno.exhaustDb} dB', '%${dyno.tuningRating} Skor', const Color(0xFFA855F7), isDark)),
+                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_sound'), '${dyno.exhaustDb} dB', context.tr('tuning_metric_score', {'score': dyno.tuningRating.toString()}), const Color(0xFFA855F7), isDark)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -449,7 +449,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                       Expanded(
                         child: NeoBrutalButton(
                           icon: _dynoTestedCarIds.contains(_selectedCar!.id) ? Icons.check_circle_rounded : Icons.speed_rounded,
-                          label: _dynoTestedCarIds.contains(_selectedCar!.id) ? 'DYNO TAMAM' : 'DYNO TESTİ',
+                          label: _dynoTestedCarIds.contains(_selectedCar!.id) ? context.tr('tuning_btn_dyno_done') : context.tr('tuning_btn_dyno_test'),
                           backgroundColor: _dynoTestedCarIds.contains(_selectedCar!.id) ? const Color(0xFF1E293B) : AppColors.brutalYellow,
                           textColor: _dynoTestedCarIds.contains(_selectedCar!.id) ? Colors.white54 : Colors.black,
                           fontSize: 11,
@@ -461,7 +461,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                       Expanded(
                         child: NeoBrutalButton(
                           icon: _timedCalibratedCarIds.contains(_selectedCar!.id) ? Icons.check_circle_rounded : Icons.build_circle_rounded,
-                          label: _timedCalibratedCarIds.contains(_selectedCar!.id) ? 'SENTE TAMAM' : 'SENTE AYARI',
+                          label: _timedCalibratedCarIds.contains(_selectedCar!.id) ? context.tr('tuning_btn_timing_done') : context.tr('tuning_btn_timing_adjust'),
                           backgroundColor: _timedCalibratedCarIds.contains(_selectedCar!.id) ? const Color(0xFF1E293B) : AppColors.brutalOrange,
                           textColor: _timedCalibratedCarIds.contains(_selectedCar!.id) ? Colors.white54 : Colors.black,
                           fontSize: 11,
@@ -474,7 +474,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.shield_rounded,
-                            label: 'RUHSATA İŞLET',
+                            label: context.tr('tuning_btn_legal_project'),
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 10.5,
@@ -561,7 +561,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           children: [
                             Text(preset.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
                             NeoBrutalBadge(
-                              text: allApplied ? 'UYGULANDI' : '%15 İNDİRİMLİ',
+                              text: allApplied ? context.tr('tuning_badge_applied') : context.tr('tuning_badge_discount'),
                               backgroundColor: allApplied ? AppColors.brutalGreen : AppColors.brutalYellow,
                               textColor: Colors.black,
                               fontSize: 10,
@@ -593,7 +593,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                               ],
                             ),
                             NeoBrutalButton(
-                              label: allApplied ? 'PAKET AKTİF' : 'PAKETİ UYGULA',
+                              label: allApplied ? context.tr('tuning_btn_pkg_active') : context.tr('tuning_btn_apply_pkg'),
                               icon: allApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
                               backgroundColor: allApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
                               textColor: allApplied ? Colors.grey : Colors.black,
@@ -651,17 +651,17 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 if (isApplied)
-                                  const Padding(
-                                    padding: EdgeInsets.only(right: 6),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6),
                                     child: NeoBrutalBadge(
-                                      text: 'UYGULANDI',
+                                      text: context.tr('tuning_badge_applied'),
                                       backgroundColor: AppColors.brutalGreen,
                                       textColor: Colors.black,
                                       fontSize: 9.5,
                                     ),
                                   ),
                                 NeoBrutalBadge(
-                                  text: '+%${((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)} Değer',
+                                  text: context.tr('tuning_badge_val_gain', {'percent': ((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)}),
                                   backgroundColor: AppColors.brutalYellow,
                                   textColor: Colors.black,
                                   fontSize: 9.5,
@@ -711,9 +711,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                                 fontSize: 9.5,
                               ),
                             if (!opt.isLegalWithoutProject)
-                              const NeoBrutalBadge(
+                              NeoBrutalBadge(
                                 icon: Icons.warning_amber_rounded,
-                                text: 'Ruhsat Onayı Gerekir',
+                                text: context.tr('tuning_badge_legal_req'),
                                 backgroundColor: AppColors.errorRed,
                                 textColor: Colors.white,
                                 fontSize: 9.5,
@@ -726,7 +726,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              isApplied ? 'TAMAMLANDI' : CurrencyFormatter.formatShort(opt.cost),
+                              isApplied ? context.tr('tuning_btn_done') : CurrencyFormatter.formatShort(opt.cost),
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w900,
@@ -734,7 +734,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                               ),
                             ),
                             NeoBrutalButton(
-                              label: isApplied ? 'UYGULANDI' : 'UYGULA',
+                              label: isApplied ? context.tr('tuning_btn_applied') : context.tr('tuning_btn_apply'),
                               icon: isApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
                               backgroundColor: isApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : opt.color,
                               textColor: isApplied ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,

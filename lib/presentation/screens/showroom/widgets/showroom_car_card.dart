@@ -264,19 +264,19 @@ class ShowroomCarCard extends ConsumerWidget {
                           builder: (context) {
                             final bool isDoped = car.isDoped;
                             return InkWell(
-                              onTap: isDoped
+                                onTap: isDoped
                                   ? null
                                   : () {
                                       final success = ref.read(gameProvider.notifier).boostListingDoping(car.id);
                                       if (success) {
                                         NotificationService.showSuccess(
                                           context,
-                                          '${car.brand} ${car.modelName} sosyal medyada öne çıkarıldı!',
+                                          context.tr('boost_social_success', {'car': '${car.brand} ${car.modelName}'}),
                                         );
                                       } else {
                                         NotificationService.showInfo(
                                           context,
-                                          'İlan sosyal medyada zaten paylaşıldı!',
+                                          context.tr('boost_social_already'),
                                         );
                                       }
                                     },
@@ -334,7 +334,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                       ref.read(gameProvider.notifier).updateCarListingPrice(car.id, discountedPrice);
                                       NotificationService.showSuccess(
                                         context,
-                                        'Fiyat ${CurrencyFormatter.formatShort(discountedPrice)} seviyesine çekildi! Müşteriler hızlandı.',
+                                        context.tr('cut_price_success', {'price': CurrencyFormatter.formatShort(discountedPrice)}),
                                       );
                                     },
                               borderRadius: BorderRadius.circular(6),
@@ -380,7 +380,7 @@ class ShowroomCarCard extends ConsumerWidget {
                             ref.read(gameProvider.notifier).triggerOrganicOffers();
                             NotificationService.showSuccess(
                               context,
-                              'İlan ${game.dealershipName} sosyal medya hesaplarında paylaşıldı! Yeni ziyaretçiler akın ediyor.',
+                              context.tr('share_social_success', {'name': game.dealershipName}),
                             );
                           },
                           borderRadius: BorderRadius.circular(6),
@@ -474,7 +474,7 @@ class ShowroomCarCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Motor: %${car.expertise.engineCondition.round()}',
+                        '${context.tr('engine_condition')}: %${car.expertise.engineCondition.round()}',
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
@@ -724,13 +724,13 @@ class ShowroomCarCard extends ConsumerWidget {
                     onPressed: car.isDoped
                         ? () => NotificationService.showError(
                             context,
-                            'Bu araç için doping hakkı zaten kullanıldı!',
+                            context.tr('doping_already_used'),
                           )
                         : () {
                             if (!car.isListed) {
                               NotificationService.showError(
                                 context,
-                                'Araç ilana konulmadan doping yapılamaz!',
+                                context.tr('doping_not_listed'),
                               );
                               return;
                             }
@@ -740,7 +740,7 @@ class ShowroomCarCard extends ConsumerWidget {
                             if (activeOffersCount >= 3) {
                               NotificationService.showError(
                                 context,
-                                'Aracın maksimum teklif sınırına • 3/3 ulaşıldı!',
+                                context.tr('doping_max_offers'),
                               );
                               return;
                             }
@@ -748,12 +748,17 @@ class ShowroomCarCard extends ConsumerWidget {
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '${car.brand} ${car.modelName} için ${CurrencyFormatter.format(GameConstants.dopingCost)} Doping Uygulandı!',
+                                context.tr('doping_success_toast', {
+                                  'car': '${car.brand} ${car.modelName}',
+                                  'cost': CurrencyFormatter.format(GameConstants.dopingCost),
+                                }),
                               );
                             } else {
                               NotificationService.showError(
                                 context,
-                                'Doping için bakiyeniz yetersiz • ${CurrencyFormatter.format(GameConstants.dopingCost)} gereklidir.',
+                                context.tr('doping_insufficient_funds', {
+                                  'cost': CurrencyFormatter.format(GameConstants.dopingCost),
+                                }),
                               );
                             }
                           },
@@ -776,12 +781,12 @@ class ShowroomCarCard extends ConsumerWidget {
                   if (ok) {
                     NotificationService.showSuccess(
                       context,
-                      '${car.brand} ${car.modelName} ilanı güncellendi ve tekrar en tepeye taşındı!',
+                      context.tr('stale_refresh_success', {'car': '${car.brand} ${car.modelName}'}),
                     );
                   } else {
                     NotificationService.showError(
                       context,
-                      'İlanı yenilemek için ${CurrencyFormatter.format(GameConstants.refreshListingCost)} bakiye gereklidir.',
+                      context.tr('stale_refresh_insufficient_funds', {'cost': CurrencyFormatter.format(GameConstants.refreshListingCost)}),
                     );
                   }
                 },
@@ -807,8 +812,8 @@ class ShowroomCarCard extends ConsumerWidget {
                     NotificationService.showSuccess(
                       context,
                       car.isHeroShowcase
-                          ? '${car.brand} ${car.modelName} vitrin başköşesinden alındı.'
-                          : '${car.brand} ${car.modelName} vitrin başköşesine yerleştirildi! Trafik +%30',
+                          ? context.tr('hero_showcase_removed_toast', {'car': '${car.brand} ${car.modelName}'})
+                          : context.tr('hero_showcase_added_toast', {'car': '${car.brand} ${car.modelName}'}),
                     );
                   }
                 },
@@ -878,7 +883,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                     onPressed: () {
                                       Navigator.pop(dCtx);
                                       ref.read(gameProvider.notifier).toggleShowcaseLock(car.id);
-                                      NotificationService.showSuccess(context, '${car.brand} ${car.modelName} vitrinden çıkarıldı.');
+                                      NotificationService.showSuccess(context, context.tr('showcase_unlocked_toast', {'car': '${car.brand} ${car.modelName}'}));
                                     },
                                   ),
                                 ],
@@ -893,7 +898,7 @@ class ShowroomCarCard extends ConsumerWidget {
                     if (success) {
                       NotificationService.showSuccess(
                         context,
-                        '${car.brand} ${car.modelName} koleksiyon vitrinine kilitlendi! +5 Esnaf İtibarı kazanıldı.',
+                        context.tr('showcase_locked_toast', {'car': '${car.brand} ${car.modelName}'}),
                       );
                     }
                   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -34,8 +35,8 @@ class DailyCashflowScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'GÜNLÜK NET NAKİT AKIŞI',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('cashflow_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -56,6 +57,7 @@ class DailyCashflowScreen extends ConsumerWidget {
 
           // 2. 7 Günlük Kümülatif Projeksiyon & Muhasebeci Tavsiyesi
           _buildProjectionAndAdviceCard(
+            context: context,
             isDark: isDark,
             netDaily: summary.netDailyCashflow,
             hasLoans: game.activeLoans.isNotEmpty,
@@ -66,7 +68,7 @@ class DailyCashflowScreen extends ConsumerWidget {
 
           // 3. Gelir Kalemleri Başlığı & Listesi
           _buildSectionHeader(
-            title: 'DİNAMİK GÜNLÜK GELİRLER',
+            title: context.tr('cashflow_section_incomes'),
             totalAmount: summary.totalDailyIncome,
             isIncome: true,
             isDark: isDark,
@@ -90,7 +92,7 @@ class DailyCashflowScreen extends ConsumerWidget {
 
           // 4. Gider Kalemleri Başlığı & Listesi
           _buildSectionHeader(
-            title: 'DİNAMİK GÜNLÜK GİDERLER',
+            title: context.tr('cashflow_section_expenses'),
             totalAmount: summary.totalDailyExpense,
             isIncome: false,
             isDark: isDark,
@@ -137,8 +139,8 @@ class DailyCashflowScreen extends ConsumerWidget {
         : (isNeutral ? const Color(0xFFFFDE59) : const Color(0xFFEF4444));
 
     final String statusText = isProfitable
-        ? 'POZİTİF KÂR AKIŞI'
-        : (isNeutral ? 'BAŞABAŞ • NÖTR' : 'NAKİT AÇIĞI • ZARAR');
+        ? context.tr('cashflow_status_profit')
+        : (isNeutral ? context.tr('cashflow_status_neutral') : context.tr('cashflow_status_loss'));
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(16),
@@ -173,7 +175,7 @@ class DailyCashflowScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'GÜN $currentDay NAKİT DENGESİ',
+                        context.tr('cashflow_day_balance_label', {'day': currentDay}),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w900,
@@ -194,7 +196,7 @@ class DailyCashflowScreen extends ConsumerWidget {
                 ],
               ),
               NeoBrutalBadge(
-                text: '2 DK / GÜN',
+                text: context.tr('cashflow_time_badge'),
                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                 textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
                 fontSize: 10,
@@ -218,7 +220,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             child: Column(
               children: [
                 Text(
-                  'NET GÜNLÜK NAKİT AKIŞI',
+                  context.tr('cashflow_net_flow_label'),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -228,7 +230,7 @@ class DailyCashflowScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${netCashflow >= 0 ? '+' : ''}${CurrencyFormatter.format(netCashflow)} / gün',
+                  '${netCashflow >= 0 ? '+' : ''}${CurrencyFormatter.format(netCashflow)} ${context.tr('cashflow_per_day')}',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -254,13 +256,13 @@ class DailyCashflowScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.arrow_upward_rounded, size: 14, color: Color(0xFF00E575)),
-                          SizedBox(width: 4),
+                          const Icon(Icons.arrow_upward_rounded, size: 14, color: Color(0xFF00E575)),
+                          const SizedBox(width: 4),
                           Text(
-                            'Toplam Gelir',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
+                            context.tr('cashflow_total_income_label'),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
                           ),
                         ],
                       ),
@@ -285,13 +287,13 @@ class DailyCashflowScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.arrow_downward_rounded, size: 14, color: Color(0xFFEF4444)),
-                          SizedBox(width: 4),
+                          const Icon(Icons.arrow_downward_rounded, size: 14, color: Color(0xFFEF4444)),
+                          const SizedBox(width: 4),
                           Text(
-                            'Toplam Gider',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                            context.tr('cashflow_total_expense_label'),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
                           ),
                         ],
                       ),
@@ -312,6 +314,7 @@ class DailyCashflowScreen extends ConsumerWidget {
   }
 
   Widget _buildProjectionAndAdviceCard({
+    required BuildContext context,
     required bool isDark,
     required double netDaily,
     required bool hasLoans,
@@ -321,8 +324,8 @@ class DailyCashflowScreen extends ConsumerWidget {
     final double weekProjection = netDaily * 7;
     final double monthProjection = netDaily * 30;
 
-    String adviceTitle = 'Finansal Durum Mükemmel';
-    String adviceBody = 'Günlük nakit akışın pozitif. Fazla nakdini vadeli mevduata veya borsa hisselerine yönlendirerek bileşik getiri elde edebilirsin.';
+    String adviceTitle = context.tr('cashflow_advice_perfect_title');
+    String adviceBody = context.tr('cashflow_advice_perfect_body');
     IconData adviceIcon = Icons.verified_rounded;
     Color adviceColor = const Color(0xFF00E575);
 
@@ -330,14 +333,14 @@ class DailyCashflowScreen extends ConsumerWidget {
       adviceColor = const Color(0xFFEF4444);
       adviceIcon = Icons.warning_amber_rounded;
       if (hasLoans) {
-        adviceTitle = 'Kredi Yükü Kasanı Zorluyor';
-        adviceBody = 'Yüksek kredi taksitleri günlük kasanı eritiyor. Erken kredi kapatma yaparak sabit faiz giderlerini düşür.';
+        adviceTitle = context.tr('cashflow_advice_loans_title');
+        adviceBody = context.tr('cashflow_advice_loans_body');
       } else if (hasExcessStaff) {
-        adviceTitle = 'Personel Gideri Yüksek';
-        adviceBody = 'Maaş giderleri yan gelirleri aşıyor. Yan işletmelerini yükselt veya atıl personelleri gözden geçir.';
+        adviceTitle = context.tr('cashflow_advice_staff_title');
+        adviceBody = context.tr('cashflow_advice_staff_body');
       } else {
-        adviceTitle = 'Sabit Gider Uyarısı';
-        adviceBody = 'Mülk ve stopaj giderlerini karşılamak için yeni yan işletmeler satın al veya oto kiralama araçlarını artır.';
+        adviceTitle = context.tr('cashflow_advice_burn_title');
+        adviceBody = context.tr('cashflow_advice_burn_body');
       }
     }
 
@@ -353,9 +356,9 @@ class DailyCashflowScreen extends ConsumerWidget {
             children: [
               Icon(Icons.query_stats_rounded, size: 18, color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFD97706)),
               const SizedBox(width: 8),
-              const Text(
-                '7 & 30 GÜNLÜK PROJEKSİYON',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
+              Text(
+                context.tr('cashflow_projection_title'),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
               ),
             ],
           ),
@@ -364,7 +367,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _buildProjectionPill(
-                  title: 'Haftalık Beklenti • 7 Gün',
+                  title: context.tr('cashflow_weekly_projection'),
                   amount: weekProjection,
                   isDark: isDark,
                 ),
@@ -372,7 +375,7 @@ class DailyCashflowScreen extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildProjectionPill(
-                  title: 'Aylık Beklenti • 30 Gün',
+                  title: context.tr('cashflow_monthly_projection'),
                   amount: monthProjection,
                   isDark: isDark,
                 ),
@@ -522,13 +525,13 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.storefront_rounded,
           iconColor: const Color(0xFF00E575),
-          title: 'Yan İşletmeler • ${sideBusinesses.length} Aktif',
+          title: context.tr('cashflow_income_side_business_title', {'count': sideBusinesses.length}),
           subtitle: sideBusinesses.isEmpty
-              ? 'Henüz satın alınmış yan işletme yok'
+              ? context.tr('cashflow_income_no_side_business')
               : sideBusinesses.map((b) => '${b.name} • Sv.${b.level}').join(', '),
           amount: sideBusinessIncome,
           isIncome: true,
-          badgeText: businessMultiplier > 1.0 ? '+%30 Patron Bonusu' : null,
+          badgeText: businessMultiplier > 1.0 ? context.tr('cashflow_boss_bonus_badge') : null,
           onTap: () => _handleShortcut(context, game, '/side-businesses'),
         ),
         const SizedBox(height: 8),
@@ -538,10 +541,10 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.car_rental_rounded,
           iconColor: const Color(0xFF38BDF8),
-          title: 'Rent a Car Kiralamaları • $rentalsCount Araç',
+          title: context.tr('cashflow_income_rentals_title', {'count': rentalsCount}),
           subtitle: rentalsCount == 0
-              ? 'Kirada olan araç bulunmuyor'
-              : '$rentalsCount adet sözleşmeli kiralık araç günlük tarifesi',
+              ? context.tr('cashflow_income_no_rentals')
+              : context.tr('cashflow_income_rentals_desc', {'count': rentalsCount}),
           amount: rentalIncome,
           isIncome: true,
           onTap: () => _handleShortcut(context, game, '/rent-a-car'),
@@ -553,10 +556,10 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.account_balance_rounded,
           iconColor: const Color(0xFFFFDE59),
-          title: 'Vadeli Mevduat Faiz Getirisi',
+          title: context.tr('cashflow_income_deposit_title'),
           subtitle: depositBalance > 0
-              ? '${CurrencyFormatter.format(depositBalance)} mevduat bakiyesi • %24 Yıllık Faiz'
-              : 'Vadeli hesapta para bulunmuyor',
+              ? context.tr('cashflow_income_deposit_desc', {'amount': CurrencyFormatter.format(depositBalance)})
+              : context.tr('cashflow_income_no_deposit'),
           amount: depositInterest,
           isIncome: true,
           onTap: () => _handleShortcut(context, game, '/bank-investments'),
@@ -569,8 +572,8 @@ class DailyCashflowScreen extends ConsumerWidget {
             isDark: isDark,
             icon: Icons.candlestick_chart_rounded,
             iconColor: const Color(0xFFA855F7),
-            title: 'Borsa & Hisse Portföyü',
-            subtitle: '${CurrencyFormatter.format(stockPortfolioValue)} hisse senedi günlük getiri projeksiyonu',
+            title: context.tr('cashflow_income_stocks_title'),
+            subtitle: context.tr('cashflow_income_stocks_desc', {'amount': CurrencyFormatter.format(stockPortfolioValue)}),
             amount: stockDividend,
             isIncome: true,
             onTap: () => _handleShortcut(context, game, '/stock-market'),
@@ -600,13 +603,13 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.badge_rounded,
           iconColor: const Color(0xFFEF4444),
-          title: 'Personel Maaşları • ${staffList.length} Çalışan',
+          title: context.tr('cashflow_expense_staff_title', {'count': staffList.length}),
           subtitle: staffList.isEmpty
-              ? 'İşe alınmış personel bulunmuyor'
+              ? context.tr('cashflow_expense_no_staff')
               : staffList.map((s) => '${s.name} • ${s.role.title}').join(', '),
           amount: staffSalaries,
           isIncome: false,
-          badgeText: hasBossPerk ? '-%20 Patron İndirimi' : null,
+          badgeText: hasBossPerk ? context.tr('cashflow_boss_discount_badge') : null,
           onTap: () => _handleShortcut(context, game, '/staff'),
         ),
         const SizedBox(height: 8),
@@ -616,8 +619,8 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.apartment_rounded,
           iconColor: const Color(0xFFF97316),
-          title: 'Galeri Sabit Genel Gideri',
-          subtitle: '$propertyTierName kira, aidat, elektrik ve işletme gideri',
+          title: context.tr('cashflow_expense_property_title'),
+          subtitle: context.tr('cashflow_expense_property_desc', {'tier': propertyTierName}),
           amount: propertyDailyBurn,
           isIncome: false,
           onTap: () => _handleShortcut(context, game, '/branches'),
@@ -630,8 +633,8 @@ class DailyCashflowScreen extends ConsumerWidget {
             isDark: isDark,
             icon: Icons.credit_score_rounded,
             iconColor: const Color(0xFFEF4444),
-            title: 'Banka Kredisi Geri Ödemeleri • ${activeLoans.length} Kredi',
-            subtitle: 'Aktif ticari kredilerin günlük faiz ve anapara taksit payı',
+            title: context.tr('cashflow_expense_loans_title', {'count': activeLoans.length}),
+            subtitle: context.tr('cashflow_expense_loans_desc'),
             amount: loanDailyPayment,
             isIncome: false,
             onTap: () => _handleShortcut(context, game, '/bank-investments'),
@@ -644,8 +647,8 @@ class DailyCashflowScreen extends ConsumerWidget {
           isDark: isDark,
           icon: Icons.receipt_long_rounded,
           iconColor: const Color(0xFF94A3B8),
-          title: 'İşletme Stopajı & Ticari Vergi',
-          subtitle: 'Günlük belediye & kurumsal sabit vergi kesintisi',
+          title: context.tr('cashflow_expense_tax_title'),
+          subtitle: context.tr('cashflow_expense_tax_desc'),
           amount: dailyTaxEstimate,
           isIncome: false,
         ),
@@ -659,7 +662,7 @@ class DailyCashflowScreen extends ConsumerWidget {
     } else {
       NotificationService.showInfo(
         context,
-        'Kilitli Alan! Bu özellik ${DealershipModel.getRequiredBranchName(route)} satın alındığında açılır. Şubeler ekranından inceleyebilirsin.',
+        context.tr('cashflow_locked_feature_toast', {'branch': DealershipModel.getRequiredBranchName(route)}),
       );
     }
   }
@@ -776,7 +779,7 @@ class DailyCashflowScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'HIZLI YÖNETİM & GELİR ARTIRMA',
+          context.tr('cashflow_quick_actions_title'),
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
@@ -789,7 +792,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: NeoBrutalButton(
-                label: 'YAN İŞLETME',
+                label: context.tr('cashflow_btn_side_business'),
                 icon: Icons.storefront_rounded,
                 backgroundColor: game.isFeatureUnlocked('/side-businesses')
                     ? AppColors.brutalGreen
@@ -806,7 +809,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: NeoBrutalButton(
-                label: 'PERSONEL',
+                label: context.tr('cashflow_btn_staff'),
                 icon: Icons.badge_rounded,
                 backgroundColor: game.isFeatureUnlocked('/staff')
                     ? const Color(0xFFFFDE59)
@@ -823,7 +826,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: NeoBrutalButton(
-                label: 'BANKA',
+                label: context.tr('cashflow_btn_bank'),
                 icon: Icons.account_balance_rounded,
                 backgroundColor: game.isFeatureUnlocked('/bank-investments')
                     ? const Color(0xFF38BDF8)

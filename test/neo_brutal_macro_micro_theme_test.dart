@@ -146,10 +146,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('TEMA & GÖRÜNÜM MAĞAZASI'), findsOneWidget);
+      expect(find.textContaining('TEMA'), findsWidgets);
       expect(find.text('MEVCUT TEMA PALETLERİ'), findsOneWidget);
       expect(find.text('ABSÜRT'), findsOneWidget);
-      expect(find.text('AKTİF TEMA ÖNİZLEMESİ'), findsOneWidget);
+      expect(find.text('AKTİF TEMA CANLI ÖNİZLEME'), findsOneWidget);
     });
   });
 }

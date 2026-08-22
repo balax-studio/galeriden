@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/listing_model.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -70,15 +71,15 @@ class SmsTramerSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '5664 HASAR & SİGORTA GEÇMİŞİ',
-                      style: TextStyle(
+                    Text(
+                      context.tr('tramer_history_title'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
                     Text(
-                      '$plate • SBM Tramer Veritabanı',
+                      context.tr('tramer_db_subtitle', {'plate': plate}),
                       style: TextStyle(
                         fontSize: 11,
                         color: isDark ? Colors.white60 : Colors.black54,
@@ -109,9 +110,9 @@ class SmsTramerSheet extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'GÖNDEREN: 5664 • SBM',
-                      style: TextStyle(
+                    Text(
+                      context.tr('tramer_sender_header'),
+                      style: const TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF38BDF8),
@@ -119,7 +120,9 @@ class SmsTramerSheet extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Bugün, ${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+                      context.tr('tramer_today_time', {
+                        'time': '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+                      }),
                       style: TextStyle(
                         fontSize: 10,
                         color: isDark ? Colors.white54 : Colors.black45,
@@ -130,7 +133,7 @@ class SmsTramerSheet extends StatelessWidget {
                 ),
                 const Divider(height: 16),
                 Text(
-                  'Sayin Ilgili, Kayitlarimiza gore $plate sasi no ile eslesen ${car.brand} ${car.modelName} ${car.modelYear} model aracta:',
+                  'Sayin Ilgili, $plate plakali ${car.brand} ${car.modelName} ${car.modelYear} araci icin SBM kayitlari sorgulanmistir.',
                   style: const TextStyle(
                     fontSize: 12,
                     height: 1.4,
@@ -147,14 +150,14 @@ class SmsTramerSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: const Color(0xFF00E575), width: 1.5),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.verified_rounded, color: Color(0xFF00E575), size: 18),
-                        SizedBox(width: 8),
+                        const Icon(Icons.verified_rounded, color: Color(0xFF00E575), size: 18),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'HASAR KAYDI YOKTUR • ₺0 Tramer. Aracın sigorta havuzunda kayıtlı herhangi bir kazası bulunmamaktadır.',
-                            style: TextStyle(
+                            context.tr('tramer_no_damage'),
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                               color: Color(0xFF00E575),
@@ -191,8 +194,8 @@ class SmsTramerSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '• KZ1: ${(exp.tramerAmount * 0.6).round()} TL • Çarpma / Kaporta Onarımı\n'
-                          '• KZ2: ${(exp.tramerAmount * 0.4).round()} TL • Dolu / Boya & Düzeltme',
+                          '${context.tr('tramer_kz1_desc', {'amount': (exp.tramerAmount * 0.6).round().toString()})}\n'
+                          '${context.tr('tramer_kz2_desc', {'amount': (exp.tramerAmount * 0.4).round().toString()})}',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -214,14 +217,14 @@ class SmsTramerSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: const Color(0xFFEF4444), width: 1.5),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.report_problem_rounded, color: Color(0xFFEF4444), size: 16),
-                        SizedBox(width: 6),
+                        const Icon(Icons.report_problem_rounded, color: Color(0xFFEF4444), size: 16),
+                        const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            'DİKKAT: Son muayene KM kaydı mevcut kadrandan yüksektir! • KM Oynanmış',
-                            style: TextStyle(
+                            context.tr('tramer_tampered_km_warn'),
+                            style: const TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFFEF4444),
@@ -233,7 +236,7 @@ class SmsTramerSheet extends StatelessWidget {
                   ),
                 ] else ...[
                   Text(
-                    'Son TÜVTÜRK Muayenesi: ${(exp.mileage * 0.95).round()} KM • KM Orijinal',
+                    context.tr('tramer_original_km_note', {'km': (exp.mileage * 0.95).round().toString()}),
                     style: TextStyle(
                       fontSize: 10.5,
                       color: isDark ? Colors.white60 : Colors.black54,
@@ -248,7 +251,7 @@ class SmsTramerSheet extends StatelessWidget {
 
           // Close button
           NeoBrutalButton(
-            label: 'ANLADIM, RAPORU KAPAT',
+            label: context.tr('close'),
             icon: Icons.check_circle_outline_rounded,
             backgroundColor: const Color(0xFFFFDE59),
             textColor: Colors.black,

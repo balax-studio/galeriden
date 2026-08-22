@@ -92,7 +92,10 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Birim Fiyat: ${CurrencyFormatter.formatShort(stock.currentPrice)} • %${(stock.dividendYield * 100).toStringAsFixed(1)} Temettü',
+                                context.tr('stock_unit_price', {
+                                  'price': CurrencyFormatter.formatShort(stock.currentPrice),
+                                  'yield': (stock.dividendYield * 100).toStringAsFixed(1),
+                                }),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -111,7 +114,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'İŞLEM ADEDİ • LOT:',
+                      context.tr('stock_lot_label'),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -125,7 +128,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       autofocus: true,
                       style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
                       decoration: InputDecoration(
-                        hintText: 'Lot Miktarı',
+                        hintText: context.tr('stock_lot_hint'),
                         filled: true,
                         fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                         border: OutlineInputBorder(
@@ -212,7 +215,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Toplam Tutar:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+                              Text(context.tr('stock_total_amount'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
                               Text(
                                 CurrencyFormatter.formatShort(totalCost),
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
@@ -227,21 +230,24 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       children: [
                         Expanded(
                           child: NeoBrutalButton(
-                            label: 'LOT SATIN AL',
+                            label: context.tr('stock_btn_buy_lot'),
                             icon: Icons.add_shopping_cart_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             onPressed: () {
                               if (lotAmount <= 0) {
-                                NotificationService.showError(context, 'Lütfen geçerli bir lot miktarı girin.');
+                                NotificationService.showError(context, context.tr('stock_lot_invalid_toast'));
                                 return;
                               }
                               final success = ref.read(gameProvider.notifier).buyStock(stock.symbol, lotAmount);
                               if (success) {
                                 Navigator.pop(dialogCtx);
-                                NotificationService.showSuccess(context, '$lotAmount Lot ${stock.symbol} satın alındı!');
+                                NotificationService.showSuccess(
+                                  context,
+                                  context.tr('stock_buy_success_toast', {'amount': lotAmount, 'symbol': stock.symbol}),
+                                );
                               } else {
-                                NotificationService.showError(context, 'Yetersiz bakiye!');
+                                NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
                               }
                             },
                           ),
@@ -250,7 +256,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           const SizedBox(width: 10),
                           Expanded(
                             child: NeoBrutalButton(
-                              label: 'SAT • $sharesOwned',
+                              label: context.tr('stock_btn_sell_lot', {'amount': sharesOwned}),
                               icon: Icons.sell_rounded,
                               backgroundColor: AppColors.errorRed,
                               textColor: Colors.white,
@@ -259,9 +265,12 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                                 final success = ref.read(gameProvider.notifier).sellStock(stock.symbol, sellCount);
                                 if (success) {
                                   Navigator.pop(dialogCtx);
-                                  NotificationService.showSuccess(context, '$sellCount Lot ${stock.symbol} satıldı!');
+                                  NotificationService.showSuccess(
+                                    context,
+                                    context.tr('stock_sell_success_toast', {'amount': sellCount, 'symbol': stock.symbol}),
+                                  );
                                 } else {
-                                  NotificationService.showError(context, 'Satış işlemi yapılamadı!');
+                                  NotificationService.showError(context, context.tr('stock_sell_failed_toast'));
                                 }
                               },
                             ),
@@ -327,7 +336,10 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                             ),
                             Text(
-                              'Alış: ₺${forex.buyRate.toStringAsFixed(2)} | Satış: ₺${forex.sellRate.toStringAsFixed(2)}',
+                              context.tr('forex_rate_label', {
+                                'buy': forex.buyRate.toStringAsFixed(2),
+                                'sell': forex.sellRate.toStringAsFixed(2),
+                              }),
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -345,7 +357,11 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'MİKTAR • ${forex.symbol == 'GOLD' ? 'GRAM' : 'BİRİM'}:',
+                      context.tr('forex_amount_label', {
+                        'unit': forex.symbol == 'GOLD'
+                            ? context.tr('forex_unit_gram')
+                            : context.tr('forex_unit_unit'),
+                      }),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -359,7 +375,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       autofocus: true,
                       style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
                       decoration: InputDecoration(
-                        hintText: 'Miktar giriniz',
+                        hintText: context.tr('forex_amount_hint'),
                         filled: true,
                         fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                         border: OutlineInputBorder(
@@ -390,13 +406,13 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           setDialogState(() {});
                         }, isDark),
                         const SizedBox(width: 6),
-                        _buildQuickChip('MAX AL', () {
+                        _buildQuickChip(context.tr('forex_btn_max_buy'), () {
                           amountController.text = maxBuyable.toStringAsFixed(0);
                           setDialogState(() {});
                         }, isDark),
                         if (currentOwned > 0) ...[
                           const SizedBox(width: 6),
-                          _buildQuickChip('TÜMÜNÜ SAT', () {
+                          _buildQuickChip(context.tr('forex_btn_sell_all'), () {
                             amountController.text = currentOwned.toStringAsFixed(0);
                             setDialogState(() {});
                           }, isDark),
@@ -439,21 +455,24 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       children: [
                         Expanded(
                           child: NeoBrutalButton(
-                            label: 'SATIN AL',
+                            label: context.tr('forex_btn_buy'),
                             icon: Icons.add_circle_outline_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             onPressed: () {
                               if (amount <= 0) {
-                                NotificationService.showError(context, 'Geçerli bir miktar girin.');
+                                NotificationService.showError(context, context.tr('forex_amount_invalid_toast'));
                                 return;
                               }
                               final success = ref.read(gameProvider.notifier).buyForex(forex.symbol, amount);
                               if (success) {
                                 Navigator.pop(dialogCtx);
-                                NotificationService.showSuccess(context, '${amount.toStringAsFixed(0)} ${forex.symbol} alındı!');
+                                NotificationService.showSuccess(
+                                  context,
+                                  context.tr('forex_buy_success_toast', {'amount': amount.toStringAsFixed(0), 'symbol': forex.symbol}),
+                                );
                               } else {
-                                NotificationService.showError(context, 'Yetersiz bakiye!');
+                                NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
                               }
                             },
                           ),
@@ -462,7 +481,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           const SizedBox(width: 10),
                           Expanded(
                             child: NeoBrutalButton(
-                              label: 'BOZDUR',
+                              label: context.tr('forex_btn_sell'),
                               icon: Icons.currency_exchange_rounded,
                               backgroundColor: AppColors.errorRed,
                               textColor: Colors.white,
@@ -471,9 +490,12 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                                 final success = ref.read(gameProvider.notifier).sellForex(forex.symbol, sellAmount);
                                 if (success) {
                                   Navigator.pop(dialogCtx);
-                                  NotificationService.showSuccess(context, '${sellAmount.toStringAsFixed(0)} ${forex.symbol} bozduruldu!');
+                                  NotificationService.showSuccess(
+                                    context,
+                                    context.tr('forex_sell_success_toast', {'amount': sellAmount.toStringAsFixed(0), 'symbol': forex.symbol}),
+                                  );
                                 } else {
-                                  NotificationService.showError(context, 'İşlem başarısız!');
+                                  NotificationService.showError(context, context.tr('forex_tx_failed_toast'));
                                 }
                               },
                             ),
@@ -530,9 +552,9 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('stocks_title')),
-        body: const NeoBrutalLockedFeatureView(
+        body: NeoBrutalLockedFeatureView(
           route: '/stock-market',
-          featureTitle: 'BORSA & FON PİYASASI',
+          featureTitle: context.tr('stock_locked_feature_title'),
           icon: Icons.candlestick_chart_rounded,
         ),
       );
@@ -568,7 +590,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
             Tab(text: context.tr('tab_stocks')),
             Tab(text: context.tr('tab_portfolio')),
             Tab(text: context.tr('tab_commodities')),
-            const Tab(text: 'HALKA ARZ • IPO'),
+            Tab(text: context.tr('tab_ipo')),
           ],
         ),
       ),
@@ -581,7 +603,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           await Future.delayed(const Duration(milliseconds: 300));
           ref.read(gameProvider.notifier).refreshStockMarket();
           if (context.mounted) {
-            NotificationService.showInfo(context, 'Piyasa ve kurlar güncellendi.');
+            NotificationService.showInfo(context, context.tr('stock_refresh_toast'));
           }
         },
         child: TabBarView(
@@ -595,6 +617,23 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
         ),
       ),
     );
+  }
+
+  String _getSectorLabel(BuildContext context, String sector) {
+    switch (sector) {
+      case 'TÜMÜ':
+        return context.tr('sector_all');
+      case 'Otomotiv & Üretim':
+        return context.tr('sector_auto_prod');
+      case 'Yedek Parça & Sanayi':
+        return context.tr('sector_spare_parts');
+      case 'Teknoloji & Yazılım':
+        return context.tr('sector_tech_software');
+      case 'Enerji & Akaryakıt':
+        return context.tr('sector_energy_fuel');
+      default:
+        return sector;
+    }
   }
 
   // ==========================================
@@ -641,9 +680,9 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'BIST-OTO ENDEKSİ',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        Text(
+                          context.tr('bist_index_title'),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                         ),
                         NeoBrutalBadge(
                           text: bistIndex.trendName,
@@ -657,7 +696,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     Row(
                       children: [
                         Text(
-                          '${bistIndex.points.toStringAsFixed(1)} Puan',
+                          context.tr('bist_points_badge', {'points': bistIndex.points.toStringAsFixed(1)}),
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
@@ -690,7 +729,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
               return Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: ChoiceChip(
-                  label: Text(sector, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87))),
+                  label: Text(_getSectorLabel(context, sector), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87))),
                   selected: isSelected,
                   selectedColor: AppColors.brutalYellow,
                   backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
@@ -761,12 +800,12 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                             Row(
                               children: [
                                 Text(
-                                  stock.sectorCategory,
+                                  _getSectorLabel(context, stock.sectorCategory),
                                   style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
                                 ),
                                 const SizedBox(width: 6),
                                 NeoBrutalBadge(
-                                  text: '%${(stock.dividendYield * 100).toStringAsFixed(1)} Temettü',
+                                  text: context.tr('stock_dividend_badge', {'yield': (stock.dividendYield * 100).toStringAsFixed(1)}),
                                   backgroundColor: AppColors.brutalCyan,
                                   textColor: Colors.black,
                                   fontSize: 9,
@@ -829,9 +868,9 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Portföy: $sharesOwned Lot', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+                          Text(context.tr('stock_owned_portfolio', {'amount': sharesOwned}), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
                           Text(
-                            'Değer: ${CurrencyFormatter.formatShort((sharesOwned * stock.currentPrice).toDouble())}',
+                            context.tr('stock_owned_value', {'value': CurrencyFormatter.formatShort((sharesOwned * stock.currentPrice).toDouble())}),
                             style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                           ),
                         ],
@@ -841,7 +880,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                   ],
 
                   NeoBrutalButton(
-                    label: 'AL / SAT & İŞLEM YAP',
+                    label: context.tr('stock_btn_trade'),
                     icon: Icons.candlestick_chart_rounded,
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
@@ -887,14 +926,14 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
               const Icon(Icons.account_balance_wallet_outlined, size: 64, color: Color(0xFF64748B)),
               const SizedBox(height: 16),
               Text(
-                'HENÜZ PORTFÖYÜNDE HİSSE YOK',
+                context.tr('stock_no_holdings_title'),
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: isDark ? Colors.white : Colors.black),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'BİST Hisseleri sekmesinden temettü verimi yüksek otomotiv hisselerine yatırım yaparak günlük pasif nakit akışı oluşturabilirsin.',
+              Text(
+                context.tr('stock_no_holdings_desc'),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -1008,7 +1047,13 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Maliyet: ${CurrencyFormatter.formatShort(owned.averageCost)} | Fiyat: ${CurrencyFormatter.formatShort(curPrice)}', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                      Text(
+                        context.tr('stock_cost_price_row', {
+                          'cost': CurrencyFormatter.formatShort(owned.averageCost),
+                          'price': CurrencyFormatter.formatShort(curPrice),
+                        }),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                      ),
                       Text(
                         '${posProfit ? '+' : ''}${CurrencyFormatter.formatShort(posPl)}',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: posProfit ? AppColors.brutalGreen : AppColors.errorRed),
@@ -1021,14 +1066,17 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       children: [
                         const Icon(Icons.payments_rounded, size: 13, color: AppColors.brutalBlue),
                         const SizedBox(width: 4),
-                        Text('Günlük Temettü Getirisi: +₺${dailyDiv.toStringAsFixed(1)}', style: const TextStyle(fontSize: 10.5, color: AppColors.brutalBlue, fontWeight: FontWeight.w800)),
+                        Text(
+                          context.tr('stock_daily_dividend_return', {'amount': dailyDiv.toStringAsFixed(1)}),
+                          style: const TextStyle(fontSize: 10.5, color: AppColors.brutalBlue, fontWeight: FontWeight.w800),
+                        ),
                       ],
                     ),
                   ],
                   const SizedBox(height: 8),
                   if (stock != null)
                     NeoBrutalButton(
-                      label: 'İŞLEM YAP / SAT',
+                      label: context.tr('stock_btn_trade_sell'),
                       icon: Icons.swap_horiz_rounded,
                       backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white : Colors.black,
@@ -1062,14 +1110,14 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           backgroundColor: AppColors.brutalYellow.withValues(alpha: 0.2),
           borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 12,
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.shield_outlined, color: Colors.black87, size: 28),
-              SizedBox(width: 10),
+              const Icon(Icons.shield_outlined, color: Colors.black87, size: 28),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Döviz ve Gram Altın yatırımları, piyasa krizlerinde ve ithal araç fiyat artışlarında kasanızı koruyan güvenli limandır.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.black87),
+                  context.tr('forex_hedging_info'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.black87),
                 ),
               ),
             ],
@@ -1119,7 +1167,10 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                               ),
                               Text(
-                                'Alış: ₺${item.buyRate.toStringAsFixed(2)} | Satış: ₺${item.sellRate.toStringAsFixed(2)}',
+                                context.tr('forex_rate_label', {
+                                  'buy': item.buyRate.toStringAsFixed(2),
+                                  'sell': item.sellRate.toStringAsFixed(2),
+                                }),
                                 style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
                               ),
                             ],
@@ -1164,8 +1215,17 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Varlık: ${ownedAmount.toStringAsFixed(1)} ${item.symbol == 'GOLD' ? 'Gr' : item.symbol}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
-                          Text('Değer: ${CurrencyFormatter.formatShort(totalValue)}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
+                          Text(
+                            context.tr('forex_holding_label', {
+                              'amount': ownedAmount.toStringAsFixed(1),
+                              'unit': item.symbol == 'GOLD' ? context.tr('forex_unit_gram') : item.symbol,
+                            }),
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
+                          ),
+                          Text(
+                            context.tr('stock_owned_value', {'value': CurrencyFormatter.formatShort(totalValue)}),
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                          ),
                         ],
                       ),
                     ),
@@ -1173,7 +1233,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                   ],
 
                   NeoBrutalButton(
-                    label: 'DÖVİZ / ALTIN İŞLEMİ YAP',
+                    label: context.tr('forex_btn_trade'),
                     icon: Icons.currency_exchange_rounded,
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
@@ -1236,19 +1296,21 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${game.dealershipName} Holding A.Ş.',
+                            context.tr('company_holding_title', {'name': game.dealershipName}),
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                           ),
-                          const Text(
-                            'BIST Şirket Halka Arz Masası',
-                            style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                          Text(
+                            context.tr('company_ipo_desk'),
+                            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
                     ],
                   ),
                   NeoBrutalBadge(
-                    text: game.isCompanyListedOnBist ? 'KOTASYONDA • GLRD' : 'HALKA KAPALI',
+                    text: game.isCompanyListedOnBist
+                        ? context.tr('company_ipo_listed_badge')
+                        : context.tr('company_ipo_closed_badge'),
                     backgroundColor: game.isCompanyListedOnBist ? AppColors.brutalGreen : AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 10,
@@ -1257,13 +1319,13 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
               ),
               const SizedBox(height: 12),
               if (game.isCompanyListedOnBist) ...[
-                const Text(
-                  'Tebrikler! Şirketiniz BIST kotasyonunda (GLRD) işlem görüyor. Her 30 günde bir çeyreklik bilanço açıklanır ve kârlılığa göre temettü dağıtılır.',
-                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                Text(
+                  context.tr('company_ipo_listed_desc'),
+                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
                 NeoBrutalButton(
-                  label: 'PİYASADAN HİSSE GERİ AL • ₺50.000',
+                  label: context.tr('company_buyback_btn', {'cost': CurrencyFormatter.formatShort(50000.0)}),
                   icon: Icons.published_with_changes_rounded,
                   backgroundColor: (game.balance >= 50000.0) ? AppColors.brutalYellow : Colors.grey.shade400,
                   textColor: Colors.black,
@@ -1276,7 +1338,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           if (success && context.mounted) {
                             NotificationService.showSuccess(
                               context,
-                              'Hisse Geri Alımı Başarılı! GLRD hisseleri primlendi ve +15 İtibar kazandın.',
+                              context.tr('company_buyback_success_toast'),
                             );
                           }
                         }
@@ -1284,17 +1346,25 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                 ),
               ] else ...[
                 Text(
-                  'Tahmini Şirket Değeri: ${CurrencyFormatter.formatShort(companyValuation)} • Halka Arz Geliri: +${CurrencyFormatter.formatShort(ipoCapitalPotential)}',
+                  context.tr('company_valuation_label', {
+                    'val': CurrencyFormatter.formatShort(companyValuation),
+                    'pot': CurrencyFormatter.formatShort(ipoCapitalPotential),
+                  }),
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Şartlar: Seviye 4+ - Satılan Araç 10+ • Mevcut: Sev. ${game.level} / ${game.carsSold} Araç',
+                  context.tr('company_ipo_reqs_label', {
+                    'level': game.level,
+                    'sold': game.carsSold,
+                  }),
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 10),
                 NeoBrutalButton(
-                  label: canLaunchIpo ? 'GONG ÇAL & %20 HİSSE HALKA ARZ ET' : 'ŞARTLAR TAMAMLANMADI',
+                  label: canLaunchIpo
+                      ? context.tr('company_launch_ipo_btn')
+                      : context.tr('company_ipo_reqs_not_met'),
                   icon: Icons.campaign_rounded,
                   backgroundColor: canLaunchIpo ? AppColors.brutalGreen : Colors.grey.shade400,
                   textColor: Colors.black,
@@ -1307,7 +1377,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           if (raised != null && context.mounted) {
                             NotificationService.showSuccess(
                               context,
-                              'Şirketiniz BIST te başarıyla halka arz edildi! Kasaya +₺${CurrencyFormatter.formatShort(raised)} girdi.',
+                              context.tr('company_ipo_success_toast', {'amount': CurrencyFormatter.formatShort(raised)}),
                             );
                           }
                         }
@@ -1324,14 +1394,14 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
           backgroundColor: AppColors.brutalCyan.withValues(alpha: 0.2),
           borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 12,
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.rocket_launch_rounded, color: AppColors.brutalBlue, size: 28),
-              SizedBox(width: 10),
+              const Icon(Icons.rocket_launch_rounded, color: AppColors.brutalBlue, size: 28),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Halka Arzlara erkenden talep toplayarak katıl. Borsa listeleme günü tavan serisi ile yüksek getiri sağla!',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.black87),
+                  context.tr('ipo_banner_info'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.black87),
                 ),
               ),
             ],
@@ -1364,7 +1434,9 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                         ],
                       ),
                       NeoBrutalBadge(
-                        text: ipo.isListed ? 'BORSADA İŞLEMDE' : '${ipo.daysUntilListing} GÜN KALDI',
+                        text: ipo.isListed
+                            ? context.tr('ipo_status_trading')
+                            : context.tr('ipo_status_days_left', {'days': ipo.daysUntilListing}),
                         backgroundColor: ipo.isListed ? AppColors.brutalGreen : AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 9.5,
@@ -1380,9 +1452,12 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Lot Fiyatı: ₺${ipo.lotPrice.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+                      Text(
+                        context.tr('ipo_lot_price_label', {'price': ipo.lotPrice.toStringAsFixed(0)}),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                      ),
                       NeoBrutalBadge(
-                        text: 'Beklenen: ${ipo.listingMultiplier.toStringAsFixed(1)}x Tavan',
+                        text: context.tr('ipo_expected_multiplier', {'mult': ipo.listingMultiplier.toStringAsFixed(1)}),
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10,
@@ -1401,12 +1476,21 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Talep: ${userReq.requestedLots} Lot • ₺${userReq.totalSpent.round()}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+                          Text(
+                            context.tr('ipo_demand_approved', {
+                              'lots': userReq.requestedLots,
+                              'spent': userReq.totalSpent.round(),
+                            }),
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
+                          ),
                           Row(
-                            children: const [
-                              Icon(Icons.check_circle_rounded, size: 14, color: AppColors.brutalGreen),
-                              SizedBox(width: 4),
-                              Text('ONAYLANDI', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
+                            children: [
+                              const Icon(Icons.check_circle_rounded, size: 14, color: AppColors.brutalGreen),
+                              const SizedBox(width: 4),
+                              Text(
+                                context.tr('ipo_status_approved'),
+                                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                              ),
                             ],
                           ),
                         ],
@@ -1414,7 +1498,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     ),
                   ] else if (!ipo.isListed) ...[
                     NeoBrutalButton(
-                      label: 'HALKA ARZA KATIL & TALEP VER',
+                      label: context.tr('ipo_btn_join_demand'),
                       icon: Icons.how_to_reg_rounded,
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
@@ -1473,7 +1557,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       autofocus: true,
                       style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
                       decoration: InputDecoration(
-                        hintText: 'Lot Miktarı',
+                        hintText: context.tr('stock_lot_hint'),
                         filled: true,
                         fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -1482,27 +1566,36 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       onChanged: (val) => setDialogState(() {}),
                     ),
                     const SizedBox(height: 12),
-                    Text('Toplam Talep Bedeli: ₺${totalCost.round()}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
+                    Text(
+                      context.tr('ipo_total_demand_cost', {'cost': totalCost.round()}),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                    ),
                     const SizedBox(height: 16),
                     NeoBrutalButton(
-                      label: 'TALEBİ ONAYLA',
+                      label: context.tr('ipo_btn_confirm_demand'),
                       icon: Icons.check_circle_outline_rounded,
                       backgroundColor: AppColors.brutalGreen,
                       textColor: Colors.black,
                       fullWidth: true,
                       onPressed: () {
                         if (requestedLots <= 0 || requestedLots > ipo.maxLotPerUser) {
-                          NotificationService.showError(context, 'Maksimum ${ipo.maxLotPerUser} lot talep edebilirsiniz.');
+                          NotificationService.showError(
+                            context,
+                            context.tr('ipo_max_lot_error', {'max': ipo.maxLotPerUser}),
+                          );
                           return;
                         }
                         if (game.balance < totalCost) {
-                          NotificationService.showError(context, 'Yetersiz bakiye!');
+                          NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
                           return;
                         }
                         final success = ref.read(gameProvider.notifier).requestIpo(ipo.id, requestedLots);
                         if (success) {
                           Navigator.pop(dialogCtx);
-                          NotificationService.showSuccess(context, '${ipo.symbol} halka arz talebiniz iletildi!');
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('ipo_demand_success_toast', {'symbol': ipo.symbol}),
+                          );
                         }
                       },
                     ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/first_time_action_keys.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
@@ -188,7 +189,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 ),
                                 const SizedBox(width: 6),
                                 NeoBrutalBadge(
-                                  text: 'CANLI MÜZAKERE',
+                                  text: context.tr('deal_live_badge'),
                                   backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                   textColor: isDark ? Colors.white70 : const Color(0xFF0F172A),
                                   borderWidth: 1.5,
@@ -199,7 +200,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'PAZARLIK MASASI',
+                              context.tr('deal_negotiation_table'),
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900,
@@ -208,7 +209,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                               ),
                             ),
                             Text(
-                              '${currentListing.sellerName} ile teklifleşiyorsun.',
+                              context.tr('deal_bargaining_with', {'name': currentListing.sellerName}),
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
@@ -514,7 +515,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'SENİN TEKLİFİN',
+                              context.tr('deal_your_offer'),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w900,
@@ -524,7 +525,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             ),
                             NeoBrutalBadge(
                               icon: Icons.psychology_rounded,
-                              text: 'İkna Şansı: %$chancePercent',
+                              text: context.tr('deal_persuasion_chance', {'chance': chancePercent}),
                               backgroundColor: chanceColor,
                               textColor: Colors.black,
                               borderWidth: 1.5,
@@ -552,8 +553,8 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             ),
                             Text(
                               discountAmount > 0
-                                  ? 'İndirim: ${CurrencyFormatter.formatShort(discountAmount)} • -%$discountRatio'
-                                  : 'Tam Fiyat Teklifi',
+                                  ? context.tr('deal_discount_info', {'amount': CurrencyFormatter.formatShort(discountAmount), 'ratio': discountRatio})
+                                  : context.tr('deal_full_price_offer'),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
@@ -714,7 +715,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 3),
                             child: _buildTacticalCard(
-                              title: isUsed ? '${tactic.title} Kullanıldı' : tactic.title,
+                              title: isUsed ? context.tr('deal_tactic_used', {'title': tactic.title}) : tactic.title,
                               badgeText: tactic.badgeText,
                               icon: _getTacticIcon(tactic.iconKey),
                               activeBgColor: _getTacticColor(tactic.iconKey),
@@ -807,7 +808,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                _isAccepted ? 'TEKLİF KABUL EDİLDİ!' : 'TEKLİF REDDEDİLDİ',
+                                _isAccepted ? context.tr('deal_offer_accepted') : context.tr('deal_offer_rejected'),
                                 style: TextStyle(
                                   color: _isAccepted ? const Color(0xFF00E575) : const Color(0xFFEF4444),
                                   fontWeight: FontWeight.w900,
@@ -835,14 +836,14 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: const Color(0xFFFFDE59), width: 1.2),
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
-                                  Icon(Icons.near_me_rounded, size: 14, color: Color(0xFFD97706)),
-                                  SizedBox(width: 6),
+                                  const Icon(Icons.near_me_rounded, size: 14, color: Color(0xFFD97706)),
+                                  const SizedBox(width: 6),
                                   Expanded(
                                     child: Text(
-                                      'Çok yaklaştın! Satıcı kararsız kaldı ama fiyatı biraz daha yükseltmen gerek.',
-                                      style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
+                                      context.tr('deal_near_miss_desc'),
+                                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
                                     ),
                                   ),
                                 ],
@@ -858,14 +859,14 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: const Color(0xFFEF4444), width: 1.2),
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
-                                  Icon(Icons.block_rounded, size: 14, color: Color(0xFFEF4444)),
-                                  SizedBox(width: 6),
+                                  const Icon(Icons.block_rounded, size: 14, color: Color(0xFFEF4444)),
+                                  const SizedBox(width: 6),
                                   Expanded(
                                     child: Text(
-                                      '3 pazarlık hakkın tükendi! Satıcı bu araç için tekliflere kapandı.',
-                                      style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                                      context.tr('deal_locked_out_desc'),
+                                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
                                     ),
                                   ),
                                 ],
@@ -874,7 +875,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                             if (!_hasRescuedWithTea) ...[
                               const SizedBox(height: 8),
                               NeoBrutalButton(
-                                label: 'TAVŞAN KANI ÇAY ISMARLA • MASAYA GERİ ÇAĞIR',
+                                label: context.tr('deal_tea_rescue_btn'),
                                 icon: Icons.local_cafe_rounded,
                                 backgroundColor: AppColors.brutalYellow,
                                 textColor: Colors.black,
@@ -883,7 +884,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 onPressed: () {
                                   AdService.instance.showRewardedAdWithFallback(
                                     context: context,
-                                    customRewardTitle: 'Esnaf Çayı İkramı ile Masayı Kurtarma',
+                                    customRewardTitle: context.tr('deal_tea_reward_title'),
                                     onRewardEarned: () {
                                       setState(() {
                                         _isLockedOut = false;
@@ -894,7 +895,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                       });
                                       NotificationService.showSuccess(
                                         context,
-                                        'Sıcak çayı gören satıcı masaya geri oturdu! Son bir teklif fırsatın var.',
+                                        context.tr('deal_tea_rescue_toast'),
                                       );
                                     },
                                   );
@@ -927,21 +928,21 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Row(
+                                  Row(
                                     children: [
-                                      Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 18),
-                                      SizedBox(width: 6),
+                                      const Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 18),
+                                      const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
-                                          'DÜRÜST SATICI: Söylenenin Dışında Kusur Çıkmadı',
-                                          style: TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.w900, fontSize: 12.5),
+                                          context.tr('deal_honest_seller_title'),
+                                          style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.w900, fontSize: 12.5),
                                         ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Ekspertiz raporu satıcının beyanıyla %100 örtüşüyor. Güvenilir esnaf/araç sahibiyle dürüstlük üzerinden pazarlık yapabilirsin • +%10 Anlaşma Bonusu!',
+                                    context.tr('deal_honest_seller_desc'),
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w600,
@@ -953,7 +954,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                     children: [
                                       Expanded(
                                         child: NeoBrutalButton(
-                                          label: _hasUsedHonestDiscount ? 'Dostça İkram Alındı' : 'Dostça İndirim İste • +%10 Şans',
+                                          label: _hasUsedHonestDiscount ? context.tr('deal_friendly_discount_used') : context.tr('deal_friendly_discount_btn'),
                                           icon: Icons.handshake_rounded,
                                           backgroundColor: _hasUsedHonestDiscount ? const Color(0xFF059669) : const Color(0xFF10B981),
                                           textColor: Colors.white,
@@ -967,16 +968,16 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                                   setState(() {
                                                     _hasUsedHonestDiscount = true;
                                                     _bonusChancePercent += 10;
-                                                    _sellerResponse = 'Dürüstlüğümüzün hatrına araç başında küçük bir ikram yaparız elbet, teklifini ilet bakalım.';
+                                                    _sellerResponse = context.tr('deal_honest_seller_resp');
                                                   });
-                                                  NotificationService.showSuccess(context, 'Dürüst satıcı güven bonusu uygulandı! • +%10 Şans');
+                                                  NotificationService.showSuccess(context, context.tr('deal_honest_bonus_toast'));
                                                 },
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: NeoBrutalButton(
-                                          label: 'Blöf Yap • -%15',
+                                          label: context.tr('deal_bluff_btn'),
                                           icon: Icons.psychology_alt_rounded,
                                           backgroundColor: isDark ? const Color(0xFF24142B) : const Color(0xFFFAF5FF),
                                           textColor: const Color(0xFFA855F7),
@@ -997,16 +998,16 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                                       _isAccepted = true;
                                                       switch (_customer.archetype) {
                                                         case CustomerArchetype.skepticalOfficial:
-                                                          _sellerResponse = 'Gerçekten mi? Raporu o kadar dikkatli okumamıştım. Peki o zaman, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun.';
+                                                          _sellerResponse = context.tr('deal_skeptical_bluff_win', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                                           break;
                                                         case CustomerArchetype.impatientYouth:
-                                                          _sellerResponse = 'Öyle mi diyorsun? Uğraşamayacağım şimdi, al senin dediğin fiyat ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun geç.';
+                                                          _sellerResponse = context.tr('deal_impatient_bluff_win', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                                           break;
                                                         case CustomerArchetype.greedyFlipper:
-                                                          _sellerResponse = 'Vay be, gözümden kaçmış demek. Nakit vereceksen ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum, yoksa iptal.';
+                                                          _sellerResponse = context.tr('deal_greedy_bluff_win', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                                           break;
                                                         case CustomerArchetype.familyMan:
-                                                          _sellerResponse = 'Yaa, öyle miymiş... Ben hiç fark etmedim. Neyse tamam, ${CurrencyFormatter.formatShort(targetDiscPrice)} olsun o zaman.';
+                                                          _sellerResponse = context.tr('deal_family_bluff_win', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                                           break;
                                                       }
                                                     });
@@ -1015,16 +1016,16 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                                       _isAccepted = false;
                                                       switch (_customer.archetype) {
                                                         case CustomerArchetype.skepticalOfficial:
-                                                          _sellerResponse = 'Ben aracımın her şeyini bilirim, evraklarım tam! Kimi kandırıyorsun, seninle işim olmaz!';
+                                                          _sellerResponse = context.tr('deal_skeptical_bluff_fail');
                                                           break;
                                                         case CustomerArchetype.impatientYouth:
-                                                          _sellerResponse = 'Kardeşim sen beni kopardın mı sanıyorsun? Raporda her şey yazıyor, hadi işine!';
+                                                          _sellerResponse = context.tr('deal_impatient_bluff_fail');
                                                           break;
                                                         case CustomerArchetype.greedyFlipper:
-                                                          _sellerResponse = 'Hoppala! Kimi yiyorsun sen? O raporu ben kendi ustama da gösterdim, uza buradan.';
+                                                          _sellerResponse = context.tr('deal_greedy_bluff_fail');
                                                           break;
                                                         case CustomerArchetype.familyMan:
-                                                          _sellerResponse = 'Ayıptır, biz burada dürüstçe iş yapıyoruz. Ekspertiz raporu ortada, sana araç falan satmıyorum.';
+                                                          _sellerResponse = context.tr('deal_family_bluff_fail');
                                                           break;
                                                       }
                                                     });
@@ -1058,7 +1059,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
-                                        'KOZ FIRSATI: ${disc.title}',
+                                        context.tr('deal_discrepancy_title', {'title': disc.title}),
                                         style: const TextStyle(color: Color(0xFFD97706), fontWeight: FontWeight.w900, fontSize: 12.5),
                                       ),
                                     ),
@@ -1075,7 +1076,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                 ),
                                 const SizedBox(height: 8),
                                 NeoBrutalButton(
-                                  label: 'Kusuru Masaya Vur • -%${(disc.extraDiscountPercent * 100).toInt()} İndirim',
+                                  label: context.tr('deal_strike_defect_btn', {'percent': (disc.extraDiscountPercent * 100).toInt()}),
                                   icon: Icons.gavel_rounded,
                                   backgroundColor: const Color(0xFFD97706),
                                   textColor: Colors.white,
@@ -1093,16 +1094,16 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                             _isAccepted = true;
                                             switch (_customer.archetype) {
                                         case CustomerArchetype.skepticalOfficial:
-                                          _sellerResponse = 'Haklısınız, bu detay gözümden kaçmış. Titiz biriyimdir ama hata benim, ${CurrencyFormatter.formatShort(targetDiscPrice)} fiyatı kabul ediyorum.';
+                                          _sellerResponse = context.tr('deal_skeptical_defect_accept', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                           break;
                                         case CustomerArchetype.impatientYouth:
-                                          _sellerResponse = 'Tamam tamam, uzatma. Zaten acil satmam lazım, ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a al git.';
+                                          _sellerResponse = context.tr('deal_impatient_defect_accept', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                           break;
                                         case CustomerArchetype.greedyFlipper:
-                                          _sellerResponse = 'Usta yakaladın beni, helal olsun... Neyse zararın neresinden dönsek kârdır, ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a veriyorum!';
+                                          _sellerResponse = context.tr('deal_greedy_defect_accept', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                           break;
                                         case CustomerArchetype.familyMan:
-                                          _sellerResponse = 'Haklısınız, mahcup oldum şimdi... Size karşı dürüst olmak isterim, teklifiniz olan ${CurrencyFormatter.formatShort(targetDiscPrice)}\'a bırakıyorum.';
+                                          _sellerResponse = context.tr('deal_family_defect_accept', {'price': CurrencyFormatter.formatShort(targetDiscPrice)});
                                           break;
                                       }
                                     });
@@ -1122,7 +1123,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                       if (_sellerResponse == null)
                         Expanded(
                           child: NeoBrutalButton(
-                            label: '${CurrencyFormatter.formatShort(_offeredPrice)} TEKLİF ET',
+                            label: context.tr('deal_make_offer_btn', {'price': CurrencyFormatter.formatShort(_offeredPrice)}),
                             icon: Icons.handshake_rounded,
                             backgroundColor: const Color(0xFFFFDE59),
                             textColor: Colors.black,
@@ -1155,16 +1156,16 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                         _isNearMiss = false;
                                         switch (_customer.archetype) {
                                           case CustomerArchetype.skepticalOfficial:
-                                            _sellerResponse = 'Teklifiniz makul. Beyefendi/Hanımefendi gibi anlaştık. Hayırlı olsun.';
+                                            _sellerResponse = context.tr('deal_skeptical_accept');
                                             break;
                                           case CustomerArchetype.impatientYouth:
-                                            _sellerResponse = 'Süper, hızını sevdim! Ver elini, hayırlı olsun.';
+                                            _sellerResponse = context.tr('deal_impatient_accept');
                                             break;
                                           case CustomerArchetype.greedyFlipper:
-                                            _sellerResponse = 'Tamam arkadaşım, nakit hazırsa hemen notere geçiyoruz. Dediğin fiyata veriyorum.';
+                                            _sellerResponse = context.tr('deal_greedy_accept');
                                             break;
                                           case CustomerArchetype.familyMan:
-                                            _sellerResponse = 'Ortada buluştuk diyelim, aileye gidecek araba sonuçta. Hayırlı uğurlu olsun.';
+                                            _sellerResponse = context.tr('deal_family_accept');
                                             break;
                                         }
                                       });
@@ -1178,20 +1179,20 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                         _isNearMiss = isNear;
                                         _isLockedOut = isLocked;
                                         if (isLocked) {
-                                          _sellerResponse = '3 kere pazarlık yaptık, anlaşamıyoruz. Daha fazla vaktimi harcama!';
+                                          _sellerResponse = context.tr('deal_seller_locked_resp');
                                         } else {
                                           switch (_customer.archetype) {
                                             case CustomerArchetype.skepticalOfficial:
-                                              _sellerResponse = 'Maalesef bu fiyat aracımın değerini yansıtmıyor. İyi günler dilerim.';
+                                              _sellerResponse = context.tr('deal_skeptical_reject');
                                               break;
                                             case CustomerArchetype.impatientYouth:
-                                              _sellerResponse = 'O fiyata bedava vereyim istersen? Yok kardeşim, kurtarmaz.';
+                                              _sellerResponse = context.tr('deal_impatient_reject');
                                               break;
                                             case CustomerArchetype.greedyFlipper:
-                                              _sellerResponse = 'Bizi mi koparıyorsun ustam? O fiyata ölüsü bile verilmez, biraz daha yukarı çık.';
+                                              _sellerResponse = context.tr('deal_greedy_reject');
                                               break;
                                             case CustomerArchetype.familyMan:
-                                              _sellerResponse = 'Kusura bakmayın, o fiyata verirsem aile bütçemiz çok sarsılır. Biraz daha yükseltmeniz lazım.';
+                                              _sellerResponse = context.tr('deal_family_reject');
                                               break;
                                           }
                                         }
@@ -1203,7 +1204,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                       else if (_isAccepted)
                         Expanded(
                           child: NeoBrutalButton(
-                            label: '${CurrencyFormatter.formatShort(_agreedFinalPrice ?? _offeredPrice)} ÖDE VE SATIN AL',
+                            label: context.tr('deal_pay_and_buy_btn', {'price': CurrencyFormatter.formatShort(_agreedFinalPrice ?? _offeredPrice)}),
                             icon: Icons.shopping_bag_rounded,
                             backgroundColor: const Color(0xFF00E575),
                             textColor: Colors.black,
@@ -1217,7 +1218,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                     if (game.ownedCars.length >= game.maxGarageSlots) {
                                       NotificationService.showError(
                                         context,
-                                        'Garajınız dolu: ${game.ownedCars.length}/${game.maxGarageSlots}! Yeni araç almadan önce bir aracınızı satmalı veya garajınızı genişletmelisiniz.',
+                                        context.tr('deal_garage_full_msg', {'current': game.ownedCars.length, 'max': game.maxGarageSlots}),
                                       );
                                       return;
                                     }
@@ -1281,7 +1282,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                                       ),
                                                       const SizedBox(height: 24),
                                                       NeoBrutalButton(
-                                                        label: 'Anladım',
+                                                        label: context.tr('modal_understood'),
                                                         icon: Icons.check_circle_outline,
                                                         backgroundColor: const Color(0xFFFFDE59),
                                                         textColor: Colors.black,
@@ -1298,7 +1299,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                                           } else {
                                             NotificationService.showSuccess(
                                               context,
-                                              'Tebrikler! ${currentListing.car.brand} ${currentListing.car.modelName} ${CurrencyFormatter.formatShort(_offeredPrice)} fiyata satın alındı!',
+                                              context.tr('deal_buy_success_toast', {'brand': currentListing.car.brand, 'model': currentListing.car.modelName, 'price': CurrencyFormatter.formatShort(_offeredPrice)}),
                                             );
                                           }
                                         }
@@ -1313,7 +1314,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                       else if (!_isLockedOut)
                         Expanded(
                           child: NeoBrutalButton(
-                            label: 'TEKLİFİ REVİZE ET • ${3 - _counterOfferCount} Hak Kaldı',
+                            label: context.tr('deal_revise_offer_btn', {'count': 3 - _counterOfferCount}),
                             icon: Icons.refresh_rounded,
                             backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -1335,7 +1336,7 @@ class _InteractiveNegotiationSheetState extends ConsumerState<InteractiveNegotia
                       else
                         Expanded(
                           child: NeoBrutalButton(
-                            label: 'MASADAN AYRIL',
+                            label: context.tr('deal_leave_table_btn'),
                             icon: Icons.close_rounded,
                             backgroundColor: const Color(0xFFEF4444),
                             textColor: Colors.white,

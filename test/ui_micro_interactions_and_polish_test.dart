@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/presentation/widgets/animated_rolling_counter.dart';
@@ -12,7 +13,14 @@ void main() {
   group('UI Micro-Interactions & Polish Widget Tests', () {
     testWidgets('AnimatedRollingCounter formats currency and renders with tabular figures', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: AnimatedRollingCounter(
               value: 450000,
@@ -32,7 +40,14 @@ void main() {
 
     testWidgets('AnimatedRollingCounter short format formats correctly', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: AnimatedRollingCounter(
               value: 1250000,
@@ -52,6 +67,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: SlamStampWidget(
               text: 'NOTER ONAYLI',
@@ -71,7 +93,14 @@ void main() {
 
     testWidgets('PulsingDot animates breathing pulse and renders ripple', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: PulsingDot(
               color: Color(0xFF00E575),
@@ -89,7 +118,14 @@ void main() {
 
     testWidgets('StaggeredItemEntry fades and translates into view', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: StaggeredItemEntry(
               index: 2,
@@ -110,6 +146,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: Center(
               child: NeoBrutalButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -71,9 +72,9 @@ class WorkshopEquipmentTile extends StatelessWidget {
                       ),
                     ),
                     if (isOwned)
-                      const NeoBrutalBadge(
-                        text: 'SAHİPSİN',
-                        backgroundColor: Color(0xFF00E575),
+                      NeoBrutalBadge(
+                        text: context.tr('equipment_badge_owned'),
+                        backgroundColor: const Color(0xFF00E575),
                         textColor: Colors.black,
                         fontSize: 9,
                       ),
@@ -86,7 +87,7 @@ class WorkshopEquipmentTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isOwned ? 'Atölyeye kuruldu' : 'Fiyat: ${CurrencyFormatter.format(cost)}',
+                  isOwned ? context.tr('equipment_installed') : context.tr('equipment_price_label', {'cost': CurrencyFormatter.format(cost)}),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -99,7 +100,7 @@ class WorkshopEquipmentTile extends StatelessWidget {
           const SizedBox(width: 8),
           if (!isOwned)
             NeoBrutalButton(
-              label: 'SATIN AL',
+              label: context.tr('equipment_btn_buy'),
               icon: Icons.shopping_cart_rounded,
               backgroundColor: const Color(0xFF00E575),
               textColor: Colors.black,

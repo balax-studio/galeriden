@@ -31,7 +31,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: context.tr('media_agency_app_bar'),
+        title: context.tr('media_agency_title'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
@@ -65,7 +65,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          context.tr('media_active_launch_title'),
+                          context.tr('media_active_pr_title'),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
@@ -75,7 +75,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                         ),
                       ),
                       NeoBrutalBadge(
-                        text: context.tr('media_remaining_days_badge', {'days': '${activePr.remainingDays(game.currentDay)}'}),
+                        text: context.tr('media_duration_badge', {'days': '${activePr.remainingDays(game.currentDay)}'}),
                         backgroundColor: const Color(0xFF38BDF8),
                         textColor: Colors.black,
                         fontWeight: FontWeight.w900,
@@ -105,9 +105,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatItem('Müşteri Akını', '+%${((activePr.customerFlowMultiplier - 1) * 100).toInt()}', const Color(0xFF10B981), isDark),
-                        _buildStatItem('Teklif Fiyatı', '+%${(activePr.offerPriceBoost * 100).toInt()}', const Color(0xFFFFDE59), isDark),
-                        _buildStatItem('Pazarlık Kolaylığı', '-%${(activePr.negotiationResistanceReduction * 100).toInt()}', const Color(0xFF38BDF8), isDark),
+                        _buildStatItem(context.tr('media_stat_customer_flow'), '+%${((activePr.customerFlowMultiplier - 1) * 100).toInt()}', const Color(0xFF10B981), isDark),
+                        _buildStatItem(context.tr('media_stat_offer_price'), '+%${(activePr.offerPriceBoost * 100).toInt()}', const Color(0xFFFFDE59), isDark),
+                        _buildStatItem(context.tr('media_stat_negotiation_ease'), '-%${(activePr.negotiationResistanceReduction * 100).toInt()}', const Color(0xFF38BDF8), isDark),
                       ],
                     ),
                   ),
@@ -135,7 +135,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Ulusal medya ve otomotiv YouTuberları ile anlaşarak vitrininizdeki araçlara zengin alıcı akını çekin.',
+                      context.tr('media_info_card_text'),
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
@@ -151,7 +151,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
           ],
 
           Text(
-            context.tr('media_campaigns_header'),
+            context.tr('media_agency_title'),
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
@@ -216,14 +216,14 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                               Row(
                                 children: [
                                   NeoBrutalBadge(
-                                    text: '${campaign.durationDays} Gün Lansman',
+                                    text: context.tr('media_duration_badge', {'days': campaign.durationDays}),
                                     backgroundColor: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
                                     textColor: isDark ? Colors.white : Colors.black,
                                     fontSize: 10,
                                   ),
                                   const SizedBox(width: 6),
                                   NeoBrutalBadge(
-                                    text: '+${campaign.reputationReward} İtibar',
+                                    text: context.tr('media_reputation_badge', {'points': campaign.reputationReward}),
                                     backgroundColor: const Color(0xFFFFDE59),
                                     textColor: Colors.black,
                                     fontSize: 10,
@@ -251,9 +251,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildPerkChip('Müşteri Akını: +%${((campaign.customerFlowMultiplier - 1) * 100).toInt()}', const Color(0xFF10B981), isDark),
-                        _buildPerkChip('Teklif Değeri: +%${(campaign.offerPriceBoost * 100).toInt()}', const Color(0xFFFFDE59), isDark),
-                        _buildPerkChip('Direnç Kırma: -%${(campaign.negotiationResistanceReduction * 100).toInt()}', const Color(0xFF38BDF8), isDark),
+                        _buildPerkChip(context.tr('media_chip_customer_flow', {'percent': ((campaign.customerFlowMultiplier - 1) * 100).toInt()}), const Color(0xFF10B981), isDark),
+                        _buildPerkChip(context.tr('media_chip_offer_value', {'percent': (campaign.offerPriceBoost * 100).toInt()}), const Color(0xFFFFDE59), isDark),
+                        _buildPerkChip(context.tr('media_chip_negotiation_ease', {'percent': (campaign.negotiationResistanceReduction * 100).toInt()}), const Color(0xFF38BDF8), isDark),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -263,14 +263,6 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'KAMPANYA BÜTÇESİ',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                              ),
-                            ),
                             Text(
                               CurrencyFormatter.formatShort(campaign.cost),
                               style: TextStyle(
@@ -285,8 +277,8 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                         ),
                         NeoBrutalButton(
                           label: isCurrent
-                              ? context.tr('media_active_btn')
-                              : (isCampaignRunning ? context.tr('media_busy_btn') : context.tr('media_sign_btn')),
+                              ? context.tr('media_btn_campaign_active')
+                              : context.tr('media_btn_start_campaign'),
                           backgroundColor: isCurrent
                               ? const Color(0xFF10B981)
                               : (canAfford && !isCampaignRunning ? const Color(0xFF38BDF8) : const Color(0xFF64748B)),
@@ -396,12 +388,12 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
     if (success) {
       NotificationService.showSuccess(
         context,
-        '${campaign.title} anlaşması imzalandı! ${campaign.durationDays} gün boyunca yoğun müşteri akını başladı.',
+        context.tr('media_start_success_toast', {'agency': campaign.title}),
       );
     } else {
       NotificationService.showError(
         context,
-        'Yetersiz Bakiye! Bu kampanya için ${CurrencyFormatter.format(campaign.cost)} gerekiyor.',
+        context.tr('media_insufficient_funds_toast', {'cost': CurrencyFormatter.format(campaign.cost), 'agency': campaign.title}),
       );
     }
   }

@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -105,14 +106,14 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                     child: const Icon(Icons.radar_rounded, size: 16, color: Colors.black),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    '2D KAPORTA & BOYA RADARI',
+                  Text(
+                    context.tr('micron_title'),
                     style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                   ),
                 ],
               ),
               NeoBrutalBadge(
-                text: '$scannedCount/$totalParts PARÇA TARANDI',
+                text: context.tr('micron_progress', {'scanned': '$scannedCount', 'total': '$totalParts'}),
                 backgroundColor: isFullScanned ? AppColors.brutalGreen : (isDark ? const Color(0xFF222B3F) : const Color(0xFFE2E8F0)),
                 textColor: isFullScanned ? Colors.black : (isDark ? Colors.white : Colors.black),
                 fontSize: 9.5,
@@ -140,12 +141,12 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'DİJİTAL MİKRON PROBU:',
+                    Text(
+                      context.tr('micron_probe_title'),
                       style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                     ),
                     Text(
-                      _selectedPartKey ?? 'Parçaya dokunup probu temas ettir',
+                      _selectedPartKey ?? context.tr('micron_probe_hint'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,

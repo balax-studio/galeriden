@@ -1,3 +1,4 @@
+import '../../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -61,7 +62,7 @@ class DashboardRetentionModals {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      recap['title'] as String? ?? 'YOKLUĞUNDA NELER OLDU?',
+                      recap['title'] as String? ?? context.tr('retention_offline_title'),
                       style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
                     ),
                   ),
@@ -79,7 +80,7 @@ class DashboardRetentionModals {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Kazanılan Pasif Gelir:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text(context.tr('retention_passive_income'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                       Text(
                         '+${CurrencyFormatter.format(earnedIncome)}',
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
@@ -104,7 +105,7 @@ class DashboardRetentionModals {
               ),
               const SizedBox(height: 16),
               NeoBrutalButton(
-                label: 'Ödülleri Topla & Başla',
+                label: context.tr('retention_claim_rewards'),
                 icon: Icons.check_circle_rounded,
                 backgroundColor: const Color(0xFF00E575),
                 textColor: Colors.black,
@@ -183,7 +184,7 @@ class DashboardRetentionModals {
                 children: [
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'Oyunda Kal',
+                      label: context.tr('retention_stay_button'),
                       backgroundColor: const Color(0xFFFFDE59),
                       textColor: Colors.black,
                       onPressed: () => Navigator.pop(ctx),
@@ -192,7 +193,7 @@ class DashboardRetentionModals {
                   const SizedBox(width: 8),
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'Çıkış Yap',
+                      label: context.tr('retention_exit_button'),
                       backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
                       onPressed: () {
@@ -284,16 +285,16 @@ class DashboardRetentionModals {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Hediye İçeriği:',
+              Text(
+                context.tr('retention_gift_content'),
                 style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              const Text('• ₺15.000 Dükkan Açılış Hibe Desteği', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00E575))),
-              const Text('• 1 Adet Ücretsiz Tam Kapsamlı Ekspertiz Çeki', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF38BDF8))),
+              Text(context.tr('retention_gift_grant_1'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00E575))),
+              Text(context.tr('retention_gift_grant_2'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF38BDF8))),
               const SizedBox(height: 16),
               NeoBrutalButton(
-                label: 'Hediyeyi Kabul Et & Başla',
+                label: context.tr('retention_gift_accept'),
                 icon: Icons.check_circle_rounded,
                 backgroundColor: const Color(0xFFFFDE59),
                 textColor: Colors.black,

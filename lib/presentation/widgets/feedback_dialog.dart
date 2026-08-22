@@ -1,3 +1,4 @@
+import '../../core/localization/app_localizations.dart';
 import 'dart:convert';
 import 'dart:io' show HttpClient, HttpHeaders;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -17,14 +18,14 @@ import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
 
 enum FeedbackCategory {
-  bugReport('Hata Bildirimi', Icons.bug_report_rounded),
-  featureRequest('Yeni Özellik İsteği', Icons.auto_awesome_rounded),
-  balanceEconomy('Oyun Dengesi & Ekonomi', Icons.account_balance_rounded),
-  generalIdea('Genel Öneri & Fikir', Icons.lightbulb_rounded);
+  bugReport('feedback_cat_bug', Icons.bug_report_rounded),
+  featureRequest('feedback_cat_feature', Icons.auto_awesome_rounded),
+  balanceEconomy('feedback_cat_balance', Icons.account_balance_rounded),
+  generalIdea('feedback_cat_idea', Icons.lightbulb_rounded);
 
-  final String label;
+  final String labelKey;
   final IconData icon;
-  const FeedbackCategory(this.label, this.icon);
+  const FeedbackCategory(this.labelKey, this.icon);
 }
 
 class FeedbackDialog extends ConsumerStatefulWidget {
@@ -113,13 +114,13 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     final message = _messageController.text.trim();
 
     if (title.isEmpty || message.isEmpty) {
-      NotificationService.showWarning(context, 'Lütfen konu başlığı ve mesajınızı eksiksiz doldurun.');
+      NotificationService.showWarning(context, context.tr('feedback_fill_required'));
       return;
     }
 
     final game = ref.read(gameProvider);
-    final subject = 'Galeriden Tycoon Geri Bildirim • ${_selectedCategory.label} • $title';
-    final body = '''Kategori: ${_selectedCategory.label}
+    final subject = 'Galeriden Tycoon Geri Bildirim • ${context.tr(_selectedCategory.labelKey)} • $title';
+    final body = '''Kategori: ${context.tr(_selectedCategory.labelKey)}
 Konu: $title
 
 Mesaj:
@@ -154,12 +155,12 @@ Zaman: ${DateTime.now().toLocal()}''';
         Navigator.of(context).pop();
         NotificationService.showSuccess(
           context,
-          'E-posta uygulamanız açıldı. Katkınız için teşekkürler!',
+          context.tr('feedback_mail_opened'),
         );
       }
     } catch (_) {
       if (mounted) {
-        NotificationService.showError(context, 'E-posta uygulaması açılamadı.');
+        NotificationService.showError(context, context.tr('feedback_error_occurred'));
       }
     }
   }
@@ -167,9 +168,11 @@ Zaman: ${DateTime.now().toLocal()}''';
   Future<void> _submitFeedback() async {
     final title = _titleController.text.trim();
     final message = _messageController.text.trim();
+    final fillRequiredText = context.tr('feedback_fill_required');
+    final categoryName = context.tr(_selectedCategory.labelKey);
 
     if (title.isEmpty || message.isEmpty) {
-      NotificationService.showWarning(context, 'Lütfen konu başlığı ve mesajınızı eksiksiz doldurun.');
+      NotificationService.showWarning(context, fillRequiredText);
       return;
     }
 
@@ -182,7 +185,7 @@ Zaman: ${DateTime.now().toLocal()}''';
 
       final feedbackEntry = {
         'timestamp': DateTime.now().toIso8601String(),
-        'category': _selectedCategory.label,
+        'category': categoryName,
         'title': title,
         'message': message,
         'appVersion': GameConstants.appVersion,
@@ -197,7 +200,7 @@ Zaman: ${DateTime.now().toLocal()}''';
 
       // 2. Dispatch to endpoint with valid headers
       final isSent = await _dispatchToEmailEndpoint(
-        category: _selectedCategory.label,
+        category: categoryName,
         title: title,
         message: message,
         version: GameConstants.appVersion,
@@ -213,7 +216,7 @@ Zaman: ${DateTime.now().toLocal()}''';
           Navigator.of(context).pop();
           NotificationService.showSuccess(
             context,
-            'Geri bildiriminiz geliştiriciye başarıyla iletildi. Değerli katkınız için teşekkür ederiz!',
+            context.tr('feedback_sent_success'),
           );
         }
       } else {
@@ -222,7 +225,7 @@ Zaman: ${DateTime.now().toLocal()}''';
           setState(() => _isSubmitting = false);
           NotificationService.showInfo(
             context,
-            'Doğrudan iletim sağlanamadı. Bildiriminiz e-posta uygulamanıza aktarılıyor...',
+            context.tr('feedback_fallback_notice'),
           );
           await _sendViaMailApp();
         }
@@ -230,7 +233,7 @@ Zaman: ${DateTime.now().toLocal()}''';
     } catch (_) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        NotificationService.showError(context, 'Geri bildirim iletilirken bir sorun oluştu.');
+        NotificationService.showError(context, context.tr('feedback_error_occurred'));
       }
     }
   }
@@ -280,12 +283,12 @@ Zaman: ${DateTime.now().toLocal()}''';
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'GERİ BİLDİRİM & ÖNERİ',
+                            Text(
+                              context.tr('feedback_title'),
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                             ),
                             Text(
-                              'Geliştirici Ekibe Anonim İlet',
+                              context.tr('feedback_subtitle'),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
@@ -306,7 +309,7 @@ Zaman: ${DateTime.now().toLocal()}''';
 
                 // Category Selector
                 Text(
-                  'BİLDİRİM KATEGORİSİ',
+                  context.tr('feedback_category_label'),
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w900,
@@ -349,7 +352,7 @@ Zaman: ${DateTime.now().toLocal()}''';
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              cat.label,
+                              context.tr(cat.labelKey),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w900,
@@ -366,7 +369,7 @@ Zaman: ${DateTime.now().toLocal()}''';
 
                 // Title Field
                 Text(
-                  'KONU BAŞLIĞI',
+                  context.tr('feedback_topic_label'),
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w900,
@@ -385,7 +388,7 @@ Zaman: ${DateTime.now().toLocal()}''';
                   ),
                   decoration: InputDecoration(
                     counterText: '',
-                    hintText: 'Örn: Özel plaka seçerken takılma oldu...',
+                    hintText: context.tr('feedback_topic_hint'),
                     hintStyle: TextStyle(fontSize: 11.5, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     filled: true,
@@ -407,7 +410,7 @@ Zaman: ${DateTime.now().toLocal()}''';
 
                 // Message Field
                 Text(
-                  'AÇIKLAMA VE DETAYLAR',
+                  context.tr('feedback_details_label'),
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w900,
@@ -426,7 +429,7 @@ Zaman: ${DateTime.now().toLocal()}''';
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Karşılaştığınız sorunu veya oyunda görmek istediğiniz yeniliği açıklayınız...',
+                    hintText: context.tr('feedback_details_hint'),
                     hintStyle: TextStyle(fontSize: 11.5, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
                     contentPadding: const EdgeInsets.all(12),
                     filled: true,
@@ -450,7 +453,7 @@ Zaman: ${DateTime.now().toLocal()}''';
                 Row(
                   children: [
                     NeoBrutalBadge(
-                      text: 'Anonim • v${GameConstants.appVersion} • Sv.${game.level} • Gün ${game.currentDay}',
+                      text: context.tr('feedback_anon_diag', {'ver': GameConstants.appVersion, 'level': game.level, 'day': game.currentDay}),
                       icon: Icons.security_rounded,
                       backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
                       textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
@@ -465,7 +468,7 @@ Zaman: ${DateTime.now().toLocal()}''';
                   children: [
                     Expanded(
                       child: NeoBrutalButton(
-                        label: 'VAZGEÇ',
+                        label: context.tr('feedback_btn_cancel'),
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
                         fontSize: 11.5,
@@ -476,7 +479,7 @@ Zaman: ${DateTime.now().toLocal()}''';
                     Expanded(
                       flex: 2,
                       child: NeoBrutalButton(
-                        label: _isSubmitting ? 'İLETİLİYOR...' : 'BİLDİRİMİ GÖNDER',
+                        label: _isSubmitting ? context.tr('feedback_btn_submitting') : context.tr('feedback_btn_send'),
                         icon: Icons.send_rounded,
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
@@ -488,7 +491,7 @@ Zaman: ${DateTime.now().toLocal()}''';
                 ),
                 const SizedBox(height: 8),
                 NeoBrutalButton(
-                  label: 'E-POSTA UYGULAMASIYLA GÖNDER',
+                  label: context.tr('feedback_btn_email'),
                   icon: Icons.mail_outline_rounded,
                   backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                   textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),

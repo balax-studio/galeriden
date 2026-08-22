@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,10 +34,10 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
     if (!game.isFeatureUnlocked('/showroom-decor')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'SHOWROOM & MİMARİ DEKORASYON'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('decor_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/showroom-decor',
-          featureTitle: 'SHOWROOM MİMARİ DEKOR',
+          featureTitle: context.tr('decor_screen_title'),
           icon: Icons.palette_rounded,
         ),
       );
@@ -55,8 +56,8 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'SHOWROOM & MİMARİ DEKORASYON',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('decor_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -90,13 +91,13 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'GALERİ MİMARİSİ & PATRON KÖŞESİ',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                          Text(
+                            context.tr('decor_overview_title'),
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '$unlockedCount / $totalCount Mimari Eşya İnşa Edildi • +${totalRepGained.toInt()} İtibar',
+                            context.tr('decor_overview_sub', {'built': '$unlockedCount', 'total': '$totalCount', 'rep': '${totalRepGained.toInt()}'}),
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                           ),
                         ],
@@ -118,9 +119,9 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStatColumn('Pazarlık Gücü', game.hasDecor('decor_leather_chair_desk') ? '+%4 İkna' : 'Standart', isDark, AppColors.brutalGreen),
-                      _buildStatColumn('Konsinye Talebi', game.hasDecor('decor_copper_samovar') ? '+%25 Talep' : 'Standart', isDark, const Color(0xFFF97316)),
-                      _buildStatColumn('Gece Güvenliği', game.hasFullSecurityProtection ? 'Tam Korumalı' : 'Korumasız', isDark, game.hasFullSecurityProtection ? AppColors.brutalGreen : const Color(0xFFEF4444)),
+                      _buildStatColumn(context.tr('decor_stat_bargain'), game.hasDecor('decor_leather_chair_desk') ? context.tr('decor_stat_persuade_bonus') : context.tr('decor_stat_standard'), isDark, AppColors.brutalGreen),
+                      _buildStatColumn(context.tr('decor_stat_consignment'), game.hasDecor('decor_copper_samovar') ? context.tr('decor_stat_demand_bonus') : context.tr('decor_stat_standard'), isDark, const Color(0xFFF97316)),
+                      _buildStatColumn(context.tr('decor_stat_security'), game.hasFullSecurityProtection ? context.tr('decor_stat_full_protected') : context.tr('decor_stat_unprotected'), isDark, game.hasFullSecurityProtection ? AppColors.brutalGreen : const Color(0xFFEF4444)),
                     ],
                   ),
                 ),
@@ -247,8 +248,8 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                         ),
                         const SizedBox(width: 6),
                         if (isPurchased)
-                          const NeoBrutalBadge(
-                            text: 'AKTİF',
+                          NeoBrutalBadge(
+                            text: context.tr('decor_badge_active'),
                             icon: Icons.check_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
@@ -256,7 +257,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                           )
                         else if (!isLevelUnlocked)
                           NeoBrutalBadge(
-                            text: 'SEVİYE ${item.minDealershipLevel}',
+                            text: context.tr('branch_badge_level', {'level': '${item.minDealershipLevel}'}),
                             icon: Icons.lock_rounded,
                             backgroundColor: const Color(0xFF64748B),
                             textColor: Colors.white,
@@ -264,7 +265,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                           )
                         else
                           NeoBrutalBadge(
-                            text: '+${item.reputationBonus.toStringAsFixed(0)} İtibar',
+                            text: context.tr('decor_badge_rep', {'rep': item.reputationBonus.toStringAsFixed(0)}),
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -295,7 +296,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'RPG Özelliği: ${item.perkSummary}',
+                              context.tr('decor_rpg_perk', {'perk': item.perkSummary}),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w700,
@@ -312,7 +313,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isPurchased ? 'İNŞA EDİLDİ' : CurrencyFormatter.formatShort(item.cost),
+                          isPurchased ? context.tr('decor_built_label') : CurrencyFormatter.formatShort(item.cost),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
@@ -321,10 +322,10 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                         ),
                         NeoBrutalButton(
                           label: isPurchased
-                              ? 'İNŞA EDİLDİ'
+                              ? context.tr('decor_built_label')
                               : (!isLevelUnlocked
-                                  ? 'SEVİYE ${item.minDealershipLevel} GEREKLİ'
-                                  : (canAfford ? 'İNŞA ET' : 'YETERSİZ BAKİYE')),
+                                  ? context.tr('branch_btn_level_req', {'level': '${item.minDealershipLevel}'})
+                                  : (canAfford ? context.tr('decor_btn_build') : context.tr('insufficient_balance'))),
                           icon: isPurchased
                               ? Icons.check_circle_rounded
                               : (!isLevelUnlocked

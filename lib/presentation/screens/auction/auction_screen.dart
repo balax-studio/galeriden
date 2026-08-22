@@ -39,7 +39,18 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   bool _isWindowOpen = true;
   bool _isOfficerConsulted = false;
   String? _officerSpeech;
-  int _selectedTabIndex = 0; // 0: Canlı Müzayede Masası, 1: Müzayede Kataloğu (Gelecek Lotlar)
+  int _selectedTabIndex = 0;
+  bool _isAuctionInitialized = false; // 0: Canlı Müzayede Masası, 1: Müzayede Kataloğu (Gelecek Lotlar)
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isAuctionInitialized) {
+      _isAuctionInitialized = true;
+      _bidLogs.add(context.tr('auction_session_started'));
+      _bidLogs.add(context.tr('auction_starting_price_log', {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
+    }
+  }
 
   @override
   void initState() {
@@ -56,8 +67,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
     _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
 
-    _bidLogs.add('Gümrük ve Tasfiye İhale Seansı Başladı!');
-    _bidLogs.add('Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+    
     _startAuctionTimer();
   }
 
@@ -123,7 +133,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         GameSoundHapticService.playAuctionBid();
         setState(() {
           _auction = updated;
-          _bidLogs.insert(0, '${updated.highestBidderName} teklif yükseltti: ${CurrencyFormatter.formatShort(updated.currentBid)}');
+          _bidLogs.insert(0, context.tr('auction_bid_raised_log', {'bidder': updated.highestBidderName, 'price': CurrencyFormatter.formatShort(updated.currentBid)}));
         });
       }
     });
@@ -131,20 +141,20 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
   void _placePlayerBid(double increment, {bool isAggressiveFlag = false}) {
     if (_auction.isPlayerHighestBidder) {
-      NotificationService.showInfo(context, 'En yüksek teklif zaten senin! Rakip teklif bekleniyor.');
+      NotificationService.showInfo(context, context.tr('auction_highest_bid_yours'));
       return;
     }
 
     final game = ref.read(gameProvider);
     if (game.ownedCars.length >= game.maxGarageSlots) {
-      NotificationService.showError(context, 'Garajınız dolu! Yeni araç almadan önce mevcut araçlarınızı satmalı veya garajınızı genişletmelisiniz.');
+      NotificationService.showError(context, context.tr('auction_garage_full_err'));
       return;
     }
 
     final nextBid = _auction.currentBid + increment;
 
     if (game.balance < nextBid) {
-      NotificationService.showError(context, 'Yetersiz Bakiye! Bu teklifi veremezsin.');
+      NotificationService.showError(context, context.tr('deal_insufficient_balance'));
       return;
     }
 
@@ -153,25 +163,27 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _hasPlayerEnteredBid = true;
       _auction = _auction.copyWith(
         currentBid: nextBid,
-        highestBidderName: '${game.dealershipName} • Sen',
+        highestBidderName: '${game.dealershipName} • ${context.tr('profile_player_suffix')}',
         isPlayerHighestBidder: true,
         secondsRemaining: (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
-        activeSpeech: isAggressiveFlag ? 'Bayrak kaldırdın! Rakipler tereddütte kaldı.' : null,
+        activeSpeech: isAggressiveFlag ? context.tr('auction_flag_raised_speech') : null,
         activeSpeakerName: isAggressiveFlag ? game.dealershipName : null,
       );
-      _bidLogs.insert(0, isAggressiveFlag ? 'AGRESİF BAYRAK TEKLİFİ: ${CurrencyFormatter.formatShort(nextBid)}' : 'SENİN TEKLİFİN: ${CurrencyFormatter.formatShort(nextBid)}');
+      _bidLogs.insert(0, isAggressiveFlag
+          ? context.tr('auction_aggressive_flag_bid', {'price': CurrencyFormatter.formatShort(nextBid)})
+          : context.tr('auction_your_bid_log', {'price': CurrencyFormatter.formatShort(nextBid)}));
     });
   }
 
   void _executeTrollBluff() {
     if (_auction.isPlayerHighestBidder) {
-      NotificationService.showWarning(context, 'Zaten lider teklif sende! Blöf için bir rakibin teklif vermesini beklemelisin.');
+      NotificationService.showWarning(context, context.tr('auction_already_leading'));
       return;
     }
 
     final activeRivals = _auction.rivals.where((r) => !r.isFolded).toList();
     if (activeRivals.isEmpty) {
-      NotificationService.showInfo(context, 'Tüm rakipler çekildi, blöf yapacak rakip kalmadı!');
+      NotificationService.showInfo(context, context.tr('auction_all_folded'));
       return;
     }
 
@@ -184,21 +196,21 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     if (rName.contains('Baron') || rName.contains('Selim')) {
       extraCounter = 35000.0;
-      dialogue = '$rName kibirle gülümsedi: "Bu masanın kralı benim, çekilin kenara!"';
-      toastMsg = 'Baron Tuzağa Düştü! $rName aşırı yüksek teklif verip zarara girdi • +75 XP!';
+      dialogue = context.tr('auction_baron_speech', {'name': rName});
+      toastMsg = context.tr('auction_baron_trapped', {'name': rName});
       earnedXp = 75;
     } else if (rName.contains('Ferit') || rName.contains('Koleksiyoner')) {
       extraCounter = 20000.0;
-      dialogue = '$rName heyecanla bayrak kaldırdı: "Koleksiyonumun baş tacı olacak!"';
-      toastMsg = 'Koleksiyoner Kapıştı! $rName nadir parça uğruna bütçesini zorladı • +50 XP!';
+      dialogue = context.tr('auction_collector_speech', {'name': rName});
+      toastMsg = context.tr('auction_collector_trapped', {'name': rName});
       earnedXp = 50;
     } else if (rName.contains('Rıza') || rName.contains('Al-Sat')) {
       extraCounter = 5000.0;
-      dialogue = '$rName tereddütle: "Bu son teklifim, daha kuruş çıkmaz benden!"';
-      toastMsg = 'Al-Satçı Köşeye Sıkıştı! $rName kâr marjını kaybetti • +40 XP!';
+      dialogue = context.tr('auction_flipper_speech', {'name': rName});
+      toastMsg = context.tr('auction_flipper_trapped', {'name': rName});
     } else {
-      dialogue = 'Blöfün tuttu! $rName fahiş fiyat verdi ve sen masadan ustaca çekildin.';
-      toastMsg = 'Mükemmel Blöf! $rName araca fahiş fiyat ödemek zorunda kaldı • +40 XP!';
+      dialogue = context.tr('auction_bluff_success', {'name': rName});
+      toastMsg = context.tr('auction_bluff_toast', {'name': rName});
     }
 
     final bluffBid = _auction.currentBid + 20000.0;
@@ -214,7 +226,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         activeSpeakerName: targetRival.name,
         secondsRemaining: 3,
       );
-      _bidLogs.insert(0, 'BLÖF HAMLESİ: $rName ${CurrencyFormatter.formatShort(counterBid)} teklifle tuzağa düştü!');
+      _bidLogs.insert(0, context.tr('auction_bluff_move_log', {'name': rName, 'price': CurrencyFormatter.formatShort(counterBid)}));
     });
 
     ref.read(gameProvider.notifier).addXP(earnedXp);
@@ -238,8 +250,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
         _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
         _bidLogs.clear();
-        _bidLogs.add('Yeni Araç İhale Masasında!');
-        _bidLogs.add('Başlangıç Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+        _bidLogs.add(context.tr('auction_new_car_table'));
+        _bidLogs.add(context.tr('auction_starting_price_log', {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
       }
     });
 
@@ -295,7 +307,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 ),
                 const SizedBox(height: 12),
                 NeoBrutalBadge(
-                  text: 'Kazanılan Değer: +${CurrencyFormatter.format(loot.value)}',
+                  text: context.tr('auction_earned_value', {'val': CurrencyFormatter.format(loot.value)}),
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
                   fontSize: 12,
@@ -326,7 +338,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   void _handleAuctionEnd() {
     if (!_hasPlayerEnteredBid && !_auction.isPlayerHighestBidder) {
       setState(() {
-        _bidLogs.insert(0, 'İhale sona erdi • ${_auction.highestBidderName} kazandı.');
+        _bidLogs.insert(0, context.tr('auction_ended_winner', {'winner': _auction.highestBidderName}));
       });
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) _resetAuctionSilently();
@@ -337,7 +349,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     if (_auction.isPlayerHighestBidder) {
       final success = ref.read(gameProvider.notifier).buyCarDirectly(_auction.car, _auction.currentBid);
       if (!success) {
-        NotificationService.showError(context, 'İhale kazanıldı ancak bakiye veya garaj kapasitesi yetersiz olduğu için alım tamamlanamadı!');
+        NotificationService.showError(context, context.tr('auction_win_failed_funds'));
         _resetAuctionSilently();
         return;
       }
@@ -384,13 +396,18 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '${_auction.car.modelYear} ${_auction.car.brand} ${_auction.car.modelName} aracını ${CurrencyFormatter.formatShort(_auction.currentBid)} kelepir fiyata galerine ekledin!',
+                    context.tr('auction_win_success_desc', {
+                      'year': _auction.car.modelYear,
+                      'brand': _auction.car.brand,
+                      'model': _auction.car.modelName,
+                      'bid': CurrencyFormatter.formatShort(_auction.currentBid),
+                    }),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, height: 1.4),
                   ),
                   const SizedBox(height: 8),
                   NeoBrutalBadge(
-                    text: 'Piyasa Değeri: ${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
+                    text: context.tr('auction_market_value_label', {'val': CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}),
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                   ),
@@ -463,7 +480,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${_auction.highestBidderName} seni ${CurrencyFormatter.formatShort(_auction.currentBid)} teklifle sadece kıl payı geçti!\nBir sonraki turda fırsatı kaçırma.',
+                    context.tr('auction_lost_desc', {
+                      'winner': _auction.highestBidderName,
+                      'bid': CurrencyFormatter.formatShort(_auction.currentBid),
+                    }),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
@@ -480,7 +500,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         Navigator.of(ctx).pop();
                         AdService.instance.showRewardedAdWithFallback(
                           context: context,
-                          customRewardTitle: 'Gümrük Ekstra Süre İntikali',
+                          customRewardTitle: context.tr('auction_custom_reward_title'),
                           onRewardEarned: () {
                             setState(() {
                               _isHandlingAuctionEnd = false;
@@ -493,7 +513,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             });
                             NotificationService.showSuccess(
                               context,
-                              'Gümrük memuru çekici masaya vurdu! Seans 15 saniye uzatıldı.',
+                              context.tr('auction_time_extended_toast'),
                             );
                           },
                         );
@@ -502,7 +522,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     const SizedBox(height: 8),
                   ],
                   NeoBrutalButton(
-                    label: 'SONRAKİ İHALEYE BAK',
+                    label: context.tr('auction_next_btn'),
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fullWidth: true,
@@ -534,11 +554,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   void _switchToVipAuction() {
     final game = ref.read(gameProvider);
     if (game.level < 5) {
-      NotificationService.showWarning(context, 'VIP Müzayede Kulübü Seviye 5 ve üzeri galerilere özeldir.');
+      NotificationService.showWarning(context, context.tr('auction_vip_level_warn'));
       return;
     }
     if (game.balance < 500000) {
-      NotificationService.showWarning(context, 'VIP Müzayedeye katılmak için en az ₺500.000 teminat bakiyesi gereklidir.');
+      NotificationService.showWarning(context, context.tr('auction_vip_deposit_warn'));
       return;
     }
 
@@ -547,8 +567,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _selectedTabIndex = 1;
       _auction = AuctionEngine.createVipAuction(playerLevel: game.level);
       _bidLogs.clear();
-      _bidLogs.add('VIP Kapalı Devre Protokol Müzayedesi Başladı!');
-      _bidLogs.add('Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      _bidLogs.add(context.tr('auction_vip_session_started'));
+      _bidLogs.add(context.tr('auction_starting_price_log', {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
       _hasPlayerEnteredBid = false;
       _hasExtendedAuction = false;
       _isHandlingAuctionEnd = false;
@@ -563,8 +583,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _selectedTabIndex = 0;
       _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
       _bidLogs.clear();
-      _bidLogs.add('Gümrük ve Tasfiye İhale Seansı Başladı!');
-      _bidLogs.add('Açılış Fiyatı: ${CurrencyFormatter.formatShort(_auction.startingPrice)}');
+      
       _hasPlayerEnteredBid = false;
       _hasExtendedAuction = false;
       _isHandlingAuctionEnd = false;
@@ -791,7 +810,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             ),
                           ),
                           Text(
-                            'Kalan Süre: ${_auction.secondsRemaining} Saniye',
+                            context.tr('auction_time_remaining', {'sec': _auction.secondsRemaining}),
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                           ),
                         ],
@@ -853,7 +872,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Text('Ekspertiz Şerhi: ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                  Text(context.tr('auction_expert_note'), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                   Expanded(
                     child: Text(
                       _auction.customsNote.riskRewardFactor,
@@ -1167,7 +1186,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           ],
                         ),
                         NeoBrutalBadge(
-                          text: r.isFolded ? 'Çekildi' : r.personality,
+                          text: r.isFolded ? context.tr('auction_folded_badge') : r.personality,
                           backgroundColor: r.isFolded
                               ? (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1))
                               : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
@@ -1226,14 +1245,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 12,
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.info_outline_rounded, color: AppColors.brutalYellow, size: 20),
-              SizedBox(width: 10),
+              const Icon(Icons.info_outline_rounded, color: AppColors.brutalYellow, size: 20),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Bu seansın ardından sırayla müzayede masasına çıkacak sonraki 3 araç listelenmektedir.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                  context.tr('auction_upcoming_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -1261,7 +1280,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         fontSize: 10.5,
                       ),
                       NeoBrutalBadge(
-                        text: 'Tahmini: ${CurrencyFormatter.formatShort(lot.estimatedMarketValue)}',
+                        text: '${context.tr('auction_estimated_label')} ${CurrencyFormatter.formatShort(lot.estimatedMarketValue)}',
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
                         fontSize: 10,
@@ -1288,7 +1307,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Başlangıç Fiyatı:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                        Text(context.tr('auction_starting_price_tag'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                         Text(
                           CurrencyFormatter.formatShort(lot.startingPrice),
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
@@ -1365,10 +1384,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Gümrük ve hacizli araç ihale seansları kapalıdır. Yeni araç listeleri görevli memurlar tarafından tanzim edilmektedir.',
+                Text(
+                  context.tr('auction_closed_desc'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 16),
                 if (!_isOfficerConsulted) ...[
@@ -1397,10 +1416,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           child: const Icon(Icons.support_agent_rounded, color: Colors.black, size: 20),
                         ),
                         const SizedBox(width: 10),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Müzayede görevlisine danışarak bir sonraki ihale seansı vaktini öğrenebilirsiniz.',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                            context.tr('auction_ask_officer_desc'),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -1452,7 +1471,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Kalan Tahmini Süre: $timeStr',
+                          context.tr('auction_remaining_est_time', {'time': timeStr}),
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                         ),
                       ],
@@ -1502,19 +1521,19 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 child: const Icon(Icons.lock_rounded, size: 42, color: AppColors.brutalOrange),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'İHALE SALONU GİRİŞİ KİLİTLİ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              Text(
+                context.tr('auction_hall_locked'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 8),
               Text(
-                'Resmi devlet ve gümrük tasfiye ihalelerine katılabilmek için minimum 30 Esnaf İtibarı gereklidir.\n\nŞu anki İtibarınız: $repScore / 30',
+                context.tr('auction_hall_locked_desc', {'rep': repScore}),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B), height: 1.4),
               ),
               const SizedBox(height: 20),
               NeoBrutalButton(
-                label: 'PAZARA GİT & İTİBAR KAZAN',
+                label: context.tr('auction_goto_market_rep_btn'),
                 icon: Icons.storefront_rounded,
                 backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,

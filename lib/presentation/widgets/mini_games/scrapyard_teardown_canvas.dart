@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -166,8 +167,8 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'PARÇA SÖKÜM CERRAHİSİ',
+                      Text(
+                        context.tr('teardown_title'),
                         style: TextStyle(
                           fontSize: 14.5,
                           fontWeight: FontWeight.w900,
@@ -188,7 +189,7 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: 'KONDİSYON: %$_currentCondition',
+                  text: context.tr('teardown_condition_badge', {'cond': '$_currentCondition'}),
                   backgroundColor: _currentCondition >= 60
                       ? AppColors.brutalGreen
                       : AppColors.brutalOrange,
@@ -231,7 +232,7 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                     Positioned.fill(
                       child: Center(
                         child: SlamStampWidget(
-                          text: _isSuccess ? 'KUSURSUZ SÖKÜLDÜ' : 'CIVATA KIRILDI',
+                          text: _isSuccess ? context.tr('teardown_stamp_perfect') : context.tr('teardown_stamp_broken'),
                           color: _isSuccess ? AppColors.brutalGreen : AppColors.errorRed,
                           fontSize: 22,
                           angle: -0.08,
@@ -268,7 +269,7 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
             // Action Buttons
             if (!_isFinished) ...[
               NeoBrutalButton(
-                label: 'TORKU UYGULA • PASI KIR',
+                label: context.tr('teardown_btn_apply'),
                 icon: Icons.build_circle_rounded,
                 backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,

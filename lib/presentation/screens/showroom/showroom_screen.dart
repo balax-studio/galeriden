@@ -159,7 +159,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '${game.ownedCars.length} Araç',
+                                    context.tr('showroom_cars_count', {'count': game.ownedCars.length}),
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
@@ -176,14 +176,14 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                   children: [
                                     if (game.level < 2) ...[
                                       NeoBrutalButton(
-                                        label: 'Tümünü Yıka • Seviye 2',
+                                        label: context.tr('wash_all_lvl2_btn'),
                                         icon: Icons.lock_rounded,
                                         backgroundColor: isDark ? Colors.white12 : Colors.black12,
                                         textColor: isDark ? Colors.white54 : Colors.black54,
                                         fontSize: 10,
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                                         onPressed: () {
-                                          NotificationService.showInfo(context, 'Toplu araç yıkama tesisi Seviye 2\'de açılır!');
+                                          NotificationService.showInfo(context, context.tr('wash_all_lvl2_locked'));
                                         },
                                       ),
                                     ] else ...[
@@ -200,9 +200,9 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                             ? () {
                                                 final count = ref.read(gameProvider.notifier).washAllShowroomCars();
                                                 if (count > 0) {
-                                                  NotificationService.showSuccess(context, '$count araç yıkandı ve parlatıldı!');
+                                                  NotificationService.showSuccess(context, context.tr('wash_all_success', {'count': count}));
                                                 } else if (count == -1) {
-                                                  NotificationService.showError(context, 'Yıkama için bakiye yetersiz.');
+                                                  NotificationService.showError(context, context.tr('wash_insufficient_funds'));
                                                 }
                                               }
                                             : null,
@@ -219,9 +219,9 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                       onPressed: () {
                                         final count = ref.read(gameProvider.notifier).publishAllReadyCars();
                                         if (count > 0) {
-                                          NotificationService.showSuccess(context, '$count yeni araç ilana çıkarıldı!');
+                                          NotificationService.showSuccess(context, context.tr('publish_all_success', {'count': count}));
                                         } else {
-                                          NotificationService.showInfo(context, 'İlana konulacak hazır araç bulunamadı.');
+                                          NotificationService.showInfo(context, context.tr('publish_all_none_ready'));
                                         }
                                       },
                                     ),
@@ -236,15 +236,15 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                       onPressed: () {
                                         final count = ref.read(gameProvider.notifier).startWeekendFlashSale();
                                         if (count > 0) {
-                                          NotificationService.showSuccess(context, '$count ilanda %10 flaş indirim yapıldı! Müşteriler hızlandı.');
+                                          NotificationService.showSuccess(context, context.tr('flash_sale_success', {'count': count}));
                                         } else {
-                                          NotificationService.showInfo(context, 'İndirim uygulanacak aktif ilan bulunamadı.');
+                                          NotificationService.showInfo(context, context.tr('flash_sale_no_listings'));
                                         }
                                       },
                                     ),
                                     const SizedBox(width: 6),
                                     NeoBrutalButton(
-                                      label: 'Bayat İlanları İndir',
+                                      label: context.tr('delist_stale_btn'),
                                       icon: Icons.archive_rounded,
                                       backgroundColor: const Color(0xFFEF4444),
                                       textColor: Colors.white,
@@ -253,9 +253,9 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                       onPressed: () {
                                         final count = ref.read(gameProvider.notifier).delistStaleListings();
                                         if (count > 0) {
-                                          NotificationService.showSuccess(context, '$count adet 20+ günlük bayat ilan yayından kaldırıldı.');
+                                          NotificationService.showSuccess(context, context.tr('delist_stale_success', {'count': count}));
                                         } else {
-                                          NotificationService.showInfo(context, 'Yayında 20 günü aşmış bayat ilan yok.');
+                                          NotificationService.showInfo(context, context.tr('delist_stale_none'));
                                         }
                                       },
                                     ),
@@ -318,7 +318,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(24.0),
                               child: Text(
-                                'Bu filtreye uygun araç bulunamadı.',
+                                context.tr('empty_filtered_cars'),
                                 style: AppTypography.bodyMedium(p.isDark),
                               ),
                             ),

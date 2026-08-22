@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -107,12 +108,12 @@ class _EngineTimingModalState extends State<EngineTimingModal>
       HapticFeedback.heavyImpact();
       _isPerfect = true;
       _hpBonus = math.max(6, (widget.car.baseMarketValue / 80000).round());
-      _stampText = 'KUSURSUZ SENTE • +$_hpBonus HP';
+      _stampText = context.tr('engine_timing_stamp_perfect', {'hp': '$_hpBonus'});
     } else {
       HapticFeedback.vibrate();
       _isPerfect = false;
       _hpBonus = 2;
-      _stampText = 'STANDART SENTE • +$_hpBonus HP';
+      _stampText = context.tr('engine_timing_stamp_standard', {'hp': '$_hpBonus'});
     }
 
     setState(() {
@@ -146,8 +147,8 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'TRİGER SENTE VE TORK KALİBRATÖRÜ',
+                      Text(
+                        context.tr('engine_timing_title'),
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w900,
@@ -157,7 +158,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${widget.car.brand} ${widget.car.modelName} • Motor Revizyonu',
+                        context.tr('engine_timing_subtitle', {'brand': widget.car.brand, 'model': widget.car.modelName}),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -168,9 +169,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: _phase == 0
-                      ? 'AŞAMA 1/2 • SENTE'
-                      : (_phase == 1 ? 'AŞAMA 2/2 • TORK' : 'KALİBRE EDİLDİ'),
+                  text: _phase == 0 ? context.tr('engine_timing_step_align') : (_phase == 1 ? context.tr('engine_timing_step_torque') : context.tr('engine_timing_step_calibrated')),
                   backgroundColor: _phase == 2 ? AppColors.brutalGreen : AppColors.brutalOrange,
                   textColor: Colors.black,
                   fontSize: 9.5,
@@ -229,11 +228,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                 border: Border.all(color: const Color(0xFF2A3449)),
               ),
               child: Text(
-                _phase == 0
-                    ? 'Kasnağı çevirerek sente çentiğini kırmızı lazer çizgisine oturt!'
-                    : (_phase == 1
-                        ? 'Tork ibresi yeşil 110 Nm bölgesindeyken tork anahtarını sık!'
-                        : 'Sente ayarı tamamlandı • +$_hpBonus HP Güç artışı motor kütüğüne işlendi.'),
+                _phase == 0 ? context.tr('engine_timing_msg_align') : (_phase == 1 ? context.tr('engine_timing_msg_torque') : context.tr('engine_timing_msg_calibrated', {'hp': '$_hpBonus'})),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 11,
@@ -250,7 +245,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                 children: [
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'SOLA ÇEVİR',
+                      label: context.tr('engine_timing_btn_rotate_left'),
                       icon: Icons.rotate_left_rounded,
                       backgroundColor: const Color(0xFF1E293B),
                       textColor: Colors.white,
@@ -262,7 +257,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                   const SizedBox(width: 8),
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'SAĞA ÇEVİR',
+                      label: context.tr('engine_timing_btn_rotate_right'),
                       icon: Icons.rotate_right_rounded,
                       backgroundColor: AppColors.brutalOrange,
                       textColor: Colors.black,
@@ -275,7 +270,7 @@ class _EngineTimingModalState extends State<EngineTimingModal>
               ),
             ] else if (_phase == 1) ...[
               NeoBrutalButton(
-                label: 'TORK ANAHTARINI SIK • 110 NM',
+                label: context.tr('engine_timing_btn_tighten'),
                 icon: Icons.build_circle_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,

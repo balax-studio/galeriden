@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -63,19 +64,19 @@ class ShowroomListingModal {
             if (progressRatio <= 0.20) {
               tensionColor = AppColors.brutalGreen;
               tensionIcon = Icons.sentiment_very_satisfied_rounded;
-              tensionText = 'YUMUŞAK TEKLİF • Müşterinin Kabul Etme Olasılığı Yüksek';
+              tensionText = context.tr('tension_soft_offer');
             } else if (progressRatio <= 0.55) {
               tensionColor = AppColors.brutalYellow;
               tensionIcon = Icons.balance_rounded;
-              tensionText = 'DENGELİ PAZARLIK • Karşılıklı Adımlarla Orta Yolda Buluşulabilir';
+              tensionText = context.tr('tension_balanced_offer');
             } else if (progressRatio <= 0.85) {
               tensionColor = AppColors.brutalOrange;
               tensionIcon = Icons.hourglass_top_rounded;
-              tensionText = 'ÇETİN PAZARLIK • Müşteri Direnç Gösterecek, Strateji Kartı Şart';
+              tensionText = context.tr('tension_tough_offer');
             } else {
               tensionColor = AppColors.errorRed;
               tensionIcon = Icons.warning_amber_rounded;
-              tensionText = 'RİSKLİ TAVAN TEKLİF • Müşteri Rest Çekip Masadan Kalkabilir';
+              tensionText = context.tr('tension_risky_offer');
             }
 
             return Padding(
@@ -112,16 +113,16 @@ class ShowroomListingModal {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'KARŞI TEKLİF SUN',
-                                  style: TextStyle(
+                                Text(
+                                  context.tr('counter_offer_title'),
+                                  style: const TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
                                 Text(
-                                  '${offer.buyerName} ile Pazarlık Masası',
+                                  context.tr('counter_offer_table_sub', {'name': offer.buyerName}),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
@@ -133,7 +134,10 @@ class ShowroomListingModal {
                           ],
                         ),
                         NeoBrutalBadge(
-                          text: '$remainingCounters / ${offer.maxCounters} HAK',
+                          text: context.tr('counter_rights_badge', {
+                            'remaining': remainingCounters.toString(),
+                            'max': offer.maxCounters.toString(),
+                          }),
                           icon: Icons.repeat_rounded,
                           backgroundColor: remainingCounters <= 1 ? AppColors.errorRed : AppColors.brutalYellow,
                           textColor: Colors.black,
@@ -158,7 +162,7 @@ class ShowroomListingModal {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Alıcının Teklifi',
+                                    context.tr('buyer_offer_label'),
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
@@ -179,7 +183,7 @@ class ShowroomListingModal {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'İlan Tavan Fiyatı',
+                                    context.tr('listing_ceiling_label'),
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
@@ -200,7 +204,7 @@ class ShowroomListingModal {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Senin Karşı Teklifin',
+                                    context.tr('your_counter_offer_label'),
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
@@ -279,7 +283,7 @@ class ShowroomListingModal {
                         const Icon(Icons.psychology_rounded, size: 16, color: AppColors.brutalCyan),
                         const SizedBox(width: 6),
                         Text(
-                          'ESNAF KOZLARI & SATIŞ STRATEJİSİ',
+                          context.tr('counter_tactics_header'),
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w900,
@@ -312,7 +316,7 @@ class ShowroomListingModal {
 
                     const SizedBox(height: 20),
                     NeoBrutalButton(
-                      label: 'Karşı Teklifi İlet',
+                      label: context.tr('send_counter_offer_btn'),
                       icon: Icons.send_rounded,
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
@@ -344,14 +348,14 @@ class ShowroomListingModal {
     if (car.isLockedInShowcase) {
       NotificationService.showError(
         context,
-        'Bu araç prestij vitrinine kilitlenmiştir • Satışa çıkarılamaz!',
+        context.tr('err_car_showcase_locked'),
       );
       return;
     }
     if (car.isRented) {
       NotificationService.showError(
         context,
-        'Bu araç kirada çalışmaktadır • Satışa çıkarılamaz!',
+        context.tr('err_car_rented'),
       );
       return;
     }
@@ -414,9 +418,9 @@ class ShowroomListingModal {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'İLAN AYARLARI',
-                                style: TextStyle(
+                              Text(
+                                context.tr('listing_settings_title'),
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 0.3,
@@ -434,7 +438,7 @@ class ShowroomListingModal {
                               if (car.isDoped) ...[
                                 const SizedBox(height: 4),
                                 NeoBrutalBadge(
-                                  text: 'DOPİNGLİ İLAN',
+                                  text: context.tr('badge_doped_listing'),
                                   icon: Icons.bolt_rounded,
                                   backgroundColor: AppColors.brutalGreen,
                                   textColor: Colors.black,
@@ -479,7 +483,7 @@ class ShowroomListingModal {
                         const Icon(Icons.monetization_on_rounded, size: 16, color: AppColors.brutalYellow),
                         const SizedBox(width: 6),
                         Text(
-                          'BELİRLENEN İLAN FİYATI',
+                          context.tr('listing_target_price_title'),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -491,7 +495,7 @@ class ShowroomListingModal {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Müşterilerin vereceği tüm teklifler belirlediğiniz bu fiyatın altında kalacaktır.',
+                      context.tr('listing_target_price_desc'),
                       style: TextStyle(
                         fontSize: 11,
                         color: isDark ? Colors.white60 : const Color(0xFF64748B),
@@ -512,7 +516,7 @@ class ShowroomListingModal {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'İlan Satış Fiyatı:',
+                                context.tr('listing_sale_price_label'),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w800,
@@ -534,14 +538,18 @@ class ShowroomListingModal {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               NeoBrutalBadge(
-                                text: 'Piyasa Ekspertiz Değeri: ${CurrencyFormatter.formatShort(car.estimatedRealValue)}',
+                                text: context.tr('market_expertise_val', {
+                                  'val': CurrencyFormatter.formatShort(car.estimatedRealValue),
+                                }),
                                 icon: Icons.speed_rounded,
                                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                                 textColor: isDark ? Colors.white70 : const Color(0xFF475569),
                                 fontSize: 10,
                               ),
                               NeoBrutalBadge(
-                                text: 'Çapa: %${((selectedPrice / car.estimatedRealValue) * 100).toInt()}',
+                                text: context.tr('anchor_pct_badge', {
+                                  'val': ((selectedPrice / car.estimatedRealValue) * 100).toInt().toString(),
+                                }),
                                 icon: Icons.anchor_rounded,
                                 backgroundColor: AppColors.brutalCyan,
                                 textColor: Colors.black,
@@ -587,22 +595,22 @@ class ShowroomListingModal {
                                 badgeColor = AppColors.brutalGreen;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.bolt_rounded;
-                                badgeText = '-%${diffPct.abs().toStringAsFixed(0)} FIRSAT FİYAT • Çok Hızlı Teklif';
+                                badgeText = context.tr('listing_price_bargain_badge', {'pct': diffPct.abs().toStringAsFixed(0)});
                               } else if (diffPct <= 5) {
                                 badgeColor = AppColors.brutalYellow;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.balance_rounded;
-                                badgeText = 'PİYASA DENGESİNDE • Normal Satış Hızı';
+                                badgeText = context.tr('listing_price_balanced_badge');
                               } else if (diffPct <= 20) {
                                 badgeColor = AppColors.brutalOrange;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.hourglass_bottom_rounded;
-                                badgeText = '+%${diffPct.toStringAsFixed(0)} YÜKSEK FİYAT • Yavaş Satış';
+                                badgeText = context.tr('listing_price_high_badge', {'pct': diffPct.toStringAsFixed(0)});
                               } else {
                                 badgeColor = AppColors.errorRed;
                                 textColor = Colors.white;
                                 badgeIcon = Icons.warning_amber_rounded;
-                                badgeText = '+%${diffPct.toStringAsFixed(0)} RİSKLİ FİYAT • Riskli Fiyat';
+                                badgeText = context.tr('listing_price_risky_badge', {'pct': diffPct.toStringAsFixed(0)});
                               }
 
                               return Container(
@@ -648,7 +656,7 @@ class ShowroomListingModal {
                             children: [
                               Expanded(
                                 child: _buildPresetPriceButton(
-                                  label: 'Piyasa Değeri',
+                                  label: context.tr('btn_preset_market_val'),
                                   onTap: () {
                                     HapticFeedback.selectionClick();
                                     setState(() => selectedPrice = car.estimatedRealValue.roundToDouble());
@@ -659,7 +667,7 @@ class ShowroomListingModal {
                               const SizedBox(width: 6),
                               Expanded(
                                 child: _buildPresetPriceButton(
-                                  label: '+%10 Kâr',
+                                  label: context.tr('btn_preset_plus_10'),
                                   onTap: () {
                                     HapticFeedback.selectionClick();
                                     setState(() => selectedPrice = (car.estimatedRealValue * 1.10).roundToDouble());
@@ -670,7 +678,7 @@ class ShowroomListingModal {
                               const SizedBox(width: 6),
                               Expanded(
                                 child: _buildPresetPriceButton(
-                                  label: '+%20 Tok Satıcı',
+                                  label: context.tr('btn_preset_plus_20'),
                                   onTap: () {
                                     HapticFeedback.selectionClick();
                                     setState(() => selectedPrice = (car.estimatedRealValue * 1.20).roundToDouble());
@@ -691,7 +699,7 @@ class ShowroomListingModal {
                         const Icon(Icons.camera_alt_rounded, size: 16, color: AppColors.brutalCyan),
                         const SizedBox(width: 6),
                         Text(
-                          'FOTOĞRAF ÇEKİMİ & SUNUM SANATI',
+                          context.tr('photo_shoot_title'),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -706,8 +714,8 @@ class ShowroomListingModal {
                       children: [
                         Expanded(
                           child: _buildTactileLocationCard(
-                            title: 'Galeri Önü',
-                            subtitle: 'Ücretsiz',
+                            title: context.tr('photo_loc_dealership'),
+                            subtitle: context.tr('free'),
                             icon: Icons.storefront_rounded,
                             activeColor: AppColors.brutalYellow,
                             isSelected: selectedPhotoLocation == 'dealership',
@@ -718,8 +726,8 @@ class ShowroomListingModal {
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildTactileLocationCard(
-                            title: 'Manzaralı',
-                            subtitle: '-₺800 • +%3 İlgi',
+                            title: context.tr('photo_loc_scenic'),
+                            subtitle: context.tr('photo_loc_scenic_sub'),
                             icon: Icons.landscape_rounded,
                             activeColor: AppColors.brutalCyan,
                             isSelected: selectedPhotoLocation == 'scenic',
@@ -730,8 +738,8 @@ class ShowroomListingModal {
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildTactileLocationCard(
-                            title: 'VIP Stüdyo',
-                            subtitle: '-₺1.500 • +%5 İlgi',
+                            title: context.tr('photo_loc_studio'),
+                            subtitle: context.tr('photo_loc_studio_sub'),
                             icon: Icons.camera_rounded,
                             activeColor: AppColors.brutalPink,
                             isSelected: selectedPhotoLocation == 'studio',
@@ -751,7 +759,7 @@ class ShowroomListingModal {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Fotoğraf Sayısı',
+                                context.tr('photo_count_title'),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
@@ -778,10 +786,10 @@ class ShowroomListingModal {
                                     isExpanded: true,
                                     dropdownColor: isDark ? const Color(0xFF161922) : Colors.white,
                                     icon: const Icon(Icons.arrow_drop_down_rounded, size: 28),
-                                    items: const [
-                                      DropdownMenuItem(value: 4, child: Text('4 Fotoğraf', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 8, child: Text('8 Fotoğraf • +%2', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 12, child: Text('12 Detaylı • +%4', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                    items: [
+                                      DropdownMenuItem(value: 4, child: Text(context.tr('photo_count_4'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(value: 8, child: Text(context.tr('photo_count_8'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(value: 12, child: Text(context.tr('photo_count_12'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
                                     ],
                                     onChanged: (val) => setState(() => selectedPhotoCount = val ?? 4),
                                   ),
@@ -796,7 +804,7 @@ class ShowroomListingModal {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'İlan Tonu',
+                                context.tr('listing_tone_title'),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
@@ -823,10 +831,10 @@ class ShowroomListingModal {
                                     isExpanded: true,
                                     dropdownColor: isDark ? const Color(0xFF161922) : Colors.white,
                                     icon: const Icon(Icons.arrow_drop_down_rounded, size: 28),
-                                    items: const [
-                                      DropdownMenuItem(value: 'standard', child: Text('Standart', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 'friendly', child: Text('Samimi', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 'vip', child: Text('VIP / Kurumsal', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                    items: [
+                                      DropdownMenuItem(value: 'standard', child: Text(context.tr('listing_tone_standard'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(value: 'friendly', child: Text(context.tr('listing_tone_friendly'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(value: 'vip', child: Text(context.tr('listing_tone_vip'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
                                     ],
                                     onChanged: (val) => setState(() => selectedTone = val ?? 'standard'),
                                   ),
@@ -841,22 +849,22 @@ class ShowroomListingModal {
 
                     // SECTION 3: TACTILE TOGGLE CARDS (Senetle & Hasar Gizleme)
                     _buildTactileToggleRow(
-                      title: 'Vadeli / Senet / Çek Satışına Aç',
+                      title: context.tr('installments_toggle_title'),
                       subtitle: isFinanceUnlocked
-                          ? 'Vadeli senet ve çek tekliflerine izin ver • +%20 vade farkı. Kapalıyken SADECE %100 PEŞİN NAKİT teklif gelir.'
-                          : 'Vadeli senet ve çekli satışlar Seviye 5 Finans Merkezi kurulduğunda aktifleşir • Şu an sadece peşin nakit satış yapılabilir.',
+                          ? context.tr('installments_toggle_desc_unlocked')
+                          : context.tr('installments_toggle_desc_locked'),
                       icon: isFinanceUnlocked ? Icons.payments_rounded : Icons.lock_rounded,
                       isActive: isFinanceUnlocked && allowsInstallments,
                       isLocked: !isFinanceUnlocked,
-                      lockedBadgeText: 'KİLİTLİ • SEVİYE 5',
-                      activeLabel: 'AÇIK • VADELİ/ÇEK',
-                      inactiveLabel: 'SADECE NAKİT',
+                      lockedBadgeText: context.tr('locked_lvl5_badge'),
+                      activeLabel: context.tr('installments_active_badge'),
+                      inactiveLabel: context.tr('cash_only_badge'),
                       activeColor: AppColors.brutalGreen,
                       onToggle: () {
                         if (!isFinanceUnlocked) {
                           NotificationService.showWarning(
                             context,
-                            'Vadeli satış yapabilmek için Seviye 5 Finans Merkezi açılmalıdır.',
+                            context.tr('installments_locked_warn'),
                           );
                           return;
                         }
@@ -866,12 +874,12 @@ class ShowroomListingModal {
                     ),
                     const SizedBox(height: 8),
                     _buildTactileToggleRow(
-                      title: 'Hasarlı Açıları Fotoğrafta Gizle',
-                      subtitle: 'Kusurlu bölgeleri kadraj dışı bırak • Ekspertizde yakalanma riski',
+                      title: context.tr('hide_damages_toggle_title'),
+                      subtitle: context.tr('hide_damages_toggle_desc'),
                       icon: Icons.hide_image_rounded,
                       isActive: hideDamagedPhotos,
-                      activeLabel: 'GİZLE • RİSKLİ',
-                      inactiveLabel: 'ŞEFFAF & AÇIK',
+                      activeLabel: context.tr('hide_damages_active_badge'),
+                      inactiveLabel: context.tr('hide_damages_inactive_badge'),
                       activeColor: AppColors.brutalOrange,
                       onToggle: () => setState(() => hideDamagedPhotos = !hideDamagedPhotos),
                       isDark: isDark,
@@ -885,7 +893,7 @@ class ShowroomListingModal {
                         const Icon(Icons.gavel_rounded, size: 16, color: AppColors.brutalOrange),
                         const SizedBox(width: 6),
                         Text(
-                          'İLAN BEYANI • STRATEJİK SEÇİM',
+                          context.tr('listing_declaration_title'),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -898,9 +906,9 @@ class ShowroomListingModal {
                     const SizedBox(height: 8),
 
                     _buildTactileDeclarationCard(
-                      title: 'Dürüst İlan',
-                      subtitle: 'Araç durumu olduğu gibi beyan edilir. Risk yok.',
-                      badgeText: 'GÜVENLİ',
+                      title: context.tr('declaration_honest_title'),
+                      subtitle: context.tr('declaration_honest_desc'),
+                      badgeText: context.tr('declaration_honest_badge'),
                       icon: Icons.verified_rounded,
                       accentColor: AppColors.brutalGreen,
                       isSelected: selectedDeclaration == ListingDeclarationType.honest,
@@ -909,9 +917,9 @@ class ShowroomListingModal {
                     ),
                     const SizedBox(height: 8),
                     _buildTactileDeclarationCard(
-                      title: 'Hatasız Boyasız Hilesi',
-                      subtitle: 'Hasarlar gizlenir. Müşteri ekspertiz yaptırırsa ₺10k ceza kesilir.',
-                      badgeText: 'RİSKLİ BEYAN',
+                      title: context.tr('declaration_flawless_title'),
+                      subtitle: context.tr('declaration_flawless_desc'),
+                      badgeText: context.tr('declaration_flawless_badge'),
                       icon: Icons.car_crash_rounded,
                       accentColor: AppColors.brutalOrange,
                       isSelected: selectedDeclaration == ListingDeclarationType.flawlessClaim,
@@ -920,9 +928,9 @@ class ShowroomListingModal {
                     ),
                     const SizedBox(height: 8),
                     _buildTactileDeclarationCard(
-                      title: 'Sayaç Düşürme Hilesi',
-                      subtitle: 'KM düşürülmüş gösterilir. Beyin taramasında yakalanırsa ₺10k ceza kesilir.',
-                      badgeText: 'AĞIR SUÇ',
+                      title: context.tr('declaration_tamper_title'),
+                      subtitle: context.tr('declaration_tamper_desc'),
+                      badgeText: context.tr('declaration_tamper_badge'),
                       icon: Icons.speed_rounded,
                       accentColor: AppColors.errorRed,
                       isSelected: selectedDeclaration == ListingDeclarationType.tamperedMileageClaim,
@@ -937,7 +945,7 @@ class ShowroomListingModal {
                           const Icon(Icons.history_edu_rounded, size: 16, color: AppColors.brutalYellow),
                           const SizedBox(width: 6),
                           Text(
-                            'ARAÇ KÜNYESİ & GEÇMİŞİ',
+                            context.tr('provenance_log_title'),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
@@ -983,7 +991,7 @@ class ShowroomListingModal {
 
                     const SizedBox(height: 24),
                     NeoBrutalButton(
-                      label: 'İlanı Güncelle & Kaydet',
+                      label: context.tr('save_listing_btn'),
                       icon: Icons.check_circle_rounded,
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
@@ -1000,7 +1008,10 @@ class ShowroomListingModal {
                               allowsInstallments: ref.read(gameProvider).isFeatureUnlocked('/finance') ? allowsInstallments : false,
                             );
                         Navigator.pop(context);
-                        NotificationService.showSuccess(context, '${car.brand} ${car.modelName} ilanı güncellendi!');
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('listing_updated_toast', {'car': '${car.brand} ${car.modelName}'}),
+                        );
                       },
                     ),
                   ],

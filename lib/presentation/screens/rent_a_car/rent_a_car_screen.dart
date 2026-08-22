@@ -31,10 +31,10 @@ class RentACarScreen extends ConsumerWidget {
     if (!game.isFeatureUnlocked('/rent-a-car')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'RENT A CAR MÜDÜRLÜĞÜ'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('rent_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/rent-a-car',
-          featureTitle: 'RENT A CAR KİRALAMA',
+          featureTitle: context.tr('rent_screen_title'),
           icon: Icons.car_rental_rounded,
         ),
       );
@@ -44,8 +44,8 @@ class RentACarScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'RENT A CAR MÜDÜRLÜĞÜ',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('rent_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -76,8 +76,8 @@ class RentACarScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'GÜNLÜK KİRA GELİRİ',
+                      Text(
+                        context.tr('rent_daily_income'),
                         style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 2),
@@ -87,7 +87,7 @@ class RentACarScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${game.activeRentals.length} Araç Kirada Çalışıyor',
+                        context.tr('rent_active_count', {'count': '${game.activeRentals.length}'}),
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                       ),
                     ],
@@ -100,7 +100,7 @@ class RentACarScreen extends ConsumerWidget {
 
           // 2. Active Rentals Section
           Text(
-            'KİRADAKİ AKTİF ARAÇLAR • ${game.activeRentals.length}',
+            context.tr('rent_active_title', {'count': '${game.activeRentals.length}'}),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -111,12 +111,12 @@ class RentACarScreen extends ConsumerWidget {
           const SizedBox(height: 10),
 
           if (game.activeRentals.isEmpty)
-            const NeoBrutalEmptyState(
+            NeoBrutalEmptyState(
               icon: Icons.car_rental_rounded,
-              accentColor: Color(0xFF3B82F6),
-              badgeText: 'KİRADA ARAÇ YOK',
-              title: 'Şu Anda Kirada Çalışan Aracın Yok',
-              description: 'Galerindeki sağlam araçları kurumsal müşterilere kiralayarak düzenli günlük pasif nakit akışı oluşturabilirsin.',
+              accentColor: const Color(0xFF3B82F6),
+              badgeText: context.tr('rent_empty_badge'),
+              title: context.tr('rent_empty_title'),
+              description: context.tr('rent_empty_desc'),
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             )
           else
@@ -126,7 +126,7 @@ class RentACarScreen extends ConsumerWidget {
 
           // 3. Garage Available Cars to Rent
           Text(
-            'KİRAYA VERİLEBİLECEK GARAJ ARAÇLARI',
+            context.tr('rent_available_title'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -158,15 +158,15 @@ class RentACarScreen extends ConsumerWidget {
 
     if (rental.renterType == 'corporate') {
       profileBadgeColor = const Color(0xFF38BDF8);
-      profileLabel = 'KURUMSAL';
+      profileLabel = context.tr('rent_profile_corporate');
       profileIcon = Icons.business_rounded;
     } else if (rental.renterType == 'young_driver') {
       profileBadgeColor = const Color(0xFFF97316);
-      profileLabel = 'GENÇ & DÜĞÜN';
+      profileLabel = context.tr('rent_profile_young');
       profileIcon = Icons.speed_rounded;
     } else {
       profileBadgeColor = AppColors.brutalYellow;
-      profileLabel = 'BİREYSEL';
+      profileLabel = context.tr('rent_profile_individual');
       profileIcon = Icons.person_rounded;
     }
 
@@ -199,9 +199,9 @@ class RentACarScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 6),
                 if (rental.hasInsurance)
-                  const NeoBrutalBadge(
+                  NeoBrutalBadge(
                     icon: Icons.shield_rounded,
-                    text: 'KASKOLU',
+                    text: context.tr('rent_badge_insured'),
                     backgroundColor: AppColors.brutalGreen,
                     textColor: Colors.black,
                     fontSize: 9.5,
@@ -214,7 +214,7 @@ class RentACarScreen extends ConsumerWidget {
                 Icon(profileIcon, size: 13, color: const Color(0xFF64748B)),
                 const SizedBox(width: 4),
                 Text(
-                  'Kiracı: ${rental.renterName}',
+                  context.tr('rent_renter_label', {'name': rental.renterName}),
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                 ),
               ],
@@ -227,19 +227,19 @@ class RentACarScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Net Getiri: ${CurrencyFormatter.formatShort(netDaily)} / Gün',
+                        context.tr('rent_net_daily', {'val': CurrencyFormatter.formatShort(netDaily)}),
                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Toplam: ${CurrencyFormatter.formatShort(rental.totalEarned)} • ${rental.rentedDays} Gün',
+                        context.tr('rent_total_earned_days', {'val': CurrencyFormatter.formatShort(rental.totalEarned), 'days': '${rental.rentedDays}'}),
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
                 ),
                 NeoBrutalButton(
-                  label: 'GERİ ÇAĞIR',
+                  label: context.tr('rent_btn_recall'),
                   backgroundColor: AppColors.errorRed,
                   textColor: Colors.white,
                   fontSize: 10.5,
@@ -275,9 +275,9 @@ class RentACarScreen extends ConsumerWidget {
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
-          child: const Center(
+          child: Center(
             child: Text(
-              'Garajınızda kiraya verilebilecek boşta araç bulunmuyor.',
+              context.tr('rent_no_available_cars'),
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
             ),
           ),
@@ -318,14 +318,14 @@ class RentACarScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Değer: ${CurrencyFormatter.formatShort(car.currentPurchasePrice)}',
+                      context.tr('rent_car_value', {'val': CurrencyFormatter.formatShort(car.currentPurchasePrice)}),
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
               ),
               NeoBrutalButton(
-                label: 'KİRAYA VER',
+                label: context.tr('rent_btn_rent_out'),
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
                 fontSize: 11,
@@ -380,7 +380,7 @@ class RentACarScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'KİRAYA VER: ${car.brand} ${car.modelName}',
+                      context.tr('rent_modal_title', {'brand': car.brand, 'model': car.modelName}),
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 12),
@@ -393,8 +393,8 @@ class RentACarScreen extends ConsumerWidget {
                         Expanded(
                           child: _buildProfileChoice(
                             icon: Icons.business_rounded,
-                            label: 'Kurumsal',
-                            sub: '0 Kaza Riski',
+                            label: context.tr('rent_profile_corporate'),
+                            sub: context.tr('rent_profile_corporate_sub'),
                             isSelected: selectedRenterType == 'corporate',
                             color: const Color(0xFF38BDF8),
                             isDark: isDark,
@@ -405,8 +405,8 @@ class RentACarScreen extends ConsumerWidget {
                         Expanded(
                           child: _buildProfileChoice(
                             icon: Icons.person_rounded,
-                            label: 'Bireysel',
-                            sub: 'Dengeli',
+                            label: context.tr('rent_profile_individual'),
+                            sub: context.tr('rent_profile_individual_sub'),
                             isSelected: selectedRenterType == 'individual',
                             color: AppColors.brutalYellow,
                             isDark: isDark,
@@ -417,8 +417,8 @@ class RentACarScreen extends ConsumerWidget {
                         Expanded(
                           child: _buildProfileChoice(
                             icon: Icons.speed_rounded,
-                            label: 'Genç & Düğün',
-                            sub: '+%35 Getiri',
+                            label: context.tr('rent_profile_young'),
+                            sub: context.tr('rent_profile_young_sub'),
                             isSelected: selectedRenterType == 'young_driver',
                             color: const Color(0xFFF97316),
                             isDark: isDark,
@@ -445,7 +445,7 @@ class RentACarScreen extends ConsumerWidget {
                               children: [
                                 Text(context.tr('rent_commercial_insurance'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
                                 Text(
-                                  'Günlük ${CurrencyFormatter.formatShort(insuranceDailyFee)} • Kaza & radar muafiyeti',
+                                  context.tr('rent_insurance_fee_desc', {'fee': CurrencyFormatter.formatShort(insuranceDailyFee)}),
                                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                                 ),
                               ],
@@ -485,7 +485,7 @@ class RentACarScreen extends ConsumerWidget {
                             children: [
                               Text(context.tr('rent_customer_demand_rate'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                               NeoBrutalBadge(
-                                text: '%$demandPercent Talep',
+                                text: context.tr('rent_demand_badge', {'pct': '$demandPercent'}),
                                 backgroundColor: demandPercent > 60 ? AppColors.brutalGreen : AppColors.brutalYellow,
                                 textColor: Colors.black,
                                 fontSize: 10,
@@ -518,7 +518,7 @@ class RentACarScreen extends ConsumerWidget {
                               ),
                               if (hasInsurance)
                                 Text(
-                                  'Net Gelir: ${CurrencyFormatter.formatShort(netRate)}',
+                                  context.tr('rent_net_income', {'val': CurrencyFormatter.formatShort(netRate)}),
                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                                 ),
                             ],
@@ -538,7 +538,7 @@ class RentACarScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
 
                     NeoBrutalButton(
-                      label: 'SÖZLEŞMEYİ İMZALA & KİRAYA VER',
+                      label: context.tr('rent_btn_sign_rent'),
                       icon: Icons.check_circle_rounded,
                       backgroundColor: AppColors.brutalGreen,
                       textColor: Colors.black,

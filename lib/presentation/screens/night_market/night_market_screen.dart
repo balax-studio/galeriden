@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/game_constants.dart';
@@ -45,8 +46,8 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0C10),
-      appBar: const NeoBrutalAppBar(
-        title: 'GECE SANAYİSİ & YARIŞ',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('night_market_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -73,11 +74,11 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                   child: const Icon(Icons.sports_score_rounded, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
                           PulsingDot(color: AppColors.brutalPink, size: 7.0),
                           SizedBox(width: 6),
@@ -93,7 +94,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'Sanayinin arka sokaklarında gece yarısı modifiye drag yarışları düzenleniyor. En hızlı aracını seç, rakipleri tokatla!',
+                        context.tr('night_market_banner_desc'),
                         style: TextStyle(
                           fontSize: 11,
                           color: Color(0xFFC084FC),
@@ -109,18 +110,18 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
           const SizedBox(height: 14),
 
           if (ownedCars.isEmpty)
-            const NeoBrutalEmptyState(
+            NeoBrutalEmptyState(
               icon: Icons.directions_car_filled_outlined,
-              title: 'YARIŞACAK ARAÇ YOK',
-              description: 'Gece yarışına katılmak için garajınızda en az 1 araç bulunmalıdır.',
+              title: context.tr('night_market_no_cars_title'),
+              description: context.tr('night_market_no_cars_desc'),
             )
           else ...[
             // 2. Select Car Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'YARIŞ ARACINI SEÇ',
+                Text(
+                  context.tr('night_market_select_car'),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -129,7 +130,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                   ),
                 ),
                 Text(
-                  '${ownedCars.length} Araç Mevcut',
+                  context.tr('night_market_cars_available', {'count': '${ownedCars.length}'}),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -186,7 +187,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    'Motor: %${car.expertise.engineCondition.round()}',
+                                    context.tr('night_market_engine_condition', {'cond': '${car.expertise.engineCondition.round()}'}),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
@@ -244,16 +245,16 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
         : (winChance >= 45 ? AppColors.brutalYellow : AppColors.errorRed);
 
     final winStatusText = winChance >= 70
-        ? 'Avantajlısın'
+        ? context.tr('night_market_status_advantage')
         : (winChance >= 55
-            ? 'Hafif Üstünsün'
-            : (winChance >= 45 ? 'Denk Mücadele' : 'Zorlu Rakip'));
+            ? context.tr('night_market_status_slight_advantage')
+            : (winChance >= 45 ? context.tr('night_market_status_even') : context.tr('night_market_status_hard')));
 
-    String prizeRangeText = '₺20.000 - ₺35.000 • +4 İtibar';
+    String prizeRangeText = context.tr('night_market_prize_t1');
     if (rival.tier == 2) {
-      prizeRangeText = '₺40.000 - ₺65.000 • +6 İtibar';
+      prizeRangeText = context.tr('night_market_prize_t2');
     } else if (rival.tier == 3) {
-      prizeRangeText = '₺75.000 - ₺120.000 • +10 İtibar';
+      prizeRangeText = context.tr('night_market_prize_t3');
     }
 
     return NeoBrutalCard(
@@ -272,8 +273,8 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
             children: [
               const Icon(Icons.flash_on_rounded, color: AppColors.brutalYellow, size: 20),
               const SizedBox(width: 6),
-              const Text(
-                'YARIŞ EŞLEŞMESİ & ORANLAR',
+              Text(
+                context.tr('night_market_matchup_title'),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
@@ -282,7 +283,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
               ),
               const Spacer(),
               NeoBrutalBadge(
-                text: '$dailyRacesRemaining/3 Hak',
+                text: context.tr('night_market_daily_races_left', {'count': '$dailyRacesRemaining'}),
                 backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalYellow : AppColors.errorRed,
                 textColor: Colors.black,
                 fontSize: 10,
@@ -313,8 +314,8 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'SENİN ARACIN',
+                      Text(
+                        context.tr('night_market_your_car'),
                         style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
                       ),
                       const SizedBox(height: 2),
@@ -325,7 +326,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white),
                       ),
                       Text(
-                        'Güç: $playerPower HP • Kond: %${car.expertise.engineCondition.round()}',
+                        context.tr('night_market_power_cond', {'hp': '$playerPower', 'cond': '${car.expertise.engineCondition.round()}'}),
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                       ),
                     ],
@@ -388,7 +389,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'Kazanma: %$winChance • $winStatusText',
+                          context.tr('night_market_win_chance', {'rate': '$winChance', 'status': winStatusText}),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
@@ -417,9 +418,9 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFF475569), width: 1.0),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
+                      const Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
                       SizedBox(width: 4),
                       Text(
                         'Rakip Değiş',
@@ -442,7 +443,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'KAZANILACAK ÖDÜL • GİRİŞ ${CurrencyFormatter.formatShort(GameConstants.nightRaceEntryFee)}',
+                      context.tr('night_market_prize_entry', {'fee': CurrencyFormatter.formatShort(GameConstants.nightRaceEntryFee)}),
                       style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -460,7 +461,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
               ),
               const SizedBox(width: 8),
               NeoBrutalButton(
-                label: dailyRacesRemaining > 0 ? 'GAZLA & YARIŞ' : 'HAK BİTTİ',
+                label: dailyRacesRemaining > 0 ? context.tr('night_market_btn_race') : context.tr('night_market_btn_no_fuel'),
                 backgroundColor: dailyRacesRemaining > 0 ? AppColors.brutalPink : const Color(0xFF475569),
                 textColor: Colors.white,
                 onPressed: dailyRacesRemaining > 0

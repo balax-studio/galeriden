@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -8,6 +9,7 @@ import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../../data/models/side_business_model.dart';
 
 class SideBusinessDetailSheet extends ConsumerWidget {
   final String businessId;
@@ -85,6 +87,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = Localizations.localeOf(context).languageCode;
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
@@ -137,12 +140,12 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          business.name.toUpperCase(),
+                          business.type.getLocalizedName(lang).toUpperCase(),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Dükkan Seviyesi: Lvl ${business.level} • ${business.purchasedUpgradeCount}/${business.upgrades.length} Modül Aktif',
+                          context.tr('side_biz_sheet_subtitle', {'lvl': '${business.level}', 'modules': '${business.purchasedUpgradeCount}', 'total': '${business.upgrades.length}'}),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                         ),
                       ],
@@ -167,11 +170,11 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatColumn('Net Günlük Kâr', CurrencyFormatter.formatShort(business.effectiveDailyIncome), AppColors.brutalGreen),
+                        _buildStatColumn(context.tr('side_biz_stat_net_profit'), CurrencyFormatter.formatShort(business.effectiveDailyIncome), AppColors.brutalGreen),
                         Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
-                        _buildStatColumn('Biriken Kazanç', CurrencyFormatter.formatShort(business.totalEarned), AppColors.brutalYellow),
+                        _buildStatColumn(context.tr('side_biz_stat_accumulated'), CurrencyFormatter.formatShort(business.totalEarned), AppColors.brutalYellow),
                         Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
-                        _buildStatColumn('Amorti', '${business.roiDays} Gün', const Color(0xFF06B6D4)),
+                        _buildStatColumn(context.tr('side_biz_stat_roi'), context.tr('side_biz_stat_roi_days', {'days': '${business.roiDays}'}), const Color(0xFF06B6D4)),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -180,9 +183,9 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Toplam Sermaye Yatırımı:',
-                          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                        Text(
+                          context.tr('side_biz_total_invested'),
+                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                         ),
                         Text(
                           CurrencyFormatter.format(business.totalInvested),
@@ -197,7 +200,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               // Manager Card
               Text(
-                'İŞLETME MÜDÜRÜ ATAMA',
+                context.tr('side_biz_manager_section_title'),
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w900,
@@ -249,8 +252,8 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           const SizedBox(height: 2),
                           Text(
                             business.hasManager
-                                ? 'Müdür atandı. Günlük Maaş: ${business.managerSalary.toInt()}'
-                                : 'İşletmenin başına müdür atayarak geliri %30 artırın.',
+                                ? context.tr('side_biz_manager_assigned', {'salary': '${business.managerSalary.toInt()}'})
+                                : context.tr('side_biz_manager_hire_desc'),
                             style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                         ],
@@ -258,15 +261,15 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     if (business.hasManager)
-                      const NeoBrutalBadge(
-                        text: 'GÖREVDE',
+                      NeoBrutalBadge(
+                        text: context.tr('staff_badge_on_duty'),
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10,
                       )
                     else
                       NeoBrutalButton(
-                        label: 'İŞE AL • ${CurrencyFormatter.formatShort(business.managerCost)}',
+                        label: context.tr('side_biz_btn_hire_manager', {'cost': CurrencyFormatter.formatShort(business.managerCost)}),
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10.5,
@@ -274,9 +277,9 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                         onPressed: () {
                           final success = ref.read(gameProvider.notifier).hireSideBusinessManager(business.id);
                           if (success) {
-                            NotificationService.showSuccess(context, '${business.managerTitle} işe alındı!');
+                            NotificationService.showSuccess(context, context.tr('side_biz_manager_hired_toast', {'title': business.managerTitle}));
                           } else {
-                            NotificationService.showError(context, 'Yetersiz Sermaye!');
+                            NotificationService.showError(context, context.tr('insufficient_balance'));
                           }
                         },
                       ),
@@ -287,7 +290,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               // Level Up Business
               Text(
-                'DÜKKAN KAPASİTE YÜKSELTME',
+                context.tr('side_biz_capacity_upgrade_title'),
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w900,
@@ -322,27 +325,27 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isMaxLevel ? 'Maksimum Seviye • Lvl 5' : 'Seviye ${business.level + 1} Genişletme',
+                            isMaxLevel ? context.tr('side_biz_max_lvl_title') : context.tr('side_biz_next_lvl_title', {'lvl': '${business.level + 1}'}),
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            isMaxLevel ? 'İşletme en yüksek kapasitede.' : 'Baz geliri +%35 artırır.',
+                            isMaxLevel ? context.tr('side_biz_max_capacity_desc') : context.tr('side_biz_capacity_boost_desc'),
                             style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
                     ),
                     if (isMaxLevel)
-                      const NeoBrutalBadge(
-                        text: 'MAX LVL',
+                      NeoBrutalBadge(
+                        text: context.tr('max_badge'),
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 10,
                       )
                     else
                       NeoBrutalButton(
-                        label: 'GELİŞTİR • ${CurrencyFormatter.formatShort(nextLevelCost)}',
+                        label: context.tr('side_biz_btn_upgrade_level', {'cost': CurrencyFormatter.formatShort(nextLevelCost)}),
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 10.5,
@@ -350,9 +353,9 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                         onPressed: () {
                           final success = ref.read(gameProvider.notifier).upgradeSideBusiness(business.id);
                           if (success) {
-                            NotificationService.showSuccess(context, '${business.name} Seviye ${business.level + 1} oldu!');
+                            NotificationService.showSuccess(context, context.tr('side_biz_upgraded_toast', {'name': business.type.getLocalizedName(lang), 'lvl': '${business.level + 1}'}));
                           } else {
-                            NotificationService.showError(context, 'Yetersiz Sermaye!');
+                            NotificationService.showError(context, context.tr('insufficient_balance'));
                           }
                         },
                       ),
@@ -363,7 +366,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               // Modules List
               Text(
-                'DÜKKAN MODÜL & EKİPMANLARI • ${business.purchasedUpgradeCount}/${business.upgrades.length}',
+                context.tr('side_biz_modules_title', {'count': '${business.purchasedUpgradeCount}', 'total': '${business.upgrades.length}'}),
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w900,
@@ -412,7 +415,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    '+${CurrencyFormatter.formatShort(upgrade.bonusDailyIncome)}/g',
+                                    context.tr('side_biz_module_bonus_rate', {'amount': CurrencyFormatter.formatShort(upgrade.bonusDailyIncome)}),
                                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                                   ),
                                 ],
@@ -427,8 +430,8 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         if (isPurchased)
-                          const NeoBrutalBadge(
-                            text: 'AKTİF',
+                          NeoBrutalBadge(
+                            text: context.tr('active_badge'),
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 9.5,
@@ -443,9 +446,9 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                             onPressed: () {
                               final success = ref.read(gameProvider.notifier).buySideBusinessUpgrade(business.id, upgrade.id);
                               if (success) {
-                                NotificationService.showSuccess(context, '${upgrade.title} modülü satın alındı!');
+                                NotificationService.showSuccess(context, context.tr('side_biz_module_bought_toast', {'title': upgrade.title}));
                               } else {
-                                NotificationService.showError(context, 'Yetersiz Bakiye!');
+                                NotificationService.showError(context, context.tr('insufficient_balance'));
                               }
                             },
                           ),

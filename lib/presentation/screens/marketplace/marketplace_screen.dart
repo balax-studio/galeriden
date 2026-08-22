@@ -102,7 +102,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Pazarı Yenile',
+            tooltip: context.tr('market_refresh_tooltip'),
             onPressed: () async {
               HapticFeedback.lightImpact();
               setState(() => _isRefreshing = true);
@@ -212,7 +212,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         const SizedBox(height: 2),
                         if (marketSenseLevel >= 3)
                           Text(
-                            'Piyasa Sezgisi Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} | Spor x${trend.bodyTypeMultipliers['Spor']}',
+                            '${context.tr('dashboard_market_trend')} Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} • Spor x${trend.bodyTypeMultipliers['Spor']}',
                             style: TextStyle(
                               color: p.primaryColor,
                               fontSize: 10.5,
@@ -221,7 +221,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           )
                         else
                           Text(
-                            'Piyasa Sezgisi Lv 3 ile kâr çarpanları açılır.',
+                            context.tr('market_insight_lv3_hint'),
                             style: TextStyle(
                               fontSize: 10.5,
                               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),

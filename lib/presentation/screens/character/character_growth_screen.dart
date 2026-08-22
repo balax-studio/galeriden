@@ -94,12 +94,12 @@ class CharacterGrowthScreen extends ConsumerWidget {
                           Row(
                             children: [
                               Text(
-                                'Esnaf İtibarı: ${game.reputationScore}/100',
+                                context.tr('growth_reputation_label', {'score': '${game.reputationScore}'}),
                                 style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                'Sermaye: ${CurrencyFormatter.formatShort(game.balance)}',
+                                context.tr('growth_balance_label', {'balance': CurrencyFormatter.formatShort(game.balance)}),
                                 style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalBlue),
                               ),
                             ],
@@ -121,9 +121,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'SEVİYE İLERLEMESİ',
-                      style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                    Text(
+                      context.tr('growth_xp_progress_title'),
+                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                     ),
                     Text(
                       '$xpInCurrentLevel / $targetXpForLevel XP',
@@ -167,7 +167,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'YETENEK AĞACI & ESNAF PERKLERİ',
+                context.tr('growth_skill_tree_title'),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -176,7 +176,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 ),
               ),
               Text(
-                '${skills.availableSkillPoints} SP Mevcut',
+                context.tr('growth_sp_available', {'sp': '${skills.availableSkillPoints}'}),
                 style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
               ),
             ],
@@ -187,9 +187,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
           _buildSkillCard(
             context,
             ref: ref,
-            title: 'Pazarlık Gücü',
-            desc: 'Alıcılardan daha yüksek teklif almanı & ucuza araç kapatmanı sağlar.',
-            perk: 'Alım İndirimi / Kâr Marjı: +%${(skills.negotiationMultiplier * 100).toStringAsFixed(0)}',
+            title: context.tr('skill_negotiation_title'),
+            desc: context.tr('skill_negotiation_desc'),
+            perk: context.tr('skill_negotiation_perk', {'val': (skills.negotiationMultiplier * 100).toStringAsFixed(0)}),
             level: skills.negotiationLevel,
             skillKey: 'negotiation',
             isDark: isDark,
@@ -198,9 +198,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
           _buildSkillCard(
             context,
             ref: ref,
-            title: 'Ekspertiz Sezgisi',
-            desc: 'Rapor almadan araçlardaki gizli ayıpları sezme ve rapor indirimi.',
-            perk: 'Ekspertiz Maliyet İndirimi: -%${(skills.expertiseCostDiscount * 100).toStringAsFixed(0)}',
+            title: context.tr('skill_detail_title'),
+            desc: context.tr('skill_detail_desc'),
+            perk: context.tr('skill_detail_perk', {'val': (skills.expertiseCostDiscount * 100).toStringAsFixed(0)}),
             level: skills.eyeForDetail,
             skillKey: 'eyeForDetail',
             isDark: isDark,
@@ -209,9 +209,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
           _buildSkillCard(
             context,
             ref: ref,
-            title: 'Piyasa Tahmini',
-            desc: 'İlan teklif sıklığını ve doping etkinliğini artırma.',
-            perk: 'Doping & Teklif Bonusu: +%${(skills.marketingDopingBonus * 100).toStringAsFixed(0)}',
+            title: context.tr('skill_market_title'),
+            desc: context.tr('skill_market_desc'),
+            perk: context.tr('skill_market_perk', {'val': (skills.marketingDopingBonus * 100).toStringAsFixed(0)}),
             level: skills.marketSense,
             skillKey: 'marketSense',
             isDark: isDark,
@@ -220,9 +220,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
           _buildSkillCard(
             context,
             ref: ref,
-            title: 'Çevre & Tanınırlık • Network',
-            desc: 'Daha prestijli koleksiyonluk araçların ve zengin alıcıların gelmesi.',
-            perk: skills.reputation >= 5 ? 'Nadir Koleksiyon Düşme Şansı +%15' : 'Lv 5: Nadir Koleksiyon Düşüşü %15 Artar',
+            title: context.tr('skill_network_title'),
+            desc: context.tr('skill_network_desc'),
+            perk: skills.reputation >= 5 ? context.tr('skill_network_perk_active') : context.tr('skill_network_perk_locked'),
             level: skills.reputation,
             skillKey: 'reputation',
             isDark: isDark,
@@ -231,9 +231,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
           _buildSkillCard(
             context,
             ref: ref,
-            title: 'Finansal Zeka',
-            desc: 'Banka kredi faizlerini düşürme ve karşılıksız çek riskini azaltma.',
-            perk: 'Faiz İndirimi: -%${(skills.financeInterestDiscount * 100).toStringAsFixed(0)} | Çek Riski -%${(skills.chequeRiskReduction * 100).toStringAsFixed(1)}',
+            title: context.tr('skill_finance_title'),
+            desc: context.tr('skill_finance_desc'),
+            perk: context.tr('skill_finance_perk', {'discount': (skills.financeInterestDiscount * 100).toStringAsFixed(0), 'risk': (skills.chequeRiskReduction * 100).toStringAsFixed(1)}),
             level: skills.financeSense,
             skillKey: 'financeSense',
             isDark: isDark,
@@ -247,7 +247,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
 
           // 5. Achievements Section
           Text(
-            'BAŞARIMLAR • ${game.achievements.where((a) => a.isUnlocked).length}/${game.achievements.length}',
+            context.tr('growth_achievements_title', {'unlocked': '${game.achievements.where((a) => a.isUnlocked).length}', 'total': '${game.achievements.length}'}),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -303,8 +303,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       ),
                     ),
                     if (item.isUnlocked)
-                      const NeoBrutalBadge(
-                        text: 'KAZANILDI',
+                      NeoBrutalBadge(
+                        text: context.tr('growth_badge_unlocked'),
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 9.5,
@@ -330,7 +330,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'UZMANLIK YOLU • PRESTİJ SINIFI',
+              context.tr('growth_spec_title'),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -339,7 +339,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
               ),
             ),
             NeoBrutalBadge(
-              text: isUnlocked ? (hasClass ? game.specializationTitle : 'SEÇİM BEKLİYOR') : 'SEVİYE 4 KİLİTLİ',
+              text: isUnlocked ? (hasClass ? game.specializationTitle : context.tr('growth_spec_pending')) : context.tr('growth_spec_locked_badge'),
               backgroundColor: hasClass ? AppColors.brutalGreen : (isUnlocked ? AppColors.brutalYellow : const Color(0xFF64748B)),
               textColor: Colors.black,
               fontSize: 10,
@@ -354,14 +354,14 @@ class CharacterGrowthScreen extends ConsumerWidget {
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 12,
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.lock_rounded, color: Color(0xFF64748B), size: 28),
-                SizedBox(width: 12),
+                const Icon(Icons.lock_rounded, color: Color(0xFF64748B), size: 28),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Seviye 4\'e ulaştığında galerici uzmanlık sınıfını seçebilirsin: Restoratör Usta, Pazar Kurdu veya Galeri Baronu.',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    context.tr('growth_spec_locked_desc'),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                   ),
                 ),
               ],
@@ -373,11 +373,11 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref,
             game: game,
             path: SpecializationPath.restorer,
-            title: 'Restoratör Usta',
+            title: context.tr('spec_restorer_title'),
             icon: Icons.auto_fix_high_rounded,
             color: const Color(0xFFF97316),
-            desc: 'Tamir ve restorasyonda efsanesin. Hurdalıktan topladığın araçlar altın değerinde yenilenir.',
-            perks: '• Tamir Maliyeti -%20\n• Restorasyon Katma Değeri +%25\n• Çıkma Parça Montaj Başarısı +%20',
+            desc: context.tr('spec_restorer_desc'),
+            perks: context.tr('spec_restorer_perks'),
             isDark: isDark,
           ),
           const SizedBox(height: 8),
@@ -386,11 +386,11 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref,
             game: game,
             path: SpecializationPath.trader,
-            title: 'Pazar Kurdu • Trader',
+            title: context.tr('spec_trader_title'),
             icon: Icons.trending_up_rounded,
             color: AppColors.brutalGreen,
-            desc: 'Pazarlığın kitabını yazdın. En ucuzdan alır, en yüksek teklifle masadan kalkarsın.',
-            perks: '• Araç Alım İndirimi -%10\n• Karşı Teklif Kabul Oranı +%15\n• Doping Süresi ve Etkisi x1.5',
+            desc: context.tr('spec_trader_desc'),
+            perks: context.tr('spec_trader_perks'),
             isDark: isDark,
           ),
           const SizedBox(height: 8),
@@ -399,11 +399,11 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref,
             game: game,
             path: SpecializationPath.boss,
-            title: 'Oto Galeri Baronu • Boss',
+            title: context.tr('spec_boss_title'),
             icon: Icons.domain_rounded,
             color: const Color(0xFF3B82F6),
-            desc: 'Büyük ölçekli imparatorluk kurdun. Yan işletmeler ve personel senin için çalışır.',
-            perks: '• Personel Maaş Gideri -%20\n• Yan İşletmeler Pasif Geliri +%30\n• Yeni Şube Açılış İndirimi -%25',
+            desc: context.tr('spec_boss_desc'),
+            perks: context.tr('spec_boss_perks'),
             isDark: isDark,
           ),
         ],
@@ -429,7 +429,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
       onTap: () {
         if (!isSelected) {
           ref.read(gameProvider.notifier).chooseSpecialization(path);
-          NotificationService.showSuccess(context, '$title uzmanlık yolu başarıyla seçildi!');
+          NotificationService.showSuccess(context, '$title • ${context.tr('growth_spec_active_badge')}');
         }
       },
       borderRadius: BorderRadius.circular(12),
@@ -465,8 +465,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   ),
                 ),
                 if (isSelected)
-                  const NeoBrutalBadge(
-                    text: 'AKTİF SINIF',
+                  NeoBrutalBadge(
+                    text: context.tr('growth_spec_active_badge'),
                     backgroundColor: AppColors.brutalGreen,
                     textColor: Colors.black,
                     fontSize: 10,
@@ -552,7 +552,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'ESNAF ÇEVRESİ & NPC İLİŞKİLERİ',
+              context.tr('growth_npc_title'),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -560,8 +560,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 color: isDark ? Colors.white70 : const Color(0xFF0F172A),
               ),
             ),
-            const NeoBrutalBadge(
-              text: 'DİNAMİK ETKİLEŞİM',
+            NeoBrutalBadge(
+              text: context.tr('growth_npc_dynamic_badge'),
               backgroundColor: AppColors.brutalCyan,
               textColor: Colors.black,
               fontSize: 9.5,
@@ -663,16 +663,16 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         Row(
                           children: [
                             if (hasHighTrust)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 6),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 6),
                                 child: Text(
-                                  'AKTİF',
-                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                  context.tr('active_badge'),
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                                 ),
                               ),
-                            const Text(
-                              'GÖRÜŞ & JEST YAP >',
-                              style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
+                            Text(
+                              context.tr('growth_npc_btn_interact'),
+                              style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
                             ),
                           ],
                         ),
@@ -808,7 +808,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         ),
                       ),
                       NeoBrutalBadge(
-                        text: '$liveTrust / 100 GÜVEN',
+                        text: '$liveTrust / 100',
                         backgroundColor: liveHasHighTrust ? AppColors.brutalGreen : AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 11,
@@ -851,7 +851,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   const SizedBox(height: 14),
 
                   Text(
-                    'İLİŞKİ GELİŞTİRME SEÇENEKLERİ',
+                    context.tr('growth_npc_options_title'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -863,8 +863,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
 
                   // 1. Çay Ismarla (₺250 • +3 Güven)
                   _buildInteractionRow(
-                    title: 'Çay Ismarla & Muhabbet Et',
-                    subtitle: 'Sıcak çay eşliğinde sanayi sohbeti',
+                    title: context.tr('growth_npc_tea_title'),
+                    subtitle: context.tr('growth_npc_tea_subtitle'),
                     cost: 250,
                     trustGain: 3,
                     icon: Icons.coffee_rounded,
@@ -879,9 +879,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       );
                       if (ok) {
                         GameSoundHapticService.playCashSuccess();
-                        NotificationService.showSuccess(context, '$name ile çay içildi • +3 Güven!');
+                        NotificationService.showSuccess(context, '$name • +3');
                       } else {
-                        NotificationService.showError(context, 'Yetersiz bakiye! ₺250 gerekli.');
+                        NotificationService.showError(context, context.tr('insufficient_balance'));
                       }
                     },
                   ),
@@ -889,8 +889,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
 
                   // 2. İş Pasla (₺1.500 • +8 Güven)
                   _buildInteractionRow(
-                    title: 'İş & Müşteri Pasla',
-                    subtitle: 'Esnaf dayanışması ve ortak iş birliği',
+                    title: context.tr('growth_npc_job_title'),
+                    subtitle: context.tr('growth_npc_job_subtitle'),
                     cost: 1500,
                     trustGain: 8,
                     icon: Icons.handshake_rounded,
@@ -905,9 +905,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       );
                       if (ok) {
                         GameSoundHapticService.playCashSuccess();
-                        NotificationService.showSuccess(context, '$name ile iş paslaşıldı • +8 Güven!');
+                        NotificationService.showSuccess(context, '$name • +8');
                       } else {
-                        NotificationService.showError(context, 'Yetersiz bakiye! ₺1.500 gerekli.');
+                        NotificationService.showError(context, context.tr('insufficient_balance'));
                       }
                     },
                   ),
@@ -915,8 +915,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
 
                   // 3. Özel Hediye / Jest Yap (₺5.000 • +18 Güven)
                   _buildInteractionRow(
-                    title: 'Özel Sanayi Hediyesi & Jest',
-                    subtitle: 'Hızlı güven kazanımı ve prestijli jest',
+                    title: context.tr('growth_npc_gift_title'),
+                    subtitle: context.tr('growth_npc_gift_subtitle'),
                     cost: 5000,
                     trustGain: 18,
                     icon: Icons.card_giftcard_rounded,
@@ -931,9 +931,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       );
                       if (ok) {
                         GameSoundHapticService.playCashSuccess();
-                        NotificationService.showSuccess(context, '$name için özel hediye gönderildi • +18 Güven!');
+                        NotificationService.showSuccess(context, '$name • +18');
                       } else {
-                        NotificationService.showError(context, 'Yetersiz bakiye! ₺5.000 gerekli.');
+                        NotificationService.showError(context, context.tr('insufficient_balance'));
                       }
                     },
                   ),
@@ -989,7 +989,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
                 ),
                 Text(
-                  '$subtitle • +$trustGain Güven',
+                  '$subtitle • +$trustGain',
                   style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
                 ),
               ],
@@ -1046,7 +1046,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 8),
                           NeoBrutalBadge(
-                            text: isMax ? 'MAX' : 'LV $level/10',
+                            text: isMax ? context.tr('max_badge') : 'LV $level/10',
                             backgroundColor: isMax ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                             textColor: isMax ? Colors.black : (isDark ? Colors.white : Colors.black),
                             fontSize: 10,

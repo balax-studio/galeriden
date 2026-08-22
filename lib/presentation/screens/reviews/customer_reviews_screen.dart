@@ -340,7 +340,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'MÜŞTERİ YORUMUNA CEVAP VER',
+                      context.tr('reviews_reply_modal_title'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
@@ -360,7 +360,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Nazik ve kurumsal bir yanıt yazın...',
+                  hintText: context.tr('reviews_reply_hint'),
                   hintStyle: TextStyle(
                     color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
                     fontSize: 12,
@@ -389,7 +389,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'İPTAL',
+                      label: context.tr('cancel'),
                       backgroundColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white70 : const Color(0xFF334155),
                       onPressed: () => Navigator.pop(ctx),
@@ -398,7 +398,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'YAYINLA',
+                      label: context.tr('reviews_btn_publish'),
                       icon: Icons.send_rounded,
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,

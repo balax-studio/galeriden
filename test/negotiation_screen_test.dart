@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +57,13 @@ void main() {
           marketProvider.overrideWith((ref) => _TestMarketNotifier(ref, [testListing])),
         ],
         child: MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           theme: ThemeData(
             extensions: [
               AppThemeExtension(palette: ThemePaletteModel.defaultPalettes.first),
@@ -85,6 +93,7 @@ void main() {
     expect(find.text('ESNAF KOZLARI & MÜZAKERE TAKTİKLERİ'), findsOneWidget);
 
     // Verify CTA Button exists
-    expect(find.textContaining('TEKLİF ET'), findsOneWidget);
+    expect(find.textContaining('TEKLİFİ İLET'), findsOneWidget);
   });
 }
+

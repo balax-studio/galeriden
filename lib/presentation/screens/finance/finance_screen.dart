@@ -224,7 +224,7 @@ class FinanceScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: context.tr('nav_finance'),
+        title: context.tr('finance_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -242,7 +242,7 @@ class FinanceScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(context.tr('finance_liquidity_title'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                    Text(context.tr('finance_liquidity_badge'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                     NeoBrutalBadge(
                       text: liquidity.badgeLabel,
                       backgroundColor: liquidity.level == LiquidityLevel.strong
@@ -272,7 +272,7 @@ class FinanceScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(context.tr('finance_current_assets'), style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                            Text(context.tr('finance_bank_balance_label'), style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                             Text(CurrencyFormatter.formatShort(liquidity.totalLiquidAssets), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
                           ],
                         ),
@@ -290,7 +290,7 @@ class FinanceScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(context.tr('finance_short_term_liabilities'), style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                            Text(context.tr('finance_receivables_summary_label'), style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                             Text(CurrencyFormatter.formatShort(liquidity.totalShortTermDebts), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFFEF4444))),
                           ],
                         ),
@@ -328,18 +328,18 @@ class FinanceScreen extends ConsumerWidget {
                         child: const Icon(Icons.account_balance_rounded, color: Colors.black, size: 22),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Vadeli Mevduat & Kredi Skoru',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                              context.tr('bank_deposit_account_title'),
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
-                              'Faiz Getirisi, Altın/Döviz & Limit Artırma',
-                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                              context.tr('bank_deposit_desc'),
+                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -349,7 +349,7 @@ class FinanceScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: game.isFeatureUnlocked('/bank-investments') ? 'YÖNET' : 'KİLİTLİ',
+                  label: game.isFeatureUnlocked('/bank-investments') ? context.tr('finance_open_bank_btn') : 'KİLİTLİ',
                   backgroundColor: game.isFeatureUnlocked('/bank-investments')
                       ? AppColors.brutalGreen
                       : const Color(0xFF64748B),
@@ -362,7 +362,7 @@ class FinanceScreen extends ConsumerWidget {
                     } else {
                       NotificationService.showInfo(
                         context,
-                        'Kilitli Özellik! Vadeli Mevduat & Krediler ${DealershipModel.getRequiredBranchName('/bank-investments')} satın alındığında açılır.',
+                        context.tr('cashflow_locked_feature_toast', {'branch': DealershipModel.getRequiredBranchName('/bank-investments')}),
                       );
                     }
                   },
@@ -397,18 +397,18 @@ class FinanceScreen extends ConsumerWidget {
                         child: const Icon(Icons.receipt_long_rounded, color: Colors.black, size: 22),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Günlük Net Nakit Akışı',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                              context.tr('cashflow_title'),
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
-                              'Gelir-Gider Dökümü, Maaşlar & Sabit Masraflar',
-                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                              context.tr('cashflow_advice_burn_title'),
+                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -418,7 +418,7 @@ class FinanceScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: 'İNCELE',
+                  label: context.tr('finance_open_cashflow_btn'),
                   backgroundColor: const Color(0xFFFFDE59),
                   textColor: Colors.black,
                   fontSize: 11,
@@ -431,7 +431,7 @@ class FinanceScreen extends ConsumerWidget {
           const SizedBox(height: 12),
 
           // 2. Summary Receivables & Liabilities Cards
-          _buildSummary(isDark, game),
+          _buildSummary(isDark, game, context),
           const SizedBox(height: 16),
 
           // 2.1 Daily Tax & Overhead Info Card
@@ -450,12 +450,12 @@ class FinanceScreen extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Günlük Kurumsal & Belediye Vergisi',
-                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
+                        Text(
+                          context.tr('finance_daily_tax_title'),
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
                         ),
                         Text(
-                          'Günlük gece devrinde otomatik kesilir • ${CurrencyFormatter.format(game.dailyTaxRate)}/gün',
+                          context.tr('finance_daily_tax_desc'),
                           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                         ),
                       ],
@@ -463,7 +463,7 @@ class FinanceScreen extends ConsumerWidget {
                   ],
                 ),
                 NeoBrutalBadge(
-                  text: '${CurrencyFormatter.format(game.dailyTaxRate)} / Gün',
+                  text: context.tr('finance_daily_tax_label', {'amount': CurrencyFormatter.format(game.dailyTaxRate)}),
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 10,
@@ -478,7 +478,7 @@ class FinanceScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'AKTİF BANKA KREDİLERİ • ${game.activeLoans.length}',
+                context.tr('bank_active_loans_header', {'count': game.activeLoans.length}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -493,13 +493,13 @@ class FinanceScreen extends ConsumerWidget {
                   } else {
                     NotificationService.showInfo(
                       context,
-                      'Kilitli Özellik! Kredi çekebilmek için ${DealershipModel.getRequiredBranchName('/bank-investments')} satın alınmalıdır.',
+                      context.tr('cashflow_locked_feature_toast', {'branch': DealershipModel.getRequiredBranchName('/bank-investments')}),
                     );
                   }
                 },
-                child: const Text(
-                  '+ KREDİ ÇEK',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                child: Text(
+                  context.tr('finance_take_credit_btn'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                 ),
               ),
             ],
@@ -512,10 +512,10 @@ class FinanceScreen extends ConsumerWidget {
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Aktif banka kredisi borcunuz bulunmuyor.',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  context.tr('finance_no_active_loans'),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
               ),
             )
@@ -539,7 +539,7 @@ class FinanceScreen extends ConsumerWidget {
                             style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
                           ),
                           NeoBrutalBadge(
-                            text: '${loan.remainingInstallments}/${loan.totalInstallments} Taksit',
+                            text: context.tr('finance_loan_installments_badge', {'remaining': loan.remainingInstallments, 'total': loan.totalInstallments}),
                             backgroundColor: AppColors.brutalOrange,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -551,11 +551,11 @@ class FinanceScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Kalan: ${CurrencyFormatter.formatShort(loan.remainingAmount)}',
+                            context.tr('finance_loan_remaining', {'amount': CurrencyFormatter.formatShort(loan.remainingAmount)}),
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFEF4444)),
                           ),
                           Text(
-                            'Aylık: ${CurrencyFormatter.formatShort(loan.monthlyPayment)}',
+                            context.tr('finance_loan_monthly', {'amount': CurrencyFormatter.formatShort(loan.monthlyPayment)}),
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
                           ),
                         ],
@@ -565,11 +565,11 @@ class FinanceScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Anapara: ${CurrencyFormatter.formatShort(loan.principalAmount)}',
+                            context.tr('finance_loan_principal', {'amount': CurrencyFormatter.formatShort(loan.principalAmount)}),
                             style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                           NeoBrutalButton(
-                            label: 'TAKSİT ÖDE',
+                            label: context.tr('finance_pay_installment_btn'),
                             icon: Icons.payments_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
@@ -579,7 +579,7 @@ class FinanceScreen extends ConsumerWidget {
                               if (game.balance < loan.monthlyPayment) {
                                 NotificationService.showError(
                                   context,
-                                  'Yetersiz Bakiye! ${CurrencyFormatter.format(loan.monthlyPayment)} gerekli.',
+                                  context.tr('finance_insufficient_funds_loan', {'amount': CurrencyFormatter.format(loan.monthlyPayment)}),
                                 );
                                 return;
                               }
@@ -588,7 +588,7 @@ class FinanceScreen extends ConsumerWidget {
                               if (success) {
                                 NotificationService.showSuccess(
                                   context,
-                                  '${loan.bankName} taksiti başarıyla ödendi!',
+                                  context.tr('finance_loan_paid_success', {'bank': loan.bankName}),
                                 );
                               }
                             },
@@ -605,7 +605,7 @@ class FinanceScreen extends ConsumerWidget {
 
           // 4. Active Installments
           Text(
-            'AKTİF SENETLİ / TAKSİTLİ SÖZLEŞMELER • ${game.activeInstallments.length}',
+            context.tr('finance_active_installments_header', {'count': game.activeInstallments.length}),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -621,10 +621,10 @@ class FinanceScreen extends ConsumerWidget {
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Şu an aktif vadeli senet sözleşmeniz bulunmuyor.',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  context.tr('finance_no_active_installments'),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
               ),
             )
@@ -635,7 +635,7 @@ class FinanceScreen extends ConsumerWidget {
 
           // 5. Pending Cheques
           Text(
-            'BEKLEYEN TİCARİ ÇEKLER • ${game.activeCheques.length}',
+            context.tr('finance_pending_cheques_header', {'count': game.activeCheques.length}),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -651,10 +651,10 @@ class FinanceScreen extends ConsumerWidget {
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Şu an bekleyen şirket çeki bulunmuyor.',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  context.tr('finance_no_pending_cheques'),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
               ),
             )
@@ -665,7 +665,7 @@ class FinanceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummary(bool isDark, DealershipModel game) {
+  Widget _buildSummary(bool isDark, DealershipModel game, BuildContext context) {
     final double totalInstallmentReceivables =
         game.activeInstallments.fold(0.0, (sum, c) => sum + c.remainingAmount);
     final double totalChequeReceivables = game.activeCheques.fold(0.0, (sum, c) => sum + c.amount);
@@ -682,8 +682,8 @@ class FinanceScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const NeoBrutalBadge(
-                  text: 'SENET',
+                NeoBrutalBadge(
+                  text: context.tr('finance_summary_promissory'),
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 9,
@@ -707,8 +707,8 @@ class FinanceScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const NeoBrutalBadge(
-                  text: 'ÇEK',
+                NeoBrutalBadge(
+                  text: context.tr('finance_summary_cheque'),
                   backgroundColor: AppColors.brutalOrange,
                   textColor: Colors.black,
                   fontSize: 9,
@@ -732,9 +732,9 @@ class FinanceScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const NeoBrutalBadge(
-                  text: 'KREDİ BORCU',
-                  backgroundColor: Color(0xFFEF4444),
+                NeoBrutalBadge(
+                  text: context.tr('finance_summary_loan_debt'),
+                  backgroundColor: const Color(0xFFEF4444),
                   textColor: Colors.white,
                   fontSize: 9,
                 ),
@@ -772,7 +772,7 @@ class FinanceScreen extends ConsumerWidget {
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                 ),
                 NeoBrutalBadge(
-                  text: '${contract.daysUntilNextPayment} Gün Kaldı',
+                  text: context.tr('finance_installment_days_left', {'days': contract.daysUntilNextPayment}),
                   backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                   textColor: isDark ? Colors.white : Colors.black,
                   fontSize: 10,
@@ -784,11 +784,11 @@ class FinanceScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Tahsil: ${CurrencyFormatter.formatShort(contract.paidAmount)}',
+                  context.tr('finance_installment_collected', {'amount': CurrencyFormatter.formatShort(contract.paidAmount)}),
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                 ),
                 Text(
-                  'Kalan: ${CurrencyFormatter.formatShort(contract.remainingAmount)}',
+                  context.tr('finance_installment_remaining', {'amount': CurrencyFormatter.formatShort(contract.remainingAmount)}),
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.brutalOrange),
                 ),
               ],
@@ -820,12 +820,12 @@ class FinanceScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${contract.paidInstallments}/${contract.totalInstallments} Taksit Ödendi • Aylık ${CurrencyFormatter.formatShort(contract.installmentAmount)}',
+                  context.tr('finance_installment_paid_badge', {'paid': contract.paidInstallments, 'total': contract.totalInstallments, 'amount': CurrencyFormatter.formatShort(contract.installmentAmount)}),
                   style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 if (contract.lateFee > 0)
                   NeoBrutalBadge(
-                    text: 'Vade Farkı: +${CurrencyFormatter.formatShort(contract.lateFee)}',
+                    text: context.tr('finance_installment_late_fee', {'amount': CurrencyFormatter.formatShort(contract.lateFee)}),
                     backgroundColor: AppColors.errorRed,
                     textColor: Colors.white,
                     fontSize: 9,
@@ -834,7 +834,7 @@ class FinanceScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
             NeoBrutalButton(
-              label: 'ERKEN KAPAT & PEŞİN AL • %5 İndirim',
+              label: context.tr('finance_early_settlement_btn'),
               icon: Icons.done_all_rounded,
               backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
               textColor: isDark ? Colors.white : Colors.black,
@@ -891,7 +891,7 @@ class FinanceScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Tutar: ${CurrencyFormatter.formatShort(cheque.amount)}',
+                        context.tr('finance_cheque_amount', {'amount': CurrencyFormatter.formatShort(cheque.amount)}),
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                       ),
                     ],
@@ -900,22 +900,22 @@ class FinanceScreen extends ConsumerWidget {
                 if (cheque.inLegalCollection)
                   NeoBrutalBadge(
                     icon: Icons.gavel_rounded,
-                    text: 'İcrada • ${cheque.legalCollectionDaysRemaining} Gün',
+                    text: context.tr('finance_cheque_in_legal', {'days': cheque.legalCollectionDaysRemaining}),
                     backgroundColor: AppColors.brutalOrange,
                     textColor: Colors.black,
                     fontSize: 10,
                   )
                 else if (cheque.isDefaulted)
-                  const NeoBrutalBadge(
+                  NeoBrutalBadge(
                     icon: Icons.warning_amber_rounded,
-                    text: 'KARŞILIKSIZ',
+                    text: context.tr('finance_cheque_defaulted'),
                     backgroundColor: AppColors.errorRed,
                     textColor: Colors.white,
                     fontSize: 10,
                   )
                 else
                   NeoBrutalBadge(
-                    text: daysLeft > 0 ? '$daysLeft Gün Vade' : 'Bugün Tahsil',
+                    text: daysLeft > 0 ? context.tr('finance_cheque_days_due', {'days': daysLeft}) : context.tr('finance_cheque_due_today'),
                     backgroundColor: daysLeft <= 1 ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                     textColor: Colors.black,
                     fontSize: 10,
@@ -937,7 +937,7 @@ class FinanceScreen extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Hukuk bürosu icra işlemlerini yürütüyor. ${cheque.legalCollectionDaysRemaining} gün sonra tahsil edilecek.',
+                        context.tr('finance_cheque_legal_desc', {'days': cheque.legalCollectionDaysRemaining}),
                         style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -946,7 +946,7 @@ class FinanceScreen extends ConsumerWidget {
               ),
             ] else if (cheque.isDefaulted) ...[
               NeoBrutalButton(
-                label: 'AVUKATA VER / İCRAYA KOY • ₺1.500',
+                label: context.tr('finance_cheque_send_lawyer_btn'),
                 icon: Icons.gavel_rounded,
                 backgroundColor: AppColors.brutalOrange,
                 textColor: Colors.black,
@@ -956,15 +956,15 @@ class FinanceScreen extends ConsumerWidget {
                 onPressed: () {
                   final success = ref.read(gameProvider.notifier).sendChequeToLegalCollection(cheque.id);
                   if (success) {
-                    NotificationService.showSuccess(context, 'Çek icra takibine alındı!');
+                    NotificationService.showSuccess(context, context.tr('finance_cheque_legal_success'));
                   } else {
-                    NotificationService.showError(context, 'Yetersiz bakiye • Avukat masrafı ₺1.500!');
+                    NotificationService.showError(context, context.tr('finance_cheque_legal_insufficient'));
                   }
                 },
               ),
             ] else ...[
               NeoBrutalButton(
-                label: 'ÇEKİ KIRDIR / ERKEN TAHSİL ET • %8 İskonto',
+                label: context.tr('finance_cheque_factoring_btn'),
                 icon: Icons.currency_exchange_rounded,
                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                 textColor: isDark ? Colors.white : Colors.black,

@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_button.dart';
@@ -12,6 +13,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: NeoBrutalTouchFeedbackOverlay(
             child: Scaffold(
               body: Column(
@@ -52,6 +60,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: NeoBrutalTouchFeedbackOverlay(
             child: Scaffold(
               body: Center(
@@ -77,6 +92,13 @@ void main() {
     testWidgets('Pointer down spawns tactile burst animation and cleans up after animation finishes', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: NeoBrutalTouchFeedbackOverlay(
             child: Scaffold(
               body: Container(

@@ -223,7 +223,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     NeoBrutalButton(
-                      label: 'KAPAT',
+                      label: context.tr('btn_close'),
                       backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white : Colors.black,
                       onPressed: () => Navigator.pop(ctx),
@@ -327,15 +327,15 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   Expanded(
                     child: Text(
                       hasMechanic && hasApprentice
-                          ? 'Mekanik Usta ve Çırak atölyede aktif!'
-                          : (hasMechanic ? 'Mekanik Usta devrede: Tamirlerde parça yanma riski %0!' : 'Çırak devrede: Kargo ve montaj süreleri %50 hızlandı!'),
+                          ? context.tr('workshop_staff_synergy_both')
+                          : (hasMechanic ? context.tr('workshop_staff_synergy_mechanic') : context.tr('workshop_staff_synergy_apprentice')),
                       style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
                     ),
                   ),
                   const SizedBox(width: 6),
                   NeoBrutalButton(
                     icon: Icons.fastfood_rounded,
-                    label: 'Tost & Çay • ₺250',
+                    label: context.tr('workshop_btn_treat_staff'),
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 9.5,
@@ -376,19 +376,19 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       child: const Icon(Icons.build_circle_rounded, size: 36, color: AppColors.brutalOrange),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'MÜŞTERİ TAMİR SERVİSİ KİLİTLİ',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                    Text(
+                      context.tr('workshop_locked_service_title'),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Dışarıdan gelen müşteri araçlarının arıza tespitini yapmak ve kontratlı tamir işlerini alabilmek için kadronuzda bir Mekanik Usta bulunmalıdır.',
+                    Text(
+                      context.tr('workshop_locked_service_desc'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 16),
                     NeoBrutalButton(
-                      label: 'MEKANİK USTA İŞE AL',
+                      label: context.tr('workshop_btn_hire_mechanic'),
                       icon: Icons.person_add_rounded,
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
@@ -411,12 +411,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'GELEN MÜŞTERİ TAMİR TALEPLERİ',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                  Text(
+                    context.tr('workshop_customer_repairs_title'),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
                   ),
                   NeoBrutalButton(
-                    label: 'YENİ İŞLER TARA',
+                    label: context.tr('workshop_btn_scan_jobs'),
                     icon: Icons.refresh_rounded,
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
@@ -480,9 +480,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               ],
                             ),
                             if (job.isUrgent)
-                              const NeoBrutalBadge(
+                              NeoBrutalBadge(
                                 icon: Icons.bolt_rounded,
-                                text: 'ACİL İŞ',
+                                text: context.tr('workshop_badge_urgent'),
                                 backgroundColor: AppColors.errorRed,
                                 textColor: Colors.white,
                                 fontSize: 9.5,
@@ -546,10 +546,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               NeoBrutalEmptyState(
                 icon: Icons.build_circle_rounded,
                 accentColor: const Color(0xFFFF7A00),
-                badgeText: 'ATÖLYE BOŞ',
-                title: 'Garajında Onarılacak Araç Yok!',
-                description: 'Pazardan veya hurdalıktan kelepir araç satın alarak burada toplayabilir ve değerini ikiye katlayabilirsin.',
-                actionLabel: 'İLANLARA GİT',
+                badgeText: context.tr('workshop_empty_badge'),
+                title: context.tr('workshop_empty_title'),
+                description: context.tr('workshop_empty_desc'),
+                actionLabel: context.tr('car_wash_btn_go_market'),
                 actionIcon: Icons.storefront_rounded,
                 onActionPressed: () => context.push('/marketplace'),
               )
@@ -593,7 +593,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     ),
                     const SizedBox(width: 8),
                     NeoBrutalButton(
-                      label: game.isFeatureUnlocked('/tuning-studio') ? 'GİRİŞ ET' : 'KİLİTLİ',
+                      label: game.isFeatureUnlocked('/tuning-studio') ? context.tr('workshop_btn_tuning_enter') : context.tr('locked_badge'),
                       backgroundColor: game.isFeatureUnlocked('/tuning-studio')
                           ? AppColors.brutalYellow
                           : const Color(0xFF64748B),
@@ -618,7 +618,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
               // Car Selector Carousel
               Text(
-                'TAMİR EDİLECEK ARACI SEÇ • ${game.ownedCars.length} Araç',
+                context.tr('workshop_select_car_title', {'count': game.ownedCars.length.toString()}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -666,7 +666,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               children: [
                                 Flexible(
                                   child: NeoBrutalBadge(
-                                    text: isPerfect ? 'KUSURSUZ' : 'MOTOR %${exp.engineCondition.toInt()}',
+                                    text: isPerfect ? context.tr('workshop_badge_perfect') : context.tr('workshop_badge_engine_cond', {'val': exp.engineCondition.toInt().toString()}),
                                     backgroundColor: isPerfect ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
                                     textColor: Colors.black,
                                     fontSize: 8.5,
@@ -717,7 +717,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Piyasa Değeri: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} • Kusursuz: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • ${_selectedCar!.modelYear}',
+                                  '${context.tr('car_card_market_value')}: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} • ${context.tr('workshop_badge_perfect')}: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • ${_selectedCar!.modelYear}',
                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                                 ),
                               ],
@@ -732,7 +732,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         children: [
                           Expanded(
                             child: _buildHealthBar(
-                              label: 'Motor Sağlığı',
+                              label: context.tr('car_expertise_engine'),
                               percent: _selectedCar!.expertise.engineCondition,
                               isDark: isDark,
                             ),
@@ -740,7 +740,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildHealthBar(
-                              label: 'Şanzıman Sağlığı',
+                              label: context.tr('car_expertise_transmission'),
                               percent: _selectedCar!.expertise.transmissionCondition,
                               isDark: isDark,
                             ),
@@ -755,7 +755,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.oil_barrel_rounded,
-                              label: _selectedCar!.isPeriodicMaintained ? 'BAKIM YAPILDI' : '10k Bakım • ₺3.5k',
+                              label: _selectedCar!.isPeriodicMaintained ? context.tr('workshop_btn_10k_maintained') : context.tr('workshop_btn_10k_service'),
                               backgroundColor: _selectedCar!.isPeriodicMaintained ? const Color(0xFF1E2330) : AppColors.brutalYellow,
                               textColor: _selectedCar!.isPeriodicMaintained ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                               fontSize: 10,
@@ -781,7 +781,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.palette_rounded,
-                              label: 'Fırın Boya',
+                              label: context.tr('workshop_btn_paint_oven'),
                               backgroundColor: const Color(0xFFA855F7),
                               textColor: Colors.white,
                               fontSize: 10,
@@ -793,7 +793,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.hearing_rounded,
-                              label: 'Motor Dinle',
+                              label: context.tr('workshop_btn_engine_listen'),
                               backgroundColor: const Color(0xFF06B6D4),
                               textColor: Colors.black,
                               fontSize: 10,
@@ -810,7 +810,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.hardware_rounded,
-                              label: _selectedCar!.hasPdrRepaired ? 'PDR Yapıldı' : 'PDR Göçük • ₺3.2k',
+                              label: _selectedCar!.hasPdrRepaired ? context.tr('workshop_pdr_done') : context.tr('workshop_btn_pdr'),
                               backgroundColor: _selectedCar!.hasPdrRepaired ? const Color(0xFF1E2330) : const Color(0xFF00E575),
                               textColor: _selectedCar!.hasPdrRepaired ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                               fontSize: 10,
@@ -834,7 +834,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.verified_rounded,
-                              label: _selectedCar!.hasTuvturkCertified ? '2 Yıl Muayeneli' : 'TÜVTÜRK • ₺1.5k',
+                              label: _selectedCar!.hasTuvturkCertified ? context.tr('workshop_tuvturk_certified') : context.tr('workshop_btn_tuvturk'),
                               backgroundColor: _selectedCar!.hasTuvturkCertified ? const Color(0xFF1E2330) : const Color(0xFF38BDF8),
                               textColor: _selectedCar!.hasTuvturkCertified ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                               fontSize: 10,
@@ -860,7 +860,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
                       if (_selectedCar!.isBarnFind) ...[
                         NeoBrutalButton(
-                          label: '5-AŞAMALI RESTORASYON MERKEZİ • Aşama ${_selectedCar!.barnFindStage}/5',
+                          label: context.tr('workshop_btn_barn_find', {'stage': _selectedCar!.barnFindStage.toString()}),
                           icon: Icons.auto_fix_high_rounded,
                           backgroundColor: const Color(0xFFA855F7),
                           textColor: Colors.white,
@@ -873,7 +873,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       ],
 
                       NeoBrutalButton(
-                        label: 'YEDEK PARÇA SİPARİŞİ VER',
+                        label: context.tr('workshop_btn_order_parts'),
                         icon: Icons.local_shipping_rounded,
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
@@ -913,7 +913,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
               // Five Specialized Repair Stations
               Text(
-                'ATÖLYE & TAMİR İSTASYONLARI',
+                context.tr('workshop_stations_title'),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -1051,7 +1051,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               // Pending Part Orders
               if (game.pendingOrders.isNotEmpty) ...[
                 Text(
-                  'BEKLEYEN PARÇA SİPARİŞLERİ • ${game.pendingOrders.length}',
+                  context.tr('workshop_pending_orders_title', {'count': game.pendingOrders.length.toString()}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -1090,7 +1090,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               // Salvaged Parts
               if (game.salvagedParts.isNotEmpty) ...[
                 Text(
-                  'HURDALIKTAN TOPLANAN ÇIKMA PARÇALAR • ${game.salvagedParts.length}',
+                  context.tr('workshop_salvaged_parts_title', {'count': game.salvagedParts.length.toString()}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -1136,7 +1136,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           ),
                           const SizedBox(width: 8),
                           NeoBrutalButton(
-                            label: 'MONTE ET',
+                            label: context.tr('workshop_btn_install_salvage'),
                             icon: Icons.build_rounded,
                             backgroundColor: const Color(0xFF00E575),
                             textColor: Colors.black,
@@ -1161,7 +1161,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
               // Equipment Upgrades
               Text(
-                'SATIN ALINABİLİR ATÖLYE EKİPMANLARI',
+                context.tr('workshop_equipment_title'),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,

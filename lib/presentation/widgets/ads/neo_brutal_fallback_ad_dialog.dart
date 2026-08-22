@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../core/services/ad_reward_calculator.dart';
@@ -8,20 +9,20 @@ import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 
 class FallbackSponsorStory {
-  final String title;
-  final String description;
-  final String badgeText;
+  final String titleKey;
+  final String descKey;
+  final String badgeKey;
   final IconData icon;
   final Color accentColor;
-  final String buttonText;
+  final String buttonKey;
 
   const FallbackSponsorStory({
-    required this.title,
-    required this.description,
-    required this.badgeText,
+    required this.titleKey,
+    required this.descKey,
+    required this.badgeKey,
     required this.icon,
     required this.accentColor,
-    required this.buttonText,
+    required this.buttonKey,
   });
 }
 
@@ -41,44 +42,44 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
 
   static final List<FallbackSponsorStory> _stories = [
     const FallbackSponsorStory(
-      title: 'ÇİLİNGİR HASAN USTA DEVREYE GİRDİ',
-      description: 'Reklam ağı kilitlendi ama Hasan Usta maymuncukla kapıyı açtı. Bizde esnafa yamuk olmaz diyerek sponsoru üstlendi!',
-      badgeText: 'ESNAF DAYANIŞMASI',
+      titleKey: 'fallback_ad_story1_title',
+      descKey: 'fallback_ad_story1_desc',
+      badgeKey: 'fallback_ad_story1_badge',
       icon: Icons.lock_open_rounded,
       accentColor: AppColors.brutalYellow,
-      buttonText: 'ÖDÜLÜ KASAYA AT',
+      buttonKey: 'fallback_ad_story1_btn',
     ),
     const FallbackSponsorStory(
-      title: 'NOTERCİ FİKRET BEYDEN RESMİ ONAY',
-      description: 'Sponsor sunucuları meşgul çıktı. Noterci Fikret damgayı bastı - Devletin ve sanayinin çarkı durmaz, ödülün onaylandı!',
-      badgeText: 'RESMİ MÜHÜR',
+      titleKey: 'fallback_ad_story2_title',
+      descKey: 'fallback_ad_story2_desc',
+      badgeKey: 'fallback_ad_story2_badge',
       icon: Icons.verified_rounded,
       accentColor: AppColors.brutalBlue,
-      buttonText: 'ÖDÜLÜ ONAYLA VE AL',
+      buttonKey: 'fallback_ad_story2_btn',
     ),
     const FallbackSponsorStory(
-      title: 'EGZOZCU BAHTİYAR YOLU AÇTI',
-      description: 'Vanalı egzozun sesiyle reklam sunucuları kendine geldi! Bahtiyar Usta gazı kökledi, hediyen garajına aktarıldı.',
-      badgeText: 'SANAYİ GÜCÜ',
+      titleKey: 'fallback_ad_story3_title',
+      descKey: 'fallback_ad_story3_desc',
+      badgeKey: 'fallback_ad_story3_badge',
       icon: Icons.local_fire_department_rounded,
       accentColor: AppColors.errorRed,
-      buttonText: 'HEDİYEYİ KABUL ET',
+      buttonKey: 'fallback_ad_story3_btn',
     ),
     const FallbackSponsorStory(
-      title: 'SANAYİ ÇORBACISI MEHMET ABİ İKRAMI',
-      description: 'Gece mesaisi yapan oto galericilere sıcak kelle paça ikramı. Sponsor masrafını Mehmet Abi kasadan karşıladı!',
-      badgeText: 'GECE SPONSORU',
+      titleKey: 'fallback_ad_story4_title',
+      descKey: 'fallback_ad_story4_desc',
+      badgeKey: 'fallback_ad_story4_badge',
       icon: Icons.restaurant_rounded,
       accentColor: AppColors.successGreen,
-      buttonText: 'İKRAMI AL VE DEVAM ET',
+      buttonKey: 'fallback_ad_story4_btn',
     ),
     const FallbackSponsorStory(
-      title: 'CHIP TUNING YAZILIMCISI GÖRKEM SAHNEDE',
-      description: 'Sunucu hatasına stage 2 yazılım attık! Beygir gücü ve ödülün anında hesabına tanımlandı.',
-      badgeText: 'BEYGİR GÜCÜ',
+      titleKey: 'fallback_ad_story5_title',
+      descKey: 'fallback_ad_story5_desc',
+      badgeKey: 'fallback_ad_story5_badge',
       icon: Icons.speed_rounded,
       accentColor: Color(0xFFA855F7),
-      buttonText: 'YOLA DEVAM ET',
+      buttonKey: 'fallback_ad_story5_btn',
     ),
   ];
 
@@ -122,7 +123,7 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 NeoBrutalBadge(
-                  text: outcome != null ? outcome!.badgeText : story.badgeText,
+                  text: outcome != null ? outcome!.badgeText : context.tr(story.badgeKey),
                   icon: outcome != null ? Icons.stars_rounded : story.icon,
                   backgroundColor: outcome != null && outcome!.tier == AdRewardTier.legendaryJackpot
                       ? AppColors.brutalYellow
@@ -170,7 +171,7 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          outcome != null ? outcome!.title : story.title,
+                          outcome != null ? outcome!.title : context.tr(story.titleKey),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
@@ -207,7 +208,7 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              outcome != null ? outcome!.message : story.description,
+              outcome != null ? outcome!.message : context.tr(story.descKey),
               style: TextStyle(
                 fontSize: 12,
                 height: 1.45,
@@ -271,7 +272,7 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             NeoBrutalButton(
-              label: story.buttonText,
+              label: context.tr(story.buttonKey),
               icon: Icons.card_giftcard_rounded,
               backgroundColor: story.accentColor,
               textColor: Colors.black,

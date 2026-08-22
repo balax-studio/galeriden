@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
@@ -27,10 +28,10 @@ class IndustryGossipScreen extends ConsumerWidget {
     if (!game.isFeatureUnlocked('/gossip')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'SANAYİ DEDİKODU HATTI'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('gossip_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/gossip',
-          featureTitle: 'SANAYİ DEDİKODU HATTI',
+          featureTitle: context.tr('gossip_screen_title'),
           icon: Icons.campaign_rounded,
         ),
       );
@@ -40,8 +41,8 @@ class IndustryGossipScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'SANAYİ DEDİKODU HATTI',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('gossip_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -73,7 +74,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'KULAKTAN KULAĞA İSTİHBARAT',
+                        context.tr('gossip_banner_title'),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -82,7 +83,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Sanayi çaycısından YouTube vloggerına kadar herkesin bir duyumu var. Bilgiyi erkenden satın al, piyasayı önden kokla!',
+                        context.tr('gossip_banner_desc'),
                         style: TextStyle(
                           fontSize: 11,
                           color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
@@ -104,14 +105,14 @@ class IndustryGossipScreen extends ConsumerWidget {
           ),
 
           if (gossips.isEmpty)
-            const NeoBrutalEmptyState(
+            NeoBrutalEmptyState(
               icon: Icons.chat_bubble_outline_rounded,
-              title: 'BUGÜN DEDİKODU YOK',
-              description: 'Sanayide bugün sular durgun. Yeni dedikodular ve kulis bilgileri için yeni güne geç.',
+              title: context.tr('gossip_empty_title'),
+              description: context.tr('gossip_empty_desc'),
             )
           else ...[
             Text(
-              'GÜNCEL DUYUMLAR • ${gossips.length}',
+              context.tr('gossip_active_count', {'count': '${gossips.length}'}),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -200,7 +201,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: '%${(gossip.accuracyRate * 100).round()} GÜVEN',
+                  text: context.tr('gossip_badge_trust', {'rate': '${(gossip.accuracyRate * 100).round()}'}),
                   backgroundColor: gossip.accuracyRate >= 0.85
                       ? AppColors.brutalGreen
                       : (gossip.accuracyRate >= 0.70 ? AppColors.brutalYellow : AppColors.brutalOrange),
@@ -235,7 +236,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        gossip.isPurchased ? 'AÇILAN İSTİHBARAT' : 'KULİS FISILTISI',
+                        gossip.isPurchased ? context.tr('gossip_unlocked_title') : context.tr('gossip_teaser_title'),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -262,12 +263,12 @@ class IndustryGossipScreen extends ConsumerWidget {
             // Action / Cost Row
             if (gossip.isPurchased)
               Row(
-                children: const [
-                  Icon(Icons.check_circle_rounded, color: AppColors.brutalGreen, size: 18),
-                  SizedBox(width: 6),
+                children: [
+                  const Icon(Icons.check_circle_rounded, color: AppColors.brutalGreen, size: 18),
+                  const SizedBox(width: 6),
                   Text(
-                    'İstihbarat Satın Alındı & Değerlendirildi',
-                    style: TextStyle(
+                    context.tr('gossip_purchased_label'),
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: AppColors.brutalGreen,
@@ -281,9 +282,9 @@ class IndustryGossipScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'İSTİHBARAT ÜCRETİ',
-                        style: TextStyle(
+                      Text(
+                        context.tr('gossip_cost_label'),
+                        style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textSecondaryLight,
@@ -305,8 +306,8 @@ class IndustryGossipScreen extends ConsumerWidget {
                           ),
                           if (game.hasHighNpcTrust(gossip.sourceNpc == 'cayci_necati' ? 'necati' : gossip.sourceNpc)) ...[
                             const SizedBox(width: 6),
-                            const NeoBrutalBadge(
-                              text: '-%50 DOST İNDİRİMİ',
+                            NeoBrutalBadge(
+                              text: context.tr('gossip_friend_discount'),
                               backgroundColor: AppColors.brutalGreen,
                               textColor: Colors.black,
                               fontSize: 9,
@@ -318,7 +319,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                   ),
                   const Spacer(),
                   NeoBrutalButton(
-                    label: 'BİLGİYİ SATIN AL',
+                    label: context.tr('gossip_btn_buy'),
                     backgroundColor: canAfford ? AppColors.brutalYellow : const Color(0xFF64748B),
                     textColor: Colors.black,
                     onPressed: canAfford
@@ -332,7 +333,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                             }
                           }
                         : () {
-                            NotificationService.showWarning(context, 'Yeterli paranız yok.');
+                            NotificationService.showWarning(context, context.tr('insufficient_balance'));
                           },
                   ),
                 ],

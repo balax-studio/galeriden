@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/mega_systems_extensions_model.dart';
 import '../../../widgets/neo_brutal_card.dart';
@@ -44,10 +46,10 @@ class DynoTestDialog extends StatelessWidget {
                     child: const Icon(Icons.speed_rounded, color: Colors.black, size: 22),
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'DYNO MOTOR & BEYGİR TESTİ',
-                      style: TextStyle(
+                      context.tr('dyno_dialog_title'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w900,
                         fontSize: 14,
@@ -75,16 +77,16 @@ class DynoTestDialog extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildGaugeMetric(
-                          label: 'ÖLÇÜLEN GÜÇ',
+                          label: context.tr('dyno_measured_power'),
                           value: '${dynoPreview.measuredHp} HP',
-                          sub: 'Fabrika: ${dynoPreview.factoryHp} HP',
+                          sub: context.tr('dyno_factory_power', {'val': dynoPreview.factoryHp}),
                           color: AppColors.brutalGreen,
                         ),
                         Container(width: 1.5, height: 45, color: const Color(0xFF333B4F)),
                         _buildGaugeMetric(
-                          label: 'TORK DEĞERİ',
+                          label: context.tr('dyno_measured_torque'),
                           value: '${dynoPreview.measuredTorque} Nm',
-                          sub: 'Fabrika: ${dynoPreview.factoryTorque} Nm',
+                          sub: context.tr('dyno_factory_torque', {'val': dynoPreview.factoryTorque}),
                           color: const Color(0xFF38BDF8),
                         ),
                       ],
@@ -103,18 +105,18 @@ class DynoTestDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Motor Verimlilik Sağlığı: %${dynoPreview.healthPercentage.toStringAsFixed(1)}',
+                      context.tr('dyno_efficiency_health', {'val': dynoPreview.healthPercentage.toStringAsFixed(1)}),
                       style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'EKSPERTİZ PAKETİ SEÇİN',
-                  style: TextStyle(color: AppColors.brutalYellow, fontWeight: FontWeight.w900, fontSize: 12),
+                  context.tr('dyno_select_package'),
+                  style: const TextStyle(color: AppColors.brutalYellow, fontWeight: FontWeight.w900, fontSize: 12),
                 ),
               ),
               const SizedBox(height: 8),
@@ -154,7 +156,7 @@ class DynoTestDialog extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '₺${tier.cost.toStringAsFixed(0)}',
+                            CurrencyFormatter.format(tier.cost),
                             style: TextStyle(color: tier.color, fontWeight: FontWeight.w900, fontSize: 13),
                           ),
                         ],

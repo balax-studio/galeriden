@@ -54,7 +54,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: context.tr('lifestyle_app_bar'),
+        title: context.tr('lifestyle_title'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
@@ -113,7 +113,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Kuşanılan Lüks Eşyalar & Aktif Pasif Auralar',
+                                    context.tr('lifestyle_subtitle'),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
@@ -140,19 +140,19 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               _buildPerkMetric(
-                                'Pazarlık Otoritesi',
+                                context.tr('lifestyle_perk_negotiation'),
                                 '+%${(game.lifestyleNegotiationBonus * 100).toInt()}',
                                 const Color(0xFF38BDF8),
                                 isDark,
                               ),
                               _buildPerkMetric(
-                                'Zengin Müşteri',
+                                context.tr('lifestyle_perk_rich_customer'),
                                 '+%${(game.lifestyleRichCustomerBonus * 100).toInt()}',
                                 const Color(0xFFFFDE59),
                                 isDark,
                               ),
                               _buildPerkMetric(
-                                'Faiz İndirimi',
+                                context.tr('lifestyle_perk_interest_discount'),
                                 '-%${(game.lifestyleInterestDiscount * 100).toInt()}',
                                 const Color(0xFF10B981),
                                 isDark,
@@ -171,11 +171,11 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                     physics: const BouncingScrollPhysics(),
                     child: Row(
                       children: [
-                        _buildThemeFilterChip('TÜM TARZLAR', 'all', isDark),
-                        _buildThemeFilterChip('PROTOKOL & BARON', 'classic_baron', isDark),
-                        _buildThemeFilterChip('AĞIR ESNAF & ANADOLU', 'traditional_artisan', isDark),
-                        _buildThemeFilterChip('ŞEHİRLİ & SOKAK', 'street_modern', isDark),
-                        _buildThemeFilterChip('PİST & MOTORSPOR', 'motorsport', isDark),
+                        _buildThemeFilterChip(context.tr('lifestyle_theme_all'), 'all', isDark),
+                        _buildThemeFilterChip(context.tr('lifestyle_theme_baron'), 'classic_baron', isDark),
+                        _buildThemeFilterChip(context.tr('lifestyle_theme_artisan'), 'traditional_artisan', isDark),
+                        _buildThemeFilterChip(context.tr('lifestyle_theme_street'), 'street_modern', isDark),
+                        _buildThemeFilterChip(context.tr('lifestyle_theme_motorsport'), 'motorsport', isDark),
                       ],
                     ),
                   ),
@@ -207,7 +207,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
                       tabs: [
                         Tab(text: context.tr('lifestyle_tab_apparel')),
-                        Tab(text: context.tr('lifestyle_tab_accessory')),
+                        Tab(text: context.tr('lifestyle_tab_accessories')),
                       ],
                     ),
                   ),
@@ -306,7 +306,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'Bu kategoride seçilen temaya ait ürün bulunamadı.',
+            context.tr('lifestyle_empty_theme'),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -382,7 +382,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                               ),
                               if (isEquipped)
                                 NeoBrutalBadge(
-                                  text: context.tr('lifestyle_equipped_badge'),
+                                  text: context.tr('lifestyle_btn_equipped'),
                                   backgroundColor: const Color(0xFF10B981),
                                   textColor: Colors.white,
                                   fontSize: 9.5,
@@ -394,14 +394,14 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                           Row(
                             children: [
                               NeoBrutalBadge(
-                                text: '+${item.reputationBonus} İtibar Puanı',
+                                text: context.tr('lifestyle_reputation_bonus', {'points': item.reputationBonus}),
                                 backgroundColor: const Color(0xFFFFDE59),
                                 textColor: Colors.black,
                                 fontSize: 10,
                               ),
                               const SizedBox(width: 6),
                               NeoBrutalBadge(
-                                text: _getThemeLabel(item.theme),
+                                text: _getThemeLabel(context, item.theme),
                                 backgroundColor: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0),
                                 textColor: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
                                 fontSize: 9,
@@ -430,11 +430,11 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                   runSpacing: 6,
                   children: [
                     if (item.negotiationBonus > 0)
-                      _buildMiniBadge('Pazarlık: +%${(item.negotiationBonus * 100).toInt()}', const Color(0xFF38BDF8), isDark),
+                      _buildMiniBadge(context.tr('lifestyle_badge_negotiation', {'percent': (item.negotiationBonus * 100).toInt()}), const Color(0xFF38BDF8), isDark),
                     if (item.richCustomerBonus > 0)
-                      _buildMiniBadge('Zengin Alıcı: +%${(item.richCustomerBonus * 100).toInt()}', const Color(0xFFFFDE59), isDark),
+                      _buildMiniBadge(context.tr('lifestyle_badge_rich_customer', {'percent': (item.richCustomerBonus * 100).toInt()}), const Color(0xFFFFDE59), isDark),
                     if (item.interestDiscount > 0)
-                      _buildMiniBadge('Faiz İndirimi: -%${(item.interestDiscount * 100).toInt()}', const Color(0xFF10B981), isDark),
+                      _buildMiniBadge(context.tr('lifestyle_badge_interest_discount', {'percent': (item.interestDiscount * 100).toInt()}), const Color(0xFF10B981), isDark),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -445,14 +445,6 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            context.tr('lifestyle_price_label'),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                            ),
-                          ),
                           Text(
                             CurrencyFormatter.formatShort(item.price),
                             style: TextStyle(
@@ -467,7 +459,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       )
                     else
                       Text(
-                        context.tr('lifestyle_owned_text'),
+                        context.tr('lifestyle_btn_equipped'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -476,7 +468,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       ),
                     if (!isOwned)
                       NeoBrutalButton(
-                        label: context.tr('lifestyle_buy_equip_btn'),
+                        label: context.tr('lifestyle_btn_buy', {'price': CurrencyFormatter.formatShort(item.price)}),
                         backgroundColor: canAfford ? const Color(0xFFFFDE59) : const Color(0xFF64748B),
                         textColor: canAfford ? Colors.black : Colors.white,
                         fontSize: 11,
@@ -485,7 +477,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       )
                     else if (!isEquipped)
                       NeoBrutalButton(
-                        label: context.tr('lifestyle_equip_btn'),
+                        label: context.tr('lifestyle_btn_equip'),
                         backgroundColor: const Color(0xFF38BDF8),
                         textColor: Colors.black,
                         fontSize: 11,
@@ -504,18 +496,18 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     );
   }
 
-  String _getThemeLabel(String themeKey) {
+  String _getThemeLabel(BuildContext context, String themeKey) {
     switch (themeKey) {
       case 'classic_baron':
-        return 'PROTOKOL';
+        return context.tr('lifestyle_theme_tag_baron');
       case 'traditional_artisan':
-        return 'AĞIR ESNAF';
+        return context.tr('lifestyle_theme_tag_artisan');
       case 'street_modern':
-        return 'ŞEHİRLİ';
+        return context.tr('lifestyle_theme_tag_street');
       case 'motorsport':
-        return 'MOTORSPOR';
+        return context.tr('lifestyle_theme_tag_motorsport');
       default:
-        return 'GENEL';
+        return context.tr('lifestyle_theme_tag_general');
     }
   }
 
@@ -580,16 +572,22 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     if (success) {
       NotificationService.showSuccess(
         context,
-        '${item.name} satın alındı ve üzerinize kuşandı! Karizmanız ve itibarınız arttı.',
+        context.tr('lifestyle_buy_success_toast', {'name': item.name}),
       );
     } else {
-      NotificationService.showError(context, 'Bütçeniz bu lüks ürün için yetersiz.');
+      NotificationService.showError(
+        context,
+        context.tr('lifestyle_insufficient_funds_toast', {'price': CurrencyFormatter.formatShort(item.price)}),
+      );
     }
   }
 
   void _equipItem(LifestyleItemModel item) {
     HapticFeedback.mediumImpact();
     ref.read(gameProvider.notifier).equipLifestyleItem(item);
-    NotificationService.showSuccess(context, '${item.name} üzerinize kuşandı.');
+    NotificationService.showSuccess(
+      context,
+      context.tr('lifestyle_equip_success_toast', {'name': item.name}),
+    );
   }
 }

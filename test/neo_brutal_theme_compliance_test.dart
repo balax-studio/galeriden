@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +15,14 @@ void main() {
   group('Neo-Brutalist Theme System Compliance Tests', () {
     testWidgets('NeoBrutalCard renders with zero blur and correct offset', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: NeoBrutalCard(
               borderWidth: 2.5,
@@ -40,6 +48,13 @@ void main() {
       bool tapped = false;
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: NeoBrutalButton(
               label: 'TEST BUTON',
@@ -62,7 +77,14 @@ void main() {
 
     testWidgets('NeoBrutalBadge displays with solid brutalist styling', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: NeoBrutalBadge(
               text: 'İNAT KIRICI',
@@ -85,6 +107,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: TurkishHospitalityBar(
               onTeaTreated: () => teaCalled = true,
@@ -130,6 +159,13 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
             home: Scaffold(
               body: FinancialHealthCard(
                 dealership: dealership,

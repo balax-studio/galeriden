@@ -68,9 +68,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Screen title and tabs exist
-      expect(find.text('BİST HİSSELERİ'), findsOneWidget);
-      expect(find.text('PORTFÖY & TEMETTÜ'), findsOneWidget);
-      expect(find.text('DÖVİZ & ALTIN'), findsOneWidget);
+      expect(find.text('BİST Hisseleri'), findsOneWidget);
+      expect(find.text('Portföyüm'), findsOneWidget);
+      expect(find.text('Döviz & Altın'), findsOneWidget);
       expect(find.text('HALKA ARZ • IPO'), findsOneWidget);
 
       expect(tester.takeException(), isNull);

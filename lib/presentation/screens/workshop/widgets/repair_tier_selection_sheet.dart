@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
@@ -52,14 +53,14 @@ class RepairTierSelectionSheet extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final String titleText = repairType == 'engine'
-        ? 'MOTOR USTALIK SEVİYESİ SEÇİN'
+        ? context.tr('repair_tier_engine_title')
         : (repairType == 'transmission'
-            ? 'ŞANZIMAN İŞÇİLİK SEVİYESİ'
+            ? context.tr('repair_tier_transmission_title')
             : (repairType == 'ecu'
-                ? 'OBD-II BEYİN İŞÇİLİK SEVİYESİ'
+                ? context.tr('repair_tier_ecu_title')
                 : (repairType == 'chassis'
-                    ? 'ŞASİ DOĞRULTMA İŞÇİLİK SEVİYESİ'
-                    : 'KAPORTA İŞÇİLİK SEVİYESİ')));
+                    ? context.tr('repair_tier_chassis_title')
+                    : context.tr('repair_tier_body_title'))));
 
     return Padding(
       padding: const EdgeInsets.all(18),
@@ -82,8 +83,8 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildTierOption(
-            title: 'Çırak İşi • %68 Başarı Şansı',
-            subtitle: 'Hızlı ve ucuz onarım, ancak ayar tutturamama riski var.',
+            title: context.tr('repair_tier_apprentice_title'),
+            subtitle: context.tr('repair_tier_apprentice_desc'),
             cost: baseCost * 0.55,
             successRate: '%68',
             color: const Color(0xFFFF7A00),
@@ -92,8 +93,8 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _buildTierOption(
-            title: 'Kalfa İşi • %88 Başarı Şansı',
-            subtitle: 'Dengeli sanayi standardı işçilik ve kaliteli parça montajı.',
+            title: context.tr('repair_tier_journeyman_title'),
+            subtitle: context.tr('repair_tier_journeyman_desc'),
             cost: baseCost * 1.0,
             successRate: '%88',
             color: const Color(0xFF38BDF8),
@@ -102,8 +103,8 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _buildTierOption(
-            title: 'Usta İşi • %100 Kesin Başarı',
-            subtitle: 'Kusursuz işçilik, sıfır hata toleransı ile fabrika kondisyonu.',
+            title: context.tr('repair_tier_master_title'),
+            subtitle: context.tr('repair_tier_master_desc'),
             cost: baseCost * 1.75,
             successRate: '%100',
             color: const Color(0xFF00E575),

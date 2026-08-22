@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../data/models/part_order_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -78,6 +79,11 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
     final p = widget.p;
     final isReady = order.isDelivered;
     final remainingSec = order.remainingSeconds;
+    final orderTypeLabel = order.orderType == OrderType.quickPatch
+        ? context.tr('order_card_temp')
+        : order.orderType == OrderType.masterRepair
+            ? context.tr('order_card_master')
+            : context.tr('order_card_new');
 
     return SizeTransition(
       sizeFactor: _sizeAnimation,
@@ -110,7 +116,7 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${order.partName} • ${order.orderType == OrderType.quickPatch ? 'Geçici' : order.orderType == OrderType.masterRepair ? 'Usta Tamiri' : 'Yeni Parça'}',
+                        '${order.partName} • $orderTypeLabel',
                         style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 4),
@@ -125,7 +131,9 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        isReady ? (_isInstalling ? 'Monte Ediliyor...' : 'Teslimat Tamamlandı!') : 'Kargoda • $remainingSec sn kaldı',
+                        isReady
+                            ? (_isInstalling ? context.tr('order_card_installing') : context.tr('order_card_delivered'))
+                            : context.tr('order_card_in_cargo', {'sec': remainingSec}),
                         style: AppTypography.labelSmall(p.isDark).copyWith(
                           color: isReady ? p.successColor : p.warningColor,
                           fontSize: 11,
@@ -152,14 +160,14 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                             width: 1.5,
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.bolt_rounded, size: 14, color: Colors.black),
-                            SizedBox(width: 2),
+                            const Icon(Icons.bolt_rounded, size: 14, color: Colors.black),
+                            const SizedBox(width: 2),
                             Text(
-                              'Hızlandır',
-                              style: TextStyle(
+                              context.tr('order_card_speed_up'),
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 10,
@@ -171,7 +179,9 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                     ),
                   ),
                 NeoBrutalButton(
-                  label: isReady ? (_isInstalling ? '...' : 'MONTAJ ET') : 'BEKLENİYOR',
+                  label: isReady
+                      ? (_isInstalling ? '...' : context.tr('order_card_btn_install'))
+                      : context.tr('order_card_btn_waiting'),
                   backgroundColor: isReady ? p.successColor : (p.isDark ? const Color(0xFF1E2330) : const Color(0xFFCBD5E1)),
                   textColor: isReady ? Colors.black : (p.isDark ? Colors.white60 : Colors.black54),
                   borderColor: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),

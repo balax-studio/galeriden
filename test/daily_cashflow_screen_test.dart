@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +46,13 @@ void main() {
             gameProvider.overrideWith((ref) => GameNotifier()),
           ],
           child: const MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: Locale('tr'),
             home: DailyCashflowScreen(),
           ),
         ),
@@ -92,6 +100,13 @@ void main() {
             gameProvider.overrideWith((ref) => GameNotifier()),
           ],
           child: const MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: Locale('tr'),
             home: DailyCashflowScreen(),
           ),
         ),
@@ -132,6 +147,13 @@ void main() {
             gameProvider.overrideWith((ref) => GameNotifier()),
           ],
           child: const MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('tr'), Locale('en')],
+            locale: Locale('tr'),
             home: DailyCashflowScreen(),
           ),
         ),

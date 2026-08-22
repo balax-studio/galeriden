@@ -160,10 +160,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
     if (!game.isFeatureUnlocked('/car-wash')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'OTO YIKAMA & DETAILING'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('car_wash_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/car-wash',
-          featureTitle: 'OTO YIKAMA & DETAILING',
+          featureTitle: context.tr('car_wash_title'),
           icon: Icons.local_car_wash_rounded,
         ),
       );
@@ -247,22 +247,22 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                           child: const Icon(Icons.lock_rounded, size: 36, color: AppColors.brutalOrange),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          'MÜŞTERİ YIKAMA SERVİSİ KİLİTLİ',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                        Text(
+                          context.tr('car_wash_locked_service_title'),
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
-                          'Dışarıdan müşteri araçlarını yıkayıp sıcak nakit para ve XP kazanabilmek için kadronuza bir Yıkama & Detay Uzmanı almalı veya Oto Yıkama Dükkanı açmalısınız.',
+                        Text(
+                          context.tr('car_wash_locked_service_desc'),
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                         ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
                             Expanded(
                               child: NeoBrutalButton(
-                                label: game.isFeatureUnlocked('/staff') ? 'PERSONEL AL' : 'KİLİTLİ',
+                                label: game.isFeatureUnlocked('/staff') ? context.tr('car_wash_btn_hire_staff') : context.tr('locked_badge'),
                                 icon: Icons.person_add_rounded,
                                 backgroundColor: game.isFeatureUnlocked('/staff')
                                     ? AppColors.brutalYellow
@@ -284,7 +284,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: NeoBrutalButton(
-                                label: game.isFeatureUnlocked('/side-businesses') ? 'DÜKKAN AÇ' : 'KİLİTLİ',
+                                label: game.isFeatureUnlocked('/side-businesses') ? context.tr('car_wash_btn_open_shop') : context.tr('locked_badge'),
                                 icon: Icons.storefront_rounded,
                                 backgroundColor: game.isFeatureUnlocked('/side-businesses')
                                     ? AppColors.brutalGreen
@@ -316,12 +316,12 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'YIKAMAYA GELEN MÜŞTERİ ARAÇLARI',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                        Text(
+                          context.tr('car_wash_queue_title'),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
                         ),
                         NeoBrutalButton(
-                          label: 'YENİ TALEPLER TARA',
+                          label: context.tr('car_wash_btn_scan_requests'),
                           icon: Icons.refresh_rounded,
                           backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                           textColor: isDark ? Colors.white : Colors.black,
@@ -343,11 +343,11 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
             ),
 
             if (_customerWashJobs.isEmpty)
-              const NeoBrutalCard(
-                padding: EdgeInsets.all(20),
+              NeoBrutalCard(
+                padding: const EdgeInsets.all(20),
                 borderRadius: 12,
                 child: Center(
-                  child: Text('Şu an kuyrukta araç yok. Yeni talepler tarayabilirsin.'),
+                  child: Text(context.tr('car_wash_queue_empty')),
                 ),
               )
             else if (game.hiredStaff.any((s) => s.role == StaffRole.washer) || game.sideBusinesses.any((b) => b.type == SideBusinessType.carWash && b.isOwned))
@@ -387,10 +387,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               ],
                             ),
                             if (job.isVipCustomer)
-                              const NeoBrutalBadge(
-                                text: 'VIP MÜŞTERİ',
+                              NeoBrutalBadge(
+                                text: context.tr('car_wash_vip_badge'),
                                 icon: Icons.star_rounded,
-                                backgroundColor: Color(0xFFA855F7),
+                                backgroundColor: const Color(0xFFA855F7),
                                 textColor: Colors.white,
                                 fontSize: 9.5,
                               ),
@@ -415,12 +415,12 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Hizmet: ${job.washType.name}', style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
-                                Text('Kazanç: +${CurrencyFormatter.format(job.paymentReward)}', style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900, color: Color(0xFF00E575))),
+                                Text(context.tr('car_wash_service_label', {'service': job.washType.name}), style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                                Text(context.tr('car_wash_income_label', {'amount': CurrencyFormatter.format(job.paymentReward)}), style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900, color: Color(0xFF00E575))),
                               ],
                             ),
                             NeoBrutalButton(
-                              label: 'YIKA & KAZAN',
+                              label: context.tr('car_wash_btn_wash_earn'),
                               icon: Icons.cleaning_services_rounded,
                               backgroundColor: const Color(0xFF00E575),
                               textColor: Colors.black,
@@ -495,19 +495,19 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                       children: [
                         const Icon(Icons.local_car_wash_rounded, size: 44, color: Color(0xFF38BDF8)),
                         const SizedBox(height: 12),
-                        const Text(
-                          'Garajında Araç Yok!',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                        Text(
+                          context.tr('car_wash_empty_garage_title'),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
-                          'Yıkamak ve parlatmak için önce pazardan araç satın almalısın.',
+                        Text(
+                          context.tr('car_wash_empty_garage_desc'),
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                         ),
                         const SizedBox(height: 16),
                         NeoBrutalButton(
-                          label: 'İLANLARA GİT',
+                          label: context.tr('car_wash_btn_go_market'),
                           icon: Icons.storefront_rounded,
                           backgroundColor: AppColors.brutalYellow,
                           textColor: Colors.black,
@@ -521,7 +521,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
             else if (selectedCar != null) ...[
               // Garage Car Selection Carousel
               Text(
-                'YIKANACAK ARACI SEÇ • ${game.ownedCars.length} Araç',
+                context.tr('car_wash_select_car_title', {'count': game.ownedCars.length.toString()}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -565,12 +565,12 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               children: [
                                 NeoBrutalBadge(
                                   text: car.isDetailedCleaned
-                                      ? 'SERAMİK'
+                                      ? context.tr('car_wash_badge_ceramic')
                                       : car.isPolished
-                                          ? 'CİLALI'
+                                          ? context.tr('car_wash_badge_polished')
                                           : car.isWashed
-                                              ? 'TEMİZ'
-                                              : 'KİRLİ',
+                                              ? context.tr('car_wash_badge_clean')
+                                              : context.tr('car_wash_badge_dirty'),
                                   backgroundColor: car.isDetailedCleaned
                                       ? const Color(0xFFA855F7)
                                       : car.isPolished
@@ -624,7 +624,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                               Text('${selectedCar.brand} ${selectedCar.modelName}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
                               const SizedBox(height: 2),
                               Text(
-                                'Piyasa Değeri: ${CurrencyFormatter.formatShort(selectedCar.baseMarketValue)} • Yıl: ${selectedCar.modelYear}',
+                                '${context.tr('car_card_market_value')}: ${CurrencyFormatter.formatShort(selectedCar.baseMarketValue)} • ${context.tr('car_spec_year')}: ${selectedCar.modelYear}',
                                 style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                               ),
                             ],
@@ -639,7 +639,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                       children: [
                         Expanded(
                           child: _buildWashStatusPill(
-                            title: 'Köpüklü',
+                            title: context.tr('car_wash_status_foamed'),
                             isDone: selectedCar.isWashed,
                             color: const Color(0xFF00E575),
                             isDark: isDark,
@@ -648,7 +648,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         const SizedBox(width: 4),
                         Expanded(
                           child: _buildWashStatusPill(
-                            title: 'İç Temizlik',
+                            title: context.tr('car_wash_status_interior'),
                             isDone: selectedCar.isInteriorCleaned,
                             color: const Color(0xFF38BDF8),
                             isDark: isDark,
@@ -657,7 +657,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         const SizedBox(width: 4),
                         Expanded(
                           child: _buildWashStatusPill(
-                            title: 'Pasta Cila',
+                            title: context.tr('car_wash_status_polish'),
                             isDone: selectedCar.isPolished,
                             color: const Color(0xFFFFDE59),
                             isDark: isDark,
@@ -666,7 +666,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         const SizedBox(width: 4),
                         Expanded(
                           child: _buildWashStatusPill(
-                            title: 'Nano Seramik',
+                            title: context.tr('car_wash_status_ceramic'),
                             isDone: selectedCar.isDetailedCleaned,
                             color: const Color(0xFFA855F7),
                             isDark: isDark,
@@ -682,7 +682,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.air_rounded,
-                            label: selectedCar.hasScent ? 'Koku: ${selectedCar.appliedScentId?.replaceAll('scent_', '')}' : 'Ayna Kokusu',
+                            label: selectedCar.hasScent ? context.tr('car_wash_scent_label', {'scent': selectedCar.appliedScentId?.replaceAll('scent_', '') ?? ''}) : context.tr('car_wash_btn_mirror_scent'),
                             backgroundColor: selectedCar.hasScent ? const Color(0xFF00E575) : const Color(0xFFFFDE59),
                             textColor: Colors.black,
                             fontSize: 10,
@@ -694,7 +694,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.highlight_rounded,
-                            label: selectedCar.hasRestoredHeadlights ? 'Far Temiz' : 'Far Sil • ₺850',
+                            label: selectedCar.hasRestoredHeadlights ? context.tr('car_wash_headlight_clean') : context.tr('car_wash_btn_headlight'),
                             backgroundColor: selectedCar.hasRestoredHeadlights ? const Color(0xFF1E2330) : const Color(0xFF38BDF8),
                             textColor: selectedCar.hasRestoredHeadlights ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
                             fontSize: 10,
@@ -716,7 +716,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         Expanded(
                           child: NeoBrutalButton(
                             icon: Icons.flare_rounded,
-                            label: selectedCar.hasIronDecon ? 'Jant Temiz' : 'Jant Decon • ₺450',
+                            label: selectedCar.hasIronDecon ? context.tr('car_wash_wheel_clean') : context.tr('car_wash_btn_wheel_decon'),
                             backgroundColor: selectedCar.hasIronDecon ? const Color(0xFF1E2330) : const Color(0xFFA855F7),
                             textColor: selectedCar.hasIronDecon ? (isDark ? Colors.white54 : Colors.black54) : Colors.white,
                             fontSize: 10,
@@ -744,7 +744,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               // Interactive Detailing Canvas Trigger
               NeoBrutalButton(
                 icon: selectedCar.isWashed ? Icons.check_circle_rounded : Icons.cleaning_services_rounded,
-                label: selectedCar.isWashed ? '2D YIKAMA TAMAMLANDI • TEMİZ' : 'KÖPÜKLÜ 2D YIKAMA KANVASI',
+                label: selectedCar.isWashed ? context.tr('car_wash_btn_canvas_done') : context.tr('car_wash_btn_canvas_start'),
                 backgroundColor: selectedCar.isWashed ? const Color(0xFF1E293B) : AppColors.brutalYellow,
                 textColor: selectedCar.isWashed ? Colors.white54 : Colors.black,
                 fontSize: 11.5,
@@ -773,7 +773,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
               // Wash & Detailing Service Packages
               Text(
-                'YIKAMA & DETAILING PAKETLERİ',
+                context.tr('car_wash_packages_title'),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -784,10 +784,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               const SizedBox(height: 8),
 
               _buildServicePackageTile(
-                title: '1. Köpüklü Standart Yıkama',
-                subtitle: 'Basınçlı köpük, jant fırçalama ve kurulama.',
+                title: context.tr('car_wash_pkg_1_title'),
+                subtitle: context.tr('car_wash_pkg_1_desc'),
                 cost: 350.0 * discountMultiplier,
-                bonusText: '+%20 Temizlik',
+                bonusText: context.tr('car_wash_pkg_1_bonus'),
                 badgeColor: const Color(0xFF00E575),
                 isCompleted: selectedCar.isWashed,
                 isDark: isDark,
@@ -805,10 +805,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               const SizedBox(height: 8),
 
               _buildServicePackageTile(
-                title: '2. Detaylı İç-Dış & Koltuk Yıkama',
-                subtitle: 'Buharlı döşeme temizliği, tavan silme ve ozon dezenfeksiyonu.',
+                title: context.tr('car_wash_pkg_2_title'),
+                subtitle: context.tr('car_wash_pkg_2_desc'),
                 cost: 1200.0 * discountMultiplier,
-                bonusText: '+%3 Satış Değeri Artışı',
+                bonusText: context.tr('car_wash_pkg_2_bonus'),
                 badgeColor: const Color(0xFF38BDF8),
                 isCompleted: selectedCar.isInteriorCleaned,
                 isDark: isDark,
@@ -826,10 +826,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               const SizedBox(height: 8),
 
               _buildServicePackageTile(
-                title: '3. Pasta Cila & Çizik Giderme',
-                subtitle: 'Kılcal çizik giderme, teflon koruma ve ayna gibi parlaklık.',
+                title: context.tr('car_wash_pkg_3_title'),
+                subtitle: context.tr('car_wash_pkg_3_desc'),
                 cost: 3500.0 * discountMultiplier,
-                bonusText: hasPolisher ? '+%8 Satış Değeri • Polisaj Bonusu' : '+%6 Satış Değeri',
+                bonusText: hasPolisher ? context.tr('car_wash_pkg_3_bonus_polisher') : context.tr('car_wash_pkg_3_bonus_base'),
                 badgeColor: const Color(0xFFFFDE59),
                 isCompleted: selectedCar.isPolished,
                 isDark: isDark,
@@ -847,10 +847,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               const SizedBox(height: 8),
 
               _buildServicePackageTile(
-                title: '4. Nano Seramik Kaplama & VIP Detailing',
-                subtitle: '9H elmas seramik, hidrofobik su itici ve 2x vitrin alıcı ilgisi.',
+                title: context.tr('car_wash_pkg_4_title'),
+                subtitle: context.tr('car_wash_pkg_4_desc'),
                 cost: 8500.0 * discountMultiplier,
-                bonusText: '+%12 Süper Değer Artışı & 2x Hızlı Satış',
+                bonusText: context.tr('car_wash_pkg_4_bonus'),
                 badgeColor: const Color(0xFFA855F7),
                 isCompleted: selectedCar.isDetailedCleaned,
                 isDark: isDark,
@@ -869,7 +869,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
               // Purchasable Wash Equipment Upgrades
               Text(
-                'SATIN ALINABİLİR YIKAMA EKİPMANLARI',
+                context.tr('car_wash_equipment_title'),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -1006,7 +1006,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Hizmet Bedeli: ${CurrencyFormatter.format(cost)}',
+                  context.tr('car_wash_service_fee_label', {'cost': CurrencyFormatter.format(cost)}),
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
                 ),
               ],
@@ -1014,7 +1014,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
           ),
           const SizedBox(width: 10),
           NeoBrutalButton(
-            label: isCompleted ? 'UYGULANDI' : 'UYGULA',
+            label: isCompleted ? context.tr('tuning_btn_applied') : context.tr('tuning_btn_apply'),
             icon: isCompleted ? Icons.check_circle_rounded : Icons.cleaning_services_rounded,
             backgroundColor: isCompleted
                 ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
@@ -1071,7 +1071,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  isOwned ? 'ATÖLYENDE KURULU' : CurrencyFormatter.format(cost),
+                  isOwned ? context.tr('car_wash_installed_badge') : CurrencyFormatter.format(cost),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -1083,7 +1083,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
           ),
           const SizedBox(width: 8),
           NeoBrutalButton(
-            label: isOwned ? 'SAHİPSİN' : 'SATIN AL',
+            label: isOwned ? context.tr('equipment_badge_owned') : context.tr('equipment_btn_buy'),
             backgroundColor: isOwned
                 ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                 : AppColors.brutalYellow,

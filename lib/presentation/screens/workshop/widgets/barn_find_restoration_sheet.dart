@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -13,15 +14,15 @@ import '../../../widgets/neo_brutal_card.dart';
 
 class RestorationStageInfo {
   final int stage;
-  final String title;
-  final String description;
+  final String titleKey;
+  final String descriptionKey;
   final double cost;
   final IconData icon;
 
   const RestorationStageInfo({
     required this.stage,
-    required this.title,
-    required this.description,
+    required this.titleKey,
+    required this.descriptionKey,
     required this.cost,
     required this.icon,
   });
@@ -30,36 +31,36 @@ class RestorationStageInfo {
 const List<RestorationStageInfo> kRestorationStages = [
   RestorationStageInfo(
     stage: 1,
-    title: '1. Şasi & Pas Temizliği',
-    description: 'Aracın tabanındaki çürükler kesilir, kumlama yapılır ve şasi güçlendirilir.',
+    titleKey: 'barn_find_stage_1_title',
+    descriptionKey: 'barn_find_stage_1_desc',
     cost: 4500,
     icon: Icons.cleaning_services_rounded,
   ),
   RestorationStageInfo(
     stage: 2,
-    title: '2. Motor & Mekanik Revizyon',
-    description: 'Pistonlar, segmanlar ve silindir kapağı sıfırlanır, motor ilk günkü gibi çalıştırılır.',
+    titleKey: 'barn_find_stage_2_title',
+    descriptionKey: 'barn_find_stage_2_desc',
     cost: 9500,
     icon: Icons.settings_rounded,
   ),
   RestorationStageInfo(
     stage: 3,
-    title: '3. Elektrik & Tesisat Yenileme',
-    description: 'Eski kablo demetleri sökülür, modern ve güvenli sigorta tesisatı çekilir.',
+    titleKey: 'barn_find_stage_3_title',
+    descriptionKey: 'barn_find_stage_3_desc',
     cost: 6000,
     icon: Icons.bolt_rounded,
   ),
   RestorationStageInfo(
     stage: 4,
-    title: '4. Kaporta Düzeltme & Astar',
-    description: 'Eksik veya ezik saç paneller çekiçlenir, epoksi astar atılarak fırına hazırlanır.',
+    titleKey: 'barn_find_stage_4_title',
+    descriptionKey: 'barn_find_stage_4_desc',
     cost: 8000,
     icon: Icons.hardware_rounded,
   ),
   RestorationStageInfo(
     stage: 5,
-    title: '5. Fabrika Orijinal Boya & Detay',
-    description: 'Katalog rengiyle mikron boya atılır, nikelajlar ve iç döşeme sıfırlanır.',
+    titleKey: 'barn_find_stage_5_title',
+    descriptionKey: 'barn_find_stage_5_desc',
     cost: 12000,
     icon: Icons.palette_rounded,
   ),
@@ -131,7 +132,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '5-AŞAMALI GARAJ RESTORASYONU',
+                        context.tr('barn_find_header'),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -170,7 +171,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'İlerleme Durumu: Aşama $currentStage / 5',
+                  context.tr('barn_find_progress', {'stage': currentStage}),
                   style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w900,
@@ -178,7 +179,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: isCompleted ? 'BAŞYAPIT TAMAMLANDI' : 'RESTORASYON SÜRÜYOR',
+                  text: isCompleted ? context.tr('barn_find_masterpiece_done') : context.tr('barn_find_in_progress'),
                   backgroundColor: isCompleted ? const Color(0xFF00E575) : const Color(0xFFFFDE59),
                   textColor: Colors.black,
                   fontSize: 9.5,
@@ -214,14 +215,14 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Orijinal Çıkma & Sıfır Parça Kullan • +%65 Koleksiyonluk Değer',
-                          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800),
+                        Text(
+                          context.tr('barn_find_use_original'),
+                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800),
                         ),
                         Text(
                           _useOriginalParts
-                            ? 'Maliyet +%25 artar fakat araç tamamlandığında 1.65x efsanevi koleksiyon çarpanı kazanır.'
-                            : 'Yan sanayi parçalarla maliyet düşük tutulur • 1.25x standart çarpan.',
+                            ? context.tr('barn_find_original_desc')
+                            : context.tr('barn_find_aftermarket_desc'),
                           style: TextStyle(
                             fontSize: 9.5,
                             color: isDark ? Colors.white60 : const Color(0xFF64748B),
@@ -246,6 +247,8 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                 final isDone = currentStage >= stageInfo.stage;
                 final isCurrent = currentStage + 1 == stageInfo.stage;
                 final effectiveCost = _useOriginalParts ? (stageInfo.cost * 1.25) : stageInfo.cost;
+                final stageTitle = context.tr(stageInfo.titleKey);
+                final stageDesc = context.tr(stageInfo.descriptionKey);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -279,7 +282,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    stageInfo.title,
+                                    stageTitle,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w900,
@@ -303,7 +306,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                stageInfo.description,
+                                stageDesc,
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -329,9 +332,13 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                 final nextStage = currentStage + 1;
                 final nextStageInfo = kRestorationStages.firstWhere((s) => s.stage == nextStage);
                 final cost = _useOriginalParts ? (nextStageInfo.cost * 1.25) : nextStageInfo.cost;
+                final nextStageTitle = context.tr(nextStageInfo.titleKey);
 
                 return NeoBrutalButton(
-                  label: '${nextStageInfo.title} Tamamla • ${CurrencyFormatter.formatShort(cost)}',
+                  label: context.tr('barn_find_btn_complete_stage', {
+                    'title': nextStageTitle,
+                    'cost': CurrencyFormatter.formatShort(cost),
+                  }),
                   icon: Icons.handyman_rounded,
                   backgroundColor: const Color(0xFFFFDE59),
                   textColor: Colors.black,
@@ -342,7 +349,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                     if (game.balance < cost) {
                       NotificationService.showError(
                         context,
-                        'Bu aşamayı tamamlamak için ${CurrencyFormatter.formatShort(cost)} bakiye gereklidir.',
+                        '${CurrencyFormatter.formatShort(cost)} bakiye gereklidir.',
                       );
                       return;
                     }
@@ -362,7 +369,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
 
                     NotificationService.showSuccess(
                       context,
-                      '${nextStageInfo.title} başarıyla tamamlandı! Araç değeri katlandı.',
+                      '$nextStageTitle • OK',
                     );
                   },
                 );
@@ -370,7 +377,7 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
             ),
           ] else ...[
             NeoBrutalButton(
-              label: 'HARİKA! BAŞYAPIT SHOWROOM\'A HAZIR',
+              label: context.tr('barn_find_btn_all_done'),
               icon: Icons.auto_awesome_rounded,
               backgroundColor: const Color(0xFF00E575),
               textColor: Colors.black,

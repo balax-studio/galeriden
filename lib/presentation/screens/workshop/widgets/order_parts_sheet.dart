@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
@@ -139,9 +140,9 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'YEDEK PARÇA SİPARİŞİ VER',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+              Text(
+                context.tr('order_parts_sheet_title'),
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
               ),
               IconButton(
                 icon: const Icon(Icons.close_rounded),
@@ -158,7 +159,7 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 border: Border.all(color: AppColors.brutalYellow, width: 1.5),
               ),
               child: Text(
-                'DİNAMİK FİLTRE • Sadece hasarlı, boyalı veya değişen parçalar listeleniyor',
+                context.tr('order_parts_filter_badge'),
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w800,
@@ -168,7 +169,7 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
             ),
             const SizedBox(height: 8),
           ],
-          const Text('Parça Seçin:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+          Text(context.tr('order_parts_select_part'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -198,14 +199,14 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text('Tedarik / Parça Kalitesi:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+          Text(context.tr('order_parts_select_quality'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
           Row(
             children: [
               if (hasScrapParts) ...[
                 _buildOrderTypeTile(
-                  title: 'Çıkma Depo',
-                  time: '$durationSeconds sn • ₺0',
+                  title: context.tr('order_parts_salvaged'),
+                  time: '$durationSeconds s',
                   type: OrderType.salvagedScrap,
                   selected: _selectedType,
                   isDark: isDark,
@@ -214,8 +215,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 const SizedBox(width: 6),
               ],
               _buildOrderTypeTile(
-                title: 'Geçici Yama',
-                time: '30 sn',
+                title: context.tr('order_parts_quick'),
+                time: '30 s',
                 type: OrderType.quickPatch,
                 selected: _selectedType,
                 isDark: isDark,
@@ -223,8 +224,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
               ),
               const SizedBox(width: 6),
               _buildOrderTypeTile(
-                title: 'Usta / Çıkma',
-                time: '60 sn',
+                title: context.tr('order_parts_master'),
+                time: '60 s',
                 type: OrderType.masterRepair,
                 selected: _selectedType,
                 isDark: isDark,
@@ -232,8 +233,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
               ),
               const SizedBox(width: 6),
               _buildOrderTypeTile(
-                title: 'Sıfır OEM',
-                time: '120 sn',
+                title: context.tr('order_parts_oem'),
+                time: '120 s',
                 type: OrderType.newOemPart,
                 selected: _selectedType,
                 isDark: isDark,
@@ -258,15 +259,15 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Sipariş Maliyeti', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                    Text(context.tr('order_parts_cost_label'), style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
                     Text(
-                      _selectedType == OrderType.salvagedScrap ? '₺0 • Stoktan' : CurrencyFormatter.format(cost),
+                      _selectedType == OrderType.salvagedScrap ? '0 • Stock' : CurrencyFormatter.format(cost),
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                     ),
                   ],
                 ),
                 Text(
-                  'Teslimat: $durationSeconds Saniye',
+                  context.tr('order_parts_delivery_time', {'sec': durationSeconds}),
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalOrange),
                 ),
               ],
@@ -274,7 +275,7 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
           ),
           const SizedBox(height: 16),
           NeoBrutalButton(
-            label: _selectedType == OrderType.salvagedScrap ? 'ÇIKMA PARÇAYI MONTE ET' : 'SİPARİŞİ ONAYLA VE GÖNDER',
+            label: _selectedType == OrderType.salvagedScrap ? context.tr('order_parts_btn_salvage') : context.tr('order_parts_btn_confirm'),
             icon: Icons.shopping_cart_checkout_rounded,
             backgroundColor: AppColors.brutalGreen,
             textColor: Colors.black,

@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,6 +26,13 @@ void main() {
     testWidgets('1. NeoBrutalSkeleton renders shimmer boxes and cards properly', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           theme: testTheme,
           home: const Scaffold(
             body: SingleChildScrollView(
@@ -57,6 +65,13 @@ void main() {
             gameProvider.overrideWith((ref) => GameNotifier()),
           ],
           child: MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
             theme: testTheme,
             home: const MarketplaceScreen(),
           ),
@@ -127,6 +142,13 @@ void main() {
             gameProvider.overrideWith((ref) => GameNotifier()),
           ],
           child: MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
             theme: testTheme,
             home: Scaffold(
               body: ShowroomOffersTab(

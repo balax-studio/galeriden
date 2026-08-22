@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -51,10 +52,10 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     if (!game.isFeatureUnlocked('/bank-investments')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'BANKA & MEVDUAT YATIRIMLARI'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('bank_investments_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/bank-investments',
-          featureTitle: 'BANKA & MEVDUAT YATIRIMLARI',
+          featureTitle: context.tr('bank_investments_title'),
           icon: Icons.account_balance_rounded,
         ),
       );
@@ -64,8 +65,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'BANKA & MEVDUAT YATIRIMLARI',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('bank_investments_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -102,9 +103,9 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'VADELİ MEVDUAT HESABI',
-                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                                Text(
+                                  context.tr('bank_deposit_account_title'),
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                                 ),
                                 Text(
                                   CurrencyFormatter.format(game.bankDepositBalance),
@@ -116,8 +117,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         ],
                       ),
                     ),
-                    const NeoBrutalBadge(
-                      text: '%24.5 Günlük APY',
+                    NeoBrutalBadge(
+                      text: context.tr('bank_daily_apy_badge'),
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
                       fontSize: 10.5,
@@ -135,9 +136,9 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Kasa Nakit Bakiyen:',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                      Text(
+                        context.tr('bank_cash_balance_label'),
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                       ),
                       Text(
                         CurrencyFormatter.format(game.balance),
@@ -164,16 +165,16 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   children: [
                     const Icon(Icons.arrow_downward_rounded, size: 16, color: AppColors.brutalGreen),
                     const SizedBox(width: 6),
-                    const Text(
-                      'MEVDUAT HESABINA PARA YATIR',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                    Text(
+                      context.tr('bank_deposit_header'),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Kasandaki nakiti faize yatırarak her gün düzenli bileşik getiri kazan.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('bank_deposit_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 10),
                 // Quick Percentages
@@ -183,7 +184,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     const SizedBox(width: 6),
                     _buildPercentageChip('%50', () => _setDepositPercentage(0.50, game.balance), isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip('TÜMÜ • %100', () => _setDepositPercentage(1.0, game.balance), isDark),
+                    _buildPercentageChip(context.tr('bank_chip_all'), () => _setDepositPercentage(1.0, game.balance), isDark),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -195,7 +196,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         keyboardType: TextInputType.number,
                         style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Yatırılacak Tutar ₺',
+                          hintText: context.tr('bank_deposit_hint'),
                           filled: true,
                           fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                           border: OutlineInputBorder(
@@ -216,7 +217,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     ),
                     const SizedBox(width: 8),
                     NeoBrutalButton(
-                      label: 'YATIR',
+                      label: context.tr('bank_deposit_btn'),
                       icon: Icons.savings_rounded,
                       backgroundColor: AppColors.brutalGreen,
                       textColor: Colors.black,
@@ -225,7 +226,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       onPressed: () {
                         final amount = double.tryParse(_depositController.text) ?? 0.0;
                         if (amount <= 0 || amount > game.balance) {
-                          NotificationService.showError(context, 'Geçersiz miktar veya yetersiz kasa bakiyesi!');
+                          NotificationService.showError(context, context.tr('bank_deposit_invalid_toast'));
                           return;
                         }
 
@@ -234,10 +235,10 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                           _depositController.clear();
                           NotificationService.showSuccess(
                             context,
-                            '${CurrencyFormatter.formatShort(amount)} Vadeli Mevduat Hesabına Yatırıldı!',
+                            context.tr('bank_deposit_success_toast', {'amount': CurrencyFormatter.formatShort(amount)}),
                           );
                         } else {
-                          NotificationService.showError(context, 'İşlem başarısız oldu.');
+                          NotificationService.showError(context, context.tr('bank_deposit_failed_toast'));
                         }
                       },
                     ),
@@ -261,16 +262,16 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   children: [
                     const Icon(Icons.arrow_upward_rounded, size: 16, color: AppColors.brutalOrange),
                     const SizedBox(width: 6),
-                    const Text(
-                      'MEVDUATTAN KASAYA GERİ ÇEK',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                    Text(
+                      context.tr('bank_withdraw_header'),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Bankada biriken ana para ve faiz kazancını dilediğin zaman anında kasana aktar.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('bank_withdraw_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 10),
                 // Quick Percentages
@@ -280,7 +281,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     const SizedBox(width: 6),
                     _buildPercentageChip('%50', () => _setWithdrawPercentage(0.50, game.bankDepositBalance), isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip('TÜMÜ • %100', () => _setWithdrawPercentage(1.0, game.bankDepositBalance), isDark),
+                    _buildPercentageChip(context.tr('bank_chip_all'), () => _setWithdrawPercentage(1.0, game.bankDepositBalance), isDark),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -292,7 +293,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         keyboardType: TextInputType.number,
                         style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Çekilecek Tutar ₺',
+                          hintText: context.tr('bank_withdraw_hint'),
                           filled: true,
                           fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
                           border: OutlineInputBorder(
@@ -313,7 +314,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     ),
                     const SizedBox(width: 8),
                     NeoBrutalButton(
-                      label: 'ÇEK',
+                      label: context.tr('bank_withdraw_btn'),
                       icon: Icons.payments_rounded,
                       backgroundColor: AppColors.brutalOrange,
                       textColor: Colors.black,
@@ -322,7 +323,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       onPressed: () {
                         final amount = double.tryParse(_withdrawController.text) ?? 0.0;
                         if (amount <= 0 || amount > game.bankDepositBalance) {
-                          NotificationService.showError(context, 'Geçersiz miktar veya yetersiz banka mevduatı!');
+                          NotificationService.showError(context, context.tr('bank_withdraw_invalid_toast'));
                           return;
                         }
 
@@ -331,10 +332,10 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                           _withdrawController.clear();
                           NotificationService.showSuccess(
                             context,
-                            '${CurrencyFormatter.formatShort(amount)} Kasa Hesabına Çekildi!',
+                            context.tr('bank_withdraw_success_toast', {'amount': CurrencyFormatter.formatShort(amount)}),
                           );
                         } else {
-                          NotificationService.showError(context, 'İşlem başarısız oldu.');
+                          NotificationService.showError(context, context.tr('bank_withdraw_failed_toast'));
                         }
                       },
                     ),
@@ -375,13 +376,13 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Kredi Skoru: AAA • Mükemmel',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            Text(
+                              context.tr('bank_credit_score_title'),
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Mevcut Banka Kredi Limiti: ${CurrencyFormatter.format(game.bankCreditLimit)}',
+                              context.tr('bank_current_limit_label', {'limit': CurrencyFormatter.format(game.bankCreditLimit)}),
                               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                             ),
                           ],
@@ -396,8 +397,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     Expanded(
                       child: NeoBrutalButton(
                         label: isMaxCreditLimit
-                            ? 'LİMİT MAKSİMUM'
-                            : 'LİMİTİ ₺25M YAP • ₺50.000',
+                            ? context.tr('bank_limit_max_label')
+                            : context.tr('bank_upgrade_limit_label'),
                         icon: isMaxCreditLimit ? Icons.check_circle_rounded : Icons.trending_up_rounded,
                         backgroundColor: isMaxCreditLimit ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
                         textColor: isMaxCreditLimit ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
@@ -406,7 +407,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                             ? null
                             : () {
                                 if (game.balance < 50000.0) {
-                                  NotificationService.showError(context, 'Yetersiz bakiye! İşlem için ₺50,000 gereklidir.');
+                                  NotificationService.showError(context, context.tr('bank_upgrade_insufficient_toast'));
                                   return;
                                 }
 
@@ -418,7 +419,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                                 if (success) {
                                   NotificationService.showSuccess(
                                     context,
-                                    'Tebrikler! Kredi Limitin Başarıyla ₺25,000,000 Seviyesine Yükseltildi.',
+                                    context.tr('bank_upgrade_success_toast'),
                                   );
                                 }
                               },
@@ -427,13 +428,13 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: NeoBrutalButton(
-                        label: 'KREDİ KULLAN',
+                        label: context.tr('bank_use_credit_btn'),
                         icon: Icons.attach_money_rounded,
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10.5,
                         onPressed: game.activeLoans.length >= 3
-                            ? () => NotificationService.showError(context, 'En fazla 3 aktif kredi kullanabilirsiniz!')
+                            ? () => NotificationService.showError(context, context.tr('bank_max_credit_toast'))
                             : () => _showTakeLoanSheet(context, game, isDark),
                       ),
                     ),
@@ -446,7 +447,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
 
           // 5. Active Bank Loans Section
           Text(
-            'AKTİF BANKA KREDİLERİ & BORÇLAR • ${game.activeLoans.length}/3',
+            context.tr('bank_active_loans_header', {'count': '${game.activeLoans.length}/3'}),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -462,11 +463,11 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Aktif banka krediniz bulunmuyor. Acil nakit ihtiyacında kredi kullanabilirsiniz.',
+                  context.tr('bank_no_loans_desc'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
               ),
             )
@@ -497,7 +498,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                             ],
                           ),
                           NeoBrutalBadge(
-                            text: '${loan.remainingInstallments}/${loan.totalInstallments} Taksit Kaldı',
+                            text: context.tr('bank_loan_installments_remaining', {'remaining': loan.remainingInstallments, 'total': loan.totalInstallments}),
                             backgroundColor: AppColors.brutalOrange,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -509,11 +510,11 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Kalan Borç: ${CurrencyFormatter.formatShort(loan.remainingAmount)}',
+                            context.tr('bank_loan_debt_remaining', {'amount': CurrencyFormatter.formatShort(loan.remainingAmount)}),
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFEF4444)),
                           ),
                           Text(
-                            'Aylık Taksit: ${CurrencyFormatter.formatShort(loan.monthlyPayment)}',
+                            context.tr('bank_loan_monthly_payment', {'amount': CurrencyFormatter.formatShort(loan.monthlyPayment)}),
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
                           ),
                         ],
@@ -533,11 +534,11 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Faiz: %${(loan.interestRate * 100).toStringAsFixed(1)} • Anapara: ${CurrencyFormatter.formatShort(loan.principalAmount)}',
+                            context.tr('bank_loan_interest_principal', {'rate': (loan.interestRate * 100).toStringAsFixed(1), 'principal': CurrencyFormatter.formatShort(loan.principalAmount)}),
                             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                           NeoBrutalButton(
-                            label: 'TAKSİT ÖDE',
+                            label: context.tr('finance_pay_installment_btn'),
                             icon: Icons.payments_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
@@ -547,7 +548,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                               if (game.balance < loan.monthlyPayment) {
                                 NotificationService.showError(
                                   context,
-                                  'Yetersiz Bakiye! ${CurrencyFormatter.format(loan.monthlyPayment)} gerekli.',
+                                  context.tr('finance_insufficient_funds_loan', {'amount': CurrencyFormatter.format(loan.monthlyPayment)}),
                                 );
                                 return;
                               }
@@ -556,7 +557,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                               if (success) {
                                 NotificationService.showSuccess(
                                   context,
-                                  '${loan.bankName} taksiti başarıyla ödendi!',
+                                  context.tr('finance_loan_paid_success', {'bank': loan.bankName}),
                                 );
                               }
                             },
@@ -606,9 +607,9 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'BANKA KREDİSİ KULLAN',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                      Text(
+                        context.tr('bank_take_loan_title'),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                       ),
                       IconButton(
                         icon: const Icon(Icons.close_rounded),
@@ -618,7 +619,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Kredi Tutarı: ${CurrencyFormatter.format(selectedAmount)}',
+                    context.tr('bank_loan_amount_label', {'amount': CurrencyFormatter.format(selectedAmount)}),
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF38BDF8)),
                   ),
                   const SizedBox(height: 6),
@@ -658,18 +659,18 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                     }).toList(),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Vade Seçimi:',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                  Text(
+                    context.tr('bank_loan_term_label'),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      _buildMonthOption(3, '3 Ay • %10 Faiz', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      _buildMonthOption(3, selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m), context),
                       const SizedBox(width: 8),
-                      _buildMonthOption(6, '6 Ay • %18 Faiz', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      _buildMonthOption(6, selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m), context),
                       const SizedBox(width: 8),
-                      _buildMonthOption(12, '12 Ay • %28 Faiz', selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m)),
+                      _buildMonthOption(12, selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m), context),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -685,7 +686,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Aylık Ödeme:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                            Text(context.tr('bank_loan_monthly_label'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
                             Text(CurrencyFormatter.format(monthlyPayment), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
                           ],
                         ),
@@ -693,7 +694,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Toplam Geri Ödeme:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                            Text(context.tr('bank_loan_total_repayment_label'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
                             Text(CurrencyFormatter.format(totalRepayment), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFFEF4444))),
                           ],
                         ),
@@ -702,7 +703,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   ),
                   const SizedBox(height: 18),
                   NeoBrutalButton(
-                    label: 'KREDİYİ KULLAN • ${CurrencyFormatter.formatShort(selectedAmount)}',
+                    label: context.tr('bank_confirm_loan_btn', {'amount': CurrencyFormatter.formatShort(selectedAmount)}),
                     icon: Icons.check_circle_rounded,
                     backgroundColor: AppColors.brutalGreen,
                     textColor: Colors.black,
@@ -717,12 +718,12 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       if (success) {
                         NotificationService.showSuccess(
                           context,
-                          '₺${CurrencyFormatter.format(selectedAmount)} kredi hesabınıza aktarıldı!',
+                          context.tr('bank_loan_success_toast', {'amount': CurrencyFormatter.format(selectedAmount)}),
                         );
                       } else {
                         NotificationService.showError(
                           context,
-                          'Kredi kullanılamadı! Limit aşıldı veya maksimum kredi sayısına ulaşıldı.',
+                          context.tr('bank_loan_failed_toast'),
                         );
                       }
                     },
@@ -736,7 +737,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     );
   }
 
-  Widget _buildMonthOption(int months, String label, int selectedMonths, bool isDark, Function(int) onSelect) {
+  Widget _buildMonthOption(int months, int selectedMonths, bool isDark, Function(int) onSelect, BuildContext context) {
     final isSel = selectedMonths == months;
     return Expanded(
       child: InkWell(
@@ -757,7 +758,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
           ),
           alignment: Alignment.center,
           child: Text(
-            '$months Ay',
+            context.tr('bank_loan_month_chip', {'months': months}),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,

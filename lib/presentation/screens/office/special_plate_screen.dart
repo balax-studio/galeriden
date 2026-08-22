@@ -103,7 +103,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Kasa Bakiyesi',
+                            context.tr('plate_balance_label'),
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w700,
@@ -125,7 +125,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   Row(
                     children: [
                       NeoBrutalBadge(
-                        text: '${game.ownedCars.length} ARAÇ GARAJDA',
+                        text: context.tr('plate_cars_in_garage_badge', {'count': game.ownedCars.length}),
                         icon: Icons.directions_car_rounded,
                         backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -133,7 +133,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       ),
                       const SizedBox(width: 6),
                       NeoBrutalBadge(
-                        text: '%35E KADAR DEĞER',
+                        text: context.tr('plate_value_boost_header_badge'),
                         icon: Icons.trending_up_rounded,
                         backgroundColor: const Color(0xFFFFDE59),
                         textColor: Colors.black,
@@ -178,7 +178,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       children: [
                         const Icon(Icons.grid_view_rounded, size: 16),
                         const SizedBox(width: 6),
-                        Text(context.tr('plate_catalog_tab')),
+                        Text(context.tr('plate_tab_curated')),
                       ],
                     ),
                   ),
@@ -189,7 +189,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       children: [
                         const Icon(Icons.edit_note_rounded, size: 18),
                         const SizedBox(width: 6),
-                        Text(context.tr('plate_designer_tab')),
+                        Text(context.tr('plate_tab_designer')),
                       ],
                     ),
                   ),
@@ -233,11 +233,11 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
           physics: const BouncingScrollPhysics(),
           child: Row(
             children: [
-              _buildCategoryChip('TÜMÜ', PlateCategory.all, isDark),
-              _buildCategoryChip('EFSANEVİ & PRESTİJ', PlateCategory.legendary, isDark),
-              _buildCategoryChip('TAKIM & TARAFTAR', PlateCategory.team, isDark),
-              _buildCategoryChip('ÖZEL İSİMLER', PlateCategory.names, isDark),
-              _buildCategoryChip('SİMETRİK & TEKRAR', PlateCategory.symmetric, isDark),
+              _buildCategoryChip(context.tr('plate_cat_all'), PlateCategory.all, isDark),
+              _buildCategoryChip(context.tr('plate_cat_legendary'), PlateCategory.legendary, isDark),
+              _buildCategoryChip(context.tr('plate_cat_team'), PlateCategory.team, isDark),
+              _buildCategoryChip(context.tr('plate_cat_names'), PlateCategory.names, isDark),
+              _buildCategoryChip(context.tr('plate_cat_symmetric'), PlateCategory.symmetric, isDark),
             ],
           ),
         ),
@@ -298,19 +298,19 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     switch (plate.rarity) {
       case 'legendary':
         rarityColor = AppColors.brutalYellow;
-        rarityBadgeText = 'EFSANEVİ TESCİL';
+        rarityBadgeText = context.tr('plate_rarity_legendary');
         break;
       case 'symmetric':
         rarityColor = const Color(0xFF38BDF8);
-        rarityBadgeText = 'SİMETRİK SERİ';
+        rarityBadgeText = context.tr('plate_rarity_symmetric');
         break;
       case 'repeated':
         rarityColor = AppColors.brutalOrange;
-        rarityBadgeText = 'TEKRARLI RAKAM';
+        rarityBadgeText = context.tr('plate_rarity_repeated');
         break;
       default:
         rarityColor = const Color(0xFF94A3B8);
-        rarityBadgeText = 'ÖZEL TALEP';
+        rarityBadgeText = context.tr('plate_rarity_custom');
     }
 
     return Padding(
@@ -331,7 +331,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   children: [
                     if (isAlreadyOwned) ...[
                       NeoBrutalBadge(
-                        text: context.tr('plate_already_in_use'),
+                        text: context.tr('plate_btn_in_use'),
                         icon: Icons.lock_outline_rounded,
                         backgroundColor: const Color(0xFF64748B),
                         textColor: Colors.white,
@@ -349,7 +349,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       ),
                       const SizedBox(width: 6),
                       NeoBrutalBadge(
-                        text: '+%${plate.valueBonusPercent} DEĞER',
+                        text: context.tr('plate_value_bonus_badge', {'percent': plate.valueBonusPercent}),
                         icon: Icons.trending_up_rounded,
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
@@ -360,7 +360,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   ],
                 ),
                 Text(
-                  '${plate.city} Tescil',
+                  context.tr('plate_city_registration', {'city': plate.city}),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -396,7 +396,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             if (isAlreadyOwned && carUsingPlate != null) ...[
               const SizedBox(height: 6),
               Text(
-                'Tescilli Araç: ${carUsingPlate.brand} ${carUsingPlate.modelName}',
+                context.tr('plate_registered_car_label', {'car': '${carUsingPlate.brand} ${carUsingPlate.modelName}'}),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -414,7 +414,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tescil Harcı',
+                      context.tr('plate_fee_label'),
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -434,7 +434,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                 NeoBrutalButton(
                   label: isAlreadyOwned
                       ? context.tr('plate_btn_in_use')
-                      : (canAfford ? 'Satın Al & Araca Tak' : 'YETERSİZ BAKİYE'),
+                      : (canAfford ? context.tr('plate_buy_and_assign_btn') : context.tr('plate_insufficient_funds_btn')),
                   icon: isAlreadyOwned ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
                   backgroundColor: isAlreadyOwned
                       ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
@@ -484,9 +484,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'CANLI PLAKA ÖNİZLEMESİ',
-                    style: TextStyle(
+                  Text(
+                    context.tr('plate_live_preview_title'),
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
@@ -495,10 +495,10 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   ),
                   NeoBrutalBadge(
                     text: customPlate.rarity == 'legendary'
-                        ? 'EFSANEVİ SERİ'
+                        ? context.tr('plate_rarity_legendary')
                         : (customPlate.rarity == 'symmetric'
-                            ? 'SİMETRİK UYUM'
-                            : (customPlate.rarity == 'repeated' ? 'TEKRARLI' : 'STANDART ÖZEL')),
+                            ? context.tr('plate_rarity_symmetric')
+                            : (customPlate.rarity == 'repeated' ? context.tr('plate_rarity_repeated') : context.tr('plate_rarity_custom'))),
                     backgroundColor: customPlate.rarity == 'legendary'
                         ? AppColors.brutalYellow
                         : (customPlate.rarity == 'symmetric' ? const Color(0xFF38BDF8) : AppColors.brutalGreen),
@@ -553,8 +553,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       Flexible(
                         child: Text(
                           carUsingPlate != null
-                              ? context.tr('plate_in_use_warning', {'car': '${carUsingPlate.brand} ${carUsingPlate.modelName}'})
-                              : context.tr('plate_custom_in_use_btn'),
+                              ? context.tr('plate_registered_car_label', {'car': '${carUsingPlate.brand} ${carUsingPlate.modelName}'})
+                              : context.tr('plate_btn_in_use'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -580,9 +580,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'PLAKA PARAMETRELERİNİ BELİRLE',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5, color: Color(0xFF64748B)),
+              Text(
+                context.tr('plate_designer_params_title'),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5, color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 12),
 
@@ -595,7 +595,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'İl Kodu',
+                          context.tr('plate_city_code_label'),
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -653,7 +653,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Harf Grubu',
+                          context.tr('plate_letters_label'),
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -672,6 +672,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           ),
                           decoration: InputDecoration(
                             counterText: '',
+                            hintText: context.tr('plate_letters_hint'),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                             filled: true,
                             fillColor: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
@@ -701,7 +702,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Rakam Grubu',
+                          context.tr('plate_digits_label'),
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -720,6 +721,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           ),
                           decoration: InputDecoration(
                             counterText: '',
+                            hintText: context.tr('plate_digits_hint'),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                             filled: true,
                             fillColor: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
@@ -762,7 +764,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Hesaplanan Harç Bedeli',
+                          context.tr('plate_calculated_fee_label'),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -781,8 +783,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                     ),
                     NeoBrutalButton(
                       label: isAlreadyOwned
-                          ? context.tr('plate_custom_in_use_btn')
-                          : (canAfford ? 'Tescil Et & Araca Tak' : 'YETERSİZ BAKİYE'),
+                          ? context.tr('plate_btn_in_use')
+                          : (canAfford ? context.tr('plate_register_and_assign_btn') : context.tr('plate_insufficient_funds_btn')),
                       icon: isAlreadyOwned ? Icons.block_rounded : Icons.check_circle_outline_rounded,
                       backgroundColor: isAlreadyOwned
                           ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
@@ -859,12 +861,12 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'PLAKAYI ARACA ATA',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                            Text(
+                              context.tr('plate_assign_modal_title'),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                             ),
                             Text(
-                              'Yeni Plaka: ${plate.plateNumber}',
+                              '${context.tr('plate_new_plate_label')}: ${plate.plateNumber}',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -899,14 +901,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       children: [
                         Icon(Icons.no_crash_rounded, size: 36, color: isDark ? Colors.white38 : Colors.black38),
                         const SizedBox(height: 10),
-                        const Text(
-                          'Garajında Plaka Takılacak Araç Bulunmuyor!',
+                        Text(
+                          context.tr('plate_no_cars_in_garage_title'),
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Pazardan veya gümrükten bir araç satın alarak özel plakanı takabilirsin.',
+                          context.tr('plate_no_cars_in_garage_sub'),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 11,
@@ -917,9 +919,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                     ),
                   ),
                 ] else ...[
-                  const Text(
-                    'GARAJDAKİ ARAÇLARIN',
-                    style: TextStyle(
+                  Text(
+                    context.tr('plate_cars_in_garage_title'),
+                    style: const TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
@@ -975,7 +977,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   Row(
                     children: [
                       Text(
-                        'Eski Plaka: ${car.plateNumber}',
+                        context.tr('plate_old_plate_label', {'plate': car.plateNumber}),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
@@ -988,15 +990,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   Row(
                     children: [
                       Text(
-                        'Değer Artışı: ',
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                        ),
-                      ),
-                      Text(
-                        '+${CurrencyFormatter.formatShort(profitGain)}',
+                        context.tr('plate_value_increase_label', {'amount': CurrencyFormatter.formatShort(profitGain)}),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -1010,7 +1004,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             ),
             const SizedBox(width: 8),
             NeoBrutalButton(
-              label: isThisCarAlreadyHasPlate ? context.tr('plate_current_on_car') : 'BU ARACA TAK',
+              label: isThisCarAlreadyHasPlate ? context.tr('plate_btn_in_use') : context.tr('plate_assign_to_car_btn'),
               icon: isThisCarAlreadyHasPlate ? Icons.check_rounded : Icons.check_circle_rounded,
               backgroundColor: isThisCarAlreadyHasPlate
                   ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
@@ -1037,12 +1031,16 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       if (success) {
                         NotificationService.showSuccess(
                           context,
-                          '${plate.plateNumber} Plakası ${car.brand} ${car.modelName} Aracına Başarıyla Tescillendi! Değeri Artırıldı!',
+                          context.tr('plate_assign_success_toast', {
+                            'plate': plate.plateNumber,
+                            'car': '${car.brand} ${car.modelName}',
+                            'boost': CurrencyFormatter.formatShort(profitGain),
+                          }),
                         );
                       } else {
                         NotificationService.showError(
                           context,
-                          'Plaka tescil işlemi tamamlanamadı. Bu plaka zaten garajda kullanımda veya bakiye yetersiz.',
+                          context.tr('plate_assign_failed_toast'),
                         );
                       }
                     },

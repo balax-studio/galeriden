@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_card.dart';
@@ -42,9 +43,9 @@ class TurkishHospitalityBar extends StatelessWidget {
                 child: const Icon(Icons.emoji_food_beverage_rounded, color: Colors.black, size: 18),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'ESNAF İKRAMI & HATIR KARTLARI',
-                style: TextStyle(
+              Text(
+                context.tr('hosp_bar_title'),
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
                   fontSize: 12,
@@ -52,9 +53,9 @@ class TurkishHospitalityBar extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              const NeoBrutalBadge(
-                text: 'İNAT KIRICI',
-                backgroundColor: Color(0xFF10B981),
+              NeoBrutalBadge(
+                text: context.tr('hosp_stubborn_breaker'),
+                backgroundColor: const Color(0xFF10B981),
                 textColor: Colors.white,
                 fontSize: 8.5,
               ),
@@ -66,7 +67,7 @@ class TurkishHospitalityBar extends StatelessWidget {
               Expanded(
                 child: _buildActionBtn(
                   context,
-                  title: 'Tavşan Çay',
+                  title: context.tr('hosp_hot_tea'),
                   cost: '₺50',
                   icon: Icons.emoji_food_beverage_rounded,
                   color: AppColors.errorRed,
@@ -80,7 +81,7 @@ class TurkishHospitalityBar extends StatelessWidget {
               Expanded(
                 child: _buildActionBtn(
                   context,
-                  title: 'Közde Kahve',
+                  title: context.tr('hosp_ember_coffee'),
                   cost: '₺150',
                   icon: Icons.local_cafe_rounded,
                   color: const Color(0xFFD97706),
@@ -94,7 +95,7 @@ class TurkishHospitalityBar extends StatelessWidget {
               Expanded(
                 child: _buildActionBtn(
                   context,
-                  title: 'Özel Plaka',
+                  title: context.tr('hosp_special_plate'),
                   cost: '₺500',
                   icon: Icons.confirmation_number_rounded,
                   color: const Color(0xFF38BDF8),
@@ -180,10 +181,10 @@ class TurkishHospitalityBar extends StatelessWidget {
                     child: const Icon(Icons.confirmation_number_rounded, color: Colors.black, size: 20),
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'MEMLEKET PLAKASI SEÇ',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                      context.tr('hosp_select_hometown_plate'),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
                     ),
                   ),
                   IconButton(

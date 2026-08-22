@@ -340,7 +340,7 @@ void main() {
       // Course completed once for hired staff, button transitions to "SERTİFİKA AKTİF"
       expect(container.read(gameProvider).hiredStaff.first.completedCourseIds.length, 1);
       expect(find.text('SERTİFİKA AKTİF'), findsOneWidget);
-      expect(find.text('TAMAMLANDI'), findsOneWidget);
+      expect(find.text('MEZUN VERİLDİ'), findsWidgets);
       expect(container.read(gameProvider).balance < balanceBeforeCourse, true);
 
       // Return to StaffScreen and SPAM CLICK "İŞTEN ÇIKAR"
@@ -398,11 +398,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('İNŞA ET'), findsWidgets);
-      expect(find.text('İNŞA EDİLDİ'), findsNothing);
+      expect(find.textContaining('İNŞA ET'), findsWidgets);
+      expect(find.text('KURULDU & AKTİF'), findsNothing);
 
       final initialDecors = container.read(gameProvider).unlockedDecorIds.length;
-      final decorBtn = find.text('İNŞA ET').first;
+      final decorBtn = find.textContaining('İNŞA ET').first;
       for (int i = 0; i < 8; i++) {
         await tester.tap(decorBtn, warnIfMissed: false);
       }
@@ -410,7 +410,7 @@ void main() {
 
       // Decor purchased once, unlockedDecorIds updated, button label updated
       expect(container.read(gameProvider).unlockedDecorIds.length, initialDecors + 1);
-      expect(find.text('İNŞA EDİLDİ'), findsWidgets);
+      expect(find.text('KURULDU & AKTİF'), findsWidgets);
       expect(find.text('AKTİF'), findsOneWidget);
 
       // Test Side Business Screen

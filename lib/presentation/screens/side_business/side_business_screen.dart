@@ -55,6 +55,7 @@ class SideBusinessScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = Localizations.localeOf(context).languageCode;
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
@@ -120,7 +121,7 @@ class SideBusinessScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${CurrencyFormatter.formatShort(totalDailyIncome)} / gün',
+                              context.tr('side_biz_income_per_day', {'income': CurrencyFormatter.formatShort(totalDailyIncome)}),
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                             ),
                           ],
@@ -128,7 +129,7 @@ class SideBusinessScreen extends ConsumerWidget {
                       ],
                     ),
                     NeoBrutalBadge(
-                      text: '${ownedBusinesses.length}/${game.sideBusinesses.length} Aktif',
+                      text: context.tr('side_biz_active_count', {'owned': '${ownedBusinesses.length}', 'total': '${game.sideBusinesses.length}'}),
                       backgroundColor: const Color(0xFFA855F7),
                       textColor: Colors.white,
                       fontSize: 11,
@@ -157,7 +158,7 @@ class SideBusinessScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           Text(
-            'İŞLETME & DÜKKAN KATALOĞU',
+            context.tr('side_biz_catalog_title'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -206,12 +207,12 @@ class SideBusinessScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      business.type.getLocalizedName(Localizations.localeOf(context).languageCode),
+                                      business.type.getLocalizedName(lang),
                                       style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
                                     ),
                                     if (isOwned && business.upgrades.isNotEmpty)
                                       Text(
-                                        '${business.purchasedUpgradeCount}/${business.upgrades.length} Dükkan Modülü Aktif',
+                                        context.tr('side_biz_modules_active', {'count': '${business.purchasedUpgradeCount}', 'total': '${business.upgrades.length}'}),
                                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalYellow),
                                       ),
                                   ],
@@ -225,17 +226,17 @@ class SideBusinessScreen extends ConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (business.hasManager)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 6),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
                                   child: NeoBrutalBadge(
-                                    text: 'Müdürlü',
-                                    backgroundColor: Color(0xFF06B6D4),
+                                    text: context.tr('side_biz_badge_managed'),
+                                    backgroundColor: const Color(0xFF06B6D4),
                                     textColor: Colors.black,
                                     fontSize: 10,
                                   ),
                                 ),
                               NeoBrutalBadge(
-                                text: 'Lvl ${business.level}',
+                                text: context.tr('side_biz_level_badge', {'lvl': '${business.level}'}),
                                 backgroundColor: AppColors.brutalGreen,
                                 textColor: Colors.black,
                                 fontSize: 10.5,
@@ -256,12 +257,12 @@ class SideBusinessScreen extends ConsumerWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'GÜNLÜK GELİR',
-                              style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                            Text(
+                              context.tr('side_biz_daily_income_header'),
+                              style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                             ),
                             Text(
-                              '${CurrencyFormatter.formatShort(isOwned ? business.effectiveDailyIncome : business.dailyIncome)} / gün',
+                              context.tr('side_biz_income_rate', {'amount': CurrencyFormatter.formatShort(isOwned ? business.effectiveDailyIncome : business.dailyIncome)}),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w900,
@@ -272,7 +273,7 @@ class SideBusinessScreen extends ConsumerWidget {
                         ),
                         if (!isOwned)
                           NeoBrutalButton(
-                            label: 'SATIN AL • ${CurrencyFormatter.formatShort(business.cost)}',
+                            label: context.tr('side_biz_btn_buy', {'cost': CurrencyFormatter.formatShort(business.cost)}),
                             icon: Icons.shopping_cart_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
@@ -281,15 +282,15 @@ class SideBusinessScreen extends ConsumerWidget {
                             onPressed: () {
                               final success = ref.read(gameProvider.notifier).buySideBusiness(business.id);
                               if (success) {
-                                NotificationService.showSuccess(context, '${business.name} satın alındı!');
+                                NotificationService.showSuccess(context, context.tr('side_biz_bought_toast', {'name': business.type.getLocalizedName(lang)}));
                               } else {
-                                NotificationService.showError(context, 'Yetersiz bakiye!');
+                                NotificationService.showError(context, context.tr('insufficient_balance'));
                               }
                             },
                           )
                         else
                           NeoBrutalButton(
-                            label: 'YÖNET & GELİŞTİR',
+                            label: context.tr('side_biz_btn_manage'),
                             icon: Icons.store_rounded,
                             backgroundColor: const Color(0xFFA855F7),
                             textColor: Colors.white,

@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,13 @@ void main() {
       container: container,
       child: ToastificationWrapper(
         child: MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           theme: AppTheme.darkTheme,
           home: const Scaffold(
             body: FeedbackDialog(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../widgets/neo_brutal_badge.dart';
@@ -32,35 +33,35 @@ class CarCostBreakdownSheet extends StatelessWidget {
 
     if (car.hasScent) {
       detailingCost += 250;
-      extraCosts.add({'title': 'Oto Dikiz Kokusu & Esansı', 'cost': 250.0});
+      extraCosts.add({'title': context.tr('cost_item_scent'), 'cost': 250.0});
     }
     if (car.hasRestoredHeadlights) {
       detailingCost += 850;
-      extraCosts.add({'title': 'Far Restorasyonu & Klorobuhar', 'cost': 850.0});
+      extraCosts.add({'title': context.tr('cost_item_headlight'), 'cost': 850.0});
     }
     if (car.hasIronDecon) {
       detailingCost += 450;
-      extraCosts.add({'title': 'Jant Balata & Demir Tozu Temizliği', 'cost': 450.0});
+      extraCosts.add({'title': context.tr('cost_item_iron_decon'), 'cost': 450.0});
     }
     if (car.hasPdrRepaired) {
       detailingCost += 3200;
-      extraCosts.add({'title': 'PDR Boyasız Göçük Onarımı', 'cost': 3200.0});
+      extraCosts.add({'title': context.tr('cost_item_pdr'), 'cost': 3200.0});
     }
     if (car.hasTuvturkCertified) {
       detailingCost += 1500;
-      extraCosts.add({'title': '2 Yıl TÜVTÜRK & Muayene Pulu', 'cost': 1500.0});
+      extraCosts.add({'title': context.tr('cost_item_tuvturk'), 'cost': 1500.0});
     }
     if (car.isWashed) {
       detailingCost += 250;
-      extraCosts.add({'title': 'İç-Dış Detaylı Yıkama & Temizlik', 'cost': 250.0});
+      extraCosts.add({'title': context.tr('cost_item_wash'), 'cost': 250.0});
     }
     if (car.isPolished) {
       detailingCost += 2500;
-      extraCosts.add({'title': 'Pasta Cila & Boya Koruma', 'cost': 2500.0});
+      extraCosts.add({'title': context.tr('cost_item_polish'), 'cost': 2500.0});
     }
     if (car.isCeramicCoated) {
       detailingCost += 8000;
-      extraCosts.add({'title': 'VIP 9H Seramik Kaplama', 'cost': 8000.0});
+      extraCosts.add({'title': context.tr('cost_item_ceramic'), 'cost': 8000.0});
     }
 
     final totalCost = purchaseCost + detailingCost;
@@ -122,7 +123,7 @@ class CarCostBreakdownSheet extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Maliyet & Net Kârlılık Dökümü',
+                      context.tr('cost_breakdown_subtitle'),
                       style: TextStyle(
                         fontSize: 11,
                         color: isDark ? Colors.white60 : Colors.black54,
@@ -149,15 +150,15 @@ class CarCostBreakdownSheet extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             child: Column(
               children: [
-                _buildCostRow('Araç Alış Bedeli', purchaseCost, isDark),
+                _buildCostRow(context.tr('cost_item_purchase_price'), purchaseCost, isDark),
                 if (extraCosts.isNotEmpty) ...[
                   const Divider(height: 14),
                   ...extraCosts.map((item) => _buildCostRow(item['title'] as String, item['cost'] as double, isDark, isSubItem: true)),
                 ],
                 const Divider(height: 16),
-                _buildCostRow('TOPLAM MALİYET', totalCost, isDark, isBold: true),
+                _buildCostRow(context.tr('cost_total_cost'), totalCost, isDark, isBold: true),
                 const SizedBox(height: 6),
-                _buildCostRow('HEDEF LİSTE FİYATI', targetPrice, isDark, isHighlight: true),
+                _buildCostRow(context.tr('cost_target_price'), targetPrice, isDark, isHighlight: true),
               ],
             ),
           ),
@@ -183,7 +184,7 @@ class CarCostBreakdownSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TAHMİNİ NET KÂR',
+                      context.tr('cost_estimated_net_profit'),
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w900,
@@ -212,7 +213,7 @@ class CarCostBreakdownSheet extends StatelessWidget {
           const SizedBox(height: 16),
 
           NeoBrutalButton(
-            label: 'TAMAM',
+            label: context.tr('ok_button'),
             icon: Icons.check_rounded,
             backgroundColor: const Color(0xFFFFDE59),
             textColor: Colors.black,

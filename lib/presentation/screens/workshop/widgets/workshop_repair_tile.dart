@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../widgets/animated_rolling_counter.dart';
 import '../../../widgets/neo_brutal_badge.dart';
@@ -59,7 +60,7 @@ class WorkshopRepairTile extends StatelessWidget {
                       ),
                     ),
                     NeoBrutalBadge(
-                      text: isRepaired ? 'KUSURSUZ' : bonusText,
+                      text: isRepaired ? context.tr('workshop_repaired_badge') : bonusText,
                       backgroundColor: isRepaired ? const Color(0xFF00E575) : badgeColor,
                       textColor: Colors.black,
                       fontSize: 9,
@@ -73,9 +74,9 @@ class WorkshopRepairTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 if (isRepaired)
-                  const Text(
-                    'Onarım Gerekmiyor',
-                    style: TextStyle(
+                  Text(
+                    context.tr('workshop_no_repair_needed'),
+                    style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF00E575),
@@ -90,9 +91,9 @@ class WorkshopRepairTile extends StatelessWidget {
                       children: [
                         const PulsingDot(color: Color(0xFFFF7A00), size: 5.5),
                         const SizedBox(width: 5),
-                        const Text(
-                          'Onarım Bedeli: ',
-                          style: TextStyle(
+                        Text(
+                          context.tr('workshop_repair_cost_label'),
+                          style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w900,
                             color: Color(0xFFFF7A00),
@@ -121,7 +122,7 @@ class WorkshopRepairTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           NeoBrutalButton(
-            label: isRepaired ? (disabledLabel ?? 'ONARILDI') : 'ONAR',
+            label: isRepaired ? (disabledLabel ?? context.tr('tuning_btn_applied')) : context.tr('workshop_btn_repair'),
             icon: isRepaired ? Icons.check_circle_rounded : Icons.build_circle_rounded,
             backgroundColor: isRepaired
                 ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))

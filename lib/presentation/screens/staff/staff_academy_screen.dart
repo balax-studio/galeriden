@@ -43,6 +43,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final isDark = themeExt?.palette.isDark ?? (Theme.of(context).brightness == Brightness.dark);
@@ -99,14 +100,14 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'ROL BAZLI UZMANLIK AKADEMİSİ',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                      Text(
+                        context.tr('academy_header_title'),
+                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 2),
-                      const Text(
-                        'Her pozisyon için özel tasarlanmış ileri seviye müfredatlarla personelinin verimliliğini ve gelirini katla.',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      Text(
+                        context.tr('academy_header_desc'),
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -118,7 +119,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
 
           // 2. Role Filter Chips
           Text(
-            'UZMANLIK ALANI SEÇİN',
+            context.tr('academy_select_role_title'),
             style: TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w900,
@@ -133,7 +134,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
             child: Row(
               children: [
                 _buildRoleFilterChip(
-                  label: 'Tüm Roller',
+                  label: context.tr('academy_all_roles'),
                   isSelected: _selectedRoleFilter == null,
                   onTap: () => setState(() => _selectedRoleFilter = null),
                   isDark: isDark,
@@ -143,7 +144,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: _buildRoleFilterChip(
-                      label: role.title,
+                      label: role.getLocalizedTitle(lang),
                       isSelected: _selectedRoleFilter == role,
                       onTap: () => setState(() => _selectedRoleFilter = role),
                       isDark: isDark,
@@ -160,7 +161,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'MÜFREDAT DERSLERİ • ${filteredCourses.length} Kurs',
+                context.tr('academy_courses_count', {'count': '${filteredCourses.length}'}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -219,11 +220,11 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      course.title,
+                                      course.getLocalizedTitle(lang),
                                       style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
                                     ),
                                     Text(
-                                      'Hedef Pozisyon: ${course.role.title}',
+                                      context.tr('academy_target_role', {'role': course.role.getLocalizedTitle(lang)}),
                                       style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                                     ),
                                   ],
@@ -233,15 +234,15 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                           ),
                         ),
                         if (isCompletedByAllHired)
-                          const NeoBrutalBadge(
-                            text: 'TAMAMLANDI',
+                          NeoBrutalBadge(
+                            text: context.tr('academy_graduated'),
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 10,
                           )
                         else if (!isFacilityUnlocked)
-                          const NeoBrutalBadge(
-                            text: 'TESİS KİLİTLİ',
+                          NeoBrutalBadge(
+                            text: context.tr('staff_badge_facility_locked'),
                             backgroundColor: AppColors.brutalOrange,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -261,7 +262,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        'Bonus: ${course.bonusSummary}',
+                        context.tr('academy_bonus_label', {'bonus': course.bonusSummary}),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
@@ -274,7 +275,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isCompletedByAllHired ? 'MEZUN VERİLDİ' : CurrencyFormatter.formatShort(course.cost),
+                          isCompletedByAllHired ? context.tr('academy_graduated') : CurrencyFormatter.formatShort(course.cost),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
@@ -283,7 +284,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                         ),
                         if (isCompletedByAllHired)
                           NeoBrutalButton(
-                            label: 'SERTİFİKA AKTİF',
+                            label: context.tr('academy_cert_active'),
                             icon: Icons.check_circle_rounded,
                             backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white54 : Colors.black54,
@@ -293,7 +294,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                           )
                         else if (!isFacilityUnlocked)
                           NeoBrutalButton(
-                            label: 'TESİS GEREKLİ',
+                            label: context.tr('academy_facility_required'),
                             icon: Icons.lock_rounded,
                             backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white38 : Colors.black38,
@@ -302,13 +303,13 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             onPressed: () {
                               NotificationService.showInfo(
                                 context,
-                                'Bu eğitimi açmak için ${course.role.requiredFacilityName} tesisini inşa etmelisiniz.',
+                                context.tr('academy_facility_required_toast', {'facility': course.role.requiredFacilityName}),
                               );
                             },
                           )
                         else if (!hasStaff)
                           NeoBrutalButton(
-                            label: 'PERSONEL YOK',
+                            label: context.tr('academy_no_staff_badge'),
                             icon: Icons.person_off_rounded,
                             backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white54 : Colors.black54,
@@ -317,13 +318,13 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             onPressed: () {
                               NotificationService.showInfo(
                                 context,
-                                'Bu eğitimi vermek için önce bir ${course.role.title} işe almalısınız.',
+                                context.tr('academy_hire_first_toast', {'role': course.role.getLocalizedTitle(lang)}),
                               );
                             },
                           )
                         else
                           NeoBrutalButton(
-                            label: 'EĞİTİME GÖNDER',
+                            label: context.tr('academy_btn_send_training'),
                             icon: Icons.school_rounded,
                             backgroundColor: course.color,
                             textColor: Colors.black,
@@ -337,7 +338,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                               );
 
                               if (game.balance < course.cost) {
-                                NotificationService.showError(context, 'Yetersiz Bakiye!');
+                                NotificationService.showError(context, context.tr('insufficient_balance'));
                                 return;
                               }
 
@@ -345,7 +346,7 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                               if (success) {
                                 NotificationService.showSuccess(
                                   context,
-                                  '${candidateStaff.name} • ${course.title} eğitimini tamamladı!',
+                                  context.tr('academy_training_complete_toast', {'name': candidateStaff.name, 'course': course.getLocalizedTitle(lang)}),
                                 );
                               }
                             },

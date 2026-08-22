@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/theme/app_theme.dart';
@@ -133,6 +134,13 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: AppTheme.darkTheme,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
             home: Scaffold(
               body: Consumer(
                 builder: (context, ref, _) {
@@ -156,3 +164,4 @@ void main() {
     });
   });
 }
+

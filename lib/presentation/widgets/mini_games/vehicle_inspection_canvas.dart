@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -132,7 +133,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
 
   void _evaluateFinalReport() {
     _isPassed = _brakeImbalancePercent < 20.0 && _headlightAccuracy >= 0.85;
-    _stampText = _isPassed ? 'KUSURSUZ ONAYLANDI' : 'HAFİF KUSURLU GEÇTİ';
+    _stampText = _isPassed ? context.tr('inspection_stamp_passed') : context.tr('inspection_stamp_minor');
     _currentStage = 2;
   }
 
@@ -162,8 +163,8 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'ARAÇ MUAYENE VE KUSUR TESTİ',
+                      Text(
+                        context.tr('inspection_title'),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
@@ -184,9 +185,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: _currentStage == 0
-                      ? 'AŞAMA 1/2 • FREN'
-                      : (_currentStage == 1 ? 'AŞAMA 2/2 • FAR' : 'TEST TAMAMLANDI'),
+                  text: _currentStage == 0 ? context.tr('inspection_step_brake') : (_currentStage == 1 ? context.tr('inspection_step_light') : context.tr('inspection_step_finished')),
                   backgroundColor: _currentStage == 2 ? AppColors.brutalGreen : const Color(0xFF38BDF8),
                   textColor: Colors.black,
                   fontSize: 9.5,
@@ -269,11 +268,11 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
               child: Text(
                 _currentStage == 0
                     ? (_isBraking
-                        ? 'Pedala basılıyor • Fren kuvvet dengesi ölçülüyor: %${_brakeImbalancePercent.toStringAsFixed(1)} sapma'
-                        : 'Fren test silindirleri devrede • Butona basılı tutarak hidroliği kilitle!')
+                        ? context.tr('inspection_msg_brake_active', {'pct': _brakeImbalancePercent.toStringAsFixed(1)})
+                        : context.tr('inspection_msg_brake_idle'))
                     : (_currentStage == 1
-                        ? 'Far huzmesini parmağınla sürükleyerek merkez hedef artı işaretine oturt!'
-                        : 'Muayene raporu düzenlendi • Aracın resmi kayıtları güncellendi.'),
+                        ? context.tr('inspection_msg_light_drag')
+                        : context.tr('inspection_msg_finished')),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 11,
@@ -323,7 +322,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
               ),
             ] else if (_currentStage == 1) ...[
               NeoBrutalButton(
-                label: _isHeadlightAligned ? 'HİZALAMA BAŞARILI • RAPORU AL' : 'MERCEĞİ HİZALA • DOKUN & KAYDIR',
+                label: _isHeadlightAligned ? context.tr('inspection_btn_light_aligned') : context.tr('inspection_btn_light_drag'),
                 icon: Icons.center_focus_strong_rounded,
                 backgroundColor: _isHeadlightAligned ? AppColors.brutalGreen : const Color(0xFF38BDF8),
                 textColor: Colors.black,
@@ -341,7 +340,7 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
               ),
             ] else ...[
               NeoBrutalButton(
-                label: 'MUAYENE RAPORUNU ONAYLA & KAYDET',
+                label: context.tr('inspection_btn_save'),
                 icon: Icons.check_circle_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,

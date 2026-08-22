@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -116,10 +117,10 @@ class DistrictMarketScreen extends ConsumerWidget {
     if (!game.isFeatureUnlocked('/districts')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'SEMT HAKİMİYETİ & PAZAR PAYI'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('district_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/districts',
-          featureTitle: 'SEMT HAKİMİYETİ',
+          featureTitle: context.tr('district_screen_title'),
           icon: Icons.map_rounded,
         ),
       );
@@ -129,8 +130,8 @@ class DistrictMarketScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'SEMT HAKİMİYETİ & PAZAR PAYI',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('district_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -151,7 +152,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ŞEHİR İKİNCİ EL PİYASASI HAKİMİYETİ',
+                        context.tr('district_banner_title'),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
@@ -160,7 +161,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Farklı semtlerde satış yaptıkça veya yerel reklam kampanyası verdikçe semt pazar payın artar ve kalıcı esnaf avantajları açılır.',
+                        context.tr('district_banner_desc'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -243,14 +244,14 @@ class DistrictMarketScreen extends ConsumerWidget {
                         ),
                         if (!isUnlocked)
                           NeoBrutalBadge(
-                            text: '${district.minReputation} İtibar Gerektirir',
+                            text: context.tr('district_req_rep', {'rep': '${district.minReputation}'}),
                             backgroundColor: isDark ? Colors.white12 : Colors.black12,
                             textColor: isDark ? Colors.white60 : Colors.black54,
                             fontSize: 9.5,
                           )
                         else if (isMaxed)
-                          const NeoBrutalBadge(
-                            text: "FULLE'NİN FULÜ • %100 TEKEL",
+                          NeoBrutalBadge(
+                            text: context.tr('district_badge_monopoly'),
                             icon: Icons.workspace_premium_rounded,
                             backgroundColor: AppColors.brutalYellow,
                             textColor: Colors.black,
@@ -259,7 +260,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                           )
                         else
                           NeoBrutalBadge(
-                            text: '%$sharePercent Pazar Payı',
+                            text: context.tr('district_badge_share', {'pct': '$sharePercent'}),
                             backgroundColor: district.accentColor,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -347,7 +348,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                               const Icon(Icons.verified_rounded, size: 16, color: Color(0xFFCA8A04)),
                               const SizedBox(width: 6),
                               Text(
-                                'SEMTİN HÂKİMİ • TÜM ESNAF AVANTAJLARI AÇIK',
+                                context.tr('district_dominance_unlocked'),
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w900,
@@ -363,7 +364,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             NeoBrutalButton(
-                              label: 'Yerel Kampanya Başlat • ${CurrencyFormatter.formatShort(boostCost)} -> +%5 Pay',
+                              label: context.tr('district_btn_boost', {'cost': CurrencyFormatter.formatShort(boostCost)}),
                               icon: Icons.campaign_rounded,
                               backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                               textColor: isDark ? Colors.white : const Color(0xFF0F172A),

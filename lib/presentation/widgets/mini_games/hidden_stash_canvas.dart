@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -125,8 +126,8 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'ZULA VE ŞASİ DEDEKTÖRÜ',
+                      Text(
+                        context.tr('stash_title'),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
@@ -136,7 +137,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${widget.car.brand} ${widget.car.modelName} • UV & Röntgen',
+                        context.tr('stash_subtitle', {'brand': widget.car.brand, 'model': widget.car.modelName}),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -187,10 +188,10 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                     },
                   ),
                   if (_isFound)
-                    const Positioned.fill(
+                    Positioned.fill(
                       child: Center(
                         child: SlamStampWidget(
-                          text: 'ZULA BULUNDU',
+                          text: context.tr('stash_badge_found'),
                           color: AppColors.brutalGreen,
                           fontSize: 22,
                           angle: -0.07,
@@ -225,7 +226,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
             // Action Buttons
             if (!_isFinished) ...[
               NeoBrutalButton(
-                label: 'HIZLI OTOMATİK TARAMA • PAS GEÇ',
+                label: context.tr('stash_btn_auto'),
                 icon: Icons.flash_on_rounded,
                 backgroundColor: const Color(0xFF1E293B),
                 textColor: Colors.white,
@@ -242,7 +243,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
               ),
             ] else ...[
               NeoBrutalButton(
-                label: 'ZULAYI TOPLA & ENJEKTE ET',
+                label: context.tr('stash_btn_claim'),
                 icon: Icons.check_circle_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,

@@ -126,7 +126,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     onTap: () {
                       HapticFeedback.lightImpact();
                       ref.read(gameProvider.notifier).rejectAllTradeInOffers();
-                      NotificationService.showInfo(context, 'Tüm takas teklifleri temizlendi.');
+                      NotificationService.showInfo(context, context.tr('toast_all_trade_ins_cleared'));
                     },
                     borderRadius: BorderRadius.circular(6),
                     child: Padding(
@@ -173,7 +173,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     onTap: () {
                       HapticFeedback.lightImpact();
                       ref.read(gameProvider.notifier).rejectAllOffers();
-                      NotificationService.showInfo(context, 'Tüm nakit teklifleri temizlendi.');
+                      NotificationService.showInfo(context, context.tr('toast_all_cash_offers_cleared'));
                     },
                     borderRadius: BorderRadius.circular(6),
                     child: Padding(
@@ -262,7 +262,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${tradeOffer.customerName} • Takas Teklifi',
+                        context.tr('trade_offer_title', {'customer': tradeOffer.customerName}),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -270,7 +270,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        'İstenen Aracın: ${targetCar.modelName}',
+                        context.tr('trade_requested_car', {'car': targetCar.modelName}),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -284,8 +284,8 @@ class ShowroomOffersTab extends ConsumerWidget {
                 ),
                 NeoBrutalBadge(
                   text: isCashGivenToPlayer
-                      ? '+${CurrencyFormatter.format(tradeOffer.cashDifference)} FARK'
-                      : '-${CurrencyFormatter.format(-tradeOffer.cashDifference)} FARK',
+                      ? '+${CurrencyFormatter.format(tradeOffer.cashDifference)}'
+                      : '-${CurrencyFormatter.format(-tradeOffer.cashDifference)}',
                   backgroundColor: isCashGivenToPlayer ? const Color(0xFF00E575) : const Color(0xFFFF9F1C),
                   textColor: Colors.black,
                   fontSize: 10,
@@ -325,9 +325,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'TEKLİF EDİLEN ARAÇ',
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                      Text(
+                        context.tr('offered_car_title'),
+                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                       ),
                       Text(
                         tradeOffer.offeredCar.modelName,
@@ -338,7 +338,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        '${tradeOffer.offeredCar.modelYear} • ${tradeOffer.offeredCar.expertise.mileage} km • Motor: %${tradeOffer.offeredCar.expertise.engineCondition.round()}',
+                        '${tradeOffer.offeredCar.modelYear} • ${tradeOffer.offeredCar.expertise.mileage} km • ${context.tr('engine_condition')}: %${tradeOffer.offeredCar.expertise.engineCondition.round()}',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -351,17 +351,17 @@ class ShowroomOffersTab extends ConsumerWidget {
                 Row(
                   children: [
                     NeoBrutalButton(
-                      label: 'Reddet',
+                      label: context.tr('btn_reject'),
                       backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
                       onPressed: () {
                         ref.read(gameProvider.notifier).rejectTradeInOffer(tradeOffer.id);
-                        NotificationService.showInfo(context, 'Takas teklifi reddedildi.');
+                        NotificationService.showInfo(context, context.tr('toast_trade_in_rejected'));
                       },
                     ),
                     const SizedBox(width: 8),
                     NeoBrutalButton(
-                      label: 'Takas Yap',
+                      label: context.tr('btn_accept_trade'),
                       icon: Icons.check_circle_outline_rounded,
                       backgroundColor: const Color(0xFFFFDE59),
                       textColor: Colors.black,
@@ -370,10 +370,10 @@ class ShowroomOffersTab extends ConsumerWidget {
                         if (success) {
                           NotificationService.showSuccess(
                             context,
-                            '${targetCar.modelName} takaslandı! Yeni araç garajına eklendi.',
+                            context.tr('toast_trade_in_success', {'car': targetCar.modelName}),
                           );
                         } else {
-                          NotificationService.showWarning(context, 'Takas için yeterli nakdiniz yok!');
+                          NotificationService.showWarning(context, context.tr('toast_trade_in_insufficient_funds'));
                         }
                       },
                     ),
@@ -418,383 +418,381 @@ class ShowroomOffersTab extends ConsumerWidget {
 
     final isCountered = offer.status == OfferStatus.countered;
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Dismissible(
-              key: Key('offer_${offer.id}_$index'),
-              direction: DismissDirection.horizontal,
-              background: Container(
-                margin: const EdgeInsets.only(bottom: 2),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00E575),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                    width: 2.0,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black, offset: Offset(2, 2)),
-                  ],
-                ),
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  children: const [
-                    Icon(Icons.check_circle_rounded, color: Colors.black, size: 26),
-                    SizedBox(width: 8),
-                    Text(
-                      'KABUL ET & SAT',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Dismissible(
+        key: Key('offer_${offer.id}_$index'),
+        direction: DismissDirection.horizontal,
+        background: Container(
+          margin: const EdgeInsets.only(bottom: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF00E575),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 2.0,
+            ),
+            boxShadow: const [
+              BoxShadow(color: Colors.black, offset: Offset(2, 2)),
+            ],
+          ),
+          alignment: Alignment.centerLeft,
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.black, size: 26),
+              const SizedBox(width: 8),
+              Text(
+                context.tr('swipe_accept_sell'),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
                 ),
               ),
-              secondaryBackground: Container(
-                margin: const EdgeInsets.only(bottom: 2),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                    width: 2.0,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black, offset: Offset(2, 2)),
-                  ],
-                ),
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: const [
-                    Text(
-                      'REDDET & SİL',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.delete_forever_rounded, color: Colors.white, size: 26),
-                  ],
+            ],
+          ),
+        ),
+        secondaryBackground: Container(
+          margin: const EdgeInsets.only(bottom: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEF4444),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 2.0,
+            ),
+            boxShadow: const [
+              BoxShadow(color: Colors.black, offset: Offset(2, 2)),
+            ],
+          ),
+          alignment: Alignment.centerRight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                context.tr('swipe_reject_delete'),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
                 ),
               ),
-              confirmDismiss: (direction) async {
-                HapticFeedback.mediumImpact();
-                final isExpired = offer.isExpired || offer.status == OfferStatus.expired;
-                if (isExpired) {
-                  ref.read(gameProvider.notifier).dismissOffer(offer.id);
-                  return true;
-                }
-                if (direction == DismissDirection.startToEnd) {
-                  // Swipe Right -> Accept Offer via Notary
-                  _processOfferAcceptWithNotary(context, ref, offer, car);
-                  return true;
-                } else {
-                  // Swipe Left -> Reject Offer
-                  ref.read(gameProvider.notifier).rejectOffer(offer.id);
-                  if (context.mounted) {
-                    NotificationService.showWarning(context, '${offer.buyerName} teklifi reddedildi.');
-                  }
-                  return true;
-                }
-              },
-              child: Builder(
-                builder: (context) {
-                  final isExpired = offer.isExpired || offer.status == OfferStatus.expired;
+              const SizedBox(width: 8),
+              const Icon(Icons.delete_forever_rounded, color: Colors.white, size: 26),
+            ],
+          ),
+        ),
+        confirmDismiss: (direction) async {
+          HapticFeedback.mediumImpact();
+          final isExpired = offer.isExpired || offer.status == OfferStatus.expired;
+          if (isExpired) {
+            ref.read(gameProvider.notifier).dismissOffer(offer.id);
+            return true;
+          }
+          if (direction == DismissDirection.startToEnd) {
+            _processOfferAcceptWithNotary(context, ref, offer, car);
+            return true;
+          } else {
+            ref.read(gameProvider.notifier).rejectOffer(offer.id);
+            if (context.mounted) {
+              NotificationService.showWarning(context, context.tr('toast_offer_rejected', {'buyer': offer.buyerName}));
+            }
+            return true;
+          }
+        },
+        child: Builder(
+          builder: (context) {
+            final isExpired = offer.isExpired || offer.status == OfferStatus.expired;
 
-                  return NeoBrutalCard(
-                    padding: const EdgeInsets.all(14),
-                    backgroundColor: isDark
-                        ? (isExpired ? const Color(0xFF161922) : const Color(0xFF141721))
-                        : (isExpired ? const Color(0xFFF8FAFC) : Colors.white),
-                    borderColor: isExpired
-                        ? const Color(0xFFEF4444)
-                        : (isCountered
-                            ? const Color(0xFFFFDE59)
-                            : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
-                    borderRadius: 12,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            return NeoBrutalCard(
+              padding: const EdgeInsets.all(14),
+              backgroundColor: isDark
+                  ? (isExpired ? const Color(0xFF161922) : const Color(0xFF141721))
+                  : (isExpired ? const Color(0xFFF8FAFC) : Colors.white),
+              borderColor: isExpired
+                  ? const Color(0xFFEF4444)
+                  : (isCountered
+                      ? const Color(0xFFFFDE59)
+                      : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
+              borderRadius: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
                           children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      '${car.brand} ${car.modelName}',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w900,
-                                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (isExpired) ...[
-                                    const SizedBox(width: 8),
-                                    const NeoBrutalBadge(
-                                      text: 'MÜŞTERİ AYRILDI • ZAMAN AŞIMI',
-                                      backgroundColor: Color(0xFFDC2626),
-                                      textColor: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            Text(
-                              CurrencyFormatter.format(offer.offeredAmount),
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w900,
-                                color: isExpired
-                                    ? const Color(0xFF94A3B8)
-                                    : (isDark ? const Color(0xFF00E575) : const Color(0xFF15803D)),
-                                decoration: isExpired ? TextDecoration.lineThrough : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Piyasa Değeri: ${CurrencyFormatter.formatShort(car.estimatedRealValue)}',
-                              style: TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w700,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              ),
-                            ),
-                            Text(
-                              'İlan Fiyatı: ${CurrencyFormatter.formatShort(car.listingPrice > 0 ? car.listingPrice : car.estimatedRealValue)}',
-                              style: TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w700,
-                                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              'Alıcı: ${offer.buyerName}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              ),
-                            ),
-                            if (offer.buyerCustomer != null)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFDE59),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                    width: 1.8,
-                                  ),
-                                ),
-                                child: Text(
-                                  offer.buyerCustomer!.archetypeTitle,
-                                  style: const TextStyle(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            if (offer.offerType != OfferType.cash)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: offer.offerType == OfferType.installment ? const Color(0xFF38BDF8) : const Color(0xFFA855F7),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                    width: 1.8,
-                                  ),
-                                ),
-                                child: Text(
-                                  offer.offerType == OfferType.installment
-                                      ? '${offer.installmentMonths} Ay Senetli • ${offer.riskLevel}'
-                                      : 'Çekli Teklif',
-                                  style: const TextStyle(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                        if (offer.requestedTestDrive && offer.testDriveResult != null) ...[
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF0F291E) : const Color(0xFFDCFCE7),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                color: const Color(0xFF00E575),
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.speed_rounded, size: 14, color: Color(0xFF00E575)),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    offer.testDriveResult!,
-                                    style: TextStyle(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                        if (isExpired) ...[
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF2F2),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFCA5A5),
-                                width: 1.0,
-                              ),
-                            ),
-                            child: const Text(
-                              '"Müşteri galeride çok uzun süre yanıtsız beklediği için dükkandan ayrıldı."',
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                color: Color(0xFFEF4444),
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ] else if (offer.buyerMessage.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Text(
-                              '"${offer.buyerMessage}"',
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                color: isDark ? palette.primaryColor : const Color(0xFF0F172A),
-                                fontSize: 11.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-
-                        // Actions
-                        if (isExpired)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Süre doldu • Yanıt verilmedi',
+                            Flexible(
+                              child: Text(
+                                '${car.brand} ${car.modelName}',
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFFEF4444),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              NeoBrutalButton(
-                                label: 'Teklifi Temizle',
-                                icon: Icons.delete_outline_rounded,
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                                textColor: isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626),
-                                fontSize: 11,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                onPressed: () {
-                                  ref.read(gameProvider.notifier).dismissOffer(offer.id);
-                                },
-                              ),
-                            ],
-                          )
-                        else
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              NeoBrutalButton(
-                                label: 'Reddet',
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                textColor: isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626),
-                                fontSize: 11,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                onPressed: () {
-                                  ref.read(gameProvider.notifier).rejectOffer(offer.id);
-                                },
-                              ),
-                              Row(
-                                children: [
-                                  NeoBrutalButton(
-                                    label: 'Karşı Teklif',
-                                    backgroundColor: const Color(0xFFFFDE59),
-                                    textColor: Colors.black,
-                                    fontSize: 11,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    onPressed: () {
-                                      ShowroomListingModal.showCounterOfferSheet(context, ref, offer, car);
-                                    },
-                                  ),
-                                  const SizedBox(width: 8),
-                                  NeoBrutalButton(
-                                    label: 'Kabul Et & Sat',
-                                    icon: Icons.check_circle_rounded,
-                                    backgroundColor: const Color(0xFF00E575),
-                                    textColor: Colors.black,
-                                    fontSize: 11,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    onPressed: () {
-                                      _processOfferAcceptWithNotary(context, ref, offer, car);
-                                    },
-                                  ),
-                                ],
+                            ),
+                            if (isExpired) ...[
+                              const SizedBox(width: 8),
+                              NeoBrutalBadge(
+                                text: context.tr('badge_buyer_left_timeout'),
+                                backgroundColor: const Color(0xFFDC2626),
+                                textColor: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
                               ),
                             ],
+                          ],
+                        ),
+                      ),
+                      Text(
+                        CurrencyFormatter.format(offer.offeredAmount),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: isExpired
+                              ? const Color(0xFF94A3B8)
+                              : (isDark ? const Color(0xFF00E575) : const Color(0xFF15803D)),
+                          decoration: isExpired ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        context.tr('market_val_short', {'val': CurrencyFormatter.formatShort(car.estimatedRealValue)}),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                      Text(
+                        context.tr('listing_price_short', {'val': CurrencyFormatter.formatShort(car.listingPrice > 0 ? car.listingPrice : car.estimatedRealValue)}),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        context.tr('buyer_name_label', {'buyer': offer.buyerName}),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                      if (offer.buyerCustomer != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFDE59),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 1.8,
+                            ),
                           ),
+                          child: Text(
+                            offer.buyerCustomer!.archetypeTitle,
+                            style: const TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      if (offer.offerType != OfferType.cash)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: offer.offerType == OfferType.installment ? const Color(0xFF38BDF8) : const Color(0xFFA855F7),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              width: 1.8,
+                            ),
+                          ),
+                          child: Text(
+                            offer.offerType == OfferType.installment
+                                ? context.tr('installment_badge_text', {'months': offer.installmentMonths.toString(), 'risk': offer.riskLevel})
+                                : context.tr('cheque_offer_badge'),
+                            style: const TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (offer.requestedTestDrive && offer.testDriveResult != null) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF0F291E) : const Color(0xFFDCFCE7),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: const Color(0xFF00E575),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.speed_rounded, size: 14, color: Color(0xFF00E575)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              offer.testDriveResult!,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (isExpired) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFCA5A5),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Text(
+                        '"${context.tr('buyer_timeout_message')}"',
+                        style: const TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Color(0xFFEF4444),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ] else if (offer.buyerMessage.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Text(
+                        '"${offer.buyerMessage}"',
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: isDark ? palette.primaryColor : const Color(0xFF0F172A),
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+
+                  // Actions
+                  if (isExpired)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          context.tr('offer_expired_label'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFEF4444),
+                          ),
+                        ),
+                        NeoBrutalButton(
+                          label: context.tr('btn_clear_offer'),
+                          icon: Icons.delete_outline_rounded,
+                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                          textColor: isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626),
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          onPressed: () {
+                            ref.read(gameProvider.notifier).dismissOffer(offer.id);
+                          },
+                        ),
+                      ],
+                    )
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        NeoBrutalButton(
+                          label: context.tr('btn_reject'),
+                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          textColor: isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626),
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          onPressed: () {
+                            ref.read(gameProvider.notifier).rejectOffer(offer.id);
+                          },
+                        ),
+                        Row(
+                          children: [
+                            NeoBrutalButton(
+                              label: context.tr('btn_counter_offer'),
+                              backgroundColor: const Color(0xFFFFDE59),
+                              textColor: Colors.black,
+                              fontSize: 11,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              onPressed: () {
+                                ShowroomListingModal.showCounterOfferSheet(context, ref, offer, car);
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            NeoBrutalButton(
+                              label: context.tr('btn_accept_and_sell'),
+                              icon: Icons.check_circle_rounded,
+                              backgroundColor: const Color(0xFF00E575),
+                              textColor: Colors.black,
+                              fontSize: 11,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              onPressed: () {
+                                _processOfferAcceptWithNotary(context, ref, offer, car);
+                              },
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  );
-                },
+                ],
               ),
-            ),
-          );
+            );
+          },
+        ),
+      ),
+    );
   }
 
   void _processOfferAcceptWithNotary(
@@ -845,15 +843,15 @@ class ShowroomOffersTab extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Text(
                     '${fraudResult.description}\n\n'
-                    'Tazminat Cezası: ${CurrencyFormatter.formatShort(fraudResult.fineAmount)}\n'
-                    'İtibar Kaybı: -${fraudResult.reputationPenalty} Puan',
+                    '${context.tr('fine_penalty_label', {'amount': CurrencyFormatter.formatShort(fraudResult.fineAmount)})}\n'
+                    '${context.tr('reputation_loss_label', {'points': fraudResult.reputationPenalty.toString()})}',
                     style: AppTypography.bodyMedium(palette.isDark),
                   ),
                   const SizedBox(height: 16),
                   Align(
                     alignment: Alignment.centerRight,
                     child: NeoBrutalButton(
-                      label: 'Tamam',
+                      label: context.tr('ok_button'),
                       backgroundColor: AppColors.errorRed,
                       textColor: Colors.white,
                       onPressed: () => Navigator.pop(ctx),
@@ -884,12 +882,17 @@ class ShowroomOffersTab extends ConsumerWidget {
             GameSoundHapticService.playCashSuccess();
             NotificationService.showSuccess(
               context,
-              '${game.dealershipName} bünyesinde ${CurrencyFormatter.format(offer.offeredAmount)} tutarında noter satışı tamamlandı!',
+              context.tr('notary_sale_success_toast', {
+                'dealership': game.dealershipName,
+                'amount': CurrencyFormatter.format(offer.offeredAmount),
+              }),
             );
           } else {
             NotificationService.showWarning(
               context,
-              'Noter işlemi iptal edildi • ${car.brand} ${car.modelName} vitrinde kaldı.',
+              context.tr('notary_sale_cancelled_toast', {
+                'car': '${car.brand} ${car.modelName}',
+              }),
             );
           }
         },

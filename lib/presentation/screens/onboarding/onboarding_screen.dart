@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -37,28 +38,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   final List<Map<String, dynamic>> _pages = [
     {
-      'tag': 'HİKAYE BAŞLANGICI',
+      'tagKey': 'onboarding_tag_story',
       'tagColor': AppColors.brutalYellow,
-      'title': 'Deden Hasan Usta\'dan Kalan Miras',
-      'subtitle': 'Eski oto tamircisi Hasan Dedenden sana 1978 model Tofaşk Hacı Murat 124 ve 75.000 ₺ nakit miras kaldı. Dükkanın başına geç ve efsaneyi yeniden dirilt!',
+      'titleKey': 'onboarding_title_story',
+      'subtitleKey': 'onboarding_desc_story',
       'vectorType': 'car',
       'icon': Icons.directions_car_filled_rounded,
       'accent': AppColors.brutalYellow,
     },
     {
-      'tag': 'ATÖLYE & ONARIM',
+      'tagKey': 'onboarding_tag_workshop',
       'tagColor': AppColors.brutalOrange,
-      'title': 'Stratejik Tamir & Parça Tedariği',
-      'subtitle': 'Arızalı araçları incele. Hurdalıktan çıkma parça mı bulacaksın, sıfır parça mı sipariş edeceksin? Doğru kararlar ver, kâr marjını katla!',
+      'titleKey': 'onboarding_title_workshop',
+      'subtitleKey': 'onboarding_desc_workshop',
       'vectorType': 'workshop',
       'icon': Icons.build_circle_rounded,
       'accent': AppColors.brutalOrange,
     },
     {
-      'tag': 'TİCARET & PAZAR',
+      'tagKey': 'onboarding_tag_market',
       'tagColor': AppColors.brutalGreen,
-      'title': 'İlan Ver, Pazarlık Yap & Şirketini Büyüt',
-      'subtitle': 'Araçları showroom\'a diz, vitrine çıkar ve gelen teklifleri değerlendir. Nakit, senetli veya çekli satışlarla oto baronluğuna yüksel!',
+      'titleKey': 'onboarding_title_market',
+      'subtitleKey': 'onboarding_desc_market',
       'vectorType': 'expertise',
       'icon': Icons.monetization_on_rounded,
       'accent': AppColors.brutalGreen,
@@ -132,7 +133,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             ),
                           ),
                           Text(
-                            'Otomotiv Tycoon Simülatörü',
+                            context.tr('onboarding_tycoon_subtitle'),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
@@ -144,7 +145,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ],
                   ),
                   NeoBrutalButton(
-                    label: 'ATLA',
+                    label: context.tr('onboarding_skip_btn'),
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white70 : const Color(0xFF0F172A),
                     borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -178,7 +179,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           children: [
                             // Tag Badge
                             NeoBrutalBadge(
-                              text: item['tag'] as String,
+                              text: context.tr(item['tagKey'] as String),
                               backgroundColor: item['tagColor'] as Color,
                               textColor: Colors.black,
                               fontSize: 11,
@@ -216,7 +217,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                             // Title
                             Text(
-                              item['title'] as String,
+                              context.tr(item['titleKey'] as String),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 18,
@@ -229,7 +230,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                             // Subtitle
                             Text(
-                              item['subtitle'] as String,
+                              context.tr(item['subtitleKey'] as String),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,
@@ -273,7 +274,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
               // Bottom Action Button
               NeoBrutalButton(
-                label: _currentPage == _pages.length - 1 ? 'GALERİYİ KUR & BAŞLA' : 'SONRAKİ ADIM',
+                label: _currentPage == _pages.length - 1 ? context.tr('onboarding_start_btn') : context.tr('onboarding_next_btn'),
                 icon: _currentPage == _pages.length - 1 ? Icons.store_rounded : Icons.arrow_forward_rounded,
                 fullWidth: true,
                 backgroundColor: _currentPage == _pages.length - 1 ? AppColors.brutalGreen : AppColors.brutalYellow,

@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -393,8 +394,8 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                     playerDistance: _playerDistance,
                     rivalDistance: _rivalDistance,
                     particles: _particles,
-                    playerCarName: widget.car.modelName,
-                    rivalCarName: widget.rival.carName,
+                    playerCarName: context.tr('drag_race_you', {'name': widget.car.modelName}),
+                    rivalCarName: context.tr('drag_race_rival', {'name': widget.rival.carName}),
                     playerSpeech: _playerSpeech,
                     rivalSpeech: _rivalSpeech,
                     currentGear: _currentGear,
@@ -421,7 +422,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                         Row(
                           children: [
                             Text(
-                              _currentGear == _maxGears ? 'NITRO MODU' : 'VİTES $_currentGear / 3',
+                              _currentGear == _maxGears ? context.tr('drag_race_modal_nitro_mode') : context.tr('drag_race_modal_gear', {'gear': '$_currentGear'}),
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w900,
@@ -508,7 +509,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
             if (_phase == RacePhase.finished) ...[
               const SizedBox(height: 8),
               SlamStampWidget(
-                text: isWon ? 'ŞAMPİYON' : 'ELENDİ',
+                text: isWon ? context.tr('drag_race_stamp_win') : context.tr('drag_race_stamp_lose'),
                 color: isWon ? AppColors.brutalGreen : AppColors.errorRed,
                 fontSize: 16,
                 angle: isWon ? -0.06 : 0.06,
@@ -552,7 +553,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                 SizedBox(
                   width: double.infinity,
                   child: NeoBrutalButton(
-                    label: 'İNTİKAM YARIŞI • TEKRAR DENE',
+                    label: context.tr('drag_race_btn_revenge'),
                     icon: Icons.replay_rounded,
                     backgroundColor: AppColors.brutalOrange,
                     textColor: Colors.black,
@@ -578,7 +579,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
               SizedBox(
                 width: double.infinity,
                 child: NeoBrutalButton(
-                  label: isWon ? 'ÖDÜLÜ VE İTİBARI AL' : 'GARAJA GERİ DÖN',
+                  label: isWon ? context.tr('drag_race_btn_claim') : context.tr('drag_race_btn_garage'),
                   backgroundColor: isWon ? AppColors.brutalGreen : const Color(0xFF334155),
                   textColor: isWon ? Colors.black : Colors.white,
                   onPressed: () {
@@ -596,13 +597,13 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
 
   String _getShiftButtonLabel() {
     if (_currentGear == 1) {
-      return '2. VİTESE GEÇ • YEŞİL BÖLGEDE BAS';
+      return context.tr('drag_race_shift_btn_gear2');
     } else if (_currentGear == 2) {
-      return '3. VİTESE GEÇ • TAM ZAMANINDA BAS';
+      return context.tr('drag_race_shift_btn_gear3');
     } else if (_currentGear == 3) {
-      return 'NITRO ATEŞLE • SON DÜZLÜK';
+      return context.tr('drag_race_shift_btn_nitro');
     } else {
-      return 'NITRO AKTİF • TAM GAZ';
+      return context.tr('drag_race_shift_btn_nitro_active');
     }
   }
 
@@ -720,7 +721,7 @@ class _DragTrackPainter extends CustomPainter {
       canvas,
       Offset(playerX, playerY),
       const Color(0xFF00E575),
-      'SEN: $playerCarName',
+      playerCarName,
       playerSpeech,
       true,
     );
@@ -732,7 +733,7 @@ class _DragTrackPainter extends CustomPainter {
       canvas,
       Offset(rivalX, rivalY),
       const Color(0xFFFF007F),
-      'RAKİP: $rivalCarName',
+      rivalCarName,
       rivalSpeech,
       false,
     );

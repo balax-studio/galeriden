@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../data/models/cheque_model.dart';
 import '../../../../data/models/mega_systems_extensions_model.dart';
@@ -44,10 +45,10 @@ class FactoringChequeSheet extends StatelessWidget {
                 child: const Icon(Icons.currency_exchange_rounded, color: Colors.black, size: 20),
               ),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'FAKTORİNG & ÇEK KIRDIRMA',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                  context.tr('factoring_sheet_title'),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
                 ),
               ),
               IconButton(
@@ -57,21 +58,21 @@ class FactoringChequeSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Vadesi gelmemiş müşteri çeklerinizi %8.5 iskonto ile anında peşin nakde çevirin.',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+          Text(
+            context.tr('factoring_sheet_desc'),
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
           if (cheques.isEmpty)
-            const NeoBrutalCard(
-              padding: EdgeInsets.all(18),
-              backgroundColor: Color(0xFF141721),
-              borderColor: Color(0xFF333B4F),
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(18),
+              backgroundColor: const Color(0xFF141721),
+              borderColor: const Color(0xFF333B4F),
               borderRadius: 10,
               child: Center(
                 child: Text(
-                  'Portföyünüzde kırdırılabilecek aktif çek bulunmamaktadır.',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+                  context.tr('factoring_no_cheques'),
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -105,15 +106,15 @@ class FactoringChequeSheet extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Çek Tutarı: ₺${c.amount.toStringAsFixed(0)}',
+                              context.tr('factoring_cheque_amount', {'amount': c.amount.toStringAsFixed(0)}),
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5),
                             ),
                             Text(
-                              'Vade: ${c.dueDays} Gün Sonra',
+                              context.tr('factoring_cheque_due', {'days': c.dueDays.toString()}),
                               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                             ),
                             Text(
-                              'Net Ödeme: ₺${deal.payoutCash.toStringAsFixed(0)} • -%8.5',
+                              context.tr('factoring_net_payment', {'amount': deal.payoutCash.toStringAsFixed(0)}),
                               style: const TextStyle(color: AppColors.brutalGreen, fontWeight: FontWeight.w800, fontSize: 11),
                             ),
                           ],
@@ -121,7 +122,7 @@ class FactoringChequeSheet extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       NeoBrutalButton(
-                        label: 'KIRDIR',
+                        label: context.tr('factoring_btn_cash'),
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 11,

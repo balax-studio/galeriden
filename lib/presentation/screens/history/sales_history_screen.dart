@@ -102,9 +102,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'TOPLAM HASILAT',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      Text(
+                        context.tr('history_total_revenue'),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -183,7 +183,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'SATIŞ KAYITLARI • ${filteredHistory.length}',
+                context.tr('history_sales_records_count', {'count': '${filteredHistory.length}'}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -214,7 +214,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
             NeoBrutalEmptyState(
               icon: Icons.receipt_long_rounded,
               accentColor: AppColors.brutalGreen,
-              badgeText: 'KAYIT BULUNAMADI',
+              badgeText: context.tr('history_empty_badge'),
               title: context.tr('history_empty_title'),
               description: context.tr('history_empty_desc'),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -250,7 +250,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Alıcı: ${sale.buyerName} • Gün ${sale.saleDay}',
+                                  context.tr('history_buyer_day', {'buyer': sale.buyerName, 'day': '${sale.saleDay}'}),
                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                                 ),
                               ],
@@ -270,10 +270,10 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildPriceColumn('Alış Fiyatı', CurrencyFormatter.formatShort(sale.purchasePrice), const Color(0xFF64748B)),
-                          _buildPriceColumn('Satış Fiyatı', CurrencyFormatter.formatShort(sale.salePrice), isDark ? Colors.white : Colors.black),
+                          _buildPriceColumn(context.tr('history_purchase_price'), CurrencyFormatter.formatShort(sale.purchasePrice), const Color(0xFF64748B)),
+                          _buildPriceColumn(context.tr('history_sale_price'), CurrencyFormatter.formatShort(sale.salePrice), isDark ? Colors.white : Colors.black),
                           _buildPriceColumn(
-                            'Net Kâr',
+                            context.tr('history_net_profit'),
                             CurrencyFormatter.formatShort(sale.netProfit),
                             isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
                           ),

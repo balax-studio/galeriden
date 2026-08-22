@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/mega_systems_extensions_model.dart';
 import '../../../widgets/neo_brutal_card.dart';
@@ -47,7 +49,7 @@ class ChipTuningModal extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '${car.brand} ${car.modelName} — TUNING',
+                  context.tr('chip_tuning_title', {'car': '${car.brand} ${car.modelName}'}),
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -62,18 +64,18 @@ class ChipTuningModal extends StatelessWidget {
           _buildStageCard(
             context,
             stage: ChipTuningStage.stage1,
-            title: 'Stage 1 ECU Yazılım Remap',
-            desc: '+35 HP Ekstra Güç & +%10 Araç Piyasa Değeri',
-            cost: '₺4.500',
+            title: context.tr('chip_tuning_stage1_title'),
+            desc: context.tr('chip_tuning_stage1_desc'),
+            cost: CurrencyFormatter.formatShort(4500),
             color: const Color(0xFF38BDF8),
           ),
           const SizedBox(height: 10),
           _buildStageCard(
             context,
             stage: ChipTuningStage.stage2,
-            title: 'Stage 2 ECU + Downpipe & Popbang',
-            desc: '+75 HP Ekstra Güç & +%22 Araç Piyasa Değeri',
-            cost: '₺9.500',
+            title: context.tr('chip_tuning_stage2_title'),
+            desc: context.tr('chip_tuning_stage2_desc'),
+            cost: CurrencyFormatter.formatShort(9500),
             color: AppColors.errorRed,
           ),
           const SizedBox(height: 10),
@@ -83,27 +85,27 @@ class ChipTuningModal extends StatelessWidget {
               onBodykitSelected();
             },
             borderRadius: BorderRadius.circular(10),
-            child: const NeoBrutalCard(
-              padding: EdgeInsets.all(12),
-              backgroundColor: Color(0xFF141721),
-              borderColor: Color(0xFFA855F7),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(12),
+              backgroundColor: const Color(0xFF141721),
+              borderColor: const Color(0xFFA855F7),
               borderRadius: 10,
               borderWidth: 2.0,
-              shadowOffset: Offset(3, 3),
+              shadowOffset: const Offset(3, 3),
               child: Row(
                 children: [
-                  Icon(Icons.directions_car_filled_rounded, color: Color(0xFFA855F7), size: 24),
-                  SizedBox(width: 10),
+                  const Icon(Icons.directions_car_filled_rounded, color: Color(0xFFA855F7), size: 24),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Karbon Bodykit & Film', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5)),
-                        Text('Agresif spoiler & 2 numara film • +%8 Değer', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                        Text(context.tr('chip_tuning_bodykit_title'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5)),
+                        Text(context.tr('chip_tuning_bodykit_desc'), style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
                       ],
                     ),
                   ),
-                  Text('₺3.500', style: TextStyle(color: Color(0xFFA855F7), fontWeight: FontWeight.w900, fontSize: 13)),
+                  Text(CurrencyFormatter.formatShort(3500), style: const TextStyle(color: Color(0xFFA855F7), fontWeight: FontWeight.w900, fontSize: 13)),
                 ],
               ),
             ),

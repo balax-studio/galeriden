@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -126,11 +127,11 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.cleaning_services_rounded, color: Color(0xFF38BDF8), size: 22),
-                    SizedBox(width: 8),
+                  children: [
+                    const Icon(Icons.cleaning_services_rounded, color: Color(0xFF38BDF8), size: 22),
+                    const SizedBox(width: 8),
                     Text(
-                      'İNTERAKTİF KÖPÜK & YIKAMA',
+                      context.tr('car_wash_title'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
@@ -141,7 +142,7 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
                   ],
                 ),
                 NeoBrutalBadge(
-                  text: '%${_cleanlinessPercent.toInt()} TEMİZLENDİ',
+                  text: context.tr('car_wash_cleaned_pct', {'pct': '${_cleanlinessPercent.toInt()}'}),
                   backgroundColor: _isFinished ? AppColors.brutalGreen : const Color(0xFF38BDF8),
                   textColor: Colors.black,
                   fontSize: 9.5,
@@ -150,9 +151,7 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
             ),
             const SizedBox(height: 10),
             Text(
-              _isFinished
-                  ? 'Kusursuz Detailing! Araç ayna gibi parıldıyor.'
-                  : 'Parmağını çamurlu bölgelerin üzerinde gezdirerek basınçlı köpükle temizle!',
+              _isFinished ? context.tr('car_wash_hint_finished') : context.tr('car_wash_hint_in_progress'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11,
@@ -208,8 +207,8 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
             const SizedBox(height: 14),
 
             if (_isFinished) ...[
-              const SlamStampWidget(
-                text: 'AYNA GİBİ PARLAK',
+              SlamStampWidget(
+                text: context.tr('car_wash_stamp_clean'),
                 color: AppColors.brutalGreen,
                 fontSize: 15,
                 angle: -0.05,
@@ -220,7 +219,7 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
             SizedBox(
               width: double.infinity,
               child: NeoBrutalButton(
-                label: _isFinished ? 'TEMİZLİĞİ ONAYLA • +%100 PARLAKLIK' : 'KAZIYARAK TEMİZLE...',
+                label: _isFinished ? context.tr('car_wash_btn_confirm') : context.tr('car_wash_btn_cleaning'),
                 icon: _isFinished ? Icons.check_circle_rounded : Icons.cleaning_services_rounded,
                 backgroundColor: _isFinished ? AppColors.brutalGreen : const Color(0xFF475569),
                 textColor: _isFinished ? Colors.black : Colors.white,

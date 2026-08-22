@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/ad_service.dart';
@@ -34,10 +35,10 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
     if (!game.isFeatureUnlocked('/black-market')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'KARABORSA & YASA DIŞI PAZAR'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('bm_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/black-market',
-          featureTitle: 'KARABORSA PAZARI',
+          featureTitle: context.tr('bm_screen_title'),
           icon: Icons.masks_rounded,
         ),
       );
@@ -47,8 +48,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'KARABORSA & YASA DIŞI PAZAR',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('bm_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -67,11 +68,11 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.masks_rounded, color: AppColors.errorRed, size: 24),
+                      children: [
+                        const Icon(Icons.masks_rounded, color: AppColors.errorRed, size: 24),
                         SizedBox(width: 8),
                         Text(
-                          'YASA DIŞI OTO PAZARI',
+                          context.tr('bm_banner_title'),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
@@ -81,8 +82,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                         ),
                       ],
                     ),
-                    const NeoBrutalBadge(
-                      text: 'YÜKSEK RİSK & KÂR',
+                    NeoBrutalBadge(
+                      text: context.tr('bm_banner_badge'),
                       backgroundColor: AppColors.errorRed,
                       textColor: Colors.white,
                       fontSize: 9.5,
@@ -90,8 +91,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Buradaki araçlar hacizli, çalıntı kaydı şüpheli veya şasi numarası silinmiş kelepir araçlardır. Satın alıp şasilerini temizleyebilir ya da hurdalıkta parçalayabilirsin. Dikkat: Polis baskını riski taşır!',
+                Text(
+                  context.tr('bm_banner_desc'),
                   style: TextStyle(
                     fontSize: 11.5,
                     color: Color(0xFFCBD5E1),
@@ -105,11 +106,11 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
 
           // Car List
           if (bmCars.isEmpty || bmCars.every((c) => c.isPurchased))
-            const NeoBrutalCard(
-              padding: EdgeInsets.all(32),
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(32),
               child: Center(
                 child: Text(
-                  'Şu an karaborsada araç bulunmuyor.\nGece piyasası yenilendiğinde tekrar kontrol et.',
+                  context.tr('bm_empty_title'),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
@@ -146,7 +147,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                             ),
                           ),
                           NeoBrutalBadge(
-                            text: isCleansed ? 'POLİS RİSKİ: %0 • TEMİZ SİCİL' : 'POLİS RİSKİ: %$displayRisk',
+                            text: isCleansed ? context.tr('bm_police_risk_clean') : context.tr('bm_police_risk_val', {'risk': '$displayRisk'}),
                             backgroundColor: isCleansed ? AppColors.brutalGreen : AppColors.errorRed,
                             textColor: isCleansed ? Colors.black : Colors.white,
                             fontSize: 10,
@@ -155,12 +156,12 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Satıcı: ${car.sellerAlias}',
+                        context.tr('bm_seller_label', {'seller': car.sellerAlias}),
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        isCleansed ? 'Sahte plaka ve sahte evrak hazırlandı. Araç güvenle garaja çekilebilir.' : car.riskDescription,
+                        isCleansed ? context.tr('bm_clean_desc') : car.riskDescription,
                         style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: isCleansed ? AppColors.brutalGreen : const Color(0xFFEF4444)),
                       ),
                       const SizedBox(height: 12),
@@ -191,8 +192,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                                   ),
                                   if (game.hasHighNpcTrust('golge_ibrahim')) ...[
                                     const SizedBox(width: 6),
-                                    const NeoBrutalBadge(
-                                      text: 'GÖLGE İNDİRİMİ -%15',
+                                    NeoBrutalBadge(
+                      text: context.tr('bm_shadow_discount'),
                                       backgroundColor: AppColors.brutalYellow,
                                       textColor: Colors.black,
                                       fontSize: 9,
@@ -206,7 +207,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               NeoBrutalButton(
-                                label: isScanned ? 'ZULA TARANDI' : 'ZULA TARA • MİNİ OYUN',
+                                label: isScanned ? context.tr('bm_btn_scanned_stash') : context.tr('bm_btn_scan_stash'),
                                 icon: isScanned ? Icons.check_circle_rounded : Icons.radar_rounded,
                                 backgroundColor: isScanned ? const Color(0xFF1E293B) : const Color(0xFF6366F1),
                                 textColor: isScanned ? Colors.white54 : Colors.white,
@@ -236,7 +237,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                               if (!isCleansed) ...[
                                 const SizedBox(height: 6),
                                 NeoBrutalButton(
-                                  label: 'SAHTE PLAKA • RİSKİ SIFIRLA',
+                                  label: context.tr('bm_btn_fake_plate'),
                                   icon: Icons.shield_rounded,
                                   backgroundColor: const Color(0xFF10B981),
                                   textColor: Colors.black,
@@ -261,7 +262,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen> {
                               ],
                               const SizedBox(height: 6),
                               NeoBrutalButton(
-                                label: 'RİSKİ AL & SATIN AL',
+                                label: context.tr('bm_btn_buy_risk'),
                                 icon: Icons.gavel_rounded,
                                 backgroundColor: AppColors.errorRed,
                                 textColor: Colors.white,

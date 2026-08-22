@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/data/models/car_model.dart';
@@ -70,6 +71,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: DragRaceMiniGameModal(
               car: car,
@@ -109,6 +117,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: MicronBodyScanCanvasWidget(
               bodyParts: bodyParts,
@@ -151,6 +166,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: DynoRunCanvasModal(car: car, dyno: dyno),
           ),
@@ -173,6 +195,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: CarWashMiniGameModal(
               car: car,
@@ -204,6 +233,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('tr'), Locale('en')],
+            locale: const Locale('tr'),
           home: Scaffold(
             body: HandshakeStampModal(
               sellerName: 'Mustafa Bey',

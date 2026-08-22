@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,8 +32,8 @@ class BranchScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'ŞUBE & PLAZA BÜYÜTME',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('branch_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -47,9 +48,9 @@ class BranchScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'MEVCUT GALERİ MERKEZİ',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('branch_current_hq'),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -60,9 +61,9 @@ class BranchScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildInfoColumn('Kapasite', '${game.maxGarageSlots} Araç Slotu', isDark),
-                    _buildInfoColumn('Galeri Seviyesi', 'Seviye ${game.level}', isDark),
-                    _buildInfoColumn('Sermaye', CurrencyFormatter.formatShort(game.balance), isDark),
+                    _buildInfoColumn(context.tr('branch_capacity_label'), context.tr('branch_capacity_val', {'slots': '${game.maxGarageSlots}'}), isDark),
+                    _buildInfoColumn(context.tr('branch_level_label'), context.tr('branch_level_val', {'level': '${game.level}'}), isDark),
+                    _buildInfoColumn(context.tr('branch_capital_label'), CurrencyFormatter.formatShort(game.balance), isDark),
                   ],
                 ),
               ],
@@ -91,25 +92,25 @@ class BranchScreen extends ConsumerWidget {
                   child: const Icon(Icons.palette_rounded, color: Colors.black, size: 22),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Showroom Mimari & Dekorasyon',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                        context.tr('branch_decor_banner_title'),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        'LED tavan ızgarası, İtalyan mermer & VIP Salonu',
-                        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        context.tr('branch_decor_banner_sub'),
+                        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: game.isFeatureUnlocked('/showroom-decor') ? 'YENİLE' : 'KİLİTLİ',
+                  label: game.isFeatureUnlocked('/showroom-decor') ? context.tr('branch_btn_decor_open') : context.tr('locked'),
                   backgroundColor: game.isFeatureUnlocked('/showroom-decor')
                       ? const Color(0xFF06B6D4)
                       : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
@@ -135,7 +136,7 @@ class BranchScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           Text(
-            'GALERİ ŞUBE KADEMELERİ & KAPASİTE',
+            context.tr('branch_tiers_title'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -200,15 +201,15 @@ class BranchScreen extends ConsumerWidget {
                           ),
                         ),
                         if (isCurrent)
-                          const NeoBrutalBadge(
-                            text: 'MEVCUT ŞUBE',
+                          NeoBrutalBadge(
+                            text: context.tr('branch_badge_current'),
                             backgroundColor: AppColors.brutalYellow,
                             textColor: Colors.black,
                             fontSize: 10,
                           )
                         else
                           NeoBrutalBadge(
-                            text: 'SEVİYE ${b.targetLevel}',
+                            text: context.tr('branch_badge_level', {'level': '${b.targetLevel}'}),
                             backgroundColor: isLevelUnlocked ? const Color(0xFF6366F1) : const Color(0xFF64748B),
                             textColor: Colors.white,
                             fontSize: 10,
@@ -220,11 +221,11 @@ class BranchScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '• Kapasite: ${b.maxGarageSlots} Slot',
+                          context.tr('branch_item_capacity', {'slots': '${b.maxGarageSlots}'}),
                           style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
                         ),
                         Text(
-                          '• Sabit Gider: ${CurrencyFormatter.formatShort(b.dailyBurnRate)}/gün',
+                          context.tr('branch_item_burn_rate', {'rate': CurrencyFormatter.formatShort(b.dailyBurnRate)}),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -232,7 +233,7 @@ class BranchScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          '• Kâr: ${b.profitMultiplier}x',
+                          context.tr('branch_item_profit_mult', {'mult': '${b.profitMultiplier}'}),
                           style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                         ),
                       ],
@@ -254,7 +255,7 @@ class BranchScreen extends ConsumerWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'Açılanlar: ${b.unlockedSummary}',
+                              context.tr('branch_unlocked_features', {'summary': b.unlockedSummary}),
                               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                             ),
                           ),
@@ -288,7 +289,7 @@ class BranchScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  b.isDeedOwned ? 'TAPULU MÜLKÜNÜZ • KİRA ₺0' : 'MÜLK KİRALIK • TAPU SATIN ALINABİLİR',
+                                  b.isDeedOwned ? context.tr('branch_deed_owned_title') : context.tr('branch_deed_rented_title'),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w900,
@@ -300,8 +301,8 @@ class BranchScreen extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Text(
                               b.isDeedOwned
-                                  ? 'Arsa ve şube mülkiyeti adınıza tescillidir. Günlük dükkan kirası tamamen sıfırlanmıştır.'
-                                  : 'Tapuyu satın alarak günlük kirayı sıfırlayın ve banka kredi limitinizi +${CurrencyFormatter.formatShort(b.deedCost * 0.35)} artırın.',
+                                  ? context.tr('branch_deed_owned_desc')
+                                  : context.tr('branch_deed_buy_desc', {'limit': CurrencyFormatter.formatShort(b.deedCost * 0.35)}),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w500,
@@ -312,8 +313,8 @@ class BranchScreen extends ConsumerWidget {
                               const SizedBox(height: 8),
                               NeoBrutalButton(
                                 label: game.balance >= b.deedCost
-                                    ? 'TAPUYU SATIN AL • ${CurrencyFormatter.formatShort(b.deedCost)}'
-                                    : 'YETERSİZ BAKİYE • TAPU ${CurrencyFormatter.formatShort(b.deedCost)}',
+                                    ? context.tr('branch_btn_buy_deed', {'cost': CurrencyFormatter.formatShort(b.deedCost)})
+                                    : context.tr('branch_btn_insufficient_deed', {'cost': CurrencyFormatter.formatShort(b.deedCost)}),
                                 backgroundColor: game.balance >= b.deedCost ? const Color(0xFF3B82F6) : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
                                 textColor: game.balance >= b.deedCost ? Colors.white : const Color(0xFF64748B),
                                 fontSize: 10.5,
@@ -339,10 +340,10 @@ class BranchScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       NeoBrutalButton(
                         label: !isLevelUnlocked
-                            ? 'SEVİYE ${b.targetLevel} GEREKLİ'
+                            ? context.tr('branch_btn_level_req', {'level': '${b.targetLevel}'})
                             : (canAfford
-                                ? 'MÜLKÜ SATIN AL • ${CurrencyFormatter.formatShort(b.requiredBalance)}'
-                                : 'YETERSİZ BAKİYE • ${CurrencyFormatter.formatShort(b.requiredBalance)}'),
+                                ? context.tr('branch_btn_buy_branch', {'cost': CurrencyFormatter.formatShort(b.requiredBalance)})
+                                : context.tr('branch_btn_insufficient_branch', {'cost': CurrencyFormatter.formatShort(b.requiredBalance)})),
                         backgroundColor: !isLevelUnlocked
                             ? (isDark ? const Color(0xFF1A1F2C) : const Color(0xFFCBD5E1))
                             : (canAfford ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))),
@@ -362,47 +363,47 @@ class BranchScreen extends ConsumerWidget {
                                          padding: const EdgeInsets.all(20),
                                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
                                          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                      borderRadius: 12,
-                                      borderWidth: 2.5,
-                                      shadowOffset: const Offset(4, 4),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.all(16),
-                                            decoration: BoxDecoration(
-                                              color: AppColors.brutalYellow,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            child: const Icon(Icons.stars_rounded, size: 40, color: Colors.black),
-                                          ),
-                                          const SizedBox(height: 14),
-                                          const Text('TEBRİKLER! ŞUBE AÇILDI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            'Galeri Seviyeniz Seviye ${b.targetLevel} oldu! Yeni özellikler ve ${b.maxGarageSlots} araç slotu kullanıma açıldı.',
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          NeoBrutalButton(
-                                            label: 'HARİKA!',
-                                            fullWidth: true,
-                                            backgroundColor: AppColors.brutalYellow,
-                                            textColor: Colors.black,
-                                            onPressed: () => Navigator.pop(ctx),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                               }
-                             }
+                                       borderRadius: 12,
+                                       borderWidth: 2.5,
+                                       shadowOffset: const Offset(4, 4),
+                                       child: Column(
+                                         mainAxisSize: MainAxisSize.min,
+                                         children: [
+                                           Container(
+                                             padding: const EdgeInsets.all(16),
+                                             decoration: BoxDecoration(
+                                               color: AppColors.brutalYellow,
+                                               shape: BoxShape.circle,
+                                               border: Border.all(
+                                                 color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                                 width: 2.0,
+                                               ),
+                                             ),
+                                             child: const Icon(Icons.stars_rounded, size: 40, color: Colors.black),
+                                           ),
+                                           const SizedBox(height: 14),
+                                           Text(context.tr('branch_congrats_title'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                                           const SizedBox(height: 6),
+                                           Text(
+                                             context.tr('branch_congrats_desc', {'level': '${b.targetLevel}', 'slots': '${b.maxGarageSlots}'}),
+                                             textAlign: TextAlign.center,
+                                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                           ),
+                                           const SizedBox(height: 16),
+                                           NeoBrutalButton(
+                                             label: context.tr('branch_btn_awesome'),
+                                             fullWidth: true,
+                                             backgroundColor: AppColors.brutalYellow,
+                                             textColor: Colors.black,
+                                             onPressed: () => Navigator.pop(ctx),
+                                           ),
+                                         ],
+                                       ),
+                                     ),
+                                   ),
+                                 );
+                                }
+                              }
                             : null,
                       ),
                     ],

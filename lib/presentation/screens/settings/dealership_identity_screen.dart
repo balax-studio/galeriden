@@ -28,48 +28,48 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
   late CharacterOrigin _selectedOrigin;
 
   final List<Map<String, String>> _emblems = const [
-    {'id': 'crown', 'name': 'Taç'},
-    {'id': 'shield', 'name': 'Kalkan'},
-    {'id': 'star', 'name': 'Yıldız'},
-    {'id': 'rare', 'name': 'Elmas'},
-    {'id': 'flash', 'name': 'Şimşek'},
-    {'id': 'streak', 'name': 'Alev'},
-    {'id': 'eagle', 'name': 'Kartal'},
-    {'id': 'vintage', 'name': 'Klasik'},
+    {'id': 'crown', 'key': 'emblem_crown'},
+    {'id': 'shield', 'key': 'emblem_shield'},
+    {'id': 'star', 'key': 'emblem_star'},
+    {'id': 'rare', 'key': 'emblem_diamond'},
+    {'id': 'flash', 'key': 'emblem_flash'},
+    {'id': 'streak', 'key': 'emblem_fire'},
+    {'id': 'eagle', 'key': 'emblem_eagle'},
+    {'id': 'vintage', 'key': 'emblem_vintage'},
   ];
 
   final List<Map<String, dynamic>> _origins = const [
     {
       'origin': CharacterOrigin.sanayiCiragi,
-      'title': 'Sanayi Çırağı',
+      'titleKey': 'origin_sanayi_title',
       'icon': Icons.build_circle_rounded,
       'color': Color(0xFFF97316),
-      'desc': 'Atölye ve tamirhane tozunu yutarak yetiştin.',
-      'perk': 'Tamir ve Parça Montajında %15 Maliyet İndirimi',
+      'descKey': 'origin_sanayi_desc',
+      'perkKey': 'origin_sanayi_perk',
     },
     {
       'origin': CharacterOrigin.tuccarTorunu,
-      'title': 'Tüccar Torunu',
+      'titleKey': 'origin_tuccar_title',
       'icon': Icons.handshake_rounded,
       'color': AppColors.brutalGreen,
-      'desc': 'Pazarlık masalarında ve açık artırmalarda büyüdün.',
-      'perk': 'Araç Alımlarında %8 İndirim & Pazarlık Avantajı',
+      'descKey': 'origin_tuccar_desc',
+      'perkKey': 'origin_tuccar_perk',
     },
     {
       'origin': CharacterOrigin.sehirliYatirimci,
-      'title': 'Şehirli Yatırımcı',
+      'titleKey': 'origin_sehirli_title',
       'icon': Icons.account_balance_rounded,
       'color': Color(0xFF3B82F6),
-      'desc': 'Finans ve bankacılık sermayesiyle sektöre adım attın.',
-      'perk': 'Banka Kredilerinde %20 Faiz İndirimi & Yüksek Likidite',
+      'descKey': 'origin_sehirli_desc',
+      'perkKey': 'origin_sehirli_perk',
     },
     {
       'origin': CharacterOrigin.koleksiyoncuYegeni,
-      'title': 'Koleksiyoncu Yeğeni',
+      'titleKey': 'origin_koleksiyoncu_title',
       'icon': Icons.auto_awesome_rounded,
       'color': Color(0xFFA855F7),
-      'desc': 'Nadir klasikler ve garaj yadigârlarıyla yetiştin.',
-      'perk': 'Hurdalık ve Kelepir Koleksiyon Araç Bulma Şansı +%20',
+      'descKey': 'origin_koleksiyoncu_desc',
+      'perkKey': 'origin_koleksiyoncu_perk',
     },
   ];
 
@@ -165,7 +165,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                       if (state.dynastyGeneration > 1) ...[
                         const SizedBox(height: 4),
                         NeoBrutalBadge(
-                          text: '${state.dynastyGeneration}. Kuşak Miras Galeri',
+                          text: context.tr('dynasty_generation_heritage', {'gen': state.dynastyGeneration}),
                           backgroundColor: const Color(0xFFA855F7),
                           textColor: Colors.white,
                           fontSize: 9.5,
@@ -306,7 +306,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                               Row(
                                 children: [
                                   Text(
-                                    item['title'] as String,
+                                    context.tr(item['titleKey'] as String),
                                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                                   ),
                                   const Spacer(),
@@ -321,7 +321,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                item['desc'] as String,
+                                context.tr(item['descKey'] as String),
                                 style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 6),
@@ -336,7 +336,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                                   ),
                                 ),
                                 child: Text(
-                                  item['perk'] as String,
+                                  context.tr(item['perkKey'] as String),
                                   style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                                 ),
                               ),
@@ -396,7 +396,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        e['name']!,
+                        context.tr(e['key']!),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,

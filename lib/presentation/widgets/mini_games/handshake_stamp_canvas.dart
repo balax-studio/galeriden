@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,11 +92,11 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.handshake_rounded, color: Color(0xFFFFDE59), size: 24),
-                    SizedBox(width: 8),
+                  children: [
+                    const Icon(Icons.handshake_rounded, color: Color(0xFFFFDE59), size: 24),
+                    const SizedBox(width: 8),
                     Text(
-                      'PAZARLIK BİTTİ & EL SIKIŞILDI',
+                      context.tr('handshake_title'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
@@ -105,8 +106,8 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
                     ),
                   ],
                 ),
-                const NeoBrutalBadge(
-                  text: 'HAYIRLI OLSUN',
+                NeoBrutalBadge(
+                  text: context.tr('handshake_badge_deal'),
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
                   fontSize: 9.5,
@@ -130,7 +131,7 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Satıcı: ${widget.sellerName}',
+                        context.tr('handshake_seller_label', {'seller': widget.sellerName}),
                         style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
                       ),
                       Text(
@@ -163,6 +164,7 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
                   painter: _HandshakePainter(
                     progress: _controller.value,
                     hasStamped: _hasStamped,
+                    notaryStampText: context.tr('handshake_notary_stamp'),
                   ),
                 ),
               ),
@@ -172,7 +174,7 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
             SizedBox(
               width: double.infinity,
               child: NeoBrutalButton(
-                label: 'RUHSATI TESLİM AL & PARAYI ÖDE',
+                label: context.tr('handshake_btn_pay'),
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
                 fontSize: 12,
@@ -192,10 +194,12 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
 class _HandshakePainter extends CustomPainter {
   final double progress;
   final bool hasStamped;
+  final String notaryStampText;
 
   _HandshakePainter({
     required this.progress,
     required this.hasStamped,
+    required this.notaryStampText,
   });
 
   @override
@@ -257,7 +261,7 @@ class _HandshakePainter extends CustomPainter {
 
       final textPainter = TextPainter(
         text: TextSpan(
-          text: 'T.C. NOTERİ\nDEVİR ONAYLANDI',
+          text: notaryStampText,
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w900,

@@ -1,3 +1,4 @@
+import '../../../core/localization/app_localizations.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -118,11 +119,11 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.speed_rounded, color: AppColors.brutalYellow, size: 22),
-                    SizedBox(width: 8),
+                  children: [
+                    const Icon(Icons.speed_rounded, color: AppColors.brutalYellow, size: 22),
+                    const SizedBox(width: 8),
                     Text(
-                      'DYNO GÜÇ & TORK TESTİ',
+                      context.tr('dyno_title'),
                       style: TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w900,
@@ -133,7 +134,7 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
                   ],
                 ),
                 NeoBrutalBadge(
-                  text: _isComplete ? 'TEST BİTTİ' : 'ÖLÇÜLÜYOR...',
+                  text: _isComplete ? context.tr('dyno_status_finished') : context.tr('dyno_status_measuring'),
                   backgroundColor: _isComplete ? AppColors.brutalGreen : AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 9.5,
@@ -153,10 +154,10 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatPill('DEVİR', '${_currentRpm.toInt()} RPM', 'MAX 7500', const Color(0xFF38BDF8)),
-                  _buildStatPill('GÜÇ', '$liveHp HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen),
-                  _buildStatPill('TORK', '$liveNm Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange),
-                  _buildStatPill('SES', '${dyno.exhaustDb} dB', dyno.exhaustDb > 95 ? 'YÜKSEK' : 'NORMAL', const Color(0xFFA855F7)),
+                  _buildStatPill(context.tr('dyno_stat_rpm'), '${_currentRpm.toInt()} RPM', 'MAX 7500', const Color(0xFF38BDF8)),
+                  _buildStatPill(context.tr('dyno_stat_hp'), '$liveHp HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen),
+                  _buildStatPill(context.tr('dyno_stat_nm'), '$liveNm Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange),
+                  _buildStatPill(context.tr('dyno_stat_sound'), '${dyno.exhaustDb} dB', dyno.exhaustDb > 95 ? context.tr('dyno_sound_high') : context.tr('dyno_sound_normal'), const Color(0xFFA855F7)),
                 ],
               ),
             ),
@@ -199,7 +200,7 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Dyno testi başarıyla tamamlandı! Araç gücü ${dyno.totalHp} HP ve ${dyno.totalNm} Nm olarak onaylandı.',
+                        context.tr('dyno_result_success', {'hp': '${dyno.totalHp}', 'nm': '${dyno.totalNm}'}),
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
                       ),
                     ),
@@ -212,7 +213,7 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
             SizedBox(
               width: double.infinity,
               child: NeoBrutalButton(
-                label: _isComplete ? 'TESTİ TAMAMLA VE KAYDET' : 'ÖLÇÜM DEVAM EDİYOR...',
+                label: _isComplete ? context.tr('dyno_btn_save') : context.tr('dyno_btn_measuring'),
                 backgroundColor: _isComplete ? AppColors.brutalYellow : const Color(0xFF475569),
                 textColor: Colors.black,
                 fontSize: 12,

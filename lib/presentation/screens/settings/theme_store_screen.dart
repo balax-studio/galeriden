@@ -148,7 +148,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'VİTRİN KARTI',
+                                context.tr('theme_preview_showcase_card'),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w900,
@@ -181,7 +181,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'ÖNE ÇIKAN BUTON',
+                                context.tr('theme_preview_button'),
                                 style: TextStyle(
                                   fontSize: 9.5,
                                   fontWeight: FontWeight.w900,
@@ -209,8 +209,8 @@ class ThemeStoreScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // 3. Theme List Header
-            const Text(
-              'MEVCUT TEMA PALETLERİ',
+            Text(
+              context.tr('theme_palettes_header'),
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 8),
@@ -276,8 +276,8 @@ class ThemeStoreScreen extends ConsumerWidget {
                                 ),
                                 if (isAbsurd) ...[
                                   const SizedBox(width: 4),
-                                  const NeoBrutalBadge(
-                                    text: 'ABSÜRT',
+                                  NeoBrutalBadge(
+                                    text: context.tr('theme_badge_absurd'),
                                     backgroundColor: AppColors.hotMagenta,
                                     textColor: Colors.white,
                                     fontSize: 8.5,
@@ -286,8 +286,8 @@ class ThemeStoreScreen extends ConsumerWidget {
                                 ],
                                 if (isExotic) ...[
                                   const SizedBox(width: 4),
-                                  const NeoBrutalBadge(
-                                    text: 'EGZOTİK',
+                                  NeoBrutalBadge(
+                                    text: context.tr('theme_badge_exotic'),
                                     backgroundColor: Color(0xFFFF5EAE),
                                     textColor: Colors.white,
                                     fontSize: 8.5,
@@ -299,12 +299,12 @@ class ThemeStoreScreen extends ConsumerWidget {
                             const SizedBox(height: 2),
                             Text(
                               palette.price == 0
-                                  ? (palette.isUnlocked ? 'Açık • Ücretsiz' : 'Reklamla Ücretsiz Açılır')
+                                  ? (palette.isUnlocked ? context.tr('theme_status_free') : context.tr('theme_status_ad_unlockable'))
                                   : (palette.isUnlocked
-                                      ? 'Satın Alındı'
+                                      ? context.tr('theme_status_purchased')
                                       : (palette.isAdUnlockable
-                                          ? 'Reklamla Ücretsiz veya ${CurrencyFormatter.formatShort(palette.price.toDouble())}'
-                                          : 'Fiyat: ${CurrencyFormatter.formatShort(palette.price.toDouble())}')),
+                                          ? context.tr('theme_status_ad_or_price', {'price': CurrencyFormatter.formatShort(palette.price.toDouble())})
+                                          : context.tr('theme_status_price', {'price': CurrencyFormatter.formatShort(palette.price.toDouble())}))),
                               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                             ),
                           ],
@@ -346,7 +346,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                                 ref.read(themeProvider.notifier).unlockPaletteViaAd(palette.id);
                                 NotificationService.showSuccess(
                                   context,
-                                  'Reklam Ödülü: ${palette.name} Paleti Başarıyla Açıldı ve Aktif Edildi!',
+                                  context.tr('theme_unlocked_ad_toast', {'name': palette.name}),
                                 );
                               },
                             );
@@ -365,9 +365,9 @@ class ThemeStoreScreen extends ConsumerWidget {
                             if (success) {
                               ref.read(gameProvider.notifier).deductBalance(palette.price.toDouble());
                               NotificationService.showSuccess(
-                                  context, '${palette.name} Paleti Açıldı ve Aktif Edildi!');
+                                  context, context.tr('theme_bought_toast', {'name': palette.name}));
                             } else {
-                              NotificationService.showError(context, 'Yetersiz Sermaye!');
+                              NotificationService.showError(context, context.tr('theme_insufficient_funds'));
                             }
                           },
                         ),

@@ -1,3 +1,4 @@
+import '../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/theme_palette_model.dart';
 import '../../core/theme/app_theme_extension.dart';
@@ -22,14 +23,14 @@ class CarDamageSchemaWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('EKSPERTİZ KAPORTA ŞEMASI', style: TextStyle(color: p.textPrimaryColor, fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(context.tr('damage_schema_title'), style: TextStyle(color: p.textPrimaryColor, fontWeight: FontWeight.bold, fontSize: 14)),
             Row(
               children: [
-                _buildLegendItem('Orijinal', p.successColor, p),
+                _buildLegendItem(context.tr('damage_status_original'), p.successColor, p),
                 const SizedBox(width: 8),
-                _buildLegendItem('Boya', p.warningColor, p),
+                _buildLegendItem(context.tr('damage_status_painted'), p.warningColor, p),
                 const SizedBox(width: 8),
-                _buildLegendItem('Değişen', p.errorColor, p),
+                _buildLegendItem(context.tr('damage_status_changed'), p.errorColor, p),
               ],
             ),
           ],
@@ -52,11 +53,11 @@ class CarDamageSchemaWidget extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(child: _buildPartBox('Sol Ön Çamurluk', bodyParts['Sol Ön Çamurluk'], p)),
+                    Expanded(child: _buildPartBox(context.tr('part_left_front_fender'), bodyParts['Sol Ön Çamurluk'], p, context)),
                     const SizedBox(width: 6),
-                    Expanded(flex: 2, child: _buildPartBox('KAPUT', bodyParts['Kaput'], p, isHighlight: true)),
+                    Expanded(flex: 2, child: _buildPartBox(context.tr('part_hood'), bodyParts['Kaput'], p, context, isHighlight: true)),
                     const SizedBox(width: 6),
-                    Expanded(child: _buildPartBox('Sağ Ön Çamurluk', bodyParts['Sağ Ön Çamurluk'], p)),
+                    Expanded(child: _buildPartBox(context.tr('part_right_front_fender'), bodyParts['Sağ Ön Çamurluk'], p, context)),
                   ],
                 ),
               ),
@@ -70,9 +71,9 @@ class CarDamageSchemaWidget extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: [
-                          _buildPartBox('Sol Ön Kapı', bodyParts['Sol Ön Kapı'], p),
+                          _buildPartBox(context.tr('part_left_front_door'), bodyParts['Sol Ön Kapı'], p, context),
                           const SizedBox(height: 6),
-                          _buildPartBox('Sol Arka Kapı', bodyParts['Sol Arka Kapı'], p),
+                          _buildPartBox(context.tr('part_left_rear_door'), bodyParts['Sol Arka Kapı'], p, context),
                         ],
                       ),
                     ),
@@ -80,9 +81,10 @@ class CarDamageSchemaWidget extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: _buildPartBox(
-                        'TAVAN\n• Tavan Boyasızlığı Kritik',
+                        context.tr('part_roof_critical'),
                         bodyParts['Tavan'],
                         p,
+                        context,
                         minHeight: 86,
                         isHighlight: true,
                       ),
@@ -91,9 +93,9 @@ class CarDamageSchemaWidget extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: [
-                          _buildPartBox('Sağ Ön Kapı', bodyParts['Sağ Ön Kapı'], p),
+                          _buildPartBox(context.tr('part_right_front_door'), bodyParts['Sağ Ön Kapı'], p, context),
                           const SizedBox(height: 6),
-                          _buildPartBox('Sağ Arka Kapı', bodyParts['Sağ Arka Kapı'], p),
+                          _buildPartBox(context.tr('part_right_rear_door'), bodyParts['Sağ Arka Kapı'], p, context),
                         ],
                       ),
                     ),
@@ -107,11 +109,11 @@ class CarDamageSchemaWidget extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(child: _buildPartBox('Sol Arka Çamurluk', bodyParts['Sol Arka Çamurluk'], p)),
+                    Expanded(child: _buildPartBox(context.tr('part_left_rear_fender'), bodyParts['Sol Arka Çamurluk'], p, context)),
                     const SizedBox(width: 6),
-                    Expanded(flex: 2, child: _buildPartBox('BAGAJ', bodyParts['Bagaj'], p, isHighlight: true)),
+                    Expanded(flex: 2, child: _buildPartBox(context.tr('part_trunk'), bodyParts['Bagaj'], p, context, isHighlight: true)),
                     const SizedBox(width: 6),
-                    Expanded(child: _buildPartBox('Sağ Arka Çamurluk', bodyParts['Sağ Arka Çamurluk'], p)),
+                    Expanded(child: _buildPartBox(context.tr('part_right_rear_fender'), bodyParts['Sağ Arka Çamurluk'], p, context)),
                   ],
                 ),
               ),
@@ -133,7 +135,7 @@ class CarDamageSchemaWidget extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Şasi / Podye Hasarlı veya İşlemli!',
+                          context.tr('damage_chassis_warning'),
                           style: TextStyle(color: p.errorColor, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ),
@@ -148,27 +150,27 @@ class CarDamageSchemaWidget extends StatelessWidget {
   );
 }
 
-  Widget _buildPartBox(String label, PartStatus? status, ThemePaletteModel p, {double minHeight = 46, bool isHighlight = false}) {
+  Widget _buildPartBox(String label, PartStatus? status, ThemePaletteModel p, BuildContext context, {double minHeight = 46, bool isHighlight = false}) {
     Color statusColor;
     String statusText;
 
     switch (status) {
       case PartStatus.painted:
         statusColor = p.warningColor;
-        statusText = 'Boyalı';
+        statusText = context.tr('damage_status_painted');
         break;
       case PartStatus.changed:
         statusColor = p.errorColor;
-        statusText = 'Değişen';
+        statusText = context.tr('damage_status_changed');
         break;
       case PartStatus.damaged:
         statusColor = const Color(0xFF8B0000);
-        statusText = 'Hasarlı';
+        statusText = context.tr('damage_status_damaged');
         break;
       case PartStatus.original:
       default:
         statusColor = p.successColor;
-        statusText = 'Orijinal';
+        statusText = context.tr('damage_status_original');
         break;
     }
 

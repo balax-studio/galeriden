@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/game_constants.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -55,8 +56,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'DETAYLI EKSPERTİZ RAPORU',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('exp_report_title'),
       ),
       body: DotGridBackground(
         child: ListView(
@@ -143,9 +144,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 children: [
                   const Icon(Icons.lock_clock_rounded, size: 44, color: AppColors.brutalOrange),
                   const SizedBox(height: 10),
-                  const Text(
-                    'EKSPERTİZ RAPORU KİLİTLİ',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                  Text(
+                    context.tr('exp_locked_title'),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 6),
                   Builder(
@@ -154,25 +155,22 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                       final discount = game.skills.expertiseCostDiscount;
                       final haydarFactor = game.hasHighNpcTrust('haydar_usta') ? 0.50 : 1.0;
                       final fee = hasAppraiser ? 0.0 : (GameConstants.expertiseBaseCost * (1.0 - discount) * haydarFactor).roundToDouble();
-                      final feeFormatted = hasAppraiser ? '₺0 • Kadroda Uzman Var' : CurrencyFormatter.format(fee);
-                      final perkLabel = hasAppraiser
-                          ? ' • Ekspertiz Uzmanı Ücretsiz Raporladı'
-                          : (game.hasHighNpcTrust('haydar_usta') ? ' • Haydar Usta %50 Dost İndirimi' : '');
+                      final feeFormatted = CurrencyFormatter.format(fee);
 
                       return Column(
                         children: [
                           Text(
                             hasAppraiser
-                                ? 'Kadroda çalışan Ekspertiz Uzmanınız sayesinde raporu hiçbir dış masraf ödemeden anında açabilirsiniz.'
-                                : 'Bu aracın kaporta, motor, tramer ve kilometre orijinalliğini görmek için $feeFormatted ödeyerek detaylı test yaptırmalısın.',
+                                ? context.tr('exp_locked_appraiser_desc')
+                                : context.tr('exp_locked_pay_desc', {'cost': feeFormatted}),
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                           const SizedBox(height: 16),
                           NeoBrutalButton(
                             label: hasAppraiser
-                                ? 'UZMAN RAPORUNU AÇ • ₺0 Ücretsiz'
-                                : 'EKSPERTİZ YAPTIR • $feeFormatted$perkLabel',
+                                ? context.tr('exp_btn_unlock_free')
+                                : context.tr('exp_btn_unlock_pay', {'cost': feeFormatted}),
                             icon: hasAppraiser ? Icons.verified_user_rounded : Icons.fact_check_rounded,
                             backgroundColor: hasAppraiser ? AppColors.brutalGreen : AppColors.brutalYellow,
                             textColor: Colors.black,
@@ -206,7 +204,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'GENEL DERECELENDİRME',
+                      context.tr('exp_overall_grade'),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
@@ -238,9 +236,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
             const SizedBox(height: 12),
 
             // Color-Coded Engine & Transmission Bars
-            _buildProgressStat('Motor Sağlığı', exp.engineCondition, isDark),
+            _buildProgressStat(context.tr('exp_engine_health'), exp.engineCondition, isDark),
             const SizedBox(height: 8),
-            _buildProgressStat('Şanzıman Sağlığı', exp.transmissionCondition, isDark),
+            _buildProgressStat(context.tr('exp_transmission_health'), exp.transmissionCondition, isDark),
             const SizedBox(height: 16),
 
             // Mileage & Tramer Info Cards
@@ -255,9 +253,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'KİLOMETRE',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        Text(
+                          context.tr('exp_mileage_title'),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -266,7 +264,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                         ),
                         const SizedBox(height: 4),
                         NeoBrutalBadge(
-                          text: exp.isMileageTampered ? 'Şüpheli KM' : 'Orijinal KM',
+                          text: exp.isMileageTampered ? context.tr('exp_mileage_suspicious') : context.tr('exp_mileage_original'),
                           backgroundColor: exp.isMileageTampered ? AppColors.errorRed : AppColors.brutalGreen,
                           textColor: exp.isMileageTampered ? Colors.white : Colors.black,
                           fontSize: 9.5,
@@ -285,9 +283,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'TRAMER KAYDI',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        Text(
+                          context.tr('exp_tramer_title'),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -318,12 +316,12 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.gavel_rounded, color: AppColors.errorRed, size: 20),
-                        SizedBox(width: 8),
+                      children: [
+                        const Icon(Icons.gavel_rounded, color: AppColors.errorRed, size: 20),
+                        const SizedBox(width: 8),
                         Text(
-                          'HUKUKİ İHTAR VE TAZMİNAT HAKKI',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                          context.tr('exp_fraud_title'),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.errorRed),
                         ),
                       ],
                     ),
@@ -335,7 +333,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Satıcı ilanda ekspertiz veya kilometre kusurunu gizlemiştir. Noter aracılığıyla yasal ihtar çekip satıcıdan $compFormatted masraf tazminatı talep edebilirsiniz.',
+                              context.tr('exp_fraud_desc', {'amount': compFormatted}),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -344,7 +342,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                             ),
                             const SizedBox(height: 10),
                             NeoBrutalButton(
-                              label: 'NOTER İHTARI ÇEK • +$compFormatted TAZMİNAT',
+                              label: context.tr('exp_fraud_btn', {'amount': compFormatted}),
                               icon: Icons.assignment_turned_in_rounded,
                               backgroundColor: AppColors.errorRed,
                               textColor: Colors.white,
@@ -352,7 +350,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                               onPressed: () {
                                 final success = ref.read(gameProvider.notifier).claimNotaryFraudCompensation(car.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, 'Noter ihtarnamesi satıcıya tebliğ edildi! $compFormatted tazminat hesabınıza aktarıldı • +2 İtibar');
+                                  NotificationService.showSuccess(context, context.tr('exp_fraud_success', {'amount': compFormatted}));
                                   setState(() {});
                                 } else {
                                   NotificationService.showError(context, 'Tazminat talebi gerçekleştirilemedi.');
@@ -379,13 +377,13 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.verified_user_rounded, color: Color(0xFF38BDF8), size: 20),
-                          SizedBox(width: 8),
+                          const Icon(Icons.verified_user_rounded, color: Color(0xFF38BDF8), size: 20),
+                          const SizedBox(width: 8),
                           Text(
-                            'TÜVTÜRK ARAÇ MUAYENE HATTI',
-                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                            context.tr('exp_tuvturk_title'),
+                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                           ),
                         ],
                       ),
@@ -399,15 +397,15 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Dinamik fren silindiri ve optik far hizalama testini interaktif olarak uygulayarak araç değerini artırın.',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  Text(
+                    context.tr('exp_tuvturk_desc'),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 10),
                   NeoBrutalButton(
                     label: _inspectionStampText != null
-                        ? 'MUAYENE TESTİ TAMAMLANDI • GEÇTİ'
-                        : 'FREN VE FAR TESTİNİ BAŞLAT • MİNİ OYUN',
+                        ? context.tr('exp_tuvturk_btn_done')
+                        : context.tr('exp_tuvturk_btn_start'),
                     icon: _inspectionStampText != null ? Icons.check_circle_rounded : Icons.play_arrow_rounded,
                     backgroundColor: _inspectionStampText != null ? const Color(0xFF1E293B) : const Color(0xFF38BDF8),
                     textColor: _inspectionStampText != null ? Colors.white54 : Colors.black,
@@ -425,7 +423,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                                 });
                                 NotificationService.showSuccess(
                                   context,
-                                  '$reportBadge • Araç muayene testinden başarıyla geçti!',
+                                  '$reportBadge • OK',
                                 );
                               },
                             );
@@ -438,7 +436,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
 
             // Body Part Inspection Grid
             Text(
-              'KAPORTA VE BOYA ŞEMASI',
+              context.tr('exp_body_schema_title'),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -483,7 +481,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
 
             // Interactive Micron Gauge Mini-Game
             Text(
-              'BOYA MİKRON ÖLÇER',
+              context.tr('exp_micron_gauge_title'),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -516,9 +514,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'EKSPERTİZ DEĞERİ',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                              Text(
+                                context.tr('exp_fair_market_value'),
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                               ),
                               AnimatedRollingCounter(
                                 value: fairValue,
@@ -529,9 +527,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              const Text(
-                                'İLAN FİYATI',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                              Text(
+                                context.tr('exp_asking_price'),
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                               ),
                               AnimatedRollingCounter(
                                 value: askingPrice,
@@ -558,8 +556,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                             Expanded(
                               child: Text(
                                 isOverpriced
-                                    ? 'Satıcı ${CurrencyFormatter.formatShort(diff)} yüksek istiyor • Pazarlık Kozu!'
-                                    : 'Piyasanın ${CurrencyFormatter.formatShort(-diff)} altında kelepir fırsat!',
+                                    ? context.tr('exp_overpriced_msg', {'diff': CurrencyFormatter.formatShort(diff)})
+                                    : context.tr('exp_underpriced_msg', {'diff': CurrencyFormatter.formatShort(-diff)}),
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.w800,
@@ -585,7 +583,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 child: game.ownedCars.any((c) => c.id == car.id)
                     ? NeoBrutalButton(
-                        label: 'BU ARAÇ GARAJINIZDA • SATIN ALINDI',
+                        label: context.tr('exp_btn_owned_car'),
                         icon: Icons.check_circle_rounded,
                         backgroundColor: isDark ? Colors.white12 : Colors.black12,
                         textColor: isDark ? Colors.white60 : Colors.black54,
@@ -594,7 +592,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                         onPressed: null,
                       )
                     : NeoBrutalButton(
-                        label: 'PAZARLIK ET & SATIN AL',
+                        label: context.tr('btn_negotiate_buy'),
                         icon: Icons.handshake_rounded,
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
@@ -696,8 +694,8 @@ class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
               const SizedBox(width: 8),
               Text(
                 _selectedPart == null
-                    ? 'Probunu dokundurmak istediğin parçayı seç'
-                    : '$_selectedPart Ölçümü',
+                    ? context.tr('exp_micron_probe_prompt')
+                    : context.tr('exp_micron_measurement', {'part': _selectedPart}),
                 style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
               ),
             ],
@@ -713,9 +711,9 @@ class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'ÖLÇÜLEN BOYA KALINLIĞI:',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
+                  Text(
+                    context.tr('exp_measured_thickness'),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
                   ),
                   Text(
                     '$_measuredMicrons µm',
