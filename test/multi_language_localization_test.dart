@@ -33,7 +33,7 @@ void main() {
       expect(AppLanguage.fromCode('unknown_xyz'), AppLanguage.turkish);
     });
 
-    test('AppLocalizations contains keys and returns valid translations for all 7 languages', () {
+    test('AppLocalizations contains complete keys and returns valid translations for all 7 languages', () {
       final keySet = [
         'app_name',
         'settings_title',
@@ -53,16 +53,72 @@ void main() {
         'reputation',
         'balance',
         'day',
+        'mileage',
+        'year',
+        'fuel_type',
+        'transmission',
+        'horsepower',
+        'body_paint',
+        'paint_original',
+        'paint_painted',
+        'paint_damaged',
+        'engine_condition',
+        'chassis_condition',
+        'market_value',
+        'listing_price',
+        'profit_margin',
         'streak_title',
-        'crm_title',
-        'bist_glrd',
-        'bluff_button',
-        'sanayi_rumor',
-        'staff_morale',
+        'streak_ready',
+        'streak_wait',
+        'streak_claimed',
         'season_spring',
         'season_summer',
         'season_autumn',
         'season_winter',
+        'crm_title',
+        'crm_resolve',
+        'crm_accept',
+        'crm_reject',
+        'crm_happy',
+        'crm_defect',
+        'crm_fleet',
+        'crm_movie',
+        'crm_diplomat',
+        'bist_glrd',
+        'company_ipo',
+        'share_buyback',
+        'quarterly_report',
+        'dividend_payout',
+        'stock_portfolio',
+        'gold_forex',
+        'sanayi_rumor',
+        'zone_ostim',
+        'zone_maslak',
+        'zone_sasmaz',
+        'zone_harabe',
+        'barn_find',
+        'salvage_parts',
+        'bluff_button',
+        'auction_bid',
+        'auction_rival_selim',
+        'auction_rival_ferit',
+        'auction_rival_riza',
+        'auction_hammer',
+        'staff_morale',
+        'tea_treat',
+        'meal_treat',
+        'bonus_treat',
+        'staff_washer',
+        'staff_mechanic',
+        'staff_salesman',
+        'staff_painter',
+        'staff_security',
+        'notary_contract',
+        'notary_fee',
+        'safe_payment',
+        'bank_loan',
+        'bank_interest',
+        'bank_repay',
       ];
 
       for (final lang in AppLanguage.values) {
@@ -76,7 +132,6 @@ void main() {
     });
 
     test('AppLocalizations supports parameter substitution', () {
-      // Test dynamic string replacement
       final loc = AppLocalizations('en');
       final result = loc.get('level', {'custom': '123'});
       expect(result, 'Level');
@@ -103,6 +158,7 @@ void main() {
       // Switch to Portuguese
       await notifier.setLanguage('pt');
       expect(notifier.state.languageCode, 'pt');
+      expect(notifier.state.isRtl, isFalse);
       expect(notifier.state.currentLanguage, AppLanguage.portuguese);
 
       // Switch to Russian
