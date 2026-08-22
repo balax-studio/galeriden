@@ -279,7 +279,7 @@ class SettingsScreen extends ConsumerWidget {
                     textColor: Colors.black,
                     fontSize: 11.5,
                     fullWidth: true,
-                    onPressed: () {
+                    onPressed: () async {
                       final success = ref.read(gameProvider.notifier).claimReviewReward();
                       if (success) {
                         NotificationService.showSuccess(
@@ -287,6 +287,12 @@ class SettingsScreen extends ConsumerWidget {
                           'Harika! Desteğiniz için teşekkür ederiz. ₺100.000 ve +100 XP kasanıza eklendi!',
                         );
                       }
+                      try {
+                        final uri = Uri.parse('https://play.google.com/store/apps/details?id=com.balax.galeriden');
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      } catch (_) {}
                     },
                   )
                 else
