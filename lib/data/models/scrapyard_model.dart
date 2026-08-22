@@ -81,15 +81,73 @@ extension ScrapyardZoneExtension on ScrapyardZoneType {
     }
   }
 
-  static String getDailySanayiRumor(int currentDay) {
-    const rumors = [
-      'Ostim de gümrük tasfiye tırı yanaştı • Ağır şanzıman ve blok parçaları bol!',
-      'Maslak Tuning Hangarlarında yarış sezonu başladı • Spor parçalar revaçta!',
-      'Şaşmaz Hurdalığında klasik Alman serisi döküldü • Orijinal parçalar keşfedilebilir!',
-      'Terk Edilmiş Çiftlik samanlıklarında eski ralli ve efsane klasik şasileri tespit edildi!',
-      'Geri dönüşüm tesisine taze hurda konvoyu girdi • Söküm kâr marjları yüksek!',
-    ];
-    return rumors[currentDay % rumors.length];
+  static String getDailySanayiRumor(int currentDay, {String langCode = 'tr'}) {
+    switch (langCode) {
+      case 'en':
+        const rumors = [
+          'Customs liquidation trucks arrived at Ostim • Heavy transmissions and engine blocks are in stock!',
+          'Racing season started at Maslak Tuning Hangars • High demand for performance parts!',
+          'Classic German line scrapped at Sasmaz Yard • Original vintage components can be found!',
+          'Vintage rally and classic legendary chassis spotted in Abandoned Factory barns!',
+          'Fresh salvage convoy entered recycling depot • Disassembly profit margins are peak!',
+        ];
+        return rumors[currentDay % rumors.length];
+      case 'de':
+        const rumors = [
+          'Zoll-Liquidations-Lkw in Ostim eingetroffen • Viele Motoren und Getriebeblöcke verfügbar!',
+          'Rennsaison in den Maslak-Hangars eröffnet • Sport- und Tuningteile heiß begehrt!',
+          'Klassische deutsche Baureihe auf dem Schrottplatz Sasmaz zerlegt • Originalteile auffindbar!',
+          'Legendäre Scheunenfunde in der verlassenen Fabrik entdeckt!',
+          'Frischer Schrottkonvoi eingetroffen • Hohe Gewinnspannen beim Ausschlachten!',
+        ];
+        return rumors[currentDay % rumors.length];
+      case 'pt':
+        const rumors = [
+          'Caminhões da alfândega chegaram ao desmanche Ostim • Muitos blocos de motor e câmbio!',
+          'Temporada de corridas nos galpões de Maslak • Peças de performance em alta!',
+          'Série alemã clássica chegou ao pátio Sasmaz • Peças originais prontas para garimpar!',
+          'Chassis lendários de rali clássico encontrados na fábrica abandonada!',
+          'Comboio de sucatas frescas descarregado • Margem de lucro de desmonte em alta!',
+        ];
+        return rumors[currentDay % rumors.length];
+      case 'es':
+        const rumors = [
+          'Camiones de aduanas llegaron a Ostim • Gran stock de bloques de motor y cajas de cambio!',
+          'Empieza la temporada de carreras en Maslak • Gran demanda de piezas deportivas!',
+          'Serie clásica alemana desguazada en Sasmaz • Recambios originales disponibles!',
+          'Chasis legendarios de rally encontrados en los almacenes de la fábrica abandonada!',
+          'Nuevo convoy de siniestros recibido • Margen de beneficio de despiece al máximo!',
+        ];
+        return rumors[currentDay % rumors.length];
+      case 'ru':
+        const rumors = [
+          'Грузовики таможенного конфиската прибыли в Остим • Много контрактных двигателей и КПП!',
+          'Гоночный сезон стартовал в ангарах Маслак • Спрос на спортивные детали растет!',
+          'Классическая немецкая серия поступила на разборку Шашмаз • Ищите оригинальные запчасти!',
+          'Легендарные раллийные кузова обнаружены в амбарах заброшенного завода!',
+          'Новая партия битых авто на разборке • Высокая прибыль при снятии деталей!',
+        ];
+        return rumors[currentDay % rumors.length];
+      case 'ar':
+        const rumors = [
+          'وصول شاحنات تصفية الجمارك إلى أوستيم • وفرة في محركات وناقلات الحركة الثقيلة!',
+          'انطلاق موسم السباقات في حظائر مسلك • إقبال كبير على قطع التعديل الرياضية!',
+          'تفكيك دفعة سيارات ألمانية كلاسيكية في شاشماز • قطع غيار أصلية ونادرة متاحة!',
+          'اكتشاف شاسيهات سيارات رالي أسطورية في مخازن المصنع المهجور!',
+          'وصول قافلة جديدة من سيارات التشليح • هوامش ربح عالية جدا في بيع القطع!',
+        ];
+        return rumors[currentDay % rumors.length];
+      case 'tr':
+      default:
+        const rumors = [
+          'Ostim de gümrük tasfiye tırı yanaştı • Ağır şanzıman ve blok parçaları bol!',
+          'Maslak Tuning Hangarlarında yarış sezonu başladı • Spor parçalar revaçta!',
+          'Şaşmaz Hurdalığında klasik Alman serisi döküldü • Orijinal parçalar keşfedilebilir!',
+          'Terk Edilmiş Çiftlik samanlıklarında eski ralli ve efsane klasik şasileri tespit edildi!',
+          'Geri dönüşüm tesisine taze hurda konvoyu girdi • Söküm kâr marjları yüksek!',
+        ];
+        return rumors[currentDay % rumors.length];
+    }
   }
 }
 

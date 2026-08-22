@@ -71,33 +71,185 @@ class DailyLoginRewardModel {
     return AppColors.brutalYellow;
   }
 
-  static String getSeasonTitle(int cycleCount) {
+  static String getSeasonTitle(int cycleCount, {String langCode = 'tr'}) {
     final seasonIndex = cycleCount % 4;
-    switch (seasonIndex) {
-      case 0:
-        return '1. SEZON • İLKBAHAR ÇARŞI VE PAZAR';
-      case 1:
-        return '2. SEZON • YAZ GURBETÇİ VE TURİZM';
-      case 2:
-        return '3. SEZON • SONBAHAR SANAYİ VE HASAT';
-      case 3:
+    switch (langCode) {
+      case 'en':
+        switch (seasonIndex) {
+          case 0:
+            return 'SEASON 1 • SPRING MARKET & BAZAAR';
+          case 1:
+            return 'SEASON 2 • SUMMER TOURISM & EXPATS';
+          case 2:
+            return 'SEASON 3 • AUTUMN FLEET & HARVEST';
+          case 3:
+          default:
+            return 'SEASON 4 • WINTER TYCOON & BIST';
+        }
+      case 'de':
+        switch (seasonIndex) {
+          case 0:
+            return '1. SAISON • FRÜHLINGS-MARKT & BÖRSEN';
+          case 1:
+            return '2. SAISON • SOMMER-TOURISMUS & URLAUBER';
+          case 2:
+            return '3. SAISON • HERBST-WERKSTATT & ERNTE';
+          case 3:
+          default:
+            return '4. SAISON • WINTER-AUTOHAUS-MAGNAT';
+        }
+      case 'pt':
+        switch (seasonIndex) {
+          case 0:
+            return '1ª TEMPORADA • PRIMAVERA DO COMÉRCIO';
+          case 1:
+            return '2ª TEMPORADA • VERÃO & TURISMO';
+          case 2:
+            return '3ª TEMPORADA • OUTONO DE FROTAS & OFICINA';
+          case 3:
+          default:
+            return '4ª TEMPORADA • INVERNO DOS MAGNATAS';
+        }
+      case 'es':
+        switch (seasonIndex) {
+          case 0:
+            return '1ª TEMPORADA • PRIMAVERA DEL MERCADO';
+          case 1:
+            return '2ª TEMPORADA • VERANO Y TURISMO';
+          case 2:
+            return '3ª TEMPORADA • OTOÑO DE TALLER Y FLOTAS';
+          case 3:
+          default:
+            return '4ª TEMPORADA • INVIERNO DE MAGNATES';
+        }
+      case 'ru':
+        switch (seasonIndex) {
+          case 0:
+            return '1 СЕЗОН • ВЕСЕННИЙ АВТОРЫНОК';
+          case 1:
+            return '2 СЕЗОН • ЛЕТНИЙ ТУРИЗМ И ПРОКАТ';
+          case 2:
+            return '3 СЕЗОН • ОСЕННИЙ СЕРВИС И АВТОПАРКИ';
+          case 3:
+          default:
+            return '4 СЕЗОН • ЗИМНИЙ АВТОМАГНАТ';
+        }
+      case 'ar':
+        switch (seasonIndex) {
+          case 0:
+            return 'الموسم 1 • ربيع التجارة وسوق السيارات';
+          case 1:
+            return 'الموسم 2 • صيف السياحة والتأجير';
+          case 2:
+            return 'الموسم 3 • خريف الصيانة والأساطيل';
+          case 3:
+          default:
+            return 'الموسم 4 • شتاء كبار التجار والبورصة';
+        }
+      case 'tr':
       default:
-        return '4. SEZON • KIŞ GALERİ AĞALIĞI VE BIST';
+        switch (seasonIndex) {
+          case 0:
+            return '1. SEZON • İLKBAHAR ÇARŞI VE PAZAR';
+          case 1:
+            return '2. SEZON • YAZ GURBETÇİ VE TURİZM';
+          case 2:
+            return '3. SEZON • SONBAHAR SANAYİ VE HASAT';
+          case 3:
+          default:
+            return '4. SEZON • KIŞ GALERİ AĞALIĞI VE BIST';
+        }
     }
   }
 
-  static String getSeasonDescription(int cycleCount) {
+  static String getSeasonDescription(int cycleCount, {String langCode = 'tr'}) {
     final seasonIndex = cycleCount % 4;
-    switch (seasonIndex) {
-      case 0:
-        return 'Piyasa hareketleniyor • Siftah nakitleri ve genel esnaf itibar hediyeleri';
-      case 1:
-        return 'Yaz turizmi ve gurbetçi akını • Kiralama filosu ve döviz destek paketleri';
-      case 2:
-        return 'Sanayi ve tarım hasadı • Hurdalık arama ve atölye revizyon kuponları';
-      case 3:
+    switch (langCode) {
+      case 'en':
+        switch (seasonIndex) {
+          case 0:
+            return 'Market is moving • Daily starter cash and dealership reputation rewards';
+          case 1:
+            return 'Summer tourism boom • Rental fleet bonuses and foreign currency packages';
+          case 2:
+            return 'Industrial harvest • Scrapyard discovery and workshop repair vouchers';
+          case 3:
+          default:
+            return 'Luxury dealership management • Stock market funds and holding perks';
+        }
+      case 'de':
+        switch (seasonIndex) {
+          case 0:
+            return 'Markt belebt sich • Tägliche Geldprämien und Rufboni';
+          case 1:
+            return 'Sommertourismus-Boom • Mietflotten-Pakete und Währungsboni';
+          case 2:
+            return 'Industrie- und Werkstatt-Saison • Schrottplatz-Gutscheine';
+          case 3:
+          default:
+            return 'Luxus-Autohaus-Führung • Aktienfonds und Holding-Vorteile';
+        }
+      case 'pt':
+        switch (seasonIndex) {
+          case 0:
+            return 'Mercado aquecido • Recompensas diárias e bônus de reputação';
+          case 1:
+            return 'Pico do turismo de verão • Bônus de frotas e pacotes de câmbio';
+          case 2:
+            return 'Safra industrial • Vouchers de desmanche e revisão de oficina';
+          case 3:
+          default:
+            return 'Gestão de concessionária de luxo • Fundos de ações e bônus VIP';
+        }
+      case 'es':
+        switch (seasonIndex) {
+          case 0:
+            return 'El mercado se activa • Recompensas diarias y prestigio';
+          case 1:
+            return 'Auge del turismo estival • Bonos de flotas y divisas';
+          case 2:
+            return 'Cosecha industrial • Vales de desguace y revisión de taller';
+          case 3:
+          default:
+            return 'Gestión de concesionario de lujo • Fondos bursátiles y ventajas VIP';
+        }
+      case 'ru':
+        switch (seasonIndex) {
+          case 0:
+            return 'Рынок оживает • Ежедневные денежные награды и бонусы репутации';
+          case 1:
+            return 'Летний туристический сезон • Бонусы автопроката и валютные пакеты';
+          case 2:
+            return 'Осенний сезон • Ваучеры авторазборки и ремонта в сервисе';
+          case 3:
+          default:
+            return 'Элитный автобизнес • Инвестиции в акции и холдинг-бонусы';
+        }
+      case 'ar':
+        switch (seasonIndex) {
+          case 0:
+            return 'انتعاش السوق • مكافآت نقدية يومية وزيادة في السمعة التجارية';
+          case 1:
+            return 'موسم السياحة الصيفية • عروض تأجير الأساطيل وحزم العملات';
+          case 2:
+            return 'موسم الورش والصيانة • قسائم فحص التشليح وتعديل السيارات';
+          case 3:
+          default:
+            return 'إدارة معارض النخبة • صناديق استثمار البورصة ومكافآت القابضة';
+        }
+      case 'tr':
       default:
-        return 'Lüks galeri yönetimi • BIST yatırım fonu ve prestijli holding hediyeleri';
+        switch (seasonIndex) {
+          case 0:
+            return 'Piyasa hareketleniyor • Siftah nakitleri ve genel esnaf itibar hediyeleri';
+          case 1:
+            return 'Yaz turizmi ve gurbetçi akını • Kiralama filosu ve döviz destek paketleri';
+          case 2:
+            return 'Sanayi ve tarım hasadı • Hurdalık arama ve atölye revizyon kuponları';
+          case 3:
+          default:
+            return 'Lüks galeri yönetimi • BIST yatırım fonu ve prestijli holding hediyeleri';
+        }
     }
   }
 
