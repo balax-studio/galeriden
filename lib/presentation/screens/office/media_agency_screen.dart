@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
@@ -30,7 +31,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: 'MEDYA & PR AJANSI MASASI',
+        title: context.tr('media_agency_app_bar'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
@@ -62,10 +63,10 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                     children: [
                       const Icon(Icons.bolt_rounded, color: Color(0xFF38BDF8), size: 24),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'AKTİF REKLAM LANSMANI SÜRÜYOR',
-                          style: TextStyle(
+                          context.tr('media_active_launch_title'),
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
                             color: Color(0xFF38BDF8),
@@ -74,7 +75,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                         ),
                       ),
                       NeoBrutalBadge(
-                        text: '${activePr.remainingDays(game.currentDay)} Gün Kaldı',
+                        text: context.tr('media_remaining_days_badge', {'days': '${activePr.remainingDays(game.currentDay)}'}),
                         backgroundColor: const Color(0xFF38BDF8),
                         textColor: Colors.black,
                         fontWeight: FontWeight.w900,
@@ -149,9 +150,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
             const SizedBox(height: 14),
           ],
 
-          const Text(
-            'REKLAM VE HALKLA İLİŞKİLER PAKETLERİ',
-            style: TextStyle(
+          Text(
+            context.tr('media_campaigns_header'),
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
               color: Color(0xFF64748B),
@@ -284,8 +285,8 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                         ),
                         NeoBrutalButton(
                           label: isCurrent
-                              ? 'AKTİF KAMPANYA'
-                              : (isCampaignRunning ? 'DİĞERİ BİTMELİ' : 'ANLAŞMAYI İMZALA'),
+                              ? context.tr('media_active_btn')
+                              : (isCampaignRunning ? context.tr('media_busy_btn') : context.tr('media_sign_btn')),
                           backgroundColor: isCurrent
                               ? const Color(0xFF10B981)
                               : (canAfford && !isCampaignRunning ? const Color(0xFF38BDF8) : const Color(0xFF64748B)),

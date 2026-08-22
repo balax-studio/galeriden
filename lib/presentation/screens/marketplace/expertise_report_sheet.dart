@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -23,27 +24,33 @@ class ExpertiseReportSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = Theme.of(context).extension<AppThemeExtension>()!.palette;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+    final p = themeExt.palette;
     final eval = ExpertiseEngine.evaluateVehicle(car);
 
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: p.backgroundColor,
+        color: p.surfaceColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: p.surfaceBorderColor, width: 3),
+          left: BorderSide(color: p.surfaceBorderColor, width: 2),
+          right: BorderSide(color: p.surfaceBorderColor, width: 2),
+        ),
       ),
       child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle Bar
+            // Drag Handle
             Center(
               child: Container(
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: p.surfaceBorderColor,
+                  color: p.textSecondaryColor.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -57,7 +64,7 @@ class ExpertiseReportSheet extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('RESMİ EKSPERTİZ RAPORU', style: AppTypography.titleLarge(p.isDark)),
+                    Text(context.tr('expertise_official_title'), style: AppTypography.titleLarge(p.isDark)),
                     Text('${car.brand} ${car.modelName} • ${car.modelYear}', style: AppTypography.labelSmall(p.isDark)),
                   ],
                 ),
@@ -110,8 +117,8 @@ class ExpertiseReportSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildSpecTile(
-                    'Tramer Kaydı',
-                    car.expertise.tramerAmount > 0 ? CurrencyFormatter.formatShort(car.expertise.tramerAmount.toDouble()) : 'Hasar Kayıtsız',
+                    context.tr('listing_tramer'),
+                    car.expertise.tramerAmount > 0 ? CurrencyFormatter.formatShort(car.expertise.tramerAmount.toDouble()) : context.tr('listing_no_damage'),
                     car.expertise.tramerAmount > 0 ? p.errorColor : p.successColor,
                     p,
                   ),
@@ -119,11 +126,11 @@ class ExpertiseReportSheet extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _buildSpecTile(
-                    'Kilometre',
+                    context.tr('listing_mileage'),
                     '${NumberFormat('#,###', 'tr_TR').format(car.expertise.mileage)} km',
                     car.expertise.isMileageTampered ? p.errorColor : p.textPrimaryColor,
                     p,
-                    subtitle: car.expertise.isMileageTampered ? 'Düşürülmüş KM' : 'Orijinal KM',
+                    subtitle: car.expertise.isMileageTampered ? context.tr('expertise_tampered_km') : context.tr('expertise_original_km'),
                   ),
                 ),
               ],
@@ -131,7 +138,7 @@ class ExpertiseReportSheet extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Kaporta Damage Schema
-            Text('KAPORTA / BOYA / HASAR ŞEMASI', style: AppTypography.labelSmall(p.isDark)),
+            Text(context.tr('expertise_schema_title'), style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 8),
             CarDamageSchemaWidget(bodyParts: car.expertise.bodyParts),
             const SizedBox(height: 20),
@@ -139,7 +146,7 @@ class ExpertiseReportSheet extends StatelessWidget {
             // Action Buttons
             if (listing != null) ...[
               NeoBrutalButton(
-                label: 'PAZARLIK ET & SATIN AL',
+                label: context.tr('expertise_negotiate_buy'),
                 icon: Icons.handshake_rounded,
                 backgroundColor: p.primaryColor,
                 textColor: Colors.black,
@@ -156,7 +163,7 @@ class ExpertiseReportSheet extends StatelessWidget {
               const SizedBox(height: 10),
             ],
             NeoBrutalButton(
-              label: 'RAPORU KAPAT',
+              label: context.tr('btn_close'),
               backgroundColor: p.isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
               textColor: p.textPrimaryColor,
               borderColor: p.surfaceBorderColor,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/theme/app_colors.dart';
@@ -129,6 +130,13 @@ void main() {
             builder: (context, ref, _) {
               final theme = ref.watch(themeProvider).buildThemeData();
               return MaterialApp(
+                locale: const Locale('tr'),
+                supportedLocales: const [Locale('tr'), Locale('en')],
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
                 theme: theme,
                 home: const ThemeStoreScreen(),
               );

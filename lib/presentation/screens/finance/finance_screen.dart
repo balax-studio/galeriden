@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -45,7 +46,7 @@ class FinanceScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('ÇEK KIRDIRMA / FAKTORİNG', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                  Text(context.tr('finance_factoring_title'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
                   NeoBrutalBadge(text: '%8 Komisyon', backgroundColor: AppColors.brutalYellow, textColor: Colors.black, fontSize: 10),
                 ],
               ),
@@ -67,7 +68,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Çek Nominal Tutarı:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                        Text(context.tr('finance_cheque_nominal'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                         Text(CurrencyFormatter.format(cheque.amount), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
                       ],
                     ),
@@ -75,7 +76,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Faktoring & İskonto Kesintisi • %8:', style: TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w700)),
+                        Text(context.tr('finance_factoring_fee'), style: const TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w700)),
                         Text('-${CurrencyFormatter.format(fee)}', style: const TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
                       ],
                     ),
@@ -83,7 +84,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Kasaya Geçecek Net Nakit:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
+                        Text(context.tr('finance_net_cash'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
                         Text(
                           CurrencyFormatter.format(netCash),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
@@ -95,7 +96,7 @@ class FinanceScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               NeoBrutalButton(
-                label: 'ÇEKİ KIRDIR & NAKDİ AL',
+                label: context.tr('finance_cash_cheque_btn'),
                 icon: Icons.currency_exchange_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
@@ -142,7 +143,7 @@ class FinanceScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('SENET ERKEN KAPAMA İNDİRİMİ', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+                  Text(context.tr('finance_promissory_early_close'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
                   NeoBrutalBadge(text: '%5 İskonto', backgroundColor: AppColors.brutalGreen, textColor: Colors.black, fontSize: 10),
                 ],
               ),
@@ -164,7 +165,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Kalan Toplam Borç:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                        Text(context.tr('finance_remaining_debt'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                         Text(CurrencyFormatter.format(contract.remainingAmount), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
                       ],
                     ),
@@ -172,7 +173,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Müşteriye Erken Kapama İndirimi • %5:', style: TextStyle(fontSize: 12, color: AppColors.brutalOrange, fontWeight: FontWeight.w700)),
+                        Text(context.tr('finance_early_close_discount'), style: const TextStyle(fontSize: 12, color: AppColors.brutalOrange, fontWeight: FontWeight.w700)),
                         Text('-${CurrencyFormatter.format(discount)}', style: const TextStyle(fontSize: 12, color: AppColors.brutalOrange, fontWeight: FontWeight.w800)),
                       ],
                     ),
@@ -180,7 +181,7 @@ class FinanceScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Tek Seferde Alınacak Nakit:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
+                        Text(context.tr('finance_lump_sum_cash'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
                         Text(
                           CurrencyFormatter.format(netCash),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
@@ -192,7 +193,7 @@ class FinanceScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               NeoBrutalButton(
-                label: 'SÖZLEŞMEYİ PEŞİN KAPAT',
+                label: context.tr('finance_close_contract_btn'),
                 icon: Icons.done_all_rounded,
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
@@ -222,8 +223,8 @@ class FinanceScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'FİNANS & TAHSİLAT MERKEZİ',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('nav_finance'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -241,7 +242,7 @@ class FinanceScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('CARİ LİKİDİTE & FİNANSAL GÜVENLİK', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                    Text(context.tr('finance_liquidity_title'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                     NeoBrutalBadge(
                       text: liquidity.badgeLabel,
                       backgroundColor: liquidity.level == LiquidityLevel.strong
@@ -271,7 +272,7 @@ class FinanceScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Toplam Dönen Varlık:', style: TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                            Text(context.tr('finance_current_assets'), style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                             Text(CurrencyFormatter.formatShort(liquidity.totalLiquidAssets), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
                           ],
                         ),
@@ -289,7 +290,7 @@ class FinanceScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Kısa Vadeli Yükümlülük:', style: TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                            Text(context.tr('finance_short_term_liabilities'), style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                             Text(CurrencyFormatter.formatShort(liquidity.totalShortTermDebts), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFFEF4444))),
                           ],
                         ),

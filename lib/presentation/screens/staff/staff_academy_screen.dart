@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -49,10 +50,10 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
     if (!game.isFeatureUnlocked('/staff-academy')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'PERSONEL AKADEMİSİ & EĞİTİM'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('staff_academy_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/staff-academy',
-          featureTitle: 'PERSONEL AKADEMİSİ',
+          featureTitle: context.tr('staff_academy_screen_title'),
           icon: Icons.school_rounded,
         ),
       );
@@ -66,8 +67,8 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'PERSONEL AKADEMİSİ & EĞİTİM',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('staff_academy_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

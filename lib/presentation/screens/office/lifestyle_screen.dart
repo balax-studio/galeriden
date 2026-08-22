@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -53,7 +54,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: 'KİŞİSEL TARZ & PRESTİJ MASASI',
+        title: context.tr('lifestyle_app_bar'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
@@ -204,9 +205,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       labelColor: Colors.black,
                       unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                       labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
-                      tabs: const [
-                        Tab(text: 'KIYAFET & KOMBİN'),
-                        Tab(text: 'SAAT & AKSESUAR'),
+                      tabs: [
+                        Tab(text: context.tr('lifestyle_tab_apparel')),
+                        Tab(text: context.tr('lifestyle_tab_accessory')),
                       ],
                     ),
                   ),
@@ -380,9 +381,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                                 ),
                               ),
                               if (isEquipped)
-                                const NeoBrutalBadge(
-                                  text: 'KUŞANILDI',
-                                  backgroundColor: Color(0xFF10B981),
+                                NeoBrutalBadge(
+                                  text: context.tr('lifestyle_equipped_badge'),
+                                  backgroundColor: const Color(0xFF10B981),
                                   textColor: Colors.white,
                                   fontSize: 9.5,
                                   fontWeight: FontWeight.w900,
@@ -445,7 +446,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'SATIŞ FİYATI',
+                            context.tr('lifestyle_price_label'),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
@@ -466,7 +467,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       )
                     else
                       Text(
-                        'Koleksiyonunuzda Mevcut',
+                        context.tr('lifestyle_owned_text'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -475,7 +476,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       ),
                     if (!isOwned)
                       NeoBrutalButton(
-                        label: 'SATIN AL & KUŞAN',
+                        label: context.tr('lifestyle_buy_equip_btn'),
                         backgroundColor: canAfford ? const Color(0xFFFFDE59) : const Color(0xFF64748B),
                         textColor: canAfford ? Colors.black : Colors.white,
                         fontSize: 11,
@@ -484,7 +485,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       )
                     else if (!isEquipped)
                       NeoBrutalButton(
-                        label: 'ÜZERİNE KUŞAN',
+                        label: context.tr('lifestyle_equip_btn'),
                         backgroundColor: const Color(0xFF38BDF8),
                         textColor: Colors.black,
                         fontSize: 11,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/ad_reward_calculator.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -37,8 +38,8 @@ class DashboardOfficeView extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'OFİS VE YÖNETİM',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('office_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -70,7 +71,7 @@ class DashboardOfficeView extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Bayi İtibarı & Puanı',
+                        context.tr('office_reputation_title'),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
@@ -79,7 +80,7 @@ class DashboardOfficeView extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Müşteri memnuniyet skoru: %${game.reputationScore}',
+                        context.tr('office_reputation_desc', {'score': '${game.reputationScore}'}),
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
@@ -219,17 +220,17 @@ class DashboardOfficeView extends ConsumerWidget {
                     SizedBox(
                       width: double.infinity,
                       child: isGrantUsed
-                          ? const NeoBrutalButton(
-                              label: 'KULLANILDI • YARIN YENİLENİR',
+                          ? NeoBrutalButton(
+                              label: context.tr('office_grant_used_btn'),
                               icon: Icons.check_rounded,
-                              backgroundColor: Color(0xFF222838),
-                              textColor: Color(0xFF64748B),
+                              backgroundColor: const Color(0xFF222838),
+                              textColor: const Color(0xFF64748B),
                               fontSize: 11.5,
-                              padding: EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed: null,
                             )
                           : NeoBrutalButton(
-                              label: 'ZARFI AÇ • +${CurrencyFormatter.formatShort(outcome.moneyAmount)} NAKİT AL',
+                              label: context.tr('office_grant_open_btn', {'amount': CurrencyFormatter.formatShort(outcome.moneyAmount)}),
                               icon: Icons.play_circle_filled_rounded,
                               backgroundColor: const Color(0xFFEAB308),
                               textColor: Colors.black,
@@ -277,18 +278,18 @@ class DashboardOfficeView extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         NeoBrutalBadge(
-                          text: 'DİNAMİK FIRSAT',
+                          text: context.tr('office_dynamic_opportunity'),
                           backgroundColor: isHookUsed ? const Color(0xFF475569) : smartHook.accentColor,
                           textColor: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
                         ),
                         if (isHookUsed)
-                          const NeoBrutalBadge(
-                            text: 'KULLANILDI',
+                          NeoBrutalBadge(
+                            text: context.tr('office_used_badge'),
                             icon: Icons.check_circle_outline_rounded,
-                            backgroundColor: Color(0xFF334155),
-                            textColor: Color(0xFF94A3B8),
+                            backgroundColor: const Color(0xFF334155),
+                            textColor: const Color(0xFF94A3B8),
                             fontSize: 9.5,
                             fontWeight: FontWeight.w900,
                           )
@@ -381,13 +382,13 @@ class DashboardOfficeView extends ConsumerWidget {
                     SizedBox(
                       width: double.infinity,
                       child: isHookUsed
-                          ? const NeoBrutalButton(
-                              label: 'KULLANILDI • YENİ FIRSAT BEKLENİYOR',
+                          ? NeoBrutalButton(
+                              label: context.tr('office_hook_used_btn'),
                               icon: Icons.check_rounded,
-                              backgroundColor: Color(0xFF222838),
-                              textColor: Color(0xFF64748B),
+                              backgroundColor: const Color(0xFF222838),
+                              textColor: const Color(0xFF64748B),
                               fontSize: 11.5,
-                              padding: EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed: null,
                             )
                           : NeoBrutalButton(
@@ -437,15 +438,15 @@ class DashboardOfficeView extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const NeoBrutalBadge(
-                          text: 'SANAYİ FISILTILARI',
-                          backgroundColor: Color(0xFF38BDF8),
+                        NeoBrutalBadge(
+                          text: context.tr('whispers_title'),
+                          backgroundColor: const Color(0xFF38BDF8),
                           textColor: Colors.black,
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
                         ),
                         Text(
-                          'Gün ${game.currentDay}',
+                          context.tr('whispers_day', {'day': '${game.currentDay}'}),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -536,9 +537,9 @@ class DashboardOfficeView extends ConsumerWidget {
           const SizedBox(height: 14),
 
           // 4. Management Sections Header
-          const Text(
-            'YÖNETİM VE OPERASYONLAR',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: Color(0xFF64748B)),
+          Text(
+            context.tr('office_management_ops'),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 8),
 
@@ -547,11 +548,11 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.people_alt_rounded,
             color: const Color(0xFFA855F7),
-            title: 'Personel Kadrosu',
+            title: context.tr('staff_title'),
             subtitle: game.isFeatureUnlocked('/staff')
-                ? '${game.hiredStaff.length} Aktif Usta / Danışman'
-                : '${DealershipModel.getRequiredBranchName('/staff')} ile Açılır',
-            actionLabel: game.isFeatureUnlocked('/staff') ? 'Yönet' : 'KİLİTLİ',
+                ? context.tr('staff_desc', {'count': '${game.hiredStaff.length}'})
+                : context.tr('office_locked_branch', {'branch': DealershipModel.getRequiredBranchName('/staff')}),
+            actionLabel: game.isFeatureUnlocked('/staff') ? context.tr('office_btn_manage') : context.tr('office_btn_locked'),
             route: '/staff',
             isUnlocked: game.isFeatureUnlocked('/staff'),
             isDark: isDark,
@@ -563,11 +564,11 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.chat_bubble_rounded,
             color: const Color(0xFFFFDE59),
-            title: 'Müşteri Yorumları',
+            title: context.tr('reviews_title'),
             subtitle: game.isFeatureUnlocked('/reviews')
-                ? '${game.customerReviews.length} Toplam Değerlendirme'
-                : '${DealershipModel.getRequiredBranchName('/reviews')} ile Açılır',
-            actionLabel: game.isFeatureUnlocked('/reviews') ? 'İncele' : 'KİLİTLİ',
+                ? context.tr('reviews_desc', {'count': '${game.customerReviews.length}'})
+                : context.tr('office_locked_branch', {'branch': DealershipModel.getRequiredBranchName('/reviews')}),
+            actionLabel: game.isFeatureUnlocked('/reviews') ? context.tr('office_btn_inspect') : context.tr('office_btn_locked'),
             route: '/reviews',
             isUnlocked: game.isFeatureUnlocked('/reviews'),
             isDark: isDark,
@@ -579,11 +580,11 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.receipt_long_rounded,
             color: const Color(0xFF3B82F6),
-            title: 'Satış & İşlem Geçmişi',
+            title: context.tr('sales_history_title'),
             subtitle: game.isFeatureUnlocked('/history')
-                ? '${game.salesHistory.length} Tamamlanan Satış Defteri'
-                : '${DealershipModel.getRequiredBranchName('/history')} ile Açılır',
-            actionLabel: game.isFeatureUnlocked('/history') ? 'Görüntüle' : 'KİLİTLİ',
+                ? context.tr('sales_history_desc', {'count': '${game.salesHistory.length}'})
+                : context.tr('office_locked_branch', {'branch': DealershipModel.getRequiredBranchName('/history')}),
+            actionLabel: game.isFeatureUnlocked('/history') ? context.tr('office_btn_view') : context.tr('office_btn_locked'),
             route: '/history',
             isUnlocked: game.isFeatureUnlocked('/history'),
             isDark: isDark,
@@ -595,9 +596,9 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.confirmation_number_rounded,
             color: const Color(0xFFFFDE59),
-            title: 'Özel Plaka Tescil Masası',
-            subtitle: 'Efsanevi, Takım ve Özel Plaka Satın Al • Araca Ata',
-            actionLabel: 'Tescil',
+            title: context.tr('special_plates_title'),
+            subtitle: context.tr('special_plates_desc'),
+            actionLabel: context.tr('office_btn_register'),
             route: '/special-plates',
             isUnlocked: true,
             isDark: isDark,
@@ -609,11 +610,11 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.campaign_rounded,
             color: const Color(0xFF38BDF8),
-            title: 'Medya & PR Ajansı Masası',
+            title: context.tr('media_pr_title'),
             subtitle: game.activePrCampaign != null && game.activePrCampaign!.isActive(game.currentDay)
-                ? 'Aktif Lansman Sürüyor • ${game.activePrCampaign!.remainingDays(game.currentDay)} Gün Kaldı'
-                : 'Oto YouTuber & TV Reklam Kampanyası Başlat',
-            actionLabel: 'Lansman',
+                ? context.tr('media_campaign_running', {'days': '${game.activePrCampaign!.remainingDays(game.currentDay)}'})
+                : context.tr('media_pr_desc'),
+            actionLabel: context.tr('office_btn_launch'),
             route: '/media-agency',
             isUnlocked: true,
             isDark: isDark,
@@ -625,9 +626,9 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.dry_cleaning_rounded,
             color: const Color(0xFFEAB308),
-            title: 'Kişisel Tarz & Prestij Masası',
-            subtitle: 'İtalyan Takım Elbise, Altın Saat, Kehribar Tesbih & Makam',
-            actionLabel: 'Gardırop',
+            title: context.tr('lifestyle_title'),
+            subtitle: context.tr('lifestyle_desc'),
+            actionLabel: context.tr('office_btn_wardrobe'),
             route: '/lifestyle',
             isUnlocked: true,
             isDark: isDark,
@@ -639,9 +640,9 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.bolt_rounded,
             color: const Color(0xFF00E575),
-            title: 'Yetenek Ağacı & Başarımlar',
-            subtitle: 'Seviye ${game.level} • Yetenek Puanlarını Yönet',
-            actionLabel: 'Geliştir',
+            title: context.tr('talent_tree_title'),
+            subtitle: context.tr('talent_tree_desc', {'level': '${game.level}'}),
+            actionLabel: context.tr('office_btn_upgrade'),
             route: '/character-growth',
             isUnlocked: true,
             isDark: isDark,
@@ -653,9 +654,9 @@ class DashboardOfficeView extends ConsumerWidget {
             context: context,
             icon: Icons.palette_rounded,
             color: const Color(0xFFFF54B0),
-            title: 'Tema Mağazası',
-            subtitle: 'Görsel paletleri ve stilleri özelleştir',
-            actionLabel: 'Mağaza',
+            title: context.tr('theme_store_title'),
+            subtitle: context.tr('theme_store_desc'),
+            actionLabel: context.tr('office_btn_store'),
             route: '/theme-store',
             isUnlocked: true,
             isDark: isDark,

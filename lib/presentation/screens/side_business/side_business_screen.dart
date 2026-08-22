@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -62,10 +63,10 @@ class SideBusinessScreen extends ConsumerWidget {
     if (!game.isFeatureUnlocked('/side-businesses')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'YAN İŞLETMELER & DÜKKANLAR'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('side_biz_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/side-businesses',
-          featureTitle: 'YAN İŞLETMELER & DÜKKANLAR',
+          featureTitle: context.tr('side_biz_screen_title'),
           icon: Icons.storefront_rounded,
         ),
       );
@@ -77,8 +78,8 @@ class SideBusinessScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'YAN İŞLETMELER & DÜKKANLAR',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('side_biz_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -113,9 +114,9 @@ class SideBusinessScreen extends ConsumerWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'TOPLAM PASİF GELİR',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                            Text(
+                              context.tr('side_biz_daily_income'),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -140,9 +141,9 @@ class SideBusinessScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Toplam Biriken Pasif Kazanç:',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    Text(
+                      context.tr('side_biz_lifetime_earned'),
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
                     ),
                     Text(
                       CurrencyFormatter.format(totalLifetimeEarned),

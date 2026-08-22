@@ -174,11 +174,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.hearing_rounded, color: AppColors.brutalOrange, size: 24),
-                    SizedBox(width: 8),
-                    Text('MOTOR DİNLEME & TEŞHİS', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                    const Icon(Icons.hearing_rounded, color: AppColors.brutalOrange, size: 24),
+                    const SizedBox(width: 8),
+                    Text(context.tr('workshop_engine_diagnose_title'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -248,10 +248,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     if (!game.isFeatureUnlocked('/workshop')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'TAMİR & SERVİS ATÖLYESİ'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('workshop_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/workshop',
-          featureTitle: 'TAMİR & ONARIM ATÖLYESİ',
+          featureTitle: context.tr('workshop_screen_title'),
           icon: Icons.build_circle_rounded,
         ),
       );
@@ -434,11 +434,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               const SizedBox(height: 10),
 
               if (_customerJobs.isEmpty)
-                const NeoBrutalCard(
-                  padding: EdgeInsets.all(20),
+                NeoBrutalCard(
+                  padding: const EdgeInsets.all(20),
                   borderRadius: 12,
                   child: Center(
-                    child: Text('Şu an bekleyen müşteri işi yok. Yeni işler tarayabilirsin.'),
+                    child: Text(context.tr('workshop_no_customer_jobs')),
                   ),
                 )
               else
@@ -508,12 +508,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Parça: ${CurrencyFormatter.formatShort(job.partsCost)}', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
-                                Text('Net Kâr: +${CurrencyFormatter.format(netProfit)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
+                                Text(context.tr('workshop_parts_cost', {'cost': CurrencyFormatter.formatShort(job.partsCost)}), style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                                Text(context.tr('workshop_net_profit', {'profit': CurrencyFormatter.format(netProfit)}), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
                               ],
                             ),
                             NeoBrutalButton(
-                              label: 'TAMİR ET & KAZAN',
+                              label: context.tr('workshop_repair_earn_btn'),
                               icon: Icons.handshake_rounded,
                               backgroundColor: AppColors.brutalGreen,
                               textColor: Colors.black,
@@ -579,12 +579,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             child: const Icon(Icons.speed_rounded, color: Colors.black, size: 20),
                           ),
                           const SizedBox(width: 10),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('VIP Tuning & Modifiye Stüdyosu', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
-                                Text('Stage 1/2/3 Yazılım, Varex Egzoz & Air Süspansiyon', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                                Text(context.tr('workshop_tuning_studio_title'), style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
+                                Text(context.tr('workshop_tuning_studio_subtitle'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
                               ],
                             ),
                           ),

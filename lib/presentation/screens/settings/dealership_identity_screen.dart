@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
@@ -100,7 +101,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
       characterOrigin: _selectedOrigin,
     );
 
-    NotificationService.showSuccess(context, 'Galeri ve profil kimliği başarıyla güncellendi!');
+    NotificationService.showSuccess(context, context.tr('identity_saved_success'));
 
     if (context.canPop()) {
       context.pop();
@@ -118,8 +119,8 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'GALERİ & KARAKTER KİMLİĞİ',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('identity_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -180,7 +181,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
 
           // 2. Input Fields
           Text(
-            'GENEL BİLGİLER',
+            context.tr('identity_player_name_label'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -195,7 +196,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
             onChanged: (_) => setState(() {}),
             style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
             decoration: InputDecoration(
-              labelText: 'Oyuncu Adı',
+              labelText: context.tr('identity_player_name_label'),
               filled: true,
               fillColor: isDark ? const Color(0xFF141721) : Colors.white,
               border: OutlineInputBorder(
@@ -226,7 +227,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
             onChanged: (_) => setState(() {}),
             style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
             decoration: InputDecoration(
-              labelText: 'Galeri Markası / Unvanı',
+              labelText: context.tr('identity_dealership_name_label'),
               filled: true,
               fillColor: isDark ? const Color(0xFF141721) : Colors.white,
               border: OutlineInputBorder(
@@ -254,7 +255,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
 
           // 3. Character Origin Selector (§2.1)
           Text(
-            'KARAKTER KÖKENİ & BAŞLANGIÇ YETENEĞİ',
+            context.tr('identity_origin_title'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -310,8 +311,8 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                                   ),
                                   const Spacer(),
                                   if (isSelected)
-                                    const NeoBrutalBadge(
-                                      text: 'SEÇİLİ',
+                                    NeoBrutalBadge(
+                                      text: context.tr('lifestyle_equipped_badge'),
                                       backgroundColor: AppColors.brutalGreen,
                                       textColor: Colors.black,
                                       fontSize: 10,
@@ -353,7 +354,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
 
           // 4. Emblem Selector
           Text(
-            'AMBLEM & LOGO TERCİHİ',
+            context.tr('identity_emblem_title'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -412,7 +413,7 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
 
           // 5. Save Button
           NeoBrutalButton(
-            label: 'KİMLİK BİLGİLERİNİ KAYDET',
+            label: context.tr('identity_save_btn'),
             icon: Icons.check_circle_rounded,
             backgroundColor: AppColors.brutalGreen,
             textColor: Colors.black,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -31,8 +32,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'KARAKTER GELİŞİMİ & ESNAF PERKLERİ',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('growth_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -77,7 +78,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                               ),
                               const SizedBox(width: 8),
                               NeoBrutalBadge(
-                                text: 'SEVİYE $currentLvl',
+                                text: context.tr('growth_level_badge', {'lvl': '$currentLvl'}),
                                 backgroundColor: const Color(0xFFA855F7),
                                 textColor: Colors.white,
                                 fontSize: 10,
@@ -86,7 +87,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Köken: ${game.originTitle}',
+                            context.tr('growth_origin_label', {'origin': game.originTitle}),
                             style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
                           ),
                           const SizedBox(height: 2),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -42,8 +43,8 @@ class ThemeStoreScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? p.backgroundColor : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'TEMA & GÖRÜNÜM MAĞAZASI',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('theme_store'),
       ),
       body: BlueprintGridBackground(
         patternType: p.id == 'toksik_asit_cyber'
@@ -68,13 +69,13 @@ class ThemeStoreScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'TEMA MAĞAZASI BAKİYESİ',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        Text(
+                          context.tr('theme_store_balance_title'),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Sermayeni veya ücretsiz reklam ödüllerini kullanarak özel temaları aç.',
+                          context.tr('theme_store_balance_desc'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -115,7 +116,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'AKTİF TEMA ÖNİZLEMESİ',
+                        context.tr('theme_active_preview_title'),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -310,8 +311,8 @@ class ThemeStoreScreen extends ConsumerWidget {
                         ),
                       ),
                       if (isActive)
-                        const NeoBrutalBadge(
-                          text: 'AKTİF',
+                        NeoBrutalBadge(
+                          text: context.tr('theme_applied_badge'),
                           backgroundColor: AppColors.brutalYellow,
                           textColor: Colors.black,
                           fontSize: 11,
@@ -319,7 +320,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                         )
                       else if (palette.isUnlocked)
                         NeoBrutalButton(
-                          label: 'KULLAN',
+                          label: context.tr('theme_apply_btn'),
                           backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                           textColor: isDark ? Colors.white : Colors.black,
                           fontSize: 11,
@@ -330,7 +331,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                         )
                       else if (palette.isAdUnlockable)
                         NeoBrutalButton(
-                          label: 'REKLAMLA AÇ',
+                          label: context.tr('theme_watch_ad_btn'),
                           icon: Icons.play_circle_filled_rounded,
                           backgroundColor: isExotic ? const Color(0xFFFF5EAE) : (isAbsurd ? AppColors.hotMagenta : AppColors.brutalGreen),
                           textColor: Colors.white,
@@ -353,7 +354,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                         )
                       else
                         NeoBrutalButton(
-                          label: 'SATIN AL',
+                          label: context.tr('theme_buy_btn'),
                           backgroundColor: AppColors.brutalGreen,
                           textColor: Colors.black,
                           fontSize: 11,

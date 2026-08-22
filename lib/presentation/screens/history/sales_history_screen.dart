@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -33,10 +34,10 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     if (!game.isFeatureUnlocked('/history')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'SATIŞ & TİCARET GEÇMİŞİ'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('history_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/history',
-          featureTitle: 'SATIŞ & TİCARET GEÇMİŞİ',
+          featureTitle: context.tr('history_screen_title'),
           icon: Icons.receipt_long_rounded,
         ),
       );
@@ -59,8 +60,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'SATIŞ & TİCARET GEÇMİŞİ',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('history_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -78,13 +79,13 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'TOPLAM SATILAN',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      Text(
+                        context.tr('history_total_sold'),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${game.carsSold} Araç',
+                        context.tr('history_sold_count', {'count': '${game.carsSold}'}),
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                       ),
                     ],
@@ -129,9 +130,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'NET TOPLAM KÂR',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      Text(
+                        context.tr('history_total_profit'),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -156,9 +157,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'ARAÇ BAŞI ORT. KÂR',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                      Text(
+                        context.tr('history_avg_profit'),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -194,13 +195,13 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterBtn('Tümü', 0, isDark),
+                    _buildFilterBtn(context.tr('history_filter_all'), 0, isDark),
                     const SizedBox(width: 4),
-                    _buildFilterBtn('Kârlı', 1, isDark),
+                    _buildFilterBtn(context.tr('history_filter_profitable'), 1, isDark),
                     const SizedBox(width: 4),
-                    _buildFilterBtn('Konsinye', 2, isDark),
+                    _buildFilterBtn(context.tr('history_filter_consignment'), 2, isDark),
                     const SizedBox(width: 4),
-                    _buildFilterBtn('Zarar', 3, isDark),
+                    _buildFilterBtn(context.tr('history_filter_loss'), 3, isDark),
                   ],
                 ),
               ),
@@ -210,13 +211,13 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
           // 3. Sales History List
           if (filteredHistory.isEmpty)
-            const NeoBrutalEmptyState(
+            NeoBrutalEmptyState(
               icon: Icons.receipt_long_rounded,
               accentColor: AppColors.brutalGreen,
               badgeText: 'KAYIT BULUNAMADI',
-              title: 'Henüz Satış Kaydı Yok',
-              description: 'Galeri vitrininden araç satışı gerçekleştirdiğinde kâr/zarar analizleri, fatura detayları ve net kazançlar burada listelenecek.',
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              title: context.tr('history_empty_title'),
+              description: context.tr('history_empty_desc'),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             )
           else
             ...filteredHistory.map((sale) {

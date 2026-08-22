@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -385,7 +386,7 @@ class RentACarScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
 
                     // 1. Müşteri Profili Seçimi
-                    const Text('MÜŞTERİ PROFİLİ SEÇİMİ', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                    Text(context.tr('rent_customer_profile_title'), style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                     const SizedBox(height: 6),
                     Row(
                       children: [
@@ -442,7 +443,7 @@ class RentACarScreen extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Ticari Rent a Car Kaskosu', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                                Text(context.tr('rent_commercial_insurance'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
                                 Text(
                                   'Günlük ${CurrencyFormatter.formatShort(insuranceDailyFee)} • Kaza & radar muafiyeti',
                                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
@@ -471,7 +472,7 @@ class RentACarScreen extends ConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Tavsiye Edilen Rayiç:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                              Text(context.tr('rent_suggested_rate'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                               Text(
                                 '${CurrencyFormatter.formatShort(suggestedRate)} / Gün',
                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
@@ -482,7 +483,7 @@ class RentACarScreen extends ConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Müşteri Talep Oranı:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                              Text(context.tr('rent_customer_demand_rate'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                               NeoBrutalBadge(
                                 text: '%$demandPercent Talep',
                                 backgroundColor: demandPercent > 60 ? AppColors.brutalGreen : AppColors.brutalYellow,

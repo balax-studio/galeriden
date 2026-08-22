@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
@@ -276,9 +277,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   child: const Icon(Icons.inventory_2_rounded, color: Colors.black, size: 36),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'GÜMRÜK BAGAJ SÜRPRİZİ!',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                Text(
+                  context.tr('auction_trunk_surprise'),
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -301,7 +302,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 ),
                 const SizedBox(height: 18),
                 NeoBrutalButton(
-                  label: 'ÖDÜLÜ KASAYA AKTAR',
+                  label: context.tr('auction_loot_claim_btn'),
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
                   fullWidth: true,
@@ -373,9 +374,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     child: const Icon(Icons.emoji_events_rounded, color: Colors.black, size: 40),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'İHALEYİ KAZANDIN!',
-                    style: TextStyle(
+                  Text(
+                    context.tr('auction_won_title'),
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.0,
@@ -395,7 +396,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 18),
                   NeoBrutalButton(
-                    label: 'BAGAJI AÇ & SÜRPRİZİ AL',
+                    label: context.tr('auction_trunk_btn'),
                     icon: Icons.card_giftcard_rounded,
                     backgroundColor: AppColors.brutalOrange,
                     textColor: Colors.black,
@@ -409,7 +410,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 8),
                   NeoBrutalButton(
-                    label: 'DİREKT SHOWROOM\'A AL',
+                    label: context.tr('auction_to_showroom_btn'),
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fullWidth: true,
@@ -456,9 +457,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     child: const Icon(Icons.gavel_rounded, color: Colors.white, size: 36),
                   ),
                   const SizedBox(height: 14),
-                  const Text(
-                    'İHALE KAÇIRILDI',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                  Text(
+                    context.tr('auction_lost_title'),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -469,7 +470,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   const SizedBox(height: 18),
                   if (!_hasExtendedAuction) ...[
                     NeoBrutalButton(
-                      label: 'GÜMRÜK MEMURUNA RİCADA BULUN • SEANSI 15 SN UZAT',
+                      label: context.tr('auction_extend_btn'),
                       icon: Icons.access_time_filled_rounded,
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
@@ -581,10 +582,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     if (!game.isFeatureUnlocked('/auction')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'CANLI GÜMRÜK İHALESİ'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('auction_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/auction',
-          featureTitle: 'GÜMRÜK & İHALE MERKEZİ',
+          featureTitle: context.tr('auction_title'),
           icon: Icons.gavel_rounded,
         ),
       );
@@ -593,7 +594,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     if (game.reputationScore < 30) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'CANLI GÜMRÜK İHALESİ'),
+        appBar: NeoBrutalAppBar(title: context.tr('auction_title')),
         body: _buildLowReputationLockedView(isDark, game.reputationScore),
       );
     }
@@ -601,13 +602,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: _isVipSession ? 'VIP MÜZAYEDE SALONU' : 'CANLI GÜMRÜK İHALESİ',
+        title: _isVipSession ? context.tr('auction_vip_title') : context.tr('auction_title'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
             child: Center(
               child: NeoBrutalBadge(
-                text: _isVipSession ? 'VIP PROTOKOL' : (_isWindowOpen ? 'CANLI YAYIN' : 'KAPALI'),
+                text: _isVipSession ? 'VIP PROTOKOL' : (_isWindowOpen ? context.tr('auction_live_badge') : context.tr('auction_closed_badge')),
                 backgroundColor: _isVipSession ? const Color(0xFF7C3AED) : (_isWindowOpen ? AppColors.errorRed : const Color(0xFF64748B)),
                 textColor: Colors.white,
               ),
@@ -650,7 +651,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   Icon(Icons.gavel_rounded, size: 13, color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'GÜMRÜK',
+                                    context.tr('auction_tab_customs'),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
@@ -681,7 +682,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   Icon(Icons.stars_rounded, size: 13, color: _selectedTabIndex == 1 ? Colors.white : const Color(0xFFA855F7)),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'VIP SALON',
+                                    context.tr('auction_tab_vip'),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
@@ -712,7 +713,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   Icon(Icons.list_alt_rounded, size: 13, color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'KATALOG • ${_upcomingLots.length}',
+                                    context.tr('auction_tab_catalog', {'count': '${_upcomingLots.length}'}),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
@@ -803,8 +804,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       builder: (context, child) {
                         return Transform.scale(
                           scale: 1.0 + (_pulseController.value * 0.15),
-                          child: const NeoBrutalBadge(
-                            text: 'ÇEKİÇ VURULUYOR!',
+                          child: NeoBrutalBadge(
+                            text: context.tr('auction_gavel_strike'),
                             backgroundColor: AppColors.errorRed,
                             textColor: Colors.white,
                             fontSize: 10,
@@ -903,7 +904,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     ),
                   ),
                   NeoBrutalBadge(
-                    text: 'Piyasa: ${CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}',
+                    text: context.tr('auction_market_est', {'price': CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}),
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 10,
@@ -927,9 +928,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'GÜNCEL LİDER TEKLİF',
-                          style: TextStyle(
+                        Text(
+                          context.tr('auction_highest_bid_label'),
+                          style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF64748B),
@@ -949,9 +950,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text(
-                          'TEKLİF SAHİBİ',
-                          style: TextStyle(
+                        Text(
+                          context.tr('auction_bidder_label'),
+                          style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF64748B),
@@ -1014,17 +1015,17 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'HIZLI TEKLİF & SALON HAMLELERİ',
-                    style: TextStyle(
+                  Text(
+                    context.tr('auction_quick_bids'),
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
                     ),
                   ),
                   if (_auction.isPlayerHighestBidder)
-                    const NeoBrutalBadge(
-                      text: 'LİDER SENSİN',
+                    NeoBrutalBadge(
+                      text: context.tr('auction_leader_you'),
                       icon: Icons.workspace_premium_rounded,
                       backgroundColor: AppColors.brutalGreen,
                       textColor: Colors.black,
@@ -1087,7 +1088,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   Expanded(
                     child: NeoBrutalButton(
                       icon: Icons.flag_rounded,
-                      label: 'BAYRAK • +₺50k',
+                      label: context.tr('auction_btn_flag'),
                       backgroundColor: _auction.isPlayerHighestBidder
                           ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                           : const Color(0xFFFFDE59),
@@ -1101,7 +1102,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   Expanded(
                     child: NeoBrutalButton(
                       icon: Icons.psychology_rounded,
-                      label: 'BLÖF YAP VE ÇEKİL',
+                      label: context.tr('auction_btn_bluff'),
                       backgroundColor: _auction.isPlayerHighestBidder
                           ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                           : const Color(0xFFA855F7),
@@ -1127,9 +1128,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'SALONDAKİ RAKİP ALICILAR',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+              Text(
+                context.tr('auction_rivals_title'),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
               ),
               const SizedBox(height: 8),
               ..._auction.rivals.map((r) => Padding(
@@ -1190,9 +1191,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'İHALE CANLI AKIŞI',
-                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+              Text(
+                context.tr('auction_live_stream_title'),
+                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, letterSpacing: 0.5),
               ),
               const SizedBox(height: 6),
               ..._bidLogs.take(5).map((log) => Padding(
@@ -1359,9 +1360,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   child: const Icon(Icons.lock_clock_rounded, color: AppColors.brutalOrange, size: 38),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'İHALE SALONU ŞU AN KAPALI',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                Text(
+                  context.tr('auction_closed_title'),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -1407,7 +1408,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 18),
                   NeoBrutalButton(
-                    label: 'GÖREVLİYE SOR',
+                    label: context.tr('auction_ask_officer_btn'),
                     icon: Icons.forum_rounded,
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
@@ -1434,13 +1435,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.badge_rounded, color: AppColors.brutalYellow, size: 18),
-                            SizedBox(width: 6),
+                            const Icon(Icons.badge_rounded, color: AppColors.brutalYellow, size: 18),
+                            const SizedBox(width: 6),
                             Text(
-                              'Gümrük Müzayede Memuru:',
-                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
+                              context.tr('auction_officer_label'),
+                              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
                             ),
                           ],
                         ),
@@ -1459,7 +1460,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ),
                   const SizedBox(height: 16),
                   NeoBrutalButton(
-                    label: 'GÖREVİ YENİDEN SORGULA',
+                    label: context.tr('auction_reask_officer_btn'),
                     backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fullWidth: true,

@@ -193,7 +193,7 @@ class StaffScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${staff.name} İçin Prim Belirle', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                  Text(context.tr('staff_bonus_title', {'name': staff.name}), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
                   const NeoBrutalBadge(text: '+50 Moral & Bağlılık', backgroundColor: AppColors.brutalGreen, textColor: Colors.black, fontSize: 10),
                 ],
               ),
@@ -424,7 +424,7 @@ class StaffScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           Text(
-            'TÜM PERSONEL ROLLERİ & KADRO • ${StaffRole.values.length}',
+            '${context.tr('staff_active_roster')} • ${StaffRole.values.length}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,

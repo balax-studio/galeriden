@@ -130,11 +130,13 @@ void main() {
       notifier.state = notifier.state.copyWith(carsSold: 15, level: 5);
 
       final ipoResult = notifier.launchPlayerCompanyIpo();
+      notifier.stopPeriodicOrganicOfferTimer();
       expect(ipoResult, isNotNull);
       expect(container.read(gameProvider).isCompanyListedOnBist, isTrue);
 
       final glrdBefore = container.read(gameProvider).marketStocks.firstWhere((s) => s.symbol == 'GLRD');
       final buybackSuccess = notifier.buybackPlayerCompanyShares(amount: 50000.0);
+      notifier.stopPeriodicOrganicOfferTimer();
       expect(buybackSuccess, isTrue);
 
       final glrdAfter = container.read(gameProvider).marketStocks.firstWhere((s) => s.symbol == 'GLRD');

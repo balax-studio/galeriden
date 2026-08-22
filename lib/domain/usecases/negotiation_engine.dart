@@ -286,6 +286,34 @@ class NegotiationEngine {
       return _dialogueQueue.selectNext(collectorPool, randomInstance: random);
     }
 
+    if (isOverTuned && archetype == CustomerArchetype.impatientYouth) {
+      final slot1 = [
+        'Reis makine alev atıyor •',
+        'Ustam popcorn yazılımına bittim •',
+        'Caddede dikkat çeker bu makine •',
+        'Valla garajda gördüm kanım kaynadı •',
+        'Sesi caddeleri inletir bunun •',
+        'Basıklığı ve duruşu efsane olmuş •',
+      ];
+      final slot2 = [
+        'Bu basıklık ve egzoz sesi tam bizim semte göre.',
+        'Arabayı bu akşam alıp caddeye çıkmam lazım.',
+        'Jantlar ve bodykit harika duruyor.',
+        'Duruşu kordonu mermi gibi maşallah.',
+        'Mekanik ciğeri diriyse ufak tefek sürtmelere bakmam.',
+        'Tam aradığım hot hatch duruşu.',
+      ];
+      final slot3 = [
+        '$formattedPrice peşin veriyorum, hemen el sıkışalım.',
+        '$formattedPrice say hemen IBAN at, noter harcını ben ödeyeyim.',
+        '$formattedPrice teklif ediyorum, direkt notere geçelim.',
+        '$formattedPrice nakite bu akşam anahtarı teslim alayım.',
+      ];
+      final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
+      _dialogueQueue.push(composed);
+      return composed;
+    }
+
     if (isLowball) {
       final slot1 = [
         'Usta öldürmüş gibi olmasın ama •',
@@ -311,34 +339,6 @@ class NegotiationEngine {
         '$formattedPrice peşin teklifimdir, düşünürsen ara.',
         '$formattedPrice deste nakit masada, hemen devri alalım.',
         '$formattedPrice son teklifim, başka kapıya bakma.',
-      ];
-      final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
-      _dialogueQueue.push(composed);
-      return composed;
-    }
-
-    if (isOverTuned && archetype == CustomerArchetype.impatientYouth) {
-      final slot1 = [
-        'Reis makine alev atıyor •',
-        'Ustam popcorn yazılımına bittim •',
-        'Caddede dikkat çeker bu makine •',
-        'Valla garajda gördüm kanım kaynadı •',
-        'Sesi caddeleri inletir bunun •',
-        'Basıklığı ve duruşu efsane olmuş •',
-      ];
-      final slot2 = [
-        'Bu basıklık ve egzoz sesi tam bizim semte göre.',
-        'Arabayı bu akşam alıp caddeye çıkmam lazım.',
-        'Jantlar ve bodykit harika duruyor.',
-        'Duruşu kordonu mermi gibi maşallah.',
-        'Mekanik ciğeri diriyse ufak tefek sürtmelere bakmam.',
-        'Tam aradığım hot hatch duruşu.',
-      ];
-      final slot3 = [
-        '$formattedPrice peşin veriyorum, hemen el sıkışalım.',
-        '$formattedPrice say hemen IBAN at, noter harcını ben ödeyeyim.',
-        '$formattedPrice teklif ediyorum, direkt notere geçelim.',
-        '$formattedPrice nakite bu akşam anahtarı teslim alayım.',
       ];
       final composed = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: random);
       _dialogueQueue.push(composed);
@@ -534,6 +534,7 @@ class NegotiationEngine {
         offeredPrice: baseOffer,
         askingPrice: askingPrice,
         isLowball: true,
+        isOverTuned: car.isOverTuned,
       );
     } else {
       // 4) Standard Normal Offer (%65 chance): %85 - %97 of fair anchor price

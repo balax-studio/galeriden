@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/game_constants.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -26,10 +27,10 @@ class CustomerReviewsScreen extends ConsumerWidget {
     if (!game.isFeatureUnlocked('/reviews')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'MÜŞTERİ YORUMLARI & PUAN'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('reviews_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/reviews',
-          featureTitle: 'MÜŞTERİ YORUMLARI',
+          featureTitle: context.tr('reviews_screen_title'),
           icon: Icons.reviews_rounded,
         ),
       );
@@ -42,8 +43,8 @@ class CustomerReviewsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'MÜŞTERİ YORUMLARI & PUAN',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('reviews_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -93,18 +94,18 @@ class CustomerReviewsScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'GALERİ HARİTA PUANI',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                          Text(
+                            context.tr('reviews_map_rating'),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${reviews.length} Müşteri Değerlendirmesi',
+                            context.tr('reviews_count_label', {'count': '${reviews.length}'}),
                             style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'İtibar Puanı: ${game.reputationScore} / 1000',
+                            context.tr('reviews_reputation_label', {'rep': '${game.reputationScore}'}),
                             style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                           ),
                         ],
@@ -115,7 +116,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 // Bot / PR Review Purchase Action with Algorithmic Cost Scaling
                 NeoBrutalButton(
-                  label: 'SOSYAL MEDYA PR & BOT YORUM AL • ${CurrencyFormatter.format(game.botReviewCost.toDouble())}',
+                  label: context.tr('reviews_pr_bot_btn', {'cost': CurrencyFormatter.format(game.botReviewCost.toDouble())}),
                   icon: Icons.campaign_rounded,
                   backgroundColor: AppColors.brutalCyan,
                   textColor: Colors.black,
@@ -140,7 +141,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                       Icon(Icons.shield_outlined, size: 12, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                       const SizedBox(width: 4),
                       Text(
-                        'Satın Alınan Bot: ${game.botReviewCount} • Spam Filtresi Nedeniyle Maliyet Katlanır',
+                        context.tr('reviews_bot_count_info', {'count': '${game.botReviewCount}'}),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -156,7 +157,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           Text(
-            'MÜŞTERİ GERİ BİLDİRİMLERİ',
+            context.tr('reviews_feedback_header'),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -168,13 +169,13 @@ class CustomerReviewsScreen extends ConsumerWidget {
 
           // 2. Reviews List
           if (reviews.isEmpty)
-            const NeoBrutalEmptyState(
+            NeoBrutalEmptyState(
               icon: Icons.rate_review_outlined,
               accentColor: AppColors.brutalYellow,
-              badgeText: 'İLK YORUM BEKLENİYOR',
-              title: 'Henüz Müşteri Yorumu Yok',
-              description: 'Galeri vitrininden araç satışı yaptıkça ve müşterilerini memnun ettikçe dükkan puanın ve gerçekçi geri bildirimler burada birikecek.',
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              badgeText: context.tr('reviews_empty_badge'),
+              title: context.tr('reviews_empty_title'),
+              description: context.tr('reviews_empty_desc'),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             )
           else
             ...reviews.map((r) {
@@ -198,8 +199,8 @@ class CustomerReviewsScreen extends ConsumerWidget {
                           Row(
                             children: [
                               if (r.isCompensated) ...[
-                                const NeoBrutalBadge(
-                                  text: 'TELAFİ EDİLDİ',
+                                NeoBrutalBadge(
+                                  text: context.tr('reviews_compensated_badge'),
                                   backgroundColor: AppColors.brutalGreen,
                                   textColor: Colors.black,
                                   fontSize: 9,
@@ -221,7 +222,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       NeoBrutalBadge(
-                        text: 'Satılan: ${r.carTitle}',
+                        text: context.tr('reviews_sold_car_badge', {'car': r.carTitle}),
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                         textColor: isDark ? Colors.white70 : const Color(0xFF334155),
                         fontSize: 10,
@@ -247,7 +248,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  'Galeri Yanıtı: ${r.reply}',
+                                  context.tr('reviews_reply_prefix', {'reply': r.reply ?? ''}),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -265,7 +266,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                           if (r.reply == null)
                             Expanded(
                               child: NeoBrutalButton(
-                                label: 'CEVAP YAZ • +1',
+                                label: context.tr('reviews_reply_btn'),
                                 icon: Icons.reply_rounded,
                                 backgroundColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
                                 textColor: isDark ? Colors.white : Colors.black,
@@ -276,7 +277,7 @@ class CustomerReviewsScreen extends ConsumerWidget {
                           if (r.rating <= 2 && !r.isCompensated)
                             Expanded(
                               child: NeoBrutalButton(
-                                label: 'TELAFİ GÖNDER • ${CurrencyFormatter.format(GameConstants.customerCompensationCost)}',
+                                label: context.tr('reviews_compensate_btn', {'cost': CurrencyFormatter.format(GameConstants.customerCompensationCost)}),
                                 icon: Icons.card_giftcard_rounded,
                                 backgroundColor: AppColors.brutalOrange,
                                 textColor: Colors.white,

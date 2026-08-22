@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
@@ -117,7 +118,7 @@ class ListingDetailScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // Sahibinden İlan Bilgi Tablosu
-            Text('İLAN BİLGİLERİ', style: AppTypography.labelSmall(p.isDark)),
+            Text(context.tr('listing_info_title'), style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
@@ -127,18 +128,18 @@ class ListingDetailScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  _buildSpecRow('İlan No', '#${listing.id.hashCode.abs().toString().padLeft(10, '0')}', p),
-                  _buildSpecRow('İlan Tarihi', 'Bugün • Canlı Akış', p),
-                  _buildSpecRow('Konum / Şehir', listing.sellerCity, p),
-                  _buildSpecRow('Marka / Model', '${car.brand} ${car.modelName}', p),
-                  _buildSpecRow('Model Yılı', '${car.modelYear}', p),
-                  _buildSpecRow('Kasa Tipi', car.bodyType, p),
-                  _buildSpecRow('Plaka', car.plateNumber.isNotEmpty ? car.plateNumber : '34 TR 001', p),
-                  _buildSpecRow('Renk', car.colorDisplayName.isNotEmpty ? car.colorDisplayName : 'Metalik Gri', p),
-                  _buildSpecRow('Kilometre', '${NumberFormat('#,###', 'tr_TR').format(exp.mileage)} KM', p, valueColor: StatColors.getMileageColor(exp.mileage)),
-                  _buildSpecRow('Motor Kondisyonu', '%${exp.engineCondition.round()}', p, valueColor: StatColors.getEngineColor(exp.engineCondition)),
-                  _buildSpecRow('Tramer Kaydı', exp.tramerAmount == 0 ? 'Hasar Kayıtsız' : CurrencyFormatter.formatShort(exp.tramerAmount.toDouble()), p, valueColor: StatColors.getTramerColor(exp.tramerAmount)),
-                  _buildSpecRow('Satıcı Profil', listing.sellerName, p),
+                  _buildSpecRow(context.tr('listing_no'), '#${listing.id.hashCode.abs().toString().padLeft(10, '0')}', p),
+                  _buildSpecRow(context.tr('listing_date'), context.tr('listing_today_live'), p),
+                  _buildSpecRow(context.tr('listing_location'), listing.sellerCity, p),
+                  _buildSpecRow(context.tr('listing_brand_model'), '${car.brand} ${car.modelName}', p),
+                  _buildSpecRow(context.tr('listing_year'), '${car.modelYear}', p),
+                  _buildSpecRow(context.tr('listing_body'), car.bodyType, p),
+                  _buildSpecRow(context.tr('listing_plate'), car.plateNumber.isNotEmpty ? car.plateNumber : '34 TR 001', p),
+                  _buildSpecRow(context.tr('listing_color'), car.colorDisplayName.isNotEmpty ? car.colorDisplayName : 'Metalik Gri', p),
+                  _buildSpecRow(context.tr('listing_mileage'), '${NumberFormat('#,###', 'tr_TR').format(exp.mileage)} KM', p, valueColor: StatColors.getMileageColor(exp.mileage)),
+                  _buildSpecRow(context.tr('listing_engine_cond'), '%${exp.engineCondition.round()}', p, valueColor: StatColors.getEngineColor(exp.engineCondition)),
+                  _buildSpecRow(context.tr('listing_tramer'), exp.tramerAmount == 0 ? context.tr('listing_no_damage') : CurrencyFormatter.formatShort(exp.tramerAmount.toDouble()), p, valueColor: StatColors.getTramerColor(exp.tramerAmount)),
+                  _buildSpecRow(context.tr('listing_seller_profile'), listing.sellerName, p),
                 ],
               ),
             ),
@@ -148,9 +149,9 @@ class ListingDetailScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('KAPORTA & EKSPERTİZ RAPORU', style: AppTypography.labelSmall(p.isDark)),
+                Text(context.tr('listing_body_report_title'), style: AppTypography.labelSmall(p.isDark)),
                 NeoBrutalButton(
-                  label: 'DETAYLI RAPOR',
+                  label: context.tr('listing_detailed_report_btn'),
                   icon: Icons.assignment_outlined,
                   backgroundColor: p.primaryColor,
                   textColor: Colors.black,
@@ -173,7 +174,7 @@ class ListingDetailScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Seller Description
-            Text('SATICI AÇIKLAMASI', style: AppTypography.labelSmall(p.isDark)),
+            Text(context.tr('listing_seller_desc_title'), style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -200,7 +201,7 @@ class ListingDetailScreen extends ConsumerWidget {
         ),
         child: SafeArea(
           child: NeoBrutalButton(
-            label: 'PAZARLIK ET & SATIN AL',
+            label: context.tr('expertise_negotiate_buy'),
             icon: Icons.handshake_rounded,
             backgroundColor: p.primaryColor,
             textColor: Colors.black,

@@ -118,7 +118,7 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Aktif Tema: ${p.name}',
+                          context.tr('settings_active_theme_label', {'name': p.name}),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                         ),
                       ],
@@ -215,18 +215,18 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'SPONSOR DESTEK FONU',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                Text(
+                  context.tr('sponsor_fund_title'),
+                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Oyunda zorunlu reklam yoktur. Destek olmak istediğinde video izleyerek kasana ₺25.000 hibe alabilirsin.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('sponsor_fund_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 NeoBrutalButton(
-                  label: 'VİDEO İZLE • +₺25.000 KAZAN',
+                  label: context.tr('watch_video_earn_btn'),
                   icon: Icons.play_circle_fill_rounded,
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
@@ -238,7 +238,7 @@ class SettingsScreen extends ConsumerWidget {
                       customRewardTitle: '₺25.000 Sponsor Ödülü',
                       onRewardEarned: () {
                         ref.read(gameProvider.notifier).claimAdReward(25000.0);
-                        NotificationService.showSuccess(context, 'Tebrikler! ₺25.000 sponsor ödülü kasanıza eklendi.');
+                        NotificationService.showSuccess(context, context.tr('sponsor_reward_success'));
                       },
                     );
                   },
@@ -263,12 +263,12 @@ class SettingsScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'DESTEK & MAĞAZA PUANLAMA',
-                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                    Text(
+                      context.tr('support_rating_title'),
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                     ),
                     NeoBrutalBadge(
-                      text: game.hasReceivedReviewReward ? 'ÖDÜL ALINDI' : 'TEK SEFERLİK ₺100.000',
+                      text: game.hasReceivedReviewReward ? context.tr('support_reward_claimed') : context.tr('support_one_time_badge'),
                       backgroundColor: game.hasReceivedReviewReward
                           ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))
                           : AppColors.brutalYellow,
@@ -281,14 +281,14 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Oyunu mağazada 5 yıldızla değerlendirip görüşünüzü belirterek bağımsız yerli stüdyomuza destek olun • Tek seferlik ₺100.000 ve 100 XP teşvik ödülü kazanın!',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('support_rating_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 if (!game.hasReceivedReviewReward)
                   NeoBrutalButton(
-                    label: '5 YILDIZ VER & DEĞERLENDİR • +₺100.000 KAZAN',
+                    label: context.tr('support_rate_5_stars_btn'),
                     icon: Icons.star_rounded,
                     backgroundColor: AppColors.brutalGreen,
                     textColor: Colors.black,
@@ -328,7 +328,7 @@ class SettingsScreen extends ConsumerWidget {
                         const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.brutalGreen),
                         const SizedBox(width: 6),
                         Text(
-                          'Puanlama Ödülü Alındı • Desteğiniz İçin Teşekkürler',
+                          context.tr('support_claimed_text'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -352,14 +352,14 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'TOPLULUK & GERİ BİLDİRİM MASASI',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                Text(
+                  context.tr('community_feedback_title'),
+                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Oyundan çıkmadan doğrudan geliştiriciye hata bildirebilir, yeni araç ve özellik önerilerinde bulunabilirsiniz.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('community_feedback_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -367,7 +367,7 @@ class SettingsScreen extends ConsumerWidget {
                     Expanded(
                       flex: 3,
                       child: NeoBrutalButton(
-                        label: 'GELİŞTİRİCİYE BİLDİR',
+                        label: context.tr('feedback_report_btn'),
                         icon: Icons.rate_review_rounded,
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
@@ -380,7 +380,7 @@ class SettingsScreen extends ConsumerWidget {
                     Expanded(
                       flex: 2,
                       child: NeoBrutalButton(
-                        label: 'NELER GELDİ?',
+                        label: context.tr('whats_new_btn'),
                         icon: Icons.new_releases_rounded,
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
@@ -529,12 +529,12 @@ class SettingsScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'SEZON DEVİR & KUŞAK MİRASI',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFFA855F7)),
+                    Text(
+                      context.tr('dynasty_season_title'),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFFA855F7)),
                     ),
                     NeoBrutalBadge(
-                      text: '${game.dynastyGeneration}. KUŞAK',
+                      text: context.tr('dynasty_generation_badge', {'gen': game.dynastyGeneration}),
                       backgroundColor: const Color(0xFFA855F7),
                       textColor: Colors.white,
                       fontSize: 10,
@@ -543,7 +543,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Galeri bayrağını sonraki nesle devreder. Koleksiyon vitrinine kilitlediğin yadigâr araçlar • ${game.ownedCars.where((c) => c.isLockedInShowcase).length} adet ve unvan mirası sonraki kuşağa aynen aktarılır.',
+                  context.tr('dynasty_desc'),
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 if (game.dynastyHistoryLog.isNotEmpty) ...[
@@ -571,7 +571,7 @@ class SettingsScreen extends ConsumerWidget {
                 ],
                 const SizedBox(height: 12),
                 NeoBrutalButton(
-                  label: 'GALERİYİ YENİ NESLE DEVRET',
+                  label: context.tr('dynasty_transfer_btn'),
                   icon: Icons.auto_awesome_rounded,
                   backgroundColor: (game.level >= 5 || game.balance >= 1000000) ? const Color(0xFFA855F7) : const Color(0xFF64748B),
                   textColor: Colors.white,
@@ -595,13 +595,16 @@ class SettingsScreen extends ConsumerWidget {
                                   children: [
                                     const Icon(Icons.workspace_premium_rounded, color: Color(0xFFA855F7), size: 44),
                                     const SizedBox(height: 12),
-                                    const Text(
-                                      'KUŞAK DEVİR ONAYI',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                                    Text(
+                                      context.tr('dynasty_confirm_title'),
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      'Mevcut ${game.dynastyGeneration}. Kuşak galeriniz tamamlanacak. Vitrindeki yadigâr araçlarınız korunarak ${game.dynastyGeneration + 1}. Kuşak olarak yeni köken ve prestijle başlayacaksınız. Devam edilsin mi?',
+                                      context.tr('dynasty_confirm_desc', {
+                                        'gen': game.dynastyGeneration,
+                                        'nextGen': game.dynastyGeneration + 1,
+                                      }),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                     ),
@@ -610,7 +613,7 @@ class SettingsScreen extends ConsumerWidget {
                                       children: [
                                         Expanded(
                                           child: NeoBrutalButton(
-                                            label: 'VAZGEÇ',
+                                            label: context.tr('dialog_cancel'),
                                             backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                             textColor: isDark ? Colors.white : Colors.black,
                                             onPressed: () => Navigator.pop(ctx),
@@ -619,13 +622,16 @@ class SettingsScreen extends ConsumerWidget {
                                         const SizedBox(width: 10),
                                         Expanded(
                                           child: NeoBrutalButton(
-                                            label: 'DEVRET',
+                                            label: context.tr('dialog_transfer'),
                                             backgroundColor: const Color(0xFFA855F7),
                                             textColor: Colors.white,
                                             onPressed: () {
                                               Navigator.pop(ctx);
                                               ref.read(gameProvider.notifier).performDynastySeasonReset();
-                                              NotificationService.showSuccess(context, 'Tebrikler! ${game.dynastyGeneration + 1}. Kuşak Miras Galeri dönemi başladı.');
+                                              NotificationService.showSuccess(
+                                                context,
+                                                context.tr('dynasty_started_toast', {'gen': game.dynastyGeneration + 1}),
+                                              );
                                             },
                                           ),
                                         ),
@@ -638,7 +644,7 @@ class SettingsScreen extends ConsumerWidget {
                           );
                         }
                       : () {
-                          NotificationService.showWarning(context, 'Kuşak Devri için Seviye 5 veya ₺1.000.000 sermaye gereklidir.');
+                          NotificationService.showWarning(context, context.tr('dynasty_warning_level'));
                         },
                 ),
               ],
@@ -655,18 +661,18 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'İLERLEMEYİ SIFIRLA',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                Text(
+                  context.tr('reset_game_title'),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.errorRed),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Oyunu başlangıç durumuna • ₺50.000 başlangıç sermayesi ile sıfırlar.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('reset_game_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 NeoBrutalButton(
-                  label: 'TÜM OYUNU SIFIRLA',
+                  label: context.tr('reset_game_btn'),
                   icon: Icons.delete_forever_rounded,
                   backgroundColor: AppColors.errorRed,
                   textColor: Colors.white,
@@ -689,22 +695,22 @@ class SettingsScreen extends ConsumerWidget {
                             children: [
                               const Icon(Icons.warning_amber_rounded, color: AppColors.errorRed, size: 40),
                               const SizedBox(height: 12),
-                              const Text(
-                                'SIFIRLAMA ONAYI',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                              Text(
+                                context.tr('reset_confirm_title'),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                               ),
                               const SizedBox(height: 6),
-                              const Text(
-                                'Tüm garajınız ve birikiminiz sıfırlanacaktır. Emin misiniz?',
+                              Text(
+                                context.tr('reset_confirm_desc'),
                                 textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 18),
                               Row(
                                 children: [
                                   Expanded(
                                     child: NeoBrutalButton(
-                                      label: 'VAZGEÇ',
+                                      label: context.tr('dialog_cancel'),
                                       backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                                       textColor: isDark ? Colors.white : Colors.black,
                                       onPressed: () => Navigator.pop(ctx),
@@ -713,7 +719,7 @@ class SettingsScreen extends ConsumerWidget {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: NeoBrutalButton(
-                                      label: 'SIFIRLA',
+                                      label: context.tr('dialog_reset'),
                                       backgroundColor: AppColors.errorRed,
                                       textColor: Colors.white,
                                       onPressed: () {
@@ -748,12 +754,12 @@ class SettingsScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'YASAL & GİZLİLİK',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                    Text(
+                      context.tr('legal_privacy_title'),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                     ),
                     NeoBrutalBadge(
-                      text: 'GDPR / KVKK UYUMLU',
+                      text: context.tr('legal_gdpr_badge'),
                       backgroundColor: const Color(0xFF00E575),
                       textColor: Colors.black,
                       fontSize: 9,
@@ -761,16 +767,16 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Oyun verileriniz yalnızca cihazınızda yerel olarak saklanır. İsteğe bağlı ödüllü reklamlar dışında kişisel veri işlenmez.',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                Text(
+                  context.tr('legal_privacy_desc'),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
                       child: NeoBrutalButton(
-                        label: 'GİZLİLİK POLİTİKASI',
+                        label: context.tr('privacy_policy_btn'),
                         icon: Icons.shield_outlined,
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -782,7 +788,7 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: NeoBrutalButton(
-                        label: 'KULLANIM ŞARTLARI',
+                        label: context.tr('terms_of_service_btn'),
                         icon: Icons.description_outlined,
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -829,9 +835,9 @@ class SettingsScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'GİZLİLİK POLİTİKASI',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  Text(
+                    context.tr('privacy_policy_btn'),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20),
@@ -871,7 +877,7 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'WEB\'DE AÇ',
+                      label: context.tr('open_in_web_btn'),
                       icon: Icons.open_in_browser_rounded,
                       backgroundColor: const Color(0xFF00E575),
                       textColor: Colors.black,
@@ -887,7 +893,7 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'KAPAT',
+                      label: context.tr('dialog_close'),
                       backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white : Colors.black,
                       fontSize: 11,
@@ -922,9 +928,9 @@ class SettingsScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'KULLANIM KOŞULLARI',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  Text(
+                    context.tr('terms_of_service_btn'),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20),
@@ -956,7 +962,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               NeoBrutalButton(
-                label: 'KAPAT',
+                label: context.tr('dialog_close'),
                 backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                 textColor: isDark ? Colors.white : Colors.black,
                 fontSize: 11.5,

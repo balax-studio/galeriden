@@ -196,7 +196,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Hisse Tutarı:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                              Text(context.tr('stock_amount_label'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                               Text(CurrencyFormatter.formatShort(grossCost), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
                             ],
                           ),
@@ -204,7 +204,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Borsa Komisyonu • %0.2:', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                              Text(context.tr('stock_broker_commission'), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
                               Text(CurrencyFormatter.formatShort(commission), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
                             ],
                           ),
@@ -419,7 +419,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Alış Maliyeti:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                              Text(context.tr('stock_buy_cost'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                               Text(CurrencyFormatter.formatShort(buyCost), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.brutalGreen)),
                             ],
                           ),
@@ -427,7 +427,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Satış Geliri:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                              Text(context.tr('stock_sell_revenue'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                               Text(CurrencyFormatter.formatShort(sellRevenue), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.errorRed)),
                             ],
                           ),
@@ -918,7 +918,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('TOPLAM PORTFÖY DEĞERİ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                  Text(context.tr('stock_total_portfolio_value'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                   NeoBrutalBadge(
                     text: '${isOverallProfitable ? '+' : ''}${CurrencyFormatter.formatShort(totalProfitLoss)}',
                     backgroundColor: isOverallProfitable ? AppColors.brutalGreen : AppColors.errorRed,
@@ -949,13 +949,13 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('GÜNLÜK TEMETTÜ NAKİT AKIŞI', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                          Text(context.tr('stock_daily_dividend_cashflow'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                           Text(
                             '+${CurrencyFormatter.formatShort(dailyDividendFlow)} / Gün',
                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                           ),
                           Text(
-                            'Yıllık Beklenen: ${CurrencyFormatter.formatShort(dailyDividendFlow * 365)}',
+                            context.tr('stock_annual_expected', {'amount': CurrencyFormatter.formatShort(dailyDividendFlow * 365)}),
                             style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
                           ),
                         ],
@@ -969,7 +969,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
         ),
         const SizedBox(height: 14),
 
-        Text('ELDEKİ HİSSELER • ${game.ownedStocks.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+        Text(context.tr('stock_held_shares', {'count': game.ownedStocks.length}), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
         const SizedBox(height: 8),
 
         ...game.ownedStocks.map((owned) {
@@ -1463,9 +1463,9 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('HALKA ARZ TALEBİ • ${ipo.symbol}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                    Text(context.tr('stock_ipo_demand_title', {'symbol': ipo.symbol}), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 4),
-                    Text('Maksimum Talep Sınırı: ${ipo.maxLotPerUser} Lot', style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                    Text(context.tr('stock_ipo_max_limit', {'amount': ipo.maxLotPerUser}), style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
                     const SizedBox(height: 12),
                     TextField(
                       controller: lotCtrl,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -208,10 +209,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     if (!game.isFeatureUnlocked('/tuning-studio')) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'TUNING & MODİFİYE STÜDYOSU'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('tuning_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/tuning-studio',
-          featureTitle: 'TUNING STÜDYOSU',
+          featureTitle: context.tr('tuning_screen_title'),
           icon: Icons.speed_rounded,
         ),
       );
@@ -256,8 +257,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'VIP TUNİNG & MODİFİYE STÜDYOSU',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('tuning_screen_title'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

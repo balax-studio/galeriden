@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -53,8 +54,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
-        title: 'ÖZEL PLAKA TESCİL MASASI',
+      appBar: NeoBrutalAppBar(
+        title: context.tr('special_plate_title'),
       ),
       body: Column(
         children: [
@@ -100,7 +101,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? AppColors.brutalGreen : const Color(0xFF15803D),
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
                             ),
                           ),
                         ],
@@ -155,15 +156,15 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                 labelColor: isDark ? Colors.black : Colors.white,
                 unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                 labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                tabs: const [
+                tabs: [
                   Tab(
                     iconMargin: EdgeInsets.zero,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.grid_view_rounded, size: 16),
-                        SizedBox(width: 6),
-                        Text('VİTRİN KATALOĞU'),
+                        const Icon(Icons.grid_view_rounded, size: 16),
+                        const SizedBox(width: 6),
+                        Text(context.tr('plate_catalog_tab')),
                       ],
                     ),
                   ),
@@ -172,9 +173,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.edit_note_rounded, size: 18),
-                        SizedBox(width: 6),
-                        Text('ÖZEL PLAKA TASARLA'),
+                        const Icon(Icons.edit_note_rounded, size: 18),
+                        const SizedBox(width: 6),
+                        Text(context.tr('plate_designer_tab')),
                       ],
                     ),
                   ),
