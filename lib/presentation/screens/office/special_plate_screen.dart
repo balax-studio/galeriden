@@ -45,6 +45,20 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     super.dispose();
   }
 
+  bool _isPlateInUse(String plateNumber, List<CarModel> ownedCars) {
+    final normalized = plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    return ownedCars.any((c) => c.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() == normalized);
+  }
+
+  CarModel? _getCarUsingPlate(String plateNumber, List<CarModel> ownedCars) {
+    final normalized = plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    try {
+      return ownedCars.firstWhere((c) => c.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() == normalized);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
@@ -190,8 +204,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildCatalogTab(isDark, game.balance),
-                _buildDesignerTab(isDark, game.balance),
+                _buildCatalogTab(isDark, game.balance, game.ownedCars),
+                _buildDesignerTab(isDark, game.balance, game.ownedCars),
               ],
             ),
           ),
@@ -203,7 +217,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
   // ==========================================
   // TAB 1: CURATED CATALOG
   // ==========================================
-  Widget _buildCatalogTab(bool isDark, double playerBalance) {
+  Widget _buildCatalogTab(bool isDark, double playerBalance, List<CarModel> ownedCars) {
     final filteredPlates = SpecialPlateEngine.curatedPlates.where((plate) {
       if (_selectedCategory == PlateCategory.all) return true;
       return plate.category == _selectedCategory;
@@ -230,7 +244,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
         const SizedBox(height: 12),
 
         // Plates List
-        ...filteredPlates.map((plate) => _buildPlateCard(plate, isDark, playerBalance)),
+        ...filteredPlates.map((plate) => _buildPlateCard(plate, isDark, playerBalance, ownedCars)),
         const SizedBox(height: 24),
       ],
     );
@@ -273,7 +287,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     );
   }
 
-  Widget _buildPlateCard(SpecialPlateItem plate, bool isDark, double playerBalance) {
+  Widget _buildPlateCard(SpecialPlateItem plate, bool isDark, double playerBalance, List<CarModel> ownedCars) {
+    final bool isAlreadyOwned = _isPlateInUse(plate.plateNumber, ownedCars);
+    final carUsingPlate = _getCarUsingPlate(plate.plateNumber, ownedCars);
     final bool canAfford = playerBalance >= plate.price;
 
     Color rarityColor;
@@ -313,22 +329,34 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
               children: [
                 Row(
                   children: [
-                    NeoBrutalBadge(
-                      text: rarityBadgeText,
-                      backgroundColor: rarityColor,
-                      textColor: Colors.black,
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w900,
-                    ),
-                    const SizedBox(width: 6),
-                    NeoBrutalBadge(
-                      text: '+%${plate.valueBonusPercent} DEĞER',
-                      icon: Icons.trending_up_rounded,
-                      backgroundColor: AppColors.brutalGreen,
-                      textColor: Colors.black,
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w900,
-                    ),
+                    if (isAlreadyOwned) ...[
+                      NeoBrutalBadge(
+                        text: context.tr('plate_already_in_use'),
+                        icon: Icons.lock_outline_rounded,
+                        backgroundColor: const Color(0xFF64748B),
+                        textColor: Colors.white,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      const SizedBox(width: 6),
+                    ] else ...[
+                      NeoBrutalBadge(
+                        text: rarityBadgeText,
+                        backgroundColor: rarityColor,
+                        textColor: Colors.black,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      const SizedBox(width: 6),
+                      NeoBrutalBadge(
+                        text: '+%${plate.valueBonusPercent} DEĞER',
+                        icon: Icons.trending_up_rounded,
+                        backgroundColor: AppColors.brutalGreen,
+                        textColor: Colors.black,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ],
                   ],
                 ),
                 Text(
@@ -365,6 +393,17 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                 color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
               ),
             ),
+            if (isAlreadyOwned && carUsingPlate != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Tescilli Araç: ${carUsingPlate.brand} ${carUsingPlate.modelName}',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309),
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
 
             // Bottom Price & Action Row
@@ -393,13 +432,19 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   ],
                 ),
                 NeoBrutalButton(
-                  label: canAfford ? 'Satın Al & Araca Tak' : 'YETERSİZ BAKİYE',
-                  icon: Icons.check_circle_outline_rounded,
-                  backgroundColor: canAfford ? AppColors.brutalGreen : const Color(0xFF334155),
-                  textColor: canAfford ? Colors.black : const Color(0xFF94A3B8),
+                  label: isAlreadyOwned
+                      ? context.tr('plate_btn_in_use')
+                      : (canAfford ? 'Satın Al & Araca Tak' : 'YETERSİZ BAKİYE'),
+                  icon: isAlreadyOwned ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+                  backgroundColor: isAlreadyOwned
+                      ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
+                      : (canAfford ? AppColors.brutalGreen : const Color(0xFF334155)),
+                  textColor: isAlreadyOwned
+                      ? (isDark ? Colors.white60 : const Color(0xFF64748B))
+                      : (canAfford ? Colors.black : const Color(0xFF94A3B8)),
                   fontSize: 11,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  onPressed: canAfford ? () => _openVehicleAssignmentSheet(plate) : null,
+                  onPressed: (!isAlreadyOwned && canAfford) ? () => _openVehicleAssignmentSheet(plate) : null,
                 ),
               ],
             ),
@@ -412,13 +457,15 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
   // ==========================================
   // TAB 2: INTERACTIVE CUSTOM DESIGNER
   // ==========================================
-  Widget _buildDesignerTab(bool isDark, double playerBalance) {
+  Widget _buildDesignerTab(bool isDark, double playerBalance, List<CarModel> ownedCars) {
     final customPlate = SpecialPlateEngine.evaluateCustomPlate(
       cityCode: _customCityCode,
       letters: _lettersController.text,
       digits: _digitsController.text,
     );
 
+    final bool isAlreadyOwned = _isPlateInUse(customPlate.plateNumber, ownedCars);
+    final carUsingPlate = _getCarUsingPlate(customPlate.plateNumber, ownedCars);
     final bool canAfford = playerBalance >= customPlate.price;
 
     return ListView(
@@ -486,6 +533,39 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
                 ),
               ),
+              if (isAlreadyOwned) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF3B1E1E) : const Color(0xFFFEE2E2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFEF4444),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFEF4444)),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          carUsingPlate != null
+                              ? context.tr('plate_in_use_warning', {'car': '${carUsingPlate.brand} ${carUsingPlate.modelName}'})
+                              : context.tr('plate_custom_in_use_btn'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? const Color(0xFFFCA5A5) : const Color(0xFFB91C1C),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -700,13 +780,19 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       ],
                     ),
                     NeoBrutalButton(
-                      label: canAfford ? 'Tescil Et & Araca Tak' : 'YETERSİZ BAKİYE',
-                      icon: Icons.check_circle_outline_rounded,
-                      backgroundColor: canAfford ? AppColors.brutalGreen : const Color(0xFF334155),
-                      textColor: canAfford ? Colors.black : const Color(0xFF94A3B8),
+                      label: isAlreadyOwned
+                          ? context.tr('plate_custom_in_use_btn')
+                          : (canAfford ? 'Tescil Et & Araca Tak' : 'YETERSİZ BAKİYE'),
+                      icon: isAlreadyOwned ? Icons.block_rounded : Icons.check_circle_outline_rounded,
+                      backgroundColor: isAlreadyOwned
+                          ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
+                          : (canAfford ? AppColors.brutalGreen : const Color(0xFF334155)),
+                      textColor: isAlreadyOwned
+                          ? (isDark ? Colors.white60 : const Color(0xFF64748B))
+                          : (canAfford ? Colors.black : const Color(0xFF94A3B8)),
                       fontSize: 11,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      onPressed: canAfford ? () => _openVehicleAssignmentSheet(customPlate) : null,
+                      onPressed: (!isAlreadyOwned && canAfford) ? () => _openVehicleAssignmentSheet(customPlate) : null,
                     ),
                   ],
                 ),
@@ -860,6 +946,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     final double currentValue = car.estimatedRealValue;
     final double projectedValue = tempCarWithNewPlate.estimatedRealValue;
     final double profitGain = projectedValue - currentValue;
+    final bool isThisCarAlreadyHasPlate = car.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() ==
+        plate.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -922,36 +1010,42 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             ),
             const SizedBox(width: 8),
             NeoBrutalButton(
-              label: 'BU ARACA TAK',
-              icon: Icons.check_circle_rounded,
-              backgroundColor: AppColors.brutalYellow,
-              textColor: Colors.black,
+              label: isThisCarAlreadyHasPlate ? context.tr('plate_current_on_car') : 'BU ARACA TAK',
+              icon: isThisCarAlreadyHasPlate ? Icons.check_rounded : Icons.check_circle_rounded,
+              backgroundColor: isThisCarAlreadyHasPlate
+                  ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
+                  : AppColors.brutalYellow,
+              textColor: isThisCarAlreadyHasPlate
+                  ? (isDark ? Colors.white60 : const Color(0xFF64748B))
+                  : Colors.black,
               fontSize: 11,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              onPressed: () {
-                HapticFeedback.heavyImpact();
-                Navigator.of(context).pop();
+              onPressed: isThisCarAlreadyHasPlate
+                  ? null
+                  : () {
+                      HapticFeedback.heavyImpact();
+                      Navigator.of(context).pop();
 
-                final success = ref.read(gameProvider.notifier).buyAndAssignPlate(
-                      carId: car.id,
-                      plateNumber: plate.plateNumber,
-                      plateRarity: plate.rarity,
-                      cost: plate.price,
-                      reputationBonus: plate.reputationReward,
-                    );
+                      final success = ref.read(gameProvider.notifier).buyAndAssignPlate(
+                            carId: car.id,
+                            plateNumber: plate.plateNumber,
+                            plateRarity: plate.rarity,
+                            cost: plate.price,
+                            reputationBonus: plate.reputationReward,
+                          );
 
-                if (success) {
-                  NotificationService.showSuccess(
-                    context,
-                    '${plate.plateNumber} Plakası ${car.brand} ${car.modelName} Aracına Başarıyla Tescillendi! Değeri Artırıldı!',
-                  );
-                } else {
-                  NotificationService.showError(
-                    context,
-                    'Plaka tescil işlemi tamamlanamadı. Yetersiz bakiye veya araç durumu uygun değil.',
-                  );
-                }
-              },
+                      if (success) {
+                        NotificationService.showSuccess(
+                          context,
+                          '${plate.plateNumber} Plakası ${car.brand} ${car.modelName} Aracına Başarıyla Tescillendi! Değeri Artırıldı!',
+                        );
+                      } else {
+                        NotificationService.showError(
+                          context,
+                          'Plaka tescil işlemi tamamlanamadı. Bu plaka zaten garajda kullanımda veya bakiye yetersiz.',
+                        );
+                      }
+                    },
             ),
           ],
         ),

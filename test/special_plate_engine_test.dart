@@ -164,5 +164,99 @@ void main() {
       final double gain = carWithLegendaryPlate.estimatedRealValue - luxuryCar.estimatedRealValue;
       expect(gain, closeTo(250000.0, 1.0)); // Exactly capped at +₺250.000 instead of unbounded +3.5M
     });
+
+    test('Duplicate License Plate Prevention: Cannot assign duplicate plate or re-assign current plate', () async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      final car1 = CarModel(
+        id: 'car_plate_dup_1',
+        brand: 'BMW',
+        modelName: '320i',
+        modelYear: 2020,
+        bodyType: 'Sedan',
+        colorHex: '#000000',
+        baseMarketValue: 1000000.0,
+        currentPurchasePrice: 900000.0,
+        plateNumber: '34 ATA 1881',
+        plateRarity: 'legendary',
+        expertise: ExpertiseReport(
+          engineCondition: 100.0,
+          transmissionCondition: 100.0,
+          tramerAmount: 0,
+          mileage: 50000,
+          isMileageTampered: false,
+          bodyParts: const {},
+        ),
+      );
+
+      final car2 = CarModel(
+        id: 'car_plate_dup_2',
+        brand: 'Mercedes',
+        modelName: 'C200',
+        modelYear: 2021,
+        bodyType: 'Sedan',
+        colorHex: '#FFFFFF',
+        baseMarketValue: 1200000.0,
+        currentPurchasePrice: 1100000.0,
+        plateNumber: '06 ABC 123',
+        plateRarity: 'standard',
+        expertise: ExpertiseReport(
+          engineCondition: 100.0,
+          transmissionCondition: 100.0,
+          tramerAmount: 0,
+          mileage: 30000,
+          isMileageTampered: false,
+          bodyParts: const {},
+        ),
+      );
+
+      notifier.state = notifier.state.copyWith(
+        balance: 500000.0,
+        ownedCars: [car1, car2],
+      );
+
+      // Attempt 1: car2 tries to take car1's plate '34 ATA 1881' -> should FAIL
+      final failAttempt1 = notifier.buyAndAssignPlate(
+        carId: car2.id,
+        plateNumber: '34 ATA 1881',
+        plateRarity: 'legendary',
+        cost: 150000.0,
+        reputationBonus: 20,
+      );
+      expect(failAttempt1, isFalse);
+      expect(notifier.state.balance, equals(500000.0)); // Balance unchanged
+      expect(notifier.state.ownedCars[1].plateNumber, equals('06 ABC 123'));
+
+      // Attempt 2: car1 tries to buy its own plate '34 ATA 1881' again -> should FAIL
+      final failAttempt2 = notifier.buyAndAssignPlate(
+        carId: car1.id,
+        plateNumber: '34 ATA 1881',
+        plateRarity: 'legendary',
+        cost: 150000.0,
+        reputationBonus: 20,
+      );
+      expect(failAttempt2, isFalse);
+      expect(notifier.state.balance, equals(500000.0));
+
+      // Attempt 3: car2 buys a new unique plate '06 BOSS 01' -> should SUCCEED
+      final successAttempt = notifier.buyAndAssignPlate(
+        carId: car2.id,
+        plateNumber: '06 BOSS 01',
+        plateRarity: 'legendary',
+        cost: 110000.0,
+        reputationBonus: 16,
+      );
+      expect(successAttempt, isTrue);
+      expect(notifier.state.balance, equals(390000.0));
+      expect(notifier.state.ownedCars[1].plateNumber, equals('06 BOSS 01'));
+      expect(notifier.state.ownedCars[1].plateRarity, equals('legendary'));
+
+      notifier.stopPeriodicOrganicOfferTimer();
+    });
   });
 }

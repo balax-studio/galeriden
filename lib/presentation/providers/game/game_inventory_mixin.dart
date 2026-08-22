@@ -2575,6 +2575,19 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented) return false;
 
+    final normalizedNewPlate = plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+
+    // Check if another car in the garage is already using this exact plate number
+    final isPlateAlreadyInUse = state.ownedCars.any((c) =>
+        c.id != carId &&
+        c.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() == normalizedNewPlate);
+    if (isPlateAlreadyInUse) return false;
+
+    // Check if target car already has this exact plate
+    if (car.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() == normalizedNewPlate) {
+      return false;
+    }
+
     final updatedCar = car.copyWith(
       plateNumber: plateNumber,
       plateRarity: plateRarity,

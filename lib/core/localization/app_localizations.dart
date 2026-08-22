@@ -842,6 +842,13 @@ class AppLocalizations {
       // Atölye & Tuning
       'workshop_screen_title': 'TAMİR & SERVİS ATÖLYESİ',
       'tuning_screen_title': 'TUNING & MODİFİYE STÜDYOSU',
+
+      // Özel Plaka
+      'plate_already_in_use': 'ARAÇTA TESCİLLİ',
+      'plate_btn_in_use': 'ARAÇTA KULLANIMDA',
+      'plate_custom_in_use_btn': 'BU PLAKA KULLANIMDA',
+      'plate_current_on_car': 'MEVCUT PLAKASI',
+      'plate_in_use_warning': 'Bu plaka garajınızdaki {car} aracında tescillidir • Aynı plaka birden fazla araca verilemez.',
     },
 
     // ==========================================
@@ -1680,6 +1687,13 @@ class AppLocalizations {
       // Workshop & Tuning
       'workshop_screen_title': 'REPAIR & SERVICE WORKSHOP',
       'tuning_screen_title': 'TUNING & CUSTOM STUDIO',
+
+      // Special Plate
+      'plate_already_in_use': 'REGISTERED ON VEHICLE',
+      'plate_btn_in_use': 'IN USE ON VEHICLE',
+      'plate_custom_in_use_btn': 'PLATE ALREADY IN USE',
+      'plate_current_on_car': 'CURRENT PLATE',
+      'plate_in_use_warning': 'This plate is currently registered on {car} in your garage • Duplicate plates are not allowed.',
     },
 
     // ==========================================
@@ -2518,6 +2532,13 @@ class AppLocalizations {
       // Werkstatt & Tuning
       'workshop_screen_title': 'REPARATUR- & SERVICWERKSTATT',
       'tuning_screen_title': 'TUNING- & MODIFIKATIONSSTUDIO',
+
+      // Special Plate
+      'plate_already_in_use': 'AM FAHRZEUG REGISTRIERT',
+      'plate_btn_in_use': 'IN VERWENDUNG',
+      'plate_custom_in_use_btn': 'KENNZEICHEN VERGEBEN',
+      'plate_current_on_car': 'AKTUELLES KENNZEICHEN',
+      'plate_in_use_warning': 'Dieses Kennzeichen ist bereits für {car} registriert • Keine Doppelvergabe erlaubt.',
     },
 
     // ==========================================
@@ -3356,6 +3377,13 @@ class AppLocalizations {
       // Oficina & Tuning
       'workshop_screen_title': 'OFICINA DE REPARO & SERVIÇO',
       'tuning_screen_title': 'ESTÚDIO DE TUNING & MODIFICAÇÃO',
+
+      // Special Plate
+      'plate_already_in_use': 'REGISTRADA NO VEÍCULO',
+      'plate_btn_in_use': 'EM USO NO VEÍCULO',
+      'plate_custom_in_use_btn': 'PLACA JÁ EM USO',
+      'plate_current_on_car': 'PLACA ATUAL',
+      'plate_in_use_warning': 'Esta placa já está registrada no veículo {car} na sua garagem • Placas duplicadas não são permitidas.',
     },
 
     // ==========================================
@@ -4193,6 +4221,13 @@ class AppLocalizations {
       // Taller & Tuning
       'workshop_screen_title': 'TALLER DE REPARACIÓN Y SERVICIO',
       'tuning_screen_title': 'ESTUDIO DE TUNING Y MODIFICACIÓN',
+
+      // Special Plate
+      'plate_already_in_use': 'REGISTRADA EN VEHÍCULO',
+      'plate_btn_in_use': 'EN USO EN VEHÍCULO',
+      'plate_custom_in_use_btn': 'MATRÍCULA EN USO',
+      'plate_current_on_car': 'MATRÍCULA ACTUAL',
+      'plate_in_use_warning': 'Esta matrícula ya está registrada en el vehículo {car} de tu garaje • No se permiten duplicados.',
     },
 
     // ==========================================
@@ -5029,6 +5064,13 @@ class AppLocalizations {
       // Мастерская и тюнинг
       'workshop_screen_title': 'МАСТЕРСКАЯ И СЕРВИС',
       'tuning_screen_title': 'ТЮНИНГ-СТУДИЯ И МОДИФИКАЦИИ',
+
+      // Special Plate
+      'plate_already_in_use': 'ЗАРЕГИСТРИРОВАН НА АВТО',
+      'plate_btn_in_use': 'ИСПОЛЬЗУЕТСЯ НА АВТО',
+      'plate_custom_in_use_btn': 'НОМЕР УЖЕ ЗАНЯТ',
+      'plate_current_on_car': 'ТЕКУЩИЙ НОМЕР',
+      'plate_in_use_warning': 'Этот номер уже установлен на {car} в вашем гараже • Повторная выдача невозможна.',
     },
 
     // ==========================================
@@ -5867,6 +5909,13 @@ class AppLocalizations {
       // الورشة والتعديل
       'workshop_screen_title': 'ورشة التصليح والصيانة',
       'tuning_screen_title': 'استوديو التعديل والتزويد',
+
+      // Special Plate
+      'plate_already_in_use': 'مسجل على المركبة',
+      'plate_btn_in_use': 'قيد الاستخدام',
+      'plate_custom_in_use_btn': 'اللوحة مستخدمة بالفعل',
+      'plate_current_on_car': 'اللوحة الحالية',
+      'plate_in_use_warning': 'هذه اللوحة مسجلة بالفعل على سيارة {car} في المرآب • لا يمكن تكرار نفس اللوحة.',
     },
   };
 
