@@ -168,6 +168,10 @@ class StaffScreen extends ConsumerWidget {
   }
 
   void _showBonusSheet(BuildContext context, WidgetRef ref, StaffModel staff) {
+    if (staff.morale >= 100) {
+      NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+      return;
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final game = ref.read(gameProvider);
     final bonusAmounts = [3000.0, 7500.0, 15000.0];
@@ -638,6 +642,10 @@ class StaffScreen extends ConsumerWidget {
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               onPressed: () {
+                                if (hired.morale >= 100) {
+                                  NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+                                  return;
+                                }
                                 final success = ref.read(gameProvider.notifier).treatStaffTea(hired.id);
                                 if (success) {
                                   NotificationService.showSuccess(context, context.tr('staff_tea_success', {'name': hired.name}));
@@ -657,6 +665,10 @@ class StaffScreen extends ConsumerWidget {
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               onPressed: () {
+                                if (hired.morale >= 100) {
+                                  NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+                                  return;
+                                }
                                 final success = ref.read(gameProvider.notifier).treatStaffMeal(hired.id);
                                 if (success) {
                                   NotificationService.showSuccess(context, context.tr('staff_meal_success', {'name': hired.name}));

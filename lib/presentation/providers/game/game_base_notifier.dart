@@ -9,6 +9,7 @@ abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
 
   final Random random = Random();
 
+  bool get isLoaded => true;
   void saveState();
   void addXP(int amount);
   void checkAchievement(String id);
@@ -22,4 +23,14 @@ abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
   void refreshMarketTrends();
   void triggerOrganicOffers();
   void completeTutorial();
+
+  void adjustNpcRelationship(String npcId, int delta) {
+    final current = state.npcRelationships[npcId] ?? 50;
+    final newRelation = (current + delta).clamp(0, 100);
+    final updated = Map<String, int>.from(state.npcRelationships);
+    updated[npcId] = newRelation;
+    state = state.copyWith(npcRelationships: updated);
+    saveState();
+  }
 }
+

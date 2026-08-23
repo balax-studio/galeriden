@@ -61,7 +61,7 @@ class BranchScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildInfoColumn(context.tr('branch_capacity_label'), context.tr('branch_capacity_val', {'slots': '${game.maxGarageSlots}'}), isDark),
+                    _buildInfoColumn(context.tr('branch_capacity_label'), context.tr('branch_capacity_val', {'count': '${game.maxGarageSlots}'}), isDark),
                     _buildInfoColumn(context.tr('branch_level_label'), context.tr('branch_level_val', {'level': '${game.level}'}), isDark),
                     _buildInfoColumn(context.tr('branch_capital_label'), CurrencyFormatter.formatShort(game.balance), isDark),
                   ],
@@ -209,7 +209,7 @@ class BranchScreen extends ConsumerWidget {
                           )
                         else
                           NeoBrutalBadge(
-                            text: context.tr('branch_badge_level', {'level': '${b.targetLevel}'}),
+                            text: context.tr('branch_badge_level', {'lvl': '${b.targetLevel}'}),
                             backgroundColor: isLevelUnlocked ? const Color(0xFF6366F1) : const Color(0xFF64748B),
                             textColor: Colors.white,
                             fontSize: 10,
@@ -221,11 +221,11 @@ class BranchScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          context.tr('branch_item_capacity', {'slots': '${b.maxGarageSlots}'}),
+                          context.tr('branch_item_capacity', {'cap': '${b.maxGarageSlots}'}),
                           style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
                         ),
                         Text(
-                          context.tr('branch_item_burn_rate', {'rate': CurrencyFormatter.formatShort(b.dailyBurnRate)}),
+                          context.tr('branch_item_burn_rate', {'cost': CurrencyFormatter.formatShort(b.dailyBurnRate)}),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -340,7 +340,7 @@ class BranchScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       NeoBrutalButton(
                         label: !isLevelUnlocked
-                            ? context.tr('branch_btn_level_req', {'level': '${b.targetLevel}'})
+                            ? context.tr('branch_btn_level_req', {'lvl': '${b.targetLevel}'})
                             : (canAfford
                                 ? context.tr('branch_btn_buy_branch', {'cost': CurrencyFormatter.formatShort(b.requiredBalance)})
                                 : context.tr('branch_btn_insufficient_branch', {'cost': CurrencyFormatter.formatShort(b.requiredBalance)})),
@@ -385,7 +385,7 @@ class BranchScreen extends ConsumerWidget {
                                            Text(context.tr('branch_congrats_title'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
                                            const SizedBox(height: 6),
                                            Text(
-                                             context.tr('branch_congrats_desc', {'level': '${b.targetLevel}', 'slots': '${b.maxGarageSlots}'}),
+                                             context.tr('branch_congrats_desc', {'name': b.name, 'cap': '${b.maxGarageSlots}'}),
                                              textAlign: TextAlign.center,
                                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                            ),

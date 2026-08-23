@@ -200,13 +200,15 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                   child: AnimatedBuilder(
                     animation: _sonarController,
                     builder: (context, child) {
-                      return CustomPaint(
-                        painter: _CarBlueprintPainter(
-                          bodyParts: widget.bodyParts,
-                          selectedPartKey: _selectedPartKey,
-                          scannedParts: _scannedParts,
-                          sonarProgress: _sonarController.value,
-                          isDark: isDark,
+                      return RepaintBoundary(
+                        child: CustomPaint(
+                          painter: _CarBlueprintPainter(
+                            bodyParts: widget.bodyParts,
+                            selectedPartKey: _selectedPartKey,
+                            scannedParts: _scannedParts,
+                            sonarProgress: _sonarController.value,
+                            isDark: isDark,
+                          ),
                         ),
                       );
                     },

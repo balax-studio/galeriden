@@ -191,15 +191,17 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                   AnimatedBuilder(
                     animation: _sweepController,
                     builder: (context, _) {
-                      return CustomPaint(
-                        size: const Size(double.infinity, 210),
-                        painter: _EngineTimingPainter(
-                          camAngle: _camAngle,
-                          crankAngle: _crankAngle,
-                          isAligned: _isAligned,
-                          phase: _phase,
-                          sweepProgress: _sweepController.value,
-                          camshaftLabel: context.tr('timing_camshaft_label'),
+                      return RepaintBoundary(
+                        child: CustomPaint(
+                          size: const Size(double.infinity, 210),
+                          painter: _EngineTimingPainter(
+                            camAngle: _camAngle,
+                            crankAngle: _crankAngle,
+                            isAligned: _isAligned,
+                            phase: _phase,
+                            sweepProgress: _sweepController.value,
+                            camshaftLabel: context.tr('timing_camshaft_label'),
+                          ),
                         ),
                       );
                     },

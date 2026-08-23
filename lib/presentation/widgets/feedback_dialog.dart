@@ -151,7 +151,13 @@ Zaman: ${DateTime.now().toLocal()}''';
         );
         await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
       }
-      ref.read(gameProvider.notifier).addXP(15);
+      final prefs = await SharedPreferences.getInstance();
+      final todayStr = DateTime.now().toIso8601String().split('T').first;
+      final lastRewardedDate = prefs.getString('last_feedback_xp_date');
+      if (lastRewardedDate != todayStr) {
+        await prefs.setString('last_feedback_xp_date', todayStr);
+        ref.read(gameProvider.notifier).addXP(15);
+      }
       if (mounted) {
         Navigator.of(context).pop();
         NotificationService.showSuccess(
@@ -210,8 +216,13 @@ Zaman: ${DateTime.now().toLocal()}''';
       );
 
       if (isSent) {
-        // 3. Thank-you reward for contributing
-        ref.read(gameProvider.notifier).addXP(15);
+        // 3. Thank-you reward for contributing (max once per day)
+        final todayStr = DateTime.now().toIso8601String().split('T').first;
+        final lastRewardedDate = prefs.getString('last_feedback_xp_date');
+        if (lastRewardedDate != todayStr) {
+          await prefs.setString('last_feedback_xp_date', todayStr);
+          ref.read(gameProvider.notifier).addXP(15);
+        }
 
         if (mounted) {
           Navigator.of(context).pop();

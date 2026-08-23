@@ -112,7 +112,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     const Icon(Icons.sync_alt_rounded, color: Color(0xFFFFDE59), size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      '${context.tr('title_trade_in_offers')} • ${game.incomingTradeInOffers.length}',
+                      context.tr('title_trade_in_offers', {'count': '${game.incomingTradeInOffers.length}'}),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
@@ -159,7 +159,7 @@ class ShowroomOffersTab extends ConsumerWidget {
                     const Icon(Icons.payments_outlined, color: Color(0xFF00E575), size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      '${context.tr('title_cash_offers')} • ${game.incomingOffers.length}',
+                      context.tr('title_cash_offers', {'count': '${game.incomingOffers.length}'}),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,

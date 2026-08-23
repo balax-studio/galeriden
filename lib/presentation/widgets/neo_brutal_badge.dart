@@ -19,9 +19,11 @@ class NeoBrutalBadge extends StatelessWidget {
 
   const NeoBrutalBadge({
     super.key,
-    required this.text,
+    String? text,
+    String? label,
     this.icon,
-    this.backgroundColor,
+    Color? backgroundColor,
+    Color? color,
     this.textColor,
     this.borderColor,
     this.borderWidth = 2.0,
@@ -32,7 +34,8 @@ class NeoBrutalBadge extends StatelessWidget {
     this.angle = 0.0,
     this.showHardShadow = false,
     this.shadowOffset = const Offset(2.0, 2.0),
-  });
+  })  : text = text ?? label ?? '',
+        backgroundColor = backgroundColor ?? color;
 
   @override
   Widget build(BuildContext context) {

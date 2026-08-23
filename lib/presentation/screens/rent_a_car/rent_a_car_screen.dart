@@ -78,7 +78,7 @@ class RentACarScreen extends ConsumerWidget {
                     children: [
                       Text(
                         context.tr('rent_daily_income'),
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -117,7 +117,7 @@ class RentACarScreen extends ConsumerWidget {
               badgeText: context.tr('rent_empty_badge'),
               title: context.tr('rent_empty_title'),
               description: context.tr('rent_empty_desc'),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             )
           else
             ...game.activeRentals.map((rental) => _buildRentalCard(context, ref, rental, game, isDark)),
@@ -227,12 +227,12 @@ class RentACarScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr('rent_net_daily', {'val': CurrencyFormatter.formatShort(netDaily)}),
+                        context.tr('rent_net_daily', {'amt': CurrencyFormatter.formatShort(netDaily)}),
                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr('rent_total_earned_days', {'val': CurrencyFormatter.formatShort(rental.totalEarned), 'days': '${rental.rentedDays}'}),
+                        context.tr('rent_total_earned_days', {'earned': CurrencyFormatter.formatShort(rental.totalEarned), 'days': '${rental.rentedDays}'}),
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ],
@@ -278,7 +278,7 @@ class RentACarScreen extends ConsumerWidget {
           child: Center(
             child: Text(
               context.tr('rent_no_available_cars'),
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
             ),
           ),
         ),
@@ -518,7 +518,7 @@ class RentACarScreen extends ConsumerWidget {
                               ),
                               if (hasInsurance)
                                 Text(
-                                  context.tr('rent_net_income', {'val': CurrencyFormatter.formatShort(netRate)}),
+                                  context.tr('rent_net_income', {'inc': CurrencyFormatter.formatShort(netRate)}),
                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                                 ),
                             ],

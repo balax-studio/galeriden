@@ -551,7 +551,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
       case 'smartwatch':
         return Icons.watch_later_rounded;
       case 'tasbih':
-        return Icons.grain_rounded;
+        return Icons.linear_scale_rounded;
       case 'ring':
         return Icons.diamond_rounded;
       case 'glasses':

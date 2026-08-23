@@ -65,6 +65,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
   @override
   void initState() {
     super.initState();
+    AdService.instance.loadRewardedAd();
     _offeredPrice = (widget.listing.askingPrice * 0.90).roundToDouble();
     _customer = CustomerModel.generateSellerFromListing(widget.listing.sellerName);
     _fomoText = PsychologyEngine.getRandomFomoText();
@@ -561,7 +562,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                         ),
                         Text(
                           discountAmount > 0
-                              ? context.tr('deal_discount_info', {'amount': CurrencyFormatter.formatShort(discountAmount), 'ratio': discountRatio})
+                              ? context.tr('deal_discount_info', {'pct': discountRatio})
                               : context.tr('deal_full_price_offer'),
                           style: TextStyle(
                             fontSize: 11.5,

@@ -62,6 +62,7 @@ class NeoBrutalNativeAdCard extends ConsumerStatefulWidget {
 class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
   NativeAd? _nativeAd;
   bool _isAdLoaded = false;
+  bool _isAdLoading = false;
   late InGameSponsorSnippet _fallbackSnippet;
   int _lastDayEvaluated = -1;
 
@@ -143,22 +144,24 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
         if (mounted) {
           setState(() {
             _isAdLoaded = false;
+            _isAdLoading = false;
           });
         }
       }
       return;
     }
 
-    if (_nativeAd == null && !_isAdLoaded) {
+    if (_nativeAd == null && !_isAdLoaded && !_isAdLoading) {
       _loadNativeAd();
     }
   }
 
   void _loadNativeAd() {
-    if (kIsWeb) {
+    if (kIsWeb || _isAdLoading || _nativeAd != null) {
       return;
     }
 
+    _isAdLoading = true;
     _nativeAd = AdService.instance.createNativeAd(
       onAdLoaded: (ad) {
         if (!mounted) {
@@ -167,6 +170,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
         }
         setState(() {
           _isAdLoaded = true;
+          _isAdLoading = false;
         });
       },
       onAdFailedToLoad: (error) {
@@ -174,6 +178,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
         debugPrint('[NeoBrutalNativeAdCard] Ad failed to load: ${error.message}. Switching to in-game lore sponsor.');
         setState(() {
           _isAdLoaded = false;
+          _isAdLoading = false;
+          _nativeAd = null;
         });
       },
     );
@@ -184,6 +190,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
   @override
   void dispose() {
     _nativeAd?.dispose();
+    _nativeAd = null;
     super.dispose();
   }
 

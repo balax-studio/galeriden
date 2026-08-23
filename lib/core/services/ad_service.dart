@@ -27,8 +27,21 @@ class AdService {
   static const String _iosTestNativeAdUnitId = 'ca-app-pub-3940256099942544/3986624511';
 
   RewardedAd? _rewardedAd;
+  DateTime? _rewardedAdLoadedAt;
   bool _isAdLoading = false;
   bool _isInitialized = false;
+
+  /// AdMob ad expiration threshold (AdMob ads expire after ~60 minutes, we refresh after 50 min)
+  static const Duration adExpirationThreshold = Duration(minutes: 50);
+
+  /// Checks if the cached rewarded ad is expired
+  bool get isAdExpired {
+    if (_rewardedAdLoadedAt == null) return false;
+    return DateTime.now().difference(_rewardedAdLoadedAt!) > adExpirationThreshold;
+  }
+
+  /// Checks if a valid, unexpired rewarded ad is ready to play
+  bool get isRewardedAdReady => _rewardedAd != null && !isAdExpired;
 
   String get rewardedAdUnitId {
     final bool isIOS = defaultTargetPlatform == TargetPlatform.iOS;
@@ -87,19 +100,28 @@ class AdService {
           } catch (attError) {
             debugPrint('[AdService] ATT request error: $attError');
           }
-          loadRewardedAd();
         });
-      } else {
-        loadRewardedAd();
       }
     } catch (e) {
       debugPrint('[AdService] MobileAds initialization failed or not supported on this platform: $e');
     }
   }
 
-  /// Preload Rewarded Ad with automatic retry logic
+  /// Preload Rewarded Ad lazily with automatic retry logic and expiration handling
   void loadRewardedAd() {
-    if (kIsWeb || !_isInitialized || _isAdLoading || _rewardedAd != null) return;
+    if (kIsWeb || !_isInitialized || _isAdLoading) return;
+
+    if (_rewardedAd != null) {
+      if (isAdExpired) {
+        debugPrint('[AdService] Cached rewarded ad is expired (>50 min). Disposing and reloading fresh.');
+        _rewardedAd?.dispose();
+        _rewardedAd = null;
+        _rewardedAdLoadedAt = null;
+      } else {
+        // Valid fresh ad already cached in memory
+        return;
+      }
+    }
 
     _isAdLoading = true;
     try {
@@ -110,6 +132,7 @@ class AdService {
           onAdLoaded: (ad) {
             debugPrint('[AdService] Rewarded ad loaded successfully.');
             _rewardedAd = ad;
+            _rewardedAdLoadedAt = DateTime.now();
             _isAdLoading = false;
             _retryAttempt = 0;
             _setupAdCallbacks(ad);
@@ -117,6 +140,7 @@ class AdService {
           onAdFailedToLoad: (LoadAdError error) {
             debugPrint('[AdService] Rewarded ad failed to load: ${error.message} - code: ${error.code}');
             _rewardedAd = null;
+            _rewardedAdLoadedAt = null;
             _isAdLoading = false;
             _retryAttempt++;
             if (_retryAttempt <= 3) {
@@ -130,6 +154,7 @@ class AdService {
     } catch (e) {
       debugPrint('[AdService] RewardedAd.load exception: $e');
       _rewardedAd = null;
+      _rewardedAdLoadedAt = null;
       _isAdLoading = false;
     }
   }
@@ -143,19 +168,19 @@ class AdService {
         debugPrint('[AdService] Rewarded ad dismissed.');
         ad.dispose();
         _rewardedAd = null;
-        loadRewardedAd(); // Preload next ad
+        _rewardedAdLoadedAt = null;
       },
       onAdFailedToShowFullScreenContent: (ad, AdError error) {
         debugPrint('[AdService] Rewarded ad failed to show: ${error.message}');
         ad.dispose();
         _rewardedAd = null;
-        loadRewardedAd();
+        _rewardedAdLoadedAt = null;
       },
     );
   }
 
-  /// Shows rewarded ad. If ad is available, plays it and calls [onRewardEarned].
-  /// If unavailable, fails, or running on web, cleanly provides reward and optional fallback callback.
+  /// Shows rewarded ad. If ad is available and unexpired, plays it and calls [onRewardEarned].
+  /// If unavailable, expired, fails, or running on web, cleanly provides reward and optional fallback callback.
   void showRewardedAd({
     required VoidCallback onRewardEarned,
     VoidCallback? onAdUnavailable,
@@ -165,7 +190,7 @@ class AdService {
       return;
     }
 
-    if (_rewardedAd != null) {
+    if (_rewardedAd != null && !isAdExpired) {
       _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem rewardItem) {
           debugPrint('[AdService] User earned reward: ${rewardItem.amount} ${rewardItem.type}');
@@ -173,7 +198,13 @@ class AdService {
         },
       );
     } else {
-      debugPrint('[AdService] Rewarded ad not ready yet. Triggering graceful fallback...');
+      if (_rewardedAd != null && isAdExpired) {
+        debugPrint('[AdService] Rewarded ad expired. Disposing stale ad.');
+        _rewardedAd?.dispose();
+        _rewardedAd = null;
+        _rewardedAdLoadedAt = null;
+      }
+      debugPrint('[AdService] Rewarded ad not ready yet. Triggering graceful fallback and preloading for next time...');
       loadRewardedAd();
       if (onAdUnavailable != null) {
         onAdUnavailable();
@@ -197,7 +228,7 @@ class AdService {
       return;
     }
 
-    if (_rewardedAd != null) {
+    if (_rewardedAd != null && !isAdExpired) {
       _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem rewardItem) {
           debugPrint('[AdService] User earned reward via AdMob: ${rewardItem.amount} ${rewardItem.type}');
@@ -205,6 +236,11 @@ class AdService {
         },
       );
     } else {
+      if (_rewardedAd != null && isAdExpired) {
+        _rewardedAd?.dispose();
+        _rewardedAd = null;
+        _rewardedAdLoadedAt = null;
+      }
       // AdMob not available - launch in-game lore fallback modal with 100% reward delivery
       loadRewardedAd();
       NeoBrutalFallbackAdDialog.show(

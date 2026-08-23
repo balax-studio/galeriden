@@ -133,7 +133,7 @@ class CustomPaintFinishModel {
         id: 'paint_carbon_fiber',
         titleKey: 'paint_carbon_title',
         descriptionKey: 'paint_carbon_desc',
-        icon: Icons.texture_rounded,
+        icon: Icons.grid_4x4_rounded,
         previewColor: Color(0xFF1E293B),
         cost: 85000.0,
         valueMultiplier: 1.20,

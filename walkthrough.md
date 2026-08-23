@@ -45,9 +45,14 @@ Kullanıcının tutunmayı artırma ve oyunun tekrar eden/sığ yönlerini derin
 - **Ekran:** [stock_market_screen.dart](file:///c:/Users/YSR_MONSTER/.antigravity/Galerisinden/lib/presentation/screens/stock_market/stock_market_screen.dart) (`Halka Arz` sekmesi)
 - **Mekanik:** Seviye 4+ ve 10+ araç satışına ulaşan oyuncu, Borsa İstanbul'da kendi galerisini halka arz edebilir. Şirket değerlemesinin %20'si nakit sermaye olarak kasaya girer, `GLRD` hissesi borsada listelenir ve düzenli temettü akışı sağlar.
 
+### C. Ana Ekran ve Gezinme İyileştirmeleri (Showroom & Pazar Yeri)
+- **Hızlı İşlemler & Servisler Izgarası**: En başa **"Showroom & Galerim"** (`/showroom`) ve **"Araç Satın Al / İkinci El Pazar"** (`/marketplace`) eklendi.
+- **Alt Gezinme Çubuğu (Floating Dock)**: Orta sekme İhale yerine doğrudan **"Pazar Yeri"** (`MarketplaceScreen`) olarak güncellendi (İhale servisine yine Hizmetler ızgarasından erişilebilir).
+- **7 Dil Senkronizasyonu**: `nav_marketplace` anahtarı tüm 7 dilde senkronize edildi.
+
 ---
 
-## 2. Anti-Repetition Genişleme Paketi (Tekrarı Önleyen Dinamik İçerik Sistemi)
+## 2. Dopamine-Infused Neo-Brutalist Unboxing Flow (`MysteryContainerUnboxingModal`)eyen Dinamik İçerik Sistemi)
 
 1. **4 Sezonluk Rotasyonlu Esnaf Takvimi:**
    - Her ay (28 günde bir) sıfırlanan takvim statik kalmaz; 4 farklı mevsim temasına (`İlkbahar Çarşı Sezonu`, `Yaz Gurbetçi Sezonu`, `Sonbahar Sanayi Hasat Sezonu`, `Kış Galeri Ağalığı Sezonu`) geçer.
@@ -72,8 +77,29 @@ Kullanıcının tutunmayı artırma ve oyunun tekrar eden/sığ yönlerini derin
 | :--- | :--- | :--- |
 | `retention_7_modules_deepening_test.dart` | 8 Test | %100 Başarılı |
 | `expansion_pack_anti_repetition_test.dart` | 5 Test | %100 Başarılı |
-| **Toplam Proje Test Paketi** | **537 Test** | **%100 Başarılı** |
-| **Statik Kod Analizi (`flutter analyze`)** | **0 Hata / 0 Uyarı** | **Temiz** |
+| **Toplam Proje Test Paketi** | **537 Test**
+
+### 7. Dynamic Vehicle Defect & Damage Badge Engine
+- **Expanded Single Label Limitation**: Transformed [cracked_glass_badge.dart](file:///c:/Users/YSR_MONSTER/.antigravity/Galerisinden/lib/presentation/widgets/cracked_glass_badge.dart) into a context-aware defect classifier that evaluates `ExpertiseReport` conditions.
+- **Categorized Defect Indicators**:
+  - `AĞIR HASARLI • PERT KAYITLI` (Tramer ≥ 75.000 ₺ or roof damage) with danger warning indicator.
+  - `KAZALI • ŞASİ İŞLEMLİ` (Chassis repair / alignment record) with chassis alert.
+  - `DEĞİŞENLİ • KAPORTA İŞLEM` (2+ replaced panels) with wrench icon.
+  - `MEKANİK • MOTOR KUSURLU` (Engine/Transmission < 50%) with engine gear icon.
+  - `BOYALI • BEL ALTI BOYA` (2+ repainted panels) with paint icon.
+  - `TRAMER • YÜKSEK HASAR` (Tramer > 30.000 ₺) with ledger record icon.
+  - `AĞIR HASARLI • CAM ÇATLAK` (Default / minor flaw) with animated spiderweb cracked glass canvas.
+- **Simultaneous 7-Language Parity**: Synchronized all keys across `tr`, `en`, `de`, `pt`, `es`, `ru`, and `ar` with zero emojis and zero parentheses.
+- **Automated Tests**: Added [cracked_glass_badge_test.dart](file:///c:/Users/YSR_MONSTER/.antigravity/Galerisinden/test/cracked_glass_badge_test.dart) (7/7 tests passed).
+
+---
+
+## 8. Verification & Quality Gates
+
+1. **Static Analysis (`flutter analyze`)**:
+   - `No issues found! (0 errors, 0 warnings)`.
+2. **Automated Test Suite (`flutter test`)**:
+   - `All 615 tests passed!` across all widget tests, level scaling rules, localization invariants, state persistence, and economy balancing.
 
 - **İnvariant Kuralları:**
   - Zero Unicode Emojis kuralına tam uyuldu.

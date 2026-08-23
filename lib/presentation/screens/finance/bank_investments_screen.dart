@@ -534,7 +534,7 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            context.tr('bank_loan_interest_principal', {'rate': (loan.interestRate * 100).toStringAsFixed(1), 'principal': CurrencyFormatter.formatShort(loan.principalAmount)}),
+                            context.tr('bank_loan_interest_principal', {'rate': (loan.interestRate * 100).toStringAsFixed(1), 'amount': CurrencyFormatter.formatShort(loan.principalAmount)}),
                             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                           ),
                           NeoBrutalButton(

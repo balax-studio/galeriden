@@ -19,7 +19,8 @@ import '../../widgets/neo_brutal_random_event_dialog.dart';
 import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/daily_login_sheet.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
-import '../auction/auction_screen.dart';
+import '../marketplace/marketplace_screen.dart';
+import '../showroom/showroom_screen.dart';
 import 'widgets/dashboard_banners.dart';
 import 'widgets/dashboard_missions_section.dart';
 import 'widgets/dashboard_office_view.dart';
@@ -86,17 +87,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final isDark = p.isDark;
 
     // Listen for level-ups, story ad encounters, dramatic decision cards & random events
-    ref.listen<DealershipModel>(gameProvider, (previous, next) {
+    ref.listen<DealershipModel>(gameProvider, (previous, next) async {
+      // Ignore transitions occurring before state is properly loaded from storage
+      final isLoaded = ref.read(gameProvider.notifier).isLoaded;
+      if (!isLoaded) return;
+
       if (previous != null && next.level > previous.level) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            DashboardRetentionModals.showLevelUpModal(
-              context,
-              next.level,
-              onExplore: () => context.push('/character-growth'),
-            );
-          }
-        });
+        final prefs = await SharedPreferences.getInstance();
+        final lastCelebratedLevel = prefs.getInt('last_celebrated_level') ?? 1;
+        if (next.level > lastCelebratedLevel) {
+          await prefs.setInt('last_celebrated_level', next.level);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              DashboardRetentionModals.showLevelUpModal(
+                context,
+                next.level,
+                onExplore: () => context.push('/character-growth'),
+              );
+            }
+          });
+        }
       }
 
       if (next.pendingStoryCard != null && (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
@@ -167,13 +177,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           // Tab 0: Sahibinden Style Neo-Brutal Monolithic Dashboard
                           _buildHomeDashboard(context, game, p),
 
-                          // Tab 1: Canlı İhale
+                          // Tab 1: Showroom & Galerim
                           const Padding(
                             padding: EdgeInsets.only(bottom: 78),
-                            child: AuctionScreen(),
+                            child: ShowroomScreen(showLeading: false),
                           ),
 
-                          // Tab 2: Ofis & İstatistikler
+                          // Tab 2: Pazar Yeri & İlanlar
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 78),
+                            child: MarketplaceScreen(showLeading: false),
+                          ),
+
+                          // Tab 3: Ofis & İstatistikler
                           Padding(
                             padding: const EdgeInsets.only(bottom: 78),
                             child: DashboardOfficeView(game: game, palette: p),
@@ -197,7 +213,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     onTap: (index) => ref.read(dashboardTabProvider.notifier).state = index,
                     items: [
                       FloatingDockItem(icon: Icons.dashboard_rounded, label: context.tr('nav_home')),
-                      FloatingDockItem(icon: Icons.gavel_rounded, label: context.tr('nav_auction')),
+                      FloatingDockItem(icon: Icons.directions_car_rounded, label: context.tr('nav_showroom')),
+                      FloatingDockItem(icon: Icons.storefront_rounded, label: context.tr('nav_marketplace')),
                       FloatingDockItem(icon: Icons.business_center_rounded, label: context.tr('nav_office')),
                     ],
                   ),
@@ -213,8 +230,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   /// Sahibinden.com Inspired Neo-Brutalist & Monolithic Dashboard
   Widget _buildHomeDashboard(BuildContext context, DealershipModel game, ThemePaletteModel p) {
     final isDark = p.isDark;
-    final completedMissions = game.activeMissions.where((m) => m.isCompleted).length;
-    final claimableExists = game.activeMissions.any((m) => m.isCompleted);
+    final completedMissions = game.activeMissions.where((m) => m.isCompleted == true).length;
+    final claimableExists = game.activeMissions.any((m) => m.isCompleted == true && m.isClaimed != true);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 90),

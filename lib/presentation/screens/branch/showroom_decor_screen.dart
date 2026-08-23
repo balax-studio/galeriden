@@ -119,8 +119,8 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStatColumn(context.tr('decor_stat_bargain'), game.hasDecor('decor_leather_chair_desk') ? context.tr('decor_stat_persuade_bonus') : context.tr('decor_stat_standard'), isDark, AppColors.brutalGreen),
-                      _buildStatColumn(context.tr('decor_stat_consignment'), game.hasDecor('decor_copper_samovar') ? context.tr('decor_stat_demand_bonus') : context.tr('decor_stat_standard'), isDark, const Color(0xFFF97316)),
+                      _buildStatColumn(context.tr('decor_stat_bargain'), game.hasDecor('decor_leather_chair_desk') ? context.tr('decor_stat_persuade_bonus', {'bonus': '5'}) : context.tr('decor_stat_standard'), isDark, AppColors.brutalGreen),
+                      _buildStatColumn(context.tr('decor_stat_consignment'), game.hasDecor('decor_copper_samovar') ? context.tr('decor_stat_demand_bonus', {'bonus': '10'}) : context.tr('decor_stat_standard'), isDark, const Color(0xFFF97316)),
                       _buildStatColumn(context.tr('decor_stat_security'), game.hasFullSecurityProtection ? context.tr('decor_stat_full_protected') : context.tr('decor_stat_unprotected'), isDark, game.hasFullSecurityProtection ? AppColors.brutalGreen : const Color(0xFFEF4444)),
                     ],
                   ),
@@ -257,7 +257,7 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                           )
                         else if (!isLevelUnlocked)
                           NeoBrutalBadge(
-                            text: context.tr('branch_badge_level', {'level': '${item.minDealershipLevel}'}),
+                            text: context.tr('branch_badge_level', {'lvl': '${item.minDealershipLevel}'}),
                             icon: Icons.lock_rounded,
                             backgroundColor: const Color(0xFF64748B),
                             textColor: Colors.white,
@@ -324,8 +324,8 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                           label: isPurchased
                               ? context.tr('decor_built_label')
                               : (!isLevelUnlocked
-                                  ? context.tr('branch_btn_level_req', {'level': '${item.minDealershipLevel}'})
-                                  : (canAfford ? context.tr('decor_btn_build') : context.tr('insufficient_balance'))),
+                                  ? context.tr('branch_btn_level_req', {'lvl': '${item.minDealershipLevel}'})
+                                  : (canAfford ? context.tr('decor_btn_build', {'cost': CurrencyFormatter.formatShort(item.cost)}) : context.tr('insufficient_balance'))),
                           icon: isPurchased
                               ? Icons.check_circle_rounded
                               : (!isLevelUnlocked

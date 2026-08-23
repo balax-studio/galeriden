@@ -341,12 +341,21 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     fontSize: 9.5,
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     onPressed: () {
+                      final game = ref.read(gameProvider);
+                      if (game.hiredStaff.isEmpty) {
+                        NotificationService.showWarning(context, context.tr('staff_no_staff_hired'));
+                        return;
+                      }
+                      if (game.hiredStaff.every((s) => s.morale >= 100)) {
+                        NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+                        return;
+                      }
                       final success = ref.read(gameProvider.notifier).treatWorkshopStaffSnack();
                       if (success) {
                         NotificationService.showSuccess(context, context.tr('workshop_toast_staff_morale'));
                         setState(() {});
                       } else {
-                        NotificationService.showError(context, 'Yetersiz bakiye! ₺250 gerekli.');
+                        NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
                       }
                     },
                   ),

@@ -236,6 +236,124 @@ class _VectorIconPainter extends CustomPainter {
         canvas.drawPath(spiral, paint);
         break;
 
+      case 'race_flag':
+        // Checkered Racing Flag on Pole
+        canvas.drawLine(Offset(w * 0.20, h * 0.12), Offset(w * 0.20, h * 0.88), paint);
+        final flagPath = Path();
+        flagPath.moveTo(w * 0.20, h * 0.15);
+        flagPath.lineTo(w * 0.82, h * 0.22);
+        flagPath.lineTo(w * 0.82, h * 0.58);
+        flagPath.lineTo(w * 0.20, h * 0.51);
+        flagPath.close();
+        canvas.drawPath(flagPath, paint);
+        canvas.drawRect(Rect.fromLTWH(w * 0.20, h * 0.15, w * 0.31, h * 0.18), fillPaint);
+        canvas.drawRect(Rect.fromLTWH(w * 0.51, h * 0.36, w * 0.31, h * 0.22), fillPaint);
+        break;
+
+      case 'piston':
+        // Engine Piston & Connecting Rod
+        final pistonCrown = Path();
+        pistonCrown.addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.28, h * 0.12, w * 0.44, h * 0.28), const Radius.circular(3)));
+        canvas.drawPath(pistonCrown, paint);
+        canvas.drawLine(Offset(w * 0.34, h * 0.20), Offset(w * 0.66, h * 0.20), paint);
+        canvas.drawLine(Offset(w * 0.34, h * 0.28), Offset(w * 0.66, h * 0.28), paint);
+        canvas.drawLine(Offset(w * 0.50, h * 0.40), Offset(w * 0.50, h * 0.75), paint);
+        canvas.drawCircle(Offset(w * 0.50, h * 0.80), w * 0.10, paint);
+        canvas.drawCircle(Offset(w * 0.50, h * 0.80), w * 0.04, fillPaint);
+        break;
+
+      case 'bull':
+        // Charging Bull Horns & Aggressive Crest
+        final bullHorns = Path();
+        bullHorns.moveTo(w * 0.15, h * 0.20);
+        bullHorns.quadraticBezierTo(w * 0.30, h * 0.45, w * 0.50, h * 0.45);
+        bullHorns.quadraticBezierTo(w * 0.70, h * 0.45, w * 0.85, h * 0.20);
+        bullHorns.lineTo(w * 0.75, h * 0.25);
+        bullHorns.quadraticBezierTo(w * 0.65, h * 0.40, w * 0.50, h * 0.38);
+        bullHorns.quadraticBezierTo(w * 0.35, h * 0.40, w * 0.25, h * 0.25);
+        bullHorns.close();
+        canvas.drawPath(bullHorns, fillPaint);
+        final bullHead = Path();
+        bullHead.moveTo(w * 0.34, h * 0.42);
+        bullHead.lineTo(w * 0.66, h * 0.42);
+        bullHead.lineTo(w * 0.58, h * 0.82);
+        bullHead.lineTo(w * 0.50, h * 0.90);
+        bullHead.lineTo(w * 0.42, h * 0.82);
+        bullHead.close();
+        canvas.drawPath(bullHead, paint);
+        break;
+
+      case 'lion':
+        // Majestic Lion Crest
+        final lionMane = Path();
+        lionMane.moveTo(w * 0.50, h * 0.12);
+        lionMane.lineTo(w * 0.68, h * 0.22);
+        lionMane.lineTo(w * 0.85, h * 0.40);
+        lionMane.lineTo(w * 0.78, h * 0.68);
+        lionMane.lineTo(w * 0.50, h * 0.90);
+        lionMane.lineTo(w * 0.22, h * 0.68);
+        lionMane.lineTo(w * 0.15, h * 0.40);
+        lionMane.lineTo(w * 0.32, h * 0.22);
+        lionMane.close();
+        canvas.drawPath(lionMane, paint);
+        canvas.drawCircle(Offset(w * 0.40, h * 0.48), w * 0.05, fillPaint);
+        canvas.drawCircle(Offset(w * 0.60, h * 0.48), w * 0.05, fillPaint);
+        canvas.drawLine(Offset(w * 0.50, h * 0.54), Offset(w * 0.50, h * 0.70), paint);
+        canvas.drawLine(Offset(w * 0.40, h * 0.70), Offset(w * 0.60, h * 0.70), paint);
+        break;
+
+      case 'cobra':
+        // Striking Cobra Hood & Serpent
+        final cobraHood = Path();
+        cobraHood.moveTo(w * 0.50, h * 0.12);
+        cobraHood.quadraticBezierTo(w * 0.88, h * 0.30, w * 0.78, h * 0.62);
+        cobraHood.lineTo(w * 0.60, h * 0.88);
+        cobraHood.lineTo(w * 0.40, h * 0.88);
+        cobraHood.lineTo(w * 0.22, h * 0.62);
+        cobraHood.quadraticBezierTo(w * 0.12, h * 0.30, w * 0.50, h * 0.12);
+        cobraHood.close();
+        canvas.drawPath(cobraHood, fillPaint);
+        final eyePaint = Paint()..color = (iconColor == Colors.black ? Colors.white : Colors.black)..style = PaintingStyle.fill;
+        canvas.drawCircle(Offset(w * 0.40, h * 0.38), w * 0.05, eyePaint);
+        canvas.drawCircle(Offset(w * 0.60, h * 0.38), w * 0.05, eyePaint);
+        break;
+
+      case 'compass':
+        // Navigational 8-Point Compass Star
+        canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.38, paint);
+        final compassStar = Path();
+        compassStar.moveTo(w * 0.50, h * 0.15);
+        compassStar.lineTo(w * 0.56, h * 0.44);
+        compassStar.lineTo(w * 0.85, h * 0.50);
+        compassStar.lineTo(w * 0.56, h * 0.56);
+        compassStar.lineTo(w * 0.50, h * 0.85);
+        compassStar.lineTo(w * 0.44, h * 0.56);
+        compassStar.lineTo(w * 0.15, h * 0.50);
+        compassStar.lineTo(w * 0.44, h * 0.44);
+        compassStar.close();
+        canvas.drawPath(compassStar, fillPaint);
+        break;
+
+      case 'crescent':
+        // Crescent Moon & Star
+        final moonPath = Path();
+        moonPath.moveTo(w * 0.42, h * 0.15);
+        moonPath.arcToPoint(Offset(w * 0.42, h * 0.85), radius: Radius.circular(w * 0.35), clockwise: false);
+        moonPath.arcToPoint(Offset(w * 0.42, h * 0.15), radius: Radius.circular(w * 0.28), clockwise: true);
+        moonPath.close();
+        canvas.drawPath(moonPath, fillPaint);
+        canvas.drawCircle(Offset(w * 0.65, h * 0.50), w * 0.08, fillPaint);
+        break;
+
+      case 'swords':
+        // Crossed Broadswords
+        canvas.drawLine(Offset(w * 0.18, h * 0.18), Offset(w * 0.82, h * 0.82), paint);
+        canvas.drawLine(Offset(w * 0.82, h * 0.18), Offset(w * 0.18, h * 0.82), paint);
+        canvas.drawLine(Offset(w * 0.28, h * 0.38), Offset(w * 0.38, h * 0.28), paint);
+        canvas.drawLine(Offset(w * 0.72, h * 0.38), Offset(w * 0.62, h * 0.28), paint);
+        canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.10, fillPaint);
+        break;
+
       case 'check':
         // Sharp Neo-Brutalist Checkmark
         final checkPath = Path();
@@ -349,6 +467,34 @@ class AvatarIconWidget extends StatelessWidget {
       case 'check':
       case 'verified':
         return VectorIconWidget(type: 'check', color: color, size: size);
+      case 'race_flag':
+      case 'flag':
+      case 'checkered':
+        return VectorIconWidget(type: 'race_flag', color: color, size: size);
+      case 'piston':
+      case 'engine_block':
+        return VectorIconWidget(type: 'piston', color: color, size: size);
+      case 'bull':
+      case 'lamborghini':
+        return VectorIconWidget(type: 'bull', color: color, size: size);
+      case 'lion':
+      case 'peugeot':
+        return VectorIconWidget(type: 'lion', color: color, size: size);
+      case 'cobra':
+      case 'viper':
+      case 'snake':
+        return VectorIconWidget(type: 'cobra', color: color, size: size);
+      case 'compass':
+      case 'navigation':
+        return VectorIconWidget(type: 'compass', color: color, size: size);
+      case 'crescent':
+      case 'moon':
+      case 'hilal':
+        return VectorIconWidget(type: 'crescent', color: color, size: size);
+      case 'swords':
+      case 'duel':
+      case 'battle':
+        return VectorIconWidget(type: 'swords', color: color, size: size);
       case 'sparkles':
       case 'sparkle':
         return Icon(Icons.auto_awesome_rounded, color: color, size: size);

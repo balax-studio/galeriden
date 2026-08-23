@@ -39,8 +39,8 @@ import '../presentation/screens/night_market/night_market_screen.dart';
 import '../presentation/screens/office/special_plate_screen.dart';
 import '../presentation/screens/office/media_agency_screen.dart';
 import '../presentation/screens/office/lifestyle_screen.dart';
-import '../presentation/screens/store/store_screen.dart';
 import '../presentation/screens/album/collection_album_screen.dart';
+import '../presentation/screens/casino/casino_hub_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
   return CupertinoPage(
@@ -151,12 +151,12 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) => _buildCupertinoPage(const ThemeStoreScreen(), state),
     ),
     GoRoute(
-      path: '/store',
-      pageBuilder: (context, state) => _buildCupertinoPage(const StoreScreen(), state),
-    ),
-    GoRoute(
       path: '/character-growth',
       pageBuilder: (context, state) => _buildCupertinoPage(const CharacterGrowthScreen(), state),
+    ),
+    GoRoute(
+      path: '/casino',
+      pageBuilder: (context, state) => _buildCupertinoPage(const CasinoHubScreen(), state),
     ),
     GoRoute(
       path: '/auction',

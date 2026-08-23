@@ -216,14 +216,16 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                   AnimatedBuilder(
                     animation: _sweepController,
                     builder: (context, _) {
-                      return CustomPaint(
-                        size: const Size(double.infinity, 200),
-                        painter: _ScrapyardTeardownPainter(
-                          activeBoltIndex: _activeBoltIndex,
-                          boltsLoosened: _boltsLoosened,
-                          boltHealth: _boltHealth,
-                          sweepProgress: _sweepController.value,
-                          sparks: _sparks,
+                      return RepaintBoundary(
+                        child: CustomPaint(
+                          size: const Size(double.infinity, 200),
+                          painter: _ScrapyardTeardownPainter(
+                            activeBoltIndex: _activeBoltIndex,
+                            boltsLoosened: _boltsLoosened,
+                            boltHealth: _boltHealth,
+                            sweepProgress: _sweepController.value,
+                            sparks: _sparks,
+                          ),
                         ),
                       );
                     },

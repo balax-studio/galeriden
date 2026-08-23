@@ -389,16 +389,18 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: CustomPaint(
-                  painter: _DragTrackPainter(
-                    playerDistance: _playerDistance,
-                    rivalDistance: _rivalDistance,
-                    particles: _particles,
-                    playerCarName: context.tr('drag_race_you', {'name': widget.car.modelName}),
-                    rivalCarName: context.tr('drag_race_rival', {'name': widget.rival.carName}),
-                    playerSpeech: _playerSpeech,
-                    rivalSpeech: _rivalSpeech,
-                    currentGear: _currentGear,
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: _DragTrackPainter(
+                      playerDistance: _playerDistance,
+                      rivalDistance: _rivalDistance,
+                      particles: _particles,
+                      playerCarName: context.tr('drag_race_you', {'name': widget.car.modelName}),
+                      rivalCarName: context.tr('drag_race_rival', {'name': widget.rival.carName}),
+                      playerSpeech: _playerSpeech,
+                      rivalSpeech: _rivalSpeech,
+                      currentGear: _currentGear,
+                    ),
                   ),
                 ),
               ),

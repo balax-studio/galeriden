@@ -11,6 +11,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/auction_model.dart';
+import '../../../data/models/mission_model.dart';
 import '../../../domain/usecases/auction_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -36,6 +37,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   bool _hasPlayerEnteredBid = false;
   bool _isHandlingAuctionEnd = false;
   bool _hasExtendedAuction = false;
+  bool _hasBluffedInCurrentAuction = false;
   final List<String> _bidLogs = [];
   late AnimationController _pulseController;
   int _closedCountdown = 0;
@@ -58,6 +60,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
+    AdService.instance.loadRewardedAd();
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -162,6 +165,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     }
 
     GameSoundHapticService.playAuctionBid();
+    ref.read(gameProvider.notifier).updateMissionProgress(MissionType.auctionBid, 1);
     setState(() {
       _hasPlayerEnteredBid = true;
       _auction = _auction.copyWith(
@@ -179,6 +183,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   }
 
   void _executeTrollBluff() {
+    if (_hasBluffedInCurrentAuction) {
+      NotificationService.showWarning(context, context.tr('auction_bluff_already_used'));
+      return;
+    }
+
     if (_auction.isPlayerHighestBidder) {
       NotificationService.showWarning(context, context.tr('auction_already_leading'));
       return;
@@ -221,6 +230,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     setState(() {
       _hasPlayerEnteredBid = false;
+      _hasBluffedInCurrentAuction = true;
       _auction = _auction.copyWith(
         currentBid: counterBid,
         highestBidderName: targetRival.name,
@@ -246,6 +256,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _isHandlingAuctionEnd = false;
       _hasPlayerEnteredBid = false;
       _hasExtendedAuction = false;
+      _hasBluffedInCurrentAuction = false;
       _isWindowOpen = isNowOpen;
       _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
 
@@ -642,9 +653,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           ? _buildClosedWindowView(isDark)
           : Column(
               children: [
-                // Top 3-Way Tab Selector
+                // Top 3-Way Tab Selector (Neo-Brutalist Monolithic Bar)
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF141721) : Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -652,32 +664,58 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0xFF0F172A),
+                        offset: Offset(2.5, 2.5),
+                        blurRadius: 0,
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
+                      // Tab 0: GÜMRÜK
                       Expanded(
                         child: GestureDetector(
-                          onTap: _switchToStandardAuction,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            _switchToStandardAuction();
+                          },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: _selectedTabIndex == 0
-                                  ? (isDark ? AppColors.brutalOrange : AppColors.brutalYellow)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
+                              color: _selectedTabIndex == 0 ? AppColors.brutalYellow : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: _selectedTabIndex == 0
+                                  ? Border.all(color: const Color(0xFF0F172A), width: 1.5)
+                                  : null,
+                              boxShadow: _selectedTabIndex == 0
+                                  ? const [
+                                      BoxShadow(
+                                        color: Color(0xFF0F172A),
+                                        offset: Offset(1.5, 1.5),
+                                        blurRadius: 0,
+                                      ),
+                                    ]
+                                  : null,
                             ),
                             child: Center(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.gavel_rounded, size: 13, color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
+                                  Icon(
+                                    Icons.gavel_rounded,
+                                    size: 14,
+                                    color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     context.tr('auction_tab_customs'),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
-                                      color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                      letterSpacing: 0.3,
+                                      color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B)),
                                     ),
                                   ),
                                 ],
@@ -686,29 +724,50 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           ),
                         ),
                       ),
+                      const SizedBox(width: 4),
+
+                      // Tab 1: VIP SALON
                       Expanded(
                         child: GestureDetector(
-                          onTap: _switchToVipAuction,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            _switchToVipAuction();
+                          },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: _selectedTabIndex == 1
-                                  ? const Color(0xFF7C3AED)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
+                              color: _selectedTabIndex == 1 ? const Color(0xFFA855F7) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: _selectedTabIndex == 1
+                                  ? Border.all(color: const Color(0xFF0F172A), width: 1.5)
+                                  : null,
+                              boxShadow: _selectedTabIndex == 1
+                                  ? const [
+                                      BoxShadow(
+                                        color: Color(0xFF0F172A),
+                                        offset: Offset(1.5, 1.5),
+                                        blurRadius: 0,
+                                      ),
+                                    ]
+                                  : null,
                             ),
                             child: Center(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.stars_rounded, size: 13, color: _selectedTabIndex == 1 ? Colors.white : const Color(0xFFA855F7)),
+                                  Icon(
+                                    Icons.stars_rounded,
+                                    size: 14,
+                                    color: _selectedTabIndex == 1 ? Colors.black : const Color(0xFFA855F7),
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     context.tr('auction_tab_vip'),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
-                                      color: _selectedTabIndex == 1 ? Colors.white : (isDark ? const Color(0xFFA855F7) : const Color(0xFF7C3AED)),
+                                      letterSpacing: 0.3,
+                                      color: _selectedTabIndex == 1 ? Colors.black : (isDark ? const Color(0xFFA855F7) : const Color(0xFF7C3AED)),
                                     ),
                                   ),
                                 ],
@@ -717,29 +776,50 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           ),
                         ),
                       ),
+                      const SizedBox(width: 4),
+
+                      // Tab 2: KATALOG
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => setState(() => _selectedTabIndex = 2),
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() => _selectedTabIndex = 2);
+                          },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: _selectedTabIndex == 2
-                                  ? (isDark ? AppColors.brutalOrange : AppColors.brutalYellow)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
+                              color: _selectedTabIndex == 2 ? const Color(0xFF38BDF8) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: _selectedTabIndex == 2
+                                  ? Border.all(color: const Color(0xFF0F172A), width: 1.5)
+                                  : null,
+                              boxShadow: _selectedTabIndex == 2
+                                  ? const [
+                                      BoxShadow(
+                                        color: Color(0xFF0F172A),
+                                        offset: Offset(1.5, 1.5),
+                                        blurRadius: 0,
+                                      ),
+                                    ]
+                                  : null,
                             ),
                             child: Center(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.list_alt_rounded, size: 13, color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white70 : Colors.black87)),
+                                  Icon(
+                                    Icons.list_alt_rounded,
+                                    size: 14,
+                                    color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     context.tr('auction_tab_catalog', {'count': '${_upcomingLots.length}'}),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
-                                      color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                      letterSpacing: 0.3,
+                                      color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B)),
                                     ),
                                   ),
                                 ],
@@ -1117,7 +1197,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   Expanded(
                     child: NeoBrutalButton(
                       icon: Icons.flag_rounded,
-                      label: context.tr('auction_btn_flag'),
+                      label: context.tr('auction_btn_flag', {'amount': '₺50.000'}),
                       backgroundColor: _auction.isPlayerHighestBidder
                           ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                           : const Color(0xFFFFDE59),
@@ -1131,7 +1211,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   Expanded(
                     child: NeoBrutalButton(
                       icon: Icons.psychology_rounded,
-                      label: context.tr('auction_btn_bluff'),
+                      label: context.tr('auction_btn_bluff', {'amount': '₺20.000'}),
                       backgroundColor: _auction.isPlayerHighestBidder
                           ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                           : const Color(0xFFA855F7),
@@ -1158,7 +1238,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                context.tr('auction_rivals_title'),
+                context.tr('auction_rivals_title', {'count': '${_auction.rivals.length}'}),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
               ),
               const SizedBox(height: 8),
@@ -1290,7 +1370,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         fontSize: 10.5,
                       ),
                       NeoBrutalBadge(
-                        text: '${context.tr('auction_estimated_label')} ${CurrencyFormatter.formatShort(lot.estimatedMarketValue)}',
+                        text: context.tr('auction_estimated_label', {'price': CurrencyFormatter.formatShort(lot.estimatedMarketValue)}),
                         backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
                         fontSize: 10,

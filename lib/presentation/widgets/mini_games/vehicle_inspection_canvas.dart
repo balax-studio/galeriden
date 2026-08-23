@@ -208,16 +208,18 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                     AnimatedBuilder(
                       animation: _rollerController,
                       builder: (context, _) {
-                        return CustomPaint(
-                          size: const Size(double.infinity, 210),
-                          painter: _BrakeRollerPainter(
-                            rollerProgress: _rollerController.value,
-                            leftForce: _leftBrakeForce,
-                            rightForce: _rightBrakeForce,
-                            imbalance: _brakeImbalancePercent,
-                            isBraking: _isBraking,
-                            progress: _brakeProgress,
-                            rightForceLabel: context.tr('inspection_right_force'),
+                        return RepaintBoundary(
+                          child: CustomPaint(
+                            size: const Size(double.infinity, 210),
+                            painter: _BrakeRollerPainter(
+                              rollerProgress: _rollerController.value,
+                              leftForce: _leftBrakeForce,
+                              rightForce: _rightBrakeForce,
+                              imbalance: _brakeImbalancePercent,
+                              isBraking: _isBraking,
+                              progress: _brakeProgress,
+                              rightForceLabel: context.tr('inspection_right_force'),
+                            ),
                           ),
                         );
                       },
@@ -230,12 +232,14 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                             details,
                             Size(constraints.maxWidth, constraints.maxHeight),
                           ),
-                          child: CustomPaint(
-                            size: Size(constraints.maxWidth, constraints.maxHeight),
-                            painter: _HeadlightBeamPainter(
-                              beamOffset: _currentBeamOffset,
-                              targetOffset: _headlightTarget,
-                              accuracy: _headlightAccuracy,
+                          child: RepaintBoundary(
+                            child: CustomPaint(
+                              size: Size(constraints.maxWidth, constraints.maxHeight),
+                              painter: _HeadlightBeamPainter(
+                                beamOffset: _currentBeamOffset,
+                                targetOffset: _headlightTarget,
+                                accuracy: _headlightAccuracy,
+                              ),
                             ),
                           ),
                         );

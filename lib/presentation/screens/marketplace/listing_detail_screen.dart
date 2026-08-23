@@ -73,6 +73,7 @@ class ListingDetailScreen extends ConsumerWidget {
                     color: carColor,
                     width: 140,
                     height: 70,
+                    isClean: car.isWashed || car.isPolished || car.isDetailedCleaned,
                   ),
                   const SizedBox(height: 16),
                   Text(listing.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 20), textAlign: TextAlign.center),

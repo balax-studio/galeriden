@@ -158,7 +158,7 @@ class GameHudHeaderWidget extends ConsumerWidget {
               icon: Icons.task_alt_rounded,
               accentColor: const Color(0xFFA855F7),
               title: context.tr('hud_missions'),
-              value: '${game.activeMissions.where((m) => m.isCompleted).length}/${game.activeMissions.length}',
+              value: '${game.activeMissions.where((m) => m.isCompleted == true).length}/${game.activeMissions.length}',
               onTap: () {
                 HapticFeedback.lightImpact();
                 _showMissionsModal(context, isDark, p);

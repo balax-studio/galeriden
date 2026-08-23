@@ -15,6 +15,9 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import 'widgets/forex_trade_modal.dart';
+import 'widgets/ipo_request_modal.dart';
+import 'widgets/stock_trade_modal.dart';
 
 class StockMarketScreen extends ConsumerStatefulWidget {
   const StockMarketScreen({super.key});
@@ -37,508 +40,6 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  // --- TRADING DIALOG FOR STOCKS ---
-  void _openStockTradeDialog(BuildContext context, StockModel stock, PlayerStockModel? owned) {
-    final game = ref.read(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lotController = TextEditingController(text: '10');
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (dialogCtx, setDialogState) {
-            final int lotAmount = int.tryParse(lotController.text) ?? 0;
-            final double grossCost = lotAmount * stock.currentPrice;
-            final double commission = grossCost * 0.002;
-            final double totalCost = grossCost + commission;
-            final int maxBuyable = (game.balance / (stock.currentPrice * 1.002)).floor();
-            final int sharesOwned = owned?.quantity ?? 0;
-
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(dialogCtx).viewInsets.bottom,
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                    width: 2.5,
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${stock.symbol} • ${stock.name}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                context.tr('stock_unit_price', {
-                                  'price': CurrencyFormatter.formatShort(stock.currentPrice),
-                                  'yield': (stock.dividendYield * 100).toStringAsFixed(1),
-                                }),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark ? Colors.white70 : Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        NeoBrutalBadge(
-                          text: '${stock.isUp ? '+' : ''}${stock.changePercentage.toStringAsFixed(1)}%',
-                          backgroundColor: stock.isUp ? AppColors.brutalGreen : AppColors.errorRed,
-                          textColor: stock.isUp ? Colors.black : Colors.white,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      context.tr('stock_lot_label'),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: lotController,
-                      keyboardType: TextInputType.number,
-                      autofocus: true,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-                      decoration: InputDecoration(
-                        hintText: context.tr('stock_lot_hint'),
-                        filled: true,
-                        fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 2.0,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 2.0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.5),
-                        ),
-                        suffixText: 'LOT',
-                        suffixStyle: const TextStyle(fontWeight: FontWeight.w900),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      ),
-                      onChanged: (val) => setDialogState(() {}),
-                    ),
-                    const SizedBox(height: 10),
-                    // Quick Percent / Lot Buttons
-                    Row(
-                      children: [
-                        _buildQuickChip('%25', () {
-                          final count = (maxBuyable * 0.25).floor().clamp(1, maxBuyable > 0 ? maxBuyable : 1);
-                          lotController.text = count.toString();
-                          setDialogState(() {});
-                        }, isDark),
-                        const SizedBox(width: 6),
-                        _buildQuickChip('%50', () {
-                          final count = (maxBuyable * 0.50).floor().clamp(1, maxBuyable > 0 ? maxBuyable : 1);
-                          lotController.text = count.toString();
-                          setDialogState(() {});
-                        }, isDark),
-                        const SizedBox(width: 6),
-                        _buildQuickChip('%75', () {
-                          final count = (maxBuyable * 0.75).floor().clamp(1, maxBuyable > 0 ? maxBuyable : 1);
-                          lotController.text = count.toString();
-                          setDialogState(() {});
-                        }, isDark),
-                        const SizedBox(width: 6),
-                        _buildQuickChip('MAX • $maxBuyable', () {
-                          lotController.text = maxBuyable.toString();
-                          setDialogState(() {});
-                        }, isDark),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                          width: 2.0,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(context.tr('stock_amount_label'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                              Text(CurrencyFormatter.formatShort(grossCost), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(context.tr('stock_broker_commission'), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
-                              Text(CurrencyFormatter.formatShort(commission), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
-                            ],
-                          ),
-                          Divider(height: 12, thickness: 1, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(context.tr('stock_total_amount'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
-                              Text(
-                                CurrencyFormatter.formatShort(totalCost),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: NeoBrutalButton(
-                            label: context.tr('stock_btn_buy_lot'),
-                            icon: Icons.add_shopping_cart_rounded,
-                            backgroundColor: AppColors.brutalGreen,
-                            textColor: Colors.black,
-                            onPressed: () {
-                              if (lotAmount <= 0) {
-                                NotificationService.showError(context, context.tr('stock_lot_invalid_toast'));
-                                return;
-                              }
-                              final success = ref.read(gameProvider.notifier).buyStock(stock.symbol, lotAmount);
-                              if (success) {
-                                Navigator.pop(dialogCtx);
-                                NotificationService.showSuccess(
-                                  context,
-                                  context.tr('stock_buy_success_toast', {'amount': lotAmount, 'symbol': stock.symbol}),
-                                );
-                              } else {
-                                NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
-                              }
-                            },
-                          ),
-                        ),
-                        if (sharesOwned > 0) ...[
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: NeoBrutalButton(
-                              label: context.tr('stock_btn_sell_lot', {'amount': sharesOwned}),
-                              icon: Icons.sell_rounded,
-                              backgroundColor: AppColors.errorRed,
-                              textColor: Colors.white,
-                              onPressed: () {
-                                final sellCount = lotAmount > sharesOwned ? sharesOwned : lotAmount;
-                                final success = ref.read(gameProvider.notifier).sellStock(stock.symbol, sellCount);
-                                if (success) {
-                                  Navigator.pop(dialogCtx);
-                                  NotificationService.showSuccess(
-                                    context,
-                                    context.tr('stock_sell_success_toast', {'amount': sellCount, 'symbol': stock.symbol}),
-                                  );
-                                } else {
-                                  NotificationService.showError(context, context.tr('stock_sell_failed_toast'));
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) => lotController.dispose());
-  }
-
-  // --- TRADING DIALOG FOR FOREX / GOLD ---
-  void _openForexTradeDialog(BuildContext context, ForexGoldModel forex, PlayerForexModel? owned) {
-    final game = ref.read(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final amountController = TextEditingController(text: forex.symbol == 'GOLD' ? '5' : '100');
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (dialogCtx, setDialogState) {
-            final double amount = double.tryParse(amountController.text) ?? 0.0;
-            final double buyCost = amount * forex.buyRate;
-            final double sellRevenue = amount * forex.sellRate;
-            final double maxBuyable = (game.balance / forex.buyRate);
-            final double currentOwned = owned?.amount ?? 0.0;
-
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(dialogCtx).viewInsets.bottom,
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                    width: 2.5,
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${forex.symbol} • ${forex.name}',
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                            ),
-                            Text(
-                              context.tr('forex_rate_label', {
-                                'buy': forex.buyRate.toStringAsFixed(2),
-                                'sell': forex.sellRate.toStringAsFixed(2),
-                              }),
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: isDark ? Colors.white70 : Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                        NeoBrutalBadge(
-                          text: '${forex.isUp ? '+' : ''}${forex.changePercentage.toStringAsFixed(1)}%',
-                          backgroundColor: forex.isUp ? AppColors.brutalGreen : AppColors.errorRed,
-                          textColor: forex.isUp ? Colors.black : Colors.white,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      context.tr('forex_amount_label', {
-                        'unit': forex.symbol == 'GOLD'
-                            ? context.tr('forex_unit_gram')
-                            : context.tr('forex_unit_unit'),
-                      }),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: amountController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      autofocus: true,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-                      decoration: InputDecoration(
-                        hintText: context.tr('forex_amount_hint'),
-                        filled: true,
-                        fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                            width: 2.0,
-                          ),
-                        ),
-                        suffixText: forex.symbol == 'GOLD' ? 'GR' : forex.symbol,
-                        suffixStyle: const TextStyle(fontWeight: FontWeight.w900),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      ),
-                      onChanged: (val) => setDialogState(() {}),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        _buildQuickChip(forex.symbol == 'GOLD' ? '+5' : '+100', () {
-                          final step = forex.symbol == 'GOLD' ? 5 : 100;
-                          amountController.text = (amount + step).toStringAsFixed(0);
-                          setDialogState(() {});
-                        }, isDark),
-                        const SizedBox(width: 6),
-                        _buildQuickChip(forex.symbol == 'GOLD' ? '+25' : '+500', () {
-                          final step = forex.symbol == 'GOLD' ? 25 : 500;
-                          amountController.text = (amount + step).toStringAsFixed(0);
-                          setDialogState(() {});
-                        }, isDark),
-                        const SizedBox(width: 6),
-                        _buildQuickChip(context.tr('forex_btn_max_buy'), () {
-                          amountController.text = maxBuyable.toStringAsFixed(0);
-                          setDialogState(() {});
-                        }, isDark),
-                        if (currentOwned > 0) ...[
-                          const SizedBox(width: 6),
-                          _buildQuickChip(context.tr('forex_btn_sell_all'), () {
-                            amountController.text = currentOwned.toStringAsFixed(0);
-                            setDialogState(() {});
-                          }, isDark),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                          width: 2.0,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(context.tr('stock_buy_cost'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                              Text(CurrencyFormatter.formatShort(buyCost), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.brutalGreen)),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(context.tr('stock_sell_revenue'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                              Text(CurrencyFormatter.formatShort(sellRevenue), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.errorRed)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: NeoBrutalButton(
-                            label: context.tr('forex_btn_buy'),
-                            icon: Icons.add_circle_outline_rounded,
-                            backgroundColor: AppColors.brutalGreen,
-                            textColor: Colors.black,
-                            onPressed: () {
-                              if (amount <= 0) {
-                                NotificationService.showError(context, context.tr('forex_amount_invalid_toast'));
-                                return;
-                              }
-                              final success = ref.read(gameProvider.notifier).buyForex(forex.symbol, amount);
-                              if (success) {
-                                Navigator.pop(dialogCtx);
-                                NotificationService.showSuccess(
-                                  context,
-                                  context.tr('forex_buy_success_toast', {'amount': amount.toStringAsFixed(0), 'symbol': forex.symbol}),
-                                );
-                              } else {
-                                NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
-                              }
-                            },
-                          ),
-                        ),
-                        if (currentOwned > 0) ...[
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: NeoBrutalButton(
-                              label: context.tr('forex_btn_sell'),
-                              icon: Icons.currency_exchange_rounded,
-                              backgroundColor: AppColors.errorRed,
-                              textColor: Colors.white,
-                              onPressed: () {
-                                final sellAmount = amount > currentOwned ? currentOwned : amount;
-                                final success = ref.read(gameProvider.notifier).sellForex(forex.symbol, sellAmount);
-                                if (success) {
-                                  Navigator.pop(dialogCtx);
-                                  NotificationService.showSuccess(
-                                    context,
-                                    context.tr('forex_sell_success_toast', {'amount': sellAmount.toStringAsFixed(0), 'symbol': forex.symbol}),
-                                  );
-                                } else {
-                                  NotificationService.showError(context, context.tr('forex_tx_failed_toast'));
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) => amountController.dispose());
-  }
-
-  // --- QUICK CHIP BUILDER ---
-  static Widget _buildQuickChip(String label, VoidCallback onTap, bool isDark) {
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-              width: 1.5,
-            ),
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800),
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -805,7 +306,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                                 ),
                                 const SizedBox(width: 6),
                                 NeoBrutalBadge(
-                                  text: context.tr('stock_dividend_badge', {'yield': (stock.dividendYield * 100).toStringAsFixed(1)}),
+                                  text: context.tr('stock_dividend_badge', {'rate': (stock.dividendYield * 100).toStringAsFixed(1)}),
                                   backgroundColor: AppColors.brutalCyan,
                                   textColor: Colors.black,
                                   fontSize: 9,
@@ -868,7 +369,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(context.tr('stock_owned_portfolio', {'amount': sharesOwned}), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+                          Text(context.tr('stock_owned_portfolio', {'lots': sharesOwned}), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
                           Text(
                             context.tr('stock_owned_value', {'value': CurrencyFormatter.formatShort((sharesOwned * stock.currentPrice).toDouble())}),
                             style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
@@ -887,7 +388,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     fontSize: 11.5,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     fullWidth: true,
-                    onPressed: () => _openStockTradeDialog(context, stock, owned),
+                    onPressed: () => StockTradeModal.show(context, ref, stock, owned),
                   ),
                 ],
               ),
@@ -1083,7 +584,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       fontSize: 11,
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       fullWidth: true,
-                      onPressed: () => _openStockTradeDialog(context, stock, owned),
+                      onPressed: () => StockTradeModal.show(context, ref, stock, owned),
                     ),
                 ],
               ),
@@ -1240,7 +741,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                     fontSize: 11.5,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     fullWidth: true,
-                    onPressed: () => _openForexTradeDialog(context, item, owned),
+                    onPressed: () => ForexTradeModal.show(context, ref, item, owned),
                   ),
                 ],
               ),
@@ -1348,7 +849,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                 Text(
                   context.tr('company_valuation_label', {
                     'val': CurrencyFormatter.formatShort(companyValuation),
-                    'pot': CurrencyFormatter.formatShort(ipoCapitalPotential),
+                    'income': CurrencyFormatter.formatShort(ipoCapitalPotential),
                   }),
                   style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
                 ),
@@ -1506,7 +1007,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       fullWidth: true,
                       onPressed: () {
-                        _showIpoRequestSheet(context, ipo);
+                        IpoRequestModal.show(context, ref, ipo);
                       },
                     ),
                   ],
@@ -1517,96 +1018,6 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen> with Sing
         }),
       ],
     );
-  }
-
-  void _showIpoRequestSheet(BuildContext context, IpoOfferModel ipo) {
-    final game = ref.read(gameProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lotCtrl = TextEditingController(text: ipo.maxLotPerUser.toString());
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (dialogCtx, setDialogState) {
-            final int requestedLots = int.tryParse(lotCtrl.text) ?? 0;
-            final double totalCost = requestedLots * ipo.lotPrice;
-
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(dialogCtx).viewInsets.bottom),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  border: Border.all(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 2.5),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(context.tr('stock_ipo_demand_title', {'symbol': ipo.symbol}), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
-                    const SizedBox(height: 4),
-                    Text(context.tr('stock_ipo_max_limit', {'amount': ipo.maxLotPerUser}), style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: lotCtrl,
-                      keyboardType: TextInputType.number,
-                      autofocus: true,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-                      decoration: InputDecoration(
-                        hintText: context.tr('stock_lot_hint'),
-                        filled: true,
-                        fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        suffixText: 'LOT',
-                      ),
-                      onChanged: (val) => setDialogState(() {}),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      context.tr('ipo_total_demand_cost', {'cost': totalCost.round()}),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                    ),
-                    const SizedBox(height: 16),
-                    NeoBrutalButton(
-                      label: context.tr('ipo_btn_confirm_demand'),
-                      icon: Icons.check_circle_outline_rounded,
-                      backgroundColor: AppColors.brutalGreen,
-                      textColor: Colors.black,
-                      fullWidth: true,
-                      onPressed: () {
-                        if (requestedLots <= 0 || requestedLots > ipo.maxLotPerUser) {
-                          NotificationService.showError(
-                            context,
-                            context.tr('ipo_max_lot_error', {'max': ipo.maxLotPerUser}),
-                          );
-                          return;
-                        }
-                        if (game.balance < totalCost) {
-                          NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
-                          return;
-                        }
-                        final success = ref.read(gameProvider.notifier).requestIpo(ipo.id, requestedLots);
-                        if (success) {
-                          Navigator.pop(dialogCtx);
-                          NotificationService.showSuccess(
-                            context,
-                            context.tr('ipo_demand_success_toast', {'symbol': ipo.symbol}),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) => lotCtrl.dispose());
   }
 }
 
@@ -1681,5 +1092,15 @@ class SparklinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant SparklinePainter oldDelegate) => true;
+  bool shouldRepaint(covariant SparklinePainter oldDelegate) {
+    if (oldDelegate.isUp != isUp || oldDelegate.isDark != isDark || oldDelegate.history.length != history.length) {
+      return true;
+    }
+    if (history.isNotEmpty && oldDelegate.history.isNotEmpty) {
+      if (oldDelegate.history.last != history.last || oldDelegate.history.first != history.first) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

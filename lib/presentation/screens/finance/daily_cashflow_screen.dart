@@ -558,7 +558,7 @@ class DailyCashflowScreen extends ConsumerWidget {
           iconColor: const Color(0xFFFFDE59),
           title: context.tr('cashflow_income_deposit_title'),
           subtitle: depositBalance > 0
-              ? context.tr('cashflow_income_deposit_desc', {'amount': CurrencyFormatter.format(depositBalance)})
+              ? context.tr('cashflow_income_deposit_desc', {'balance': CurrencyFormatter.format(depositBalance)})
               : context.tr('cashflow_income_no_deposit'),
           amount: depositInterest,
           isIncome: true,
@@ -573,7 +573,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             icon: Icons.candlestick_chart_rounded,
             iconColor: const Color(0xFFA855F7),
             title: context.tr('cashflow_income_stocks_title'),
-            subtitle: context.tr('cashflow_income_stocks_desc', {'amount': CurrencyFormatter.format(stockPortfolioValue)}),
+            subtitle: context.tr('cashflow_income_stocks_desc', {'value': CurrencyFormatter.format(stockPortfolioValue)}),
             amount: stockDividend,
             isIncome: true,
             onTap: () => _handleShortcut(context, game, '/stock-market'),

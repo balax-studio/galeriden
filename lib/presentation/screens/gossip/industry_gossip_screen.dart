@@ -201,7 +201,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: context.tr('gossip_badge_trust', {'rate': '${(gossip.accuracyRate * 100).round()}'}),
+                  text: context.tr('gossip_badge_trust', {'trust': '${(gossip.accuracyRate * 100).round()}'}),
                   backgroundColor: gossip.accuracyRate >= 0.85
                       ? AppColors.brutalGreen
                       : (gossip.accuracyRate >= 0.70 ? AppColors.brutalYellow : AppColors.brutalOrange),
@@ -307,7 +307,7 @@ class IndustryGossipScreen extends ConsumerWidget {
                           if (game.hasHighNpcTrust(gossip.sourceNpc == 'cayci_necati' ? 'necati' : gossip.sourceNpc)) ...[
                             const SizedBox(width: 6),
                             NeoBrutalBadge(
-                              text: context.tr('gossip_friend_discount'),
+                              text: context.tr('gossip_friend_discount', {'pct': '50'}),
                               backgroundColor: AppColors.brutalGreen,
                               textColor: Colors.black,
                               fontSize: 9,

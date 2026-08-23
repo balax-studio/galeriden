@@ -30,18 +30,15 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
 
   static const List<int> _milestones = [3, 5, 10, 20, 30, 60, 90];
 
-  @override
-  Widget build(BuildContext context) {
-    final game = ref.watch(gameProvider);
-    final themeState = ref.watch(themeProvider);
-    final palette = themeState.activePalette;
-    final isDark = palette.isDark;
+  // Static cached catalog to avoid rebuilding catalog objects on every frame
+  static final List<_CatalogCarItem> _cachedCatalogCars = _buildStaticCatalog();
+  static final List<String> _cachedSegments = _cachedCatalogCars.map((c) => c.segment).toSet().toList();
 
-    // Collect all catalog cars from GameConstants.carBrands
-    final allCatalogCars = <_CatalogCarItem>[];
+  static List<_CatalogCarItem> _buildStaticCatalog() {
+    final list = <_CatalogCarItem>[];
     for (final brand in GameConstants.carBrands) {
       for (final model in brand.models) {
-        allCatalogCars.add(_CatalogCarItem(
+        list.add(_CatalogCarItem(
           brand: brand.name,
           modelName: model,
           segment: brand.segment,
@@ -49,7 +46,17 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
         ));
       }
     }
+    return list;
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    final game = ref.watch(gameProvider);
+    final themeState = ref.watch(themeProvider);
+    final palette = themeState.activePalette;
+    final isDark = palette.isDark;
+
+    final allCatalogCars = _cachedCatalogCars;
     final totalCatalogCount = allCatalogCars.length;
 
     // Set of discovered keys
@@ -97,7 +104,7 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
     );
 
     // Filter cars
-    var filteredCars = allCatalogCars.where((car) {
+    final filteredCars = allCatalogCars.where((car) {
       final discovered = isDiscovered(car);
       if (_selectedFilterIndex == 1 && !discovered) return false;
       if (_selectedFilterIndex == 2 && discovered) return false;
@@ -105,77 +112,89 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
       return true;
     }).toList();
 
-    final allSegments = allCatalogCars.map((c) => c.segment).toSet().toList();
-
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('album_appbar_title'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
-          // 1. Header Progress & Stats Card
-          _buildProgressCard(
-            context: context,
-            game: game,
-            progress: albumProgress,
-            discoveredCount: discoveredCars.length,
-            totalCount: totalCatalogCount,
-            isDark: isDark,
-          ),
-          const SizedBox(height: 14),
-
-          // 2. Milestone Rewards Shelf
-          _buildMilestoneShelf(
-            context: context,
-            game: game,
-            discoveredCount: discoveredCars.length,
-            isDark: isDark,
-          ),
-          const SizedBox(height: 14),
-
-          // 3. Filter Bar & Segment Chips
-          _buildFilterBar(
-            context: context,
-            allSegments: allSegments,
-            discoveredCount: discoveredCars.length,
-            lockedCount: totalCatalogCount - discoveredCars.length,
-            totalCount: totalCatalogCount,
-            isDark: isDark,
-          ),
-          const SizedBox(height: 14),
-
-          // 4. Vehicle Catalog Grid
-          if (filteredCars.isEmpty)
-            _buildEmptyState(context: context, isDark: isDark)
-          else
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filteredCars.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.74,
-              ),
-              itemBuilder: (context, index) {
-                final car = filteredCars[index];
-                final discovered = isDiscovered(car);
-                final owned = isOwned(car);
-                final sold = isSold(car);
-
-                return _buildCarCard(
+      body: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(14),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // 1. Header Progress & Stats Card
+                _buildProgressCard(
                   context: context,
-                  car: car,
-                  isDiscovered: discovered,
-                  isOwned: owned,
-                  isSold: sold,
+                  game: game,
+                  progress: albumProgress,
+                  discoveredCount: discoveredCars.length,
+                  totalCount: totalCatalogCount,
                   isDark: isDark,
-                );
-              },
+                ),
+                const SizedBox(height: 14),
+
+                // 2. Milestone Rewards Shelf
+                _buildMilestoneShelf(
+                  context: context,
+                  game: game,
+                  discoveredCount: discoveredCars.length,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 14),
+
+                // 3. Filter Bar & Segment Chips
+                _buildFilterBar(
+                  context: context,
+                  allSegments: _cachedSegments,
+                  discoveredCount: discoveredCars.length,
+                  lockedCount: totalCatalogCount - discoveredCars.length,
+                  totalCount: totalCatalogCount,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 14),
+              ]),
+            ),
+          ),
+
+          // 4. Vehicle Catalog Grid (Fully virtualized SliverGrid for 60/120 FPS)
+          if (filteredCars.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: _buildEmptyState(context: context, isDark: isDark),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 0.74,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final car = filteredCars[index];
+                    final discovered = isDiscovered(car);
+                    final owned = isOwned(car);
+                    final sold = isSold(car);
+
+                    return _buildCarCard(
+                      context: context,
+                      car: car,
+                      isDiscovered: discovered,
+                      isOwned: owned,
+                      isSold: sold,
+                      isDark: isDark,
+                    );
+                  },
+                  childCount: filteredCars.length,
+                ),
+              ),
             ),
         ],
       ),
@@ -856,7 +875,7 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.help_outline_rounded, color: Color(0xFFEF4444), size: 24),
+                      const Icon(Icons.lock_outline_rounded, color: Color(0xFFEF4444), size: 24),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(

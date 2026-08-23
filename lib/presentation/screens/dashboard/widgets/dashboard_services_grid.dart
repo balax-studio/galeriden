@@ -63,7 +63,22 @@ class _DashboardServicesGridContent extends ConsumerWidget {
 
     // Full Service Modules List ordered by progression level
     final allServices = [
-      // Level 1: Core Dealership
+      // Level 1: Core Dealership & Marketplace
+      _ServiceItem(
+        icon: Icons.directions_car_rounded,
+        title: context.tr('service_showroom'),
+        subtitle: context.tr('service_showroom_sub'),
+        badge: game.incomingOffers.isNotEmpty ? '${game.incomingOffers.length}' : null,
+        color: const Color(0xFFFFDE59),
+        route: '/showroom',
+      ),
+      _ServiceItem(
+        icon: Icons.storefront_rounded,
+        title: context.tr('service_buy_car'),
+        subtitle: context.tr('service_buy_car_sub'),
+        color: const Color(0xFF38BDF8),
+        route: '/marketplace',
+      ),
       _ServiceItem(
         icon: Icons.local_car_wash_rounded,
         title: context.tr('service_car_wash'),
@@ -206,6 +221,14 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         subtitle: context.tr('service_night_market_sub'),
         color: const Color(0xFFF43F5E),
         route: '/night-market',
+      ),
+      _ServiceItem(
+        icon: Icons.casino_rounded,
+        title: context.tr('service_casino'),
+        subtitle: context.tr('service_casino_sub'),
+        badge: 'VIP',
+        color: const Color(0xFFFFDE59),
+        route: '/casino',
       ),
     ];
 
@@ -597,6 +620,8 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
         return context.tr('benefit_gossip');
       case '/consignment':
         return context.tr('benefit_consignment');
+      case '/casino':
+        return context.tr('benefit_casino');
       default:
         return context.tr('benefit_auto_branch', {'level': reqLevel});
     }

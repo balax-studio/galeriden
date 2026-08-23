@@ -1,0 +1,43 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Galeriden Tycoon • Architectural Health & Structure Tour",
+  "description": "Comprehensive step-by-step code tour covering state management, domain logic, render pipeline, and technical debt hotspots.",
+  "ref": "main",
+  "steps": [
+    {
+      "directory": "lib",
+      "title": "1. Source Architecture Overview",
+      "description": "Galeriden Tycoon follows a clean architectural separation:\n- lib/core: Localization (7 languages), Themes, App Consts, Vector Icons\n- lib/data: Immutable Data Models & JSON Serialization\n- lib/domain: Pure Dart Business Logic Engines\n- lib/presentation: Flutter UI Screens, Widgets, and Riverpod State Providers"
+    },
+    {
+      "file": "lib/presentation/providers/game/game_core_provider.dart",
+      "line": 40,
+      "title": "2. Root Game State Engine (Riverpod)",
+      "description": "Situation: The central StateNotifier that drives all game mechanics.\nMechanism: Uses modular mixins (Inventory, Casino, Staff, Banking, Auctions, Events) to prevent a massive single-file controller.\nImplication: State updates are immutable and trigger reactive UI changes.\nGotcha: Use ref.watch(gameProvider.select(...)) in UI to avoid full-screen re-renders."
+    },
+    {
+      "file": "lib/data/models/dealership_model.dart",
+      "line": 50,
+      "title": "3. DealershipModel (Core Aggregate Model)",
+      "description": "Situation: The single aggregate state containing player balance, reputation, owned cars, facilities, casino records, and staff.\nMechanism: Immutable model with copyWith and JSON serializers.\nImplication: Persistence is offloaded to Flutter compute() isolates to keep the UI thread responsive.\nGotcha: Considered an architectural hotspot (1900+ lines); candidate for sub-model modularization in future sprints."
+    },
+    {
+      "file": "lib/presentation/screens/showroom/showroom_screen.dart",
+      "line": 150,
+      "title": "4. Virtualized Showroom & Optimized Render Pipeline",
+      "description": "Situation: Showroom vehicle listing and active negotiation offer management.\nMechanism: Employs CustomScrollView + SliverList for 60/120 FPS element virtualization and O(1) Set lookups for incoming offers.\nImplication: Zero memory bloat even with 100+ vehicles in player inventory.\nGotcha: Timers are strictly guarded to run only when time-sensitive offers are pending."
+    },
+    {
+      "file": "lib/presentation/screens/album/collection_album_screen.dart",
+      "line": 34,
+      "title": "5. Collection Album & Viewport Virtualization",
+      "description": "Situation: Vehicle catalog album tracking unlocked, owned, and sold vehicles.\nMechanism: Static catalog caching combined with CustomScrollView + SliverGrid.\nImplication: Eliminates frame drops during scrolling and modal unboxing."
+    },
+    {
+      "file": "lib/core/localization/app_localizations.dart",
+      "line": 1,
+      "title": "6. 7-Language Strict Parity Localization",
+      "description": "Situation: Simultaneous multi-language support across TR, EN, DE, PT, ES, RU, and AR.\nMechanism: Strongly-typed context.tr() helper with exact key parity verified by automated test suites.\nImplication: Hardcoded text or incomplete translations are strictly forbidden."
+    }
+  ]
+}

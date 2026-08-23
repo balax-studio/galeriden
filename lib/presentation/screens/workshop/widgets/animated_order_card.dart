@@ -50,10 +50,35 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // Refresh UI every second for countdown/progress
-    _refreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
-    });
+    // Refresh UI every second for countdown/progress only while order is in transit
+    if (!widget.order.isDelivered) {
+      _refreshTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (!mounted) return;
+        if (widget.order.isDelivered) {
+          timer.cancel();
+          _refreshTimer = null;
+        }
+        setState(() {});
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedOrderCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.order.isDelivered && _refreshTimer == null) {
+      _refreshTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (!mounted) return;
+        if (widget.order.isDelivered) {
+          timer.cancel();
+          _refreshTimer = null;
+        }
+        setState(() {});
+      });
+    } else if (widget.order.isDelivered && _refreshTimer != null) {
+      _refreshTimer?.cancel();
+      _refreshTimer = null;
+    }
   }
 
   @override

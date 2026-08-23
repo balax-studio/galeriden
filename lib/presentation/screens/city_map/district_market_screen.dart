@@ -260,7 +260,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                           )
                         else
                           NeoBrutalBadge(
-                            text: context.tr('district_badge_share', {'pct': '$sharePercent'}),
+                            text: context.tr('district_badge_share', {'share': '$sharePercent'}),
                             backgroundColor: district.accentColor,
                             textColor: Colors.black,
                             fontSize: 10,

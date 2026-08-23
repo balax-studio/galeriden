@@ -33,6 +33,7 @@ mixin GameStaffMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final staff = state.hiredStaff[index];
+    if (staff.morale >= 100) return false;
     final newMorale = (staff.morale + 15).clamp(0, 100);
 
     List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
@@ -56,6 +57,7 @@ mixin GameStaffMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final staff = state.hiredStaff[index];
+    if (staff.morale >= 100) return false;
     final newMorale = (staff.morale + 35).clamp(0, 100);
 
     List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
@@ -78,6 +80,7 @@ mixin GameStaffMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final staff = state.hiredStaff[index];
+    if (staff.morale >= 100) return false;
     final newMorale = (staff.morale + 50).clamp(0, 100);
 
     List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);

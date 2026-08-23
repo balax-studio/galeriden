@@ -21,6 +21,7 @@ import '../../../data/models/sale_record_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/side_business_model.dart';
 import '../../../data/models/stock_model.dart';
+import '../../../domain/usecases/black_market_container_engine.dart';
 import '../../../domain/usecases/market_engine.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
@@ -60,6 +61,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
     
     addXP(150); 
+    updateMissionProgress(MissionType.sideBusinessCollect, 1);
     saveState();
     return true;
   }
@@ -86,6 +88,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     addXP(75);
+    updateMissionProgress(MissionType.sideBusinessCollect, 1);
     saveState();
     return true;
   }
@@ -117,6 +120,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     addXP(100);
+    updateMissionProgress(MissionType.sideBusinessCollect, 1);
     saveState();
     return true;
   }
@@ -139,6 +143,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     addXP(120);
+    updateMissionProgress(MissionType.sideBusinessCollect, 1);
     saveState();
     return true;
   }
@@ -205,6 +210,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
     
     addXP((grossCost / 50000.0).clamp(0, 25).round());
+    updateMissionProgress(MissionType.stockTrade, 1);
     saveState();
     return true;
   }
@@ -250,6 +256,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     
     if (state.totalProfit >= 250000) checkAchievement('dealer_baron');
     addXP((grossRevenue / 50000.0).clamp(0, 25).round());
+    updateMissionProgress(MissionType.stockTrade, 1);
     saveState();
     return true;
   }
@@ -1243,8 +1250,40 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     addXP(200);
+    updateMissionProgress(MissionType.blackMarketTrade, 1);
+    updateMissionProgress(MissionType.buyCars, 1);
     saveState();
     return true;
+  }
+
+  /// Karaborsadan gizemli ithal liman konteyneri (Gacha Unboxing) satın alma
+  MysteryContainerResult? buyMysteryContainer({math.Random? random}) {
+    if (state.ownedCars.length >= state.maxGarageSlots) return null;
+    if (state.balance < BlackMarketContainerEngine.containerCost) return null;
+    if (state.mysteryContainerDaysRemaining > 0) return null;
+
+    final result = BlackMarketContainerEngine.generateContainerDrop(
+      currentDay: state.currentDay,
+      random: random,
+    );
+
+    final updatedDiscovered = List<String>.from(state.discoveredCarModelIds);
+    if (!updatedDiscovered.contains(result.car.modelName)) {
+      updatedDiscovered.add(result.car.modelName);
+    }
+
+    state = state.copyWith(
+      balance: state.balance - BlackMarketContainerEngine.containerCost,
+      ownedCars: [...state.ownedCars, result.car],
+      lastMysteryContainerPurchaseDay: state.currentDay,
+      discoveredCarModelIds: updatedDiscovered,
+    );
+
+    addXP(350);
+    updateMissionProgress(MissionType.blackMarketTrade, 1);
+    updateMissionProgress(MissionType.buyCars, 1);
+    saveState();
+    return result;
   }
 
   /// Müşteri yorumuna kurumsal cevap verme (+1 İtibar)

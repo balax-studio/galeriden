@@ -44,8 +44,15 @@ class DashboardMissionsList extends ConsumerWidget {
 
     return Column(
       children: game.activeMissions.map((mission) {
-        final progressRatio = (mission.currentProgress / mission.targetGoal).clamp(0.0, 1.0);
-        final isCompleted = mission.isCompleted;
+        final targetGoal = mission.targetGoal > 0 ? mission.targetGoal : 1;
+        final progressRatio = (mission.currentProgress / targetGoal).clamp(0.0, 1.0);
+        final isCompleted = mission.isCompleted == true;
+        final isClaimed = mission.isClaimed == true;
+        final isDiscovery = mission.isDiscoveryMission == true;
+        final title = mission.titleKey != null ? context.tr(mission.titleKey!) : mission.title;
+        final desc = mission.descriptionKey != null
+            ? context.tr(mission.descriptionKey!, mission.templateParams?.map((k, v) => MapEntry(k, v.toString())))
+            : mission.description;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -62,9 +69,18 @@ class DashboardMissionsList extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
+                          if (isDiscovery) ...[
+                            NeoBrutalBadge(
+                              text: context.tr('mission_discovery_badge'),
+                              backgroundColor: const Color(0xFF8B5CF6),
+                              textColor: Colors.white,
+                              fontSize: 9.0,
+                            ),
+                            const SizedBox(width: 6),
+                          ],
                           Expanded(
                             child: Text(
-                              mission.title,
+                              title,
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w900,
@@ -82,7 +98,7 @@ class DashboardMissionsList extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        mission.description,
+                        desc,
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
@@ -105,7 +121,7 @@ class DashboardMissionsList extends ConsumerWidget {
                     ],
                   ),
                 ),
-                if (mission.isClaimed) ...[
+                if (isClaimed) ...[
                   const SizedBox(width: 10),
                   NeoBrutalBadge(
                     text: context.tr('claimed_badge'),
@@ -131,10 +147,45 @@ class DashboardMissionsList extends ConsumerWidget {
                         );
                         NotificationService.showSuccess(
                           context,
-                          '${mission.title} - ${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())}',
+                          '$title • +${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())}',
                         );
                       }
                     },
+                  ),
+                ] else if (mission.featureRoute != null) ...[
+                  const SizedBox(width: 10),
+                  InkWell(
+                    onTap: () => context.push(mission.featureRoute!),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            context.tr('mission_tap_to_open'),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 11,
+                            color: isDark ? Colors.white70 : const Color(0xFF475569),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ],
@@ -349,7 +400,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
             if (contract.targetBodyType != null && car.bodyType != contract.targetBodyType) return false;
             if (car.modelYear < contract.minYear) return false;
             if (car.expertise.mileage > contract.maxMileage) return false;
-            if (car.isLockedInShowcase) return false;
+            if (car.isLockedInShowcase == true) return false;
             return true;
           }).toList();
 

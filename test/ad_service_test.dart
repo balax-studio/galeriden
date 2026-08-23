@@ -11,6 +11,8 @@ void main() {
       expect(adService, isNotNull);
       expect(adService.rewardedAdUnitId, isNotEmpty);
       expect(adService.nativeAdUnitId, isNotEmpty);
+      expect(AdService.adExpirationThreshold, equals(const Duration(minutes: 50)));
+      expect(adService.isAdExpired, isFalse);
     });
 
     test('AdService triggers reward callback gracefully in test/simulated environment', () {

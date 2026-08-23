@@ -113,8 +113,8 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                       ],
                     ),
                     alignment: Alignment.center,
-                    child: VectorIconWidget(
-                      type: event.iconEmoji,
+                    child: AvatarIconWidget(
+                      avatar: event.iconEmoji,
                       size: 26,
                       color: isDark ? Colors.white : Colors.black,
                     ),

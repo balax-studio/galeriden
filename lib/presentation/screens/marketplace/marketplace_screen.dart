@@ -31,7 +31,12 @@ import 'sms_tramer_sheet.dart';
 import '../../widgets/cracked_glass_badge.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
-  const MarketplaceScreen({super.key});
+  final bool showLeading;
+
+  const MarketplaceScreen({
+    super.key,
+    this.showLeading = true,
+  });
 
   @override
   ConsumerState<MarketplaceScreen> createState() => _MarketplaceScreenState();
@@ -74,14 +79,19 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final marketSenseLevel = game.skills.marketSense;
     final trend = game.marketTrend;
 
-    // Filter listings based on active chip filter and search query
+    // Filter listings based on active chip filter and search query (Single-pass normalized search)
+    final String query = _searchQuery;
     final filtered = allListings.where((item) {
-      if (_searchQuery.isNotEmpty) {
-        final matchBrand = item.car.brand.toLowerCase().contains(_searchQuery);
-        final matchModel = item.car.modelName.toLowerCase().contains(_searchQuery);
-        final matchBody = item.car.bodyType.toLowerCase().contains(_searchQuery);
-        final matchYear = item.car.modelYear.toString().contains(_searchQuery);
-        if (!matchBrand && !matchModel && !matchBody && !matchYear) return false;
+      if (query.isNotEmpty) {
+        final brand = item.car.brand.toLowerCase();
+        final model = item.car.modelName.toLowerCase();
+        final body = item.car.bodyType.toLowerCase();
+        if (!brand.contains(query) &&
+            !model.contains(query) &&
+            !body.contains(query) &&
+            !item.car.modelYear.toString().contains(query)) {
+          return false;
+        }
       }
 
       if (_selectedFilter == 'bargain') {
@@ -100,6 +110,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('marketplace_title'),
+        showLeading: widget.showLeading,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -213,7 +224,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         const SizedBox(height: 2),
                         if (marketSenseLevel >= 3)
                           Text(
-                            '${context.tr('dashboard_market_trend')} Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} • Spor x${trend.bodyTypeMultipliers['Spor']}',
+                            context.tr('dashboard_market_trend', {'trend': 'Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} • Spor x${trend.bodyTypeMultipliers['Spor']}'}),
                             style: TextStyle(
                               color: p.primaryColor,
                               fontSize: 10.5,
@@ -426,7 +437,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                       Row(
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                                             decoration: BoxDecoration(
                                               color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
                                               borderRadius: BorderRadius.circular(8),
@@ -438,8 +449,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                             child: CarSilhouetteWidget(
                                               bodyType: car.bodyType,
                                               color: carColor,
-                                              width: 52,
-                                              height: 26,
+                                              width: 58,
+                                              height: 29,
+                                              isClean: car.isWashed || car.isPolished || car.isDetailedCleaned,
                                             ),
                                           ),
                                           const SizedBox(width: 12),
@@ -516,8 +528,12 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               textColor: Colors.white,
                                               fontSize: 10,
                                             ),
-                                          if (exp.tramerAmount > 30000 || exp.bodyParts.values.any((s) => s == PartStatus.damaged || s == PartStatus.changed))
-                                            const CrackedGlassBadge(showLabel: true),
+                                          if (exp.tramerAmount > 30000 || exp.bodyParts.values.any((s) => s == PartStatus.damaged || s == PartStatus.changed || s == PartStatus.painted) || exp.engineCondition < 50 || exp.transmissionCondition < 50 || car.isChassisRepaired)
+                                            CrackedGlassBadge(
+                                              showLabel: true,
+                                              expertise: exp,
+                                              isChassisRepaired: car.isChassisRepaired,
+                                            ),
                                         ],
                                       ),
                                       const SizedBox(height: 12),

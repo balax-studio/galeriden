@@ -29,6 +29,7 @@ import 'lifestyle_item_model.dart';
 import 'pr_campaign_model.dart';
 import 'branch_model.dart';
 import 'customer_crm_event_model.dart';
+import 'casino_game_model.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -166,6 +167,9 @@ class DealershipModel {
   final String playerName;
   final String dealershipName;
   final String logoEmblemId;
+  final String logoBadgeShape;
+  final String logoBadgeColor;
+  final String dealershipTagline;
   final DateTime? lastRewardClaimDate;
 
   // RPG Kimlik, Köken, Uzmanlık ve NPC İlişkileri
@@ -298,6 +302,7 @@ class DealershipModel {
   // Monetizasyon & Şanslı Fırsat (Lucky Moment) Alanları
   final int luckyOpportunityPityCounter;
   final int lastLuckyOpportunityDay;
+  final int lastMysteryContainerPurchaseDay;
   final bool isStarterBundlePurchased;
   final bool isScrapyardBundlePurchased;
   final bool isPlazaBundlePurchased;
@@ -305,6 +310,10 @@ class DealershipModel {
   final String activeShowroomThemeId;
   final List<String> unlockedShowroomThemeIds;
   final List<String> unlockedCustomPaintIds;
+  final CasinoStatsModel casinoStats;
+
+  int get mysteryContainerDaysRemaining => (lastMysteryContainerPurchaseDay == 0) ? 0 : (7 - (currentDay - lastMysteryContainerPurchaseDay)).clamp(0, 7);
+  bool get isMysteryContainerAvailable => mysteryContainerDaysRemaining <= 0;
 
   bool get isOfficeGrantClaimedToday => lastOfficeGrantClaimDay >= currentDay;
   bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
@@ -891,6 +900,15 @@ class DealershipModel {
           unlockedBuildings.contains('property_tier_7') ||
           unlockedBuildings.contains('property_tier_8');
     }
+    if (route == '/casino' || route == '/casino-hub') {
+      return unlockedBuildings.contains('/casino') ||
+          unlockedBuildings.contains('/casino-hub') ||
+          unlockedBuildings.contains('property_tier_5') ||
+          unlockedBuildings.contains('property_tier_6') ||
+          unlockedBuildings.contains('property_tier_7') ||
+          unlockedBuildings.contains('property_tier_8') ||
+          currentBranchTier >= 5;
+    }
     if (route == '/night-market') {
       return true;
     }
@@ -927,6 +945,9 @@ class DealershipModel {
     this.playerName = 'Kaptan',
     this.dealershipName = 'Miras Oto Galeri',
     this.logoEmblemId = 'crown',
+    this.logoBadgeShape = 'square',
+    this.logoBadgeColor = 'yellow',
+    this.dealershipTagline = 'Güvenin ve Kalitenin Adresi',
     this.lastRewardClaimDate,
     this.sideBusinesses = const [],
     this.marketStocks = const [],
@@ -1026,6 +1047,7 @@ class DealershipModel {
     this.isCompanyListedOnBist = false,
     this.luckyOpportunityPityCounter = 0,
     this.lastLuckyOpportunityDay = 0,
+    this.lastMysteryContainerPurchaseDay = 0,
     this.isStarterBundlePurchased = false,
     this.isScrapyardBundlePurchased = false,
     this.isPlazaBundlePurchased = false,
@@ -1033,6 +1055,7 @@ class DealershipModel {
     this.activeShowroomThemeId = 'theme_standard',
     this.unlockedShowroomThemeIds = const ['theme_standard'],
     this.unlockedCustomPaintIds = const [],
+    this.casinoStats = const CasinoStatsModel(),
   });
 
   factory DealershipModel.initial() {
@@ -1364,6 +1387,9 @@ class DealershipModel {
       'playerName': playerName,
       'dealershipName': dealershipName,
       'logoEmblemId': logoEmblemId,
+      'logoBadgeShape': logoBadgeShape,
+      'logoBadgeColor': logoBadgeColor,
+      'dealershipTagline': dealershipTagline,
       'lastRewardClaimDate': lastRewardClaimDate?.toIso8601String(),
       'sideBusinesses': sideBusinesses.map((e) => e.toJson()).toList(),
       'marketStocks': marketStocks.map((e) => e.toJson()).toList(),
@@ -1447,6 +1473,7 @@ class DealershipModel {
       'isCompanyListedOnBist': isCompanyListedOnBist,
       'luckyOpportunityPityCounter': luckyOpportunityPityCounter,
       'lastLuckyOpportunityDay': lastLuckyOpportunityDay,
+      'lastMysteryContainerPurchaseDay': lastMysteryContainerPurchaseDay,
       'isStarterBundlePurchased': isStarterBundlePurchased,
       'isScrapyardBundlePurchased': isScrapyardBundlePurchased,
       'isPlazaBundlePurchased': isPlazaBundlePurchased,
@@ -1454,6 +1481,7 @@ class DealershipModel {
       'activeShowroomThemeId': activeShowroomThemeId,
       'unlockedShowroomThemeIds': unlockedShowroomThemeIds,
       'unlockedCustomPaintIds': unlockedCustomPaintIds,
+      'casinoStats': casinoStats.toJson(),
     };
   }
 
@@ -1510,6 +1538,9 @@ class DealershipModel {
       playerName: json['playerName'] as String? ?? 'Kaptan',
       dealershipName: json['dealershipName'] as String? ?? 'Miras Oto Galeri',
       logoEmblemId: json['logoEmblemId'] as String? ?? 'crown',
+      logoBadgeShape: json['logoBadgeShape'] as String? ?? 'square',
+      logoBadgeColor: json['logoBadgeColor'] as String? ?? 'yellow',
+      dealershipTagline: json['dealershipTagline'] as String? ?? 'Güvenin ve Kalitenin Adresi',
       lastRewardClaimDate: json['lastRewardClaimDate'] != null ? DateTime.tryParse(json['lastRewardClaimDate'] as String) : null,
       sideBusinesses: _parseAndMergeSideBusinesses(parseList(json['sideBusinesses'] as List<dynamic>?, SideBusinessModel.fromJson)),
       marketStocks: parseList(json['marketStocks'] as List<dynamic>?, StockModel.fromJson).isNotEmpty
@@ -1639,6 +1670,7 @@ class DealershipModel {
       isCompanyListedOnBist: json['isCompanyListedOnBist'] as bool? ?? false,
       luckyOpportunityPityCounter: json['luckyOpportunityPityCounter'] as int? ?? 0,
       lastLuckyOpportunityDay: json['lastLuckyOpportunityDay'] as int? ?? 0,
+      lastMysteryContainerPurchaseDay: json['lastMysteryContainerPurchaseDay'] as int? ?? 0,
       isStarterBundlePurchased: json['isStarterBundlePurchased'] as bool? ?? false,
       isScrapyardBundlePurchased: json['isScrapyardBundlePurchased'] as bool? ?? false,
       isPlazaBundlePurchased: json['isPlazaBundlePurchased'] as bool? ?? false,
@@ -1646,6 +1678,9 @@ class DealershipModel {
       activeShowroomThemeId: json['activeShowroomThemeId'] as String? ?? 'theme_standard',
       unlockedShowroomThemeIds: (json['unlockedShowroomThemeIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const ['theme_standard'],
       unlockedCustomPaintIds: (json['unlockedCustomPaintIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      casinoStats: json['casinoStats'] != null && json['casinoStats'] is Map
+          ? CasinoStatsModel.fromJson(Map<String, dynamic>.from(json['casinoStats'] as Map))
+          : const CasinoStatsModel(),
     );
   }
 
@@ -1707,6 +1742,9 @@ class DealershipModel {
     String? playerName,
     String? dealershipName,
     String? logoEmblemId,
+    String? logoBadgeShape,
+    String? logoBadgeColor,
+    String? dealershipTagline,
     int? emblemIndex,
     DateTime? lastRewardClaimDate,
     List<SideBusinessModel>? sideBusinesses,
@@ -1799,6 +1837,7 @@ class DealershipModel {
     bool? isCompanyListedOnBist,
     int? luckyOpportunityPityCounter,
     int? lastLuckyOpportunityDay,
+    int? lastMysteryContainerPurchaseDay,
     bool? isStarterBundlePurchased,
     bool? isScrapyardBundlePurchased,
     bool? isPlazaBundlePurchased,
@@ -1806,6 +1845,7 @@ class DealershipModel {
     String? activeShowroomThemeId,
     List<String>? unlockedShowroomThemeIds,
     List<String>? unlockedCustomPaintIds,
+    CasinoStatsModel? casinoStats,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -1837,6 +1877,9 @@ class DealershipModel {
       playerName: playerName ?? this.playerName,
       dealershipName: dealershipName ?? this.dealershipName,
       logoEmblemId: emblemIndex != null ? 'emblem_$emblemIndex' : (logoEmblemId ?? this.logoEmblemId),
+      logoBadgeShape: logoBadgeShape ?? this.logoBadgeShape,
+      logoBadgeColor: logoBadgeColor ?? this.logoBadgeColor,
+      dealershipTagline: dealershipTagline ?? this.dealershipTagline,
       lastRewardClaimDate: lastRewardClaimDate ?? this.lastRewardClaimDate,
       sideBusinesses: sideBusinesses ?? this.sideBusinesses,
       marketStocks: marketStocks ?? this.marketStocks,
@@ -1922,6 +1965,7 @@ class DealershipModel {
       isCompanyListedOnBist: isCompanyListedOnBist ?? this.isCompanyListedOnBist,
       luckyOpportunityPityCounter: luckyOpportunityPityCounter ?? this.luckyOpportunityPityCounter,
       lastLuckyOpportunityDay: lastLuckyOpportunityDay ?? this.lastLuckyOpportunityDay,
+      lastMysteryContainerPurchaseDay: lastMysteryContainerPurchaseDay ?? this.lastMysteryContainerPurchaseDay,
       isStarterBundlePurchased: isStarterBundlePurchased ?? this.isStarterBundlePurchased,
       isScrapyardBundlePurchased: isScrapyardBundlePurchased ?? this.isScrapyardBundlePurchased,
       isPlazaBundlePurchased: isPlazaBundlePurchased ?? this.isPlazaBundlePurchased,
@@ -1929,6 +1973,7 @@ class DealershipModel {
       activeShowroomThemeId: activeShowroomThemeId ?? this.activeShowroomThemeId,
       unlockedShowroomThemeIds: unlockedShowroomThemeIds ?? this.unlockedShowroomThemeIds,
       unlockedCustomPaintIds: unlockedCustomPaintIds ?? this.unlockedCustomPaintIds,
+      casinoStats: casinoStats ?? this.casinoStats,
     );
   }
 

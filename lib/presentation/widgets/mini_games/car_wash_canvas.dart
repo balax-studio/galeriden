@@ -187,14 +187,16 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
                           }
                           _waterParticles.removeWhere((p) => p.life <= 0);
 
-                          return CustomPaint(
-                            painter: _CarWashPainter(
-                              cleanedPoints: _cleanedPoints,
-                              waterParticles: _waterParticles,
-                              carColorHex: widget.car.colorHex,
-                              carModel: widget.car.modelName,
-                              isFinished: _isFinished,
-                              sparkleTick: _sparkleController.value,
+                          return RepaintBoundary(
+                            child: CustomPaint(
+                              painter: _CarWashPainter(
+                                cleanedPoints: _cleanedPoints,
+                                waterParticles: _waterParticles,
+                                carColorHex: widget.car.colorHex,
+                                carModel: widget.car.modelName,
+                                isFinished: _isFinished,
+                                sparkleTick: _sparkleController.value,
+                              ),
                             ),
                           );
                         },

@@ -11,6 +11,7 @@ import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/weekly_event_engine.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/daily_bulletin_dialog.dart';
+import '../../../widgets/dealership_logo_badge.dart';
 import '../../../widgets/floating_money_overlay.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -32,49 +33,28 @@ class DashboardProfileBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = palette.isDark;
-    final carsSold = game.carsSold;
     final xpInCurrent = game.skills.xpInCurrentLevel;
     final targetXp = game.skills.currentLevelTargetXp;
     final remainingXp = (targetXp - xpInCurrent).clamp(0, targetXp);
     final xpProgress = (xpInCurrent / targetXp).clamp(0.0, 1.0);
-    final collectionCount = game.discoveredCarModelIds.length;
 
     return NeoBrutalCard(
       onTap: () => context.push('/character-growth'),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
       borderRadius: 14,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              // Dealership Avatar / Logo Box
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: palette.primaryColor,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isDark ? Colors.black45 : const Color(0xFF0F172A),
-                    width: 2.0,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(2, 2),
-                      blurRadius: 0,
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.storefront_rounded,
-                    size: 26,
-                    color: Colors.black,
-                  ),
-                ),
+              // Dealership Avatar / Custom Badge
+              DealershipLogoBadge(
+                emblemId: game.logoEmblemId,
+                badgeShape: game.logoBadgeShape,
+                badgeColor: game.logoBadgeColor,
+                size: 48,
               ),
               const SizedBox(width: 12),
 
@@ -106,9 +86,23 @@ class DashboardProfileBanner extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    if (game.dealershipTagline.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Text(
+                        game.dealershipTagline,
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          fontStyle: FontStyle.italic,
+                          color: DealershipLogoBadge.getBackgroundColor(game.logoBadgeColor),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const SizedBox(height: 3),
                     Text(
-                      '${game.playerName} • ${context.tr('collection_stat', {'count': collectionCount})} • ${context.tr('sales_stat', {'count': carsSold})}',
+                      '${game.playerName} • ${game.corporateTierTitle}',
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,

@@ -8,28 +8,41 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../domain/usecases/market_engine.dart';
+import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/offline_progression.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 
 import 'game_base_notifier.dart';
+import 'game_casino_mixin.dart';
 import 'game_finance_mixin.dart';
 import 'game_inventory_mixin.dart';
 import 'game_market_mixin.dart';
 import 'game_monetization_mixin.dart';
+import 'game_rental_mixin.dart';
+import 'game_scrapyard_mixin.dart';
 import 'game_staff_mixin.dart';
 import 'game_time_mixin.dart';
+import 'game_workshop_detailing_mixin.dart';
 
 class GameCoreNotifier extends GameBaseNotifier
     with
+        GameCasinoMixin,
         GameFinanceMixin,
         GameInventoryMixin,
         GameMarketMixin,
         GameMonetizationMixin,
+        GameRentalMixin,
+        GameScrapyardMixin,
         GameStaffMixin,
-        GameTimeMixin {
+        GameTimeMixin,
+        GameWorkshopDetailingMixin {
   
   Timer? _saveDebounceTimer;
   Map<String, dynamic>? pendingOfflineRecap;
+  bool _isLoaded = false;
+
+  @override
+  bool get isLoaded => _isLoaded;
 
   Map<String, dynamic>? consumePendingOfflineRecap() {
     final recap = pendingOfflineRecap;
@@ -70,6 +83,12 @@ class GameCoreNotifier extends GameBaseNotifier
       try {
         final Map<String, dynamic> decoded = jsonDecode(jsonString);
         final loaded = DealershipModel.fromJson(decoded);
+
+        // Sync last_celebrated_level to loaded level so existing profiles never trigger level-up modal on launch
+        final savedCelebratedLevel = prefs.getInt('last_celebrated_level') ?? 0;
+        if (loaded.level > savedCelebratedLevel) {
+          await prefs.setInt('last_celebrated_level', loaded.level);
+        }
 
         // Calculate calendar-day login streak & freeze consumption
         final now = DateTime.now();
@@ -113,7 +132,9 @@ class GameCoreNotifier extends GameBaseNotifier
           );
         }
 
+        if (!mounted) return;
         state = updated;
+        _isLoaded = true;
         syncRentalState();
         startPeriodicOrganicOfferTimer();
         saveState();
@@ -126,7 +147,13 @@ class GameCoreNotifier extends GameBaseNotifier
       }
     }
 
+    final savedCelebratedLevel = prefs.getInt('last_celebrated_level') ?? 0;
+    if (savedCelebratedLevel < 1) {
+      await prefs.setInt('last_celebrated_level', 1);
+    }
+    if (!mounted) return;
     state = DealershipModel.initial();
+    _isLoaded = true;
     startPeriodicOrganicOfferTimer();
     saveState();
   }
@@ -274,15 +301,25 @@ class GameCoreNotifier extends GameBaseNotifier
     final int effectiveXp = (rawAmount * multiplier).round().clamp(1, 500);
     final updatedSkills = state.skills.copyWith(xp: state.skills.xp + effectiveXp);
     final calculatedLevel = updatedSkills.currentLevel;
-    final newLevel = calculatedLevel > state.level ? calculatedLevel : state.level;
+    final isLevelUp = calculatedLevel > state.level;
+    final newLevel = isLevelUp ? calculatedLevel : state.level;
     
     // Level 3 milestone grants Streak Freeze reward (§3.3)
     final grantFreeze = newLevel >= 3 && !state.hasStreakFreeze;
+
+    List<MissionModel> updatedMissions = state.activeMissions;
+    if (isLevelUp) {
+      updatedMissions = MissionFactory.generateDailyMissions(
+        newLevel,
+        unlockedBuildings: state.unlockedBuildings,
+      );
+    }
 
     state = state.copyWith(
       skills: updatedSkills,
       level: newLevel,
       hasStreakFreeze: grantFreeze ? true : state.hasStreakFreeze,
+      activeMissions: updatedMissions,
     );
     checkAndUnlockFeatures();
     saveState();
@@ -405,12 +442,18 @@ class GameCoreNotifier extends GameBaseNotifier
     String? dealershipName,
     String? logoEmblemId,
     CharacterOrigin? characterOrigin,
+    String? logoBadgeShape,
+    String? logoBadgeColor,
+    String? dealershipTagline,
   }) {
     state = state.copyWith(
       playerName: playerName ?? state.playerName,
       dealershipName: dealershipName ?? state.dealershipName,
       logoEmblemId: logoEmblemId ?? state.logoEmblemId,
       characterOrigin: characterOrigin ?? state.characterOrigin,
+      logoBadgeShape: logoBadgeShape ?? state.logoBadgeShape,
+      logoBadgeColor: logoBadgeColor ?? state.logoBadgeColor,
+      dealershipTagline: dealershipTagline ?? state.dealershipTagline,
     );
     saveState();
   }

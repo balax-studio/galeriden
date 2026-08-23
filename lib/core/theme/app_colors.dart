@@ -63,6 +63,7 @@ class AppColors {
   static const Color brutalPink = Color(0xFFFF54B0);
   static const Color brutalOrange = Color(0xFFFF7A00);
   static const Color brutalGreen = Color(0xFF00E575);
+  static const Color brutalRed = Color(0xFFEF4444);
   static const Color brutalPurple = Color(0xFFA855F7);
   static const Color brutalBlue = Color(0xFF3B82F6);
   static const Color brutalDarkBg = Color(0xFF0C0E14);

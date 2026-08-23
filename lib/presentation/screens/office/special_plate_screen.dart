@@ -223,29 +223,39 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
       return plate.category == _selectedCategory;
     }).toList();
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      physics: const BouncingScrollPhysics(),
-      children: [
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      slivers: [
         // Category Filter Chips
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          child: Row(
-            children: [
-              _buildCategoryChip(context.tr('plate_cat_all'), PlateCategory.all, isDark),
-              _buildCategoryChip(context.tr('plate_cat_legendary'), PlateCategory.legendary, isDark),
-              _buildCategoryChip(context.tr('plate_cat_team'), PlateCategory.team, isDark),
-              _buildCategoryChip(context.tr('plate_cat_names'), PlateCategory.names, isDark),
-              _buildCategoryChip(context.tr('plate_cat_symmetric'), PlateCategory.symmetric, isDark),
-            ],
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 6, 14, 12),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  _buildCategoryChip(context.tr('plate_cat_all'), PlateCategory.all, isDark),
+                  _buildCategoryChip(context.tr('plate_cat_legendary'), PlateCategory.legendary, isDark),
+                  _buildCategoryChip(context.tr('plate_cat_team'), PlateCategory.team, isDark),
+                  _buildCategoryChip(context.tr('plate_cat_names'), PlateCategory.names, isDark),
+                  _buildCategoryChip(context.tr('plate_cat_symmetric'), PlateCategory.symmetric, isDark),
+                ],
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 12),
 
-        // Plates List
-        ...filteredPlates.map((plate) => _buildPlateCard(plate, isDark, playerBalance, ownedCars)),
-        const SizedBox(height: 24),
+        // Virtualized Plates List
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildPlateCard(filteredPlates[index], isDark, playerBalance, ownedCars),
+              childCount: filteredPlates.length,
+            ),
+          ),
+        ),
       ],
     );
   }
