@@ -24,13 +24,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('tr'), Locale('en')],
-            locale: const Locale('tr'),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr'), Locale('en')],
+          locale: const Locale('tr'),
           theme: testTheme,
           home: Scaffold(
             body: NeoBrutalEmptyState(
@@ -58,6 +58,7 @@ void main() {
       // Tap action button and verify callback
       await tester.tap(find.text('Pazara Git'));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
       expect(actionTapped, isTrue);
     });
 

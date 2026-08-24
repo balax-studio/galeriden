@@ -1127,8 +1127,9 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (missionIndex == -1) return false;
 
     final mission = state.activeMissions[missionIndex];
-    if (mission.currentProgress < mission.targetGoal || mission.isClaimed)
+    if (mission.currentProgress < mission.targetGoal || mission.isClaimed) {
       return false;
+    }
 
     final updatedMission = mission.copyWith(isCompleted: true, isClaimed: true);
     final updatedMissions = List<MissionModel>.from(state.activeMissions);

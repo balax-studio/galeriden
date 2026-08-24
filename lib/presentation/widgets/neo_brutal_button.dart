@@ -81,7 +81,9 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
     if (widget.onPressed == null ||
         widget.isLoading ||
         widget.isApplied ||
-        _isDebouncing) return;
+        _isDebouncing) {
+      return;
+    }
 
     if (widget.debounceDuration != null) {
       _isDebouncing = true;

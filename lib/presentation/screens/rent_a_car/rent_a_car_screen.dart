@@ -664,8 +664,9 @@ class RentACarScreen extends ConsumerWidget {
                           onPressed: () {
                             HapticFeedback.selectionClick();
                             setState(() {
-                              if (currentRate + 100 <= maxAllowedRate)
+                              if (currentRate + 100 <= maxAllowedRate) {
                                 currentRate += 100;
+                              }
                             });
                           },
                         ),

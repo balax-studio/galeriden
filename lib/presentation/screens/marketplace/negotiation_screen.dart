@@ -1802,12 +1802,16 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
 
   void _executeTactic(
       EsnafTactic tactic, CarModel car, double asking, DealershipModel game) {
-    if (_usedTacticIds.contains(tactic.id) || _tacticUsageCount >= 3) return;
+    if (_usedTacticIds.contains(tactic.id) || _tacticUsageCount >= 3) {
+      return;
+    }
     if (_isAccepted ||
         _sellerResponse != null ||
         _isLockedOut ||
         _isThinking ||
-        _isProcessing) return;
+        _isProcessing) {
+      return;
+    }
 
     final outcome = NegotiationEngine.rollTactic(
       tactic: tactic,

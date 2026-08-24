@@ -98,10 +98,16 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
     // Sort cars: Onarım Bekliyor -> İlana Hazır -> İlanda -> Teklif Var with O(1) set lookups
     filteredCars.sort((a, b) {
       int score(CarModel c) {
-        if (carsWithActiveOffers.contains(c.id)) return 4;
-        if (c.isListed) return 3;
+        if (carsWithActiveOffers.contains(c.id)) {
+          return 4;
+        }
+        if (c.isListed) {
+          return 3;
+        }
         if (c.expertise.engineCondition >= 80 &&
-            c.expertise.transmissionCondition >= 80) return 2;
+            c.expertise.transmissionCondition >= 80) {
+          return 2;
+        }
         return 1;
       }
 
@@ -445,10 +451,11 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                             width: 1.4,
                                           ),
                                           onSelected: (sel) {
-                                            if (sel)
+                                            if (sel) {
                                               setState(() =>
                                                   _selectedFilterKey =
                                                       filterKey);
+                                            }
                                           },
                                         ),
                                       );

@@ -195,10 +195,15 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
       }
 
       // Speed modifier from player shift performance
-      if (_perfectShifts > 0) playerSpeed += _perfectShifts * 0.00045;
-      if (_earlyShifts > 0) playerSpeed -= _earlyShifts * 0.0003;
-      if (_lateShifts > 0)
+      if (_perfectShifts > 0) {
+        playerSpeed += _perfectShifts * 0.00045;
+      }
+      if (_earlyShifts > 0) {
+        playerSpeed -= _earlyShifts * 0.0003;
+      }
+      if (_lateShifts > 0) {
         playerSpeed -= _lateShifts * 0.0004; // Heavy rev-limit penalty
+      }
 
       _playerDistance = (_playerDistance + playerSpeed).clamp(0.0, 1.0);
       _rivalDistance = (_rivalDistance + rivalSpeed).clamp(0.0, 1.0);
@@ -206,11 +211,15 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
       // Speech bubble timers
       if (_playerSpeechTicks > 0) {
         _playerSpeechTicks--;
-        if (_playerSpeechTicks == 0) _playerSpeech = '';
+        if (_playerSpeechTicks == 0) {
+          _playerSpeech = '';
+        }
       }
       if (_rivalSpeechTicks > 0) {
         _rivalSpeechTicks--;
-        if (_rivalSpeechTicks == 0) _rivalSpeech = '';
+        if (_rivalSpeechTicks == 0) {
+          _rivalSpeech = '';
+        }
       }
 
       // Rival contextual chatter

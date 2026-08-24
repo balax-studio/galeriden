@@ -148,7 +148,9 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
         !setInterior &&
         !setPolished &&
         !setDetailed &&
-        car.isWashed) return false;
+        car.isWashed) {
+      return false;
+    }
 
     final newValue = car.baseMarketValue;
 
@@ -688,8 +690,9 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.isRented || car.isConsignment || car.isChassisRepaired)
+    if (car.isRented || car.isConsignment || car.isChassisRepaired) {
       return false;
+    }
 
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
       ..add('chassis_restamped');
@@ -742,7 +745,9 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented ||
         car.isConsignment ||
-        car.appliedDetailingOptionIds.contains('ozone_sanitized')) return false;
+        car.appliedDetailingOptionIds.contains('ozone_sanitized')) {
+      return false;
+    }
     final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
       ..add('ozone_sanitized');
 

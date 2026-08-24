@@ -187,6 +187,9 @@ void main() {
 
       expect(find.text('TEST BİTTİ'), findsOneWidget);
       expect(find.text('TESTİ TAMAMLA VE KAYDET'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 100));
     });
 
     testWidgets('4. CarWashMiniGameModal collects pan gestures, cleans mud mask, and completes detailing', (tester) async {

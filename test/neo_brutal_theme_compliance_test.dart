@@ -72,6 +72,7 @@ void main() {
 
       await tester.tap(find.byType(NeoBrutalButton));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
       expect(tapped, isTrue);
     });
 
@@ -182,6 +183,7 @@ void main() {
 
       await tester.tap(find.text('SİFTAH ET'));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
       expect(siftahTapped, isTrue);
     });
   });

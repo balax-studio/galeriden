@@ -7,8 +7,14 @@ import 'package:galeriden/data/models/stock_model.dart';
 import 'package:galeriden/domain/usecases/stock_market_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   group('Expansion Pack Anti-Repetition Tests', () {
     test('1. 28-Günlük Esnaf Takvimi 4 Sezonluk Döngü Doğrulaması', () {
@@ -124,10 +130,8 @@ void main() {
       notifier.stopPeriodicOrganicOfferTimer();
 
       // Setup company listing
-      notifier.addMoney(1000000.0);
-      notifier.addXP(10000); // Level up
+      notifier.state = notifier.state.copyWith(carsSold: 15, level: 5, balance: 1000000.0);
       notifier.stopPeriodicOrganicOfferTimer();
-      notifier.state = notifier.state.copyWith(carsSold: 15, level: 5);
 
       final ipoResult = notifier.launchPlayerCompanyIpo();
       notifier.stopPeriodicOrganicOfferTimer();

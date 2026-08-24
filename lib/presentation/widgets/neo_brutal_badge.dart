@@ -73,13 +73,17 @@ class NeoBrutalBadge extends StatelessWidget {
             Icon(icon, size: fontSize + 2, color: effectiveText),
             const SizedBox(width: 4),
           ],
-          Text(
-            text,
-            style: TextStyle(
-              color: effectiveText,
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              letterSpacing: 0.3,
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: effectiveText,
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                letterSpacing: 0.3,
+              ),
             ),
           ),
         ],

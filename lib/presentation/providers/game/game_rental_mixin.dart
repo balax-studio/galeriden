@@ -17,8 +17,9 @@ mixin GameRentalMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.isRented || state.activeRentals.any((r) => r.carId == carId))
+    if (car.isRented || state.activeRentals.any((r) => r.carId == carId)) {
       return false;
+    }
 
     // Cap daily rate to maximum rate
     final carValue = car.currentPurchasePrice > 0
@@ -151,8 +152,9 @@ mixin GameRentalMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented ||
         car.isLockedInShowcase ||
-        car.appliedDetailingOptionIds.contains('rented_to_film_set'))
+        car.appliedDetailingOptionIds.contains('rented_to_film_set')) {
       return false;
+    }
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds:
           List<String>.from(car.appliedDetailingOptionIds)

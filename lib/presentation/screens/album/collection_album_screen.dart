@@ -112,8 +112,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
       final discovered = isDiscovered(car);
       if (_selectedFilterIndex == 1 && !discovered) return false;
       if (_selectedFilterIndex == 2 && discovered) return false;
-      if (_selectedSegment != null && car.segment != _selectedSegment)
+      if (_selectedSegment != null && car.segment != _selectedSegment) {
         return false;
+      }
       return true;
     }).toList();
 

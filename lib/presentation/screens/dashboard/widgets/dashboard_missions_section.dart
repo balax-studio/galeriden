@@ -442,13 +442,22 @@ class DashboardWantedContractsSection extends ConsumerWidget {
         const SizedBox(height: 10),
         ...game.activeContracts.map((contract) {
           final matchingCars = game.ownedCars.where((car) {
-            if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase())
+            if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase()) {
               return false;
+            }
             if (contract.targetBodyType != null &&
-                car.bodyType != contract.targetBodyType) return false;
-            if (car.modelYear < contract.minYear) return false;
-            if (car.expertise.mileage > contract.maxMileage) return false;
-            if (car.isLockedInShowcase == true) return false;
+                car.bodyType != contract.targetBodyType) {
+              return false;
+            }
+            if (car.modelYear < contract.minYear) {
+              return false;
+            }
+            if (car.expertise.mileage > contract.maxMileage) {
+              return false;
+            }
+            if (car.isLockedInShowcase == true) {
+              return false;
+            }
             return true;
           }).toList();
 

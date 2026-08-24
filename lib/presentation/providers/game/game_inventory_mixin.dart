@@ -33,14 +33,18 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
     final car = state.ownedCars[carIndex];
-    if (car.isRented || car.isLockedInShowcase || car.isConsignment)
+    if (car.isRented || car.isLockedInShowcase || car.isConsignment) {
       return false;
+    }
 
     // Validate requirements
-    if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase())
+    if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase()) {
       return false;
+    }
     if (contract.targetBodyType != null &&
-        car.bodyType != contract.targetBodyType) return false;
+        car.bodyType != contract.targetBodyType) {
+      return false;
+    }
     if (car.modelYear < contract.minYear) return false;
     if (car.expertise.mileage > contract.maxMileage) return false;
 
@@ -64,8 +68,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
     checkAchievement('first_sale');
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarSell);
     updateMissionProgress(MissionType.sellCars, 1);
-    if (profit > 0)
+    if (profit > 0) {
       updateMissionProgress(MissionType.earnProfit, profit.toInt());
+    }
     saveState();
     return true;
   }
@@ -432,8 +437,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
     required double cost,
     required double reputationBonus,
   }) {
-    if (state.unlockedDecorIds.contains(decorId))
+    if (state.unlockedDecorIds.contains(decorId)) {
       return false; // Prevent duplicate purchase / spamming
+    }
     if (state.balance < cost) return false;
 
     final updatedDecors = [...state.unlockedDecorIds, decorId];
@@ -599,7 +605,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final targetCar = state.ownedCars[targetIndex];
     if (targetCar.isLockedInShowcase ||
         targetCar.isRented ||
-        targetCar.isConsignment) return false;
+        targetCar.isConsignment) {
+      return false;
+    }
     // Block black market and hot cars from trade-in to prevent money laundering
     if (targetCar.isBlackMarket || targetCar.id.startsWith('bm_')) return false;
 

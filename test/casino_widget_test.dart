@@ -151,6 +151,9 @@ void main() {
 
       expect(find.text('DAHA BÜYÜK • YÜKSEK'), findsOneWidget);
       expect(find.text('DAHA KÜÇÜK • DÜŞÜK'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 100));
     });
 
     testWidgets('PlinkoModal drops ball and lands in slot', (tester) async {
@@ -214,6 +217,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       expect(container.read(gameProvider).casinoStats.totalGamesPlayed, equals(1));
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 100));
     });
 
     testWidgets('DoubleOrNothingModal flips coin for 2x or 0x', (tester) async {

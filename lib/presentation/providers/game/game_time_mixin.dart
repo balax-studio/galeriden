@@ -321,8 +321,9 @@ mixin GameTimeMixin on GameBaseNotifier {
     if (staff.isEmpty) return (balance, staff, events);
 
     double totalSalaries = staff.fold(0.0, (s, st) => s + st.dailySalary);
-    if (state.specializationPath == SpecializationPath.boss)
+    if (state.specializationPath == SpecializationPath.boss) {
       totalSalaries *= 0.80;
+    }
 
     if (balance >= totalSalaries) {
       final updated =
@@ -760,10 +761,12 @@ mixin GameTimeMixin on GameBaseNotifier {
     List<BlackMarketCarModel>
   ) _processScrapyardAndBlackMarket(
       int nextDay, List<ScrapyardCar> scrap, List<BlackMarketCarModel> black) {
-    if (nextDay % 3 == 0 || scrap.isEmpty)
+    if (nextDay % 3 == 0 || scrap.isEmpty) {
       scrap = _generateRandomScrapyardCars(nextDay);
-    if (nextDay % 3 == 0 || black.isEmpty)
+    }
+    if (nextDay % 3 == 0 || black.isEmpty) {
       black = _generateRandomBlackMarketCars(nextDay);
+    }
     return (scrap, black);
   }
 

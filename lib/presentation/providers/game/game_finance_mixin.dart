@@ -49,9 +49,12 @@ mixin GameFinanceMixin on GameBaseNotifier {
   /// Take bank loan
   bool takeBankLoan(
       {required String bankName, required double amount, required int months}) {
-    if (state.activeLoans.length >= 3) return false; // Max 3 active loans
-    if (amount <= 0 || amount > state.bankCreditLimit)
+    if (state.activeLoans.length >= 3) {
+      return false; // Max 3 active loans
+    }
+    if (amount <= 0 || amount > state.bankCreditLimit) {
       return false; // Must be within approved credit limit
+    }
 
     final baseInterestRate = months == 3 ? 0.10 : (months == 6 ? 0.18 : 0.28);
     final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);

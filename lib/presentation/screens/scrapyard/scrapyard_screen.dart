@@ -1537,8 +1537,9 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                               child: HydraulicCrushWaveWidget(
                                                 size: 160,
                                                 onComplete: () {
-                                                  if (Navigator.canPop(c))
+                                                  if (Navigator.canPop(c)) {
                                                     Navigator.pop(c);
+                                                  }
                                                 },
                                               ),
                                             ),
