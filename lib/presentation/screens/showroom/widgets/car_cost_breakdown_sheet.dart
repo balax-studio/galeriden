@@ -235,15 +235,20 @@ class CarCostBreakdownSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          NeoBrutalButton(
-            label: context.tr('ok_button'),
-            icon: Icons.check_rounded,
-            backgroundColor: const Color(0xFFFFDE59),
-            textColor: Colors.black,
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              Navigator.of(context).pop();
-            },
+          SafeArea(
+            top: false,
+            child: NeoBrutalButton(
+              label: context.tr('ok_button'),
+              icon: Icons.check_rounded,
+              fullWidth: true,
+              minHeight: 48.0,
+              backgroundColor: const Color(0xFFFFDE59),
+              textColor: Colors.black,
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                Navigator.of(context).pop();
+              },
+            ),
           ),
         ],
       ),

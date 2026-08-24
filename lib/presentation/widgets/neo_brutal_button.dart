@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 
-enum NeoHapticType { selection, light, heavy, none }
+enum NeoHapticType { selection, light, medium, heavy, none }
 
 /// Neo-Brutalist Tactile Button Widget (Maximalist Industrial Edition)
 /// Features heavy-duty borders, solid 0-blur offset shadow, and mechanical click-down compression feedback.
@@ -136,7 +136,7 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
         : widget.shadowOffset;
 
     final effectiveMinHeight =
-        widget.minHeight ?? (widget.fontSize < 12 ? 38.0 : 44.0);
+        widget.minHeight ?? (widget.fontSize < 12 ? 38.0 : 48.0);
 
     final displayLabel = widget.isApplied
         ? (widget.appliedLabel ?? 'UYGULANDI')
@@ -277,6 +277,9 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
             break;
           case NeoHapticType.light:
             HapticFeedback.lightImpact();
+            break;
+          case NeoHapticType.medium:
+            HapticFeedback.mediumImpact();
             break;
           case NeoHapticType.heavy:
             HapticFeedback.heavyImpact();

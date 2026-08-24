@@ -115,8 +115,35 @@ class WhatsNewDialog extends ConsumerWidget {
 
               // Changelog Items
               _buildChangelogItem(
-                icon: Icons.calendar_month_rounded,
+                icon: Icons.sports_score_rounded,
+                iconColor: const Color(0xFF00E575),
+                title: context.tr('changelog_drag_race_title'),
+                description: context.tr('changelog_drag_race_desc'),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+
+              _buildChangelogItem(
+                icon: Icons.speed_rounded,
                 iconColor: const Color(0xFFFFDE59),
+                title: context.tr('changelog_perf_title'),
+                description: context.tr('changelog_perf_desc'),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+
+              _buildChangelogItem(
+                icon: Icons.car_repair_rounded,
+                iconColor: const Color(0xFF38BDF8),
+                title: context.tr('changelog_mini_games_title'),
+                description: context.tr('changelog_mini_games_desc'),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+
+              _buildChangelogItem(
+                icon: Icons.calendar_month_rounded,
+                iconColor: const Color(0xFFFB923C),
                 title: context.tr('changelog_calendar_title'),
                 description: context.tr('changelog_calendar_desc'),
                 isDark: isDark,
@@ -125,7 +152,7 @@ class WhatsNewDialog extends ConsumerWidget {
 
               _buildChangelogItem(
                 icon: Icons.apartment_rounded,
-                iconColor: const Color(0xFF00E575),
+                iconColor: const Color(0xFFA855F7),
                 title: context.tr('changelog_ipo_title'),
                 description: context.tr('changelog_ipo_desc'),
                 isDark: isDark,
@@ -134,36 +161,9 @@ class WhatsNewDialog extends ConsumerWidget {
 
               _buildChangelogItem(
                 icon: Icons.support_agent_rounded,
-                iconColor: const Color(0xFF38BDF8),
+                iconColor: const Color(0xFFEC4899),
                 title: context.tr('changelog_crm_title'),
                 description: context.tr('changelog_crm_desc'),
-                isDark: isDark,
-              ),
-              const SizedBox(height: 10),
-
-              _buildChangelogItem(
-                icon: Icons.warehouse_rounded,
-                iconColor: const Color(0xFFFB923C),
-                title: context.tr('changelog_scrapyard_title'),
-                description: context.tr('changelog_scrapyard_desc'),
-                isDark: isDark,
-              ),
-              const SizedBox(height: 10),
-
-              _buildChangelogItem(
-                icon: Icons.gavel_rounded,
-                iconColor: const Color(0xFFA855F7),
-                title: context.tr('changelog_auction_title'),
-                description: context.tr('changelog_auction_desc'),
-                isDark: isDark,
-              ),
-              const SizedBox(height: 10),
-
-              _buildChangelogItem(
-                icon: Icons.groups_rounded,
-                iconColor: const Color(0xFFEC4899),
-                title: context.tr('changelog_staff_title'),
-                description: context.tr('changelog_staff_desc'),
                 isDark: isDark,
               ),
               const SizedBox(height: 14),
