@@ -134,6 +134,8 @@ class DistrictMarketScreen extends ConsumerWidget {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('district_screen_title'),
+        subtitle: context.tr('district_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.radarPulse,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),

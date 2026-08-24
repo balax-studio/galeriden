@@ -321,6 +321,14 @@ class StaffScreen extends ConsumerWidget {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('staff_title'),
+        subtitle: context.tr('staff_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.punchCardDrop,
+        statusBadge: NeoBrutalBadge(
+          text: '${game.hiredStaff.length} USTA',
+          backgroundColor: AppColors.brutalYellow,
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

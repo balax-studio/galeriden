@@ -15,9 +15,11 @@ class VectorIconWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(size, size),
-      painter: _VectorIconPainter(type: type, iconColor: color),
+    return RepaintBoundary(
+      child: CustomPaint(
+        size: Size(size, size),
+        painter: _VectorIconPainter(type: type, iconColor: color),
+      ),
     );
   }
 }

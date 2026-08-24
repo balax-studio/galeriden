@@ -50,14 +50,18 @@ class BlueprintGridBackground extends StatelessWidget {
       effectiveColor = const Color(0xFF0F172A).withValues(alpha: opacity);
     }
 
-    return CustomPaint(
-      painter: _BlueprintPatternPainter(
-        patternType: patternType,
-        color: effectiveColor,
-        spacing: spacing,
-        strokeWidth: strokeWidth,
+    return RepaintBoundary(
+      child: CustomPaint(
+        isComplex: true,
+        willChange: false,
+        painter: _BlueprintPatternPainter(
+          patternType: patternType,
+          color: effectiveColor,
+          spacing: spacing,
+          strokeWidth: strokeWidth,
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }

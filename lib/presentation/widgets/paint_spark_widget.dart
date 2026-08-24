@@ -58,9 +58,10 @@ class _PaintSparkWidgetState extends State<PaintSparkWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -100,8 +101,9 @@ class _PaintSparkWidgetState extends State<PaintSparkWidget>
           ],
         );
       },
-    );
-  }
+    ),
+  );
+}
 }
 
 class _PaintSparkPainter extends CustomPainter {

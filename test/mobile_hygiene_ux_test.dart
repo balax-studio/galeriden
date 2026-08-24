@@ -26,13 +26,13 @@ void main() {
     testWidgets('1. NeoBrutalSkeleton renders shimmer boxes and cards properly', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('tr'), Locale('en')],
-            locale: const Locale('tr'),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr'), Locale('en')],
+          locale: const Locale('tr'),
           theme: testTheme,
           home: const Scaffold(
             body: SingleChildScrollView(
@@ -59,11 +59,16 @@ void main() {
     });
 
     testWidgets('2. MarketplaceScreen has RefreshIndicator, Skeleton, and Debounced Search', (tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          gameProvider.overrideWith((ref) => GameNotifier()),
+        ],
+      );
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+
       await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            gameProvider.overrideWith((ref) => GameNotifier()),
-          ],
+        UncontrolledProviderScope(
+          container: container,
           child: MaterialApp(
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -98,6 +103,10 @@ void main() {
 
       await tester.tap(clearButton);
       await tester.pump(const Duration(milliseconds: 300));
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 1));
+      container.dispose();
     });
 
     testWidgets('3. ShowroomOffersTab has Dismissible swipe actions and RefreshIndicator', (tester) async {
@@ -136,11 +145,16 @@ void main() {
         incomingOffers: [sampleOffer],
       );
 
+      final container = ProviderContainer(
+        overrides: [
+          gameProvider.overrideWith((ref) => GameNotifier()),
+        ],
+      );
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+
       await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            gameProvider.overrideWith((ref) => GameNotifier()),
-          ],
+        UncontrolledProviderScope(
+          container: container,
           child: MaterialApp(
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -169,6 +183,9 @@ void main() {
       expect(find.byType(Dismissible), findsOneWidget);
       expect(find.textContaining('Mehmet Yılmaz'), findsOneWidget);
       expect(find.text('Mercedes C200'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox());
+      container.dispose();
     });
   });
 }

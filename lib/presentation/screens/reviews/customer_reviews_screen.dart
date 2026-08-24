@@ -47,6 +47,14 @@ class CustomerReviewsScreen extends ConsumerWidget {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('reviews_screen_title'),
+        subtitle: context.tr('customer_reviews_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.starSpin,
+        statusBadge: NeoBrutalBadge(
+          text: '★ ${avgRating.toStringAsFixed(1)} / 5.0',
+          backgroundColor: AppColors.brutalYellow,
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
       ),
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(

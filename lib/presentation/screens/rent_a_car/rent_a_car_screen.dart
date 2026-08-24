@@ -49,6 +49,14 @@ class RentACarScreen extends ConsumerWidget {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('rent_screen_title'),
+        subtitle: context.tr('rent_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.radarPulse,
+        statusBadge: NeoBrutalBadge(
+          text: '${game.activeRentals.length} KİRADA',
+          backgroundColor: const Color(0xFF38BDF8),
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

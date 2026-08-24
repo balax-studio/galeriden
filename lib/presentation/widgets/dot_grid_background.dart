@@ -24,13 +24,17 @@ class DotGridBackground extends StatelessWidget {
             ? Colors.white.withValues(alpha: 0.06)
             : Colors.black.withValues(alpha: 0.05));
 
-    return CustomPaint(
-      painter: _DotGridPainter(
-        dotColor: effectiveDotColor,
-        spacing: spacing,
-        dotRadius: dotRadius,
+    return RepaintBoundary(
+      child: CustomPaint(
+        isComplex: true,
+        willChange: false,
+        painter: _DotGridPainter(
+          dotColor: effectiveDotColor,
+          spacing: spacing,
+          dotRadius: dotRadius,
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }

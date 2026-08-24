@@ -240,6 +240,14 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('car_wash_title'),
+        subtitle: context.tr('car_wash_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.waterBubbles,
+        statusBadge: const NeoBrutalBadge(
+          text: 'KÖPÜK: DOLU',
+          backgroundColor: Color(0xFF38BDF8),
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

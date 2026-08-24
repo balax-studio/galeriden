@@ -60,6 +60,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen>
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('lifestyle_title'),
+        subtitle: context.tr('lifestyle_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.cashShimmer,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),

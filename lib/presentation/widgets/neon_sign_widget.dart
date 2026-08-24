@@ -57,9 +57,10 @@ class _NeonSignWidgetState extends State<NeonSignWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
         double opacity = 1.0;
         if (widget.isFlickering) {
           final t = _controller.value;
@@ -120,6 +121,7 @@ class _NeonSignWidgetState extends State<NeonSignWidget>
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 }

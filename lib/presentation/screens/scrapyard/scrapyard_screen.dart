@@ -978,6 +978,14 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('scrapyard'),
+        subtitle: context.tr('scrapyard_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.pressSlam,
+        statusBadge: const NeoBrutalBadge(
+          text: 'TAZE ENKAZ',
+          backgroundColor: AppColors.brutalOrange,
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 14),

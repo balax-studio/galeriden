@@ -72,21 +72,24 @@ class _FoilShimmerWidgetState extends State<FoilShimmerWidget>
   Widget build(BuildContext context) {
     if (!widget.isEnabled || _controller == null) return widget.child;
 
-    return AnimatedBuilder(
-      animation: _controller!,
-      builder: (context, child) {
-        final v = _controller!.value;
-        final sweepProgress = v <= 0.35 ? (v / 0.35) : -1.0;
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller!,
+        child: widget.child,
+        builder: (context, child) {
+          final v = _controller!.value;
+          final sweepProgress = v <= 0.35 ? (v / 0.35) : -1.0;
 
-        return CustomPaint(
-          foregroundPainter: _FoilShimmerPainter(
-            progress: sweepProgress,
-            shimmerColor: widget.shimmerColor,
-            widthFactor: widget.shimmerWidthFactor,
-          ),
-          child: widget.child,
-        );
-      },
+          return CustomPaint(
+            foregroundPainter: _FoilShimmerPainter(
+              progress: sweepProgress,
+              shimmerColor: widget.shimmerColor,
+              widthFactor: widget.shimmerWidthFactor,
+            ),
+            child: child,
+          );
+        },
+      ),
     );
   }
 }

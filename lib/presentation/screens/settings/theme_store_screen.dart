@@ -45,6 +45,8 @@ class ThemeStoreScreen extends ConsumerWidget {
       backgroundColor: isDark ? p.backgroundColor : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('theme_store'),
+        subtitle: context.tr('theme_store_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.colorShift,
       ),
       body: BlueprintGridBackground(
         patternType: p.id == 'toksik_asit_cyber'

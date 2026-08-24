@@ -55,17 +55,19 @@ class _CandleSparkWidgetState extends State<CandleSparkWidget>
     final color =
         widget.isPositive ? const Color(0xFF00E575) : const Color(0xFFEF4444);
 
-    return AnimatedBuilder(
-      animation: _sparkScale,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _sparkScale.value,
-          child: child,
-        );
-      },
-      child: CustomPaint(
-        size: Size(widget.size, widget.size),
-        painter: _CandleSparkPainter(color: color),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _sparkScale,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _sparkScale.value,
+            child: child,
+          );
+        },
+        child: CustomPaint(
+          size: Size(widget.size, widget.size),
+          painter: _CandleSparkPainter(color: color),
+        ),
       ),
     );
   }

@@ -78,6 +78,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('special_plate_title'),
+        subtitle: context.tr('special_plate_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.pressSlam,
       ),
       body: Column(
         children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -104,8 +105,16 @@ class ConsignmentScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: const NeoBrutalAppBar(
+      appBar: NeoBrutalAppBar(
         title: 'KONSİNYE & EMANET ARAÇLAR',
+        subtitle: context.tr('consignment_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.gavelBounce,
+        statusBadge: NeoBrutalBadge(
+          text: '${activeConsignmentCars.length} AKTİF',
+          backgroundColor: AppColors.brutalGreen,
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

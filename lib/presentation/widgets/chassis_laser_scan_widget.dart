@@ -74,16 +74,20 @@ class _ChassisLaserScanWidgetState extends State<ChassisLaserScanWidget>
         widget.child,
         if (widget.isScanning)
           Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _scanAnimation,
-              builder: (context, child) {
-                return CustomPaint(
-                  painter: _LaserPainter(
-                    progress: _scanAnimation.value,
-                    color: widget.laserColor,
-                  ),
-                );
-              },
+            child: IgnorePointer(
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _scanAnimation,
+                  builder: (context, child) {
+                    return CustomPaint(
+                      painter: _LaserPainter(
+                        progress: _scanAnimation.value,
+                        color: widget.laserColor,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
       ],

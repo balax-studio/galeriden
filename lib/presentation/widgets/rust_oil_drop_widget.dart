@@ -56,24 +56,26 @@ class _RustOilDropWidgetState extends State<RustOilDropWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _opacityAnimation.value,
-          child: Transform.translate(
-            offset: Offset(0, _dropAnimation.value),
-            child: child,
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return FadeTransition(
+            opacity: _opacityAnimation,
+            child: Transform.translate(
+              offset: Offset(0, _dropAnimation.value),
+              child: child,
+            ),
+          );
+        },
+        child: Container(
+          width: widget.size * 0.45,
+          height: widget.size * 0.65,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E), // Dark oil black
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.black, width: 1.5),
           ),
-        );
-      },
-      child: Container(
-        width: widget.size * 0.45,
-        height: widget.size * 0.65,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E), // Dark oil black
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.black, width: 1.5),
         ),
       ),
     );

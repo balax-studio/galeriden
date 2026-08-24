@@ -50,6 +50,17 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
       backgroundColor: const Color(0xFF0A0C10),
       appBar: NeoBrutalAppBar(
         title: context.tr('night_market_title'),
+        subtitle: context.tr('night_market_slug'),
+        titleBadgeColor: AppColors.brutalPink,
+        headerAnimation: NeoBrutalHeaderAnimation.neonFlicker,
+        statusBadge: NeoBrutalBadge(
+          text: context.tr('night_market_daily_races_left', {
+            'count': '${ref.watch(gameProvider.select((g) => g.dailyRacesRemaining))}'
+          }),
+          backgroundColor: AppColors.brutalYellow,
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

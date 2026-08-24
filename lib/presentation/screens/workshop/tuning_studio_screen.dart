@@ -305,6 +305,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('tuning_screen_title'),
+        subtitle: context.tr('tuning_slug'),
+        titleBadgeColor: const Color(0xFFF43F5E),
+        titleTextColor: Colors.white,
+        headerAnimation: NeoBrutalHeaderAnimation.revBarFlash,
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

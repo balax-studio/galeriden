@@ -58,20 +58,22 @@ class _SweatDropWidgetState extends State<SweatDropWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _opacityAnimation.value,
-          child: Transform.translate(
-            offset: Offset(0, _slideAnimation.value),
-            child: child,
-          ),
-        );
-      },
-      child: CustomPaint(
-        size: Size(widget.size * 0.7, widget.size),
-        painter: _SweatDropPainter(color: widget.dropColor),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return FadeTransition(
+            opacity: _opacityAnimation,
+            child: Transform.translate(
+              offset: Offset(0, _slideAnimation.value),
+              child: child,
+            ),
+          );
+        },
+        child: CustomPaint(
+          size: Size(widget.size * 0.7, widget.size),
+          painter: _SweatDropPainter(color: widget.dropColor),
+        ),
       ),
     );
   }

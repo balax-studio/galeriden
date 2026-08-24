@@ -48,14 +48,16 @@ class _PneumaticNutParticleWidgetState extends State<PneumaticNutParticleWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(widget.size, widget.size),
-          painter: _NutParticlePainter(progress: _controller.value),
-        );
-      },
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return CustomPaint(
+            size: Size(widget.size, widget.size),
+            painter: _NutParticlePainter(progress: _controller.value),
+          );
+        },
+      ),
     );
   }
 }

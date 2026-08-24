@@ -346,6 +346,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('workshop_title'),
+        subtitle: context.tr('workshop_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.wrenchRotate,
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

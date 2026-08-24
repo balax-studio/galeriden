@@ -15,9 +15,11 @@ import 'package:galeriden/presentation/screens/showroom/widgets/showroom_car_car
 import 'package:galeriden/presentation/widgets/dot_grid_background.dart';
 import 'package:galeriden/presentation/widgets/game_hud_widget.dart';
 import 'package:galeriden/presentation/widgets/hazard_stripe_widget.dart';
+import 'package:galeriden/presentation/widgets/neo_brutal_app_bar.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_card.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_stamp.dart';
 import 'package:galeriden/presentation/widgets/windshield_price_sticker.dart';
+import 'package:galeriden/presentation/widgets/mini_games/drag_race_canvas.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -278,11 +280,19 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 750));
 
-      expect(find.text('GECE SANAYİSİ & YARIŞ'), findsOneWidget);
+      expect(find.text('GECE MEZATI & DRAG ARENASI'), findsOneWidget);
+      expect(find.text('SEKTÖR: 04 • GİZLİ MEZAT'), findsOneWidget);
       expect(find.text('GECE MEZATI & DRAG YARIŞI'), findsOneWidget);
       expect(find.byType(HazardStripeWidget), findsWidgets);
+
+      // Verify GAZLA & YARIŞ button is clickable and launches DragRaceMiniGameModal
+      final raceButtonFinder = find.text('GAZLA & YARIŞ');
+      expect(raceButtonFinder, findsOneWidget);
+      await tester.tap(raceButtonFinder);
+      await tester.pump();
+      expect(find.byType(DragRaceMiniGameModal), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox());
       container.dispose();
@@ -390,6 +400,34 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       container.dispose();
       await tester.pump(const Duration(seconds: 1));
+    });
+
+    testWidgets('9. NeoBrutalAppBar renders with all micro-animation presets smoothly', (tester) async {
+      for (final anim in NeoBrutalHeaderAnimation.values) {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: testTheme,
+            home: Scaffold(
+              appBar: NeoBrutalAppBar(
+                title: 'TEST ${anim.name}',
+                subtitle: 'SLUG • ${anim.name}',
+                headerAnimation: anim,
+                statusBadge: const Text('CANLI'),
+              ),
+            ),
+          ),
+        );
+
+        // Pump frame to advance entrance animation and tickers
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 300));
+
+        expect(find.text('TEST ${anim.name}'.toUpperCase()), findsOneWidget);
+
+        // Unmount
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(milliseconds: 100));
+      }
     });
   });
 }

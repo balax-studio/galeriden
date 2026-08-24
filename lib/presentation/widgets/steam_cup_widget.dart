@@ -54,20 +54,22 @@ class _SteamCupWidgetState extends State<SteamCupWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(widget.size, widget.size * 1.3),
-          painter: _SteamCupPainter(
-            animationValue: _controller.value,
-            teaColor: widget.teaColor,
-            saucerColor: widget.saucerColor,
-            borderColor: widget.borderColor,
-            steamColor: widget.steamColor,
-          ),
-        );
-      },
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return CustomPaint(
+            size: Size(widget.size, widget.size * 1.3),
+            painter: _SteamCupPainter(
+              animationValue: _controller.value,
+              teaColor: widget.teaColor,
+              saucerColor: widget.saucerColor,
+              borderColor: widget.borderColor,
+              steamColor: widget.steamColor,
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -34,6 +34,8 @@ class CarSilhouetteWidget extends StatelessWidget {
     final Widget content = RepaintBoundary(
       child: CustomPaint(
         size: Size(width, height),
+        isComplex: true,
+        willChange: false,
         painter: NeoBrutalCarVectorPainter(
           bodyColor: effectiveColor,
           bodyType: bodyType,

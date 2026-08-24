@@ -64,6 +64,15 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('exp_report_title'),
+        subtitle: context.tr('expertise_slug'),
+        headerAnimation: NeoBrutalHeaderAnimation.laserScan,
+        statusBadge: NeoBrutalBadge(
+          text: _isInspected ? 'KALİBRASYON: TAM' : 'HAZIR',
+          backgroundColor:
+              _isInspected ? AppColors.brutalGreen : AppColors.brutalYellow,
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
       ),
       body: DotGridBackground(
         child: ListView(

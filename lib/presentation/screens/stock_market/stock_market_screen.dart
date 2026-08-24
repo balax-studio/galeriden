@@ -68,6 +68,15 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('stocks_title'),
+        subtitle: context.tr('stocks_slug'),
+        titleBadgeColor: AppColors.brutalGreen,
+        headerAnimation: NeoBrutalHeaderAnimation.stockCandle,
+        statusBadge: const NeoBrutalBadge(
+          text: 'BIST CANLI',
+          backgroundColor: AppColors.brutalGreen,
+          textColor: Colors.black,
+          fontSize: 9.5,
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),

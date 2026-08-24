@@ -72,17 +72,18 @@ class _TaxAlertBellWidgetState extends State<TaxAlertBellWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _swingAnimation,
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: widget.hasUnpaidTax ? _swingAnimation.value : 0.0,
-          alignment: Alignment.topCenter,
-          child: child,
-        );
-      },
-      child: Container(
-        width: widget.size,
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _swingAnimation,
+        builder: (context, child) {
+          return Transform.rotate(
+            angle: widget.hasUnpaidTax ? _swingAnimation.value : 0.0,
+            alignment: Alignment.topCenter,
+            child: child,
+          );
+        },
+        child: Container(
+          width: widget.size,
         height: widget.size,
         decoration: BoxDecoration(
           color: widget.hasUnpaidTax
@@ -105,6 +106,7 @@ class _TaxAlertBellWidgetState extends State<TaxAlertBellWidget>
           size: widget.size * 0.58,
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

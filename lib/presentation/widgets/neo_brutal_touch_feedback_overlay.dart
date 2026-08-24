@@ -40,6 +40,7 @@ class NeoBrutalTouchFeedbackOverlayState
     extends State<NeoBrutalTouchFeedbackOverlay>
     with SingleTickerProviderStateMixin {
   final List<TouchParticle> _activeParticles = [];
+  late final ValueNotifier<List<TouchParticle>> _particlesNotifier;
   Ticker? _ticker;
   static const int _particleLifetimeMs = 240;
 
@@ -57,18 +58,21 @@ class NeoBrutalTouchFeedbackOverlayState
   @override
   void initState() {
     super.initState();
+    _particlesNotifier = ValueNotifier<List<TouchParticle>>([]);
     _ticker = createTicker(_onTick);
   }
 
   @override
   void dispose() {
     _ticker?.dispose();
+    _particlesNotifier.dispose();
     super.dispose();
   }
 
   void _onTick(Duration elapsed) {
     if (_activeParticles.isEmpty) {
       _ticker?.stop();
+      _particlesNotifier.value = const [];
       return;
     }
 
@@ -76,9 +80,7 @@ class NeoBrutalTouchFeedbackOverlayState
     _activeParticles.removeWhere((p) =>
         now.difference(p.createdAt).inMilliseconds >= _particleLifetimeMs);
 
-    if (mounted) {
-      setState(() {});
-    }
+    _particlesNotifier.value = List.of(_activeParticles);
 
     if (_activeParticles.isEmpty) {
       _ticker?.stop();
@@ -113,12 +115,10 @@ class NeoBrutalTouchFeedbackOverlayState
       ),
     );
 
+    _particlesNotifier.value = List.of(_activeParticles);
+
     if (_ticker != null && !_ticker!.isTicking) {
       _ticker!.start();
-    }
-
-    if (mounted) {
-      setState(() {});
     }
   }
 
@@ -130,21 +130,26 @@ class NeoBrutalTouchFeedbackOverlayState
       child: Stack(
         fit: StackFit.passthrough,
         children: [
-          RepaintBoundary(child: widget.child),
-          if (_activeParticles.isNotEmpty)
-            Positioned.fill(
-              child: IgnorePointer(
-                ignoring: true,
-                child: RepaintBoundary(
-                  child: CustomPaint(
-                    painter: _NeoBrutalTouchPainter(
-                      particles: _activeParticles,
-                      lifetimeMs: _particleLifetimeMs,
-                    ),
-                  ),
+          widget.child,
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: true,
+              child: RepaintBoundary(
+                child: ValueListenableBuilder<List<TouchParticle>>(
+                  valueListenable: _particlesNotifier,
+                  builder: (context, particles, _) {
+                    if (particles.isEmpty) return const SizedBox.shrink();
+                    return CustomPaint(
+                      painter: _NeoBrutalTouchPainter(
+                        particles: particles,
+                        lifetimeMs: _particleLifetimeMs,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

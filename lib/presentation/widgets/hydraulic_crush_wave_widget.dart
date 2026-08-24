@@ -51,14 +51,16 @@ class _HydraulicCrushWaveWidgetState extends State<HydraulicCrushWaveWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _waveProgress,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(widget.size, widget.size),
-          painter: _CrushWavePainter(progress: _waveProgress.value),
-        );
-      },
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _waveProgress,
+        builder: (context, child) {
+          return CustomPaint(
+            size: Size(widget.size, widget.size),
+            painter: _CrushWavePainter(progress: _waveProgress.value),
+          );
+        },
+      ),
     );
   }
 }

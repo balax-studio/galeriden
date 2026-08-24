@@ -60,45 +60,47 @@ class _PulsingDotState extends State<PulsingDot>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            if (widget.showRipple)
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              if (widget.showRipple)
+                Transform.scale(
+                  scale: _scaleAnimation.value * 1.4,
+                  child: Container(
+                    width: widget.size,
+                    height: widget.size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.color.withValues(
+                        alpha: (1.0 - _controller.value) * 0.35,
+                      ),
+                    ),
+                  ),
+                ),
               Transform.scale(
-                scale: _scaleAnimation.value * 1.4,
+                scale: _scaleAnimation.value,
                 child: Container(
                   width: widget.size,
                   height: widget.size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: widget.color.withValues(
-                      alpha: (1.0 - _controller.value) * 0.35,
+                    color:
+                        widget.color.withValues(alpha: _opacityAnimation.value),
+                    border: Border.all(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      width: 1.0,
                     ),
                   ),
                 ),
               ),
-            Transform.scale(
-              scale: _scaleAnimation.value,
-              child: Container(
-                width: widget.size,
-                height: widget.size,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color:
-                      widget.color.withValues(alpha: _opacityAnimation.value),
-                  border: Border.all(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    width: 1.0,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 }

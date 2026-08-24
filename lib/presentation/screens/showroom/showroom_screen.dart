@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,26 +31,6 @@ class ShowroomScreen extends ConsumerStatefulWidget {
 
 class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
   String _selectedFilterKey = 'filter_all';
-  Timer? _countdownTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
-      final game = ref.read(gameProvider);
-      final hasActiveOffers = game.incomingOffers.any((o) => !o.isExpired);
-      if (hasActiveOffers) {
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _countdownTimer?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
