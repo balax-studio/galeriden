@@ -60,7 +60,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     );
 
     addXP(20);
-    if (updatedCar.expertise.engineCondition == 100.0 && updatedCar.isDetailedCleaned) {
+    if (updatedCar.expertise.engineCondition == 100.0 &&
+        updatedCar.isDetailedCleaned) {
       checkAchievement('restoration_king');
     }
     saveState();
@@ -68,15 +69,16 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
   }
 
   /// Wash and Polish
-  bool washAndPolishCar(String carId, {required bool wash, required bool polish}) {
+  bool washAndPolishCar(String carId,
+      {required bool wash, required bool polish}) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    
+
     final bool willWash = wash && !car.isWashed;
     final bool willPolish = polish && !car.isPolished;
-    
+
     if (!willWash && !willPolish) return false;
 
     final cost = (willWash ? 300.0 : 0.0) + (willPolish ? 800.0 : 0.0);
@@ -107,7 +109,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (state.balance < cost) return false;
     if (state.unlockedBuildings.contains(equipmentId)) return false;
 
-    final updatedBuildings = Set<String>.from(state.unlockedBuildings)..add(equipmentId);
+    final updatedBuildings = Set<String>.from(state.unlockedBuildings)
+      ..add(equipmentId);
     state = state.copyWith(
       balance: state.balance - cost,
       unlockedBuildings: updatedBuildings,
@@ -135,12 +138,17 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented) return false;
 
-    final isStandardWash = setWashed || (!setInterior && !setPolished && !setDetailed);
+    final isStandardWash =
+        setWashed || (!setInterior && !setPolished && !setDetailed);
 
     if (setDetailed && car.isDetailedCleaned) return false;
     if (setPolished && !setDetailed && car.isPolished) return false;
     if (setInterior && car.isInteriorCleaned) return false;
-    if (isStandardWash && !setInterior && !setPolished && !setDetailed && car.isWashed) return false;
+    if (isStandardWash &&
+        !setInterior &&
+        !setPolished &&
+        !setDetailed &&
+        car.isWashed) return false;
 
     final newValue = car.baseMarketValue;
 
@@ -218,7 +226,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
         );
         break;
       case 'bodywork':
-        final hasDamagedOrChanged = exp.bodyParts.values.any((v) => v != PartStatus.original);
+        final hasDamagedOrChanged =
+            exp.bodyParts.values.any((v) => v != PartStatus.original);
         if (!hasDamagedOrChanged) return false;
         final repairedParts = Map<String, PartStatus>.from(exp.bodyParts);
         final repairedConditions = Map<String, double>.from(exp.partConditions);
@@ -286,7 +295,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final updatedExp = exp.copyWith(
       engineCondition: (exp.engineCondition + 15.0).clamp(0.0, 100.0),
-      transmissionCondition: (exp.transmissionCondition + 15.0).clamp(0.0, 100.0),
+      transmissionCondition:
+          (exp.transmissionCondition + 15.0).clamp(0.0, 100.0),
     );
 
     final updatedCar = car.copyWith(
@@ -340,7 +350,11 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
   bool washAllCars() {
     if (state.ownedCars.isEmpty) return false;
     final hasWasher = state.hiredStaff.any((s) => s.role == StaffRole.washer);
-    final unwashedCars = state.ownedCars.where((c) => !c.isRented && (!c.isWashed || !c.isPolished || !c.isDetailedCleaned)).toList();
+    final unwashedCars = state.ownedCars
+        .where((c) =>
+            !c.isRented &&
+            (!c.isWashed || !c.isPolished || !c.isDetailedCleaned))
+        .toList();
     if (unwashedCars.isEmpty) return false;
 
     final totalCost = hasWasher ? 0.0 : (unwashedCars.length * 600.0);
@@ -388,7 +402,9 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final car = state.ownedCars[carIndex];
     if (car.isRented) return false;
-    final updatedOptions = car.appliedDetailingOptionIds.where((id) => !id.startsWith('scent_')).toList();
+    final updatedOptions = car.appliedDetailingOptionIds
+        .where((id) => !id.startsWith('scent_'))
+        .toList();
     updatedOptions.add(scent.id);
 
     final updatedCar = car.copyWith(
@@ -418,7 +434,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented || car.hasRestoredHeadlights) return false;
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('headlight_restoration');
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('headlight_restoration');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
     );
@@ -446,7 +463,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented || car.hasIronDecon) return false;
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('iron_decon');
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('iron_decon');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
     );
@@ -474,7 +492,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented || car.hasPdrRepaired) return false;
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('pdr_repaired');
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('pdr_repaired');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
     );
@@ -502,7 +521,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented || car.hasTuvturkCertified) return false;
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('tuvturk_certified');
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('tuvturk_certified');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
     );
@@ -573,7 +593,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final report = DynoTestReport.generate(car);
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('dyno_certified');
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('dyno_certified');
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
@@ -604,7 +625,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (car.isRented || car.isConsignment) return false;
     if (car.appliedDetailingOptionIds.contains(stage.id)) return false;
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add(stage.id);
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add(stage.id);
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
@@ -637,7 +659,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (car.isRented || car.isConsignment) return false;
     if (car.appliedDetailingOptionIds.contains('bodykit_tint')) return false;
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('bodykit_tint');
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('bodykit_tint');
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
@@ -665,9 +688,11 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.isRented || car.isConsignment || car.isChassisRepaired) return false;
+    if (car.isRented || car.isConsignment || car.isChassisRepaired)
+      return false;
 
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('chassis_restamped');
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('chassis_restamped');
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
@@ -693,7 +718,8 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (state.balance < cost) return false;
     if (state.unlockedBuildings.contains('auto_wash_tunnel')) return false;
 
-    final updatedBuildings = Set<String>.from(state.unlockedBuildings)..add('auto_wash_tunnel');
+    final updatedBuildings = Set<String>.from(state.unlockedBuildings)
+      ..add('auto_wash_tunnel');
 
     state = state.copyWith(
       balance: state.balance - cost,
@@ -714,8 +740,11 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.isRented || car.isConsignment || car.appliedDetailingOptionIds.contains('ozone_sanitized')) return false;
-    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)..add('ozone_sanitized');
+    if (car.isRented ||
+        car.isConsignment ||
+        car.appliedDetailingOptionIds.contains('ozone_sanitized')) return false;
+    final updatedOptions = List<String>.from(car.appliedDetailingOptionIds)
+      ..add('ozone_sanitized');
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,

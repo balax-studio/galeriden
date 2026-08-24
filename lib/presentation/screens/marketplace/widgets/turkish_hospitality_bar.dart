@@ -38,9 +38,11 @@ class TurkishHospitalityBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.brutalYellow,
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF333B4F), width: 1.5),
+                  border:
+                      Border.all(color: const Color(0xFF333B4F), width: 1.5),
                 ),
-                child: const Icon(Icons.emoji_food_beverage_rounded, color: Colors.black, size: 18),
+                child: const Icon(Icons.emoji_food_beverage_rounded,
+                    color: Colors.black, size: 18),
               ),
               const SizedBox(width: 8),
               Text(
@@ -136,14 +138,18 @@ class TurkishHospitalityBar extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               title,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
               cost,
-              style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 10),
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.w900, fontSize: 10),
             ),
           ],
         ),
@@ -152,7 +158,14 @@ class TurkishHospitalityBar extends StatelessWidget {
   }
 
   void _showPlateDialog(BuildContext context) {
-    final codes = ['06 Ankara', '34 İstanbul', '35 İzmir', '61 Trabzon', '01 Adana', '16 Bursa'];
+    final codes = [
+      '06 Ankara',
+      '34 İstanbul',
+      '35 İzmir',
+      '61 Trabzon',
+      '01 Adana',
+      '16 Bursa'
+    ];
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -176,19 +189,25 @@ class TurkishHospitalityBar extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFF38BDF8),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF333B4F), width: 1.5),
+                      border: Border.all(
+                          color: const Color(0xFF333B4F), width: 1.5),
                     ),
-                    child: const Icon(Icons.confirmation_number_rounded, color: Colors.black, size: 20),
+                    child: const Icon(Icons.confirmation_number_rounded,
+                        color: Colors.black, size: 20),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       context.tr('hosp_select_hometown_plate'),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
+                    icon: const Icon(Icons.close_rounded,
+                        color: Colors.white70, size: 20),
                     onPressed: () => Navigator.of(ctx).pop(),
                   ),
                 ],
@@ -205,7 +224,8 @@ class TurkishHospitalityBar extends StatelessWidget {
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: NeoBrutalCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
                       backgroundColor: const Color(0xFF141721),
                       borderColor: const Color(0xFF333B4F),
                       borderRadius: 8,
@@ -213,9 +233,14 @@ class TurkishHospitalityBar extends StatelessWidget {
                       shadowOffset: const Offset(2, 2),
                       child: Row(
                         children: [
-                          Text(c, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                          Text(c,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12)),
                           const Spacer(),
-                          const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF38BDF8), size: 18),
+                          const Icon(Icons.check_circle_outline_rounded,
+                              color: Color(0xFF38BDF8), size: 18),
                         ],
                       ),
                     ),

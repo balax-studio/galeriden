@@ -18,7 +18,8 @@ class HiLoVitesModal extends ConsumerStatefulWidget {
   ConsumerState<HiLoVitesModal> createState() => _HiLoVitesModalState();
 }
 
-class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProviderStateMixin {
+class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal>
+    with TickerProviderStateMixin {
   double _selectedBet = 50000.0;
   bool _isPlaying = false;
   bool _isGuessing = false;
@@ -31,7 +32,13 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
   late AnimationController _flipController;
   late AnimationController _pulseController;
 
-  final List<double> _quickBets = [25000.0, 50000.0, 150000.0, 500000.0, 1000000.0];
+  final List<double> _quickBets = [
+    25000.0,
+    50000.0,
+    150000.0,
+    500000.0,
+    1000000.0
+  ];
 
   @override
   void initState() {
@@ -138,7 +145,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(context.tr('hilo_cash_out_success', {'amount': _formatCurrency(totalPayout)})),
+        content: Text(context.tr(
+            'hilo_cash_out_success', {'amount': _formatCurrency(totalPayout)})),
         backgroundColor: AppColors.brutalGreen,
       ),
     );
@@ -158,7 +166,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFF0F172A), width: 3.5),
           boxShadow: const [
-            BoxShadow(color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
+            BoxShadow(
+                color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
           ],
         ),
         child: Column(
@@ -169,16 +178,21 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
               decoration: const BoxDecoration(
                 color: Color(0xFFA855F7),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                border: Border(bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
+                border: Border(
+                    bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.speed_rounded, color: Colors.white, size: 22),
+                  const Icon(Icons.speed_rounded,
+                      color: Colors.white, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.tr('casino_hilo_title'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.white),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Colors.white),
                     ),
                   ),
                   GestureDetector(
@@ -190,7 +204,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(color: Colors.black, width: 1.5),
                       ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                      child: const Icon(Icons.close_rounded,
+                          color: Colors.white, size: 18),
                     ),
                   ),
                 ],
@@ -204,16 +219,21 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                 children: [
                   // Multiplier Ladder Visual
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 10),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0A0F1D),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0F172A), width: 2.5),
+                      border: Border.all(
+                          color: const Color(0xFF0F172A), width: 2.5),
                     ),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: CasinoEngine.hiLoMultipliers.asMap().entries.map((e) {
+                        children: CasinoEngine.hiLoMultipliers
+                            .asMap()
+                            .entries
+                            .map((e) {
                           final step = e.key;
                           final mult = e.value;
                           final isActive = _currentStreak == step && _isPlaying;
@@ -222,18 +242,26 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 250),
                             margin: const EdgeInsets.symmetric(horizontal: 3),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
                               color: isActive
                                   ? AppColors.brutalYellow
-                                  : (isPassed ? AppColors.brutalGreen : const Color(0xFF1E293B)),
+                                  : (isPassed
+                                      ? AppColors.brutalGreen
+                                      : const Color(0xFF1E293B)),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: isActive ? Colors.black : Colors.white24,
                                 width: isActive ? 2.5 : 1,
                               ),
                               boxShadow: isActive
-                                  ? const [BoxShadow(color: AppColors.brutalYellow, blurRadius: 8, spreadRadius: 1)]
+                                  ? const [
+                                      BoxShadow(
+                                          color: AppColors.brutalYellow,
+                                          blurRadius: 8,
+                                          spreadRadius: 1)
+                                    ]
                                   : null,
                             ),
                             child: Text(
@@ -241,7 +269,9 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w900,
-                                color: (isActive || isPassed) ? Colors.black : Colors.white60,
+                                color: (isActive || isPassed)
+                                    ? Colors.black
+                                    : Colors.white60,
                               ),
                             ),
                           );
@@ -259,11 +289,16 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                       color: const Color(0xFF0F172A),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: _isBust ? AppColors.brutalRed : const Color(0xFFA855F7),
+                        color: _isBust
+                            ? AppColors.brutalRed
+                            : const Color(0xFFA855F7),
                         width: 3.0,
                       ),
                       boxShadow: const [
-                        BoxShadow(color: Colors.black, offset: Offset(4, 4), blurRadius: 0),
+                        BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(4, 4),
+                            blurRadius: 0),
                       ],
                     ),
                     child: Column(
@@ -271,27 +306,31 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (_currentCard != null) _buildLargeCard(_currentCard!, label: context.tr('hilo_current_gear')),
+                            if (_currentCard != null)
+                              _buildLargeCard(_currentCard!,
+                                  label: context.tr('hilo_current_gear')),
                             if (_isGuessing) ...[
                               const SizedBox(width: 14),
-                              const Icon(Icons.arrow_forward_rounded, color: AppColors.brutalYellow, size: 24),
+                              const Icon(Icons.arrow_forward_rounded,
+                                  color: AppColors.brutalYellow, size: 24),
                               const SizedBox(width: 14),
                               _buildCardBackAnimated(),
                             ] else if (_nextCard != null) ...[
                               const SizedBox(width: 14),
-                              const Icon(Icons.arrow_forward_rounded, color: Colors.white70, size: 24),
+                              const Icon(Icons.arrow_forward_rounded,
+                                  color: Colors.white70, size: 24),
                               const SizedBox(width: 14),
-                              _buildLargeCard(_nextCard!, label: context.tr('hilo_next_gear')),
+                              _buildLargeCard(_nextCard!,
+                                  label: context.tr('hilo_next_gear')),
                             ],
                           ],
                         ),
-
                         const SizedBox(height: 14),
-
                         if (_isPlaying && !_isBust) ...[
                           NeoBrutalBadge(
                             label: context.tr('hilo_current_win', {
-                              'amount': _formatCurrency(_selectedBet * _currentMultiplier),
+                              'amount': _formatCurrency(
+                                  _selectedBet * _currentMultiplier),
                               'mult': '${_currentMultiplier}x',
                             }),
                             color: AppColors.brutalGreen,
@@ -314,7 +353,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                     // Bet Selector
                     Text(
                       context.tr('casino_bet_amount_label'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 12),
                     ),
                     const SizedBox(height: 6),
                     SingleChildScrollView(
@@ -330,18 +370,29 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                                 setState(() => _selectedBet = bet);
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                                  color: isSel
+                                      ? AppColors.brutalYellow
+                                      : (isDark
+                                          ? const Color(0xFF1E293B)
+                                          : const Color(0xFFF1F5F9)),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                                  border: Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 1.5),
                                 ),
                                 child: Text(
                                   _formatCurrency(bet),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w900,
-                                    color: isSel ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                    color: isSel
+                                        ? Colors.black
+                                        : (isDark
+                                            ? Colors.white70
+                                            : Colors.black87),
                                   ),
                                 ),
                               ),
@@ -395,7 +446,10 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
 
                     if (_currentStreak > 0)
                       NeoBrutalButton(
-                        label: context.tr('hilo_btn_cash_out', {'amount': _formatCurrency(_selectedBet * _currentMultiplier)}),
+                        label: context.tr('hilo_btn_cash_out', {
+                          'amount':
+                              _formatCurrency(_selectedBet * _currentMultiplier)
+                        }),
                         icon: Icons.check_circle_rounded,
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
@@ -428,7 +482,10 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
             children: [
               Text(
                 context.tr('hilo_next_gear'),
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10, color: Colors.white70),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                    color: Colors.white70),
               ),
               const SizedBox(height: 4),
               Container(
@@ -439,11 +496,15 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.brutalYellow, width: 2.5),
                   boxShadow: const [
-                    BoxShadow(color: Colors.black54, offset: Offset(3, 3), blurRadius: 0),
+                    BoxShadow(
+                        color: Colors.black54,
+                        offset: Offset(3, 3),
+                        blurRadius: 0),
                   ],
                 ),
                 child: const Center(
-                  child: Icon(Icons.style_rounded, color: AppColors.brutalYellow, size: 28),
+                  child: Icon(Icons.style_rounded,
+                      color: AppColors.brutalYellow, size: 28),
                 ),
               ),
             ],
@@ -459,7 +520,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
       children: [
         Text(
           label,
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10, color: Colors.white70),
+          style: const TextStyle(
+              fontWeight: FontWeight.w900, fontSize: 10, color: Colors.white70),
         ),
         const SizedBox(height: 4),
         Container(
@@ -470,7 +532,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal> with TickerProv
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.black, width: 2.5),
             boxShadow: const [
-              BoxShadow(color: Colors.black, offset: Offset(3, 3), blurRadius: 0),
+              BoxShadow(
+                  color: Colors.black, offset: Offset(3, 3), blurRadius: 0),
             ],
           ),
           child: Column(

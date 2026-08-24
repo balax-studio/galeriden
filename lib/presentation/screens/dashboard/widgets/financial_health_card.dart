@@ -58,7 +58,10 @@ class FinancialHealthCard extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               grade.grade,
-              style: TextStyle(color: grade.color, fontWeight: FontWeight.w900, fontSize: 15),
+              style: TextStyle(
+                  color: grade.color,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 15),
             ),
           ),
           const SizedBox(width: 12),
@@ -69,7 +72,9 @@ class FinancialHealthCard extends StatelessWidget {
                 Text(
                   'BİLANÇO & FİNANSAL SAĞLIK',
                   style: TextStyle(
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),

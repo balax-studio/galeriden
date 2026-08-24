@@ -30,7 +30,8 @@ class RentACarScreen extends ConsumerWidget {
 
     if (!game.isFeatureUnlocked('/rent-a-car')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('rent_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/rent-a-car',
@@ -40,10 +41,12 @@ class RentACarScreen extends ConsumerWidget {
       );
     }
 
-    final double dailyRentalIncome = game.activeRentals.fold(0.0, (sum, r) => sum + r.dailyRate);
+    final double dailyRentalIncome =
+        game.activeRentals.fold(0.0, (sum, r) => sum + r.dailyRate);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('rent_screen_title'),
       ),
@@ -55,7 +58,8 @@ class RentACarScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Row(
               children: [
@@ -65,11 +69,14 @@ class RentACarScreen extends ConsumerWidget {
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.car_rental_rounded, color: Colors.black, size: 28),
+                  child: const Icon(Icons.car_rental_rounded,
+                      color: Colors.black, size: 28),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -78,17 +85,27 @@ class RentACarScreen extends ConsumerWidget {
                     children: [
                       Text(
                         context.tr('rent_daily_income'),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '${CurrencyFormatter.formatShort(dailyRentalIncome)} ${context.tr('rent_per_day_suffix')}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr('rent_active_count', {'count': '${game.activeRentals.length}'}),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                        context.tr('rent_active_count',
+                            {'count': '${game.activeRentals.length}'}),
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -100,7 +117,8 @@ class RentACarScreen extends ConsumerWidget {
 
           // 2. Active Rentals Section
           Text(
-            context.tr('rent_active_title', {'count': '${game.activeRentals.length}'}),
+            context.tr(
+                'rent_active_title', {'count': '${game.activeRentals.length}'}),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -120,7 +138,8 @@ class RentACarScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             )
           else
-            ...game.activeRentals.map((rental) => _buildRentalCard(context, ref, rental, game, isDark)),
+            ...game.activeRentals.map((rental) =>
+                _buildRentalCard(context, ref, rental, game, isDark)),
 
           const SizedBox(height: 20),
 
@@ -150,7 +169,9 @@ class RentACarScreen extends ConsumerWidget {
     bool isDark,
   ) {
     final car = findFirstWhere(game.ownedCars, (c) => c.id == rental.carId);
-    final carTitle = car != null ? '${car.brand} ${car.modelName}' : context.tr('rent_badge_rented_car');
+    final carTitle = car != null
+        ? '${car.brand} ${car.modelName}'
+        : context.tr('rent_badge_rented_car');
 
     final Color profileBadgeColor;
     final String profileLabel;
@@ -170,7 +191,8 @@ class RentACarScreen extends ConsumerWidget {
       profileIcon = Icons.person_rounded;
     }
 
-    final netDaily = rental.dailyRate - (rental.hasInsurance ? rental.insuranceDailyFee : 0.0);
+    final netDaily = rental.dailyRate -
+        (rental.hasInsurance ? rental.insuranceDailyFee : 0.0);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -187,7 +209,8 @@ class RentACarScreen extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     carTitle,
-                    style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                        fontSize: 14.5, fontWeight: FontWeight.w900),
                   ),
                 ),
                 NeoBrutalBadge(
@@ -215,7 +238,10 @@ class RentACarScreen extends ConsumerWidget {
                 const SizedBox(width: 4),
                 Text(
                   context.tr('rent_renter_label', {'name': rental.renterName}),
-                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF64748B)),
                 ),
               ],
             ),
@@ -227,13 +253,24 @@ class RentACarScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr('rent_net_daily', {'amt': CurrencyFormatter.formatShort(netDaily)}),
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        context.tr('rent_net_daily',
+                            {'amt': CurrencyFormatter.formatShort(netDaily)}),
+                        style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr('rent_total_earned_days', {'earned': CurrencyFormatter.formatShort(rental.totalEarned), 'days': '${rental.rentedDays}'}),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        context.tr('rent_total_earned_days', {
+                          'earned':
+                              CurrencyFormatter.formatShort(rental.totalEarned),
+                          'days': '${rental.rentedDays}'
+                        }),
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -243,11 +280,15 @@ class RentACarScreen extends ConsumerWidget {
                   backgroundColor: AppColors.errorRed,
                   textColor: Colors.white,
                   fontSize: 10.5,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   onPressed: () {
-                    final success = ref.read(gameProvider.notifier).returnRentedCar(rental.id);
+                    final success = ref
+                        .read(gameProvider.notifier)
+                        .returnRentedCar(rental.id);
                     if (success) {
-                      NotificationService.showSuccess(context, context.tr('rent_toast_rental_ended'));
+                      NotificationService.showSuccess(
+                          context, context.tr('rent_toast_rental_ended'));
                     }
                   },
                 ),
@@ -266,19 +307,25 @@ class RentACarScreen extends ConsumerWidget {
     bool isDark,
   ) {
     final rentedCarIds = game.activeRentals.map((r) => r.carId).toSet();
-    final availableCars = game.ownedCars.where((c) => !c.isRented && !rentedCarIds.contains(c.id)).toList();
+    final availableCars = game.ownedCars
+        .where((c) => !c.isRented && !rentedCarIds.contains(c.id))
+        .toList();
 
     if (availableCars.isEmpty) {
       return [
         NeoBrutalCard(
           padding: const EdgeInsets.all(20),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
           child: Center(
             child: Text(
               context.tr('rent_no_available_cars'),
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF64748B)),
             ),
           ),
         ),
@@ -293,7 +340,8 @@ class RentACarScreen extends ConsumerWidget {
         child: NeoBrutalCard(
           padding: const EdgeInsets.all(12),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 12,
           child: Row(
             children: [
@@ -301,11 +349,14 @@ class RentACarScreen extends ConsumerWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFE2E8F0),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.black, width: 1.2),
                 ),
-                child: const Icon(Icons.directions_car_rounded, color: AppColors.brutalYellow, size: 24),
+                child: const Icon(Icons.directions_car_rounded,
+                    color: AppColors.brutalYellow, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -314,12 +365,19 @@ class RentACarScreen extends ConsumerWidget {
                   children: [
                     Text(
                       '${car.brand} ${car.modelName}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      context.tr('rent_car_value', {'val': CurrencyFormatter.formatShort(car.currentPurchasePrice)}),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                      context.tr('rent_car_value', {
+                        'val': CurrencyFormatter.formatShort(
+                            car.currentPurchasePrice)
+                      }),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -329,8 +387,10 @@ class RentACarScreen extends ConsumerWidget {
                 backgroundColor: AppColors.brutalGreen,
                 textColor: Colors.black,
                 fontSize: 11,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                onPressed: () => _showRentDialog(context, ref, car, suggestedDailyRate, isDark),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                onPressed: () => _showRentDialog(
+                    context, ref, car, suggestedDailyRate, isDark),
               ),
             ],
           ),
@@ -347,10 +407,12 @@ class RentACarScreen extends ConsumerWidget {
     bool isDark,
   ) {
     double currentRate = suggestedRate.clamp(100.0, 50000.0);
-    final double maxAllowedRate = (car.currentPurchasePrice * 0.016).clamp(100.0, 60000.0);
+    final double maxAllowedRate =
+        (car.currentPurchasePrice * 0.016).clamp(100.0, 60000.0);
     String selectedRenterType = 'individual';
     bool hasInsurance = false;
-    final insuranceDailyFee = (car.currentPurchasePrice * 0.001).clamp(150.0, 1500.0);
+    final insuranceDailyFee =
+        (car.currentPurchasePrice * 0.001).clamp(150.0, 1500.0);
 
     showModalBottomSheet(
       context: context,
@@ -359,18 +421,35 @@ class RentACarScreen extends ConsumerWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setState) {
-            final double demandRatio = 1.0 - ((currentRate - suggestedRate) / (maxAllowedRate - suggestedRate + 0.1)).clamp(0.0, 0.85);
+            final double demandRatio = 1.0 -
+                ((currentRate - suggestedRate) /
+                        (maxAllowedRate - suggestedRate + 0.1))
+                    .clamp(0.0, 0.85);
             final int demandPercent = (demandRatio * 100).round();
-            final netRate = currentRate - (hasInsurance ? insuranceDailyFee : 0.0);
+            final netRate =
+                currentRate - (hasInsurance ? insuranceDailyFee : 0.0);
 
             return Container(
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF141721) : Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
                 border: Border(
-                  top: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 2.5),
-                  left: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 2.5),
-                  right: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 2.5),
+                  top: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
+                      width: 2.5),
+                  left: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
+                      width: 2.5),
+                  right: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
+                      width: 2.5),
                 ),
               ),
               padding: const EdgeInsets.all(20),
@@ -380,13 +459,19 @@ class RentACarScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.tr('rent_modal_title', {'brand': car.brand, 'model': car.modelName}),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                      context.tr('rent_modal_title',
+                          {'brand': car.brand, 'model': car.modelName}),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 12),
 
                     // 1. Müşteri Profili Seçimi
-                    Text(context.tr('rent_customer_profile_title'), style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                    Text(context.tr('rent_customer_profile_title'),
+                        style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF64748B))),
                     const SizedBox(height: 6),
                     Row(
                       children: [
@@ -398,7 +483,8 @@ class RentACarScreen extends ConsumerWidget {
                             isSelected: selectedRenterType == 'corporate',
                             color: const Color(0xFF38BDF8),
                             isDark: isDark,
-                            onTap: () => setState(() => selectedRenterType = 'corporate'),
+                            onTap: () => setState(
+                                () => selectedRenterType = 'corporate'),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -410,7 +496,8 @@ class RentACarScreen extends ConsumerWidget {
                             isSelected: selectedRenterType == 'individual',
                             color: AppColors.brutalYellow,
                             isDark: isDark,
-                            onTap: () => setState(() => selectedRenterType = 'individual'),
+                            onTap: () => setState(
+                                () => selectedRenterType = 'individual'),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -422,7 +509,8 @@ class RentACarScreen extends ConsumerWidget {
                             isSelected: selectedRenterType == 'young_driver',
                             color: const Color(0xFFF97316),
                             isDark: isDark,
-                            onTap: () => setState(() => selectedRenterType = 'young_driver'),
+                            onTap: () => setState(
+                                () => selectedRenterType = 'young_driver'),
                           ),
                         ),
                       ],
@@ -431,22 +519,39 @@ class RentACarScreen extends ConsumerWidget {
 
                     // 2. Kasko Poliçesi Toggle
                     NeoBrutalCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
-                      borderColor: hasInsurance ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFF8FAFC),
+                      borderColor: hasInsurance
+                          ? AppColors.brutalGreen
+                          : (isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFFCBD5E1)),
                       borderRadius: 10,
                       child: Row(
                         children: [
-                          const Icon(Icons.shield_rounded, color: AppColors.brutalGreen, size: 24),
+                          const Icon(Icons.shield_rounded,
+                              color: AppColors.brutalGreen, size: 24),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(context.tr('rent_commercial_insurance'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                                Text(context.tr('rent_commercial_insurance'),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900)),
                                 Text(
-                                  context.tr('rent_insurance_fee_desc', {'fee': CurrencyFormatter.formatShort(insuranceDailyFee)}),
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                                  context.tr('rent_insurance_fee_desc', {
+                                    'fee': CurrencyFormatter.formatShort(
+                                        insuranceDailyFee)
+                                  }),
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF64748B)),
                                 ),
                               ],
                             ),
@@ -454,7 +559,8 @@ class RentACarScreen extends ConsumerWidget {
                           Switch.adaptive(
                             value: hasInsurance,
                             activeTrackColor: AppColors.brutalGreen,
-                            onChanged: (val) => setState(() => hasInsurance = val),
+                            onChanged: (val) =>
+                                setState(() => hasInsurance = val),
                           ),
                         ],
                       ),
@@ -464,29 +570,49 @@ class RentACarScreen extends ConsumerWidget {
                     // 3. Rayic & Demand Card
                     NeoBrutalCard(
                       padding: const EdgeInsets.all(12),
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFF1F5F9),
+                      borderColor: isDark
+                          ? const Color(0xFF2A3142)
+                          : const Color(0xFF0F172A),
                       borderRadius: 10,
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(context.tr('rent_suggested_rate'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                              Text(
+                              Expanded(
+                                  child: Text(context.tr('rent_suggested_rate'),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700))),
+                              Expanded(
+                                  child: Text(
                                 '${CurrencyFormatter.formatShort(suggestedRate)} ${context.tr('rent_per_day_suffix')}',
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                              ),
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.brutalGreen),
+                              )),
                             ],
                           ),
                           const SizedBox(height: 6),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(context.tr('rent_customer_demand_rate'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                              Expanded(
+                                  child: Text(
+                                      context.tr('rent_customer_demand_rate'),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700))),
                               NeoBrutalBadge(
-                                text: context.tr('rent_demand_badge', {'pct': '$demandPercent'}),
-                                backgroundColor: demandPercent > 60 ? AppColors.brutalGreen : AppColors.brutalYellow,
+                                text: context.tr('rent_demand_badge',
+                                    {'pct': '$demandPercent'}),
+                                backgroundColor: demandPercent > 60
+                                    ? AppColors.brutalGreen
+                                    : AppColors.brutalYellow,
                                 textColor: Colors.black,
                                 fontSize: 10,
                               ),
@@ -501,7 +627,8 @@ class RentACarScreen extends ConsumerWidget {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.remove_circle, color: AppColors.errorRed, size: 28),
+                          icon: const Icon(Icons.remove_circle,
+                              color: AppColors.errorRed, size: 28),
                           onPressed: () {
                             HapticFeedback.selectionClick();
                             setState(() {
@@ -514,22 +641,31 @@ class RentACarScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 '${CurrencyFormatter.formatShort(currentRate)} ${context.tr('rent_per_day_suffix')}',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w900),
                               ),
                               if (hasInsurance)
                                 Text(
-                                  context.tr('rent_net_income', {'inc': CurrencyFormatter.formatShort(netRate)}),
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                                  context.tr('rent_net_income', {
+                                    'inc':
+                                        CurrencyFormatter.formatShort(netRate)
+                                  }),
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.brutalGreen),
                                 ),
                             ],
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.add_circle, color: AppColors.brutalGreen, size: 28),
+                          icon: const Icon(Icons.add_circle,
+                              color: AppColors.brutalGreen, size: 28),
                           onPressed: () {
                             HapticFeedback.selectionClick();
                             setState(() {
-                              if (currentRate + 100 <= maxAllowedRate) currentRate += 100;
+                              if (currentRate + 100 <= maxAllowedRate)
+                                currentRate += 100;
                             });
                           },
                         ),
@@ -546,11 +682,11 @@ class RentACarScreen extends ConsumerWidget {
                       fullWidth: true,
                       onPressed: () {
                         final success = ref.read(gameProvider.notifier).rentCar(
-                          car.id,
-                          currentRate,
-                          renterType: selectedRenterType,
-                          hasInsurance: hasInsurance,
-                        );
+                              car.id,
+                              currentRate,
+                              renterType: selectedRenterType,
+                              hasInsurance: hasInsurance,
+                            );
                         Navigator.pop(ctx);
                         if (success) {
                           NotificationService.showSuccess(
@@ -588,10 +724,14 @@ class RentACarScreen extends ConsumerWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
-          color: isSelected ? color : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
+          color: isSelected
+              ? color
+              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? Colors.black : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+            color: isSelected
+                ? Colors.black
+                : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
             width: isSelected ? 2.0 : 1.0,
           ),
         ),
@@ -603,7 +743,9 @@ class RentACarScreen extends ConsumerWidget {
                 Icon(
                   icon,
                   size: 11,
-                  color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black87),
+                  color: isSelected
+                      ? Colors.black
+                      : (isDark ? Colors.white : Colors.black87),
                 ),
                 const SizedBox(width: 3),
                 Text(
@@ -611,7 +753,9 @@ class RentACarScreen extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
-                    color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black87),
+                    color: isSelected
+                        ? Colors.black
+                        : (isDark ? Colors.white : Colors.black87),
                   ),
                 ),
               ],

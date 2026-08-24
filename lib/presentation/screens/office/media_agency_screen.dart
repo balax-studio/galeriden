@@ -26,10 +26,12 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
     final isDark = p.isDark;
     final game = ref.watch(gameProvider);
     final activePr = game.activePrCampaign;
-    final isCampaignRunning = activePr != null && activePr.isActive(game.currentDay);
+    final isCampaignRunning =
+        activePr != null && activePr.isActive(game.currentDay);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('media_agency_title'),
         actions: [
@@ -54,14 +56,16 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
             NeoBrutalCard(
               borderColor: const Color(0xFF38BDF8),
               borderWidth: 2.5,
-              backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF0F9FF),
+              backgroundColor:
+                  isDark ? const Color(0xFF0F172A) : const Color(0xFFF0F9FF),
               padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.bolt_rounded, color: Color(0xFF38BDF8), size: 24),
+                      const Icon(Icons.bolt_rounded,
+                          color: Color(0xFF38BDF8), size: 24),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -75,7 +79,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                         ),
                       ),
                       NeoBrutalBadge(
-                        text: context.tr('media_duration_badge', {'days': '${activePr.remainingDays(game.currentDay)}'}),
+                        text: context.tr('media_duration_badge', {
+                          'days': '${activePr.remainingDays(game.currentDay)}'
+                        }),
                         backgroundColor: const Color(0xFF38BDF8),
                         textColor: Colors.black,
                         fontWeight: FontWeight.w900,
@@ -98,16 +104,30 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                       color: isDark ? const Color(0xFF1E293B) : Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF334155) : const Color(0xFFBAE6FD),
+                        color: isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFFBAE6FD),
                         width: 1.5,
                       ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatItem(context.tr('media_stat_customer_flow'), '+%${((activePr.customerFlowMultiplier - 1) * 100).toInt()}', const Color(0xFF10B981), isDark),
-                        _buildStatItem(context.tr('media_stat_offer_price'), '+%${(activePr.offerPriceBoost * 100).toInt()}', const Color(0xFFFFDE59), isDark),
-                        _buildStatItem(context.tr('media_stat_negotiation_ease'), '-%${(activePr.negotiationResistanceReduction * 100).toInt()}', const Color(0xFF38BDF8), isDark),
+                        _buildStatItem(
+                            context.tr('media_stat_customer_flow'),
+                            '+%${((activePr.customerFlowMultiplier - 1) * 100).toInt()}',
+                            const Color(0xFF10B981),
+                            isDark),
+                        _buildStatItem(
+                            context.tr('media_stat_offer_price'),
+                            '+%${(activePr.offerPriceBoost * 100).toInt()}',
+                            const Color(0xFFFFDE59),
+                            isDark),
+                        _buildStatItem(
+                            context.tr('media_stat_negotiation_ease'),
+                            '-%${(activePr.negotiationResistanceReduction * 100).toInt()}',
+                            const Color(0xFF38BDF8),
+                            isDark),
                       ],
                     ),
                   ),
@@ -117,7 +137,8 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
             const SizedBox(height: 14),
           ] else ...[
             NeoBrutalCard(
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderWidth: 2,
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               padding: const EdgeInsets.all(14),
@@ -128,9 +149,14 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF38BDF8),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A), width: 1.5),
+                      border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFF0F172A),
+                          width: 1.5),
                     ),
-                    child: const Icon(Icons.campaign_rounded, color: Colors.black, size: 24),
+                    child: const Icon(Icons.campaign_rounded,
+                        color: Colors.black, size: 24),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -139,7 +165,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                        color: isDark
+                            ? const Color(0xFFCBD5E1)
+                            : const Color(0xFF475569),
                         height: 1.3,
                       ),
                     ),
@@ -164,17 +192,22 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
           // Campaign Cards
           ...PrCampaignModel.campaigns.map((campaign) {
             final canAfford = game.balance >= campaign.cost;
-            final isCurrent = activePr?.campaignId == campaign.id && isCampaignRunning;
+            final isCurrent =
+                activePr?.campaignId == campaign.id && isCampaignRunning;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 borderColor: isCurrent
                     ? const Color(0xFF38BDF8)
-                    : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                    : (isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFF0F172A)),
                 borderWidth: isCurrent ? 2.5 : 2,
                 backgroundColor: isCurrent
-                    ? (isDark ? const Color(0xFF0F172A) : const Color(0xFFF0F9FF))
+                    ? (isDark
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFFF0F9FF))
                     : (isDark ? const Color(0xFF141721) : Colors.white),
                 padding: const EdgeInsets.all(14),
                 child: Column(
@@ -189,7 +222,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                             color: _getCampaignIconBg(campaign.id, isDark),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFF0F172A),
                               width: 2,
                             ),
                           ),
@@ -209,21 +244,28 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                                 style: TextStyle(
                                   fontSize: 14.5,
                                   fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Row(
                                 children: [
                                   NeoBrutalBadge(
-                                    text: context.tr('media_duration_badge', {'days': campaign.durationDays}),
-                                    backgroundColor: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                                    textColor: isDark ? Colors.white : Colors.black,
+                                    text: context.tr('media_duration_badge',
+                                        {'days': campaign.durationDays}),
+                                    backgroundColor: isDark
+                                        ? const Color(0xFF334155)
+                                        : const Color(0xFFE2E8F0),
+                                    textColor:
+                                        isDark ? Colors.white : Colors.black,
                                     fontSize: 10,
                                   ),
                                   const SizedBox(width: 6),
                                   NeoBrutalBadge(
-                                    text: context.tr('media_reputation_badge', {'points': campaign.reputationReward}),
+                                    text: context.tr('media_reputation_badge',
+                                        {'points': campaign.reputationReward}),
                                     backgroundColor: const Color(0xFFFFDE59),
                                     textColor: Colors.black,
                                     fontSize: 10,
@@ -241,7 +283,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                         height: 1.35,
                       ),
                     ),
@@ -251,9 +295,30 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildPerkChip(context.tr('media_chip_customer_flow', {'percent': ((campaign.customerFlowMultiplier - 1) * 100).toInt()}), const Color(0xFF10B981), isDark),
-                        _buildPerkChip(context.tr('media_chip_offer_value', {'percent': (campaign.offerPriceBoost * 100).toInt()}), const Color(0xFFFFDE59), isDark),
-                        _buildPerkChip(context.tr('media_chip_negotiation_ease', {'percent': (campaign.negotiationResistanceReduction * 100).toInt()}), const Color(0xFF38BDF8), isDark),
+                        _buildPerkChip(
+                            context.tr('media_chip_customer_flow', {
+                              'percent':
+                                  ((campaign.customerFlowMultiplier - 1) * 100)
+                                      .toInt()
+                            }),
+                            const Color(0xFF10B981),
+                            isDark),
+                        _buildPerkChip(
+                            context.tr('media_chip_offer_value', {
+                              'percent':
+                                  (campaign.offerPriceBoost * 100).toInt()
+                            }),
+                            const Color(0xFFFFDE59),
+                            isDark),
+                        _buildPerkChip(
+                            context.tr('media_chip_negotiation_ease', {
+                              'percent':
+                                  (campaign.negotiationResistanceReduction *
+                                          100)
+                                      .toInt()
+                            }),
+                            const Color(0xFF38BDF8),
+                            isDark),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -269,7 +334,9 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: canAfford
-                                    ? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7))
+                                    ? (isDark
+                                        ? const Color(0xFF38BDF8)
+                                        : const Color(0xFF0284C7))
                                     : const Color(0xFFEF4444),
                               ),
                             ),
@@ -281,10 +348,16 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
                               : context.tr('media_btn_start_campaign'),
                           backgroundColor: isCurrent
                               ? const Color(0xFF10B981)
-                              : (canAfford && !isCampaignRunning ? const Color(0xFF38BDF8) : const Color(0xFF64748B)),
-                          textColor: isCurrent || (canAfford && !isCampaignRunning) ? Colors.black : Colors.white,
+                              : (canAfford && !isCampaignRunning
+                                  ? const Color(0xFF38BDF8)
+                                  : const Color(0xFF64748B)),
+                          textColor:
+                              isCurrent || (canAfford && !isCampaignRunning)
+                                  ? Colors.black
+                                  : Colors.white,
                           fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
                           onPressed: canAfford && !isCampaignRunning
                               ? () => _startCampaign(campaign)
                               : null,
@@ -393,7 +466,10 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
     } else {
       NotificationService.showError(
         context,
-        context.tr('media_insufficient_funds_toast', {'cost': CurrencyFormatter.format(campaign.cost), 'agency': campaign.title}),
+        context.tr('media_insufficient_funds_toast', {
+          'cost': CurrencyFormatter.format(campaign.cost),
+          'agency': campaign.title
+        }),
       );
     }
   }

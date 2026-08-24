@@ -48,7 +48,8 @@ class ListingDetailScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.share_rounded),
             onPressed: () {
-              NotificationService.showSuccess(context, context.tr('marketplace_toast_link_copied'));
+              NotificationService.showSuccess(
+                  context, context.tr('marketplace_toast_link_copied'));
             },
           ),
         ],
@@ -73,14 +74,19 @@ class ListingDetailScreen extends ConsumerWidget {
                     color: carColor,
                     width: 140,
                     height: 70,
-                    isClean: car.isWashed || car.isPolished || car.isDetailedCleaned,
+                    isClean:
+                        car.isWashed || car.isPolished || car.isDetailedCleaned,
                   ),
                   const SizedBox(height: 16),
-                  Text(listing.title, style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 20), textAlign: TextAlign.center),
+                  Text(listing.title,
+                      style: AppTypography.titleLarge(p.isDark)
+                          .copyWith(fontSize: 20),
+                      textAlign: TextAlign.center),
                   const SizedBox(height: 6),
                   Text(
                     CurrencyFormatter.format(listing.askingPrice),
-                    style: AppTypography.moneyLarge(p.isDark).copyWith(fontSize: 30, color: p.primaryColor),
+                    style: AppTypography.moneyLarge(p.isDark)
+                        .copyWith(fontSize: 30, color: p.primaryColor),
                   ),
                   const SizedBox(height: 10),
 
@@ -88,28 +94,34 @@ class ListingDetailScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.remove_red_eye_rounded, size: 16, color: p.textSecondaryColor),
+                      Icon(Icons.remove_red_eye_rounded,
+                          size: 16, color: p.textSecondaryColor),
                       const SizedBox(width: 6),
                       Text(
                         'Şu an $viewerCount kişi bu ilanı inceliyor',
-                        style: AppTypography.labelSmall(p.isDark).copyWith(color: p.textSecondaryColor, fontSize: 12),
+                        style: AppTypography.labelSmall(p.isDark).copyWith(
+                            color: p.textSecondaryColor, fontSize: 12),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFDE59).withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFFFDE59), width: 1.5),
+                      border: Border.all(
+                          color: const Color(0xFFFFDE59), width: 1.5),
                     ),
                     child: Text(
                       PsychologyEngine.getRandomFomoText(),
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
-                        color: p.isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309),
+                        color: p.isDark
+                            ? const Color(0xFFFFDE59)
+                            : const Color(0xFFB45309),
                       ),
                     ),
                   ),
@@ -119,7 +131,8 @@ class ListingDetailScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // Sahibinden İlan Bilgi Tablosu
-            Text(context.tr('listing_info_title'), style: AppTypography.labelSmall(p.isDark)),
+            Text(context.tr('listing_info_title'),
+                style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
@@ -129,18 +142,50 @@ class ListingDetailScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  _buildSpecRow(context.tr('listing_no'), '#${listing.id.hashCode.abs().toString().padLeft(10, '0')}', p),
-                  _buildSpecRow(context.tr('listing_date'), context.tr('listing_today_live'), p),
-                  _buildSpecRow(context.tr('listing_location'), listing.sellerCity, p),
-                  _buildSpecRow(context.tr('listing_brand_model'), '${car.brand} ${car.modelName}', p),
-                  _buildSpecRow(context.tr('listing_year'), '${car.modelYear}', p),
+                  _buildSpecRow(
+                      context.tr('listing_no'),
+                      '#${listing.id.hashCode.abs().toString().padLeft(10, '0')}',
+                      p),
+                  _buildSpecRow(context.tr('listing_date'),
+                      context.tr('listing_today_live'), p),
+                  _buildSpecRow(
+                      context.tr('listing_location'), listing.sellerCity, p),
+                  _buildSpecRow(context.tr('listing_brand_model'),
+                      '${car.brand} ${car.modelName}', p),
+                  _buildSpecRow(
+                      context.tr('listing_year'), '${car.modelYear}', p),
                   _buildSpecRow(context.tr('listing_body'), car.bodyType, p),
-                  _buildSpecRow(context.tr('listing_plate'), car.plateNumber.isNotEmpty ? car.plateNumber : '34 TR 001', p),
-                  _buildSpecRow(context.tr('listing_color'), car.colorDisplayName.isNotEmpty ? car.colorDisplayName : 'Metalik Gri', p),
-                  _buildSpecRow(context.tr('listing_mileage'), '${NumberFormat('#,###', 'tr_TR').format(exp.mileage)} KM', p, valueColor: StatColors.getMileageColor(exp.mileage)),
-                  _buildSpecRow(context.tr('listing_engine_cond'), '%${exp.engineCondition.round()}', p, valueColor: StatColors.getEngineColor(exp.engineCondition)),
-                  _buildSpecRow(context.tr('listing_tramer'), exp.tramerAmount == 0 ? context.tr('listing_no_damage') : CurrencyFormatter.formatShort(exp.tramerAmount.toDouble()), p, valueColor: StatColors.getTramerColor(exp.tramerAmount)),
-                  _buildSpecRow(context.tr('listing_seller_profile'), listing.sellerName, p),
+                  _buildSpecRow(
+                      context.tr('listing_plate'),
+                      car.plateNumber.isNotEmpty
+                          ? car.plateNumber
+                          : '34 TR 001',
+                      p),
+                  _buildSpecRow(
+                      context.tr('listing_color'),
+                      car.colorDisplayName.isNotEmpty
+                          ? car.colorDisplayName
+                          : 'Metalik Gri',
+                      p),
+                  _buildSpecRow(
+                      context.tr('listing_mileage'),
+                      '${NumberFormat('#,###', 'tr_TR').format(exp.mileage)} KM',
+                      p,
+                      valueColor: StatColors.getMileageColor(exp.mileage)),
+                  _buildSpecRow(context.tr('listing_engine_cond'),
+                      '%${exp.engineCondition.round()}', p,
+                      valueColor:
+                          StatColors.getEngineColor(exp.engineCondition)),
+                  _buildSpecRow(
+                      context.tr('listing_tramer'),
+                      exp.tramerAmount == 0
+                          ? context.tr('listing_no_damage')
+                          : CurrencyFormatter.formatShort(
+                              exp.tramerAmount.toDouble()),
+                      p,
+                      valueColor: StatColors.getTramerColor(exp.tramerAmount)),
+                  _buildSpecRow(context.tr('listing_seller_profile'),
+                      listing.sellerName, p),
                 ],
               ),
             ),
@@ -150,21 +195,27 @@ class ListingDetailScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(context.tr('listing_body_report_title'), style: AppTypography.labelSmall(p.isDark)),
+                Expanded(
+                    child: Text(context.tr('listing_body_report_title'),
+                        style: AppTypography.labelSmall(p.isDark))),
                 NeoBrutalButton(
                   label: context.tr('listing_detailed_report_btn'),
                   icon: Icons.assignment_outlined,
                   backgroundColor: p.primaryColor,
                   textColor: Colors.black,
-                  borderColor: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  borderColor: p.isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   fontSize: 11,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
-                      builder: (ctx) => ExpertiseReportSheet(car: car, listing: listing),
+                      builder: (ctx) =>
+                          ExpertiseReportSheet(car: car, listing: listing),
                     );
                   },
                 ),
@@ -175,7 +226,8 @@ class ListingDetailScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Seller Description
-            Text(context.tr('listing_seller_desc_title'), style: AppTypography.labelSmall(p.isDark)),
+            Text(context.tr('listing_seller_desc_title'),
+                style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -187,7 +239,8 @@ class ListingDetailScreen extends ConsumerWidget {
               ),
               child: Text(
                 '"${listing.description}"',
-                style: AppTypography.bodyMedium(p.isDark).copyWith(fontStyle: FontStyle.italic, height: 1.4),
+                style: AppTypography.bodyMedium(p.isDark)
+                    .copyWith(fontStyle: FontStyle.italic, height: 1.4),
               ),
             ),
             const SizedBox(height: 100), // Spacing for Sticky Bottom Bar
@@ -198,7 +251,8 @@ class ListingDetailScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: p.surfaceColor,
-          border: Border(top: BorderSide(color: p.surfaceBorderColor, width: 2)),
+          border:
+              Border(top: BorderSide(color: p.surfaceBorderColor, width: 2)),
         ),
         child: SafeArea(
           child: NeoBrutalButton(
@@ -218,20 +272,30 @@ class ListingDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSpecRow(String label, String value, ThemePaletteModel p, {Color? valueColor}) {
+  Widget _buildSpecRow(String label, String value, ThemePaletteModel p,
+      {Color? valueColor}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: p.surfaceBorderColor.withValues(alpha: 0.5), width: 0.5)),
+        border: Border(
+            bottom: BorderSide(
+                color: p.surfaceBorderColor.withValues(alpha: 0.5),
+                width: 0.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: p.textSecondaryColor, fontSize: 13)),
-          Text(
+          Expanded(
+              child: Text(label,
+                  style: TextStyle(color: p.textSecondaryColor, fontSize: 13))),
+          Expanded(
+              child: Text(
             value,
-            style: TextStyle(color: valueColor ?? p.textPrimaryColor, fontWeight: FontWeight.bold, fontSize: 13),
-          ),
+            style: TextStyle(
+                color: valueColor ?? p.textPrimaryColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 13),
+          )),
         ],
       ),
     );

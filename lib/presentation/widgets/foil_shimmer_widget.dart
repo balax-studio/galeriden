@@ -40,7 +40,10 @@ class _FoilShimmerWidgetState extends State<FoilShimmerWidget>
       duration: widget.duration,
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller?.repeat();
     } else {
@@ -124,7 +127,8 @@ class _FoilShimmerPainter extends CustomPainter {
         ],
         stops: const [0.0, 0.35, 0.50, 0.65, 1.0],
       ).createShader(
-        Rect.fromLTWH(currentOffset - shimmerWidth, 0, shimmerWidth * 2, size.height),
+        Rect.fromLTWH(
+            currentOffset - shimmerWidth, 0, shimmerWidth * 2, size.height),
       );
 
     canvas.drawRect(rect, paint);

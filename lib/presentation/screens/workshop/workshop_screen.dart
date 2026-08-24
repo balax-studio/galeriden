@@ -73,14 +73,24 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(context.tr('custom_paint_title'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
-                  NeoBrutalBadge(text: context.tr('custom_paint_sub'), backgroundColor: AppColors.brutalYellow, textColor: Colors.black, fontSize: 10),
+                  Expanded(
+                      child: Text(context.tr('custom_paint_title'),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w900))),
+                  NeoBrutalBadge(
+                      text: context.tr('custom_paint_sub'),
+                      backgroundColor: AppColors.brutalYellow,
+                      textColor: Colors.black,
+                      fontSize: 10),
                 ],
               ),
               const SizedBox(height: 6),
               Text(
                 context.tr('custom_paint_hint'),
-                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 14),
               ...CustomPaintColor.palette.map((paint) {
@@ -88,8 +98,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(10),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
-                    borderColor: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFF8FAFC),
+                    borderColor: isDark
+                        ? const Color(0xFF334155)
+                        : const Color(0xFFCBD5E1),
                     borderRadius: 10,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,15 +116,23 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               decoration: BoxDecoration(
                                 color: paint.color,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.black, width: 2),
+                                border:
+                                    Border.all(color: Colors.black, width: 2),
                               ),
                             ),
                             const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(paint.name, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
-                                Text(CurrencyFormatter.format(paint.cost), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalOrange)),
+                                Text(paint.name,
+                                    style: const TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w900)),
+                                Text(CurrencyFormatter.format(paint.cost),
+                                    style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.brutalOrange)),
                               ],
                             ),
                           ],
@@ -120,19 +142,28 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           backgroundColor: AppColors.brutalYellow,
                           textColor: Colors.black,
                           fontSize: 10.5,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 6),
                           onPressed: () {
                             Navigator.pop(ctx);
                             final game = ref.read(gameProvider);
                             if (game.balance < paint.cost) {
-                              NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.format(paint.cost)} gerekli.');
+                              NotificationService.showError(context,
+                                  'Yetersiz bakiye! ${CurrencyFormatter.format(paint.cost)} gerekli.');
                               return;
                             }
-                            final success = ref.read(gameProvider.notifier).applyCustomPaintRespray(car.id, paint);
+                            final success = ref
+                                .read(gameProvider.notifier)
+                                .applyCustomPaintRespray(car.id, paint);
                             if (success) {
-                              NotificationService.showSuccess(context, context.tr('workshop_toast_paint_done'));
+                              NotificationService.showSuccess(context,
+                                  context.tr('workshop_toast_paint_done'));
                               setState(() {
-                                _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+                                _selectedCar = ref
+                                    .read(gameProvider)
+                                    .ownedCars
+                                    .firstWhere((c) => c.id == car.id,
+                                        orElse: () => car);
                               });
                             }
                           },
@@ -152,9 +183,21 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
   void _showAcousticDiagnosticDialog(BuildContext context, CarModel car) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final diagnoses = [
-      ('Subap ve Piston Vuruntusu', 'subap', 'Metalik şıkırtı ve rölantide ritmik tıklama sesi.'),
-      ('Turbo Şarj Kaçağı ve Islığı', 'turbo', 'Hızlanırken gelen yüksek frekanslı hava üfleme sesi.'),
-      ('Şanzıman Prizdirek Bilyası Uğultusu', 'sanziman', 'Debriyaja basınca kesilen kalın dönme uğultusu.'),
+      (
+        'Subap ve Piston Vuruntusu',
+        'subap',
+        'Metalik şıkırtı ve rölantide ritmik tıklama sesi.'
+      ),
+      (
+        'Turbo Şarj Kaçağı ve Islığı',
+        'turbo',
+        'Hızlanırken gelen yüksek frekanslı hava üfleme sesi.'
+      ),
+      (
+        'Şanzıman Prizdirek Bilyası Uğultusu',
+        'sanziman',
+        'Debriyaja basınca kesilen kalın dönme uğultusu.'
+      ),
     ];
 
     showDialog(
@@ -166,7 +209,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
           child: NeoBrutalCard(
             padding: const EdgeInsets.all(20),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
             borderRadius: 12,
             borderWidth: 2.5,
             shadowOffset: const Offset(4, 4),
@@ -176,15 +220,21 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.hearing_rounded, color: AppColors.brutalOrange, size: 24),
+                    const Icon(Icons.hearing_rounded,
+                        color: AppColors.brutalOrange, size: 24),
                     const SizedBox(width: 8),
-                    Text(context.tr('workshop_engine_diagnose_title'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                    Text(context.tr('workshop_engine_diagnose_title'),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w900)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   '${car.brand} ${car.modelName} motor bloğuna stetoskop bağlandı. Arıza sesini dinleyip doğru teşhisi koy:',
-                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 11.5,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
                 ...diagnoses.map((d) {
@@ -201,17 +251,27 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       borderRadius: BorderRadius.circular(8),
                       child: NeoBrutalCard(
                         padding: const EdgeInsets.all(10),
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                        borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFF1F5F9),
+                        borderColor: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         borderRadius: 8,
                         borderWidth: 1.5,
                         shadowOffset: const Offset(2, 2),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(d.$1, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                            Text(d.$1,
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w900)),
                             const SizedBox(height: 2),
-                            Text(d.$3, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                            Text(d.$3,
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -224,7 +284,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   children: [
                     NeoBrutalButton(
                       label: context.tr('btn_close'),
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white : Colors.black,
                       onPressed: () => Navigator.pop(ctx),
                     ),
@@ -247,7 +309,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
     if (!game.isFeatureUnlocked('/workshop')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('workshop_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/workshop',
@@ -267,15 +330,20 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     }
 
     final hasLift = game.unlockedBuildings.contains('workshop_eq_lift');
-    final hasChassisBench = game.unlockedBuildings.contains('workshop_eq_chassis_bench');
-    final hasPaintBooth = game.unlockedBuildings.contains('workshop_eq_paint_booth');
+    final hasChassisBench =
+        game.unlockedBuildings.contains('workshop_eq_chassis_bench');
+    final hasPaintBooth =
+        game.unlockedBuildings.contains('workshop_eq_paint_booth');
     final paintCostMultiplier = hasPaintBooth ? 0.50 : 1.0;
 
-    final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
-    final hasApprentice = game.hiredStaff.any((s) => s.role == StaffRole.apprentice);
+    final hasMechanic =
+        game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+    final hasApprentice =
+        game.hiredStaff.any((s) => s.role == StaffRole.apprentice);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('workshop_title'),
       ),
@@ -290,8 +358,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 child: NeoBrutalButton(
                   icon: Icons.directions_car_rounded,
                   label: context.tr('tab_garage_repairs'),
-                  backgroundColor: _activeTopTab == 0 ? AppColors.brutalYellow : (isDark ? const Color(0xFF141721) : Colors.white),
-                  textColor: _activeTopTab == 0 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                  backgroundColor: _activeTopTab == 0
+                      ? AppColors.brutalYellow
+                      : (isDark ? const Color(0xFF141721) : Colors.white),
+                  textColor: _activeTopTab == 0
+                      ? Colors.black
+                      : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   onPressed: () => setState(() => _activeTopTab = 0),
@@ -301,9 +373,14 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Expanded(
                 child: NeoBrutalButton(
                   icon: Icons.build_rounded,
-                  label: '${context.tr('tab_customer_repairs')} • ${_customerJobs.length}',
-                  backgroundColor: _activeTopTab == 1 ? AppColors.brutalGreen : (isDark ? const Color(0xFF141721) : Colors.white),
-                  textColor: _activeTopTab == 1 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                  label:
+                      '${context.tr('tab_customer_repairs')} • ${_customerJobs.length}',
+                  backgroundColor: _activeTopTab == 1
+                      ? AppColors.brutalGreen
+                      : (isDark ? const Color(0xFF141721) : Colors.white),
+                  textColor: _activeTopTab == 1
+                      ? Colors.black
+                      : (isDark ? Colors.white70 : Colors.black87),
                   fontSize: 11,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   onPressed: () => setState(() => _activeTopTab = 1),
@@ -322,14 +399,19 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               borderRadius: 10,
               child: Row(
                 children: [
-                  const Icon(Icons.verified_user_rounded, color: AppColors.brutalGreen, size: 18),
+                  const Icon(Icons.verified_user_rounded,
+                      color: AppColors.brutalGreen, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       hasMechanic && hasApprentice
                           ? context.tr('workshop_staff_synergy_both')
-                          : (hasMechanic ? context.tr('workshop_staff_synergy_mechanic') : context.tr('workshop_staff_synergy_apprentice')),
-                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+                          : (hasMechanic
+                              ? context.tr('workshop_staff_synergy_mechanic')
+                              : context
+                                  .tr('workshop_staff_synergy_apprentice')),
+                      style: const TextStyle(
+                          fontSize: 10.5, fontWeight: FontWeight.w700),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -339,23 +421,30 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 9.5,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     onPressed: () {
                       final game = ref.read(gameProvider);
                       if (game.hiredStaff.isEmpty) {
-                        NotificationService.showWarning(context, context.tr('staff_no_staff_hired'));
+                        NotificationService.showWarning(
+                            context, context.tr('staff_no_staff_hired'));
                         return;
                       }
                       if (game.hiredStaff.every((s) => s.morale >= 100)) {
-                        NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+                        NotificationService.showInfo(
+                            context, context.tr('staff_morale_already_full'));
                         return;
                       }
-                      final success = ref.read(gameProvider.notifier).treatWorkshopStaffSnack();
+                      final success = ref
+                          .read(gameProvider.notifier)
+                          .treatWorkshopStaffSnack();
                       if (success) {
-                        NotificationService.showSuccess(context, context.tr('workshop_toast_staff_morale'));
+                        NotificationService.showSuccess(
+                            context, context.tr('workshop_toast_staff_morale'));
                         setState(() {});
                       } else {
-                        NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
+                        NotificationService.showError(context,
+                            context.tr('stock_insufficient_funds_toast'));
                       }
                     },
                   ),
@@ -370,7 +459,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
             if (!hasMechanic)
               NeoBrutalCard(
                 padding: const EdgeInsets.all(20),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
                 borderColor: AppColors.brutalOrange,
                 borderRadius: 14,
                 child: Column(
@@ -380,20 +470,26 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.brutalOrange.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.brutalOrange, width: 2),
+                        border:
+                            Border.all(color: AppColors.brutalOrange, width: 2),
                       ),
-                      child: const Icon(Icons.build_circle_rounded, size: 36, color: AppColors.brutalOrange),
+                      child: const Icon(Icons.build_circle_rounded,
+                          size: 36, color: AppColors.brutalOrange),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       context.tr('workshop_locked_service_title'),
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       context.tr('workshop_locked_service_desc'),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 16),
                     NeoBrutalButton(
@@ -420,28 +516,34 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Expanded(
+                      child: Text(
                     context.tr('workshop_customer_repairs_title'),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                  ),
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w900),
+                  )),
                   NeoBrutalButton(
                     label: context.tr('workshop_btn_scan_jobs'),
                     icon: Icons.refresh_rounded,
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fontSize: 10,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     onPressed: () {
                       setState(() {
-                        _customerJobs = CustomerRepairJob.generateRandomJobs(count: 4);
+                        _customerJobs =
+                            CustomerRepairJob.generateRandomJobs(count: 4);
                       });
-                      NotificationService.showSuccess(context, 'Yeni müşteri tamir talepleri listelendi!');
+                      NotificationService.showSuccess(
+                          context, 'Yeni müşteri tamir talepleri listelendi!');
                     },
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-
               if (_customerJobs.isEmpty)
                 NeoBrutalCard(
                   padding: const EdgeInsets.all(20),
@@ -451,103 +553,142 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                   ),
                 )
               else
-              ..._customerJobs.map((job) {
-                final netProfit = job.laborReward - job.partsCost;
+                ..._customerJobs.map((job) {
+                  final netProfit = job.laborReward - job.partsCost;
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: NeoBrutalCard(
-                    padding: const EdgeInsets.all(14),
-                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                    borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-                    borderRadius: 14,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.brutalGreen,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.black, width: 1.5),
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: NeoBrutalCard(
+                      padding: const EdgeInsets.all(14),
+                      backgroundColor:
+                          isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark
+                          ? const Color(0xFF2A3142)
+                          : const Color(0xFF0F172A),
+                      borderRadius: 14,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.brutalGreen,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Colors.black, width: 1.5),
+                                    ),
+                                    child: Icon(job.jobType.icon,
+                                        color: Colors.black, size: 18),
                                   ),
-                                  child: Icon(job.jobType.icon, color: Colors.black, size: 18),
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(job.customerName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
-                                    Text(job.carModelName, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            if (job.isUrgent)
-                              NeoBrutalBadge(
-                                icon: Icons.bolt_rounded,
-                                text: context.tr('workshop_badge_urgent'),
-                                backgroundColor: AppColors.errorRed,
-                                textColor: Colors.white,
-                                fontSize: 9.5,
+                                  const SizedBox(width: 10),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(job.customerName,
+                                          style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w900)),
+                                      Text(job.carModelName,
+                                          style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF64748B),
+                                              fontWeight: FontWeight.w700)),
+                                    ],
+                                  ),
+                                ],
                               ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(8),
+                              if (job.isUrgent)
+                                NeoBrutalBadge(
+                                  icon: Icons.bolt_rounded,
+                                  text: context.tr('workshop_badge_urgent'),
+                                  backgroundColor: AppColors.errorRed,
+                                  textColor: Colors.white,
+                                  fontSize: 9.5,
+                                ),
+                            ],
                           ),
-                          child: Text(
-                            '"${job.customerStory}"',
-                            style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF0C0E14)
+                                  : const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '"${job.customerStory}"',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontStyle: FontStyle.italic,
+                                  color: Color(0xFF64748B),
+                                  fontWeight: FontWeight.w600),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(context.tr('workshop_parts_cost', {'cost': CurrencyFormatter.formatShort(job.partsCost)}), style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
-                                Text(context.tr('workshop_net_profit', {'profit': CurrencyFormatter.format(netProfit)}), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
-                              ],
-                            ),
-                            NeoBrutalButton(
-                              label: context.tr('workshop_repair_earn_btn'),
-                              icon: Icons.handshake_rounded,
-                              backgroundColor: AppColors.brutalGreen,
-                              textColor: Colors.black,
-                              fontSize: 11,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              onPressed: () {
-                                final success = ref.read(gameProvider.notifier).completeCustomerRepairJob(job);
-                                if (success) {
-                                  NotificationService.showSuccess(
-                                    context,
-                                    '${job.customerName} aracını teslim aldı! +${CurrencyFormatter.format(netProfit)} net kâr & +${job.masteryXpReward} XP kazanıldı.',
-                                  );
-                                  setState(() {
-                                    _customerJobs.removeWhere((j) => j.id == job.id);
-                                  });
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      context.tr('workshop_parts_cost', {
+                                        'cost': CurrencyFormatter.formatShort(
+                                            job.partsCost)
+                                      }),
+                                      style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Color(0xFF64748B),
+                                          fontWeight: FontWeight.w700)),
+                                  Text(
+                                      context.tr('workshop_net_profit', {
+                                        'profit':
+                                            CurrencyFormatter.format(netProfit)
+                                      }),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.brutalGreen)),
+                                ],
+                              ),
+                              NeoBrutalButton(
+                                label: context.tr('workshop_repair_earn_btn'),
+                                icon: Icons.handshake_rounded,
+                                backgroundColor: AppColors.brutalGreen,
+                                textColor: Colors.black,
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 8),
+                                onPressed: () {
+                                  final success = ref
+                                      .read(gameProvider.notifier)
+                                      .completeCustomerRepairJob(job);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      '${job.customerName} aracını teslim aldı! +${CurrencyFormatter.format(netProfit)} net kâr & +${job.masteryXpReward} XP kazanıldı.',
+                                    );
+                                    setState(() {
+                                      _customerJobs
+                                          .removeWhere((j) => j.id == job.id);
+                                    });
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
             ],
           ] else ...[
             // ================= GARAJ ARAÇLARIM & ONARIM TABI =================
@@ -566,8 +707,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               // VIP Tuning Banner Nav
               NeoBrutalCard(
                 padding: const EdgeInsets.all(12),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor:
+                    isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
                 borderRadius: 12,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -581,19 +724,31 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               color: AppColors.brutalYellow,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 2.0,
                               ),
                             ),
-                            child: const Icon(Icons.speed_rounded, color: Colors.black, size: 20),
+                            child: const Icon(Icons.speed_rounded,
+                                color: Colors.black, size: 20),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(context.tr('workshop_tuning_studio_title'), style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
-                                Text(context.tr('workshop_tuning_studio_subtitle'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                                Text(context.tr('workshop_tuning_studio_title'),
+                                    style: const TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w900)),
+                                Text(
+                                    context
+                                        .tr('workshop_tuning_studio_subtitle'),
+                                    style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF64748B))),
                               ],
                             ),
                           ),
@@ -602,13 +757,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     ),
                     const SizedBox(width: 8),
                     NeoBrutalButton(
-                      label: game.isFeatureUnlocked('/tuning-studio') ? context.tr('workshop_btn_tuning_enter') : context.tr('locked_badge'),
+                      label: game.isFeatureUnlocked('/tuning-studio')
+                          ? context.tr('workshop_btn_tuning_enter')
+                          : context.tr('locked_badge'),
                       backgroundColor: game.isFeatureUnlocked('/tuning-studio')
                           ? AppColors.brutalYellow
                           : const Color(0xFF64748B),
-                      textColor: game.isFeatureUnlocked('/tuning-studio') ? Colors.black : Colors.white,
+                      textColor: game.isFeatureUnlocked('/tuning-studio')
+                          ? Colors.black
+                          : Colors.white,
                       fontSize: 10.5,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       onPressed: () {
                         if (game.isFeatureUnlocked('/tuning-studio')) {
                           context.push('/tuning-studio');
@@ -627,7 +787,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
               // Car Selector Carousel
               Text(
-                context.tr('workshop_select_car_title', {'count': game.ownedCars.length.toString()}),
+                context.tr('workshop_select_car_title',
+                    {'count': game.ownedCars.length.toString()}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -641,12 +802,14 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: game.ownedCars.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final car = game.ownedCars[index];
                     final isSelected = _selectedCar?.id == car.id;
                     final exp = car.expertise;
-                    final isPerfect = exp.engineCondition >= 95 && exp.transmissionCondition >= 95;
+                    final isPerfect = exp.engineCondition >= 95 &&
+                        exp.transmissionCondition >= 95;
 
                     return GestureDetector(
                       onTap: () => setState(() => _selectedCar = car),
@@ -655,11 +818,19 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFFEF3C7))
-                              : (isDark ? const Color(0xFF141721) : Colors.white),
+                              ? (isDark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFFEF3C7))
+                              : (isDark
+                                  ? const Color(0xFF141721)
+                                  : Colors.white),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                            color: isSelected
+                                ? const Color(0xFFFF7A00)
+                                : (isDark
+                                    ? const Color(0xFF334155)
+                                    : const Color(0xFF0F172A)),
                             width: isSelected ? 2.5 : 2.0,
                           ),
                         ),
@@ -667,22 +838,47 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(car.brand, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF64748B)), maxLines: 1),
-                            Text(car.modelName, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(car.brand,
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF64748B)),
+                                maxLines: 1),
+                            Text(car.modelName,
+                                style: const TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w900),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 4),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Flexible(
                                   child: NeoBrutalBadge(
-                                    text: isPerfect ? context.tr('workshop_badge_perfect') : context.tr('workshop_badge_engine_cond', {'val': exp.engineCondition.toInt().toString()}),
-                                    backgroundColor: isPerfect ? const Color(0xFF00E575) : const Color(0xFFFF7A00),
+                                    text: isPerfect
+                                        ? context.tr('workshop_badge_perfect')
+                                        : context.tr(
+                                            'workshop_badge_engine_cond', {
+                                            'val': exp.engineCondition
+                                                .toInt()
+                                                .toString()
+                                          }),
+                                    backgroundColor: isPerfect
+                                        ? const Color(0xFF00E575)
+                                        : const Color(0xFFFF7A00),
                                     textColor: Colors.black,
                                     fontSize: 8.5,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Text(CurrencyFormatter.formatShort(car.baseMarketValue), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900)),
+                                Expanded(
+                                    child: Text(
+                                        CurrencyFormatter.formatShort(
+                                            car.baseMarketValue),
+                                        style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w900))),
                               ],
                             ),
                           ],
@@ -698,8 +894,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               if (_selectedCar != null) ...[
                 NeoBrutalCard(
                   padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   borderRadius: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -712,22 +911,32 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               color: const Color(0xFFFF7A00),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 2.0,
                               ),
                             ),
-                            child: const Icon(Icons.car_repair_rounded, color: Colors.black, size: 24),
+                            child: const Icon(Icons.car_repair_rounded,
+                                color: Colors.black, size: 24),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('${_selectedCar!.brand} ${_selectedCar!.modelName}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                                Text(
+                                    '${_selectedCar!.brand} ${_selectedCar!.modelName}',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900)),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${context.tr('car_card_market_value')}: ${CurrencyFormatter.format(_selectedCar!.estimatedRealValue)} • ${context.tr('workshop_badge_perfect')}: ${CurrencyFormatter.formatShort(_selectedCar!.baseMarketValue)} • ${_selectedCar!.modelYear}',
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF64748B)),
                                 ),
                               ],
                             ),
@@ -750,7 +959,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: _buildHealthBar(
                               label: context.tr('car_expertise_transmission'),
-                              percent: _selectedCar!.expertise.transmissionCondition,
+                              percent:
+                                  _selectedCar!.expertise.transmissionCondition,
                               isDark: isDark,
                             ),
                           ),
@@ -764,23 +974,41 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.oil_barrel_rounded,
-                              label: _selectedCar!.isPeriodicMaintained ? context.tr('workshop_btn_10k_maintained') : context.tr('workshop_btn_10k_service'),
-                              backgroundColor: _selectedCar!.isPeriodicMaintained ? const Color(0xFF1E2330) : AppColors.brutalYellow,
-                              textColor: _selectedCar!.isPeriodicMaintained ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                              label: _selectedCar!.isPeriodicMaintained
+                                  ? context.tr('workshop_btn_10k_maintained')
+                                  : context.tr('workshop_btn_10k_service'),
+                              backgroundColor:
+                                  _selectedCar!.isPeriodicMaintained
+                                      ? const Color(0xFF1E2330)
+                                      : AppColors.brutalYellow,
+                              textColor: _selectedCar!.isPeriodicMaintained
+                                  ? (isDark ? Colors.white54 : Colors.black54)
+                                  : Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               onPressed: _selectedCar!.isPeriodicMaintained
                                   ? null
                                   : () {
                                       if (game.balance < 3500) {
-                                        NotificationService.showError(context, 'Yetersiz bakiye! ₺3.500 gerekli.');
+                                        NotificationService.showError(context,
+                                            'Yetersiz bakiye! ₺3.500 gerekli.');
                                         return;
                                       }
-                                      final success = ref.read(gameProvider.notifier).performPeriodicMaintenance(_selectedCar!.id);
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .performPeriodicMaintenance(
+                                              _selectedCar!.id);
                                       if (success) {
-                                        NotificationService.showSuccess(context, 'Yağ, buji ve filtreler yenilendi • +%15 Kondisyon!');
+                                        NotificationService.showSuccess(context,
+                                            'Yağ, buji ve filtreler yenilendi • +%15 Kondisyon!');
                                         setState(() {
-                                          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                          _selectedCar = ref
+                                              .read(gameProvider)
+                                              .ownedCars
+                                              .firstWhere(
+                                                  (c) =>
+                                                      c.id == _selectedCar!.id,
+                                                  orElse: () => _selectedCar!);
                                         });
                                       }
                                     },
@@ -795,7 +1023,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               textColor: Colors.white,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: () => _showColorPickerSheet(context, _selectedCar!),
+                              onPressed: () =>
+                                  _showColorPickerSheet(context, _selectedCar!),
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -807,7 +1036,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               textColor: Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: () => _showAcousticDiagnosticDialog(context, _selectedCar!),
+                              onPressed: () => _showAcousticDiagnosticDialog(
+                                  context, _selectedCar!),
                             ),
                           ),
                         ],
@@ -819,22 +1049,39 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.hardware_rounded,
-                              label: _selectedCar!.hasPdrRepaired ? context.tr('workshop_pdr_done') : context.tr('workshop_btn_pdr'),
-                              backgroundColor: _selectedCar!.hasPdrRepaired ? const Color(0xFF1E2330) : const Color(0xFF00E575),
-                              textColor: _selectedCar!.hasPdrRepaired ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                              label: _selectedCar!.hasPdrRepaired
+                                  ? context.tr('workshop_pdr_done')
+                                  : context.tr('workshop_btn_pdr'),
+                              backgroundColor: _selectedCar!.hasPdrRepaired
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFF00E575),
+                              textColor: _selectedCar!.hasPdrRepaired
+                                  ? (isDark ? Colors.white54 : Colors.black54)
+                                  : Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               onPressed: _selectedCar!.hasPdrRepaired
                                   ? null
                                   : () {
-                                      final success = ref.read(gameProvider.notifier).performPdrDentRepair(_selectedCar!.id);
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .performPdrDentRepair(
+                                              _selectedCar!.id);
                                       if (success) {
-                                        NotificationService.showSuccess(context, 'Boyasız Göçük Düzeltme ile kaporta orijinalliği korundu • +%6 Değer!');
+                                        NotificationService.showSuccess(context,
+                                            'Boyasız Göçük Düzeltme ile kaporta orijinalliği korundu • +%6 Değer!');
                                         setState(() {
-                                          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                          _selectedCar = ref
+                                              .read(gameProvider)
+                                              .ownedCars
+                                              .firstWhere(
+                                                  (c) =>
+                                                      c.id == _selectedCar!.id,
+                                                  orElse: () => _selectedCar!);
                                         });
                                       } else {
-                                        NotificationService.showError(context, 'Yetersiz bakiye! ₺3.200 gerekli.');
+                                        NotificationService.showError(context,
+                                            'Yetersiz bakiye! ₺3.200 gerekli.');
                                       }
                                     },
                             ),
@@ -843,22 +1090,41 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           Expanded(
                             child: NeoBrutalButton(
                               icon: Icons.verified_rounded,
-                              label: _selectedCar!.hasTuvturkCertified ? context.tr('workshop_tuvturk_certified') : context.tr('workshop_btn_tuvturk'),
-                              backgroundColor: _selectedCar!.hasTuvturkCertified ? const Color(0xFF1E2330) : const Color(0xFF38BDF8),
-                              textColor: _selectedCar!.hasTuvturkCertified ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                              label: _selectedCar!.hasTuvturkCertified
+                                  ? context.tr('workshop_tuvturk_certified')
+                                  : context.tr('workshop_btn_tuvturk'),
+                              backgroundColor: _selectedCar!.hasTuvturkCertified
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFF38BDF8),
+                              textColor: _selectedCar!.hasTuvturkCertified
+                                  ? (isDark ? Colors.white54 : Colors.black54)
+                                  : Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               onPressed: _selectedCar!.hasTuvturkCertified
                                   ? null
                                   : () {
-                                      final success = ref.read(gameProvider.notifier).certifyTuvturkInspection(_selectedCar!.id);
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .certifyTuvturkInspection(
+                                              _selectedCar!.id);
                                       if (success) {
-                                        NotificationService.showSuccess(context, context.tr('workshop_toast_tuvturk_done'));
+                                        NotificationService.showSuccess(
+                                            context,
+                                            context.tr(
+                                                'workshop_toast_tuvturk_done'));
                                         setState(() {
-                                          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                          _selectedCar = ref
+                                              .read(gameProvider)
+                                              .ownedCars
+                                              .firstWhere(
+                                                  (c) =>
+                                                      c.id == _selectedCar!.id,
+                                                  orElse: () => _selectedCar!);
                                         });
                                       } else {
-                                        NotificationService.showError(context, 'Yetersiz bakiye! ₺1.500 gerekli.');
+                                        NotificationService.showError(context,
+                                            'Yetersiz bakiye! ₺1.500 gerekli.');
                                       }
                                     },
                             ),
@@ -869,14 +1135,17 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
                       if (_selectedCar!.isBarnFind) ...[
                         NeoBrutalButton(
-                          label: context.tr('workshop_btn_barn_find', {'stage': _selectedCar!.barnFindStage.toString()}),
+                          label: context.tr('workshop_btn_barn_find', {
+                            'stage': _selectedCar!.barnFindStage.toString()
+                          }),
                           icon: Icons.auto_fix_high_rounded,
                           backgroundColor: const Color(0xFFA855F7),
                           textColor: Colors.white,
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
                           fullWidth: true,
-                          onPressed: () => BarnFindRestorationSheet.show(context, _selectedCar!),
+                          onPressed: () => BarnFindRestorationSheet.show(
+                              context, _selectedCar!),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -884,7 +1153,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       NeoBrutalButton(
                         label: context.tr('workshop_btn_order_parts'),
                         icon: Icons.local_shipping_rounded,
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
                         fontSize: 10.5,
                         fullWidth: true,
@@ -892,18 +1163,21 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           context: context,
                           car: _selectedCar!,
                           game: game,
-                          onOrderConfirmed: (partName, type, cost, durationSeconds) {
+                          onOrderConfirmed:
+                              (partName, type, cost, durationSeconds) {
                             if (game.balance < cost) {
-                              NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekli.');
+                              NotificationService.showError(context,
+                                  'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekli.');
                               return;
                             }
-                            final success = ref.read(gameProvider.notifier).orderPart(
-                              carId: _selectedCar!.id,
-                              partName: partName,
-                              orderType: type,
-                              cost: cost,
-                              deliveryDurationSeconds: durationSeconds,
-                            );
+                            final success =
+                                ref.read(gameProvider.notifier).orderPart(
+                                      carId: _selectedCar!.id,
+                                      partName: partName,
+                                      orderType: type,
+                                      cost: cost,
+                                      deliveryDurationSeconds: durationSeconds,
+                                    );
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
@@ -935,30 +1209,45 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               Builder(
                 builder: (context) {
                   final exp = _selectedCar?.expertise;
-                  final isEngineRepaired = (exp?.engineCondition ?? 100.0) >= 95.0;
-                  final isTransmissionRepaired = (exp?.transmissionCondition ?? 100.0) >= 95.0;
+                  final isEngineRepaired =
+                      (exp?.engineCondition ?? 100.0) >= 95.0;
+                  final isTransmissionRepaired =
+                      (exp?.transmissionCondition ?? 100.0) >= 95.0;
                   final isEcuRepaired = exp?.isEcuCleaned ?? false;
-                  final isBodyworkRepaired = !(exp?.bodyParts.values.any((v) => v != PartStatus.original) ?? false);
+                  final isBodyworkRepaired = !(exp?.bodyParts.values
+                          .any((v) => v != PartStatus.original) ??
+                      false);
                   final isChassisRepaired = exp?.isChassisAligned ?? false;
 
                   final carBaseVal = _selectedCar != null
                       ? max(150000.0, _selectedCar!.baseMarketValue.toDouble())
                       : 400000.0;
-                  final dynamicEngineCost = (carBaseVal * 0.035).clamp(8500.0, 75000.0);
-                  final dynamicTransCost = (carBaseVal * 0.025).clamp(6500.0, 50000.0);
-                  final dynamicEcuCost = (carBaseVal * 0.010).clamp(2500.0, 20000.0);
-                  final dynamicBodyCost = (carBaseVal * 0.045 * paintCostMultiplier).clamp(12000.0, 90000.0);
-                  final dynamicChassisCost = (carBaseVal * 0.065).clamp(25000.0, 150000.0);
+                  final dynamicEngineCost =
+                      (carBaseVal * 0.035).clamp(8500.0, 75000.0);
+                  final dynamicTransCost =
+                      (carBaseVal * 0.025).clamp(6500.0, 50000.0);
+                  final dynamicEcuCost =
+                      (carBaseVal * 0.010).clamp(2500.0, 20000.0);
+                  final dynamicBodyCost =
+                      (carBaseVal * 0.045 * paintCostMultiplier)
+                          .clamp(12000.0, 90000.0);
+                  final dynamicChassisCost =
+                      (carBaseVal * 0.065).clamp(25000.0, 150000.0);
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       WorkshopRepairTile(
                         title: '1. Motor Rektifiye & Subap Ayarı',
-                        description: 'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
+                        description:
+                            'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
                         cost: dynamicEngineCost,
                         bonusText: 'Motor %100 & +%10 Değer',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicEngineCost, _selectedCar!.estimatedRealValue * 0.10) : null,
+                        netRoiText: _selectedCar != null
+                            ? PsychologyEngine.getNetRoiRepairText(
+                                dynamicEngineCost,
+                                _selectedCar!.estimatedRealValue * 0.10)
+                            : null,
                         badgeColor: const Color(0xFF00E575),
                         isDark: isDark,
                         isRepaired: isEngineRepaired,
@@ -968,17 +1257,22 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           car: _selectedCar!,
                           repairType: 'engine',
                           baseCost: dynamicEngineCost,
-                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'engine', tier, cost),
+                          onTierSelected: (tier, cost) => _executeTierRepair(
+                              _selectedCar!, 'engine', tier, cost),
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       WorkshopRepairTile(
                         title: '2. Şanzıman & Baskı Balata Yenileme',
-                        description: 'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
+                        description:
+                            'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
                         cost: dynamicTransCost,
                         bonusText: 'Şanzıman %100 & +%8 Değer',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicTransCost, _selectedCar!.estimatedRealValue * 0.08) : null,
+                        netRoiText: _selectedCar != null
+                            ? PsychologyEngine.getNetRoiRepairText(
+                                dynamicTransCost,
+                                _selectedCar!.estimatedRealValue * 0.08)
+                            : null,
                         badgeColor: const Color(0xFF38BDF8),
                         isDark: isDark,
                         isRepaired: isTransmissionRepaired,
@@ -988,17 +1282,22 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           car: _selectedCar!,
                           repairType: 'transmission',
                           baseCost: dynamicTransCost,
-                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'transmission', tier, cost),
+                          onTierSelected: (tier, cost) => _executeTierRepair(
+                              _selectedCar!, 'transmission', tier, cost),
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       WorkshopRepairTile(
                         title: '3. Bilgisayarlı OBD-II Beyin Arıza Tespiti',
-                        description: 'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
+                        description:
+                            'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
                         cost: dynamicEcuCost,
                         bonusText: 'Gizli Kusurlar Silinir',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicEcuCost, _selectedCar!.estimatedRealValue * 0.05) : null,
+                        netRoiText: _selectedCar != null
+                            ? PsychologyEngine.getNetRoiRepairText(
+                                dynamicEcuCost,
+                                _selectedCar!.estimatedRealValue * 0.05)
+                            : null,
                         badgeColor: const Color(0xFFA855F7),
                         isDark: isDark,
                         isRepaired: isEcuRepaired,
@@ -1008,17 +1307,24 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           car: _selectedCar!,
                           repairType: 'ecu',
                           baseCost: dynamicEcuCost,
-                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'ecu', tier, cost),
+                          onTierSelected: (tier, cost) => _executeTierRepair(
+                              _selectedCar!, 'ecu', tier, cost),
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       WorkshopRepairTile(
                         title: '4. Kaporta Çekiçleme & Fırın Boya',
-                        description: 'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
+                        description:
+                            'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
                         cost: dynamicBodyCost,
-                        bonusText: hasPaintBooth ? '+%15 Değer • Boya Fırını İndirimi' : '+%15 Değer Artışı',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicBodyCost, _selectedCar!.estimatedRealValue * 0.15) : null,
+                        bonusText: hasPaintBooth
+                            ? '+%15 Değer • Boya Fırını İndirimi'
+                            : '+%15 Değer Artışı',
+                        netRoiText: _selectedCar != null
+                            ? PsychologyEngine.getNetRoiRepairText(
+                                dynamicBodyCost,
+                                _selectedCar!.estimatedRealValue * 0.15)
+                            : null,
                         badgeColor: const Color(0xFFFFDE59),
                         isDark: isDark,
                         isRepaired: isBodyworkRepaired,
@@ -1028,17 +1334,24 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           car: _selectedCar!,
                           repairType: 'bodywork',
                           baseCost: dynamicBodyCost,
-                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'bodywork', tier, cost),
+                          onTierSelected: (tier, cost) => _executeTierRepair(
+                              _selectedCar!, 'bodywork', tier, cost),
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       WorkshopRepairTile(
                         title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
-                        description: 'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
+                        description:
+                            'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
                         cost: dynamicChassisCost,
-                        bonusText: hasChassisBench ? '+%20 Süper Değer • Şasi Tezgahı Bonusu' : '+%20 Değer',
-                        netRoiText: _selectedCar != null ? PsychologyEngine.getNetRoiRepairText(dynamicChassisCost, _selectedCar!.estimatedRealValue * 0.20) : null,
+                        bonusText: hasChassisBench
+                            ? '+%20 Süper Değer • Şasi Tezgahı Bonusu'
+                            : '+%20 Değer',
+                        netRoiText: _selectedCar != null
+                            ? PsychologyEngine.getNetRoiRepairText(
+                                dynamicChassisCost,
+                                _selectedCar!.estimatedRealValue * 0.20)
+                            : null,
                         badgeColor: const Color(0xFFEF4444),
                         isDark: isDark,
                         isRepaired: isChassisRepaired,
@@ -1048,7 +1361,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           car: _selectedCar!,
                           repairType: 'chassis',
                           baseCost: dynamicChassisCost,
-                          onTierSelected: (tier, cost) => _executeTierRepair(_selectedCar!, 'chassis', tier, cost),
+                          onTierSelected: (tier, cost) => _executeTierRepair(
+                              _selectedCar!, 'chassis', tier, cost),
                         ),
                       ),
                     ],
@@ -1060,7 +1374,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               // Pending Part Orders
               if (game.pendingOrders.isNotEmpty) ...[
                 Text(
-                  context.tr('workshop_pending_orders_title', {'count': game.pendingOrders.length.toString()}),
+                  context.tr('workshop_pending_orders_title',
+                      {'count': game.pendingOrders.length.toString()}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -1074,9 +1389,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     order: order,
                     p: p,
                     onInstall: () {
-                      final success = ref.read(gameProvider.notifier).installDeliveredPart(order.id);
+                      final success = ref
+                          .read(gameProvider.notifier)
+                          .installDeliveredPart(order.id);
                       if (success) {
-                        NotificationService.showSuccess(context, '${order.partName} montajı tamamlandı!');
+                        NotificationService.showSuccess(
+                            context, '${order.partName} montajı tamamlandı!');
                         setState(() {});
                       }
                     },
@@ -1085,8 +1403,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         context: context,
                         customRewardTitle: 'Hızlı Kargo Teslimatı',
                         onRewardEarned: () {
-                          ref.read(gameProvider.notifier).instantDeliverPartOrder(order.id);
-                          NotificationService.showReward(context, context.tr('workshop_toast_fast_shipping'));
+                          ref
+                              .read(gameProvider.notifier)
+                              .instantDeliverPartOrder(order.id);
+                          NotificationService.showReward(context,
+                              context.tr('workshop_toast_fast_shipping'));
                           setState(() {});
                         },
                       );
@@ -1099,7 +1420,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               // Salvaged Parts
               if (game.salvagedParts.isNotEmpty) ...[
                 Text(
-                  context.tr('workshop_salvaged_parts_title', {'count': game.salvagedParts.length.toString()}),
+                  context.tr('workshop_salvaged_parts_title',
+                      {'count': game.salvagedParts.length.toString()}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -1113,8 +1435,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: NeoBrutalCard(
                       padding: const EdgeInsets.all(12),
-                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      backgroundColor:
+                          isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark
+                          ? const Color(0xFF2A3142)
+                          : const Color(0xFF0F172A),
                       borderRadius: 12,
                       child: Row(
                         children: [
@@ -1124,21 +1449,30 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               color: const Color(0xFF64748B),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 2.0,
                               ),
                             ),
-                            child: const Icon(Icons.settings_suggest_rounded, color: Colors.white, size: 20),
+                            child: const Icon(Icons.settings_suggest_rounded,
+                                color: Colors.white, size: 20),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(part.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                                Text(part.name,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900)),
                                 Text(
                                   'Kondisyon: %${part.conditionPercent} • Tahmini Değer: ${CurrencyFormatter.format(part.estimatedValue)}',
-                                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                  style: const TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF64748B)),
                                 ),
                               ],
                             ),
@@ -1150,12 +1484,18 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             backgroundColor: const Color(0xFF00E575),
                             textColor: Colors.black,
                             fontSize: 10.5,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
                             onPressed: () {
                               if (_selectedCar == null) return;
-                              final success = ref.read(gameProvider.notifier).installPartToCar(part.id, _selectedCar!.id);
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .installPartToCar(part.id, _selectedCar!.id);
                               if (success) {
-                                NotificationService.showSuccess(context, context.tr('workshop_toast_part_installed'));
+                                NotificationService.showSuccess(
+                                    context,
+                                    context
+                                        .tr('workshop_toast_part_installed'));
                                 setState(() {});
                               }
                             },
@@ -1183,39 +1523,45 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               WorkshopEquipmentTile(
                 id: 'workshop_eq_lift',
                 title: '4 Tonluk Hidrolik Araç Lifti',
-                description: 'Aynı anda birden fazla aracın alt takımlarını hızlıca onarabilme imkanı sağlar.',
+                description:
+                    'Aynı anda birden fazla aracın alt takımlarını hızlıca onarabilme imkanı sağlar.',
                 cost: 85000.0,
                 isOwned: hasLift,
                 icon: Icons.elevator_rounded,
                 color: const Color(0xFFFF7A00),
                 isDark: isDark,
-                onBuy: () => _buyEquipment('workshop_eq_lift', 85000.0, '4 Tonluk Hidrolik Araç Lifti'),
+                onBuy: () => _buyEquipment('workshop_eq_lift', 85000.0,
+                    '4 Tonluk Hidrolik Araç Lifti'),
               ),
               const SizedBox(height: 8),
 
               WorkshopEquipmentTile(
                 id: 'workshop_eq_chassis_bench',
                 title: 'Lazerli Şasi Doğrultma Tezgahı',
-                description: 'Ağır kazalı pert araçların şasilerini milimetrik hassasiyetle fabrikasyon standardına çevirir.',
+                description:
+                    'Ağır kazalı pert araçların şasilerini milimetrik hassasiyetle fabrikasyon standardına çevirir.',
                 cost: 220000.0,
                 isOwned: hasChassisBench,
                 icon: Icons.straighten_rounded,
                 color: const Color(0xFFEF4444),
                 isDark: isDark,
-                onBuy: () => _buyEquipment('workshop_eq_chassis_bench', 220000.0, 'Lazerli Şasi Doğrultma Tezgahı'),
+                onBuy: () => _buyEquipment('workshop_eq_chassis_bench',
+                    220000.0, 'Lazerli Şasi Doğrultma Tezgahı'),
               ),
               const SizedBox(height: 8),
 
               WorkshopEquipmentTile(
                 id: 'workshop_eq_paint_booth',
                 title: 'Filtreli Endüstriyel Fırın Boya Kabini',
-                description: 'Kaporta ve boya işlemlerinde sarfiyatı azaltarak tüm boya maliyetlerini kalıcı olarak %50 düşürür.',
+                description:
+                    'Kaporta ve boya işlemlerinde sarfiyatı azaltarak tüm boya maliyetlerini kalıcı olarak %50 düşürür.',
                 cost: 450000.0,
                 isOwned: hasPaintBooth,
                 icon: Icons.format_paint_rounded,
                 color: const Color(0xFFFFDE59),
                 isDark: isDark,
-                onBuy: () => _buyEquipment('workshop_eq_paint_booth', 450000.0, 'Filtreli Endüstriyel Fırın Boya Kabini'),
+                onBuy: () => _buyEquipment('workshop_eq_paint_booth', 450000.0,
+                    'Filtreli Endüstriyel Fırın Boya Kabini'),
               ),
             ],
           ],
@@ -1229,7 +1575,9 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     required double percent,
     required bool isDark,
   }) {
-    final color = percent >= 80 ? const Color(0xFF00E575) : (percent >= 50 ? const Color(0xFFFFDE59) : const Color(0xFFEF4444));
+    final color = percent >= 80
+        ? const Color(0xFF00E575)
+        : (percent >= 50 ? const Color(0xFFFFDE59) : const Color(0xFFEF4444));
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -1246,8 +1594,16 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800)),
-              Text('%${percent.toInt()}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color)),
+              Expanded(
+                  child: Text(label,
+                      style: const TextStyle(
+                          fontSize: 10.5, fontWeight: FontWeight.w800))),
+              Expanded(
+                  child: Text('%${percent.toInt()}',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: color))),
             ],
           ),
           const SizedBox(height: 6),
@@ -1276,21 +1632,26 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
   void _buyEquipment(String eqId, double cost, String name) {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(context,
+          'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
       return;
     }
 
-    final success = ref.read(gameProvider.notifier).purchaseEquipmentUpgrade(eqId, cost);
+    final success =
+        ref.read(gameProvider.notifier).purchaseEquipmentUpgrade(eqId, cost);
     if (success) {
-      NotificationService.showReward(context, context.tr('workshop_toast_equip_installed'));
+      NotificationService.showReward(
+          context, context.tr('workshop_toast_equip_installed'));
       setState(() {});
     }
   }
 
-  void _executeTierRepair(CarModel car, String repairType, RepairTier tier, double cost) {
+  void _executeTierRepair(
+      CarModel car, String repairType, RepairTier tier, double cost) {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context, 'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(context,
+          'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
       return;
     }
 
@@ -1299,33 +1660,46 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         NotificationService.showInfo(context, 'Motor zaten kusursuz durumda!');
         return;
       }
-      if (tier == RepairTier.master && !game.unlockedBuildings.contains('workshop_eq_lift')) {
-        NotificationService.showError(context, context.tr('workshop_toast_lift_req'));
+      if (tier == RepairTier.master &&
+          !game.unlockedBuildings.contains('workshop_eq_lift')) {
+        NotificationService.showError(
+            context, context.tr('workshop_toast_lift_req'));
         return;
       }
-      final result = ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
+      final result =
+          ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
       if (result.isSuccess) {
         NotificationService.showSuccess(context, result.message);
         setState(() {
-          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+          _selectedCar = ref
+              .read(gameProvider)
+              .ownedCars
+              .firstWhere((c) => c.id == car.id, orElse: () => car);
         });
       } else {
         NotificationService.showError(context, result.message);
       }
     } else if (repairType == 'transmission') {
       if (car.expertise.transmissionCondition >= 99.5) {
-        NotificationService.showInfo(context, 'Şanzıman ve baskı balata zaten kusursuz durumda!');
+        NotificationService.showInfo(
+            context, 'Şanzıman ve baskı balata zaten kusursuz durumda!');
         return;
       }
-      if (tier == RepairTier.master && !game.unlockedBuildings.contains('workshop_eq_lift')) {
-        NotificationService.showError(context, context.tr('workshop_toast_lift_req'));
+      if (tier == RepairTier.master &&
+          !game.unlockedBuildings.contains('workshop_eq_lift')) {
+        NotificationService.showError(
+            context, context.tr('workshop_toast_lift_req'));
         return;
       }
-      final result = ref.read(gameProvider.notifier).repairTransmissionWithTier(car, tier);
+      final result =
+          ref.read(gameProvider.notifier).repairTransmissionWithTier(car, tier);
       if (result.isSuccess) {
         NotificationService.showSuccess(context, result.message);
         setState(() {
-          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+          _selectedCar = ref
+              .read(gameProvider)
+              .ownedCars
+              .firstWhere((c) => c.id == car.id, orElse: () => car);
         });
       } else {
         NotificationService.showError(context, result.message);
@@ -1337,77 +1711,104 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
           .toList();
 
       if (nonOriginalParts.isEmpty) {
-        NotificationService.showInfo(context, 'Kaportada hasarlı veya boyanacak parça yok!');
+        NotificationService.showInfo(
+            context, 'Kaportada hasarlı veya boyanacak parça yok!');
         return;
       }
 
-      final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
-      final double successRate = hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+      final hasMechanic =
+          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final double successRate =
+          hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(context, 'Boya fırınında renk dalgalanması oldu! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        NotificationService.showError(context,
+            'Boya fırınında renk dalgalanması oldu! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
         return;
       }
 
-      final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
-        car.id,
-        repairType: 'bodywork',
-        cost: cost,
-      );
+      final success =
+          ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                car.id,
+                repairType: 'bodywork',
+                cost: cost,
+              );
 
       if (success) {
-        NotificationService.showSuccess(context, context.tr('workshop_toast_body_all_done'));
+        NotificationService.showSuccess(
+            context, context.tr('workshop_toast_body_all_done'));
         setState(() {
-          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+          _selectedCar = ref
+              .read(gameProvider)
+              .ownedCars
+              .firstWhere((c) => c.id == car.id, orElse: () => car);
         });
       }
     } else if (repairType == 'ecu') {
       if (car.expertise.isEcuCleaned) {
-        NotificationService.showInfo(context, 'OBD-II Beyin arıza tespiti zaten yapılmış, sistem kusursuz!');
+        NotificationService.showInfo(context,
+            'OBD-II Beyin arıza tespiti zaten yapılmış, sistem kusursuz!');
         return;
       }
-      final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
-      final double successRate = hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+      final hasMechanic =
+          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final double successRate =
+          hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(context, 'ECU haberleşme protokolü kurulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        NotificationService.showError(context,
+            'ECU haberleşme protokolü kurulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
         return;
       }
-      final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
-        car.id,
-        repairType: 'ecu',
-        cost: cost,
-      );
+      final success =
+          ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                car.id,
+                repairType: 'ecu',
+                cost: cost,
+              );
       if (success) {
-        NotificationService.showSuccess(context, context.tr('workshop_toast_ecu_done'));
+        NotificationService.showSuccess(
+            context, context.tr('workshop_toast_ecu_done'));
         setState(() {
-          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+          _selectedCar = ref
+              .read(gameProvider)
+              .ownedCars
+              .firstWhere((c) => c.id == car.id, orElse: () => car);
         });
       }
     } else if (repairType == 'chassis') {
       if (car.expertise.isChassisAligned) {
-        NotificationService.showInfo(context, 'Lazerli şasi doğrultma zaten yapılmış, şasi kusursuz!');
+        NotificationService.showInfo(
+            context, 'Lazerli şasi doğrultma zaten yapılmış, şasi kusursuz!');
         return;
       }
-      final hasMechanic = game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
-      final double successRate = hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+      final hasMechanic =
+          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final double successRate =
+          hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(context, 'Lazerli şasi tezgahında sıfır tolerans tutturulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        NotificationService.showError(context,
+            'Lazerli şasi tezgahında sıfır tolerans tutturulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
         return;
       }
-      final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
-        car.id,
-        repairType: 'chassis',
-        cost: cost,
-      );
+      final success =
+          ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                car.id,
+                repairType: 'chassis',
+                cost: cost,
+              );
       if (success) {
-        NotificationService.showSuccess(context, context.tr('workshop_toast_chassis_done'));
+        NotificationService.showSuccess(
+            context, context.tr('workshop_toast_chassis_done'));
         setState(() {
-          _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == car.id, orElse: () => car);
+          _selectedCar = ref
+              .read(gameProvider)
+              .ownedCars
+              .firstWhere((c) => c.id == car.id, orElse: () => car);
         });
       }
     }

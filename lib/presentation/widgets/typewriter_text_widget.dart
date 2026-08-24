@@ -41,7 +41,10 @@ class _TypewriterTextWidgetState extends State<TypewriterTextWidget> {
   }
 
   void _startAnimation() {
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (isTest || widget.text.isEmpty) {
       _charCount = widget.text.length;
       return;
@@ -71,7 +74,8 @@ class _TypewriterTextWidgetState extends State<TypewriterTextWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final visibleText = widget.text.substring(0, _charCount.clamp(0, widget.text.length));
+    final visibleText =
+        widget.text.substring(0, _charCount.clamp(0, widget.text.length));
     return Text(
       visibleText,
       style: widget.style,

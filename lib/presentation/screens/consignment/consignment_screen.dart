@@ -27,7 +27,8 @@ class ConsignmentScreen extends ConsumerWidget {
 
     if (!game.isFeatureUnlocked('/consignment-market')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: const NeoBrutalAppBar(title: 'KONSİNYE & EMANET ARAÇLAR'),
         body: const NeoBrutalLockedFeatureView(
           route: '/consignment-market',
@@ -39,7 +40,8 @@ class ConsignmentScreen extends ConsumerWidget {
 
     if (game.reputationScore < 40) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: const NeoBrutalAppBar(title: 'KONSİNYE & EMANET ARAÇLAR'),
         body: Center(
           child: Padding(
@@ -57,9 +59,11 @@ class ConsignmentScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppColors.brutalOrange.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.brutalOrange, width: 2),
+                      border:
+                          Border.all(color: AppColors.brutalOrange, width: 2),
                     ),
-                    child: const Icon(Icons.handshake_rounded, size: 42, color: AppColors.brutalOrange),
+                    child: const Icon(Icons.handshake_rounded,
+                        size: 42, color: AppColors.brutalOrange),
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -70,7 +74,11 @@ class ConsignmentScreen extends ConsumerWidget {
                   Text(
                     'Araç sahiplerinin arabalarını size güvenip emanet bırakması için minimum 40 Esnaf İtibarı gereklidir.\n\nŞu anki İtibarınız: ${game.reputationScore} / 40',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B), height: 1.4),
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B),
+                        height: 1.4),
                   ),
                   const SizedBox(height: 20),
                   NeoBrutalButton(
@@ -89,11 +97,13 @@ class ConsignmentScreen extends ConsumerWidget {
       );
     }
 
-    final activeConsignmentCars = game.ownedCars.where((c) => c.isConsignment).toList();
+    final activeConsignmentCars =
+        game.ownedCars.where((c) => c.isConsignment).toList();
     final availableOffers = game.consignmentOffers;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: const NeoBrutalAppBar(
         title: 'KONSİNYE & EMANET ARAÇLAR',
       ),
@@ -104,7 +114,8 @@ class ConsignmentScreen extends ConsumerWidget {
           // 1. Explanatory Banner with Branch Tier & Parking Fee Highlights
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF1E1E2E) : const Color(0xFFF0FDF4),
+            backgroundColor:
+                isDark ? const Color(0xFF1E1E2E) : const Color(0xFFF0FDF4),
             borderColor: AppColors.brutalGreen,
             borderRadius: 14,
             child: Column(
@@ -117,11 +128,14 @@ class ConsignmentScreen extends ConsumerWidget {
                         color: AppColors.brutalGreen,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2.0,
                         ),
                       ),
-                      child: const Icon(Icons.handshake_rounded, color: Colors.black, size: 24),
+                      child: const Icon(Icons.handshake_rounded,
+                          color: Colors.black, size: 24),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -133,7 +147,9 @@ class ConsignmentScreen extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                              color: isDark
+                                  ? Colors.white
+                                  : AppColors.textPrimaryLight,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -141,7 +157,9 @@ class ConsignmentScreen extends ConsumerWidget {
                             'Müşteriler araçlarını galerinize emanet bıraksın. Sıfır sermaye ile hem satış komisyonu hem de günlük sergileme ücreti kazanın!',
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : AppColors.textSecondaryLight,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -152,18 +170,22 @@ class ConsignmentScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF11131C) : Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.storefront_rounded, size: 16, color: AppColors.brutalYellow),
+                      const Icon(Icons.storefront_rounded,
+                          size: 16, color: AppColors.brutalYellow),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -171,20 +193,24 @@ class ConsignmentScreen extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            color: isDark
+                                ? Colors.white
+                                : AppColors.textPrimaryLight,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppColors.brutalGreen.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: AppColors.brutalGreen, width: 1),
+                          border: Border.all(
+                              color: AppColors.brutalGreen, width: 1),
                         ),
                         child: Text(
-                          '+₺${(game.currentBranchTier == 1 ? 300 : (game.currentBranchTier == 2 ? 600 : (game.currentBranchTier == 3 ? 1200 : (game.currentBranchTier == 4 ? 2500 : (game.currentBranchTier == 5 ? 5000 : (game.currentBranchTier == 6 ? 10000 : (game.currentBranchTier == 7 ? 22000 : 45000))))))) }/gün otopark',
+                          '+₺${(game.currentBranchTier == 1 ? 300 : (game.currentBranchTier == 2 ? 600 : (game.currentBranchTier == 3 ? 1200 : (game.currentBranchTier == 4 ? 2500 : (game.currentBranchTier == 5 ? 5000 : (game.currentBranchTier == 6 ? 10000 : (game.currentBranchTier == 7 ? 22000 : 45000)))))))}/gün otopark',
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
@@ -208,11 +234,14 @@ class ConsignmentScreen extends ConsumerWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,
-                color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                color: isDark
+                    ? const Color(0xFF94A3B8)
+                    : AppColors.textSecondaryLight,
               ),
             ),
             const SizedBox(height: 10),
-            ...activeConsignmentCars.map((car) => _buildActiveConsignmentCard(context, ref, car, isDark)),
+            ...activeConsignmentCars.map((car) =>
+                _buildActiveConsignmentCard(context, ref, car, isDark)),
             const SizedBox(height: 14),
           ],
 
@@ -223,7 +252,9 @@ class ConsignmentScreen extends ConsumerWidget {
               fontSize: 12,
               fontWeight: FontWeight.w900,
               letterSpacing: 0.5,
-              color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+              color: isDark
+                  ? const Color(0xFF94A3B8)
+                  : AppColors.textSecondaryLight,
             ),
           ),
           const SizedBox(height: 10),
@@ -232,16 +263,19 @@ class ConsignmentScreen extends ConsumerWidget {
             const NeoBrutalEmptyState(
               icon: Icons.directions_car_filled_outlined,
               title: 'BEKLEYEN EMANET YOK',
-              description: 'Şu an emanet bırakılmak istenen araç bulunmuyor. Yeni güne geçildiğinde yeni teklifler gelecektir.',
+              description:
+                  'Şu an emanet bırakılmak istenen araç bulunmuyor. Yeni güne geçildiğinde yeni teklifler gelecektir.',
             )
           else
-            ...availableOffers.map((car) => _buildOfferCard(context, ref, car, isDark)),
+            ...availableOffers
+                .map((car) => _buildOfferCard(context, ref, car, isDark)),
         ],
       ),
     );
   }
 
-  Widget _buildActiveConsignmentCard(BuildContext context, WidgetRef ref, CarModel car, bool isDark) {
+  Widget _buildActiveConsignmentCard(
+      BuildContext context, WidgetRef ref, CarModel car, bool isDark) {
     final commission = car.estimatedRealValue * car.consignmentCommissionRate;
 
     return Padding(
@@ -259,11 +293,14 @@ class ConsignmentScreen extends ConsumerWidget {
                 color: AppColors.brutalGreen,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 1.5,
                 ),
               ),
-              child: const Icon(Icons.car_rental_rounded, size: 20, color: Colors.black),
+              child: const Icon(Icons.car_rental_rounded,
+                  size: 20, color: Colors.black),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -283,7 +320,9 @@ class ConsignmentScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                 ],
@@ -316,11 +355,13 @@ class ConsignmentScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildOfferCard(BuildContext context, WidgetRef ref, CarModel car, bool isDark) {
+  Widget _buildOfferCard(
+      BuildContext context, WidgetRef ref, CarModel car, bool isDark) {
     final game = ref.watch(gameProvider);
     final hasGarageSpace = game.ownedCars.length < game.maxGarageSlots;
     final commissionPercent = (car.consignmentCommissionRate * 100).round();
-    final estimatedCommission = car.estimatedRealValue * car.consignmentCommissionRate;
+    final estimatedCommission =
+        car.estimatedRealValue * car.consignmentCommissionRate;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -343,7 +384,9 @@ class ConsignmentScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? Colors.white
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -351,7 +394,9 @@ class ConsignmentScreen extends ConsumerWidget {
                         'Araç Sahibi: ${(car.consignmentOwnerName?.isNotEmpty ?? false) ? car.consignmentOwnerName! : "Esnaf Müşterisi"} • ${car.modelYear} Model • ${car.expertise.mileage} km',
                         style: TextStyle(
                           fontSize: 10,
-                          color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : AppColors.textSecondaryLight,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -372,10 +417,13 @@ class ConsignmentScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F1117) : const Color(0xFFF8FAFC),
+                color:
+                    isDark ? const Color(0xFF0F1117) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF262C3D)
+                      : const Color(0xFFE2E8F0),
                   width: 1.5,
                 ),
               ),
@@ -386,40 +434,68 @@ class ConsignmentScreen extends ConsumerWidget {
                     children: [
                       const Text(
                         'ÖDENECEK SERMAYE',
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.textSecondaryLight),
+                        style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textSecondaryLight),
                       ),
                       const SizedBox(height: 2),
                       const Text(
                         '₺0 • Ücretsiz',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen),
                       ),
                     ],
                   ),
-                  Container(width: 1, height: 28, color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+                  Container(
+                      width: 1,
+                      height: 28,
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFFCBD5E1)),
                   Column(
                     children: [
                       const Text(
                         'TAHMİNİ KOMİSYON',
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.textSecondaryLight),
+                        style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textSecondaryLight),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '+${CurrencyFormatter.format(estimatedCommission)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalYellow),
                       ),
                     ],
                   ),
-                  Container(width: 1, height: 28, color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+                  Container(
+                      width: 1,
+                      height: 28,
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFFCBD5E1)),
                   Column(
                     children: [
                       const Text(
                         'GÜNLÜK SERGİLEME',
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.textSecondaryLight),
+                        style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textSecondaryLight),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '+₺${ConsignmentEngine.calculateDailyParkingFee(game.currentBranchTier).round()}/gün',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen),
                       ),
                     ],
                   ),
@@ -436,17 +512,23 @@ class ConsignmentScreen extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
                 const Spacer(),
                 NeoBrutalButton(
                   label: hasGarageSpace ? 'EMANET AL' : 'GARAJ DOLU',
-                  backgroundColor: hasGarageSpace ? AppColors.brutalGreen : const Color(0xFF64748B),
+                  backgroundColor: hasGarageSpace
+                      ? AppColors.brutalGreen
+                      : const Color(0xFF64748B),
                   textColor: Colors.black,
                   onPressed: hasGarageSpace
                       ? () {
-                          final success = ref.read(gameProvider.notifier).acceptConsignmentOffer(car);
+                          final success = ref
+                              .read(gameProvider.notifier)
+                              .acceptConsignmentOffer(car);
                           if (success) {
                             NotificationService.showSuccess(
                               context,
@@ -455,7 +537,8 @@ class ConsignmentScreen extends ConsumerWidget {
                           }
                         }
                       : () {
-                          NotificationService.showWarning(context, 'Garajınızda boş yer yok!');
+                          NotificationService.showWarning(
+                              context, 'Garajınızda boş yer yok!');
                         },
                 ),
               ],

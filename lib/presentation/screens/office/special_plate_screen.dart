@@ -22,14 +22,17 @@ class SpecialPlateScreen extends ConsumerStatefulWidget {
   ConsumerState<SpecialPlateScreen> createState() => _SpecialPlateScreenState();
 }
 
-class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with SingleTickerProviderStateMixin {
+class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   PlateCategory _selectedCategory = PlateCategory.all;
 
   // Custom Designer State
   String _customCityCode = '34';
-  final TextEditingController _lettersController = TextEditingController(text: 'ATA');
-  final TextEditingController _digitsController = TextEditingController(text: '1923');
+  final TextEditingController _lettersController =
+      TextEditingController(text: 'ATA');
+  final TextEditingController _digitsController =
+      TextEditingController(text: '1923');
 
   @override
   void initState() {
@@ -47,13 +50,17 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
 
   bool _isPlateInUse(String plateNumber, List<CarModel> ownedCars) {
     final normalized = plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
-    return ownedCars.any((c) => c.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() == normalized);
+    return ownedCars.any((c) =>
+        c.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() ==
+        normalized);
   }
 
   CarModel? _getCarUsingPlate(String plateNumber, List<CarModel> ownedCars) {
     final normalized = plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
     try {
-      return ownedCars.firstWhere((c) => c.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() == normalized);
+      return ownedCars.firstWhere((c) =>
+          c.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() ==
+          normalized);
     } catch (_) {
       return null;
     }
@@ -67,7 +74,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     final game = ref.watch(gameProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('special_plate_title'),
       ),
@@ -79,7 +87,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             child: NeoBrutalCard(
               padding: const EdgeInsets.all(12),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -92,11 +101,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           color: const Color(0xFFFFDE59),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2.0,
                           ),
                         ),
-                        child: const Icon(Icons.confirmation_number_rounded, color: Colors.black, size: 20),
+                        child: const Icon(Icons.confirmation_number_rounded,
+                            color: Colors.black, size: 20),
                       ),
                       const SizedBox(width: 10),
                       Column(
@@ -107,7 +119,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                              color: isDark
+                                  ? Colors.white60
+                                  : const Color(0xFF64748B),
                             ),
                           ),
                           Text(
@@ -115,7 +129,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                         ],
@@ -125,10 +141,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   Row(
                     children: [
                       NeoBrutalBadge(
-                        text: context.tr('plate_cars_in_garage_badge', {'count': game.ownedCars.length}),
+                        text: context.tr('plate_cars_in_garage_badge',
+                            {'count': game.ownedCars.length}),
                         icon: Icons.directions_car_rounded,
-                        backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                        textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFE2E8F0),
+                        textColor:
+                            isDark ? Colors.white : const Color(0xFF0F172A),
                         fontSize: 10,
                       ),
                       const SizedBox(width: 6),
@@ -152,24 +172,30 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
+                color:
+                    isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                  color: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFFCBD5E1),
                   width: 2.0,
                 ),
               ),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  color: isDark ? AppColors.brutalYellow : const Color(0xFF0F172A),
+                  color:
+                      isDark ? AppColors.brutalYellow : const Color(0xFF0F172A),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
                 labelColor: isDark ? Colors.black : Colors.white,
-                unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                unselectedLabelColor:
+                    isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                labelStyle:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
                 tabs: [
                   Tab(
                     iconMargin: EdgeInsets.zero,
@@ -217,14 +243,16 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
   // ==========================================
   // TAB 1: CURATED CATALOG
   // ==========================================
-  Widget _buildCatalogTab(bool isDark, double playerBalance, List<CarModel> ownedCars) {
+  Widget _buildCatalogTab(
+      bool isDark, double playerBalance, List<CarModel> ownedCars) {
     final filteredPlates = SpecialPlateEngine.curatedPlates.where((plate) {
       if (_selectedCategory == PlateCategory.all) return true;
       return plate.category == _selectedCategory;
     }).toList();
 
     return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      physics:
+          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       slivers: [
         // Category Filter Chips
         SliverToBoxAdapter(
@@ -235,11 +263,16 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
               physics: const BouncingScrollPhysics(),
               child: Row(
                 children: [
-                  _buildCategoryChip(context.tr('plate_cat_all'), PlateCategory.all, isDark),
-                  _buildCategoryChip(context.tr('plate_cat_legendary'), PlateCategory.legendary, isDark),
-                  _buildCategoryChip(context.tr('plate_cat_team'), PlateCategory.team, isDark),
-                  _buildCategoryChip(context.tr('plate_cat_names'), PlateCategory.names, isDark),
-                  _buildCategoryChip(context.tr('plate_cat_symmetric'), PlateCategory.symmetric, isDark),
+                  _buildCategoryChip(
+                      context.tr('plate_cat_all'), PlateCategory.all, isDark),
+                  _buildCategoryChip(context.tr('plate_cat_legendary'),
+                      PlateCategory.legendary, isDark),
+                  _buildCategoryChip(
+                      context.tr('plate_cat_team'), PlateCategory.team, isDark),
+                  _buildCategoryChip(context.tr('plate_cat_names'),
+                      PlateCategory.names, isDark),
+                  _buildCategoryChip(context.tr('plate_cat_symmetric'),
+                      PlateCategory.symmetric, isDark),
                 ],
               ),
             ),
@@ -251,7 +284,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
           padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildPlateCard(filteredPlates[index], isDark, playerBalance, ownedCars),
+              (context, index) => _buildPlateCard(
+                  filteredPlates[index], isDark, playerBalance, ownedCars),
               childCount: filteredPlates.length,
             ),
           ),
@@ -280,7 +314,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             border: Border.all(
               color: isSelected
                   ? const Color(0xFF0F172A)
-                  : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                  : (isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFFCBD5E1)),
               width: 1.8,
             ),
           ),
@@ -289,7 +325,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             style: TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w900,
-              color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)),
+              color: isSelected
+                  ? Colors.black
+                  : (isDark ? Colors.white70 : const Color(0xFF475569)),
             ),
           ),
         ),
@@ -297,7 +335,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     );
   }
 
-  Widget _buildPlateCard(SpecialPlateItem plate, bool isDark, double playerBalance, List<CarModel> ownedCars) {
+  Widget _buildPlateCard(SpecialPlateItem plate, bool isDark,
+      double playerBalance, List<CarModel> ownedCars) {
     final bool isAlreadyOwned = _isPlateInUse(plate.plateNumber, ownedCars);
     final carUsingPlate = _getCarUsingPlate(plate.plateNumber, ownedCars);
     final bool canAfford = playerBalance >= plate.price;
@@ -359,7 +398,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       ),
                       const SizedBox(width: 6),
                       NeoBrutalBadge(
-                        text: context.tr('plate_value_bonus_badge', {'percent': plate.valueBonusPercent}),
+                        text: context.tr('plate_value_bonus_badge',
+                            {'percent': plate.valueBonusPercent}),
                         icon: Icons.trending_up_rounded,
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
@@ -369,20 +409,24 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                     ],
                   ],
                 ),
-                Text(
+                Expanded(
+                    child: Text(
                   context.tr('plate_city_registration', {'city': plate.city}),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
-                ),
+                )),
               ],
             ),
             const SizedBox(height: 12),
 
             // Middle: Turkish Plate Display Widget
-            _buildTurkishPlateWidget(plate.plateNumber, isDark, isLegendary: plate.rarity == 'legendary'),
+            _buildTurkishPlateWidget(plate.plateNumber, isDark,
+                isLegendary: plate.rarity == 'legendary'),
             const SizedBox(height: 10),
 
             // Title & Description
@@ -400,17 +444,22 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                color:
+                    isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
               ),
             ),
             if (isAlreadyOwned && carUsingPlate != null) ...[
               const SizedBox(height: 6),
               Text(
-                context.tr('plate_registered_car_label', {'car': '${carUsingPlate.brand} ${carUsingPlate.modelName}'}),
+                context.tr('plate_registered_car_label', {
+                  'car': '${carUsingPlate.brand} ${carUsingPlate.modelName}'
+                }),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309),
+                  color: isDark
+                      ? const Color(0xFFFFDE59)
+                      : const Color(0xFFB45309),
                 ),
               ),
             ],
@@ -428,7 +477,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        color:
+                            isDark ? Colors.white60 : const Color(0xFF64748B),
                       ),
                     ),
                     Text(
@@ -436,7 +486,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309),
+                        color: isDark
+                            ? const Color(0xFFFFDE59)
+                            : const Color(0xFFB45309),
                       ),
                     ),
                   ],
@@ -444,17 +496,28 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                 NeoBrutalButton(
                   label: isAlreadyOwned
                       ? context.tr('plate_btn_in_use')
-                      : (canAfford ? context.tr('plate_buy_and_assign_btn') : context.tr('plate_insufficient_funds_btn')),
-                  icon: isAlreadyOwned ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+                      : (canAfford
+                          ? context.tr('plate_buy_and_assign_btn')
+                          : context.tr('plate_insufficient_funds_btn')),
+                  icon: isAlreadyOwned
+                      ? Icons.check_circle_rounded
+                      : Icons.check_circle_outline_rounded,
                   backgroundColor: isAlreadyOwned
-                      ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
-                      : (canAfford ? AppColors.brutalGreen : const Color(0xFF334155)),
+                      ? (isDark
+                          ? const Color(0xFF1E2433)
+                          : const Color(0xFFCBD5E1))
+                      : (canAfford
+                          ? AppColors.brutalGreen
+                          : const Color(0xFF334155)),
                   textColor: isAlreadyOwned
                       ? (isDark ? Colors.white60 : const Color(0xFF64748B))
                       : (canAfford ? Colors.black : const Color(0xFF94A3B8)),
                   fontSize: 11,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  onPressed: (!isAlreadyOwned && canAfford) ? () => _openVehicleAssignmentSheet(plate) : null,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  onPressed: (!isAlreadyOwned && canAfford)
+                      ? () => _openVehicleAssignmentSheet(plate)
+                      : null,
                 ),
               ],
             ),
@@ -467,14 +530,16 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
   // ==========================================
   // TAB 2: INTERACTIVE CUSTOM DESIGNER
   // ==========================================
-  Widget _buildDesignerTab(bool isDark, double playerBalance, List<CarModel> ownedCars) {
+  Widget _buildDesignerTab(
+      bool isDark, double playerBalance, List<CarModel> ownedCars) {
     final customPlate = SpecialPlateEngine.evaluateCustomPlate(
       cityCode: _customCityCode,
       letters: _lettersController.text,
       digits: _digitsController.text,
     );
 
-    final bool isAlreadyOwned = _isPlateInUse(customPlate.plateNumber, ownedCars);
+    final bool isAlreadyOwned =
+        _isPlateInUse(customPlate.plateNumber, ownedCars);
     final carUsingPlate = _getCarUsingPlate(customPlate.plateNumber, ownedCars);
     final bool canAfford = playerBalance >= customPlate.price;
 
@@ -486,7 +551,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
         NeoBrutalCard(
           padding: const EdgeInsets.all(16),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -494,7 +560,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Expanded(
+                      child: Text(
                     context.tr('plate_live_preview_title'),
                     style: const TextStyle(
                       fontSize: 11,
@@ -502,16 +569,20 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       letterSpacing: 0.5,
                       color: Color(0xFF64748B),
                     ),
-                  ),
+                  )),
                   NeoBrutalBadge(
                     text: customPlate.rarity == 'legendary'
                         ? context.tr('plate_rarity_legendary')
                         : (customPlate.rarity == 'symmetric'
                             ? context.tr('plate_rarity_symmetric')
-                            : (customPlate.rarity == 'repeated' ? context.tr('plate_rarity_repeated') : context.tr('plate_rarity_custom'))),
+                            : (customPlate.rarity == 'repeated'
+                                ? context.tr('plate_rarity_repeated')
+                                : context.tr('plate_rarity_custom'))),
                     backgroundColor: customPlate.rarity == 'legendary'
                         ? AppColors.brutalYellow
-                        : (customPlate.rarity == 'symmetric' ? const Color(0xFF38BDF8) : AppColors.brutalGreen),
+                        : (customPlate.rarity == 'symmetric'
+                            ? const Color(0xFF38BDF8)
+                            : AppColors.brutalGreen),
                     textColor: Colors.black,
                     fontSize: 9.5,
                   ),
@@ -540,35 +611,48 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                  color: isDark
+                      ? const Color(0xFFCBD5E1)
+                      : const Color(0xFF475569),
                 ),
               ),
               if (isAlreadyOwned) ...[
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF3B1E1E) : const Color(0xFFFEE2E2),
+                    color: isDark
+                        ? const Color(0xFF3B1E1E)
+                        : const Color(0xFFFEE2E2),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFEF4444),
+                      color: isDark
+                          ? const Color(0xFF7F1D1D)
+                          : const Color(0xFFEF4444),
                       width: 1.5,
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFEF4444)),
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 16, color: Color(0xFFEF4444)),
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
                           carUsingPlate != null
-                              ? context.tr('plate_registered_car_label', {'car': '${carUsingPlate.brand} ${carUsingPlate.modelName}'})
+                              ? context.tr('plate_registered_car_label', {
+                                  'car':
+                                      '${carUsingPlate.brand} ${carUsingPlate.modelName}'
+                                })
                               : context.tr('plate_btn_in_use'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? const Color(0xFFFCA5A5) : const Color(0xFFB91C1C),
+                            color: isDark
+                                ? const Color(0xFFFCA5A5)
+                                : const Color(0xFFB91C1C),
                           ),
                         ),
                       ),
@@ -585,14 +669,19 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
         NeoBrutalCard(
           padding: const EdgeInsets.all(16),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 context.tr('plate_designer_params_title'),
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5, color: Color(0xFF64748B)),
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 12),
 
@@ -609,27 +698,36 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white70 : const Color(0xFF475569),
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF475569),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                            color: isDark
+                                ? const Color(0xFF1E2433)
+                                : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 1.8,
                             ),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: _customCityCode,
-                              dropdownColor: isDark ? const Color(0xFF141721) : Colors.white,
+                              dropdownColor: isDark
+                                  ? const Color(0xFF141721)
+                                  : Colors.white,
                               isExpanded: true,
                               icon: const Icon(Icons.arrow_drop_down_rounded),
-                              items: SpecialPlateEngine.cityCodeMap.entries.map((e) {
+                              items: SpecialPlateEngine.cityCodeMap.entries
+                                  .map((e) {
                                 return DropdownMenuItem(
                                   value: e.key,
                                   child: Text(
@@ -637,7 +735,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
-                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      color: isDark
+                                          ? Colors.white
+                                          : const Color(0xFF0F172A),
                                     ),
                                   ),
                                 );
@@ -667,7 +767,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white70 : const Color(0xFF475569),
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF475569),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -678,24 +780,31 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
                             counterText: '',
                             hintText: context.tr('plate_letters_hint'),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
                             filled: true,
-                            fillColor: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                            fillColor: isDark
+                                ? const Color(0xFF1E2433)
+                                : const Color(0xFFF1F5F9),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 1.8,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.2),
+                              borderSide: const BorderSide(
+                                  color: AppColors.brutalYellow, width: 2.2),
                             ),
                           ),
                           onChanged: (_) => setState(() {}),
@@ -716,7 +825,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white70 : const Color(0xFF475569),
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF475569),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -727,24 +838,31 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
                             counterText: '',
                             hintText: context.tr('plate_digits_hint'),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
                             filled: true,
-                            fillColor: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                            fillColor: isDark
+                                ? const Color(0xFF1E2433)
+                                : const Color(0xFFF1F5F9),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 1.8,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.2),
+                              borderSide: const BorderSide(
+                                  color: AppColors.brutalYellow, width: 2.2),
                             ),
                           ),
                           onChanged: (_) => setState(() {}),
@@ -760,10 +878,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF191F2D) : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? const Color(0xFF191F2D)
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF2E384D) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF2E384D)
+                        : const Color(0xFFE2E8F0),
                     width: 1.5,
                   ),
                 ),
@@ -778,7 +900,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                            color: isDark
+                                ? Colors.white60
+                                : const Color(0xFF64748B),
                           ),
                         ),
                         Text(
@@ -786,7 +910,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309),
+                            color: isDark
+                                ? const Color(0xFFFFDE59)
+                                : const Color(0xFFB45309),
                           ),
                         ),
                       ],
@@ -794,17 +920,30 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                     NeoBrutalButton(
                       label: isAlreadyOwned
                           ? context.tr('plate_btn_in_use')
-                          : (canAfford ? context.tr('plate_register_and_assign_btn') : context.tr('plate_insufficient_funds_btn')),
-                      icon: isAlreadyOwned ? Icons.block_rounded : Icons.check_circle_outline_rounded,
+                          : (canAfford
+                              ? context.tr('plate_register_and_assign_btn')
+                              : context.tr('plate_insufficient_funds_btn')),
+                      icon: isAlreadyOwned
+                          ? Icons.block_rounded
+                          : Icons.check_circle_outline_rounded,
                       backgroundColor: isAlreadyOwned
-                          ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
-                          : (canAfford ? AppColors.brutalGreen : const Color(0xFF334155)),
+                          ? (isDark
+                              ? const Color(0xFF1E2433)
+                              : const Color(0xFFCBD5E1))
+                          : (canAfford
+                              ? AppColors.brutalGreen
+                              : const Color(0xFF334155)),
                       textColor: isAlreadyOwned
                           ? (isDark ? Colors.white60 : const Color(0xFF64748B))
-                          : (canAfford ? Colors.black : const Color(0xFF94A3B8)),
+                          : (canAfford
+                              ? Colors.black
+                              : const Color(0xFF94A3B8)),
                       fontSize: 11,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      onPressed: (!isAlreadyOwned && canAfford) ? () => _openVehicleAssignmentSheet(customPlate) : null,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                      onPressed: (!isAlreadyOwned && canAfford)
+                          ? () => _openVehicleAssignmentSheet(customPlate)
+                          : null,
                     ),
                   ],
                 ),
@@ -828,7 +967,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         side: BorderSide(
@@ -861,11 +1001,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                             color: AppColors.brutalYellow,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: const Icon(Icons.directions_car_rounded, size: 20, color: Colors.black),
+                          child: const Icon(Icons.directions_car_rounded,
+                              size: 20, color: Colors.black),
                         ),
                         const SizedBox(width: 10),
                         Column(
@@ -873,14 +1016,17 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           children: [
                             Text(
                               context.tr('plate_assign_modal_title'),
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w900),
                             ),
                             Text(
                               '${context.tr('plate_new_plate_label')}: ${plate.plateNumber}',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: isDark ? AppColors.brutalYellow : const Color(0xFFB45309),
+                                color: isDark
+                                    ? AppColors.brutalYellow
+                                    : const Color(0xFFB45309),
                               ),
                             ),
                           ],
@@ -903,18 +1049,23 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       color: isDark ? const Color(0xFF141721) : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
                     child: Column(
                       children: [
-                        Icon(Icons.no_crash_rounded, size: 36, color: isDark ? Colors.white38 : Colors.black38),
+                        Icon(Icons.no_crash_rounded,
+                            size: 36,
+                            color: isDark ? Colors.white38 : Colors.black38),
                         const SizedBox(height: 10),
                         Text(
                           context.tr('plate_no_cars_in_garage_title'),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -922,7 +1073,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 11,
-                            color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                            color: isDark
+                                ? Colors.white60
+                                : const Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -939,7 +1092,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ...ownedCars.map((car) => _buildCarAssignmentCard(car, plate, isDark)),
+                  ...ownedCars.map(
+                      (car) => _buildCarAssignmentCard(car, plate, isDark)),
                 ],
               ],
             ),
@@ -949,7 +1103,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     );
   }
 
-  Widget _buildCarAssignmentCard(CarModel car, SpecialPlateItem plate, bool isDark) {
+  Widget _buildCarAssignmentCard(
+      CarModel car, SpecialPlateItem plate, bool isDark) {
     // Project new market value with target plate
     final tempCarWithNewPlate = car.copyWith(
       plateNumber: plate.plateNumber,
@@ -958,8 +1113,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     final double currentValue = car.estimatedRealValue;
     final double projectedValue = tempCarWithNewPlate.estimatedRealValue;
     final double profitGain = projectedValue - currentValue;
-    final bool isThisCarAlreadyHasPlate = car.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() ==
-        plate.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    final bool isThisCarAlreadyHasPlate =
+        car.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase() ==
+            plate.plateNumber.replaceAll(RegExp(r'\s+'), '').toUpperCase();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -987,11 +1143,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   Row(
                     children: [
                       Text(
-                        context.tr('plate_old_plate_label', {'plate': car.plateNumber}),
+                        context.tr('plate_old_plate_label',
+                            {'plate': car.plateNumber}),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -1000,7 +1159,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                   Row(
                     children: [
                       Text(
-                        context.tr('plate_value_increase_label', {'amount': CurrencyFormatter.formatShort(profitGain)}),
+                        context.tr('plate_value_increase_label', {
+                          'amount': CurrencyFormatter.formatShort(profitGain)
+                        }),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -1014,8 +1175,12 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
             ),
             const SizedBox(width: 8),
             NeoBrutalButton(
-              label: isThisCarAlreadyHasPlate ? context.tr('plate_btn_in_use') : context.tr('plate_assign_to_car_btn'),
-              icon: isThisCarAlreadyHasPlate ? Icons.check_rounded : Icons.check_circle_rounded,
+              label: isThisCarAlreadyHasPlate
+                  ? context.tr('plate_btn_in_use')
+                  : context.tr('plate_assign_to_car_btn'),
+              icon: isThisCarAlreadyHasPlate
+                  ? Icons.check_rounded
+                  : Icons.check_circle_rounded,
               backgroundColor: isThisCarAlreadyHasPlate
                   ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFCBD5E1))
                   : AppColors.brutalYellow,
@@ -1030,13 +1195,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
                       HapticFeedback.heavyImpact();
                       Navigator.of(context).pop();
 
-                      final success = ref.read(gameProvider.notifier).buyAndAssignPlate(
-                            carId: car.id,
-                            plateNumber: plate.plateNumber,
-                            plateRarity: plate.rarity,
-                            cost: plate.price,
-                            reputationBonus: plate.reputationReward,
-                          );
+                      final success =
+                          ref.read(gameProvider.notifier).buyAndAssignPlate(
+                                carId: car.id,
+                                plateNumber: plate.plateNumber,
+                                plateRarity: plate.rarity,
+                                cost: plate.price,
+                                reputationBonus: plate.reputationReward,
+                              );
 
                       if (success) {
                         NotificationService.showSuccess(
@@ -1071,17 +1237,21 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen> with Si
     bool isLarge = false,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: isLarge ? 8 : 6, vertical: isLarge ? 6 : 4),
+      padding: EdgeInsets.symmetric(
+          horizontal: isLarge ? 8 : 6, vertical: isLarge ? 6 : 4),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: isLegendary ? const Color(0xFFEAB308) : const Color(0xFF0F172A),
+          color:
+              isLegendary ? const Color(0xFFEAB308) : const Color(0xFF0F172A),
           width: isLegendary ? 2.5 : 2.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: isLegendary ? const Color(0xFFEAB308).withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.15),
+            color: isLegendary
+                ? const Color(0xFFEAB308).withValues(alpha: 0.35)
+                : Colors.black.withValues(alpha: 0.15),
             offset: const Offset(2, 2),
             blurRadius: 0,
           ),

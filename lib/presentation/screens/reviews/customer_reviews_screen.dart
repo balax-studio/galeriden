@@ -26,7 +26,8 @@ class CustomerReviewsScreen extends ConsumerWidget {
 
     if (!game.isFeatureUnlocked('/reviews')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('reviews_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/reviews',
@@ -42,12 +43,14 @@ class CustomerReviewsScreen extends ConsumerWidget {
         : reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('reviews_screen_title'),
       ),
       body: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         slivers: [
           SliverPadding(
             padding: const EdgeInsets.all(14),
@@ -56,8 +59,11 @@ class CustomerReviewsScreen extends ConsumerWidget {
                 // 1. Rating Header Card
                 NeoBrutalCard(
                   padding: const EdgeInsets.all(16),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   borderRadius: 14,
                   child: Column(
                     children: [
@@ -69,7 +75,9 @@ class CustomerReviewsScreen extends ConsumerWidget {
                               color: AppColors.brutalYellow,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 2.0,
                               ),
                             ),
@@ -77,13 +85,18 @@ class CustomerReviewsScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   avgRating.toStringAsFixed(1),
-                                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.black),
+                                  style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.black),
                                 ),
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: List.generate(5, (i) {
                                     return Icon(
-                                      i < avgRating.round() ? Icons.star_rounded : Icons.star_border_rounded,
+                                      i < avgRating.round()
+                                          ? Icons.star_rounded
+                                          : Icons.star_border_rounded,
                                       color: Colors.black,
                                       size: 14,
                                     );
@@ -99,17 +112,27 @@ class CustomerReviewsScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   context.tr('reviews_map_rating'),
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF64748B)),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  context.tr('reviews_count_label', {'count': '${reviews.length}'}),
-                                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                                  context.tr('reviews_count_label',
+                                      {'count': '${reviews.length}'}),
+                                  style: const TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w900),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  context.tr('reviews_reputation_label', {'rep': '${game.reputationScore}'}),
-                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                                  context.tr('reviews_reputation_label',
+                                      {'rep': '${game.reputationScore}'}),
+                                  style: const TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.brutalGreen),
                                 ),
                               ],
                             ),
@@ -119,17 +142,23 @@ class CustomerReviewsScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       // Bot / PR Review Purchase Action with Algorithmic Cost Scaling
                       NeoBrutalButton(
-                        label: context.tr('reviews_pr_bot_btn', {'cost': CurrencyFormatter.format(game.botReviewCost.toDouble())}),
+                        label: context.tr('reviews_pr_bot_btn', {
+                          'cost': CurrencyFormatter.format(
+                              game.botReviewCost.toDouble())
+                        }),
                         icon: Icons.campaign_rounded,
                         backgroundColor: AppColors.brutalCyan,
                         textColor: Colors.black,
                         fullWidth: true,
                         onPressed: () {
-                          final success = ref.read(gameProvider.notifier).buyBotReview();
+                          final success =
+                              ref.read(gameProvider.notifier).buyBotReview();
                           if (success) {
-                            NotificationService.showSuccess(context, context.tr('reviews_toast_agency_review'));
+                            NotificationService.showSuccess(context,
+                                context.tr('reviews_toast_agency_review'));
                           } else {
-                            NotificationService.showError(context, context.tr('err_insufficient_cash'));
+                            NotificationService.showError(
+                                context, context.tr('err_insufficient_cash'));
                           }
                         },
                       ),
@@ -138,14 +167,21 @@ class CustomerReviewsScreen extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.shield_outlined, size: 12, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                            Icon(Icons.shield_outlined,
+                                size: 12,
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B)),
                             const SizedBox(width: 4),
                             Text(
-                              context.tr('reviews_bot_count_info', {'count': '${game.botReviewCount}'}),
+                              context.tr('reviews_bot_count_info',
+                                  {'count': '${game.botReviewCount}'}),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ],
@@ -181,7 +217,8 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   badgeText: context.tr('reviews_empty_badge'),
                   title: context.tr('reviews_empty_title'),
                   description: context.tr('reviews_empty_desc'),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 ),
               ),
             )
@@ -196,8 +233,11 @@ class CustomerReviewsScreen extends ConsumerWidget {
                       padding: const EdgeInsets.only(bottom: 10),
                       child: NeoBrutalCard(
                         padding: const EdgeInsets.all(14),
-                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                        borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                        backgroundColor:
+                            isDark ? const Color(0xFF141721) : Colors.white,
+                        borderColor: isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A),
                         borderRadius: 12,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,15 +245,19 @@ class CustomerReviewsScreen extends ConsumerWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                Expanded(
+                                    child: Text(
                                   r.reviewerName,
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-                                ),
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w900),
+                                )),
                                 Row(
                                   children: [
                                     if (r.isCompensated) ...[
                                       NeoBrutalBadge(
-                                        text: context.tr('reviews_compensated_badge'),
+                                        text: context
+                                            .tr('reviews_compensated_badge'),
                                         backgroundColor: AppColors.brutalGreen,
                                         textColor: Colors.black,
                                         fontSize: 9,
@@ -223,7 +267,9 @@ class CustomerReviewsScreen extends ConsumerWidget {
                                     Row(
                                       children: List.generate(5, (i) {
                                         return Icon(
-                                          i < r.rating.round() ? Icons.star_rounded : Icons.star_border_rounded,
+                                          i < r.rating.round()
+                                              ? Icons.star_rounded
+                                              : Icons.star_border_rounded,
                                           color: AppColors.brutalYellow,
                                           size: 16,
                                         );
@@ -235,37 +281,52 @@ class CustomerReviewsScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             NeoBrutalBadge(
-                              text: context.tr('reviews_sold_car_badge', {'car': r.carTitle}),
-                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                              textColor: isDark ? Colors.white70 : const Color(0xFF334155),
+                              text: context.tr('reviews_sold_car_badge',
+                                  {'car': r.carTitle}),
+                              backgroundColor: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFF1F5F9),
+                              textColor: isDark
+                                  ? Colors.white70
+                                  : const Color(0xFF334155),
                               fontSize: 10,
                             ),
                             const SizedBox(height: 8),
                             Text(
                               r.comment,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w600),
                             ),
                             if (r.reply != null) ...[
                               const SizedBox(height: 8),
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
+                                  color: isDark
+                                      ? const Color(0xFF1E2330)
+                                      : const Color(0xFFF8FAFC),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: AppColors.brutalYellow.withValues(alpha: 0.5)),
+                                  border: Border.all(
+                                      color: AppColors.brutalYellow
+                                          .withValues(alpha: 0.5)),
                                 ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(Icons.reply_rounded, size: 16, color: AppColors.brutalYellow),
+                                    const Icon(Icons.reply_rounded,
+                                        size: 16,
+                                        color: AppColors.brutalYellow),
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
-                                        context.tr('reviews_reply_prefix', {'reply': r.reply ?? ''}),
+                                        context.tr('reviews_reply_prefix',
+                                            {'reply': r.reply ?? ''}),
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: isDark ? Colors.white70 : const Color(0xFF334155),
+                                          color: isDark
+                                              ? Colors.white70
+                                              : const Color(0xFF334155),
                                         ),
                                       ),
                                     ),
@@ -281,25 +342,45 @@ class CustomerReviewsScreen extends ConsumerWidget {
                                     child: NeoBrutalButton(
                                       label: context.tr('reviews_reply_btn'),
                                       icon: Icons.reply_rounded,
-                                      backgroundColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
-                                      textColor: isDark ? Colors.white : Colors.black,
-                                      onPressed: () => _showReplyDialog(context, ref, r.id),
+                                      backgroundColor: isDark
+                                          ? const Color(0xFF262C3D)
+                                          : const Color(0xFFE2E8F0),
+                                      textColor:
+                                          isDark ? Colors.white : Colors.black,
+                                      onPressed: () =>
+                                          _showReplyDialog(context, ref, r.id),
                                     ),
                                   ),
-                                if (r.reply == null && r.rating <= 2 && !r.isCompensated) const SizedBox(width: 8),
+                                if (r.reply == null &&
+                                    r.rating <= 2 &&
+                                    !r.isCompensated)
+                                  const SizedBox(width: 8),
                                 if (r.rating <= 2 && !r.isCompensated)
                                   Expanded(
                                     child: NeoBrutalButton(
-                                      label: context.tr('reviews_compensate_btn', {'cost': CurrencyFormatter.format(GameConstants.customerCompensationCost)}),
+                                      label: context.tr(
+                                          'reviews_compensate_btn', {
+                                        'cost': CurrencyFormatter.format(
+                                            GameConstants
+                                                .customerCompensationCost)
+                                      }),
                                       icon: Icons.card_giftcard_rounded,
                                       backgroundColor: AppColors.brutalOrange,
                                       textColor: Colors.white,
                                       onPressed: () {
-                                        final success = ref.read(gameProvider.notifier).compensateCustomerReview(r.id);
+                                        final success = ref
+                                            .read(gameProvider.notifier)
+                                            .compensateCustomerReview(r.id);
                                         if (success) {
-                                          NotificationService.showSuccess(context, context.tr('reviews_toast_gift_sent'));
+                                          NotificationService.showSuccess(
+                                              context,
+                                              context.tr(
+                                                  'reviews_toast_gift_sent'));
                                         } else {
-                                          NotificationService.showError(context, context.tr('err_insufficient_cash'));
+                                          NotificationService.showError(
+                                              context,
+                                              context
+                                                  .tr('err_insufficient_cash'));
                                         }
                                       },
                                     ),
@@ -332,7 +413,8 @@ class CustomerReviewsScreen extends ConsumerWidget {
         child: NeoBrutalCard(
           padding: const EdgeInsets.all(18),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderWidth: 2.5,
           borderRadius: 14,
           shadowOffset: const Offset(4, 4),
@@ -348,11 +430,14 @@ class CustomerReviewsScreen extends ConsumerWidget {
                       color: AppColors.brutalYellow,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.reply_rounded, color: Colors.black, size: 20),
+                    child: const Icon(Icons.reply_rounded,
+                        color: Colors.black, size: 20),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -383,19 +468,25 @@ class CustomerReviewsScreen extends ConsumerWidget {
                     fontSize: 12,
                   ),
                   filled: true,
-                  fillColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF8FAFC),
+                  fillColor: isDark
+                      ? const Color(0xFF0C0E14)
+                      : const Color(0xFFF8FAFC),
                   contentPadding: const EdgeInsets.all(12),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                      color: isDark
+                          ? const Color(0xFF2A3142)
+                          : const Color(0xFFCBD5E1),
                       width: 1.5,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: isDark ? AppColors.brutalYellow : const Color(0xFF0F172A),
+                      color: isDark
+                          ? AppColors.brutalYellow
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
@@ -407,8 +498,11 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   Expanded(
                     child: NeoBrutalButton(
                       label: context.tr('cancel'),
-                      backgroundColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
-                      textColor: isDark ? Colors.white70 : const Color(0xFF334155),
+                      backgroundColor: isDark
+                          ? const Color(0xFF262C3D)
+                          : const Color(0xFFE2E8F0),
+                      textColor:
+                          isDark ? Colors.white70 : const Color(0xFF334155),
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ),
@@ -421,9 +515,11 @@ class CustomerReviewsScreen extends ConsumerWidget {
                       textColor: Colors.black,
                       onPressed: () {
                         if (textController.text.trim().isNotEmpty) {
-                          ref.read(gameProvider.notifier).replyToCustomerReview(reviewId, textController.text.trim());
+                          ref.read(gameProvider.notifier).replyToCustomerReview(
+                              reviewId, textController.text.trim());
                           Navigator.pop(ctx);
-                          NotificationService.showSuccess(context, context.tr('reviews_toast_reply_published'));
+                          NotificationService.showSuccess(context,
+                              context.tr('reviews_toast_reply_published'));
                         }
                       },
                     ),

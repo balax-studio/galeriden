@@ -35,7 +35,10 @@ class _SteamCupWidgetState extends State<SteamCupWidget>
       duration: const Duration(milliseconds: 2400),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.repeat();
     } else {

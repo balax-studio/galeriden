@@ -12,7 +12,8 @@ import '../slam_stamp_widget.dart';
 
 class EngineTimingModal extends StatefulWidget {
   final CarModel car;
-  final Function(bool isPerfect, int hpBonus, String resultMessage) onTimingCalibrated;
+  final Function(bool isPerfect, int hpBonus, String resultMessage)
+      onTimingCalibrated;
 
   const EngineTimingModal({
     super.key,
@@ -23,7 +24,8 @@ class EngineTimingModal extends StatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required CarModel car,
-    required Function(bool isPerfect, int hpBonus, String resultMessage) onTimingCalibrated,
+    required Function(bool isPerfect, int hpBonus, String resultMessage)
+        onTimingCalibrated,
   }) {
     return showDialog(
       context: context,
@@ -81,7 +83,8 @@ class _EngineTimingModalState extends State<EngineTimingModal>
 
       // Check alignment to top notch (around 0 / 2pi)
       final normalizedDiff = (_camAngle % (math.pi * 2));
-      final diffFromZero = math.min(normalizedDiff, math.pi * 2 - normalizedDiff);
+      final diffFromZero =
+          math.min(normalizedDiff, math.pi * 2 - normalizedDiff);
 
       if (diffFromZero < 0.12) {
         _camAngle = 0.0;
@@ -108,12 +111,14 @@ class _EngineTimingModalState extends State<EngineTimingModal>
       HapticFeedback.heavyImpact();
       _isPerfect = true;
       _hpBonus = math.max(6, (widget.car.baseMarketValue / 80000).round());
-      _stampText = context.tr('engine_timing_stamp_perfect', {'hp': '$_hpBonus'});
+      _stampText =
+          context.tr('engine_timing_stamp_perfect', {'hp': '$_hpBonus'});
     } else {
       HapticFeedback.vibrate();
       _isPerfect = false;
       _hpBonus = 2;
-      _stampText = context.tr('engine_timing_stamp_standard', {'hp': '$_hpBonus'});
+      _stampText =
+          context.tr('engine_timing_stamp_standard', {'hp': '$_hpBonus'});
     }
 
     setState(() {
@@ -158,7 +163,10 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr('engine_timing_subtitle', {'brand': widget.car.brand, 'model': widget.car.modelName}),
+                        context.tr('engine_timing_subtitle', {
+                          'brand': widget.car.brand,
+                          'model': widget.car.modelName
+                        }),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -169,8 +177,14 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: _phase == 0 ? context.tr('engine_timing_step_align') : (_phase == 1 ? context.tr('engine_timing_step_torque') : context.tr('engine_timing_step_calibrated')),
-                  backgroundColor: _phase == 2 ? AppColors.brutalGreen : AppColors.brutalOrange,
+                  text: _phase == 0
+                      ? context.tr('engine_timing_step_align')
+                      : (_phase == 1
+                          ? context.tr('engine_timing_step_torque')
+                          : context.tr('engine_timing_step_calibrated')),
+                  backgroundColor: _phase == 2
+                      ? AppColors.brutalGreen
+                      : AppColors.brutalOrange,
                   textColor: Colors.black,
                   fontSize: 9.5,
                 ),
@@ -211,7 +225,9 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                       child: Center(
                         child: SlamStampWidget(
                           text: _stampText,
-                          color: _isPerfect ? AppColors.brutalGreen : AppColors.brutalYellow,
+                          color: _isPerfect
+                              ? AppColors.brutalGreen
+                              : AppColors.brutalYellow,
                           fontSize: 20,
                           angle: -0.06,
                         ),
@@ -231,7 +247,12 @@ class _EngineTimingModalState extends State<EngineTimingModal>
                 border: Border.all(color: const Color(0xFF2A3449)),
               ),
               child: Text(
-                _phase == 0 ? context.tr('engine_timing_msg_align') : (_phase == 1 ? context.tr('engine_timing_msg_torque') : context.tr('engine_timing_msg_calibrated', {'hp': '$_hpBonus'})),
+                _phase == 0
+                    ? context.tr('engine_timing_msg_align')
+                    : (_phase == 1
+                        ? context.tr('engine_timing_msg_torque')
+                        : context.tr('engine_timing_msg_calibrated',
+                            {'hp': '$_hpBonus'})),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 11,
@@ -326,7 +347,9 @@ class _EngineTimingPainter extends CustomPainter {
     final cx = size.width / 2;
 
     // 1. Grid
-    final gridPaint = Paint()..color = const Color(0xFF141926)..strokeWidth = 1.0;
+    final gridPaint = Paint()
+      ..color = const Color(0xFF141926)
+      ..strokeWidth = 1.0;
     for (double x = 0; x < size.width; x += 20) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
     }
@@ -385,7 +408,8 @@ class _EngineTimingPainter extends CustomPainter {
         ..color = const Color(0xFF1E283D)
         ..strokeWidth = 14.0
         ..strokeCap = StrokeCap.round;
-      canvas.drawLine(Offset(scaleLeft, scaleY), Offset(scaleRight, scaleY), barPaint);
+      canvas.drawLine(
+          Offset(scaleLeft, scaleY), Offset(scaleRight, scaleY), barPaint);
 
       // Green target torque zone (105-118 Nm -> ~60% to 80%)
       final greenPaint = Paint()
@@ -402,14 +426,16 @@ class _EngineTimingPainter extends CustomPainter {
       final needlePaint = Paint()
         ..color = Colors.white
         ..strokeWidth = 3.5;
-      canvas.drawLine(Offset(needleX, scaleY - 18), Offset(needleX, scaleY + 18), needlePaint);
+      canvas.drawLine(Offset(needleX, scaleY - 18),
+          Offset(needleX, scaleY + 18), needlePaint);
 
       final capPaint = Paint()..color = AppColors.brutalOrange;
       canvas.drawCircle(Offset(needleX, scaleY - 18), 5, capPaint);
     }
   }
 
-  void _drawGear(Canvas canvas, Offset center, double radius, double angle, String label) {
+  void _drawGear(
+      Canvas canvas, Offset center, double radius, double angle, String label) {
     final gearPaint = Paint()
       ..color = const Color(0xFF1E293B)
       ..style = PaintingStyle.fill;
@@ -420,7 +446,8 @@ class _EngineTimingPainter extends CustomPainter {
 
     canvas.drawCircle(center, radius, gearPaint);
     canvas.drawCircle(center, radius, borderPaint);
-    canvas.drawCircle(center, radius * 0.35, Paint()..color = const Color(0xFF0F172A));
+    canvas.drawCircle(
+        center, radius * 0.35, Paint()..color = const Color(0xFF0F172A));
 
     // Timing Notch (Sente Çentiği)
     final notchX = center.dx + math.sin(angle) * radius;

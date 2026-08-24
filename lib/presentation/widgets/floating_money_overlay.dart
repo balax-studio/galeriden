@@ -31,11 +31,14 @@ class FloatingMoneyOverlay extends StatefulWidget {
   State<FloatingMoneyOverlay> createState() => FloatingMoneyOverlayState();
 }
 
-class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay> with TickerProviderStateMixin {
+class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay>
+    with TickerProviderStateMixin {
   final List<_ParticleItem> _particles = [];
 
   void showMoneyPopUp(double amount, {Offset? position, String label = ''}) {
-    final startPos = position ?? Offset(MediaQuery.of(context).size.width / 2, MediaQuery.of(context).size.height * 0.4);
+    final startPos = position ??
+        Offset(MediaQuery.of(context).size.width / 2,
+            MediaQuery.of(context).size.height * 0.4);
     final id = DateTime.now().microsecondsSinceEpoch.toString();
 
     final controller = AnimationController(
@@ -94,7 +97,8 @@ class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay> with TickerP
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.add_circle_rounded, color: AppColors.laserGreen, size: 16),
+            const Icon(Icons.add_circle_rounded,
+                color: AppColors.laserGreen, size: 16),
             const SizedBox(width: 4),
             Text(
               '+${CurrencyFormatter.formatShort(item.amount)} ${item.label}',

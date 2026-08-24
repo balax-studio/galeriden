@@ -33,4 +33,3 @@ abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
     saveState();
   }
 }
-

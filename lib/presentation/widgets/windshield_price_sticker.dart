@@ -45,10 +45,22 @@ class _WindshieldPriceStickerState extends State<WindshieldPriceSticker>
     );
 
     _wobbleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.04).chain(CurveTween(curve: Curves.easeOut)), weight: 25),
-      TweenSequenceItem(tween: Tween(begin: 0.04, end: -0.03).chain(CurveTween(curve: Curves.easeInOut)), weight: 35),
-      TweenSequenceItem(tween: Tween(begin: -0.03, end: 0.015).chain(CurveTween(curve: Curves.easeInOut)), weight: 25),
-      TweenSequenceItem(tween: Tween(begin: 0.015, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 15),
+      TweenSequenceItem(
+          tween: Tween(begin: 0.0, end: 0.04)
+              .chain(CurveTween(curve: Curves.easeOut)),
+          weight: 25),
+      TweenSequenceItem(
+          tween: Tween(begin: 0.04, end: -0.03)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 35),
+      TweenSequenceItem(
+          tween: Tween(begin: -0.03, end: 0.015)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 25),
+      TweenSequenceItem(
+          tween: Tween(begin: 0.015, end: 0.0)
+              .chain(CurveTween(curve: Curves.easeIn)),
+          weight: 15),
     ]).animate(_controller);
 
     if (widget.isWobbly) {
@@ -107,9 +119,15 @@ class _WindshieldPriceStickerState extends State<WindshieldPriceSticker>
             children: [
               if (widget.subtitle != null || widget.isBargain) ...[
                 Text(
-                  (widget.subtitle ?? (widget.isBargain ? context.tr('sticker_bargain_price') : context.tr('sticker_sale_price'))).toUpperCase(),
+                  (widget.subtitle ??
+                          (widget.isBargain
+                              ? context.tr('sticker_bargain_price')
+                              : context.tr('sticker_sale_price')))
+                      .toUpperCase(),
                   style: TextStyle(
-                    color: widget.isBargain ? const Color(0xFFB91C1C) : widget.textColor.withValues(alpha: 0.8),
+                    color: widget.isBargain
+                        ? const Color(0xFFB91C1C)
+                        : widget.textColor.withValues(alpha: 0.8),
                     fontSize: 8.5,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.1,

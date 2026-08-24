@@ -73,9 +73,13 @@ class _CrackedGlassBadgeState extends State<CrackedGlassBadge>
       );
     }
 
-    final changedCount = exp.bodyParts.values.where((s) => s == PartStatus.changed || s == PartStatus.damaged).length;
-    final paintedCount = exp.bodyParts.values.where((s) => s == PartStatus.painted).length;
-    final isRoofDamaged = exp.bodyParts['Tavan'] == PartStatus.changed || exp.bodyParts['Tavan'] == PartStatus.damaged;
+    final changedCount = exp.bodyParts.values
+        .where((s) => s == PartStatus.changed || s == PartStatus.damaged)
+        .length;
+    final paintedCount =
+        exp.bodyParts.values.where((s) => s == PartStatus.painted).length;
+    final isRoofDamaged = exp.bodyParts['Tavan'] == PartStatus.changed ||
+        exp.bodyParts['Tavan'] == PartStatus.damaged;
 
     if (exp.tramerAmount >= 75000 || isRoofDamaged) {
       return _DefectBadgeInfo(

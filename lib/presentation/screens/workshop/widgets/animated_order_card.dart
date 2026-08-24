@@ -25,7 +25,8 @@ class AnimatedOrderCard extends StatefulWidget {
   State<AnimatedOrderCard> createState() => _AnimatedOrderCardState();
 }
 
-class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTickerProviderStateMixin {
+class _AnimatedOrderCardState extends State<AnimatedOrderCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -121,7 +122,9 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _isInstalling ? p.successColor.withValues(alpha: 0.25) : p.surfaceColor,
+              color: _isInstalling
+                  ? p.successColor.withValues(alpha: 0.25)
+                  : p.surfaceColor,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: _isInstalling ? p.successColor : p.surfaceBorderColor,
@@ -131,7 +134,9 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
             child: Row(
               children: [
                 VectorIconWidget(
-                  type: order.orderType == OrderType.masterRepair ? 'craftsman' : 'workshop',
+                  type: order.orderType == OrderType.masterRepair
+                      ? 'craftsman'
+                      : 'workshop',
                   size: 24,
                   color: isReady ? p.successColor : p.primaryColor,
                 ),
@@ -142,7 +147,8 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                     children: [
                       Text(
                         '${order.partName} • $orderTypeLabel',
-                        style: AppTypography.titleLarge(p.isDark).copyWith(fontSize: 14, fontWeight: FontWeight.w900),
+                        style: AppTypography.titleLarge(p.isDark).copyWith(
+                            fontSize: 14, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 4),
                       ClipRRect(
@@ -150,15 +156,19 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                         child: LinearProgressIndicator(
                           value: order.progressPercentage,
                           backgroundColor: p.surfaceBorderColor,
-                          valueColor: AlwaysStoppedAnimation<Color>(isReady ? p.successColor : p.primaryColor),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              isReady ? p.successColor : p.primaryColor),
                           minHeight: 6,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         isReady
-                            ? (_isInstalling ? context.tr('order_card_installing') : context.tr('order_card_delivered'))
-                            : context.tr('order_card_in_cargo', {'sec': remainingSec}),
+                            ? (_isInstalling
+                                ? context.tr('order_card_installing')
+                                : context.tr('order_card_delivered'))
+                            : context.tr(
+                                'order_card_in_cargo', {'sec': remainingSec}),
                         style: AppTypography.labelSmall(p.isDark).copyWith(
                           color: isReady ? p.successColor : p.warningColor,
                           fontSize: 11,
@@ -176,19 +186,23 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                       onTap: widget.onFastDeliverWithAd,
                       borderRadius: BorderRadius.circular(6),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 7),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFDE59),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: p.isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 1.5,
                           ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.bolt_rounded, size: 14, color: Colors.black),
+                            const Icon(Icons.bolt_rounded,
+                                size: 14, color: Colors.black),
                             const SizedBox(width: 2),
                             Text(
                               context.tr('order_card_speed_up'),
@@ -205,14 +219,26 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard> with SingleTicker
                   ),
                 NeoBrutalButton(
                   label: isReady
-                      ? (_isInstalling ? '...' : context.tr('order_card_btn_install'))
+                      ? (_isInstalling
+                          ? '...'
+                          : context.tr('order_card_btn_install'))
                       : context.tr('order_card_btn_waiting'),
-                  backgroundColor: isReady ? p.successColor : (p.isDark ? const Color(0xFF1E2330) : const Color(0xFFCBD5E1)),
-                  textColor: isReady ? Colors.black : (p.isDark ? Colors.white60 : Colors.black54),
-                  borderColor: p.isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  backgroundColor: isReady
+                      ? p.successColor
+                      : (p.isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFCBD5E1)),
+                  textColor: isReady
+                      ? Colors.black
+                      : (p.isDark ? Colors.white60 : Colors.black54),
+                  borderColor: p.isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   fontSize: 10.5,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  onPressed: (isReady && !_isInstalling) ? _triggerInstallation : null,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  onPressed:
+                      (isReady && !_isInstalling) ? _triggerInstallation : null,
                 ),
               ],
             ),

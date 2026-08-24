@@ -16,7 +16,8 @@ class ConfettiCelebrationOverlay extends StatefulWidget {
   });
 
   /// Static helper to trigger confetti overlay on top of current navigator overlay
-  static void show(BuildContext context, {Duration duration = const Duration(milliseconds: 2200)}) {
+  static void show(BuildContext context,
+      {Duration duration = const Duration(milliseconds: 2200)}) {
     final overlay = Overlay.of(context);
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -33,7 +34,8 @@ class ConfettiCelebrationOverlay extends StatefulWidget {
   }
 
   @override
-  State<ConfettiCelebrationOverlay> createState() => _ConfettiCelebrationOverlayState();
+  State<ConfettiCelebrationOverlay> createState() =>
+      _ConfettiCelebrationOverlayState();
 }
 
 class _ConfettiCelebrationOverlayState extends State<ConfettiCelebrationOverlay>
@@ -144,7 +146,9 @@ class _ConfettiPainter extends CustomPainter {
       final currentY = (p.startY + (progress * p.speedY * 1.5)) * size.height;
       if (currentY > size.height + 20) continue;
 
-      final wave = math.sin((progress * p.oscillationSpeed * math.pi) + (p.startX * 10)) * 25.0;
+      final wave = math.sin(
+              (progress * p.oscillationSpeed * math.pi) + (p.startX * 10)) *
+          25.0;
       final currentX = (p.startX * size.width) + wave;
 
       final rotation = progress * p.rotationSpeed * math.pi;
@@ -162,7 +166,8 @@ class _ConfettiPainter extends CustomPainter {
       final halfW = (p.isRectangle ? p.size * 1.6 : p.size) / 2;
       final halfH = p.size / 2;
       final rrect = RRect.fromRectAndRadius(
-        Rect.fromCenter(center: Offset.zero, width: halfW * 2, height: halfH * 2),
+        Rect.fromCenter(
+            center: Offset.zero, width: halfW * 2, height: halfH * 2),
         const Radius.circular(2),
       );
 

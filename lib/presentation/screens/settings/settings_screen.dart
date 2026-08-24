@@ -31,7 +31,8 @@ class SettingsScreen extends ConsumerWidget {
     final isDark = p.isDark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('settings_title'),
       ),
@@ -43,7 +44,8 @@ class SettingsScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: InkWell(
               onTap: () => context.push('/dealership-identity'),
@@ -55,11 +57,14 @@ class SettingsScreen extends ConsumerWidget {
                       color: AppColors.brutalYellow,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.badge_rounded, color: Colors.black, size: 22),
+                    child: const Icon(Icons.badge_rounded,
+                        color: Colors.black, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -68,12 +73,16 @@ class SettingsScreen extends ConsumerWidget {
                       children: [
                         Text(
                           context.tr('dealership_identity'),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           '${game.dealershipName} • ${game.playerName}',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
@@ -89,7 +98,8 @@ class SettingsScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: InkWell(
               onTap: () => context.push('/theme-store'),
@@ -101,11 +111,14 @@ class SettingsScreen extends ConsumerWidget {
                       color: const Color(0xFFA855F7),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.palette_rounded, color: Colors.white, size: 22),
+                    child: const Icon(Icons.palette_rounded,
+                        color: Colors.white, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -114,12 +127,17 @@ class SettingsScreen extends ConsumerWidget {
                       children: [
                         Text(
                           context.tr('theme_store'),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          context.tr('settings_active_theme_label', {'name': p.name}),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          context.tr(
+                              'settings_active_theme_label', {'name': p.name}),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
@@ -135,7 +153,8 @@ class SettingsScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               children: [
@@ -147,18 +166,21 @@ class SettingsScreen extends ConsumerWidget {
                       children: [
                         Text(
                           context.tr('audio_effects'),
-                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                          style: const TextStyle(
+                              fontSize: 13.5, fontWeight: FontWeight.w900),
                         ),
                         Text(
                           context.tr('audio_desc'),
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          style: const TextStyle(
+                              fontSize: 11, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
                     Switch(
                       value: settings.isAudioEnabled,
                       activeTrackColor: AppColors.brutalYellow,
-                      onChanged: (_) => ref.read(settingsProvider.notifier).toggleAudio(),
+                      onChanged: (_) =>
+                          ref.read(settingsProvider.notifier).toggleAudio(),
                     ),
                   ],
                 ),
@@ -176,11 +198,13 @@ class SettingsScreen extends ConsumerWidget {
                           children: [
                             Text(
                               context.tr('language_select'),
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 13.5, fontWeight: FontWeight.w900),
                             ),
                             Text(
                               context.tr('language_desc'),
-                              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                              style: const TextStyle(
+                                  fontSize: 11, color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -188,13 +212,17 @@ class SettingsScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             NeoBrutalBadge(
-                              text: '${settings.currentLanguage.countryBadge} • ${settings.currentLanguage.nativeName}',
-                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                              text:
+                                  '${settings.currentLanguage.countryBadge} • ${settings.currentLanguage.nativeName}',
+                              backgroundColor: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0),
                               textColor: isDark ? Colors.white : Colors.black,
                               fontSize: 11,
                             ),
                             const SizedBox(width: 6),
-                            const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFF64748B)),
+                            const Icon(Icons.arrow_forward_ios_rounded,
+                                size: 12, color: Color(0xFF64748B)),
                           ],
                         ),
                       ],
@@ -210,19 +238,24 @@ class SettingsScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   context.tr('sponsor_fund_title'),
-                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                      fontSize: 12.5, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   context.tr('sponsor_fund_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 NeoBrutalButton(
@@ -238,7 +271,8 @@ class SettingsScreen extends ConsumerWidget {
                       customRewardTitle: context.tr('sponsor_reward_title'),
                       onRewardEarned: () {
                         ref.read(gameProvider.notifier).claimAdReward(25000.0);
-                        NotificationService.showSuccess(context, context.tr('sponsor_reward_success'));
+                        NotificationService.showSuccess(
+                            context, context.tr('sponsor_reward_success'));
                       },
                     );
                   },
@@ -263,17 +297,25 @@ class SettingsScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       context.tr('support_rating_title'),
-                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
-                    ),
+                      style: const TextStyle(
+                          fontSize: 12.5, fontWeight: FontWeight.w900),
+                    )),
                     NeoBrutalBadge(
-                      text: game.hasReceivedReviewReward ? context.tr('support_reward_claimed') : context.tr('support_one_time_badge'),
+                      text: game.hasReceivedReviewReward
+                          ? context.tr('support_reward_claimed')
+                          : context.tr('support_one_time_badge'),
                       backgroundColor: game.hasReceivedReviewReward
-                          ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))
+                          ? (isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFE2E8F0))
                           : AppColors.brutalYellow,
                       textColor: game.hasReceivedReviewReward
-                          ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                          ? (isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B))
                           : Colors.black,
                       fontSize: 9.5,
                       fontWeight: FontWeight.w900,
@@ -283,7 +325,10 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 6),
                 Text(
                   context.tr('support_rating_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 if (!game.hasReceivedReviewReward)
@@ -295,7 +340,8 @@ class SettingsScreen extends ConsumerWidget {
                     fontSize: 11.5,
                     fullWidth: true,
                     onPressed: () async {
-                      final success = ref.read(gameProvider.notifier).claimReviewReward();
+                      final success =
+                          ref.read(gameProvider.notifier).claimReviewReward();
                       if (success) {
                         NotificationService.showSuccess(
                           context,
@@ -303,9 +349,11 @@ class SettingsScreen extends ConsumerWidget {
                         );
                       }
                       try {
-                        final uri = Uri.parse('https://play.google.com/store/apps/details?id=com.balax.galeriden');
+                        final uri = Uri.parse(
+                            'https://play.google.com/store/apps/details?id=com.balax.galeriden');
                         if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
                         }
                       } catch (_) {}
                     },
@@ -315,24 +363,31 @@ class SettingsScreen extends ConsumerWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF1E2433)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF2E384D) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF2E384D)
+                            : const Color(0xFFCBD5E1),
                         width: 1.5,
                       ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.brutalGreen),
+                        const Icon(Icons.check_circle_rounded,
+                            size: 16, color: AppColors.brutalGreen),
                         const SizedBox(width: 6),
                         Text(
                           context.tr('support_claimed_text'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white70 : const Color(0xFF475569),
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF475569),
                           ),
                         ),
                       ],
@@ -347,19 +402,24 @@ class SettingsScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   context.tr('community_feedback_title'),
-                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                      fontSize: 12.5, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   context.tr('community_feedback_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -382,7 +442,9 @@ class SettingsScreen extends ConsumerWidget {
                       child: NeoBrutalButton(
                         label: context.tr('whats_new_btn'),
                         icon: Icons.new_releases_rounded,
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
                         fontSize: 11,
                         padding: const EdgeInsets.symmetric(vertical: 9),
@@ -405,7 +467,8 @@ class SettingsScreen extends ConsumerWidget {
           if (kDebugMode) ...[
             NeoBrutalCard(
               padding: const EdgeInsets.all(14),
-              backgroundColor: isDark ? const Color(0xFF1B182B) : const Color(0xFFF5F3FF),
+              backgroundColor:
+                  isDark ? const Color(0xFF1B182B) : const Color(0xFFF5F3FF),
               borderColor: const Color(0xFF8B5CF6),
               borderWidth: 2.2,
               borderRadius: 14,
@@ -417,7 +480,8 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.bolt_rounded, color: Color(0xFF8B5CF6), size: 20),
+                          const Icon(Icons.bolt_rounded,
+                              color: Color(0xFF8B5CF6), size: 20),
                           const SizedBox(width: 6),
                           Text(
                             context.tr('settings_dev_panel_title'),
@@ -434,14 +498,18 @@ class SettingsScreen extends ConsumerWidget {
                         backgroundColor: const Color(0xFF8B5CF6),
                         textColor: Colors.white,
                         fontSize: 9.5,
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
                     context.tr('settings_dev_panel_desc'),
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -455,8 +523,11 @@ class SettingsScreen extends ConsumerWidget {
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
-                            ref.read(gameProvider.notifier).addCheatFunds(100000000.0);
-                            NotificationService.showSuccess(context, context.tr('settings_dev_funds_added'));
+                            ref
+                                .read(gameProvider.notifier)
+                                .addCheatFunds(100000000.0);
+                            NotificationService.showSuccess(context,
+                                context.tr('settings_dev_funds_added'));
                           },
                         ),
                       ),
@@ -470,8 +541,11 @@ class SettingsScreen extends ConsumerWidget {
                           fontSize: 10.5,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
-                            ref.read(gameProvider.notifier).unlockAllPropertiesAndMaxLevel();
-                            NotificationService.showSuccess(context, context.tr('settings_dev_unlocked_all'));
+                            ref
+                                .read(gameProvider.notifier)
+                                .unlockAllPropertiesAndMaxLevel();
+                            NotificationService.showSuccess(context,
+                                context.tr('settings_dev_unlocked_all'));
                           },
                         ),
                       ),
@@ -490,7 +564,8 @@ class SettingsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).setLevel(4);
-                            NotificationService.showSuccess(context, context.tr('settings_dev_level_4_unlocked'));
+                            NotificationService.showSuccess(context,
+                                context.tr('settings_dev_level_4_unlocked'));
                           },
                         ),
                       ),
@@ -499,13 +574,17 @@ class SettingsScreen extends ConsumerWidget {
                         child: NeoBrutalButton(
                           label: context.tr('settings_dev_clear_garage'),
                           icon: Icons.cleaning_services_rounded,
-                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                          textColor: isDark ? Colors.white70 : const Color(0xFF334155),
+                          backgroundColor: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0),
+                          textColor:
+                              isDark ? Colors.white70 : const Color(0xFF334155),
                           fontSize: 10.5,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           onPressed: () {
                             ref.read(gameProvider.notifier).clearGarage();
-                            NotificationService.showInfo(context, context.tr('settings_dev_garage_cleared'));
+                            NotificationService.showInfo(context,
+                                context.tr('settings_dev_garage_cleared'));
                           },
                         ),
                       ),
@@ -520,7 +599,8 @@ class SettingsScreen extends ConsumerWidget {
           // 6. Dynasty & Season Reset
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF161F30) : const Color(0xFFFAF5FF),
+            backgroundColor:
+                isDark ? const Color(0xFF161F30) : const Color(0xFFFAF5FF),
             borderColor: const Color(0xFFA855F7),
             borderRadius: 14,
             child: Column(
@@ -529,12 +609,17 @@ class SettingsScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       context.tr('dynasty_season_title'),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFFA855F7)),
-                    ),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFA855F7)),
+                    )),
                     NeoBrutalBadge(
-                      text: context.tr('dynasty_generation_badge', {'gen': game.dynastyGeneration}),
+                      text: context.tr('dynasty_generation_badge',
+                          {'gen': game.dynastyGeneration}),
                       backgroundColor: const Color(0xFFA855F7),
                       textColor: Colors.white,
                       fontSize: 10,
@@ -544,7 +629,10 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   context.tr('dynasty_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 if (game.dynastyHistoryLog.isNotEmpty) ...[
                   const SizedBox(height: 8),
@@ -555,16 +643,26 @@ class SettingsScreen extends ConsumerWidget {
                       color: isDark ? const Color(0xFF0F1118) : Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFFCBD5E1),
                         width: 2.0,
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.tr('dynasty_history_title'), style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+                        Text(context.tr('dynasty_history_title'),
+                            style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF64748B))),
                         const SizedBox(height: 4),
-                        ...game.dynastyHistoryLog.reversed.take(3).map((log) => Text('• $log', style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700))),
+                        ...game.dynastyHistoryLog.reversed.take(3).map((log) =>
+                            Text('• $log',
+                                style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700))),
                       ],
                     ),
                   ),
@@ -573,7 +671,9 @@ class SettingsScreen extends ConsumerWidget {
                 NeoBrutalButton(
                   label: context.tr('dynasty_transfer_btn'),
                   icon: Icons.auto_awesome_rounded,
-                  backgroundColor: (game.level >= 5 || game.balance >= 1000000) ? const Color(0xFFA855F7) : const Color(0xFF64748B),
+                  backgroundColor: (game.level >= 5 || game.balance >= 1000000)
+                      ? const Color(0xFFA855F7)
+                      : const Color(0xFF64748B),
                   textColor: Colors.white,
                   fontSize: 11.5,
                   fullWidth: true,
@@ -585,7 +685,9 @@ class SettingsScreen extends ConsumerWidget {
                               backgroundColor: Colors.transparent,
                               child: NeoBrutalCard(
                                 padding: const EdgeInsets.all(20),
-                                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                backgroundColor: isDark
+                                    ? const Color(0xFF141721)
+                                    : Colors.white,
                                 borderColor: const Color(0xFFA855F7),
                                 borderRadius: 12,
                                 borderWidth: 2.5,
@@ -593,11 +695,14 @@ class SettingsScreen extends ConsumerWidget {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.workspace_premium_rounded, color: Color(0xFFA855F7), size: 44),
+                                    const Icon(Icons.workspace_premium_rounded,
+                                        color: Color(0xFFA855F7), size: 44),
                                     const SizedBox(height: 12),
                                     Text(
                                       context.tr('dynasty_confirm_title'),
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
@@ -606,7 +711,9 @@ class SettingsScreen extends ConsumerWidget {
                                         'nextGen': game.dynastyGeneration + 1,
                                       }),
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600),
                                     ),
                                     const SizedBox(height: 18),
                                     Row(
@@ -614,23 +721,35 @@ class SettingsScreen extends ConsumerWidget {
                                         Expanded(
                                           child: NeoBrutalButton(
                                             label: context.tr('dialog_cancel'),
-                                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                            textColor: isDark ? Colors.white : Colors.black,
+                                            backgroundColor: isDark
+                                                ? const Color(0xFF1E2330)
+                                                : const Color(0xFFE2E8F0),
+                                            textColor: isDark
+                                                ? Colors.white
+                                                : Colors.black,
                                             onPressed: () => Navigator.pop(ctx),
                                           ),
                                         ),
                                         const SizedBox(width: 10),
                                         Expanded(
                                           child: NeoBrutalButton(
-                                            label: context.tr('dialog_transfer'),
-                                            backgroundColor: const Color(0xFFA855F7),
+                                            label:
+                                                context.tr('dialog_transfer'),
+                                            backgroundColor:
+                                                const Color(0xFFA855F7),
                                             textColor: Colors.white,
                                             onPressed: () {
                                               Navigator.pop(ctx);
-                                              ref.read(gameProvider.notifier).performDynastySeasonReset();
+                                              ref
+                                                  .read(gameProvider.notifier)
+                                                  .performDynastySeasonReset();
                                               NotificationService.showSuccess(
                                                 context,
-                                                context.tr('dynasty_started_toast', {'gen': game.dynastyGeneration + 1}),
+                                                context.tr(
+                                                    'dynasty_started_toast', {
+                                                  'gen':
+                                                      game.dynastyGeneration + 1
+                                                }),
                                               );
                                             },
                                           ),
@@ -644,7 +763,8 @@ class SettingsScreen extends ConsumerWidget {
                           );
                         }
                       : () {
-                          NotificationService.showWarning(context, context.tr('dynasty_warning_level'));
+                          NotificationService.showWarning(
+                              context, context.tr('dynasty_warning_level'));
                         },
                 ),
               ],
@@ -656,19 +776,26 @@ class SettingsScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   context.tr('reset_game_title'),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.errorRed),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   context.tr('reset_game_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 NeoBrutalButton(
@@ -685,7 +812,8 @@ class SettingsScreen extends ConsumerWidget {
                         backgroundColor: Colors.transparent,
                         child: NeoBrutalCard(
                           padding: const EdgeInsets.all(20),
-                          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                          backgroundColor:
+                              isDark ? const Color(0xFF141721) : Colors.white,
                           borderColor: AppColors.errorRed,
                           borderRadius: 12,
                           borderWidth: 2.5,
@@ -693,17 +821,20 @@ class SettingsScreen extends ConsumerWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.warning_amber_rounded, color: AppColors.errorRed, size: 40),
+                              const Icon(Icons.warning_amber_rounded,
+                                  color: AppColors.errorRed, size: 40),
                               const SizedBox(height: 12),
                               Text(
                                 context.tr('reset_confirm_title'),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w900),
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 context.tr('reset_confirm_desc'),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 18),
                               Row(
@@ -711,8 +842,11 @@ class SettingsScreen extends ConsumerWidget {
                                   Expanded(
                                     child: NeoBrutalButton(
                                       label: context.tr('dialog_cancel'),
-                                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                      textColor: isDark ? Colors.white : Colors.black,
+                                      backgroundColor: isDark
+                                          ? const Color(0xFF1E2330)
+                                          : const Color(0xFFE2E8F0),
+                                      textColor:
+                                          isDark ? Colors.white : Colors.black,
                                       onPressed: () => Navigator.pop(ctx),
                                     ),
                                   ),
@@ -723,7 +857,9 @@ class SettingsScreen extends ConsumerWidget {
                                       backgroundColor: AppColors.errorRed,
                                       textColor: Colors.white,
                                       onPressed: () {
-                                        ref.read(gameProvider.notifier).resetGame();
+                                        ref
+                                            .read(gameProvider.notifier)
+                                            .resetGame();
                                         Navigator.pop(ctx);
                                       },
                                     ),
@@ -746,7 +882,8 @@ class SettingsScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -754,10 +891,12 @@ class SettingsScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       context.tr('legal_privacy_title'),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
-                    ),
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w900),
+                    )),
                     NeoBrutalBadge(
                       text: context.tr('legal_gdpr_badge'),
                       backgroundColor: const Color(0xFF00E575),
@@ -769,7 +908,10 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   context.tr('legal_privacy_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -778,11 +920,15 @@ class SettingsScreen extends ConsumerWidget {
                       child: NeoBrutalButton(
                         label: context.tr('privacy_policy_btn'),
                         icon: Icons.shield_outlined,
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                        textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
+                        textColor:
+                            isDark ? Colors.white : const Color(0xFF0F172A),
                         fontSize: 10.5,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        onPressed: () => _showPrivacyPolicyDialog(context, isDark),
+                        onPressed: () =>
+                            _showPrivacyPolicyDialog(context, isDark),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -790,8 +936,11 @@ class SettingsScreen extends ConsumerWidget {
                       child: NeoBrutalButton(
                         label: context.tr('terms_of_service_btn'),
                         icon: Icons.description_outlined,
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                        textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
+                        textColor:
+                            isDark ? Colors.white : const Color(0xFF0F172A),
                         fontSize: 10.5,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         onPressed: () => _showTermsDialog(context, isDark),
@@ -808,7 +957,10 @@ class SettingsScreen extends ConsumerWidget {
             child: Text(
               '${GameConstants.appName} v${GameConstants.appVersion} • Balax Studio',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+              style: const TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF64748B)),
             ),
           ),
         ],
@@ -824,7 +976,8 @@ class SettingsScreen extends ConsumerWidget {
         child: NeoBrutalCard(
           padding: const EdgeInsets.all(20),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 12,
           borderWidth: 2.5,
           shadowOffset: const Offset(4, 4),
@@ -835,10 +988,12 @@ class SettingsScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Expanded(
+                      child: Text(
                     context.tr('privacy_policy_btn'),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                  ),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w900),
+                  )),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20),
                     onPressed: () => Navigator.pop(ctx),
@@ -856,7 +1011,9 @@ class SettingsScreen extends ConsumerWidget {
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                       height: 1.45,
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      color: isDark
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF334155),
                     ),
                   ),
                 ),
@@ -874,7 +1031,8 @@ class SettingsScreen extends ConsumerWidget {
                       onPressed: () async {
                         final uri = Uri.parse(GameConstants.privacyPolicyUrl);
                         if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
                         }
                       },
                     ),
@@ -883,7 +1041,9 @@ class SettingsScreen extends ConsumerWidget {
                   Expanded(
                     child: NeoBrutalButton(
                       label: context.tr('dialog_close'),
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white : Colors.black,
                       fontSize: 11,
                       onPressed: () => Navigator.pop(ctx),
@@ -906,7 +1066,8 @@ class SettingsScreen extends ConsumerWidget {
         child: NeoBrutalCard(
           padding: const EdgeInsets.all(20),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 12,
           borderWidth: 2.5,
           shadowOffset: const Offset(4, 4),
@@ -917,10 +1078,12 @@ class SettingsScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Expanded(
+                      child: Text(
                     context.tr('terms_of_service_btn'),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                  ),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w900),
+                  )),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20),
                     onPressed: () => Navigator.pop(ctx),
@@ -944,7 +1107,9 @@ class SettingsScreen extends ConsumerWidget {
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                       height: 1.45,
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      color: isDark
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF334155),
                     ),
                   ),
                 ),
@@ -952,7 +1117,8 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               NeoBrutalButton(
                 label: context.tr('dialog_close'),
-                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                backgroundColor:
+                    isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                 textColor: isDark ? Colors.white : Colors.black,
                 fontSize: 11.5,
                 fullWidth: true,

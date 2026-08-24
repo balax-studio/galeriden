@@ -18,7 +18,8 @@ class BankInvestmentsScreen extends ConsumerStatefulWidget {
   const BankInvestmentsScreen({super.key});
 
   @override
-  ConsumerState<BankInvestmentsScreen> createState() => _BankInvestmentsScreenState();
+  ConsumerState<BankInvestmentsScreen> createState() =>
+      _BankInvestmentsScreenState();
 }
 
 class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
@@ -51,7 +52,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
 
     if (!game.isFeatureUnlocked('/bank-investments')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('bank_investments_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/bank-investments',
@@ -64,7 +66,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     final isMaxCreditLimit = game.bankCreditLimit >= 25000000.0;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('bank_investments_title'),
       ),
@@ -76,7 +79,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               children: [
@@ -92,11 +96,14 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                               color: AppColors.brutalGreen,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 2.0,
                               ),
                             ),
-                            child: const Icon(Icons.account_balance_rounded, color: Colors.black, size: 24),
+                            child: const Icon(Icons.account_balance_rounded,
+                                color: Colors.black, size: 24),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -105,11 +112,18 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                               children: [
                                 Text(
                                   context.tr('bank_deposit_account_title'),
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF64748B)),
                                 ),
                                 Text(
-                                  CurrencyFormatter.format(game.bankDepositBalance),
-                                  style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                  CurrencyFormatter.format(
+                                      game.bankDepositBalance),
+                                  style: const TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColors.brutalGreen),
                                 ),
                               ],
                             ),
@@ -127,23 +141,35 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                    border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFFCBD5E1)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      Expanded(
+                          child: Text(
                         context.tr('bank_cash_balance_label'),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
-                      ),
-                      Text(
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF64748B)),
+                      )),
+                      Expanded(
+                          child: Text(
                         CurrencyFormatter.format(game.balance),
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                      ),
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w900),
+                      )),
                     ],
                   ),
                 ),
@@ -156,35 +182,50 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.arrow_downward_rounded, size: 16, color: AppColors.brutalGreen),
+                    const Icon(Icons.arrow_downward_rounded,
+                        size: 16, color: AppColors.brutalGreen),
                     const SizedBox(width: 6),
                     Text(
                       context.tr('bank_deposit_header'),
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   context.tr('bank_deposit_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 10),
                 // Quick Percentages
                 Row(
                   children: [
-                    _buildPercentageChip('%25', () => _setDepositPercentage(0.25, game.balance), isDark),
+                    _buildPercentageChip(
+                        '%25',
+                        () => _setDepositPercentage(0.25, game.balance),
+                        isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip('%50', () => _setDepositPercentage(0.50, game.balance), isDark),
+                    _buildPercentageChip(
+                        '%50',
+                        () => _setDepositPercentage(0.50, game.balance),
+                        isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip(context.tr('bank_chip_all'), () => _setDepositPercentage(1.0, game.balance), isDark),
+                    _buildPercentageChip(context.tr('bank_chip_all'),
+                        () => _setDepositPercentage(1.0, game.balance), isDark),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -194,24 +235,31 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       child: TextField(
                         controller: _depositController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: context.tr('bank_deposit_hint'),
                           filled: true,
-                          fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                          fillColor: isDark
+                              ? const Color(0xFF0F1118)
+                              : const Color(0xFFF1F5F9),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                            borderSide: const BorderSide(
+                                color: Colors.black, width: 1.5),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                            borderSide: const BorderSide(
+                                color: Colors.black, width: 1.5),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.brutalGreen, width: 2),
+                            borderSide: const BorderSide(
+                                color: AppColors.brutalGreen, width: 2),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
                         ),
                       ),
                     ),
@@ -222,23 +270,31 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       backgroundColor: AppColors.brutalGreen,
                       textColor: Colors.black,
                       fontSize: 12,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       onPressed: () {
-                        final amount = double.tryParse(_depositController.text) ?? 0.0;
+                        final amount =
+                            double.tryParse(_depositController.text) ?? 0.0;
                         if (amount <= 0 || amount > game.balance) {
-                          NotificationService.showError(context, context.tr('bank_deposit_invalid_toast'));
+                          NotificationService.showError(context,
+                              context.tr('bank_deposit_invalid_toast'));
                           return;
                         }
 
-                        final success = ref.read(gameProvider.notifier).depositToBank(amount);
+                        final success = ref
+                            .read(gameProvider.notifier)
+                            .depositToBank(amount);
                         if (success) {
                           _depositController.clear();
                           NotificationService.showSuccess(
                             context,
-                            context.tr('bank_deposit_success_toast', {'amount': CurrencyFormatter.formatShort(amount)}),
+                            context.tr('bank_deposit_success_toast', {
+                              'amount': CurrencyFormatter.formatShort(amount)
+                            }),
                           );
                         } else {
-                          NotificationService.showError(context, context.tr('bank_deposit_failed_toast'));
+                          NotificationService.showError(
+                              context, context.tr('bank_deposit_failed_toast'));
                         }
                       },
                     ),
@@ -253,35 +309,55 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.arrow_upward_rounded, size: 16, color: AppColors.brutalOrange),
+                    const Icon(Icons.arrow_upward_rounded,
+                        size: 16, color: AppColors.brutalOrange),
                     const SizedBox(width: 6),
                     Text(
                       context.tr('bank_withdraw_header'),
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   context.tr('bank_withdraw_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 10),
                 // Quick Percentages
                 Row(
                   children: [
-                    _buildPercentageChip('%25', () => _setWithdrawPercentage(0.25, game.bankDepositBalance), isDark),
+                    _buildPercentageChip(
+                        '%25',
+                        () => _setWithdrawPercentage(
+                            0.25, game.bankDepositBalance),
+                        isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip('%50', () => _setWithdrawPercentage(0.50, game.bankDepositBalance), isDark),
+                    _buildPercentageChip(
+                        '%50',
+                        () => _setWithdrawPercentage(
+                            0.50, game.bankDepositBalance),
+                        isDark),
                     const SizedBox(width: 6),
-                    _buildPercentageChip(context.tr('bank_chip_all'), () => _setWithdrawPercentage(1.0, game.bankDepositBalance), isDark),
+                    _buildPercentageChip(
+                        context.tr('bank_chip_all'),
+                        () => _setWithdrawPercentage(
+                            1.0, game.bankDepositBalance),
+                        isDark),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -291,24 +367,31 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       child: TextField(
                         controller: _withdrawController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: context.tr('bank_withdraw_hint'),
                           filled: true,
-                          fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                          fillColor: isDark
+                              ? const Color(0xFF0F1118)
+                              : const Color(0xFFF1F5F9),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                            borderSide: const BorderSide(
+                                color: Colors.black, width: 1.5),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: Colors.black, width: 1.5),
+                            borderSide: const BorderSide(
+                                color: Colors.black, width: 1.5),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.brutalOrange, width: 2),
+                            borderSide: const BorderSide(
+                                color: AppColors.brutalOrange, width: 2),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
                         ),
                       ),
                     ),
@@ -319,23 +402,31 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       backgroundColor: AppColors.brutalOrange,
                       textColor: Colors.black,
                       fontSize: 12,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       onPressed: () {
-                        final amount = double.tryParse(_withdrawController.text) ?? 0.0;
+                        final amount =
+                            double.tryParse(_withdrawController.text) ?? 0.0;
                         if (amount <= 0 || amount > game.bankDepositBalance) {
-                          NotificationService.showError(context, context.tr('bank_withdraw_invalid_toast'));
+                          NotificationService.showError(context,
+                              context.tr('bank_withdraw_invalid_toast'));
                           return;
                         }
 
-                        final success = ref.read(gameProvider.notifier).withdrawFromBank(amount);
+                        final success = ref
+                            .read(gameProvider.notifier)
+                            .withdrawFromBank(amount);
                         if (success) {
                           _withdrawController.clear();
                           NotificationService.showSuccess(
                             context,
-                            context.tr('bank_withdraw_success_toast', {'amount': CurrencyFormatter.formatShort(amount)}),
+                            context.tr('bank_withdraw_success_toast', {
+                              'amount': CurrencyFormatter.formatShort(amount)
+                            }),
                           );
                         } else {
-                          NotificationService.showError(context, context.tr('bank_withdraw_failed_toast'));
+                          NotificationService.showError(context,
+                              context.tr('bank_withdraw_failed_toast'));
                         }
                       },
                     ),
@@ -350,7 +441,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,11 +458,14 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                             color: const Color(0xFF3B82F6),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 22),
+                          child: const Icon(Icons.verified_user_rounded,
+                              color: Colors.white, size: 22),
                         ),
                         const SizedBox(width: 12),
                         Column(
@@ -378,12 +473,19 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                           children: [
                             Text(
                               context.tr('bank_credit_score_title'),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w900),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              context.tr('bank_current_limit_label', {'limit': CurrencyFormatter.format(game.bankCreditLimit)}),
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                              context.tr('bank_current_limit_label', {
+                                'limit': CurrencyFormatter.format(
+                                    game.bankCreditLimit)
+                              }),
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -399,22 +501,35 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         label: isMaxCreditLimit
                             ? context.tr('bank_limit_max_label')
                             : context.tr('bank_upgrade_limit_label'),
-                        icon: isMaxCreditLimit ? Icons.check_circle_rounded : Icons.trending_up_rounded,
-                        backgroundColor: isMaxCreditLimit ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
-                        textColor: isMaxCreditLimit ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                        icon: isMaxCreditLimit
+                            ? Icons.check_circle_rounded
+                            : Icons.trending_up_rounded,
+                        backgroundColor: isMaxCreditLimit
+                            ? (isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFFE2E8F0))
+                            : AppColors.brutalYellow,
+                        textColor: isMaxCreditLimit
+                            ? (isDark ? Colors.white54 : Colors.black54)
+                            : Colors.black,
                         fontSize: 10.5,
                         onPressed: isMaxCreditLimit
                             ? null
                             : () {
                                 if (game.balance < 50000.0) {
-                                  NotificationService.showError(context, context.tr('bank_upgrade_insufficient_toast'));
+                                  NotificationService.showError(
+                                      context,
+                                      context.tr(
+                                          'bank_upgrade_insufficient_toast'));
                                   return;
                                 }
 
-                                final success = ref.read(gameProvider.notifier).upgradeCreditLimit(
-                                  newLimit: 25000000.0,
-                                  fee: 50000.0,
-                                );
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .upgradeCreditLimit(
+                                      newLimit: 25000000.0,
+                                      fee: 50000.0,
+                                    );
 
                                 if (success) {
                                   NotificationService.showSuccess(
@@ -434,7 +549,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         textColor: Colors.black,
                         fontSize: 10.5,
                         onPressed: game.activeLoans.length >= 3
-                            ? () => NotificationService.showError(context, context.tr('bank_max_credit_toast'))
+                            ? () => NotificationService.showError(
+                                context, context.tr('bank_max_credit_toast'))
                             : () => _showTakeLoanSheet(context, game, isDark),
                       ),
                     ),
@@ -447,7 +563,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
 
           // 5. Active Bank Loans Section
           Text(
-            context.tr('bank_active_loans_header', {'count': '${game.activeLoans.length}/3'}),
+            context.tr('bank_active_loans_header',
+                {'count': '${game.activeLoans.length}/3'}),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -461,25 +578,34 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
             NeoBrutalCard(
               padding: const EdgeInsets.all(16),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
               child: Center(
                 child: Text(
                   context.tr('bank_no_loans_desc'),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
               ),
             )
           else
             ...game.activeLoans.map((loan) {
-              final progress = (1.0 - (loan.remainingAmount / loan.totalRepayment)).clamp(0.0, 1.0);
+              final progress =
+                  (1.0 - (loan.remainingAmount / loan.totalRepayment))
+                      .clamp(0.0, 1.0);
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   borderRadius: 12,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,16 +615,23 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.account_balance_rounded, size: 18, color: Color(0xFF38BDF8)),
+                              const Icon(Icons.account_balance_rounded,
+                                  size: 18, color: Color(0xFF38BDF8)),
                               const SizedBox(width: 6),
                               Text(
                                 loan.bankName,
-                                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                                style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w900),
                               ),
                             ],
                           ),
                           NeoBrutalBadge(
-                            text: context.tr('bank_loan_installments_remaining', {'remaining': loan.remainingInstallments, 'total': loan.totalInstallments}),
+                            text: context.tr(
+                                'bank_loan_installments_remaining', {
+                              'remaining': loan.remainingInstallments,
+                              'total': loan.totalInstallments
+                            }),
                             backgroundColor: AppColors.brutalOrange,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -509,14 +642,28 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            context.tr('bank_loan_debt_remaining', {'amount': CurrencyFormatter.formatShort(loan.remainingAmount)}),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFEF4444)),
-                          ),
-                          Text(
-                            context.tr('bank_loan_monthly_payment', {'amount': CurrencyFormatter.formatShort(loan.monthlyPayment)}),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
-                          ),
+                          Expanded(
+                              child: Text(
+                            context.tr('bank_loan_debt_remaining', {
+                              'amount': CurrencyFormatter.formatShort(
+                                  loan.remainingAmount)
+                            }),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFEF4444)),
+                          )),
+                          Expanded(
+                              child: Text(
+                            context.tr('bank_loan_monthly_payment', {
+                              'amount': CurrencyFormatter.formatShort(
+                                  loan.monthlyPayment)
+                            }),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.brutalYellow),
+                          )),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -525,39 +672,58 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
-                          backgroundColor: isDark ? Colors.white12 : Colors.black12,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.brutalGreen),
+                          backgroundColor:
+                              isDark ? Colors.white12 : Colors.black12,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.brutalGreen),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            context.tr('bank_loan_interest_principal', {'rate': (loan.interestRate * 100).toStringAsFixed(1), 'amount': CurrencyFormatter.formatShort(loan.principalAmount)}),
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                          ),
+                          Expanded(
+                              child: Text(
+                            context.tr('bank_loan_interest_principal', {
+                              'rate':
+                                  (loan.interestRate * 100).toStringAsFixed(1),
+                              'amount': CurrencyFormatter.formatShort(
+                                  loan.principalAmount)
+                            }),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B)),
+                          )),
                           NeoBrutalButton(
                             label: context.tr('finance_pay_installment_btn'),
                             icon: Icons.payments_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 10,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             onPressed: () {
                               if (game.balance < loan.monthlyPayment) {
                                 NotificationService.showError(
                                   context,
-                                  context.tr('finance_insufficient_funds_loan', {'amount': CurrencyFormatter.format(loan.monthlyPayment)}),
+                                  context.tr(
+                                      'finance_insufficient_funds_loan', {
+                                    'amount': CurrencyFormatter.format(
+                                        loan.monthlyPayment)
+                                  }),
                                 );
                                 return;
                               }
 
-                              final success = ref.read(gameProvider.notifier).payLoanInstallment(loan.id);
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .payLoanInstallment(loan.id);
                               if (success) {
                                 NotificationService.showSuccess(
                                   context,
-                                  context.tr('finance_loan_paid_success', {'bank': loan.bankName}),
+                                  context.tr('finance_loan_paid_success',
+                                      {'bank': loan.bankName}),
                                 );
                               }
                             },
@@ -574,7 +740,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     );
   }
 
-  void _showTakeLoanSheet(BuildContext context, DealershipModel game, bool isDark) {
+  void _showTakeLoanSheet(
+      BuildContext context, DealershipModel game, bool isDark) {
     double selectedAmount = 100000.0.clamp(10000.0, game.bankCreditLimit);
     int selectedMonths = 6;
     String selectedBank = 'Galeri Finansbank';
@@ -589,7 +756,9 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
-            final baseInterestRate = selectedMonths == 3 ? 0.10 : (selectedMonths == 6 ? 0.18 : 0.28);
+            final baseInterestRate = selectedMonths == 3
+                ? 0.10
+                : (selectedMonths == 6 ? 0.18 : 0.28);
             final totalRepayment = selectedAmount * (1.0 + baseInterestRate);
             final monthlyPayment = totalRepayment / selectedMonths;
 
@@ -607,10 +776,12 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      Expanded(
+                          child: Text(
                         context.tr('bank_take_loan_title'),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                      ),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w900),
+                      )),
                       IconButton(
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () => Navigator.pop(ctx),
@@ -619,8 +790,12 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    context.tr('bank_loan_amount_label', {'amount': CurrencyFormatter.format(selectedAmount)}),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF38BDF8)),
+                    context.tr('bank_loan_amount_label',
+                        {'amount': CurrencyFormatter.format(selectedAmount)}),
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF38BDF8)),
                   ),
                   const SizedBox(height: 6),
                   Wrap(
@@ -637,12 +812,19 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                         },
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                            color: isSel
+                                ? AppColors.brutalYellow
+                                : (isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0)),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
@@ -651,7 +833,9 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: isSel ? Colors.black : (isDark ? Colors.white : Colors.black87),
+                              color: isSel
+                                  ? Colors.black
+                                  : (isDark ? Colors.white : Colors.black87),
                             ),
                           ),
                         ),
@@ -661,41 +845,85 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   const SizedBox(height: 16),
                   Text(
                     context.tr('bank_loan_term_label'),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      _buildMonthOption(3, selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m), context),
+                      _buildMonthOption(
+                          3,
+                          selectedMonths,
+                          isDark,
+                          (m) => setSheetState(() => selectedMonths = m),
+                          context),
                       const SizedBox(width: 8),
-                      _buildMonthOption(6, selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m), context),
+                      _buildMonthOption(
+                          6,
+                          selectedMonths,
+                          isDark,
+                          (m) => setSheetState(() => selectedMonths = m),
+                          context),
                       const SizedBox(width: 8),
-                      _buildMonthOption(12, selectedMonths, isDark, (m) => setSheetState(() => selectedMonths = m), context),
+                      _buildMonthOption(
+                          12,
+                          selectedMonths,
+                          isDark,
+                          (m) => setSheetState(() => selectedMonths = m),
+                          context),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                      border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFCBD5E1)),
                     ),
                     child: Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(context.tr('bank_loan_monthly_label'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
-                            Text(CurrencyFormatter.format(monthlyPayment), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalGreen)),
+                            Expanded(
+                                child: Text(
+                                    context.tr('bank_loan_monthly_label'),
+                                    style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w600))),
+                            Expanded(
+                                child: Text(
+                                    CurrencyFormatter.format(monthlyPayment),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.brutalGreen))),
                           ],
                         ),
                         const SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(context.tr('bank_loan_total_repayment_label'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
-                            Text(CurrencyFormatter.format(totalRepayment), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFFEF4444))),
+                            Expanded(
+                                child: Text(
+                                    context
+                                        .tr('bank_loan_total_repayment_label'),
+                                    style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w600))),
+                            Expanded(
+                                child: Text(
+                                    CurrencyFormatter.format(totalRepayment),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFFEF4444)))),
                           ],
                         ),
                       ],
@@ -703,22 +931,27 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   ),
                   const SizedBox(height: 18),
                   NeoBrutalButton(
-                    label: context.tr('bank_confirm_loan_btn', {'amount': CurrencyFormatter.formatShort(selectedAmount)}),
+                    label: context.tr('bank_confirm_loan_btn', {
+                      'amount': CurrencyFormatter.formatShort(selectedAmount)
+                    }),
                     icon: Icons.check_circle_rounded,
                     backgroundColor: AppColors.brutalGreen,
                     textColor: Colors.black,
                     fullWidth: true,
                     onPressed: () {
-                      final success = ref.read(gameProvider.notifier).takeBankLoan(
-                        bankName: selectedBank,
-                        amount: selectedAmount,
-                        months: selectedMonths,
-                      );
+                      final success =
+                          ref.read(gameProvider.notifier).takeBankLoan(
+                                bankName: selectedBank,
+                                amount: selectedAmount,
+                                months: selectedMonths,
+                              );
                       Navigator.pop(ctx);
                       if (success) {
                         NotificationService.showSuccess(
                           context,
-                          context.tr('bank_loan_success_toast', {'amount': CurrencyFormatter.format(selectedAmount)}),
+                          context.tr('bank_loan_success_toast', {
+                            'amount': CurrencyFormatter.format(selectedAmount)
+                          }),
                         );
                       } else {
                         NotificationService.showError(
@@ -737,7 +970,8 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
     );
   }
 
-  Widget _buildMonthOption(int months, int selectedMonths, bool isDark, Function(int) onSelect, BuildContext context) {
+  Widget _buildMonthOption(int months, int selectedMonths, bool isDark,
+      Function(int) onSelect, BuildContext context) {
     final isSel = selectedMonths == months;
     return Expanded(
       child: InkWell(
@@ -749,7 +983,9 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSel ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+            color: isSel
+                ? AppColors.brutalGreen
+                : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -762,7 +998,9 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
-              color: isSel ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+              color: isSel
+                  ? Colors.black
+                  : (isDark ? Colors.white70 : Colors.black87),
             ),
           ),
         ),

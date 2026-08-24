@@ -2776,5 +2776,16 @@ const Map<String, String> enTranslations = {
     'mission_consignment_desc': 'Accept {count} commission consignment vehicle to your showroom.',
     'mission_side_biz_title': 'Side Business Income',
     'mission_side_biz_desc': 'Upgrade your side businesses or collect daily revenue.',
+
+    'event_muddy_rain_title': 'MUDDY RAIN',
+    'event_muddy_rain_desc': 'A muddy rain fell overnight, dirtying all displayed vehicles. Their value dropped by 5%, they need washing immediately.',
+    'event_staff_resignation_title': 'STAFF RESIGNATION',
+    'event_staff_resignation_desc': 'Due to unpaid salaries, {names} left your dealership and resigned.',
+    'event_salary_unpaid_loyal_title': 'SALARIES UNPAID - LOYALTY',
+    'event_salary_unpaid_loyal_desc': 'Salaries could not be paid. The morale of {names} dropped to zero, but thanks to their loyalty, they did not resign. Loyalty and morale decreased.',
+    'event_salary_unpaid_title': 'SALARIES UNPAID',
+    'event_salary_unpaid_desc': 'Due to lack of cash, daily salaries could not be paid. Staff morale and loyalty took a heavy hit. -35 Morale, -20 Loyalty.',
+    'event_ok': 'Okay',
+    'badge_muddy': 'MUDDY',
 };
 

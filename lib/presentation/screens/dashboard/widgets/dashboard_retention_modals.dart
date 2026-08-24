@@ -22,7 +22,9 @@ class DashboardRetentionModals {
   DashboardRetentionModals._();
 
   /// Offline Progression Recap Dialog
-  static void showOfflineRecapModal(BuildContext context, Map<String, dynamic> recap, {WidgetRef? ref}) {
+  static void showOfflineRecapModal(
+      BuildContext context, Map<String, dynamic> recap,
+      {WidgetRef? ref}) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final isDark = themeExt.palette.isDark;
 
@@ -54,17 +56,22 @@ class DashboardRetentionModals {
                       color: const Color(0xFF00E575),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.wb_sunny_rounded, color: Colors.black, size: 22),
+                    child: const Icon(Icons.wb_sunny_rounded,
+                        color: Colors.black, size: 22),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      recap['title'] as String? ?? context.tr('retention_offline_title'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
+                      recap['title'] as String? ??
+                          context.tr('retention_offline_title'),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 15),
                     ),
                   ),
                 ],
@@ -74,18 +81,28 @@ class DashboardRetentionModals {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
+                    color: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFF0FDF4),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF00E575), width: 1.5),
+                    border:
+                        Border.all(color: const Color(0xFF00E575), width: 1.5),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(context.tr('retention_passive_income'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      Text(
+                      Expanded(
+                          child: Text(context.tr('retention_passive_income'),
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.bold))),
+                      Expanded(
+                          child: Text(
                         '+${CurrencyFormatter.format(earnedIncome)}',
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
-                      ),
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF00E575)),
+                      )),
                     ],
                   ),
                 ),
@@ -99,7 +116,9 @@ class DashboardRetentionModals {
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      color: isDark
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF334155),
                     ),
                   ),
                 ),
@@ -114,7 +133,9 @@ class DashboardRetentionModals {
                 onPressed: () {
                   Navigator.pop(ctx);
                   if (earnedIncome > 0) {
-                    FloatingMoneyOverlay.of(context)?.showMoneyPopUp(earnedIncome, label: 'Kazanılan Pasif Gelir!');
+                    FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                        earnedIncome,
+                        label: 'Kazanılan Pasif Gelir!');
                   }
                 },
               ),
@@ -132,7 +153,8 @@ class DashboardRetentionModals {
 
     String? peakHighlight;
     if (game.carsSold > 0) {
-      peakHighlight = '${game.dealershipName} bünyesinde ${game.carsSold} başarılı satışla toplam ${CurrencyFormatter.formatShort(game.totalProfit)} kâr elde ettin.';
+      peakHighlight =
+          '${game.dealershipName} bünyesinde ${game.carsSold} başarılı satışla toplam ${CurrencyFormatter.formatShort(game.totalProfit)} kâr elde ettin.';
     }
 
     final openLoops = PsychologyEngine.getOpenLoopsSummary(
@@ -150,7 +172,8 @@ class DashboardRetentionModals {
         child: NeoBrutalCard(
           padding: const EdgeInsets.all(18),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 12,
           borderWidth: 2.5,
           shadowOffset: const Offset(4, 4),
@@ -175,7 +198,9 @@ class DashboardRetentionModals {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      color: isDark
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF334155),
                     ),
                   ),
                 ),
@@ -195,8 +220,11 @@ class DashboardRetentionModals {
                   Expanded(
                     child: NeoBrutalButton(
                       label: context.tr('retention_exit_button'),
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                      textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
+                      textColor:
+                          isDark ? Colors.white70 : const Color(0xFF64748B),
                       onPressed: () {
                         Navigator.pop(ctx);
                         Navigator.of(context).pop();
@@ -213,7 +241,8 @@ class DashboardRetentionModals {
   }
 
   /// Reciprocity Starter Welcome Gift Dialog (§4.3)
-  static void showReciprocityStarterGiftModal(BuildContext context, WidgetRef ref) {
+  static void showReciprocityStarterGiftModal(
+      BuildContext context, WidgetRef ref) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final isDark = themeExt.palette.isDark;
     final gift = PsychologyEngine.getReciprocityStarterGift();
@@ -243,17 +272,21 @@ class DashboardRetentionModals {
                       color: const Color(0xFFFFDE59),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.card_giftcard_rounded, color: Colors.black, size: 22),
+                    child: const Icon(Icons.card_giftcard_rounded,
+                        color: Colors.black, size: 22),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       gift['title'] as String,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 14),
                     ),
                   ),
                 ],
@@ -262,16 +295,22 @@ class DashboardRetentionModals {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF9C3),
+                  color: isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFFEF9C3),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFFFDE59), width: 2.0),
+                  border:
+                      Border.all(color: const Color(0xFFFFDE59), width: 2.0),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       gift['sender'] as String,
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFFD97706)),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFD97706)),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -279,7 +318,9 @@ class DashboardRetentionModals {
                       style: TextStyle(
                         fontSize: 11.5,
                         fontStyle: FontStyle.italic,
-                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                        color: isDark
+                            ? const Color(0xFFCBD5E1)
+                            : const Color(0xFF334155),
                       ),
                     ),
                   ],
@@ -291,8 +332,16 @@ class DashboardRetentionModals {
                 style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              Text(context.tr('retention_gift_grant_1'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00E575))),
-              Text(context.tr('retention_gift_grant_2'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF38BDF8))),
+              Text(context.tr('retention_gift_grant_1'),
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF00E575))),
+              Text(context.tr('retention_gift_grant_2'),
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF38BDF8))),
               const SizedBox(height: 16),
               NeoBrutalButton(
                 label: context.tr('retention_gift_accept'),
@@ -301,10 +350,14 @@ class DashboardRetentionModals {
                 textColor: Colors.black,
                 fullWidth: true,
                 onPressed: () {
-                  ref.read(gameProvider.notifier).addMoney(gift['bonusMoney'] as double);
+                  ref
+                      .read(gameProvider.notifier)
+                      .addMoney(gift['bonusMoney'] as double);
                   ref.read(gameProvider.notifier).addXP(100);
                   Navigator.pop(ctx);
-                  FloatingMoneyOverlay.of(context)?.showMoneyPopUp(gift['bonusMoney'] as double, label: 'Haydar Usta Hibesi!');
+                  FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                      gift['bonusMoney'] as double,
+                      label: 'Haydar Usta Hibesi!');
                 },
               ),
             ],
@@ -315,7 +368,8 @@ class DashboardRetentionModals {
   }
 
   /// Level-Up Celebration Modal (§1.4 & §5.5)
-  static void showLevelUpModal(BuildContext context, int newLevel, {VoidCallback? onExplore}) {
+  static void showLevelUpModal(BuildContext context, int newLevel,
+      {VoidCallback? onExplore}) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final isDark = themeExt.palette.isDark;
 
@@ -346,19 +400,28 @@ class DashboardRetentionModals {
                       color: const Color(0xFFFFDE59),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.military_tech_rounded, color: Colors.black, size: 28),
+                    child: const Icon(Icons.military_tech_rounded,
+                        color: Colors.black, size: 28),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('SEVİYE ATLADIN!', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFF59E0B))),
-                        Text('SEVİYE $newLevel', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                        const Text('SEVİYE ATLADIN!',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFF59E0B))),
+                        Text('SEVİYE $newLevel',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w900)),
                       ],
                     ),
                   ),
@@ -367,24 +430,35 @@ class DashboardRetentionModals {
               const SizedBox(height: 12),
               Text(
                 'Tebrikler! Galericilik kariyerinde Seviye $newLevel kademesine ulaştın. Yeni iş kolları, yetenek puanı ve prestijli araç fırsatları açıldı!',
-                style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: isDark
+                        ? const Color(0xFFCBD5E1)
+                        : const Color(0xFF334155)),
               ),
               const SizedBox(height: 10),
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4),
+                  color: isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFF0FDF4),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF00E575), width: 2.0),
+                  border:
+                      Border.all(color: const Color(0xFF00E575), width: 2.0),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.star_rounded, color: Color(0xFF00E575), size: 18),
+                    Icon(Icons.star_rounded,
+                        color: Color(0xFF00E575), size: 18),
                     SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         '+1 Yetenek Puanı & Yeni Binalar Kullanıma Hazır!',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF00E575)),
                       ),
                     ),
                   ],
@@ -410,7 +484,8 @@ class DashboardRetentionModals {
   }
 
   /// Rival Leaderboard Modal
-  static void showRivalLeaderboardModal(BuildContext context, DealershipModel game) {
+  static void showRivalLeaderboardModal(
+      BuildContext context, DealershipModel game) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
@@ -424,8 +499,10 @@ class DashboardRetentionModals {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
@@ -438,7 +515,8 @@ class DashboardRetentionModals {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFDE59), size: 24),
+                      const Icon(Icons.emoji_events_rounded,
+                          color: Color(0xFFFFDE59), size: 24),
                       const SizedBox(width: 8),
                       Text(
                         'ŞEHİR GALERİCİLERİ SIRALAMASI',
@@ -462,22 +540,33 @@ class DashboardRetentionModals {
               // Near-Miss / Leader Motivation Banner
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: nearMissInfo.isLeader
-                      ? (isDark ? const Color(0xFF2A2412) : const Color(0xFFFEF9C3))
-                      : (isDark ? const Color(0xFF13231B) : const Color(0xFFECFDF5)),
+                      ? (isDark
+                          ? const Color(0xFF2A2412)
+                          : const Color(0xFFFEF9C3))
+                      : (isDark
+                          ? const Color(0xFF13231B)
+                          : const Color(0xFFECFDF5)),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: nearMissInfo.isLeader ? const Color(0xFFFFDE59) : const Color(0xFF00E575),
+                    color: nearMissInfo.isLeader
+                        ? const Color(0xFFFFDE59)
+                        : const Color(0xFF00E575),
                     width: 1.4,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      nearMissInfo.isLeader ? Icons.workspace_premium_rounded : Icons.trending_up_rounded,
-                      color: nearMissInfo.isLeader ? const Color(0xFFFFDE59) : const Color(0xFF00E575),
+                      nearMissInfo.isLeader
+                          ? Icons.workspace_premium_rounded
+                          : Icons.trending_up_rounded,
+                      color: nearMissInfo.isLeader
+                          ? const Color(0xFFFFDE59)
+                          : const Color(0xFF00E575),
                       size: 22,
                     ),
                     const SizedBox(width: 10),
@@ -487,7 +576,8 @@ class DashboardRetentionModals {
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                     ),
@@ -503,16 +593,21 @@ class DashboardRetentionModals {
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: isPlayer
-                        ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF3C7))
+                        ? (isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFFEF3C7))
                         : (isDark ? const Color(0xFF141721) : Colors.white),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isPlayer
                           ? const Color(0xFFFFDE59)
-                          : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                          : (isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFFCBD5E1)),
                       width: isPlayer ? 2.0 : 1.0,
                     ),
                   ),
@@ -525,7 +620,11 @@ class DashboardRetentionModals {
                         decoration: BoxDecoration(
                           color: rank == 1
                               ? const Color(0xFFFFDE59)
-                              : (rank == 2 ? const Color(0xFFCBD5E1) : (rank == 3 ? const Color(0xFFF97316) : Colors.transparent)),
+                              : (rank == 2
+                                  ? const Color(0xFFCBD5E1)
+                                  : (rank == 3
+                                      ? const Color(0xFFF97316)
+                                      : Colors.transparent)),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -534,7 +633,9 @@ class DashboardRetentionModals {
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 12,
-                              color: rank <= 3 ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                              color: rank <= 3
+                                  ? Colors.black
+                                  : (isDark ? Colors.white70 : Colors.black87),
                             ),
                           ),
                         ),
@@ -548,7 +649,8 @@ class DashboardRetentionModals {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (item.rankChange > 0) ...[
-                              const Icon(Icons.arrow_drop_up_rounded, color: Color(0xFF00E575), size: 18),
+                              const Icon(Icons.arrow_drop_up_rounded,
+                                  color: Color(0xFF00E575), size: 18),
                               Text(
                                 '+${item.rankChange}',
                                 style: const TextStyle(
@@ -558,7 +660,8 @@ class DashboardRetentionModals {
                                 ),
                               ),
                             ] else if (item.rankChange < 0) ...[
-                              const Icon(Icons.arrow_drop_down_rounded, color: Color(0xFFFF4D4D), size: 18),
+                              const Icon(Icons.arrow_drop_down_rounded,
+                                  color: Color(0xFFFF4D4D), size: 18),
                               Text(
                                 '${item.rankChange}',
                                 style: const TextStyle(
@@ -573,7 +676,8 @@ class DashboardRetentionModals {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white38 : Colors.black38,
+                                  color:
+                                      isDark ? Colors.white38 : Colors.black38,
                                 ),
                               ),
                             ],
@@ -597,8 +701,12 @@ class DashboardRetentionModals {
                                       fontWeight: FontWeight.w900,
                                       fontSize: 13,
                                       color: isPlayer
-                                          ? (isDark ? const Color(0xFFFFDE59) : const Color(0xFF0F172A))
-                                          : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                          ? (isDark
+                                              ? const Color(0xFFFFDE59)
+                                              : const Color(0xFF0F172A))
+                                          : (isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A)),
                                     ),
                                   ),
                                 ),
@@ -619,7 +727,9 @@ class DashboardRetentionModals {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 10,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ],
@@ -632,7 +742,9 @@ class DashboardRetentionModals {
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 13,
-                          color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                          color: isDark
+                              ? const Color(0xFF00E575)
+                              : const Color(0xFF15803D),
                         ),
                       ),
                     ],
@@ -647,7 +759,8 @@ class DashboardRetentionModals {
   }
 
   /// Collection Album Modal
-  static void showCollectionAlbumModal(BuildContext context, DealershipModel game) {
+  static void showCollectionAlbumModal(
+      BuildContext context, DealershipModel game) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
@@ -660,8 +773,10 @@ class DashboardRetentionModals {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
@@ -674,7 +789,8 @@ class DashboardRetentionModals {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.auto_stories_rounded, color: Color(0xFFA855F7), size: 24),
+                      const Icon(Icons.auto_stories_rounded,
+                          color: Color(0xFFA855F7), size: 24),
                       const SizedBox(width: 8),
                       Text(
                         'KOLEKSİYON ALBÜMÜ • 30 ARAÇ',
@@ -699,30 +815,46 @@ class DashboardRetentionModals {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF3E8FF),
+                  color: isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFF3E8FF),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFA855F7), width: 1.4),
+                  border:
+                      Border.all(color: const Color(0xFFA855F7), width: 1.4),
                 ),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        Expanded(
+                            child: Text(
                           'Keşif İlerlemesi:',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF581C87)),
-                        ),
-                        Text(
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF581C87)),
+                        )),
+                        Expanded(
+                            child: Text(
                           '${progress.discoveredCount} / 30 Araç • %${(progress.completionPercentage * 100).toStringAsFixed(1)}',
-                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: Color(0xFFA855F7)),
-                        ),
+                          style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFFA855F7)),
+                        )),
                       ],
                     ),
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: progress.completionPercentage,
-                      backgroundColor: isDark ? const Color(0xFF333B4F) : const Color(0xFFE9D5FF),
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFA855F7)),
+                      backgroundColor: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFFE9D5FF),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFFA855F7)),
                       minHeight: 8,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -733,13 +865,38 @@ class DashboardRetentionModals {
 
               Text(
                 'KİLOMETRE TAŞI ÖDÜLLERİ',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isDark ? const Color(0xFFA855F7) : const Color(0xFF581C87)),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isDark
+                        ? const Color(0xFFA855F7)
+                        : const Color(0xFF581C87)),
               ),
               const SizedBox(height: 8),
-              _buildMilestoneRow(5, 'Çırak Koleksiyoner', '₺25.000 + 1 Yetenek Puanı', progress.discoveredCount >= 5, isDark),
-              _buildMilestoneRow(10, 'Usta Koleksiyoner', '₺60.000 + 2 Yetenek Puanı', progress.discoveredCount >= 10, isDark),
-              _buildMilestoneRow(20, 'Oto Gurmesi', '₺150.000 + 3 Yetenek Puanı', progress.discoveredCount >= 20, isDark),
-              _buildMilestoneRow(30, 'Efsane Küratör', '₺500.000 + 5 Yetenek Puanı', progress.discoveredCount >= 30, isDark),
+              _buildMilestoneRow(
+                  5,
+                  'Çırak Koleksiyoner',
+                  '₺25.000 + 1 Yetenek Puanı',
+                  progress.discoveredCount >= 5,
+                  isDark),
+              _buildMilestoneRow(
+                  10,
+                  'Usta Koleksiyoner',
+                  '₺60.000 + 2 Yetenek Puanı',
+                  progress.discoveredCount >= 10,
+                  isDark),
+              _buildMilestoneRow(
+                  20,
+                  'Oto Gurmesi',
+                  '₺150.000 + 3 Yetenek Puanı',
+                  progress.discoveredCount >= 20,
+                  isDark),
+              _buildMilestoneRow(
+                  30,
+                  'Efsane Küratör',
+                  '₺500.000 + 5 Yetenek Puanı',
+                  progress.discoveredCount >= 30,
+                  isDark),
             ],
           ),
         );
@@ -747,8 +904,10 @@ class DashboardRetentionModals {
     );
   }
 
-  static Widget _buildMilestoneRow(int targetCount, String title, String reward, bool isUnlocked, bool isDark) {
-    final mutedColor = isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+  static Widget _buildMilestoneRow(int targetCount, String title, String reward,
+      bool isUnlocked, bool isDark) {
+    final mutedColor =
+        isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -758,13 +917,17 @@ class DashboardRetentionModals {
             : (isDark ? const Color(0xFF141721) : Colors.white),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isUnlocked ? const Color(0xFF10B981) : (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
+          color: isUnlocked
+              ? const Color(0xFF10B981)
+              : (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
         ),
       ),
       child: Row(
         children: [
           Icon(
-            isUnlocked ? Icons.check_circle_rounded : Icons.lock_outline_rounded,
+            isUnlocked
+                ? Icons.check_circle_rounded
+                : Icons.lock_outline_rounded,
             color: isUnlocked ? const Color(0xFF10B981) : mutedColor,
             size: 18,
           ),
@@ -778,7 +941,9 @@ class DashboardRetentionModals {
                   style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.bold,
-                    color: isUnlocked ? (isDark ? Colors.white : const Color(0xFF0F172A)) : mutedColor,
+                    color: isUnlocked
+                        ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                        : mutedColor,
                   ),
                 ),
                 Text(
@@ -804,7 +969,8 @@ class DashboardRetentionModals {
   }
 
   /// Prestige / Galeri Devretme Modal
-  static void showPrestigeModal(BuildContext context, DealershipModel game, WidgetRef ref) {
+  static void showPrestigeModal(
+      BuildContext context, DealershipModel game, WidgetRef ref) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final isDark = themeExt.palette.isDark;
 
@@ -832,17 +998,21 @@ class DashboardRetentionModals {
                       color: const Color(0xFFFFDE59),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.stars_rounded, color: Colors.black, size: 22),
+                    child: const Icon(Icons.stars_rounded,
+                        color: Colors.black, size: 22),
                   ),
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
                       'GALERİYİ DEVRET • YENİ SEZON',
-                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                     ),
                   ),
                 ],
@@ -856,25 +1026,38 @@ class DashboardRetentionModals {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF3C7),
+                  color: isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFFFDE59), width: 1.5),
+                  border:
+                      Border.all(color: const Color(0xFFFFDE59), width: 1.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.workspace_premium_rounded, size: 14, color: Color(0xFFD97706)),
+                        Icon(Icons.workspace_premium_rounded,
+                            size: 14, color: Color(0xFFD97706)),
                         SizedBox(width: 4),
-                        Text('Kalıcı Sezon Kazanımları:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5)),
+                        Text('Kalıcı Sezon Kazanımları:',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 11.5)),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('• +%15 Kalıcı Satış Kâr Çarpanı • Mevcut: Sezon ${game.prestigeLevel}', style: const TextStyle(fontSize: 11)),
-                    const Text('• ₺150.000 Başlangıç Can Suyu Kasası', style: TextStyle(fontSize: 11)),
-                    const Text('• Tüm Yetenekler & Başarımlar Korunur', style: TextStyle(fontSize: 11)),
-                    const Text('• Araç ve bakiye sıfırlanır, yeni efsane başlar', style: TextStyle(fontSize: 11, color: AppColors.errorRed)),
+                    Text(
+                        '• +%15 Kalıcı Satış Kâr Çarpanı • Mevcut: Sezon ${game.prestigeLevel}',
+                        style: const TextStyle(fontSize: 11)),
+                    const Text('• ₺150.000 Başlangıç Can Suyu Kasası',
+                        style: TextStyle(fontSize: 11)),
+                    const Text('• Tüm Yetenekler & Başarımlar Korunur',
+                        style: TextStyle(fontSize: 11)),
+                    const Text(
+                        '• Araç ve bakiye sıfırlanır, yeni efsane başlar',
+                        style:
+                            TextStyle(fontSize: 11, color: AppColors.errorRed)),
                   ],
                 ),
               ),
@@ -884,8 +1067,11 @@ class DashboardRetentionModals {
                   Expanded(
                     child: NeoBrutalButton(
                       label: 'Vazgeç',
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                      textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
+                      textColor:
+                          isDark ? Colors.white70 : const Color(0xFF64748B),
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ),

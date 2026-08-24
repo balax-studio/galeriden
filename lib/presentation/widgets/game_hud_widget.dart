@@ -158,7 +158,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
               icon: Icons.task_alt_rounded,
               accentColor: const Color(0xFFA855F7),
               title: context.tr('hud_missions'),
-              value: '${game.activeMissions.where((m) => m.isCompleted == true).length}/${game.activeMissions.length}',
+              value:
+                  '${game.activeMissions.where((m) => m.isCompleted == true).length}/${game.activeMissions.length}',
               onTap: () {
                 HapticFeedback.lightImpact();
                 _showMissionsModal(context, isDark, p);
@@ -173,7 +174,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
               icon: Icons.military_tech_rounded,
               accentColor: const Color(0xFFFF7A00),
               title: '${context.tr('hud_level')} ${game.level}',
-              value: '${(game.skills.currentLevelTargetXp - game.skills.xpInCurrentLevel).clamp(0, game.skills.currentLevelTargetXp)} XP',
+              value:
+                  '${(game.skills.currentLevelTargetXp - game.skills.xpInCurrentLevel).clamp(0, game.skills.currentLevelTargetXp)} XP',
               onTap: () {
                 HapticFeedback.lightImpact();
                 context.push('/character-growth');
@@ -186,7 +188,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
     );
   }
 
-  void _showMissionsModal(BuildContext context, bool isDark, ThemePaletteModel p) {
+  void _showMissionsModal(
+      BuildContext context, bool isDark, ThemePaletteModel p) {
     showDialog(
       context: context,
       builder: (ctx) => Consumer(
@@ -198,7 +201,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
             child: NeoBrutalCard(
               padding: const EdgeInsets.all(16),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
               borderRadius: 12,
               borderWidth: 2.5,
               shadowOffset: const Offset(4, 4),
@@ -213,23 +217,28 @@ class GameHudHeaderWidget extends ConsumerWidget {
                           color: const Color(0xFFA855F7),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2.0,
                           ),
                         ),
-                        child: const Icon(Icons.task_alt_rounded, color: Colors.black, size: 20),
+                        child: const Icon(Icons.task_alt_rounded,
+                            color: Colors.black, size: 20),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           context.tr('daily_missions'),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w900),
                         ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.close_rounded, size: 22),
                         padding: const EdgeInsets.all(8),
-                        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                        constraints:
+                            const BoxConstraints(minWidth: 44, minHeight: 44),
                         onPressed: () {
                           HapticFeedback.lightImpact();
                           Navigator.pop(ctx);
@@ -268,8 +277,10 @@ class GameHudHeaderWidget extends ConsumerWidget {
     bool bold = false,
   }) {
     final bgColor = isDark ? const Color(0xFF141721) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
-    final shadowColor = isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
+    final borderColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final shadowColor =
+        isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
 
     return Material(
       color: Colors.transparent,
@@ -309,7 +320,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
                     color: accentColor,
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 1.5,
                     ),
                   ),
@@ -343,7 +356,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
     );
   }
 
-  void _showSeasonInfo(BuildContext context, DealershipModel game, bool isDark, String lang) {
+  void _showSeasonInfo(
+      BuildContext context, DealershipModel game, bool isDark, String lang) {
     Color seasonAccentColor;
     IconData seasonIcon;
 
@@ -374,7 +388,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
         child: NeoBrutalCard(
           padding: const EdgeInsets.all(18),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 16,
           borderWidth: 2.8,
           shadowOffset: const Offset(4, 4),
@@ -397,11 +412,14 @@ class GameHudHeaderWidget extends ConsumerWidget {
                             color: seasonAccentColor,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: Icon(seasonIcon, color: Colors.black, size: 22),
+                          child:
+                              Icon(seasonIcon, color: Colors.black, size: 22),
                         ),
                         const SizedBox(width: 10),
                         Column(
@@ -413,12 +431,15 @@ class GameHudHeaderWidget extends ConsumerWidget {
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 0.5,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                             Text(
                               game.getLocalizedSeasonName(lang).toUpperCase(),
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w900),
                             ),
                           ],
                         ),
@@ -439,10 +460,14 @@ class GameHudHeaderWidget extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF1E2433)
+                        : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFFCBD5E1),
                       width: 1.8,
                     ),
                   ),
@@ -453,11 +478,18 @@ class GameHudHeaderWidget extends ConsumerWidget {
                         children: [
                           Text(
                             context.tr('season_progress'),
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF64748B)),
                           ),
                           Text(
-                            context.tr('remaining_time', {'days': game.daysRemainingInSeason}),
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                            context.tr('remaining_time',
+                                {'days': game.daysRemainingInSeason}),
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.brutalGreen),
                           ),
                         ],
                       ),
@@ -465,16 +497,21 @@ class GameHudHeaderWidget extends ConsumerWidget {
                       Container(
                         height: 10,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
+                          color: isDark
+                              ? const Color(0xFF141721)
+                              : const Color(0xFFE2E8F0),
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 1.5,
                           ),
                         ),
                         child: FractionallySizedBox(
                           alignment: Alignment.centerLeft,
-                          widthFactor: ((7 - game.daysRemainingInSeason) / 7.0).clamp(0.0, 1.0),
+                          widthFactor: ((7 - game.daysRemainingInSeason) / 7.0)
+                              .clamp(0.0, 1.0),
                           child: Container(
                             decoration: BoxDecoration(
                               color: seasonAccentColor,
@@ -495,7 +532,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -588,7 +627,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
               color: accentColor,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 1.5,
               ),
             ),
@@ -612,7 +652,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -620,8 +662,12 @@ class GameHudHeaderWidget extends ConsumerWidget {
           ),
           NeoBrutalBadge(
             text: effectBadge,
-            backgroundColor: isCurrent ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-            textColor: isCurrent ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+            backgroundColor: isCurrent
+                ? AppColors.brutalGreen
+                : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+            textColor: isCurrent
+                ? Colors.black
+                : (isDark ? Colors.white70 : Colors.black87),
             fontSize: 9.5,
             fontWeight: FontWeight.w900,
           ),
@@ -630,7 +676,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
     );
   }
 
-  void _showWeatherInfo(BuildContext context, DealershipModel game, bool isDark, String lang) {
+  void _showWeatherInfo(
+      BuildContext context, DealershipModel game, bool isDark, String lang) {
     final w = game.currentWeather;
 
     showDialog(
@@ -641,7 +688,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
         child: NeoBrutalCard(
           padding: const EdgeInsets.all(18),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 16,
           borderWidth: 2.8,
           shadowOffset: const Offset(4, 4),
@@ -664,7 +712,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
                             color: AppColors.brutalYellow,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
@@ -680,12 +730,15 @@ class GameHudHeaderWidget extends ConsumerWidget {
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 0.5,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                             Text(
                               w.getLocalizedTitle(langCode: lang).toUpperCase(),
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w900),
                             ),
                           ],
                         ),
@@ -708,10 +761,14 @@ class GameHudHeaderWidget extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF1E2433)
+                        : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFFCBD5E1),
                       width: 1.8,
                     ),
                   ),
@@ -721,7 +778,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
                       height: 1.35,
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      color: isDark
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF334155),
                     ),
                   ),
                 ),
@@ -734,7 +793,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -778,7 +839,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
                 _buildWeatherImpactRow(
                   icon: Icons.search_rounded,
                   title: context.tr('eye_detail_accuracy'),
-                  multiplierPercent: (w.eyeForDetailAccuracyMultiplier * 100).round(),
+                  multiplierPercent:
+                      (w.eyeForDetailAccuracyMultiplier * 100).round(),
                   iconBgColor: const Color(0xFFA855F7),
                   isDark: isDark,
                 ),
@@ -812,8 +874,12 @@ class GameHudHeaderWidget extends ConsumerWidget {
     final isNegative = multiplierPercent < 100;
     final badgeColor = isPositive
         ? AppColors.brutalGreen
-        : (isNegative ? AppColors.brutalOrange : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)));
-    final badgeTextColor = (isPositive || isNegative) ? Colors.black : (isDark ? Colors.white70 : Colors.black87);
+        : (isNegative
+            ? AppColors.brutalOrange
+            : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)));
+    final badgeTextColor = (isPositive || isNegative)
+        ? Colors.black
+        : (isDark ? Colors.white70 : Colors.black87);
     final badgeText = isPositive
         ? '+%${multiplierPercent - 100}'
         : (isNegative ? '-%${100 - multiplierPercent}' : '100%');
@@ -837,7 +903,8 @@ class GameHudHeaderWidget extends ConsumerWidget {
               color: iconBgColor,
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 1.2,
               ),
             ),

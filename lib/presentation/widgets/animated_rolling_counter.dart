@@ -100,9 +100,12 @@ class _AnimatedRollingCounterState extends State<AnimatedRollingCounter>
       animation: _flashController,
       builder: (context, child) {
         Color? effectiveColor = targetStyle.color;
-        if (widget.enableDeltaFlash && _flashColor != null && _flashController.isAnimating) {
+        if (widget.enableDeltaFlash &&
+            _flashColor != null &&
+            _flashController.isAnimating) {
           final t = _flashController.value;
-          effectiveColor = Color.lerp(_flashColor, targetStyle.color ?? Colors.black, t);
+          effectiveColor =
+              Color.lerp(_flashColor, targetStyle.color ?? Colors.black, t);
         }
 
         return TweenAnimationBuilder<double>(

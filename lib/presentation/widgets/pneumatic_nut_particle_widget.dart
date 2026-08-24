@@ -13,7 +13,8 @@ class PneumaticNutParticleWidget extends StatefulWidget {
   });
 
   @override
-  State<PneumaticNutParticleWidget> createState() => _PneumaticNutParticleWidgetState();
+  State<PneumaticNutParticleWidget> createState() =>
+      _PneumaticNutParticleWidgetState();
 }
 
 class _PneumaticNutParticleWidgetState extends State<PneumaticNutParticleWidget>
@@ -28,7 +29,10 @@ class _PneumaticNutParticleWidgetState extends State<PneumaticNutParticleWidget>
       duration: const Duration(milliseconds: 700),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.forward().then((_) => widget.onComplete?.call());
     } else {
@@ -76,7 +80,8 @@ class _NutParticlePainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final dustPaint = Paint()
-      ..color = const Color(0xFF94A3B8).withValues(alpha: (1.0 - progress).clamp(0.0, 1.0))
+      ..color = const Color(0xFF94A3B8)
+          .withValues(alpha: (1.0 - progress).clamp(0.0, 1.0))
       ..style = PaintingStyle.fill;
 
     final maxDistance = size.width * 0.45;
@@ -86,7 +91,9 @@ class _NutParticlePainter extends CustomPainter {
       final angle = nutAngles[i];
       final pos = Offset(
         center.dx + math.cos(angle) * currentDistance,
-        center.dy + math.sin(angle) * currentDistance + (progress * progress * 10), // Gravity drop
+        center.dy +
+            math.sin(angle) * currentDistance +
+            (progress * progress * 10), // Gravity drop
       );
 
       // Draw hexagonal nut
@@ -119,11 +126,13 @@ class _NutParticlePainter extends CustomPainter {
     for (int d = 0; d < 6; d++) {
       final dAngle = d * math.pi / 3 + 0.2;
       final dDist = progress * maxDistance * 0.8;
-      final dPos = Offset(center.dx + math.cos(dAngle) * dDist, center.dy + math.sin(dAngle) * dDist);
+      final dPos = Offset(center.dx + math.cos(dAngle) * dDist,
+          center.dy + math.sin(dAngle) * dDist);
       canvas.drawCircle(dPos, 1.5, dustPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _NutParticlePainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _NutParticlePainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

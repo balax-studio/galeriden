@@ -33,7 +33,10 @@ class _PulsingDotState extends State<PulsingDot>
       duration: widget.duration,
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.repeat(reverse: true);
     } else {
@@ -84,7 +87,8 @@ class _PulsingDotState extends State<PulsingDot>
                 height: widget.size,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: widget.color.withValues(alpha: _opacityAnimation.value),
+                  color:
+                      widget.color.withValues(alpha: _opacityAnimation.value),
                   border: Border.all(
                     color: Colors.black.withValues(alpha: 0.6),
                     width: 1.0,

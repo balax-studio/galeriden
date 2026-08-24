@@ -11,7 +11,9 @@ import '../slam_stamp_widget.dart';
 
 class HiddenStashModal extends StatefulWidget {
   final BlackMarketCarModel car;
-  final Function(bool stashFound, double rewardCash, String foundItemDescription) onInspectionCompleted;
+  final Function(
+          bool stashFound, double rewardCash, String foundItemDescription)
+      onInspectionCompleted;
 
   const HiddenStashModal({
     super.key,
@@ -22,7 +24,9 @@ class HiddenStashModal extends StatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required BlackMarketCarModel car,
-    required Function(bool stashFound, double rewardCash, String foundItemDescription) onInspectionCompleted,
+    required Function(
+            bool stashFound, double rewardCash, String foundItemDescription)
+        onInspectionCompleted,
   }) {
     return showDialog(
       context: context,
@@ -64,7 +68,8 @@ class _HiddenStashModalState extends State<HiddenStashModal>
     )..repeat(reverse: true);
 
     _rewardCash = (widget.car.realMarketValue * 0.08).clamp(15000.0, 60000.0);
-    _foundItemDescription = 'Bagaj döşemesi altında gizli ${widget.car.modelName} yarış beyni ve nakit para bulundu!';
+    _foundItemDescription =
+        'Bagaj döşemesi altında gizli ${widget.car.modelName} yarış beyni ve nakit para bulundu!';
   }
 
   @override
@@ -82,7 +87,8 @@ class _HiddenStashModalState extends State<HiddenStashModal>
     final dist = (pos - _stashTarget).distance;
 
     if (dist < 65.0) {
-      _stashDiscoveryProgress = (_stashDiscoveryProgress + 0.15).clamp(0.0, 1.0);
+      _stashDiscoveryProgress =
+          (_stashDiscoveryProgress + 0.15).clamp(0.0, 1.0);
       HapticFeedback.selectionClick();
 
       if (_stashDiscoveryProgress >= 1.0 && !_isFound) {
@@ -91,7 +97,8 @@ class _HiddenStashModalState extends State<HiddenStashModal>
         HapticFeedback.heavyImpact();
         _statusMessage = context.tr('stash_found_toast');
       } else {
-        _statusMessage = 'Sinyal güçleniyor! Zula noktasını taramaya devam et (%${(_stashDiscoveryProgress * 100).round()})...';
+        _statusMessage =
+            'Sinyal güçleniyor! Zula noktasını taramaya devam et (%${(_stashDiscoveryProgress * 100).round()})...';
       }
     } else {
       _statusMessage = context.tr('stash_idle_msg');
@@ -137,7 +144,10 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr('stash_subtitle', {'brand': widget.car.brand, 'model': widget.car.modelName}),
+                        context.tr('stash_subtitle', {
+                          'brand': widget.car.brand,
+                          'model': widget.car.modelName
+                        }),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -148,8 +158,11 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: _isFound ? 'ZULA BULUNDU' : 'TARAMA: %${(_stashDiscoveryProgress * 100).round()}',
-                  backgroundColor: _isFound ? AppColors.brutalGreen : AppColors.errorRed,
+                  text: _isFound
+                      ? 'ZULA BULUNDU'
+                      : 'TARAMA: %${(_stashDiscoveryProgress * 100).round()}',
+                  backgroundColor:
+                      _isFound ? AppColors.brutalGreen : AppColors.errorRed,
                   textColor: _isFound ? Colors.black : Colors.white,
                   fontSize: 10,
                 ),
@@ -169,12 +182,16 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                 children: [
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      final size = Size(constraints.maxWidth, constraints.maxHeight);
+                      final size =
+                          Size(constraints.maxWidth, constraints.maxHeight);
                       return GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTapDown: (details) => _processPointerPosition(details.localPosition, size),
-                        onPanStart: (details) => _processPointerPosition(details.localPosition, size),
-                        onPanUpdate: (details) => _processPointerPosition(details.localPosition, size),
+                        onTapDown: (details) => _processPointerPosition(
+                            details.localPosition, size),
+                        onPanStart: (details) => _processPointerPosition(
+                            details.localPosition, size),
+                        onPanUpdate: (details) => _processPointerPosition(
+                            details.localPosition, size),
                         child: CustomPaint(
                           size: size,
                           painter: _HiddenStashPainter(
@@ -253,7 +270,8 @@ class _HiddenStashModalState extends State<HiddenStashModal>
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   }
-                  widget.onInspectionCompleted(_isFound, _rewardCash, _foundItemDescription);
+                  widget.onInspectionCompleted(
+                      _isFound, _rewardCash, _foundItemDescription);
                 },
               ),
             ],
@@ -283,7 +301,9 @@ class _HiddenStashPainter extends CustomPainter {
     final cy = size.height / 2;
 
     // 1. Grid
-    final gridPaint = Paint()..color = const Color(0xFF0F1420)..strokeWidth = 1.0;
+    final gridPaint = Paint()
+      ..color = const Color(0xFF0F1420)
+      ..strokeWidth = 1.0;
     for (double x = 0; x < size.width; x += 20) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
     }
@@ -323,7 +343,8 @@ class _HiddenStashPainter extends CustomPainter {
     // 3. Secret Stash Compartment
     if (discoveryProgress > 0.0) {
       final stashPaint = Paint()
-        ..color = (isFound ? AppColors.brutalGreen : AppColors.errorRed).withValues(alpha: discoveryProgress)
+        ..color = (isFound ? AppColors.brutalGreen : AppColors.errorRed)
+            .withValues(alpha: discoveryProgress)
         ..style = PaintingStyle.fill;
       canvas.drawRRect(
         RRect.fromRectAndRadius(
@@ -336,8 +357,10 @@ class _HiddenStashPainter extends CustomPainter {
       final iconPaint = Paint()
         ..color = Colors.black
         ..strokeWidth = 2.0;
-      canvas.drawLine(Offset(stashTarget.dx - 6, stashTarget.dy), Offset(stashTarget.dx + 6, stashTarget.dy), iconPaint);
-      canvas.drawLine(Offset(stashTarget.dx, stashTarget.dy - 5), Offset(stashTarget.dx, stashTarget.dy + 5), iconPaint);
+      canvas.drawLine(Offset(stashTarget.dx - 6, stashTarget.dy),
+          Offset(stashTarget.dx + 6, stashTarget.dy), iconPaint);
+      canvas.drawLine(Offset(stashTarget.dx, stashTarget.dy - 5),
+          Offset(stashTarget.dx, stashTarget.dy + 5), iconPaint);
     }
 
     // 4. UV Flashlight Beam

@@ -83,7 +83,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final isDark = p.isDark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -102,12 +103,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF000000)
+                                  : const Color(0xFF0F172A),
                               offset: const Offset(2, 2),
                               blurRadius: 0,
                             ),
@@ -129,7 +134,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               fontSize: 16,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 1.2,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                           Text(
@@ -137,7 +144,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
                             ),
                           ),
                         ],
@@ -146,11 +155,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   NeoBrutalButton(
                     label: context.tr('onboarding_skip_btn'),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                    borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
+                    textColor:
+                        isDark ? Colors.white70 : const Color(0xFF0F172A),
+                    borderColor: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
                     fontSize: 11,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     onPressed: _finishOnboarding,
                   ),
                 ],
@@ -161,7 +176,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
-                  onPageChanged: (index) => setState(() => _currentPage = index),
+                  onPageChanged: (index) =>
+                      setState(() => _currentPage = index),
                   itemCount: _pages.length,
                   itemBuilder: (context, index) {
                     final item = _pages[index];
@@ -169,8 +185,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: NeoBrutalCard(
                         padding: const EdgeInsets.all(24),
-                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                        borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        backgroundColor:
+                            isDark ? const Color(0xFF141721) : Colors.white,
+                        borderColor: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         borderRadius: 12,
                         borderWidth: 2.5,
                         shadowOffset: const Offset(4, 4),
@@ -183,7 +202,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               backgroundColor: item['tagColor'] as Color,
                               textColor: Colors.black,
                               fontSize: 11,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                             ),
                             const SizedBox(height: 24),
 
@@ -192,15 +212,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               width: 110,
                               height: 110,
                               decoration: BoxDecoration(
-                                color: (item['accent'] as Color).withValues(alpha: 0.15),
+                                color: (item['accent'] as Color)
+                                    .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  color: isDark
+                                      ? const Color(0xFF333B4F)
+                                      : const Color(0xFF0F172A),
                                   width: 2.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? const Color(0xFF000000)
+                                        : const Color(0xFF0F172A),
                                     offset: const Offset(3, 3),
                                     blurRadius: 0,
                                   ),
@@ -222,7 +247,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w900,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
                                 height: 1.25,
                               ),
                             ),
@@ -235,7 +262,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF475569),
                                 height: 1.45,
                               ),
                             ),
@@ -260,10 +289,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     decoration: BoxDecoration(
                       color: _currentPage == index
                           ? AppColors.brutalYellow
-                          : (isDark ? const Color(0xFF1E2330) : const Color(0xFFCBD5E1)),
+                          : (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFCBD5E1)),
                       borderRadius: BorderRadius.circular(3),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
@@ -274,12 +307,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
               // Bottom Action Button
               NeoBrutalButton(
-                label: _currentPage == _pages.length - 1 ? context.tr('onboarding_start_btn') : context.tr('onboarding_next_btn'),
-                icon: _currentPage == _pages.length - 1 ? Icons.store_rounded : Icons.arrow_forward_rounded,
+                label: _currentPage == _pages.length - 1
+                    ? context.tr('onboarding_start_btn')
+                    : context.tr('onboarding_next_btn'),
+                icon: _currentPage == _pages.length - 1
+                    ? Icons.store_rounded
+                    : Icons.arrow_forward_rounded,
                 fullWidth: true,
-                backgroundColor: _currentPage == _pages.length - 1 ? AppColors.brutalGreen : AppColors.brutalYellow,
+                backgroundColor: _currentPage == _pages.length - 1
+                    ? AppColors.brutalGreen
+                    : AppColors.brutalYellow,
                 textColor: Colors.black,
-                borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                borderColor:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 fontSize: 14,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 onPressed: () {
@@ -300,4 +340,3 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 }
-

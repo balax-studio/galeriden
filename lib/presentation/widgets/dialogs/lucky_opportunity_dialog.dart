@@ -19,7 +19,8 @@ class LuckyOpportunityDialog extends ConsumerWidget {
     required this.opportunity,
   });
 
-  static Future<void> show(BuildContext context, LuckyOpportunityModel opportunity) {
+  static Future<void> show(
+      BuildContext context, LuckyOpportunityModel opportunity) {
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -60,8 +61,12 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                 NeoBrutalBadge(
                   text: context.tr('lucky_limited_time'),
                   icon: Icons.timer_rounded,
-                  backgroundColor: isDark ? const Color(0xFF222938) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                  backgroundColor: isDark
+                      ? const Color(0xFF222938)
+                      : const Color(0xFFE2E8F0),
+                  textColor: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
                   fontSize: 10,
                 ),
               ],
@@ -76,9 +81,11 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: opportunity.accentColor.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: opportunity.accentColor, width: 2.0),
+                    border:
+                        Border.all(color: opportunity.accentColor, width: 2.0),
                   ),
-                  child: Icon(opportunity.icon, color: opportunity.accentColor, size: 28),
+                  child: Icon(opportunity.icon,
+                      color: opportunity.accentColor, size: 28),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -90,7 +97,8 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                           letterSpacing: 0.3,
                         ),
                       ),
@@ -114,10 +122,13 @@ class LuckyOpportunityDialog extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0B0D13) : const Color(0xFFF8FAFC),
+                color:
+                    isDark ? const Color(0xFF0B0D13) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF222938) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF222938)
+                      : const Color(0xFFE2E8F0),
                   width: 1.5,
                 ),
               ),
@@ -130,20 +141,26 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                       fontSize: 12,
                       height: 1.45,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      color: isDark
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF334155),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: opportunity.accentColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: opportunity.accentColor.withValues(alpha: 0.4), width: 1.0),
+                      border: Border.all(
+                          color: opportunity.accentColor.withValues(alpha: 0.4),
+                          width: 1.0),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.bolt_rounded, color: opportunity.accentColor, size: 16),
+                        Icon(Icons.bolt_rounded,
+                            color: opportunity.accentColor, size: 16),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -169,17 +186,22 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                 if (opportunity.cashReward > 0)
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 10),
                       decoration: BoxDecoration(
                         color: AppColors.brutalGreen.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.brutalGreen, width: 1.5),
+                        border: Border.all(
+                            color: AppColors.brutalGreen, width: 1.5),
                       ),
                       child: Column(
                         children: [
                           Text(
                             context.tr('lucky_reward_cash_label'),
-                            style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: Color(0xFF10B981)),
+                            style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF10B981)),
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -187,29 +209,37 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : const Color(0xFF065F46),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF065F46),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                if (opportunity.cashReward > 0 && opportunity.reputationBonus > 0)
+                if (opportunity.cashReward > 0 &&
+                    opportunity.reputationBonus > 0)
                   const SizedBox(width: 8),
                 if (opportunity.reputationBonus > 0)
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 10),
                       decoration: BoxDecoration(
                         color: AppColors.brutalPurple.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.brutalPurple, width: 1.5),
+                        border: Border.all(
+                            color: AppColors.brutalPurple, width: 1.5),
                       ),
                       child: Column(
                         children: [
                           Text(
                             context.tr('lucky_reward_rep_label'),
-                            style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: Color(0xFFA855F7)),
+                            style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFA855F7)),
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -217,7 +247,9 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : const Color(0xFF581C87),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF581C87),
                             ),
                           ),
                         ],
@@ -233,7 +265,9 @@ class LuckyOpportunityDialog extends ConsumerWidget {
               label: hasNoAds
                   ? context.tr('lucky_btn_claim_instant')
                   : context.tr('lucky_btn_claim_ad'),
-              icon: hasNoAds ? Icons.flash_on_rounded : Icons.play_circle_fill_rounded,
+              icon: hasNoAds
+                  ? Icons.flash_on_rounded
+                  : Icons.play_circle_fill_rounded,
               backgroundColor: opportunity.accentColor,
               textColor: Colors.black,
               fontSize: 13.5,
@@ -241,7 +275,9 @@ class LuckyOpportunityDialog extends ConsumerWidget {
               onPressed: () {
                 if (hasNoAds) {
                   // Direct instant claim for Pro users
-                  ref.read(gameProvider.notifier).claimLuckyOpportunity(opportunity);
+                  ref
+                      .read(gameProvider.notifier)
+                      .claimLuckyOpportunity(opportunity);
                   Navigator.pop(context);
                   NotificationService.showSuccess(
                     context,
@@ -251,7 +287,9 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                   // Rewarded ad trigger
                   AdService.instance.showRewardedAd(
                     onRewardEarned: () {
-                      ref.read(gameProvider.notifier).claimLuckyOpportunity(opportunity);
+                      ref
+                          .read(gameProvider.notifier)
+                          .claimLuckyOpportunity(opportunity);
                       if (context.mounted) {
                         Navigator.pop(context);
                         NotificationService.showSuccess(
@@ -262,7 +300,9 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                     },
                     onAdUnavailable: () {
                       // Graceful reward if ad not available
-                      ref.read(gameProvider.notifier).claimLuckyOpportunity(opportunity);
+                      ref
+                          .read(gameProvider.notifier)
+                          .claimLuckyOpportunity(opportunity);
                       if (context.mounted) {
                         Navigator.pop(context);
                         NotificationService.showSuccess(
@@ -284,7 +324,9 @@ class LuckyOpportunityDialog extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                  color: isDark
+                      ? const Color(0xFF64748B)
+                      : const Color(0xFF94A3B8),
                 ),
               ),
             ),

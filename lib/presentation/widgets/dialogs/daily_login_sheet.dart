@@ -43,15 +43,23 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
     final game = ref.watch(gameProvider);
     final langCode = Localizations.localeOf(context).languageCode;
     final now = DateTime.now();
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final canClaim = game.canClaimTodayStreak(todayStr);
 
-    final allRewards = DailyLoginRewardModel.getSeasonalCycle(cycleCount: game.streakCycleCount);
+    final allRewards = DailyLoginRewardModel.getSeasonalCycle(
+        cycleCount: game.streakCycleCount);
     final currentStreakDay = game.currentStreakDay.clamp(1, 28);
-    final weekRewards = allRewards.where((r) => r.weekNumber == _selectedWeek).toList();
-    final todayReward = allRewards.firstWhere((r) => r.dayNumber == currentStreakDay);
-    final seasonTitle = DailyLoginRewardModel.getSeasonTitle(game.streakCycleCount, langCode: langCode);
-    final seasonDesc = DailyLoginRewardModel.getSeasonDescription(game.streakCycleCount, langCode: langCode);
+    final weekRewards =
+        allRewards.where((r) => r.weekNumber == _selectedWeek).toList();
+    final todayReward =
+        allRewards.firstWhere((r) => r.dayNumber == currentStreakDay);
+    final seasonTitle = DailyLoginRewardModel.getSeasonTitle(
+        game.streakCycleCount,
+        langCode: langCode);
+    final seasonDesc = DailyLoginRewardModel.getSeasonDescription(
+        game.streakCycleCount,
+        langCode: langCode);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -104,7 +112,9 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -112,10 +122,20 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
               ),
               const SizedBox(width: 8),
               NeoBrutalBadge(
-                text: canClaim ? context.tr('streak_ready_badge') : context.tr('streak_come_back'),
-                icon: canClaim ? Icons.check_circle_rounded : Icons.lock_clock_rounded,
-                backgroundColor: canClaim ? AppColors.brutalGreen : (isDark ? const Color(0xFF242C3D) : const Color(0xFFE2E8F0)),
-                textColor: canClaim ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                text: canClaim
+                    ? context.tr('streak_ready_badge')
+                    : context.tr('streak_come_back'),
+                icon: canClaim
+                    ? Icons.check_circle_rounded
+                    : Icons.lock_clock_rounded,
+                backgroundColor: canClaim
+                    ? AppColors.brutalGreen
+                    : (isDark
+                        ? const Color(0xFF242C3D)
+                        : const Color(0xFFE2E8F0)),
+                textColor: canClaim
+                    ? Colors.black
+                    : (isDark ? Colors.white70 : Colors.black87),
                 fontSize: 10.5,
               ),
             ],
@@ -128,11 +148,13 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
+              border:
+                  Border.all(color: isDark ? Colors.white12 : Colors.black12),
             ),
             child: Row(
               children: [
-                const Icon(Icons.wb_sunny_rounded, size: 16, color: AppColors.brutalYellow),
+                const Icon(Icons.wb_sunny_rounded,
+                    size: 16, color: AppColors.brutalYellow),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
@@ -140,7 +162,9 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF475569),
                     ),
                   ),
                 ),
@@ -164,10 +188,14 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.brutalYellow
-                            : (isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9)),
+                            : (isDark
+                                ? const Color(0xFF1E2433)
+                                : const Color(0xFFF1F5F9)),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isSelected ? Colors.black : (isDark ? Colors.white12 : Colors.black12),
+                          color: isSelected
+                              ? Colors.black
+                              : (isDark ? Colors.white12 : Colors.black12),
                           width: isSelected ? 2.0 : 1.0,
                         ),
                       ),
@@ -177,7 +205,9 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
-                            color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                            color: isSelected
+                                ? Colors.black
+                                : (isDark ? Colors.white70 : Colors.black87),
                           ),
                         ),
                       ),
@@ -199,18 +229,26 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
               itemBuilder: (ctx, idx) {
                 final reward = weekRewards[idx];
                 final isCurrentDay = reward.dayNumber == currentStreakDay;
-                final isClaimed = game.claimedStreakDays.contains(reward.dayNumber);
+                final isClaimed =
+                    game.claimedStreakDays.contains(reward.dayNumber);
 
                 return SizedBox(
                   width: 95,
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(8),
                     backgroundColor: isClaimed
-                        ? (isDark ? const Color(0xFF141923) : const Color(0xFFE2E8F0))
+                        ? (isDark
+                            ? const Color(0xFF141923)
+                            : const Color(0xFFE2E8F0))
                         : (isCurrentDay
-                            ? reward.accentColor.withValues(alpha: isDark ? 0.25 : 0.15)
-                            : (isDark ? const Color(0xFF1E2433) : Colors.white)),
-                    borderColor: isCurrentDay ? reward.accentColor : (isClaimed ? AppColors.successGreen : Colors.black),
+                            ? reward.accentColor
+                                .withValues(alpha: isDark ? 0.25 : 0.15)
+                            : (isDark
+                                ? const Color(0xFF1E2433)
+                                : Colors.white)),
+                    borderColor: isCurrentDay
+                        ? reward.accentColor
+                        : (isClaimed ? AppColors.successGreen : Colors.black),
                     borderWidth: isCurrentDay ? 2.5 : 1.5,
                     borderRadius: 12,
                     child: Column(
@@ -224,13 +262,19 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
-                                color: isCurrentDay ? reward.accentColor : (isDark ? Colors.white70 : Colors.black87),
+                                color: isCurrentDay
+                                    ? reward.accentColor
+                                    : (isDark
+                                        ? Colors.white70
+                                        : Colors.black87),
                               ),
                             ),
                             if (isClaimed)
-                              const Icon(Icons.check_circle_rounded, color: AppColors.successGreen, size: 14)
+                              const Icon(Icons.check_circle_rounded,
+                                  color: AppColors.successGreen, size: 14)
                             else if (reward.isMilestone)
-                              Icon(Icons.stars_rounded, color: reward.accentColor, size: 14),
+                              Icon(Icons.stars_rounded,
+                                  color: reward.accentColor, size: 14),
                           ],
                         ),
                         Icon(
@@ -246,7 +290,9 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
-                            color: isClaimed ? Colors.grey : (isDark ? Colors.white : Colors.black),
+                            color: isClaimed
+                                ? Colors.grey
+                                : (isDark ? Colors.white : Colors.black),
                           ),
                         ),
                       ],
@@ -262,7 +308,8 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: todayReward.accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+              color: todayReward.accentColor
+                  .withValues(alpha: isDark ? 0.15 : 0.08),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: todayReward.accentColor, width: 2.0),
             ),
@@ -287,7 +334,8 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                           Expanded(
                             child: Text(
                               todayReward.title,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w900),
                             ),
                           ),
                           if (!canClaim) ...[
@@ -295,8 +343,11 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                             NeoBrutalBadge(
                               text: context.tr('streak_unlocks_tomorrow'),
                               icon: Icons.lock_clock_rounded,
-                              backgroundColor: isDark ? const Color(0xFF242C3D) : const Color(0xFFE2E8F0),
-                              textColor: isDark ? Colors.white70 : Colors.black87,
+                              backgroundColor: isDark
+                                  ? const Color(0xFF242C3D)
+                                  : const Color(0xFFE2E8F0),
+                              textColor:
+                                  isDark ? Colors.white70 : Colors.black87,
                               fontSize: 9.5,
                             ),
                           ],
@@ -308,7 +359,9 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                          color: isDark
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF475569),
                         ),
                       ),
                     ],
@@ -324,13 +377,20 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
             label: canClaim
                 ? context.tr('streak_claim_btn', {'day': currentStreakDay})
                 : context.tr('streak_already_claimed_btn'),
-            icon: canClaim ? Icons.card_giftcard_rounded : Icons.check_circle_rounded,
-            backgroundColor: canClaim ? AppColors.brutalGreen : (isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0)),
-            textColor: canClaim ? Colors.black : (isDark ? Colors.white54 : Colors.black45),
+            icon: canClaim
+                ? Icons.card_giftcard_rounded
+                : Icons.check_circle_rounded,
+            backgroundColor: canClaim
+                ? AppColors.brutalGreen
+                : (isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0)),
+            textColor: canClaim
+                ? Colors.black
+                : (isDark ? Colors.white54 : Colors.black45),
             fullWidth: true,
             onPressed: canClaim
                 ? () {
-                    final claimed = ref.read(gameProvider.notifier).claimDailyLoginReward();
+                    final claimed =
+                        ref.read(gameProvider.notifier).claimDailyLoginReward();
                     if (claimed != null) {
                       final rewardSummary = claimed.moneyAmount > 0
                           ? '+${CurrencyFormatter.formatShort(claimed.moneyAmount)}'

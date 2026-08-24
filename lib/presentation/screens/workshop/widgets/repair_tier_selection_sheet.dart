@@ -71,10 +71,12 @@ class RepairTierSelectionSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Expanded(
+                  child: Text(
                 titleText,
-                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
-              ),
+                style: const TextStyle(
+                    fontSize: 13.5, fontWeight: FontWeight.w900),
+              )),
               IconButton(
                 icon: const Icon(Icons.close_rounded),
                 onPressed: () => Navigator.pop(context),
@@ -148,31 +150,45 @@ class RepairTierSelectionSheet extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(title, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
+                      Text(title,
+                          style: const TextStyle(
+                              fontSize: 12.5, fontWeight: FontWeight.w900)),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: color,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           successRate,
-                          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Colors.black),
+                          style: const TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 3),
-                  Text(subtitle, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B))),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            Text(
+            Expanded(
+                child: Text(
               CurrencyFormatter.formatShort(cost),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-            ),
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.brutalGreen),
+            )),
           ],
         ),
       ),

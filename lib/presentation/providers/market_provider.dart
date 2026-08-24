@@ -5,7 +5,8 @@ import '../../data/models/listing_model.dart';
 import '../../domain/usecases/market_engine.dart';
 import 'game_provider.dart';
 
-final marketProvider = StateNotifierProvider<MarketNotifier, List<ListingModel>>((ref) {
+final marketProvider =
+    StateNotifierProvider<MarketNotifier, List<ListingModel>>((ref) {
   return MarketNotifier(ref);
 });
 

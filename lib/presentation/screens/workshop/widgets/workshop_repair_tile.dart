@@ -39,7 +39,9 @@ class WorkshopRepairTile extends StatelessWidget {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(12),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isRepaired ? const Color(0xFF00E575) : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+      borderColor: isRepaired
+          ? const Color(0xFF00E575)
+          : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
       borderRadius: 8,
       borderWidth: 2.5,
       shadowOffset: const Offset(3.5, 3.5),
@@ -56,12 +58,16 @@ class WorkshopRepairTile extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                        style: const TextStyle(
+                            fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
                     ),
                     NeoBrutalBadge(
-                      text: isRepaired ? context.tr('workshop_repaired_badge') : bonusText,
-                      backgroundColor: isRepaired ? const Color(0xFF00E575) : badgeColor,
+                      text: isRepaired
+                          ? context.tr('workshop_repaired_badge')
+                          : bonusText,
+                      backgroundColor:
+                          isRepaired ? const Color(0xFF00E575) : badgeColor,
                       textColor: Colors.black,
                       fontSize: 9,
                     ),
@@ -70,7 +76,10 @@ class WorkshopRepairTile extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   description,
-                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 4),
                 if (isRepaired)
@@ -110,11 +119,16 @@ class WorkshopRepairTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                if (!isRepaired && netRoiText != null && netRoiText!.isNotEmpty) ...[
+                if (!isRepaired &&
+                    netRoiText != null &&
+                    netRoiText!.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(
                     netRoiText!,
-                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF00C853)),
+                    style: const TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF00C853)),
                   ),
                 ],
               ],
@@ -122,12 +136,18 @@ class WorkshopRepairTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           NeoBrutalButton(
-            label: isRepaired ? (disabledLabel ?? context.tr('tuning_btn_applied')) : context.tr('workshop_btn_repair'),
-            icon: isRepaired ? Icons.check_circle_rounded : Icons.build_circle_rounded,
+            label: isRepaired
+                ? (disabledLabel ?? context.tr('tuning_btn_applied'))
+                : context.tr('workshop_btn_repair'),
+            icon: isRepaired
+                ? Icons.check_circle_rounded
+                : Icons.build_circle_rounded,
             backgroundColor: isRepaired
                 ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
                 : AppColors.brutalYellow,
-            textColor: isRepaired ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+            textColor: isRepaired
+                ? (isDark ? Colors.white54 : Colors.black54)
+                : Colors.black,
             fontSize: 11,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             onPressed: isRepaired ? null : onRepair,

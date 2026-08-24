@@ -59,9 +59,10 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
     final effectiveShadow = widget.shadowColor ??
         (isDark ? const Color(0xFF000000) : const Color(0xFF0F172A));
 
-    final currentOffset = (_isPressed && widget.onTap != null && widget.animateOnTap)
-        ? const Offset(1.0, 1.0)
-        : widget.shadowOffset;
+    final currentOffset =
+        (_isPressed && widget.onTap != null && widget.animateOnTap)
+            ? const Offset(1.0, 1.0)
+            : widget.shadowOffset;
 
     Widget cardBody = widget.child;
     if (widget.showBlueprintGrid) {
@@ -71,7 +72,9 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
       );
     } else if (widget.showDotGrid) {
       cardBody = DotGridBackground(
-        dotColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
+        dotColor: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.04),
         child: cardBody,
       );
     }
@@ -103,8 +106,7 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.showHazardHeader)
-                const HazardStripeWidget(height: 6),
+              if (widget.showHazardHeader) const HazardStripeWidget(height: 6),
               Padding(
                 padding: widget.padding ?? const EdgeInsets.all(16),
                 child: cardBody,

@@ -80,12 +80,16 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                     textColor: Colors.black,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   ),
                   NeoBrutalBadge(
                     text: context.tr('event_type_daily'),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white70 : const Color(0xFF475569),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
+                    textColor:
+                        isDark ? Colors.white70 : const Color(0xFF475569),
                     fontSize: 9.5,
                   ),
                 ],
@@ -99,15 +103,19 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: headerBadgeColor.withValues(alpha: isDark ? 0.25 : 0.15),
+                      color: headerBadgeColor.withValues(
+                          alpha: isDark ? 0.25 : 0.15),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF384252) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF384252)
+                            : const Color(0xFF0F172A),
                         width: 2.2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: isDark ? Colors.black54 : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.black54 : const Color(0xFF0F172A),
                           offset: const Offset(2, 2),
                         ),
                       ],
@@ -138,10 +146,14 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1B202D) : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? const Color(0xFF1B202D)
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFFCBD5E1),
                     width: 2.0,
                   ),
                 ),
@@ -150,7 +162,9 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 13,
                     height: 1.4,
-                    color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                    color: isDark
+                        ? const Color(0xFFE2E8F0)
+                        : const Color(0xFF334155),
                   ),
                 ),
               ),
@@ -162,7 +176,9 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
-                  color: isDark ? const Color(0xFF00F0FF) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF00F0FF)
+                      : const Color(0xFF0F172A),
                 ),
               ),
               const SizedBox(height: 8),
@@ -170,7 +186,8 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
               ...event.choices.map((choice) {
                 final hasCost = choice.balanceChange < 0;
                 final hasReward = choice.balanceChange > 0;
-                Color choiceBg = isDark ? const Color(0xFF1A1F2C) : Colors.white;
+                Color choiceBg =
+                    isDark ? const Color(0xFF1A1F2C) : Colors.white;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -178,7 +195,9 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(10),
                     onTap: () {
                       Navigator.pop(context);
-                      ref.read(gameProvider.notifier).resolveRandomEvent(choice);
+                      ref
+                          .read(gameProvider.notifier)
+                          .resolveRandomEvent(choice);
 
                       if (choice.balanceChange > 0) {
                         GameSoundHapticService.playCashSuccess();
@@ -190,7 +209,9 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                         context,
                         '${choice.resultText}\n'
                         '${choice.balanceChange != 0 ? (choice.balanceChange > 0 ? "+${CurrencyFormatter.formatShort(choice.balanceChange)}" : CurrencyFormatter.formatShort(choice.balanceChange)) : ""} '
-                        '${choice.reputationChange != 0 ? "• ${choice.reputationChange > 0 ? "+" : ""}${context.tr('label_reputation_delta', {'val': choice.reputationChange})}" : ""}',
+                        '${choice.reputationChange != 0 ? "• ${choice.reputationChange > 0 ? "+" : ""}${context.tr('label_reputation_delta', {
+                                'val': choice.reputationChange
+                              })}" : ""}',
                       );
                     },
                     child: Container(
@@ -199,7 +220,9 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                         color: choiceBg,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2.0,
                         ),
                         boxShadow: const [
@@ -211,11 +234,15 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                           Icon(
                             hasCost
                                 ? Icons.money_off_rounded
-                                : (hasReward ? Icons.monetization_on_rounded : Icons.touch_app_rounded),
+                                : (hasReward
+                                    ? Icons.monetization_on_rounded
+                                    : Icons.touch_app_rounded),
                             size: 20,
                             color: hasCost
                                 ? const Color(0xFFEF4444)
-                                : (hasReward ? const Color(0xFF00E575) : const Color(0xFFFFDE59)),
+                                : (hasReward
+                                    ? const Color(0xFF00E575)
+                                    : const Color(0xFFFFDE59)),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -227,7 +254,9 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                                   style: TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
                                   ),
                                 ),
                                 if (choice.resultText.isNotEmpty) ...[
@@ -236,14 +265,17 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                                     choice.resultText,
                                     style: TextStyle(
                                       fontSize: 10.5,
-                                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                      color: isDark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B),
                                     ),
                                   ),
                                 ],
                               ],
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Colors.grey),
+                          const Icon(Icons.arrow_forward_ios_rounded,
+                              size: 12, color: Colors.grey),
                         ],
                       ),
                     ),

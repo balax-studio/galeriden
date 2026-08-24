@@ -16,7 +16,8 @@ class SanayiBarbutuModal extends ConsumerStatefulWidget {
   ConsumerState<SanayiBarbutuModal> createState() => _SanayiBarbutuModalState();
 }
 
-class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with TickerProviderStateMixin {
+class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal>
+    with TickerProviderStateMixin {
   double _selectedBet = 50000.0;
   CarModel? _selectedWagerCar;
   BarbutBetChoice _selectedChoice = BarbutBetChoice.duses;
@@ -32,7 +33,13 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
   late AnimationController _stampController;
   late AnimationController _idleBreathingController;
 
-  final List<double> _quickBets = [50000.0, 100000.0, 250000.0, 750000.0, 2000000.0];
+  final List<double> _quickBets = [
+    50000.0,
+    100000.0,
+    250000.0,
+    750000.0,
+    2000000.0
+  ];
 
   @override
   void initState() {
@@ -93,10 +100,10 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
 
     // 2. Compute barbut dice result and update state
     final result = ref.read(gameProvider.notifier).playCasinoSanayiBarbutu(
-      betAmount: _selectedBet,
-      choice: _selectedChoice,
-      wageredCar: _selectedWagerCar,
-    );
+          betAmount: _selectedBet,
+          choice: _selectedChoice,
+          wageredCar: _selectedWagerCar,
+        );
 
     if (result == null) {
       setState(() => _isRolling = false);
@@ -172,11 +179,13 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: const BoxDecoration(
                   color: Color(0xFFFF7A00),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(13)),
-                  border: Border(bottom: BorderSide(color: Color(0xFF0F172A), width: 2.5)),
+                  border: Border(
+                      bottom: BorderSide(color: Color(0xFF0F172A), width: 2.5)),
                 ),
                 child: Row(
                   children: [
@@ -186,7 +195,8 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.casino_rounded, size: 20, color: Color(0xFFFF7A00)),
+                      child: const Icon(Icons.casino_rounded,
+                          size: 20, color: Color(0xFFFF7A00)),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -215,7 +225,8 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close_rounded, color: Colors.black),
+                      icon:
+                          const Icon(Icons.close_rounded, color: Colors.black),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -235,7 +246,8 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                         decoration: BoxDecoration(
                           color: const Color(0xFF0A1913),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF0F172A), width: 2.5),
+                          border: Border.all(
+                              color: const Color(0xFF0F172A), width: 2.5),
                           boxShadow: const [
                             BoxShadow(
                               color: Color(0xFF0F172A),
@@ -244,153 +256,180 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                             ),
                           ],
                         ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Table Felt Markings
-                          Positioned(
-                            top: 8,
-                            left: 12,
-                            child: Text(
-                              context.tr('barbut_table_felt_label'),
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.brutalGreen.withValues(alpha: 0.4),
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                          ),
-
-                          // Leather Shaking Cup and Rolling Dice
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Leather Dice Cup
-                              AnimatedBuilder(
-                                animation: _cupShakeController,
-                                builder: (context, child) {
-                                  final shakeVal = math.sin(_cupShakeController.value * math.pi * 8) * 12.0;
-                                  final tiltVal = math.sin(_cupShakeController.value * math.pi * 4) * 0.2;
-                                  return Transform.translate(
-                                    offset: Offset(shakeVal, 0),
-                                    child: Transform.rotate(
-                                      angle: tiltVal,
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 60,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF5C3317),
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(8),
-                                      bottom: Radius.circular(18),
-                                    ),
-                                    border: Border.all(color: const Color(0xFF0F172A), width: 2.5),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.black45,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 6,
-                                      ),
-                                    ],
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    width: 44,
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFDE59),
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              // Two Tumbling Dice
-                              AnimatedBuilder(
-                                animation: _diceRollController,
-                                builder: (context, child) {
-                                  final rollVal = _diceRollController.value;
-                                  final rot1 = _isRolling ? (rollVal * math.pi * 4) : 0.0;
-                                  final rot2 = _isRolling ? -(rollVal * math.pi * 4) : 0.0;
-                                  final bounce = _isRolling ? math.sin(rollVal * math.pi) * 20.0 : 0.0;
-
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Transform.translate(
-                                        offset: Offset(0, -bounce),
-                                        child: Transform.rotate(
-                                          angle: rot1,
-                                          child: _buildDieWidget(_displayDie1),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 24),
-                                      Transform.translate(
-                                        offset: Offset(0, -bounce),
-                                        child: Transform.rotate(
-                                          angle: rot2,
-                                          child: _buildDieWidget(_displayDie2),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-
-                          // Stamp Banner on Win / Loss
-                          if (_lastResult != null)
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Table Felt Markings
                             Positioned(
-                              bottom: 10,
-                              child: ScaleTransition(
-                                scale: CurvedAnimation(
-                                  parent: _stampController,
-                                  curve: Curves.elasticOut,
+                              top: 8,
+                              left: 12,
+                              child: Text(
+                                context.tr('barbut_table_felt_label'),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.brutalGreen
+                                      .withValues(alpha: 0.4),
+                                  letterSpacing: 1.5,
                                 ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: _lastResult!.isWin ? AppColors.brutalGreen : AppColors.brutalRed,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.black, width: 2),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.black54,
-                                        offset: Offset(2, 2),
-                                        blurRadius: 0,
+                              ),
+                            ),
+
+                            // Leather Shaking Cup and Rolling Dice
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Leather Dice Cup
+                                AnimatedBuilder(
+                                  animation: _cupShakeController,
+                                  builder: (context, child) {
+                                    final shakeVal = math.sin(
+                                            _cupShakeController.value *
+                                                math.pi *
+                                                8) *
+                                        12.0;
+                                    final tiltVal = math.sin(
+                                            _cupShakeController.value *
+                                                math.pi *
+                                                4) *
+                                        0.2;
+                                    return Transform.translate(
+                                      offset: Offset(shakeVal, 0),
+                                      child: Transform.rotate(
+                                        angle: tiltVal,
+                                        child: child,
                                       ),
-                                    ],
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 60,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF5C3317),
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(8),
+                                        bottom: Radius.circular(18),
+                                      ),
+                                      border: Border.all(
+                                          color: const Color(0xFF0F172A),
+                                          width: 2.5),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black45,
+                                          offset: Offset(0, 4),
+                                          blurRadius: 6,
+                                        ),
+                                      ],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      width: 44,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFDE59),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
                                   ),
-                                  child: Text(
-                                    _lastResult!.isWin
-                                        ? context.tr('barbut_stamp_win', {
-                                            'combo': _lastResult!.comboName,
-                                            'amount': _formatCurrency(_lastResult!.payoutAmount),
-                                          })
-                                        : context.tr('barbut_stamp_loss', {
-                                            'combo': _lastResult!.comboName,
-                                          }),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 12,
-                                      color: _lastResult!.isWin ? Colors.black : Colors.white,
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // Two Tumbling Dice
+                                AnimatedBuilder(
+                                  animation: _diceRollController,
+                                  builder: (context, child) {
+                                    final rollVal = _diceRollController.value;
+                                    final rot1 = _isRolling
+                                        ? (rollVal * math.pi * 4)
+                                        : 0.0;
+                                    final rot2 = _isRolling
+                                        ? -(rollVal * math.pi * 4)
+                                        : 0.0;
+                                    final bounce = _isRolling
+                                        ? math.sin(rollVal * math.pi) * 20.0
+                                        : 0.0;
+
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Transform.translate(
+                                          offset: Offset(0, -bounce),
+                                          child: Transform.rotate(
+                                            angle: rot1,
+                                            child:
+                                                _buildDieWidget(_displayDie1),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 24),
+                                        Transform.translate(
+                                          offset: Offset(0, -bounce),
+                                          child: Transform.rotate(
+                                            angle: rot2,
+                                            child:
+                                                _buildDieWidget(_displayDie2),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+
+                            // Stamp Banner on Win / Loss
+                            if (_lastResult != null)
+                              Positioned(
+                                bottom: 10,
+                                child: ScaleTransition(
+                                  scale: CurvedAnimation(
+                                    parent: _stampController,
+                                    curve: Curves.elasticOut,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: _lastResult!.isWin
+                                          ? AppColors.brutalGreen
+                                          : AppColors.brutalRed,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Colors.black, width: 2),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black54,
+                                          offset: Offset(2, 2),
+                                          blurRadius: 0,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Text(
+                                      _lastResult!.isWin
+                                          ? context.tr('barbut_stamp_win', {
+                                              'combo': _lastResult!.comboName,
+                                              'amount': _formatCurrency(
+                                                  _lastResult!.payoutAmount),
+                                            })
+                                          : context.tr('barbut_stamp_loss', {
+                                              'combo': _lastResult!.comboName,
+                                            }),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 12,
+                                        color: _lastResult!.isWin
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
                     const SizedBox(height: 16),
 
@@ -443,13 +482,17 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => _selectedWagerCar = null),
+                            onTap: () =>
+                                setState(() => _selectedWagerCar = null),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               decoration: BoxDecoration(
-                                color: _selectedWagerCar == null ? AppColors.brutalYellow : Colors.transparent,
+                                color: _selectedWagerCar == null
+                                    ? AppColors.brutalYellow
+                                    : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: const Color(0xFF0F172A), width: 2),
+                                border: Border.all(
+                                    color: const Color(0xFF0F172A), width: 2),
                               ),
                               alignment: Alignment.center,
                               child: Text(
@@ -457,7 +500,11 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 12,
-                                  color: _selectedWagerCar == null ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                  color: _selectedWagerCar == null
+                                      ? Colors.black
+                                      : (isDark
+                                          ? Colors.white70
+                                          : Colors.black87),
                                 ),
                               ),
                             ),
@@ -468,11 +515,13 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                           child: GestureDetector(
                             onTap: () {
                               if (ownedCars.isNotEmpty) {
-                                setState(() => _selectedWagerCar = ownedCars.first);
+                                setState(
+                                    () => _selectedWagerCar = ownedCars.first);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(context.tr('no_cars_for_wager')),
+                                    content:
+                                        Text(context.tr('no_cars_for_wager')),
                                     backgroundColor: AppColors.brutalRed,
                                   ),
                                 );
@@ -481,9 +530,12 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               decoration: BoxDecoration(
-                                color: _selectedWagerCar != null ? const Color(0xFFFF7A00) : Colors.transparent,
+                                color: _selectedWagerCar != null
+                                    ? const Color(0xFFFF7A00)
+                                    : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: const Color(0xFF0F172A), width: 2),
+                                border: Border.all(
+                                    color: const Color(0xFF0F172A), width: 2),
                               ),
                               alignment: Alignment.center,
                               child: Text(
@@ -491,7 +543,11 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 12,
-                                  color: _selectedWagerCar != null ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                                  color: _selectedWagerCar != null
+                                      ? Colors.white
+                                      : (isDark
+                                          ? Colors.white70
+                                          : Colors.black87),
                                 ),
                               ),
                             ),
@@ -512,12 +568,21 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                           return GestureDetector(
                             onTap: () => setState(() => _selectedBet = bet),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                                color: isSelected
+                                    ? const Color(0xFFFF7A00)
+                                    : (isDark
+                                        ? const Color(0xFF1E293B)
+                                        : const Color(0xFFF1F5F9)),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: isSelected ? Colors.black : (isDark ? Colors.white24 : Colors.black26),
+                                  color: isSelected
+                                      ? Colors.black
+                                      : (isDark
+                                          ? Colors.white24
+                                          : Colors.black26),
                                   width: isSelected ? 2 : 1,
                                 ),
                               ),
@@ -526,7 +591,9 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w900,
-                                  color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                                  color: isSelected
+                                      ? Colors.black
+                                      : (isDark ? Colors.white : Colors.black),
                                 ),
                               ),
                             ),
@@ -538,18 +605,23 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFFF7A00), width: 2),
+                          border: Border.all(
+                              color: const Color(0xFFFF7A00), width: 2),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.directions_car_rounded, color: Color(0xFFFF7A00), size: 22),
+                            const Icon(Icons.directions_car_rounded,
+                                color: Color(0xFFFF7A00), size: 22),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 '${_selectedWagerCar!.brand} ${_selectedWagerCar!.modelName} • ${_formatCurrency(_selectedWagerCar!.price)}',
-                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w900, fontSize: 12),
                               ),
                             ),
                           ],
@@ -561,7 +633,9 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
 
                     // Roll Dice Action Button
                     NeoBrutalButton(
-                      label: _isRolling ? context.tr('barbut_btn_shaking') : context.tr('barbut_btn_roll'),
+                      label: _isRolling
+                          ? context.tr('barbut_btn_shaking')
+                          : context.tr('barbut_btn_roll'),
                       backgroundColor: const Color(0xFFFF7A00),
                       textColor: Colors.black,
                       minHeight: 50,
@@ -680,17 +754,25 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [pip(), pip()]),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [pip(), pip()]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [pip(), pip()]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [pip(), pip()]),
           ],
         );
       case 5:
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [pip(), pip()]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [pip(), pip()]),
             Center(child: pip()),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [pip(), pip()]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [pip(), pip()]),
           ],
         );
       case 6:
@@ -698,9 +780,15 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal> with Ti
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [pip(), pip()]),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [pip(), pip()]),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [pip(), pip()]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [pip(), pip()]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [pip(), pip()]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [pip(), pip()]),
           ],
         );
     }

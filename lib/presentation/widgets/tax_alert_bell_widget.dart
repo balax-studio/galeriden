@@ -29,12 +29,18 @@ class _TaxAlertBellWidgetState extends State<TaxAlertBellWidget>
     );
 
     _swingAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: -0.25), weight: 25),
-      TweenSequenceItem(tween: Tween<double>(begin: -0.25, end: 0.25), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 0.25, end: 0.0), weight: 25),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: 0.0, end: -0.25), weight: 25),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: -0.25, end: 0.25), weight: 50),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: 0.25, end: 0.0), weight: 25),
     ]).animate(_controller);
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest && widget.hasUnpaidTax) {
       _controller.repeat();
     } else {
@@ -45,7 +51,10 @@ class _TaxAlertBellWidgetState extends State<TaxAlertBellWidget>
   @override
   void didUpdateWidget(covariant TaxAlertBellWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (isTest) return;
 
     if (widget.hasUnpaidTax && !_controller.isAnimating) {
@@ -76,7 +85,9 @@ class _TaxAlertBellWidgetState extends State<TaxAlertBellWidget>
         width: widget.size,
         height: widget.size,
         decoration: BoxDecoration(
-          color: widget.hasUnpaidTax ? const Color(0xFFEF4444) : const Color(0xFF94A3B8),
+          color: widget.hasUnpaidTax
+              ? const Color(0xFFEF4444)
+              : const Color(0xFF94A3B8),
           shape: BoxShape.circle,
           border: Border.all(color: Colors.black, width: 1.8),
           boxShadow: const [

@@ -39,7 +39,10 @@ class _PaintSparkWidgetState extends State<PaintSparkWidget>
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.forward().then((_) => widget.onComplete?.call());
     } else {
@@ -116,8 +119,10 @@ class _PaintSparkPainter extends CustomPainter {
 
     for (int i = 0; i < 6; i++) {
       final angle = i * math.pi / 3;
-      final p1 = Offset(center.dx + math.cos(angle) * 8, center.dy + math.sin(angle) * 8);
-      final p2 = Offset(center.dx + math.cos(angle) * 24, center.dy + math.sin(angle) * 24);
+      final p1 = Offset(
+          center.dx + math.cos(angle) * 8, center.dy + math.sin(angle) * 8);
+      final p2 = Offset(
+          center.dx + math.cos(angle) * 24, center.dy + math.sin(angle) * 24);
       canvas.drawLine(p1, p2, sparkPaint);
       canvas.drawCircle(p2, 2.0, dotPaint);
     }

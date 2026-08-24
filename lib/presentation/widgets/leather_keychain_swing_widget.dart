@@ -10,7 +10,8 @@ class LeatherKeychainSwingWidget extends StatefulWidget {
   });
 
   @override
-  State<LeatherKeychainSwingWidget> createState() => _LeatherKeychainSwingWidgetState();
+  State<LeatherKeychainSwingWidget> createState() =>
+      _LeatherKeychainSwingWidgetState();
 }
 
 class _LeatherKeychainSwingWidgetState extends State<LeatherKeychainSwingWidget>
@@ -27,14 +28,20 @@ class _LeatherKeychainSwingWidgetState extends State<LeatherKeychainSwingWidget>
     );
 
     _swingAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: -0.18), weight: 25),
-      TweenSequenceItem(tween: Tween<double>(begin: -0.18, end: 0.18), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 0.18, end: 0.0), weight: 25),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: 0.0, end: -0.18), weight: 25),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: -0.18, end: 0.18), weight: 50),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: 0.18, end: 0.0), weight: 25),
     ]).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.repeat();
     } else {

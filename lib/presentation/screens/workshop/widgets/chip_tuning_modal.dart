@@ -42,20 +42,27 @@ class ChipTuningModal extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.brutalYellow,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF333B4F), width: 2.0),
+                  border:
+                      Border.all(color: const Color(0xFF333B4F), width: 2.0),
                 ),
-                child: const Icon(Icons.tune_rounded, color: Colors.black, size: 20),
+                child: const Icon(Icons.tune_rounded,
+                    color: Colors.black, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  context.tr('chip_tuning_title', {'car': '${car.brand} ${car.modelName}'}),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                  context.tr('chip_tuning_title',
+                      {'car': '${car.brand} ${car.modelName}'}),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 22),
+                icon: const Icon(Icons.close_rounded,
+                    color: Colors.white70, size: 22),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -94,18 +101,29 @@ class ChipTuningModal extends StatelessWidget {
               shadowOffset: const Offset(3, 3),
               child: Row(
                 children: [
-                  const Icon(Icons.directions_car_filled_rounded, color: Color(0xFFA855F7), size: 24),
+                  const Icon(Icons.directions_car_filled_rounded,
+                      color: Color(0xFFA855F7), size: 24),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.tr('chip_tuning_bodykit_title'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5)),
-                        Text(context.tr('chip_tuning_bodykit_desc'), style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                        Text(context.tr('chip_tuning_bodykit_title'),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 12.5)),
+                        Text(context.tr('chip_tuning_bodykit_desc'),
+                            style: const TextStyle(
+                                color: Color(0xFF94A3B8), fontSize: 11)),
                       ],
                     ),
                   ),
-                  Text(CurrencyFormatter.formatShort(3500), style: const TextStyle(color: Color(0xFFA855F7), fontWeight: FontWeight.w900, fontSize: 13)),
+                  Text(CurrencyFormatter.formatShort(3500),
+                      style: const TextStyle(
+                          color: Color(0xFFA855F7),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13)),
                 ],
               ),
             ),
@@ -145,12 +163,20 @@ class ChipTuningModal extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5)),
-                  Text(desc, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                  Text(title,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12.5)),
+                  Text(desc,
+                      style: const TextStyle(
+                          color: Color(0xFF94A3B8), fontSize: 11)),
                 ],
               ),
             ),
-            Text(cost, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13)),
+            Text(cost,
+                style: TextStyle(
+                    color: color, fontWeight: FontWeight.w900, fontSize: 13)),
           ],
         ),
       ),

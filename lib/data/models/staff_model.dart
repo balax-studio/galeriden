@@ -820,6 +820,7 @@ class StaffModel {
   final int masteryLevel;
   final String? specialization;
   final int morale; // 0 to 100
+  final int loyaltyScore;
   final StaffPerk? perk;
   final double profitContributed;
   final List<String> completedCourseIds;
@@ -834,6 +835,7 @@ class StaffModel {
     this.masteryLevel = 1,
     this.specialization,
     this.morale = 100,
+    this.loyaltyScore = 100,
     this.perk,
     this.profitContributed = 0.0,
     this.completedCourseIds = const [],
@@ -877,6 +879,7 @@ class StaffModel {
     int? masteryLevel,
     String? specialization,
     int? morale,
+    int? loyaltyScore,
     StaffPerk? perk,
     double? profitContributed,
     List<String>? completedCourseIds,
@@ -891,6 +894,7 @@ class StaffModel {
       masteryLevel: masteryLevel ?? this.masteryLevel,
       specialization: specialization ?? this.specialization,
       morale: morale ?? this.morale,
+      loyaltyScore: loyaltyScore ?? this.loyaltyScore,
       perk: perk ?? this.perk,
       profitContributed: profitContributed ?? this.profitContributed,
       completedCourseIds: completedCourseIds ?? this.completedCourseIds,
@@ -908,6 +912,7 @@ class StaffModel {
       'masteryLevel': masteryLevel,
       'specialization': specialization,
       'morale': morale,
+      'loyaltyScore': loyaltyScore,
       'perk': perk?.name,
       'profitContributed': profitContributed,
       'completedCourseIds': completedCourseIds,
@@ -925,6 +930,7 @@ class StaffModel {
       masteryLevel: json['masteryLevel'] as int? ?? 1,
       specialization: json['specialization'] as String?,
       morale: json['morale'] as int? ?? 100,
+      loyaltyScore: json['loyaltyScore'] as int? ?? 100,
       perk: json['perk'] != null ? StaffPerk.values.firstWhere((p) => p.name == json['perk'], orElse: () => StaffPerk.hardWorker) : null,
       profitContributed: (json['profitContributed'] as num?)?.toDouble() ?? 0.0,
       completedCourseIds: (json['completedCourseIds'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],

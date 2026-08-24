@@ -40,19 +40,25 @@ class FactoringChequeSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.brutalYellow,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF333B4F), width: 2.0),
+                  border:
+                      Border.all(color: const Color(0xFF333B4F), width: 2.0),
                 ),
-                child: const Icon(Icons.currency_exchange_rounded, color: Colors.black, size: 20),
+                child: const Icon(Icons.currency_exchange_rounded,
+                    color: Colors.black, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   context.tr('factoring_sheet_title'),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14),
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 22),
+                icon: const Icon(Icons.close_rounded,
+                    color: Colors.white70, size: 22),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -60,7 +66,10 @@ class FactoringChequeSheet extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             context.tr('factoring_sheet_desc'),
-            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+                color: Color(0xFF94A3B8),
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
           if (cheques.isEmpty)
@@ -72,7 +81,10 @@ class FactoringChequeSheet extends StatelessWidget {
               child: Center(
                 child: Text(
                   context.tr('factoring_no_cheques'),
-                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -96,9 +108,11 @@ class FactoringChequeSheet extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: const Color(0xFF1E2330),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFF333B4F), width: 1.5),
+                          border: Border.all(
+                              color: const Color(0xFF333B4F), width: 1.5),
                         ),
-                        child: const Icon(Icons.receipt_long_rounded, color: AppColors.brutalYellow, size: 22),
+                        child: const Icon(Icons.receipt_long_rounded,
+                            color: AppColors.brutalYellow, size: 22),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -106,16 +120,27 @@ class FactoringChequeSheet extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              context.tr('factoring_cheque_amount', {'amount': c.amount.toStringAsFixed(0)}),
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5),
+                              context.tr('factoring_cheque_amount',
+                                  {'amount': c.amount.toStringAsFixed(0)}),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12.5),
                             ),
                             Text(
-                              context.tr('factoring_cheque_due', {'days': c.dueDays.toString()}),
-                              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                              context.tr('factoring_cheque_due',
+                                  {'days': c.dueDays.toString()}),
+                              style: const TextStyle(
+                                  color: Color(0xFF94A3B8), fontSize: 11),
                             ),
                             Text(
-                              context.tr('factoring_net_payment', {'amount': deal.payoutCash.toStringAsFixed(0)}),
-                              style: const TextStyle(color: AppColors.brutalGreen, fontWeight: FontWeight.w800, fontSize: 11),
+                              context.tr('factoring_net_payment', {
+                                'amount': deal.payoutCash.toStringAsFixed(0)
+                              }),
+                              style: const TextStyle(
+                                  color: AppColors.brutalGreen,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 11),
                             ),
                           ],
                         ),
@@ -126,7 +151,8 @@ class FactoringChequeSheet extends StatelessWidget {
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 11,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         onPressed: () {
                           Navigator.of(context).pop();
                           onChequeFactored(c.id);

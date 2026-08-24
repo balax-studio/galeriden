@@ -38,7 +38,10 @@ class _NeonSignWidgetState extends State<NeonSignWidget>
       duration: const Duration(milliseconds: 1800),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (widget.isFlickering && !isTest) {
       _controller.repeat();
     } else {
@@ -67,7 +70,8 @@ class _NeonSignWidgetState extends State<NeonSignWidget>
           }
         }
 
-        final activeColor = widget.neonColor.withValues(alpha: opacity.clamp(0.4, 1.0));
+        final activeColor =
+            widget.neonColor.withValues(alpha: opacity.clamp(0.4, 1.0));
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

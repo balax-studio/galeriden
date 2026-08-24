@@ -41,9 +41,11 @@ class DynoTestDialog extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppColors.brutalGreen,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF333B4F), width: 2.0),
+                      border: Border.all(
+                          color: const Color(0xFF333B4F), width: 2.0),
                     ),
-                    child: const Icon(Icons.speed_rounded, color: Colors.black, size: 22),
+                    child: const Icon(Icons.speed_rounded,
+                        color: Colors.black, size: 22),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -58,7 +60,8 @@ class DynoTestDialog extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 22),
+                    icon: const Icon(Icons.close_rounded,
+                        color: Colors.white70, size: 22),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -79,14 +82,19 @@ class DynoTestDialog extends StatelessWidget {
                         _buildGaugeMetric(
                           label: context.tr('dyno_measured_power'),
                           value: '${dynoPreview.measuredHp} HP',
-                          sub: context.tr('dyno_factory_power', {'val': dynoPreview.factoryHp}),
+                          sub: context.tr('dyno_factory_power',
+                              {'val': dynoPreview.factoryHp}),
                           color: AppColors.brutalGreen,
                         ),
-                        Container(width: 1.5, height: 45, color: const Color(0xFF333B4F)),
+                        Container(
+                            width: 1.5,
+                            height: 45,
+                            color: const Color(0xFF333B4F)),
                         _buildGaugeMetric(
                           label: context.tr('dyno_measured_torque'),
                           value: '${dynoPreview.measuredTorque} Nm',
-                          sub: context.tr('dyno_factory_torque', {'val': dynoPreview.factoryTorque}),
+                          sub: context.tr('dyno_factory_torque',
+                              {'val': dynoPreview.factoryTorque}),
                           color: const Color(0xFF38BDF8),
                         ),
                       ],
@@ -98,15 +106,22 @@ class DynoTestDialog extends StatelessWidget {
                       valueColor: AlwaysStoppedAnimation<Color>(
                         dynoPreview.healthPercentage >= 85
                             ? AppColors.brutalGreen
-                            : (dynoPreview.healthPercentage >= 65 ? AppColors.brutalYellow : AppColors.errorRed),
+                            : (dynoPreview.healthPercentage >= 65
+                                ? AppColors.brutalYellow
+                                : AppColors.errorRed),
                       ),
                       minHeight: 8,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      context.tr('dyno_efficiency_health', {'val': dynoPreview.healthPercentage.toStringAsFixed(1)}),
-                      style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                      context.tr('dyno_efficiency_health', {
+                        'val': dynoPreview.healthPercentage.toStringAsFixed(1)
+                      }),
+                      style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -116,7 +131,10 @@ class DynoTestDialog extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   context.tr('dyno_select_package'),
-                  style: const TextStyle(color: AppColors.brutalYellow, fontWeight: FontWeight.w900, fontSize: 12),
+                  style: const TextStyle(
+                      color: AppColors.brutalYellow,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12),
                 ),
               ),
               const SizedBox(height: 8),
@@ -146,18 +164,25 @@ class DynoTestDialog extends StatelessWidget {
                               children: [
                                 Text(
                                   tier.name,
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5),
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 12.5),
                                 ),
                                 Text(
                                   tier.description,
-                                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                                  style: const TextStyle(
+                                      color: Color(0xFF94A3B8), fontSize: 11),
                                 ),
                               ],
                             ),
                           ),
                           Text(
                             CurrencyFormatter.format(tier.cost),
-                            style: TextStyle(color: tier.color, fontWeight: FontWeight.w900, fontSize: 13),
+                            style: TextStyle(
+                                color: tier.color,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13),
                           ),
                         ],
                       ),
@@ -180,10 +205,17 @@ class DynoTestDialog extends StatelessWidget {
   }) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                color: Color(0xFF94A3B8),
+                fontSize: 10,
+                fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(value, style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.w900)),
-        Text(sub, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10)),
+        Text(value,
+            style: TextStyle(
+                color: color, fontSize: 18, fontWeight: FontWeight.w900)),
+        Text(sub,
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 10)),
       ],
     );
   }

@@ -72,7 +72,10 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
 
     final pos = details.localPosition;
     // Check if inside car boundary
-    if (pos.dx >= 20 && pos.dx <= canvasSize.width - 20 && pos.dy >= 30 && pos.dy <= canvasSize.height - 30) {
+    if (pos.dx >= 20 &&
+        pos.dx <= canvasSize.width - 20 &&
+        pos.dy >= 30 &&
+        pos.dy <= canvasSize.height - 30) {
       _cleanedPoints.add(pos);
 
       // Spawn water spray particles
@@ -128,7 +131,8 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.cleaning_services_rounded, color: Color(0xFF38BDF8), size: 22),
+                    const Icon(Icons.cleaning_services_rounded,
+                        color: Color(0xFF38BDF8), size: 22),
                     const SizedBox(width: 8),
                     Text(
                       context.tr('car_wash_title'),
@@ -142,8 +146,11 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
                   ],
                 ),
                 NeoBrutalBadge(
-                  text: context.tr('car_wash_cleaned_pct', {'pct': '${_cleanlinessPercent.toInt()}'}),
-                  backgroundColor: _isFinished ? AppColors.brutalGreen : const Color(0xFF38BDF8),
+                  text: context.tr('car_wash_cleaned_pct',
+                      {'pct': '${_cleanlinessPercent.toInt()}'}),
+                  backgroundColor: _isFinished
+                      ? AppColors.brutalGreen
+                      : const Color(0xFF38BDF8),
                   textColor: Colors.black,
                   fontSize: 9.5,
                 ),
@@ -151,12 +158,16 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
             ),
             const SizedBox(height: 10),
             Text(
-              _isFinished ? context.tr('car_wash_hint_finished') : context.tr('car_wash_hint_in_progress'),
+              _isFinished
+                  ? context.tr('car_wash_hint_finished')
+                  : context.tr('car_wash_hint_in_progress'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: _isFinished ? AppColors.brutalGreen : const Color(0xFF94A3B8),
+                color: _isFinished
+                    ? AppColors.brutalGreen
+                    : const Color(0xFF94A3B8),
               ),
             ),
             const SizedBox(height: 12),
@@ -174,7 +185,8 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
                     decoration: BoxDecoration(
                       color: const Color(0xFF090D15),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF222D42), width: 2),
+                      border:
+                          Border.all(color: const Color(0xFF222D42), width: 2),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
@@ -221,9 +233,15 @@ class _CarWashMiniGameModalState extends State<CarWashMiniGameModal>
             SizedBox(
               width: double.infinity,
               child: NeoBrutalButton(
-                label: _isFinished ? context.tr('car_wash_btn_confirm') : context.tr('car_wash_btn_cleaning'),
-                icon: _isFinished ? Icons.check_circle_rounded : Icons.cleaning_services_rounded,
-                backgroundColor: _isFinished ? AppColors.brutalGreen : const Color(0xFF475569),
+                label: _isFinished
+                    ? context.tr('car_wash_btn_confirm')
+                    : context.tr('car_wash_btn_cleaning'),
+                icon: _isFinished
+                    ? Icons.check_circle_rounded
+                    : Icons.cleaning_services_rounded,
+                backgroundColor: _isFinished
+                    ? AppColors.brutalGreen
+                    : const Color(0xFF475569),
                 textColor: _isFinished ? Colors.black : Colors.white,
                 fontSize: 12,
                 onPressed: _isFinished
@@ -311,27 +329,37 @@ class _CarWashPainter extends CustomPainter {
 
     // Car Body
     final carRect = Rect.fromLTWH(w * 0.15, h * 0.42, w * 0.70, 36);
-    canvas.drawRRect(RRect.fromRectAndRadius(carRect, const Radius.circular(8)), carPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(carRect, const Radius.circular(8)), carBorder);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(carRect, const Radius.circular(8)), carPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(carRect, const Radius.circular(8)), carBorder);
 
     // Cabin
     final cabinRect = Rect.fromLTWH(w * 0.32, h * 0.26, w * 0.36, 26);
-    canvas.drawRRect(RRect.fromRectAndRadius(cabinRect, const Radius.circular(6)), Paint()..color = const Color(0xFF0F172A));
-    canvas.drawRRect(RRect.fromRectAndRadius(cabinRect, const Radius.circular(6)), carBorder);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(cabinRect, const Radius.circular(6)),
+        Paint()..color = const Color(0xFF0F172A));
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(cabinRect, const Radius.circular(6)),
+        carBorder);
 
     // Wheels
-    canvas.drawCircle(Offset(w * 0.30, h * 0.72), 14, Paint()..color = const Color(0xFF1E293B));
+    canvas.drawCircle(Offset(w * 0.30, h * 0.72), 14,
+        Paint()..color = const Color(0xFF1E293B));
     canvas.drawCircle(Offset(w * 0.30, h * 0.72), 14, carBorder);
-    canvas.drawCircle(Offset(w * 0.70, h * 0.72), 14, Paint()..color = const Color(0xFF1E293B));
+    canvas.drawCircle(Offset(w * 0.70, h * 0.72), 14,
+        Paint()..color = const Color(0xFF1E293B));
     canvas.drawCircle(Offset(w * 0.70, h * 0.72), 14, carBorder);
 
     // Mud Mask Grid Over Car
     if (!isFinished) {
-      final mudPaint = Paint()..color = const Color(0xFF78350F).withValues(alpha: 0.85);
+      final mudPaint = Paint()
+        ..color = const Color(0xFF78350F).withValues(alpha: 0.85);
 
       for (double mx = w * 0.15; mx < w * 0.85; mx += 14) {
         for (double my = h * 0.26; my < h * 0.75; my += 14) {
-          final isCleaned = cleanedPoints.any((pt) => (pt - Offset(mx, my)).distance < 20);
+          final isCleaned =
+              cleanedPoints.any((pt) => (pt - Offset(mx, my)).distance < 20);
           if (!isCleaned) {
             canvas.drawCircle(Offset(mx, my), 8, mudPaint);
           }
@@ -360,8 +388,10 @@ class _CarWashPainter extends CustomPainter {
       ..color = Colors.white
       ..strokeWidth = 2.0;
 
-    canvas.drawLine(Offset(center.dx - scale, center.dy), Offset(center.dx + scale, center.dy), starPaint);
-    canvas.drawLine(Offset(center.dx, center.dy - scale), Offset(center.dx, center.dy + scale), starPaint);
+    canvas.drawLine(Offset(center.dx - scale, center.dy),
+        Offset(center.dx + scale, center.dy), starPaint);
+    canvas.drawLine(Offset(center.dx, center.dy - scale),
+        Offset(center.dx, center.dy + scale), starPaint);
     canvas.drawCircle(center, 2.0, Paint()..color = AppColors.brutalYellow);
   }
 

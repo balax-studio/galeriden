@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class VectorIconWidget extends StatelessWidget {
-  final String type; // 'car', 'expertise', 'workshop', 'negotiation', 'theme_store', 'streak', 'rare', 'flash', 'craftsman'
+  final String
+      type; // 'car', 'expertise', 'workshop', 'negotiation', 'theme_store', 'streak', 'rare', 'flash', 'craftsman'
   final Color color;
   final double size;
 
@@ -53,8 +54,10 @@ class _VectorIconPainter extends CustomPainter {
         path.lineTo(w * 0.15, h * 0.40);
         path.close();
         canvas.drawPath(path, paint);
-        canvas.drawLine(Offset(w * 0.15, h * 0.40), Offset(w * 0.85, h * 0.40), paint);
-        canvas.drawLine(Offset(w * 0.50, h * 0.10), Offset(w * 0.50, h * 0.90), paint);
+        canvas.drawLine(
+            Offset(w * 0.15, h * 0.40), Offset(w * 0.85, h * 0.40), paint);
+        canvas.drawLine(
+            Offset(w * 0.50, h * 0.10), Offset(w * 0.50, h * 0.90), paint);
         break;
 
       case 'flash':
@@ -73,7 +76,9 @@ class _VectorIconPainter extends CustomPainter {
       case 'craftsman':
         // Hammer Vector
         final path = Path();
-        path.addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.30, h * 0.15, w * 0.40, h * 0.20), const Radius.circular(3)));
+        path.addRRect(RRect.fromRectAndRadius(
+            Rect.fromLTWH(w * 0.30, h * 0.15, w * 0.40, h * 0.20),
+            const Radius.circular(3)));
         path.moveTo(w * 0.50, h * 0.35);
         path.lineTo(w * 0.50, h * 0.85);
         canvas.drawPath(path, paint);
@@ -82,7 +87,8 @@ class _VectorIconPainter extends CustomPainter {
       case 'expertise':
         // Magnifying Glass + Inspection Badge
         canvas.drawCircle(Offset(w * 0.45, h * 0.45), w * 0.30, paint);
-        canvas.drawLine(Offset(w * 0.65, h * 0.65), Offset(w * 0.90, h * 0.90), paint);
+        canvas.drawLine(
+            Offset(w * 0.65, h * 0.65), Offset(w * 0.90, h * 0.90), paint);
         canvas.drawCircle(Offset(w * 0.45, h * 0.45), w * 0.10, fillPaint);
         break;
 
@@ -91,7 +97,8 @@ class _VectorIconPainter extends CustomPainter {
         final path = Path();
         path.moveTo(w * 0.20, h * 0.80);
         path.lineTo(w * 0.60, h * 0.40);
-        path.arcToPoint(Offset(w * 0.80, h * 0.20), radius: Radius.circular(w * 0.2));
+        path.arcToPoint(Offset(w * 0.80, h * 0.20),
+            radius: Radius.circular(w * 0.2));
         path.lineTo(w * 0.70, h * 0.30);
         path.lineTo(w * 0.50, h * 0.50);
         path.close();
@@ -101,11 +108,16 @@ class _VectorIconPainter extends CustomPainter {
       case 'negotiation':
         // Handshake / Contract Document
         final path = Path();
-        path.addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.15, h * 0.10, w * 0.70, h * 0.80), const Radius.circular(4)));
+        path.addRRect(RRect.fromRectAndRadius(
+            Rect.fromLTWH(w * 0.15, h * 0.10, w * 0.70, h * 0.80),
+            const Radius.circular(4)));
         canvas.drawPath(path, paint);
-        canvas.drawLine(Offset(w * 0.30, h * 0.35), Offset(w * 0.70, h * 0.35), paint);
-        canvas.drawLine(Offset(w * 0.30, h * 0.55), Offset(w * 0.70, h * 0.55), paint);
-        canvas.drawLine(Offset(w * 0.30, h * 0.70), Offset(w * 0.55, h * 0.70), paint);
+        canvas.drawLine(
+            Offset(w * 0.30, h * 0.35), Offset(w * 0.70, h * 0.35), paint);
+        canvas.drawLine(
+            Offset(w * 0.30, h * 0.55), Offset(w * 0.70, h * 0.55), paint);
+        canvas.drawLine(
+            Offset(w * 0.30, h * 0.70), Offset(w * 0.55, h * 0.70), paint);
         break;
 
       case 'theme_store':
@@ -121,7 +133,8 @@ class _VectorIconPainter extends CustomPainter {
         final path = Path();
         path.moveTo(w * 0.50, h * 0.10);
         path.quadraticBezierTo(w * 0.85, h * 0.45, w * 0.85, h * 0.70);
-        path.arcToPoint(Offset(w * 0.15, h * 0.70), radius: Radius.circular(w * 0.35));
+        path.arcToPoint(Offset(w * 0.15, h * 0.70),
+            radius: Radius.circular(w * 0.35));
         path.quadraticBezierTo(w * 0.15, h * 0.45, w * 0.50, h * 0.10);
         canvas.drawPath(path, fillPaint);
         break;
@@ -186,7 +199,8 @@ class _VectorIconPainter extends CustomPainter {
       case 'vintage':
         // Vintage Badge Crest
         canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.38, paint);
-        canvas.drawRect(Rect.fromLTWH(w * 0.25, h * 0.42, w * 0.50, h * 0.16), fillPaint);
+        canvas.drawRect(
+            Rect.fromLTWH(w * 0.25, h * 0.42, w * 0.50, h * 0.16), fillPaint);
         break;
 
       case 'wash':
@@ -199,9 +213,12 @@ class _VectorIconPainter extends CustomPainter {
         washPath.close();
         canvas.drawPath(washPath, fillPaint);
         // Spray lines
-        canvas.drawLine(Offset(w * 0.55, h * 0.45), Offset(w * 0.85, h * 0.30), paint);
-        canvas.drawLine(Offset(w * 0.55, h * 0.55), Offset(w * 0.90, h * 0.55), paint);
-        canvas.drawLine(Offset(w * 0.55, h * 0.65), Offset(w * 0.85, h * 0.80), paint);
+        canvas.drawLine(
+            Offset(w * 0.55, h * 0.45), Offset(w * 0.85, h * 0.30), paint);
+        canvas.drawLine(
+            Offset(w * 0.55, h * 0.55), Offset(w * 0.90, h * 0.55), paint);
+        canvas.drawLine(
+            Offset(w * 0.55, h * 0.65), Offset(w * 0.85, h * 0.80), paint);
         break;
 
       case 'trophy':
@@ -214,16 +231,21 @@ class _VectorIconPainter extends CustomPainter {
         trophyPath.close();
         canvas.drawPath(trophyPath, fillPaint);
         // Trophy base & stem
-        canvas.drawLine(Offset(w * 0.50, h * 0.65), Offset(w * 0.50, h * 0.80), paint);
-        canvas.drawRect(Rect.fromLTWH(w * 0.30, h * 0.80, w * 0.40, h * 0.10), fillPaint);
+        canvas.drawLine(
+            Offset(w * 0.50, h * 0.65), Offset(w * 0.50, h * 0.80), paint);
+        canvas.drawRect(
+            Rect.fromLTWH(w * 0.30, h * 0.80, w * 0.40, h * 0.10), fillPaint);
         break;
 
       case 'coin':
         // Coin Vector
         canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.38, paint);
-        canvas.drawLine(Offset(w * 0.42, h * 0.28), Offset(w * 0.42, h * 0.72), paint);
-        canvas.drawLine(Offset(w * 0.42, h * 0.42), Offset(w * 0.65, h * 0.35), paint);
-        canvas.drawLine(Offset(w * 0.42, h * 0.52), Offset(w * 0.62, h * 0.45), paint);
+        canvas.drawLine(
+            Offset(w * 0.42, h * 0.28), Offset(w * 0.42, h * 0.72), paint);
+        canvas.drawLine(
+            Offset(w * 0.42, h * 0.42), Offset(w * 0.65, h * 0.35), paint);
+        canvas.drawLine(
+            Offset(w * 0.42, h * 0.52), Offset(w * 0.62, h * 0.45), paint);
         break;
 
       case 'turbo':
@@ -238,7 +260,8 @@ class _VectorIconPainter extends CustomPainter {
 
       case 'race_flag':
         // Checkered Racing Flag on Pole
-        canvas.drawLine(Offset(w * 0.20, h * 0.12), Offset(w * 0.20, h * 0.88), paint);
+        canvas.drawLine(
+            Offset(w * 0.20, h * 0.12), Offset(w * 0.20, h * 0.88), paint);
         final flagPath = Path();
         flagPath.moveTo(w * 0.20, h * 0.15);
         flagPath.lineTo(w * 0.82, h * 0.22);
@@ -246,18 +269,25 @@ class _VectorIconPainter extends CustomPainter {
         flagPath.lineTo(w * 0.20, h * 0.51);
         flagPath.close();
         canvas.drawPath(flagPath, paint);
-        canvas.drawRect(Rect.fromLTWH(w * 0.20, h * 0.15, w * 0.31, h * 0.18), fillPaint);
-        canvas.drawRect(Rect.fromLTWH(w * 0.51, h * 0.36, w * 0.31, h * 0.22), fillPaint);
+        canvas.drawRect(
+            Rect.fromLTWH(w * 0.20, h * 0.15, w * 0.31, h * 0.18), fillPaint);
+        canvas.drawRect(
+            Rect.fromLTWH(w * 0.51, h * 0.36, w * 0.31, h * 0.22), fillPaint);
         break;
 
       case 'piston':
         // Engine Piston & Connecting Rod
         final pistonCrown = Path();
-        pistonCrown.addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.28, h * 0.12, w * 0.44, h * 0.28), const Radius.circular(3)));
+        pistonCrown.addRRect(RRect.fromRectAndRadius(
+            Rect.fromLTWH(w * 0.28, h * 0.12, w * 0.44, h * 0.28),
+            const Radius.circular(3)));
         canvas.drawPath(pistonCrown, paint);
-        canvas.drawLine(Offset(w * 0.34, h * 0.20), Offset(w * 0.66, h * 0.20), paint);
-        canvas.drawLine(Offset(w * 0.34, h * 0.28), Offset(w * 0.66, h * 0.28), paint);
-        canvas.drawLine(Offset(w * 0.50, h * 0.40), Offset(w * 0.50, h * 0.75), paint);
+        canvas.drawLine(
+            Offset(w * 0.34, h * 0.20), Offset(w * 0.66, h * 0.20), paint);
+        canvas.drawLine(
+            Offset(w * 0.34, h * 0.28), Offset(w * 0.66, h * 0.28), paint);
+        canvas.drawLine(
+            Offset(w * 0.50, h * 0.40), Offset(w * 0.50, h * 0.75), paint);
         canvas.drawCircle(Offset(w * 0.50, h * 0.80), w * 0.10, paint);
         canvas.drawCircle(Offset(w * 0.50, h * 0.80), w * 0.04, fillPaint);
         break;
@@ -298,8 +328,10 @@ class _VectorIconPainter extends CustomPainter {
         canvas.drawPath(lionMane, paint);
         canvas.drawCircle(Offset(w * 0.40, h * 0.48), w * 0.05, fillPaint);
         canvas.drawCircle(Offset(w * 0.60, h * 0.48), w * 0.05, fillPaint);
-        canvas.drawLine(Offset(w * 0.50, h * 0.54), Offset(w * 0.50, h * 0.70), paint);
-        canvas.drawLine(Offset(w * 0.40, h * 0.70), Offset(w * 0.60, h * 0.70), paint);
+        canvas.drawLine(
+            Offset(w * 0.50, h * 0.54), Offset(w * 0.50, h * 0.70), paint);
+        canvas.drawLine(
+            Offset(w * 0.40, h * 0.70), Offset(w * 0.60, h * 0.70), paint);
         break;
 
       case 'cobra':
@@ -313,7 +345,9 @@ class _VectorIconPainter extends CustomPainter {
         cobraHood.quadraticBezierTo(w * 0.12, h * 0.30, w * 0.50, h * 0.12);
         cobraHood.close();
         canvas.drawPath(cobraHood, fillPaint);
-        final eyePaint = Paint()..color = (iconColor == Colors.black ? Colors.white : Colors.black)..style = PaintingStyle.fill;
+        final eyePaint = Paint()
+          ..color = (iconColor == Colors.black ? Colors.white : Colors.black)
+          ..style = PaintingStyle.fill;
         canvas.drawCircle(Offset(w * 0.40, h * 0.38), w * 0.05, eyePaint);
         canvas.drawCircle(Offset(w * 0.60, h * 0.38), w * 0.05, eyePaint);
         break;
@@ -338,8 +372,10 @@ class _VectorIconPainter extends CustomPainter {
         // Crescent Moon & Star
         final moonPath = Path();
         moonPath.moveTo(w * 0.42, h * 0.15);
-        moonPath.arcToPoint(Offset(w * 0.42, h * 0.85), radius: Radius.circular(w * 0.35), clockwise: false);
-        moonPath.arcToPoint(Offset(w * 0.42, h * 0.15), radius: Radius.circular(w * 0.28), clockwise: true);
+        moonPath.arcToPoint(Offset(w * 0.42, h * 0.85),
+            radius: Radius.circular(w * 0.35), clockwise: false);
+        moonPath.arcToPoint(Offset(w * 0.42, h * 0.15),
+            radius: Radius.circular(w * 0.28), clockwise: true);
         moonPath.close();
         canvas.drawPath(moonPath, fillPaint);
         canvas.drawCircle(Offset(w * 0.65, h * 0.50), w * 0.08, fillPaint);
@@ -347,10 +383,14 @@ class _VectorIconPainter extends CustomPainter {
 
       case 'swords':
         // Crossed Broadswords
-        canvas.drawLine(Offset(w * 0.18, h * 0.18), Offset(w * 0.82, h * 0.82), paint);
-        canvas.drawLine(Offset(w * 0.82, h * 0.18), Offset(w * 0.18, h * 0.82), paint);
-        canvas.drawLine(Offset(w * 0.28, h * 0.38), Offset(w * 0.38, h * 0.28), paint);
-        canvas.drawLine(Offset(w * 0.72, h * 0.38), Offset(w * 0.62, h * 0.28), paint);
+        canvas.drawLine(
+            Offset(w * 0.18, h * 0.18), Offset(w * 0.82, h * 0.82), paint);
+        canvas.drawLine(
+            Offset(w * 0.82, h * 0.18), Offset(w * 0.18, h * 0.82), paint);
+        canvas.drawLine(
+            Offset(w * 0.28, h * 0.38), Offset(w * 0.38, h * 0.28), paint);
+        canvas.drawLine(
+            Offset(w * 0.72, h * 0.38), Offset(w * 0.62, h * 0.28), paint);
         canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.10, fillPaint);
         break;
 
@@ -562,4 +602,3 @@ class AvatarIconWidget extends StatelessWidget {
     }
   }
 }
-

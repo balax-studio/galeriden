@@ -13,7 +13,8 @@ class ScrapyardTeardownModal extends StatefulWidget {
   final String partName;
   final String carName;
   final int initialCondition;
-  final Function(bool isSuccessful, int finalCondition, String message) onCompleted;
+  final Function(bool isSuccessful, int finalCondition, String message)
+      onCompleted;
 
   const ScrapyardTeardownModal({
     super.key,
@@ -28,7 +29,8 @@ class ScrapyardTeardownModal extends StatefulWidget {
     required String partName,
     required String carName,
     required int initialCondition,
-    required Function(bool isSuccessful, int finalCondition, String message) onCompleted,
+    required Function(bool isSuccessful, int finalCondition, String message)
+        onCompleted,
   }) {
     return showDialog(
       context: context,
@@ -106,7 +108,8 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
       // Over-torque / Strip zone
       HapticFeedback.vibrate();
       _failedStrikes++;
-      _boltHealth[_activeBoltIndex] = math.max(0, _boltHealth[_activeBoltIndex] - 40);
+      _boltHealth[_activeBoltIndex] =
+          math.max(0, _boltHealth[_activeBoltIndex] - 40);
       _currentCondition = math.max(10, _currentCondition - 8);
 
       if (_failedStrikes >= 3 || _boltHealth[_activeBoltIndex] <= 0) {
@@ -134,7 +137,9 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
           y: 0,
           vx: _random.nextDouble() * 8 - 4,
           vy: _random.nextDouble() * 8 - 4,
-          color: _random.nextBool() ? AppColors.brutalYellow : AppColors.brutalOrange,
+          color: _random.nextBool()
+              ? AppColors.brutalYellow
+              : AppColors.brutalOrange,
           life: 1.0,
         ),
       );
@@ -189,7 +194,8 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: context.tr('teardown_condition_badge', {'cond': '$_currentCondition'}),
+                  text: context.tr('teardown_condition_badge',
+                      {'cond': '$_currentCondition'}),
                   backgroundColor: _currentCondition >= 60
                       ? AppColors.brutalGreen
                       : AppColors.brutalOrange,
@@ -234,8 +240,12 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                     Positioned.fill(
                       child: Center(
                         child: SlamStampWidget(
-                          text: _isSuccess ? context.tr('teardown_stamp_perfect') : context.tr('teardown_stamp_broken'),
-                          color: _isSuccess ? AppColors.brutalGreen : AppColors.errorRed,
+                          text: _isSuccess
+                              ? context.tr('teardown_stamp_perfect')
+                              : context.tr('teardown_stamp_broken'),
+                          color: _isSuccess
+                              ? AppColors.brutalGreen
+                              : AppColors.errorRed,
                           fontSize: 22,
                           angle: -0.08,
                         ),
@@ -261,7 +271,9 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: _isFinished
-                      ? (_isSuccess ? AppColors.brutalGreen : AppColors.errorRed)
+                      ? (_isSuccess
+                          ? AppColors.brutalGreen
+                          : AppColors.errorRed)
                       : Colors.white,
                 ),
               ),
@@ -283,7 +295,8 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
               NeoBrutalButton(
                 label: _isSuccess ? 'PARÇAYI DEPOYA AL' : 'HURDAYI TAMAMLA',
                 icon: Icons.check_circle_rounded,
-                backgroundColor: _isSuccess ? AppColors.brutalGreen : AppColors.errorRed,
+                backgroundColor:
+                    _isSuccess ? AppColors.brutalGreen : AppColors.errorRed,
                 textColor: Colors.black,
                 fontSize: 13,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -291,7 +304,8 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   }
-                  widget.onCompleted(_isSuccess, _currentCondition, _statusMessage ?? context.tr('teardown_instruction'));
+                  widget.onCompleted(_isSuccess, _currentCondition,
+                      _statusMessage ?? context.tr('teardown_instruction'));
                 },
               ),
             ],
@@ -353,7 +367,8 @@ class _ScrapyardTeardownPainter extends CustomPainter {
     }
 
     // 2. Central Mechanical Part Silhouette
-    final partRect = Rect.fromCenter(center: Offset(cx, cy), width: 140, height: 90);
+    final partRect =
+        Rect.fromCenter(center: Offset(cx, cy), width: 140, height: 90);
     final partPaint = Paint()
       ..color = const Color(0xFF1E283D)
       ..style = PaintingStyle.fill;
@@ -362,8 +377,11 @@ class _ScrapyardTeardownPainter extends CustomPainter {
       ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke;
 
-    canvas.drawRRect(RRect.fromRectAndRadius(partRect, const Radius.circular(8)), partPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(partRect, const Radius.circular(8)), partBorderPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(partRect, const Radius.circular(8)), partPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(partRect, const Radius.circular(8)),
+        partBorderPaint);
 
     // Inner mechanical lines
     final innerPaint = Paint()
@@ -409,8 +427,10 @@ class _ScrapyardTeardownPainter extends CustomPainter {
       canvas.drawCircle(pos, 5, threadPaint);
 
       // Hex cross slot
-      canvas.drawLine(Offset(pos.dx - 3, pos.dy), Offset(pos.dx + 3, pos.dy), threadPaint);
-      canvas.drawLine(Offset(pos.dx, pos.dy - 3), Offset(pos.dx, pos.dy + 3), threadPaint);
+      canvas.drawLine(
+          Offset(pos.dx - 3, pos.dy), Offset(pos.dx + 3, pos.dy), threadPaint);
+      canvas.drawLine(
+          Offset(pos.dx, pos.dy - 3), Offset(pos.dx, pos.dy + 3), threadPaint);
     }
 
     // 4. Bottom Torque Meter Scale
@@ -424,7 +444,8 @@ class _ScrapyardTeardownPainter extends CustomPainter {
       ..color = const Color(0xFF1E283D)
       ..strokeWidth = 10.0
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(meterLeft, meterY), Offset(meterRight, meterY), trackPaint);
+    canvas.drawLine(
+        Offset(meterLeft, meterY), Offset(meterRight, meterY), trackPaint);
 
     // Green zone (65% to 88%)
     final greenZonePaint = Paint()
@@ -452,7 +473,8 @@ class _ScrapyardTeardownPainter extends CustomPainter {
     final needlePaint = Paint()
       ..color = Colors.white
       ..strokeWidth = 3.2;
-    canvas.drawLine(Offset(needleX, meterY - 10), Offset(needleX, meterY + 10), needlePaint);
+    canvas.drawLine(Offset(needleX, meterY - 10), Offset(needleX, meterY + 10),
+        needlePaint);
 
     // Needle pointer cap
     final capPaint = Paint()..color = AppColors.brutalYellow;

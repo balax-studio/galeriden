@@ -21,7 +21,8 @@ class DashboardQuickFinanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = palette.isDark;
     final activeLoans = game.activeLoans;
-    final totalLoanDebt = activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
+    final totalLoanDebt =
+        activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
@@ -36,15 +37,21 @@ class DashboardQuickFinanceCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: activeLoans.isNotEmpty ? const Color(0xFFFF7A00) : const Color(0xFF00E575),
+                  color: activeLoans.isNotEmpty
+                      ? const Color(0xFFFF7A00)
+                      : const Color(0xFF00E575),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
                     width: 2.0,
                   ),
                 ),
                 child: Icon(
-                  activeLoans.isNotEmpty ? Icons.account_balance_rounded : Icons.savings_rounded,
+                  activeLoans.isNotEmpty
+                      ? Icons.account_balance_rounded
+                      : Icons.savings_rounded,
                   size: 20,
                   color: Colors.black,
                 ),
@@ -55,7 +62,8 @@ class DashboardQuickFinanceCard extends StatelessWidget {
                 children: [
                   Text(
                     activeLoans.isNotEmpty
-                        ? context.tr('active_loans_count', {'count': activeLoans.length})
+                        ? context.tr(
+                            'active_loans_count', {'count': activeLoans.length})
                         : context.tr('bank_credit_ready'),
                     style: TextStyle(
                       fontSize: 12.5,
@@ -66,12 +74,17 @@ class DashboardQuickFinanceCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     activeLoans.isNotEmpty
-                        ? context.tr('remaining_debt_label', {'amount': CurrencyFormatter.formatShort(totalLoanDebt)})
+                        ? context.tr('remaining_debt_label', {
+                            'amount':
+                                CurrencyFormatter.formatShort(totalLoanDebt)
+                          })
                         : context.tr('bank_credit_sub'),
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -79,8 +92,12 @@ class DashboardQuickFinanceCard extends StatelessWidget {
             ],
           ),
           NeoBrutalButton(
-            label: activeLoans.isNotEmpty ? context.tr('manage_btn') : context.tr('get_loan_btn'),
-            backgroundColor: activeLoans.isNotEmpty ? const Color(0xFFFF7A00) : palette.primaryColor,
+            label: activeLoans.isNotEmpty
+                ? context.tr('manage_btn')
+                : context.tr('get_loan_btn'),
+            backgroundColor: activeLoans.isNotEmpty
+                ? const Color(0xFFFF7A00)
+                : palette.primaryColor,
             textColor: Colors.black,
             fontSize: 11,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

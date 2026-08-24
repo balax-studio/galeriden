@@ -84,10 +84,12 @@ class BarnFindRestorationSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<BarnFindRestorationSheet> createState() => _BarnFindRestorationSheetState();
+  ConsumerState<BarnFindRestorationSheet> createState() =>
+      _BarnFindRestorationSheetState();
 }
 
-class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSheet> {
+class _BarnFindRestorationSheetState
+    extends ConsumerState<BarnFindRestorationSheet> {
   bool _useOriginalParts = true;
 
   @override
@@ -106,7 +108,8 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
     final isCompleted = currentStage >= 5;
 
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.88),
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.88),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF141721) : Colors.white,
@@ -126,7 +129,8 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
             children: [
               Row(
                 children: [
-                  const Icon(Icons.home_repair_service_rounded, size: 24, color: AppColors.brutalYellow),
+                  const Icon(Icons.home_repair_service_rounded,
+                      size: 24, color: AppColors.brutalYellow),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +140,8 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
@@ -144,7 +149,9 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -170,17 +177,24 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                Expanded(
+                    child: Text(
                   context.tr('barn_find_progress', {'stage': currentStage}),
                   style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w900,
-                    color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1E3A8A),
+                    color: isDark
+                        ? const Color(0xFF93C5FD)
+                        : const Color(0xFF1E3A8A),
                   ),
-                ),
+                )),
                 NeoBrutalBadge(
-                  text: isCompleted ? context.tr('barn_find_masterpiece_done') : context.tr('barn_find_in_progress'),
-                  backgroundColor: isCompleted ? const Color(0xFF00E575) : const Color(0xFFFFDE59),
+                  text: isCompleted
+                      ? context.tr('barn_find_masterpiece_done')
+                      : context.tr('barn_find_in_progress'),
+                  backgroundColor: isCompleted
+                      ? const Color(0xFF00E575)
+                      : const Color(0xFFFFDE59),
                   textColor: Colors.black,
                   fontSize: 9.5,
                 ),
@@ -194,10 +208,13 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1A1F2C) : const Color(0xFFF8FAFC),
+                color:
+                    isDark ? const Color(0xFF1A1F2C) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: _useOriginalParts ? const Color(0xFFFFD700) : const Color(0xFF64748B),
+                  color: _useOriginalParts
+                      ? const Color(0xFFFFD700)
+                      : const Color(0xFF64748B),
                   width: 1.2,
                 ),
               ),
@@ -217,15 +234,18 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                       children: [
                         Text(
                           context.tr('barn_find_use_original'),
-                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800),
+                          style: const TextStyle(
+                              fontSize: 10.5, fontWeight: FontWeight.w800),
                         ),
                         Text(
                           _useOriginalParts
-                            ? context.tr('barn_find_original_desc')
-                            : context.tr('barn_find_aftermarket_desc'),
+                              ? context.tr('barn_find_original_desc')
+                              : context.tr('barn_find_aftermarket_desc'),
                           style: TextStyle(
                             fontSize: 9.5,
-                            color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                            color: isDark
+                                ? Colors.white60
+                                : const Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -246,7 +266,9 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                 final stageInfo = kRestorationStages[idx];
                 final isDone = currentStage >= stageInfo.stage;
                 final isCurrent = currentStage + 1 == stageInfo.stage;
-                final effectiveCost = _useOriginalParts ? (stageInfo.cost * 1.25) : stageInfo.cost;
+                final effectiveCost = _useOriginalParts
+                    ? (stageInfo.cost * 1.25)
+                    : stageInfo.cost;
                 final stageTitle = context.tr(stageInfo.titleKey);
                 final stageDesc = context.tr(stageInfo.descriptionKey);
 
@@ -255,13 +277,23 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(12),
                     backgroundColor: isDone
-                        ? (isDark ? const Color(0xFF10281E) : const Color(0xFFECFDF5))
+                        ? (isDark
+                            ? const Color(0xFF10281E)
+                            : const Color(0xFFECFDF5))
                         : (isCurrent
-                            ? (isDark ? const Color(0xFF261D12) : const Color(0xFFFFFBEB))
-                            : (isDark ? const Color(0xFF181C26) : const Color(0xFFF1F5F9))),
+                            ? (isDark
+                                ? const Color(0xFF261D12)
+                                : const Color(0xFFFFFBEB))
+                            : (isDark
+                                ? const Color(0xFF181C26)
+                                : const Color(0xFFF1F5F9))),
                     borderColor: isDone
                         ? const Color(0xFF00E575)
-                        : (isCurrent ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1))),
+                        : (isCurrent
+                            ? const Color(0xFFFF7A00)
+                            : (isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFFCBD5E1))),
                     borderWidth: (isDone || isCurrent) ? 1.8 : 1.0,
                     borderRadius: 10,
                     child: Row(
@@ -271,7 +303,9 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                           size: 22,
                           color: isDone
                               ? const Color(0xFF00E575)
-                              : (isCurrent ? const Color(0xFFFF7A00) : (isDark ? Colors.white38 : Colors.black38)),
+                              : (isCurrent
+                                  ? const Color(0xFFFF7A00)
+                                  : (isDark ? Colors.white38 : Colors.black38)),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -279,27 +313,39 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
+                                  Expanded(
+                                      child: Text(
                                     stageTitle,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w900,
                                       color: isDone || isCurrent
-                                          ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                                          : (isDark ? Colors.white38 : Colors.black38),
+                                          ? (isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A))
+                                          : (isDark
+                                              ? Colors.white38
+                                              : Colors.black38),
                                     ),
-                                  ),
+                                  )),
                                   if (isDone)
-                                    const Icon(Icons.check_circle_rounded, size: 16, color: Color(0xFF00E575))
+                                    const Icon(Icons.check_circle_rounded,
+                                        size: 16, color: Color(0xFF00E575))
                                   else
                                     Text(
-                                      CurrencyFormatter.formatShort(effectiveCost),
+                                      CurrencyFormatter.formatShort(
+                                          effectiveCost),
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w900,
-                                        color: isCurrent ? const Color(0xFFFF7A00) : (isDark ? Colors.white38 : Colors.black38),
+                                        color: isCurrent
+                                            ? const Color(0xFFFF7A00)
+                                            : (isDark
+                                                ? Colors.white38
+                                                : Colors.black38),
                                       ),
                                     ),
                                 ],
@@ -310,7 +356,9 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                  color: isDark
+                                      ? const Color(0xFF94A3B8)
+                                      : const Color(0xFF64748B),
                                 ),
                               ),
                             ],
@@ -330,8 +378,11 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
             Builder(
               builder: (context) {
                 final nextStage = currentStage + 1;
-                final nextStageInfo = kRestorationStages.firstWhere((s) => s.stage == nextStage);
-                final cost = _useOriginalParts ? (nextStageInfo.cost * 1.25) : nextStageInfo.cost;
+                final nextStageInfo =
+                    kRestorationStages.firstWhere((s) => s.stage == nextStage);
+                final cost = _useOriginalParts
+                    ? (nextStageInfo.cost * 1.25)
+                    : nextStageInfo.cost;
                 final nextStageTitle = context.tr(nextStageInfo.titleKey);
 
                 return NeoBrutalButton(
@@ -360,12 +411,18 @@ class _BarnFindRestorationSheetState extends ConsumerState<BarnFindRestorationSh
                       isBarnFindOriginalParts: _useOriginalParts,
                       isBarnFindRestored: nextStage >= 5,
                       expertise: currentCar.expertise.copyWith(
-                        engineCondition: (currentCar.expertise.engineCondition + 15).clamp(0, 100),
-                        transmissionCondition: (currentCar.expertise.transmissionCondition + 15).clamp(0, 100),
+                        engineCondition:
+                            (currentCar.expertise.engineCondition + 15)
+                                .clamp(0, 100),
+                        transmissionCondition:
+                            (currentCar.expertise.transmissionCondition + 15)
+                                .clamp(0, 100),
                       ),
                     );
 
-                    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, cost);
+                    ref
+                        .read(gameProvider.notifier)
+                        .updateOwnedCar(updatedCar, cost);
 
                     NotificationService.showSuccess(
                       context,

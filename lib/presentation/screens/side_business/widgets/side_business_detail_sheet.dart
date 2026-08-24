@@ -93,7 +93,8 @@ class SideBusinessDetailSheet extends ConsumerWidget {
     final isDark = p.isDark;
     final game = ref.watch(gameProvider);
 
-    final businessIndex = game.sideBusinesses.indexWhere((b) => b.id == businessId);
+    final businessIndex =
+        game.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return const SizedBox.shrink();
 
     final business = game.sideBusinesses[businessIndex];
@@ -141,19 +142,28 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       children: [
                         Text(
                           business.type.getLocalizedName(lang).toUpperCase(),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          context.tr('side_biz_sheet_subtitle', {'lvl': '${business.level}', 'modules': '${business.purchasedUpgradeCount}', 'total': '${business.upgrades.length}'}),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                          context.tr('side_biz_sheet_subtitle', {
+                            'lvl': '${business.level}',
+                            'modules': '${business.purchasedUpgradeCount}',
+                            'total': '${business.upgrades.length}'
+                          }),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close_rounded, color: isDark ? Colors.white : Colors.black),
+                    icon: Icon(Icons.close_rounded,
+                        color: isDark ? Colors.white : Colors.black),
                   ),
                 ],
               ),
@@ -162,35 +172,70 @@ class SideBusinessDetailSheet extends ConsumerWidget {
               // ROI Analytics Card
               NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor:
+                    isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
                 borderRadius: 14,
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatColumn(context.tr('side_biz_stat_net_profit'), CurrencyFormatter.formatShort(business.effectiveDailyIncome), AppColors.brutalGreen),
-                        Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
-                        _buildStatColumn(context.tr('side_biz_stat_accumulated'), CurrencyFormatter.formatShort(business.totalEarned), AppColors.brutalYellow),
-                        Container(width: 1.5, height: 32, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
-                        _buildStatColumn(context.tr('side_biz_stat_roi'), context.tr('side_biz_stat_roi_days', {'days': '${business.roiDays}'}), const Color(0xFF06B6D4)),
+                        _buildStatColumn(
+                            context.tr('side_biz_stat_net_profit'),
+                            CurrencyFormatter.formatShort(
+                                business.effectiveDailyIncome),
+                            AppColors.brutalGreen),
+                        Container(
+                            width: 1.5,
+                            height: 32,
+                            color: isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFFE2E8F0)),
+                        _buildStatColumn(
+                            context.tr('side_biz_stat_accumulated'),
+                            CurrencyFormatter.formatShort(business.totalEarned),
+                            AppColors.brutalYellow),
+                        Container(
+                            width: 1.5,
+                            height: 32,
+                            color: isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFFE2E8F0)),
+                        _buildStatColumn(
+                            context.tr('side_biz_stat_roi'),
+                            context.tr('side_biz_stat_roi_days',
+                                {'days': '${business.roiDays}'}),
+                            const Color(0xFF06B6D4)),
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Divider(height: 1, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
+                    Divider(
+                        height: 1,
+                        color: isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFFE2E8F0)),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        Expanded(
+                            child: Text(
                           context.tr('side_biz_total_invested'),
-                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
-                        ),
-                        Text(
+                          style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF64748B)),
+                        )),
+                        Expanded(
+                            child: Text(
                           CurrencyFormatter.format(business.totalInvested),
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
-                        ),
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.brutalYellow),
+                        )),
                       ],
                     ),
                   ],
@@ -212,22 +257,37 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               NeoBrutalCard(
                 padding: const EdgeInsets.all(12),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: business.hasManager ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: business.hasManager
+                    ? AppColors.brutalGreen
+                    : (isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFF0F172A)),
                 borderRadius: 12,
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: business.hasManager ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                        color: business.hasManager
+                            ? AppColors.brutalGreen
+                            : (isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFE2E8F0)),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2.0,
                         ),
                       ),
-                      child: Icon(Icons.badge_rounded, color: business.hasManager ? Colors.black : const Color(0xFF64748B), size: 22),
+                      child: Icon(Icons.badge_rounded,
+                          color: business.hasManager
+                              ? Colors.black
+                              : const Color(0xFF64748B),
+                          size: 22),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -238,11 +298,13 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                             children: [
                               Text(
                                 business.managerTitle,
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                                style: const TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.w900),
                               ),
                               const SizedBox(width: 6),
                               NeoBrutalBadge(
-                                text: '+%${(business.managerBonusPercent * 100).toInt()}',
+                                text:
+                                    '+%${(business.managerBonusPercent * 100).toInt()}',
                                 backgroundColor: AppColors.brutalYellow,
                                 textColor: Colors.black,
                                 fontSize: 9.5,
@@ -252,9 +314,15 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           const SizedBox(height: 2),
                           Text(
                             business.hasManager
-                                ? context.tr('side_biz_manager_assigned', {'salary': '${business.managerSalary.toInt()}'})
+                                ? context.tr('side_biz_manager_assigned', {
+                                    'salary':
+                                        '${business.managerSalary.toInt()}'
+                                  })
                                 : context.tr('side_biz_manager_hire_desc'),
-                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            style: const TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
@@ -269,17 +337,27 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       )
                     else
                       NeoBrutalButton(
-                        label: context.tr('side_biz_btn_hire_manager', {'cost': CurrencyFormatter.formatShort(business.managerCost)}),
+                        label: context.tr('side_biz_btn_hire_manager', {
+                          'cost': CurrencyFormatter.formatShort(
+                              business.managerCost)
+                        }),
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 10.5,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         onPressed: () {
-                          final success = ref.read(gameProvider.notifier).hireSideBusinessManager(business.id);
+                          final success = ref
+                              .read(gameProvider.notifier)
+                              .hireSideBusinessManager(business.id);
                           if (success) {
-                            NotificationService.showSuccess(context, context.tr('side_biz_manager_hired_toast', {'title': business.managerTitle}));
+                            NotificationService.showSuccess(
+                                context,
+                                context.tr('side_biz_manager_hired_toast',
+                                    {'title': business.managerTitle}));
                           } else {
-                            NotificationService.showError(context, context.tr('insufficient_balance'));
+                            NotificationService.showError(
+                                context, context.tr('insufficient_balance'));
                           }
                         },
                       ),
@@ -302,8 +380,10 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               NeoBrutalCard(
                 padding: const EdgeInsets.all(12),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor:
+                    isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
                 borderRadius: 12,
                 child: Row(
                   children: [
@@ -313,11 +393,14 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                         color: AppColors.brutalYellow,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2.0,
                         ),
                       ),
-                      child: const Icon(Icons.bolt_rounded, color: Colors.black, size: 22),
+                      child: const Icon(Icons.bolt_rounded,
+                          color: Colors.black, size: 22),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -325,13 +408,22 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isMaxLevel ? context.tr('side_biz_max_lvl_title') : context.tr('side_biz_next_lvl_title', {'lvl': '${business.level + 1}'}),
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            isMaxLevel
+                                ? context.tr('side_biz_max_lvl_title')
+                                : context.tr('side_biz_next_lvl_title',
+                                    {'lvl': '${business.level + 1}'}),
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            isMaxLevel ? context.tr('side_biz_max_capacity_desc') : context.tr('side_biz_capacity_boost_desc'),
-                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            isMaxLevel
+                                ? context.tr('side_biz_max_capacity_desc')
+                                : context.tr('side_biz_capacity_boost_desc'),
+                            style: const TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
@@ -345,17 +437,28 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                       )
                     else
                       NeoBrutalButton(
-                        label: context.tr('side_biz_btn_upgrade_level', {'cost': CurrencyFormatter.formatShort(nextLevelCost)}),
+                        label: context.tr('side_biz_btn_upgrade_level', {
+                          'cost': CurrencyFormatter.formatShort(nextLevelCost)
+                        }),
                         backgroundColor: AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 10.5,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         onPressed: () {
-                          final success = ref.read(gameProvider.notifier).upgradeSideBusiness(business.id);
+                          final success = ref
+                              .read(gameProvider.notifier)
+                              .upgradeSideBusiness(business.id);
                           if (success) {
-                            NotificationService.showSuccess(context, context.tr('side_biz_upgraded_toast', {'name': business.type.getLocalizedName(lang), 'lvl': '${business.level + 1}'}));
+                            NotificationService.showSuccess(
+                                context,
+                                context.tr('side_biz_upgraded_toast', {
+                                  'name': business.type.getLocalizedName(lang),
+                                  'lvl': '${business.level + 1}'
+                                }));
                           } else {
-                            NotificationService.showError(context, context.tr('insufficient_balance'));
+                            NotificationService.showError(
+                                context, context.tr('insufficient_balance'));
                           }
                         },
                       ),
@@ -366,7 +469,10 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               // Modules List
               Text(
-                context.tr('side_biz_modules_title', {'count': '${business.purchasedUpgradeCount}', 'total': '${business.upgrades.length}'}),
+                context.tr('side_biz_modules_title', {
+                  'count': '${business.purchasedUpgradeCount}',
+                  'total': '${business.upgrades.length}'
+                }),
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w900,
@@ -384,22 +490,37 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(10),
-                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                    borderColor: isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                    backgroundColor:
+                        isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: isPurchased
+                        ? AppColors.brutalGreen
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A)),
                     borderRadius: 10,
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                            color: isPurchased
+                                ? AppColors.brutalGreen
+                                : (isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0)),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: Icon(iconData, color: isPurchased ? Colors.black : const Color(0xFF64748B), size: 18),
+                          child: Icon(iconData,
+                              color: isPurchased
+                                  ? Colors.black
+                                  : const Color(0xFF64748B),
+                              size: 18),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -411,19 +532,30 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       upgrade.title,
-                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                                      style: const TextStyle(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w900),
                                     ),
                                   ),
                                   Text(
-                                    context.tr('side_biz_module_bonus_rate', {'amount': CurrencyFormatter.formatShort(upgrade.bonusDailyIncome)}),
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                    context.tr('side_biz_module_bonus_rate', {
+                                      'amount': CurrencyFormatter.formatShort(
+                                          upgrade.bonusDailyIncome)
+                                    }),
+                                    style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.brutalGreen),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 upgrade.description,
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF64748B)),
                               ),
                             ],
                           ),
@@ -442,13 +574,21 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                             backgroundColor: const Color(0xFFA855F7),
                             textColor: Colors.white,
                             fontSize: 10.5,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
                             onPressed: () {
-                              final success = ref.read(gameProvider.notifier).buySideBusinessUpgrade(business.id, upgrade.id);
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .buySideBusinessUpgrade(
+                                      business.id, upgrade.id);
                               if (success) {
-                                NotificationService.showSuccess(context, context.tr('side_biz_module_bought_toast', {'title': upgrade.title}));
+                                NotificationService.showSuccess(
+                                    context,
+                                    context.tr('side_biz_module_bought_toast',
+                                        {'title': upgrade.title}));
                               } else {
-                                NotificationService.showError(context, context.tr('insufficient_balance'));
+                                NotificationService.showError(context,
+                                    context.tr('insufficient_balance'));
                               }
                             },
                           ),
@@ -467,9 +607,15 @@ class SideBusinessDetailSheet extends ConsumerWidget {
   Widget _buildStatColumn(String label, String value, Color color) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF64748B))),
         const SizedBox(height: 2),
-        Text(value, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13)),
+        Text(value,
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.w900, fontSize: 13)),
       ],
     );
   }

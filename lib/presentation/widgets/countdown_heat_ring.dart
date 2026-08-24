@@ -34,7 +34,10 @@ class _CountdownHeatRingState extends State<CountdownHeatRing>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest && widget.remainingSeconds <= 3) {
       _pulseController.repeat(reverse: true);
     } else {
@@ -45,7 +48,10 @@ class _CountdownHeatRingState extends State<CountdownHeatRing>
   @override
   void didUpdateWidget(covariant CountdownHeatRing oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (isTest) return;
 
     if (widget.remainingSeconds <= 3 && !_pulseController.isAnimating) {
@@ -66,9 +72,12 @@ class _CountdownHeatRingState extends State<CountdownHeatRing>
     final isUrgent = widget.remainingSeconds <= 3;
     final ringColor = isUrgent
         ? const Color(0xFFEF4444)
-        : (widget.remainingSeconds <= 6 ? const Color(0xFFFFDE59) : const Color(0xFF00E575));
+        : (widget.remainingSeconds <= 6
+            ? const Color(0xFFFFDE59)
+            : const Color(0xFF00E575));
 
-    final progress = (widget.remainingSeconds / widget.totalSeconds).clamp(0.0, 1.0);
+    final progress =
+        (widget.remainingSeconds / widget.totalSeconds).clamp(0.0, 1.0);
 
     return AnimatedBuilder(
       animation: _pulseScale,

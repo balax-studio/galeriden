@@ -50,23 +50,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
 
       // Check Reciprocity Starter Gift (§4.3)
-      final hasSeenReciprocity = prefs.getBool('has_seen_reciprocity_gift') ?? false;
+      final hasSeenReciprocity =
+          prefs.getBool('has_seen_reciprocity_gift') ?? false;
       if (!hasSeenReciprocity && game.currentDay <= 1) {
         await prefs.setBool('has_seen_reciprocity_gift', true);
         if (mounted) {
-          DashboardRetentionModals.showReciprocityStarterGiftModal(context, ref);
+          DashboardRetentionModals.showReciprocityStarterGiftModal(
+              context, ref);
         }
       }
 
       // Check Offline Progression Recap
-      final recap = ref.read(gameProvider.notifier).consumePendingOfflineRecap();
+      final recap =
+          ref.read(gameProvider.notifier).consumePendingOfflineRecap();
       if (recap != null && mounted) {
         DashboardRetentionModals.showOfflineRecapModal(context, recap);
       }
 
       // Check 28-Day Monthly Daily Streak
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
       if (game.canClaimTodayStreak(todayStr) && mounted) {
         DailyLoginSheet.show(context);
       }
@@ -109,7 +113,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         }
       }
 
-      if (next.pendingStoryCard != null && (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
+      if (next.pendingStoryCard != null &&
+          (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             NeoBrutalStoryAdDialog.show(context, next.pendingStoryCard!);
@@ -117,7 +122,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         });
       }
 
-      if (next.pendingDramaticCard != null && (previous?.pendingDramaticCard?.id != next.pendingDramaticCard?.id)) {
+      if (next.pendingDramaticCard != null &&
+          (previous?.pendingDramaticCard?.id != next.pendingDramaticCard?.id)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             NeoBrutalDramaticDialog.show(context, next.pendingDramaticCard!);
@@ -125,7 +131,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         });
       }
 
-      if (next.pendingRandomEvent != null && (previous?.pendingRandomEvent?.id != next.pendingRandomEvent?.id)) {
+      if (next.pendingRandomEvent != null &&
+          (previous?.pendingRandomEvent?.id != next.pendingRandomEvent?.id)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             NeoBrutalRandomEventDialog.show(context, next.pendingRandomEvent!);
@@ -133,7 +140,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         });
       }
 
-      if (next.activeCrmEvent != null && (previous?.activeCrmEvent?.id != next.activeCrmEvent?.id)) {
+      if (next.activeCrmEvent != null &&
+          (previous?.activeCrmEvent?.id != next.activeCrmEvent?.id)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             CustomerFollowUpDialog.show(context, next.activeCrmEvent!);
@@ -154,7 +162,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         DashboardRetentionModals.showExitHookDialog(context, game);
       },
       child: Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         body: FloatingMoneyOverlay(
           child: Stack(
             children: [
@@ -210,12 +219,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   top: false,
                   child: AppFloatingDock(
                     currentIndex: selectedIndex,
-                    onTap: (index) => ref.read(dashboardTabProvider.notifier).state = index,
+                    onTap: (index) =>
+                        ref.read(dashboardTabProvider.notifier).state = index,
                     items: [
-                      FloatingDockItem(icon: Icons.dashboard_rounded, label: context.tr('nav_home')),
-                      FloatingDockItem(icon: Icons.directions_car_rounded, label: context.tr('nav_showroom')),
-                      FloatingDockItem(icon: Icons.storefront_rounded, label: context.tr('nav_marketplace')),
-                      FloatingDockItem(icon: Icons.business_center_rounded, label: context.tr('nav_office')),
+                      FloatingDockItem(
+                          icon: Icons.dashboard_rounded,
+                          label: context.tr('nav_home')),
+                      FloatingDockItem(
+                          icon: Icons.directions_car_rounded,
+                          label: context.tr('nav_showroom')),
+                      FloatingDockItem(
+                          icon: Icons.storefront_rounded,
+                          label: context.tr('nav_marketplace')),
+                      FloatingDockItem(
+                          icon: Icons.business_center_rounded,
+                          label: context.tr('nav_office')),
                     ],
                   ),
                 ),
@@ -228,10 +246,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   /// Sahibinden.com Inspired Neo-Brutalist & Monolithic Dashboard
-  Widget _buildHomeDashboard(BuildContext context, DealershipModel game, ThemePaletteModel p) {
+  Widget _buildHomeDashboard(
+      BuildContext context, DealershipModel game, ThemePaletteModel p) {
     final isDark = p.isDark;
-    final completedMissions = game.activeMissions.where((m) => m.isCompleted == true).length;
-    final claimableExists = game.activeMissions.any((m) => m.isCompleted == true && m.isClaimed != true);
+    final completedMissions =
+        game.activeMissions.where((m) => m.isCompleted == true).length;
+    final claimableExists = game.activeMissions
+        .any((m) => m.isCompleted == true && m.isClaimed != true);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 90),
@@ -304,7 +325,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         // 6. Günün Görevleri & Hedefler
         _buildSectionHeader(
           title: context.tr('section_missions'),
-          subtitle: '$completedMissions/${game.activeMissions.length} ${context.tr('completed_status')}',
+          subtitle:
+              '$completedMissions/${game.activeMissions.length} ${context.tr('completed_status')}',
           badgeText: claimableExists ? context.tr('reward_available') : null,
           badgeColor: const Color(0xFF00E575),
           isDark: isDark,
@@ -379,7 +401,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
                 ),
               ),
             ],
@@ -391,10 +415,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                color:
+                    isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 1.2,
                 ),
               ),

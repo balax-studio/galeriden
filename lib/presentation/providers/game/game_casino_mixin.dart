@@ -57,12 +57,17 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final oldStats = state.casinoStats;
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
-      totalWonAmount: oldStats.totalWonAmount + (isWin ? (payout - effectiveBet) : 0.0),
+      totalWonAmount:
+          oldStats.totalWonAmount + (isWin ? (payout - effectiveBet) : 0.0),
       totalLostAmount: oldStats.totalLostAmount + (isWin ? 0.0 : effectiveBet),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, isWin ? (payout / effectiveBet) : 1.0),
-      vehiclesWageredCount: oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
-      vehiclesLostCount: oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
-      vehiclesWonCount: oldStats.vehiclesWonCount + (result.wonCar != null ? 1 : 0),
+      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord,
+          isWin ? (payout / effectiveBet) : 1.0),
+      vehiclesWageredCount:
+          oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+      vehiclesLostCount:
+          oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
+      vehiclesWonCount:
+          oldStats.vehiclesWonCount + (result.wonCar != null ? 1 : 0),
     );
 
     state = state.copyWith(
@@ -129,11 +134,16 @@ mixin GameCasinoMixin on GameBaseNotifier {
       final oldStats = state.casinoStats;
       final newStats = oldStats.copyWith(
         totalGamesPlayed: oldStats.totalGamesPlayed + 1,
-        totalWonAmount: oldStats.totalWonAmount + (result.isWin ? effectiveBet : 0.0),
-        totalLostAmount: oldStats.totalLostAmount + (result.isLoss ? effectiveBet : 0.0),
-        biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, result.isWin ? 2.0 : 1.0),
-        vehiclesWageredCount: oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
-        vehiclesLostCount: oldStats.vehiclesLostCount + (wageredCar != null && result.isLoss ? 1 : 0),
+        totalWonAmount:
+            oldStats.totalWonAmount + (result.isWin ? effectiveBet : 0.0),
+        totalLostAmount:
+            oldStats.totalLostAmount + (result.isLoss ? effectiveBet : 0.0),
+        biggestMultiplierRecord: math.max(
+            oldStats.biggestMultiplierRecord, result.isWin ? 2.0 : 1.0),
+        vehiclesWageredCount:
+            oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+        vehiclesLostCount: oldStats.vehiclesLostCount +
+            (wageredCar != null && result.isLoss ? 1 : 0),
       );
 
       state = state.copyWith(
@@ -167,7 +177,8 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
       totalWonAmount: oldStats.totalWonAmount + (profit > 0 ? profit : 0.0),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, multiplier),
+      biggestMultiplierRecord:
+          math.max(oldStats.biggestMultiplierRecord, multiplier),
     );
 
     state = state.copyWith(
@@ -201,8 +212,10 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
       totalWonAmount: oldStats.totalWonAmount + (profit > 0 ? profit : 0.0),
-      totalLostAmount: oldStats.totalLostAmount + (profit < 0 ? (-profit) : 0.0),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, result.multiplier),
+      totalLostAmount:
+          oldStats.totalLostAmount + (profit < 0 ? (-profit) : 0.0),
+      biggestMultiplierRecord:
+          math.max(oldStats.biggestMultiplierRecord, result.multiplier),
     );
 
     state = state.copyWith(
@@ -260,11 +273,16 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
       totalWonAmount: oldStats.totalWonAmount + (profit > 0 ? profit : 0.0),
-      totalLostAmount: oldStats.totalLostAmount + (profit < 0 ? (-profit) : 0.0),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, result.slice.multiplier),
-      vehiclesWageredCount: oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
-      vehiclesLostCount: oldStats.vehiclesLostCount + (wageredCar != null && result.isBankrupt ? 1 : 0),
-      vehiclesWonCount: oldStats.vehiclesWonCount + (result.awardedCar != null ? 1 : 0),
+      totalLostAmount:
+          oldStats.totalLostAmount + (profit < 0 ? (-profit) : 0.0),
+      biggestMultiplierRecord:
+          math.max(oldStats.biggestMultiplierRecord, result.slice.multiplier),
+      vehiclesWageredCount:
+          oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+      vehiclesLostCount: oldStats.vehiclesLostCount +
+          (wageredCar != null && result.isBankrupt ? 1 : 0),
+      vehiclesWonCount:
+          oldStats.vehiclesWonCount + (result.awardedCar != null ? 1 : 0),
     );
 
     state = state.copyWith(
@@ -290,8 +308,10 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
       totalWonAmount: oldStats.totalWonAmount + (profit > 0 ? profit : 0.0),
-      totalLostAmount: oldStats.totalLostAmount + (profit < 0 ? (-profit) : 0.0),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, cardCost > 0 ? (result.payoutAmount / cardCost) : 1.0),
+      totalLostAmount:
+          oldStats.totalLostAmount + (profit < 0 ? (-profit) : 0.0),
+      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord,
+          cardCost > 0 ? (result.payoutAmount / cardCost) : 1.0),
     );
 
     state = state.copyWith(
@@ -335,10 +355,14 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
       totalWonAmount: oldStats.totalWonAmount + (isWin ? effectiveStake : 0.0),
-      totalLostAmount: oldStats.totalLostAmount + (isWin ? 0.0 : effectiveStake),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, isWin ? 2.0 : 1.0),
-      vehiclesWageredCount: oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
-      vehiclesLostCount: oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
+      totalLostAmount:
+          oldStats.totalLostAmount + (isWin ? 0.0 : effectiveStake),
+      biggestMultiplierRecord:
+          math.max(oldStats.biggestMultiplierRecord, isWin ? 2.0 : 1.0),
+      vehiclesWageredCount:
+          oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+      vehiclesLostCount:
+          oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
     );
 
     state = state.copyWith(
@@ -394,11 +418,15 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final oldStats = state.casinoStats;
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
-      totalWonAmount: oldStats.totalWonAmount + (isWin ? (payout - effectiveBet) : 0.0),
+      totalWonAmount:
+          oldStats.totalWonAmount + (isWin ? (payout - effectiveBet) : 0.0),
       totalLostAmount: oldStats.totalLostAmount + (isWin ? 0.0 : effectiveBet),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, isWin ? multiplier : 1.0),
-      vehiclesWageredCount: oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
-      vehiclesLostCount: oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
+      biggestMultiplierRecord:
+          math.max(oldStats.biggestMultiplierRecord, isWin ? multiplier : 1.0),
+      vehiclesWageredCount:
+          oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+      vehiclesLostCount:
+          oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
     );
 
     state = state.copyWith(
@@ -418,8 +446,10 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
       totalLostAmount: oldStats.totalLostAmount + effectiveBet,
-      vehiclesWageredCount: oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
-      vehiclesLostCount: oldStats.vehiclesLostCount + (wageredCar != null ? 1 : 0),
+      vehiclesWageredCount:
+          oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+      vehiclesLostCount:
+          oldStats.vehiclesLostCount + (wageredCar != null ? 1 : 0),
     );
 
     state = state.copyWith(
@@ -471,11 +501,15 @@ mixin GameCasinoMixin on GameBaseNotifier {
     final oldStats = state.casinoStats;
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
-      totalWonAmount: oldStats.totalWonAmount + (isWin ? (payout - effectiveBet) : 0.0),
+      totalWonAmount:
+          oldStats.totalWonAmount + (isWin ? (payout - effectiveBet) : 0.0),
       totalLostAmount: oldStats.totalLostAmount + (isWin ? 0.0 : effectiveBet),
-      biggestMultiplierRecord: math.max(oldStats.biggestMultiplierRecord, isWin ? result.multiplier : 1.0),
-      vehiclesWageredCount: oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
-      vehiclesLostCount: oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
+      biggestMultiplierRecord: math.max(
+          oldStats.biggestMultiplierRecord, isWin ? result.multiplier : 1.0),
+      vehiclesWageredCount:
+          oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+      vehiclesLostCount:
+          oldStats.vehiclesLostCount + (wageredCar != null && !isWin ? 1 : 0),
     );
 
     state = state.copyWith(

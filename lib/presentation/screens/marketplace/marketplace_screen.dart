@@ -95,9 +95,12 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       }
 
       if (_selectedFilter == 'bargain') {
-        return item.sellerTrait.contains('Fırsat') || item.askingPrice < item.car.estimatedRealValue * 0.88;
+        return item.sellerTrait.contains('Fırsat') ||
+            item.askingPrice < item.car.estimatedRealValue * 0.88;
       } else if (_selectedFilter == 'clean') {
-        return item.car.expertise.bodyParts.values.every((v) => v == PartStatus.original) && !item.car.expertise.isMileageTampered;
+        return item.car.expertise.bodyParts.values
+                .every((v) => v == PartStatus.original) &&
+            !item.car.expertise.isMileageTampered;
       } else if (_selectedFilter == 'affordable') {
         return item.askingPrice <= game.balance;
       }
@@ -107,7 +110,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final listings = _selectedSort.sortListings(filtered);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('marketplace_title'),
         showLeading: widget.showLeading,
@@ -136,7 +140,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 color: isDark ? const Color(0xFF141721) : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
                 boxShadow: [
@@ -159,7 +165,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   hintText: context.tr('search_cars_hint'),
                   hintStyle: TextStyle(
                     fontSize: 12,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                     fontWeight: FontWeight.w600,
                   ),
                   prefixIcon: Icon(
@@ -171,7 +179,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       ? IconButton(
                           icon: const Icon(Icons.clear_rounded, size: 18),
                           padding: const EdgeInsets.all(10),
-                          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                          constraints:
+                              const BoxConstraints(minWidth: 44, minHeight: 44),
                           onPressed: () {
                             HapticFeedback.selectionClick();
                             _searchController.clear();
@@ -180,7 +189,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
               ),
             ),
@@ -192,7 +202,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             child: NeoBrutalCard(
               padding: const EdgeInsets.all(12),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
               child: Row(
                 children: [
@@ -202,11 +213,14 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       color: p.primaryColor,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.insights_rounded, color: Colors.black, size: 20),
+                    child: const Icon(Icons.insights_rounded,
+                        color: Colors.black, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -218,13 +232,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
                         ),
                         const SizedBox(height: 2),
                         if (marketSenseLevel >= 3)
                           Text(
-                            context.tr('dashboard_market_trend', {'trend': 'Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} • Spor x${trend.bodyTypeMultipliers['Spor']}'}),
+                            context.tr('dashboard_market_trend', {
+                              'trend':
+                                  'Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} • Spor x${trend.bodyTypeMultipliers['Spor']}'
+                            }),
                             style: TextStyle(
                               color: p.primaryColor,
                               fontSize: 10.5,
@@ -236,7 +254,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             context.tr('market_insight_lv3_hint'),
                             style: TextStyle(
                               fontSize: 10.5,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
                             ),
                           ),
                       ],
@@ -253,13 +273,22 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             child: Row(
               children: [
-                _buildFilterChip('all', context.tr('filter_all_listings', {'count': allListings.length}), Icons.directions_car_rounded, p, isDark),
+                _buildFilterChip(
+                    'all',
+                    context.tr(
+                        'filter_all_listings', {'count': allListings.length}),
+                    Icons.directions_car_rounded,
+                    p,
+                    isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('bargain', context.tr('filter_bargains'), Icons.local_fire_department_rounded, p, isDark),
+                _buildFilterChip('bargain', context.tr('filter_bargains'),
+                    Icons.local_fire_department_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('clean', context.tr('filter_clean'), Icons.verified_user_rounded, p, isDark),
+                _buildFilterChip('clean', context.tr('filter_clean'),
+                    Icons.verified_user_rounded, p, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip('affordable', context.tr('filter_budget'), Icons.account_balance_wallet_rounded, p, isDark),
+                _buildFilterChip('affordable', context.tr('filter_budget'),
+                    Icons.account_balance_wallet_rounded, p, isDark),
                 const SizedBox(width: 8),
                 _buildSortMenuButton(p, isDark),
               ],
@@ -274,29 +303,35 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 2.0,
               ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                Expanded(
+                    child: Text(
                   context.tr('listed_cars_count', {'count': listings.length}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
-                ),
-                Text(
-                  context.tr('cash_balance_label', {'amount': CurrencyFormatter.formatShort(game.balance)}),
+                )),
+                Expanded(
+                    child: Text(
+                  context.tr('cash_balance_label',
+                      {'amount': CurrencyFormatter.formatShort(game.balance)}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
-                    color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                    color: isDark
+                        ? const Color(0xFF00E575)
+                        : const Color(0xFF15803D),
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -317,13 +352,15 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               },
               child: _isRefreshing
                   ? const SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                      physics: AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics()),
                       padding: EdgeInsets.fromLTRB(14, 8, 14, 24),
                       child: NeoBrutalSkeletonList(itemCount: 4),
                     )
                   : listings.isEmpty
                       ? ListView(
-                          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                          physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics()),
                           children: [
                             const SizedBox(height: 80),
                             Center(
@@ -336,76 +373,107 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
-                          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                          physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics()),
                           itemCount: listings.length,
                           itemBuilder: (context, index) {
-                            final lang = Localizations.localeOf(context).languageCode;
+                            final lang =
+                                Localizations.localeOf(context).languageCode;
                             final item = listings[index];
                             final car = item.car;
                             final exp = car.expertise;
-                            final isFlash = item.sellerTrait.contains('Fırsat') || item.askingPrice < car.estimatedRealValue * 0.88;
+                            final isFlash =
+                                item.sellerTrait.contains('Fırsat') ||
+                                    item.askingPrice <
+                                        car.estimatedRealValue * 0.88;
                             final viewerCount = (item.id.hashCode % 12) + 3;
-                            final carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xFF')));
-                            final persona = SellerPersona.fromString(item.sellerTrait);
+                            final carColor = Color(int.parse(
+                                car.colorHex.replaceFirst('#', '0xFF')));
+                            final persona =
+                                SellerPersona.fromString(item.sellerTrait);
 
-                            final showAdBefore = AdService.shouldShowNativeAdForDay(game.currentDay, NativeAdContextType.marketplace) && index > 0 && index % 4 == 0;
+                            final showAdBefore =
+                                AdService.shouldShowNativeAdForDay(
+                                        game.currentDay,
+                                        NativeAdContextType.marketplace) &&
+                                    index > 0 &&
+                                    index % 4 == 0;
                             final listingWidget = StaggeredItemEntry(
                               index: index,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: NeoBrutalCard(
                                   padding: const EdgeInsets.all(12),
-                                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                                  backgroundColor: isDark
+                                      ? const Color(0xFF141721)
+                                      : Colors.white,
                                   borderColor: car.isBarnFind
                                       ? const Color(0xFFD97706)
                                       : (car.isRare
                                           ? const Color(0xFFA855F7)
                                           : (isFlash
                                               ? const Color(0xFFFF7A00)
-                                              : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)))),
+                                              : (isDark
+                                                  ? const Color(0xFF2A3142)
+                                                  : const Color(0xFF0F172A)))),
                                   borderRadius: 10,
                                   borderWidth: 2.5,
                                   shadowOffset: const Offset(4.0, 4.0),
                                   showDotGrid: true,
                                   showHazardHeader: isFlash || car.isBarnFind,
-                                  onTap: () => context.push('/listing-detail', extra: item),
+                                  onTap: () => context.push('/listing-detail',
+                                      extra: item),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // Top Tag & Live Viewer FOMO with PulsingDot
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Row(
                                             children: [
                                               NeoBrutalBadge(
-                                                text: persona.getLocalizedBadge(lang),
-                                                backgroundColor: persona.color.withValues(alpha: 0.2),
-                                                textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                                text: persona
+                                                    .getLocalizedBadge(lang),
+                                                backgroundColor: persona.color
+                                                    .withValues(alpha: 0.2),
+                                                textColor: isDark
+                                                    ? Colors.white
+                                                    : const Color(0xFF0F172A),
                                                 borderColor: persona.color,
                                                 fontSize: 9.5,
                                               ),
                                               const SizedBox(width: 6),
                                               NeoBrutalBadge(
                                                 text: car.bodyType,
-                                                backgroundColor: p.secondaryColor.withValues(alpha: 0.2),
-                                                textColor: isDark ? p.secondaryColor : const Color(0xFF0F172A),
+                                                backgroundColor: p
+                                                    .secondaryColor
+                                                    .withValues(alpha: 0.2),
+                                                textColor: isDark
+                                                    ? p.secondaryColor
+                                                    : const Color(0xFF0F172A),
                                                 borderColor: p.secondaryColor,
                                                 fontSize: 9.5,
                                               ),
                                               if (car.isBarnFind) ...[
                                                 const SizedBox(width: 6),
                                                 NeoBrutalBadge(
-                                                  text: context.tr('badge_barn_find'),
-                                                  backgroundColor: const Color(0xFFD97706),
+                                                  text: context
+                                                      .tr('badge_barn_find'),
+                                                  backgroundColor:
+                                                      const Color(0xFFD97706),
                                                   textColor: Colors.white,
                                                   fontSize: 9.5,
                                                 ),
                                               ] else if (car.isRare) ...[
                                                 const SizedBox(width: 6),
                                                 NeoBrutalBadge(
-                                                  text: context.tr('badge_rare'),
-                                                  backgroundColor: const Color(0xFFA855F7),
+                                                  text:
+                                                      context.tr('badge_rare'),
+                                                  backgroundColor:
+                                                      const Color(0xFFA855F7),
                                                   textColor: Colors.white,
                                                   fontSize: 9.5,
                                                 ),
@@ -420,11 +488,14 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                context.tr('viewers_count', {'count': viewerCount}),
+                                                context.tr('viewers_count',
+                                                    {'count': viewerCount}),
                                                 style: TextStyle(
                                                   fontSize: 10.5,
                                                   fontWeight: FontWeight.w700,
-                                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                  color: isDark
+                                                      ? const Color(0xFF94A3B8)
+                                                      : const Color(0xFF64748B),
                                                 ),
                                               ),
                                             ],
@@ -437,12 +508,18 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                       Row(
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 5),
                                             decoration: BoxDecoration(
-                                              color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: isDark
+                                                  ? const Color(0xFF1E2330)
+                                                  : const Color(0xFFF1F5F9),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                                color: isDark
+                                                    ? const Color(0xFF333B4F)
+                                                    : const Color(0xFF0F172A),
                                                 width: 2.0,
                                               ),
                                             ),
@@ -451,23 +528,30 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                               color: carColor,
                                               width: 58,
                                               height: 29,
-                                              isClean: car.isWashed || car.isPolished || car.isDetailedCleaned,
+                                              isClean: car.isWashed ||
+                                                  car.isPolished ||
+                                                  car.isDetailedCleaned,
                                             ),
                                           ),
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   '${car.brand} ${car.modelName}',
                                                   style: TextStyle(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.w900,
-                                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                                    color: isDark
+                                                        ? Colors.white
+                                                        : const Color(
+                                                            0xFF0F172A),
                                                   ),
                                                   maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                                 const SizedBox(height: 2),
                                                 Text(
@@ -475,7 +559,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                                   style: TextStyle(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w600,
-                                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                    color: isDark
+                                                        ? const Color(
+                                                            0xFF94A3B8)
+                                                        : const Color(
+                                                            0xFF64748B),
                                                   ),
                                                 ),
                                               ],
@@ -491,48 +579,104 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                         runSpacing: 6,
                                         children: [
                                           NeoBrutalBadge(
-                                            text: '${(exp.mileage / 1000).toStringAsFixed(0)}K KM',
-                                            backgroundColor: StatColors.getMileageColor(exp.mileage).withValues(alpha: 0.2),
-                                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                            borderColor: StatColors.getMileageColor(exp.mileage),
+                                            text:
+                                                '${(exp.mileage / 1000).toStringAsFixed(0)}K KM',
+                                            backgroundColor:
+                                                StatColors.getMileageColor(
+                                                        exp.mileage)
+                                                    .withValues(alpha: 0.2),
+                                            textColor: isDark
+                                                ? Colors.white
+                                                : const Color(0xFF0F172A),
+                                            borderColor:
+                                                StatColors.getMileageColor(
+                                                    exp.mileage),
                                             fontSize: 10,
                                           ),
                                           NeoBrutalBadge(
                                             text: exp.tramerAmount == 0
-                                                ? context.tr('tramer_label', {'amount': '₺0'})
-                                                : context.tr('tramer_label', {'amount': CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}),
-                                            backgroundColor: StatColors.getTramerColor(exp.tramerAmount).withValues(alpha: 0.2),
-                                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                            borderColor: StatColors.getTramerColor(exp.tramerAmount),
+                                                ? context.tr('tramer_label',
+                                                    {'amount': '₺0'})
+                                                : context.tr('tramer_label', {
+                                                    'amount': CurrencyFormatter
+                                                        .formatShort(exp
+                                                            .tramerAmount
+                                                            .toDouble())
+                                                  }),
+                                            backgroundColor:
+                                                StatColors.getTramerColor(
+                                                        exp.tramerAmount)
+                                                    .withValues(alpha: 0.2),
+                                            textColor: isDark
+                                                ? Colors.white
+                                                : const Color(0xFF0F172A),
+                                            borderColor:
+                                                StatColors.getTramerColor(
+                                                    exp.tramerAmount),
                                             fontSize: 10,
                                           ),
                                           NeoBrutalBadge(
-                                            text: context.tr('engine_condition_label', {'percent': exp.engineCondition.round()}),
-                                            backgroundColor: StatColors.getEngineColor(exp.engineCondition).withValues(alpha: 0.2),
-                                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                                            borderColor: StatColors.getEngineColor(exp.engineCondition),
+                                            text: context.tr(
+                                                'engine_condition_label', {
+                                              'percent':
+                                                  exp.engineCondition.round()
+                                            }),
+                                            backgroundColor:
+                                                StatColors.getEngineColor(
+                                                        exp.engineCondition)
+                                                    .withValues(alpha: 0.2),
+                                            textColor: isDark
+                                                ? Colors.white
+                                                : const Color(0xFF0F172A),
+                                            borderColor:
+                                                StatColors.getEngineColor(
+                                                    exp.engineCondition),
                                             fontSize: 10,
                                           ),
-                                          if (item.askingPrice < car.estimatedRealValue)
+                                          if (item.askingPrice <
+                                              car.estimatedRealValue)
                                             NeoBrutalBadge(
-                                              text: context.tr('profit_potential_badge', {'percent': (((car.estimatedRealValue - item.askingPrice) / item.askingPrice) * 100).round()}),
-                                              backgroundColor: const Color(0xFF00E575).withValues(alpha: 0.2),
-                                              textColor: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
-                                              borderColor: const Color(0xFF00E575),
+                                              text: context.tr(
+                                                  'profit_potential_badge', {
+                                                'percent': (((car.estimatedRealValue -
+                                                                item.askingPrice) /
+                                                            item.askingPrice) *
+                                                        100)
+                                                    .round()
+                                              }),
+                                              backgroundColor:
+                                                  const Color(0xFF00E575)
+                                                      .withValues(alpha: 0.2),
+                                              textColor: isDark
+                                                  ? const Color(0xFF00E575)
+                                                  : const Color(0xFF15803D),
+                                              borderColor:
+                                                  const Color(0xFF00E575),
                                               fontSize: 10,
                                             ),
-                                          if (exp.isMileageTampered && item.isExpertiseCompleted)
+                                          if (exp.isMileageTampered &&
+                                              item.isExpertiseCompleted)
                                             NeoBrutalBadge(
-                                              text: context.tr('mileage_tamper_badge'),
-                                              backgroundColor: const Color(0xFFEF4444),
+                                              text: context
+                                                  .tr('mileage_tamper_badge'),
+                                              backgroundColor:
+                                                  const Color(0xFFEF4444),
                                               textColor: Colors.white,
                                               fontSize: 10,
                                             ),
-                                          if (exp.tramerAmount > 30000 || exp.bodyParts.values.any((s) => s == PartStatus.damaged || s == PartStatus.changed || s == PartStatus.painted) || exp.engineCondition < 50 || exp.transmissionCondition < 50 || car.isChassisRepaired)
+                                          if (exp.tramerAmount > 30000 ||
+                                              exp.bodyParts.values.any((s) =>
+                                                  s == PartStatus.damaged ||
+                                                  s == PartStatus.changed ||
+                                                  s == PartStatus.painted) ||
+                                              exp.engineCondition < 50 ||
+                                              exp.transmissionCondition < 50 ||
+                                              car.isChassisRepaired)
                                             CrackedGlassBadge(
                                               showLabel: true,
                                               expertise: exp,
-                                              isChassisRepaired: car.isChassisRepaired,
+                                              isChassisRepaired:
+                                                  car.isChassisRepaired,
                                             ),
                                         ],
                                       ),
@@ -540,17 +684,22 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
                                       // Price & Action Buttons
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                context.tr('listing_price_label'),
+                                                context
+                                                    .tr('listing_price_label'),
                                                 style: TextStyle(
                                                   fontSize: 10.5,
                                                   fontWeight: FontWeight.w700,
-                                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                  color: isDark
+                                                      ? const Color(0xFF94A3B8)
+                                                      : const Color(0xFF64748B),
                                                 ),
                                               ),
                                               AnimatedRollingCounter(
@@ -558,7 +707,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w900,
-                                                  color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                                                  color: isDark
+                                                      ? const Color(0xFF00E575)
+                                                      : const Color(0xFF15803D),
                                                 ),
                                               ),
                                             ],
@@ -566,41 +717,77 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                           Row(
                                             children: [
                                               NeoBrutalButton(
-                                                label: context.tr('sms_tramer_btn'),
+                                                label: context
+                                                    .tr('sms_tramer_btn'),
                                                 icon: Icons.sms_outlined,
-                                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                                textColor: const Color(0xFF38BDF8),
+                                                backgroundColor: isDark
+                                                    ? const Color(0xFF1E2330)
+                                                    : const Color(0xFFE2E8F0),
+                                                textColor:
+                                                    const Color(0xFF38BDF8),
                                                 fontSize: 10,
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 7),
                                                 onPressed: () {
                                                   HapticFeedback.lightImpact();
-                                                  ref.read(gameProvider.notifier).checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstSmsInquiry);
-                                                  ref.read(gameProvider.notifier).updateMissionProgress(MissionType.smsInquiry, 1);
-                                                  SmsTramerSheet.show(context, item);
+                                                  ref
+                                                      .read(
+                                                          gameProvider.notifier)
+                                                      .checkAndAwardFirstTimeAction(
+                                                          FirstTimeActionKeys
+                                                              .firstSmsInquiry);
+                                                  ref
+                                                      .read(
+                                                          gameProvider.notifier)
+                                                      .updateMissionProgress(
+                                                          MissionType
+                                                              .smsInquiry,
+                                                          1);
+                                                  SmsTramerSheet.show(
+                                                      context, item);
                                                 },
                                               ),
                                               const SizedBox(width: 6),
                                               NeoBrutalButton(
-                                                label: item.isExpertiseCompleted ? context.tr('report_btn') : context.tr('expertise_btn'),
+                                                label: item.isExpertiseCompleted
+                                                    ? context.tr('report_btn')
+                                                    : context
+                                                        .tr('expertise_btn'),
                                                 icon: Icons.assignment_outlined,
-                                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                                textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                                                backgroundColor: isDark
+                                                    ? const Color(0xFF1E2330)
+                                                    : const Color(0xFFE2E8F0),
+                                                textColor: isDark
+                                                    ? Colors.white
+                                                    : const Color(0xFF0F172A),
                                                 fontSize: 10,
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 7),
                                                 onPressed: () {
-                                                  context.push('/expertise', extra: item);
+                                                  context.push('/expertise',
+                                                      extra: item);
                                                 },
                                               ),
                                               const SizedBox(width: 6),
                                               NeoBrutalButton(
-                                                label: context.tr('negotiate_btn'),
+                                                label:
+                                                    context.tr('negotiate_btn'),
                                                 icon: Icons.handshake_rounded,
-                                                backgroundColor: const Color(0xFFFFDE59),
+                                                backgroundColor:
+                                                    const Color(0xFFFFDE59),
                                                 textColor: Colors.black,
                                                 fontSize: 10.5,
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 7),
                                                 onPressed: () {
-                                                  context.push('/negotiation', extra: item);
+                                                  context.push('/negotiation',
+                                                      extra: item);
                                                 },
                                               ),
                                             ],
@@ -618,7 +805,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const NeoBrutalNativeAdCard(contextType: NativeAdContextType.marketplace),
+                                  const NeoBrutalNativeAdCard(
+                                      contextType:
+                                          NativeAdContextType.marketplace),
                                   listingWidget,
                                 ],
                               );
@@ -652,7 +841,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: _selectedSort != MarketSortOption.defaultSort ? const Color(0xFF38BDF8) : (isDark ? const Color(0xFF141721) : Colors.white),
+          color: _selectedSort != MarketSortOption.defaultSort
+              ? const Color(0xFF38BDF8)
+              : (isDark ? const Color(0xFF141721) : Colors.white),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
@@ -665,13 +856,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             Icon(
               _selectedSort.icon,
               size: 14,
-              color: _selectedSort != MarketSortOption.defaultSort ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
+              color: _selectedSort != MarketSortOption.defaultSort
+                  ? Colors.black
+                  : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
             ),
             const SizedBox(width: 4),
             Text(
               _selectedSort.getLocalizedLabel(lang),
               style: TextStyle(
-                color: _selectedSort != MarketSortOption.defaultSort ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                color: _selectedSort != MarketSortOption.defaultSort
+                    ? Colors.black
+                    : (isDark ? Colors.white : const Color(0xFF0F172A)),
                 fontWeight: FontWeight.w800,
                 fontSize: 11.5,
               ),
@@ -680,7 +875,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             Icon(
               Icons.arrow_drop_down_rounded,
               size: 16,
-              color: _selectedSort != MarketSortOption.defaultSort ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
+              color: _selectedSort != MarketSortOption.defaultSort
+                  ? Colors.black
+                  : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
             ),
           ],
         ),
@@ -690,12 +887,14 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           value: opt,
           child: Row(
             children: [
-              Icon(opt.icon, size: 16, color: isDark ? Colors.white : Colors.black),
+              Icon(opt.icon,
+                  size: 16, color: isDark ? Colors.white : Colors.black),
               const SizedBox(width: 8),
               Text(
                 opt.getLocalizedLabel(lang),
                 style: TextStyle(
-                  fontWeight: _selectedSort == opt ? FontWeight.w900 : FontWeight.w600,
+                  fontWeight:
+                      _selectedSort == opt ? FontWeight.w900 : FontWeight.w600,
                   fontSize: 12,
                 ),
               ),
@@ -716,7 +915,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final isSelected = _selectedFilter == key;
     final activeBg = const Color(0xFFFFDE59);
     final inactiveBg = isDark ? const Color(0xFF141721) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final borderColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
 
     return GestureDetector(
       onTap: () {
@@ -729,7 +929,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           color: isSelected ? activeBg : inactiveBg,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)) : borderColor,
+            color: isSelected
+                ? (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A))
+                : borderColor,
             width: 2.0,
           ),
           boxShadow: isSelected
@@ -748,13 +950,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             Icon(
               icon,
               size: 14,
-              color: isSelected ? Colors.black : (isDark ? p.primaryColor : const Color(0xFF0F172A)),
+              color: isSelected
+                  ? Colors.black
+                  : (isDark ? p.primaryColor : const Color(0xFF0F172A)),
             ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                color: isSelected
+                    ? Colors.black
+                    : (isDark ? Colors.white : const Color(0xFF0F172A)),
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
                 fontSize: 11.5,
               ),

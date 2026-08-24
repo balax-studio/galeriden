@@ -14,7 +14,8 @@ class FountainPenSignatureWidget extends StatefulWidget {
   });
 
   @override
-  State<FountainPenSignatureWidget> createState() => _FountainPenSignatureWidgetState();
+  State<FountainPenSignatureWidget> createState() =>
+      _FountainPenSignatureWidgetState();
 }
 
 class _FountainPenSignatureWidgetState extends State<FountainPenSignatureWidget>
@@ -30,9 +31,13 @@ class _FountainPenSignatureWidgetState extends State<FountainPenSignatureWidget>
       duration: const Duration(milliseconds: 800),
     );
 
-    _progressAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _progressAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.forward().then((_) => widget.onComplete?.call());
     } else {
@@ -93,5 +98,6 @@ class _SignaturePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _SignaturePainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _SignaturePainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

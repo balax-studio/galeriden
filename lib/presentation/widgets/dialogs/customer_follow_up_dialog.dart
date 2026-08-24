@@ -71,7 +71,9 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -91,7 +93,8 @@ class CustomerFollowUpDialog extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF19202E) : const Color(0xFFF8FAFC),
+                color:
+                    isDark ? const Color(0xFF19202E) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isDark ? Colors.white12 : Colors.black12,
@@ -104,7 +107,9 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                   fontSize: 12.5,
                   height: 1.4,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
+                  color: isDark
+                      ? const Color(0xFFE2E8F0)
+                      : const Color(0xFF1E293B),
                 ),
               ),
             ),
@@ -114,7 +119,10 @@ class CustomerFollowUpDialog extends ConsumerWidget {
             if (isDispute) ...[
               Text(
                 context.tr('crm_choose_stance'),
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5),
               ),
               const SizedBox(height: 10),
               NeoBrutalButton(
@@ -158,7 +166,8 @@ class CustomerFollowUpDialog extends ConsumerWidget {
               NeoBrutalButton(
                 label: context.tr('crm_reject_claim'),
                 icon: Icons.close_rounded,
-                backgroundColor: isDark ? const Color(0xFF222838) : const Color(0xFFF1F5F9),
+                backgroundColor:
+                    isDark ? const Color(0xFF222838) : const Color(0xFFF1F5F9),
                 textColor: isDark ? Colors.white70 : Colors.black87,
                 fullWidth: true,
                 onPressed: () {
@@ -175,7 +184,8 @@ class CustomerFollowUpDialog extends ConsumerWidget {
               ),
             ] else ...[
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 decoration: BoxDecoration(
                   color: AppColors.brutalGreen.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
@@ -211,7 +221,9 @@ class CustomerFollowUpDialog extends ConsumerWidget {
                 textColor: Colors.black,
                 fullWidth: true,
                 onPressed: () {
-                  ref.read(gameProvider.notifier).acceptCustomerCrmAppreciation(event);
+                  ref
+                      .read(gameProvider.notifier)
+                      .acceptCustomerCrmAppreciation(event);
                   Navigator.of(context).pop();
                   NotificationService.showSuccess(
                     context,

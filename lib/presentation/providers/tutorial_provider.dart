@@ -25,7 +25,8 @@ class TutorialState {
   });
 }
 
-final tutorialProvider = StateNotifierProvider<TutorialNotifier, TutorialState>((ref) {
+final tutorialProvider =
+    StateNotifierProvider<TutorialNotifier, TutorialState>((ref) {
   return TutorialNotifier();
 });
 

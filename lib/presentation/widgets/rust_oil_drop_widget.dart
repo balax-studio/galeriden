@@ -37,7 +37,10 @@ class _RustOilDropWidgetState extends State<RustOilDropWidget>
       TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_controller);
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.repeat();
     } else {

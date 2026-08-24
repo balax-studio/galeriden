@@ -27,7 +27,8 @@ class IndustryGossipScreen extends ConsumerWidget {
 
     if (!game.isFeatureUnlocked('/gossip')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('gossip_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/gossip',
@@ -40,7 +41,8 @@ class IndustryGossipScreen extends ConsumerWidget {
     final gossips = game.activeGossips;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('gossip_screen_title'),
       ),
@@ -51,7 +53,8 @@ class IndustryGossipScreen extends ConsumerWidget {
           // Header Info Banner
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF1E1E2E) : const Color(0xFFFFFBEB),
+            backgroundColor:
+                isDark ? const Color(0xFF1E1E2E) : const Color(0xFFFFFBEB),
             borderColor: AppColors.brutalYellow,
             borderRadius: 14,
             child: Row(
@@ -62,11 +65,14 @@ class IndustryGossipScreen extends ConsumerWidget {
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.record_voice_over_rounded, color: Colors.black, size: 24),
+                  child: const Icon(Icons.record_voice_over_rounded,
+                      color: Colors.black, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -78,7 +84,9 @@ class IndustryGossipScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? Colors.white
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -86,7 +94,9 @@ class IndustryGossipScreen extends ConsumerWidget {
                         context.tr('gossip_banner_desc'),
                         style: TextStyle(
                           fontSize: 11,
-                          color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : AppColors.textSecondaryLight,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -117,11 +127,14 @@ class IndustryGossipScreen extends ConsumerWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,
-                color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                color: isDark
+                    ? const Color(0xFF94A3B8)
+                    : AppColors.textSecondaryLight,
               ),
             ),
             const SizedBox(height: 10),
-            ...gossips.map((gossip) => _buildGossipCard(context, ref, gossip, isDark)),
+            ...gossips.map(
+                (gossip) => _buildGossipCard(context, ref, gossip, isDark)),
           ],
         ],
       ),
@@ -156,7 +169,9 @@ class IndustryGossipScreen extends ConsumerWidget {
       child: NeoBrutalCard(
         padding: const EdgeInsets.all(14),
         backgroundColor: isDark ? const Color(0xFF161922) : Colors.white,
-        borderColor: gossip.isPurchased ? AppColors.brutalGreen : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+        borderColor: gossip.isPurchased
+            ? AppColors.brutalGreen
+            : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
         borderRadius: 14,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +185,9 @@ class IndustryGossipScreen extends ConsumerWidget {
                     color: sourceColor,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 1.5,
                     ),
                   ),
@@ -186,7 +203,9 @@ class IndustryGossipScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? Colors.white
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       Text(
@@ -194,17 +213,22 @@ class IndustryGossipScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : AppColors.textSecondaryLight,
                         ),
                       ),
                     ],
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: context.tr('gossip_badge_trust', {'trust': '${(gossip.accuracyRate * 100).round()}'}),
+                  text: context.tr('gossip_badge_trust',
+                      {'trust': '${(gossip.accuracyRate * 100).round()}'}),
                   backgroundColor: gossip.accuracyRate >= 0.85
                       ? AppColors.brutalGreen
-                      : (gossip.accuracyRate >= 0.70 ? AppColors.brutalYellow : AppColors.brutalOrange),
+                      : (gossip.accuracyRate >= 0.70
+                          ? AppColors.brutalYellow
+                          : AppColors.brutalOrange),
                   textColor: Colors.black,
                   fontSize: 10,
                 ),
@@ -217,10 +241,13 @@ class IndustryGossipScreen extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F1117) : const Color(0xFFF8FAFC),
+                color:
+                    isDark ? const Color(0xFF0F1117) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF262C3D)
+                      : const Color(0xFFE2E8F0),
                   width: 1.5,
                 ),
               ),
@@ -230,17 +257,25 @@ class IndustryGossipScreen extends ConsumerWidget {
                   Row(
                     children: [
                       Icon(
-                        gossip.isPurchased ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
+                        gossip.isPurchased
+                            ? Icons.lock_open_rounded
+                            : Icons.lock_outline_rounded,
                         size: 14,
-                        color: gossip.isPurchased ? AppColors.brutalGreen : AppColors.textSecondaryLight,
+                        color: gossip.isPurchased
+                            ? AppColors.brutalGreen
+                            : AppColors.textSecondaryLight,
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        gossip.isPurchased ? context.tr('gossip_unlocked_title') : context.tr('gossip_teaser_title'),
+                        gossip.isPurchased
+                            ? context.tr('gossip_unlocked_title')
+                            : context.tr('gossip_teaser_title'),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
-                          color: gossip.isPurchased ? AppColors.brutalGreen : AppColors.textSecondaryLight,
+                          color: gossip.isPurchased
+                              ? AppColors.brutalGreen
+                              : AppColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -250,9 +285,13 @@ class IndustryGossipScreen extends ConsumerWidget {
                     gossip.isPurchased ? gossip.fullContent : gossip.teaserText,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: gossip.isPurchased ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: gossip.isPurchased
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: isDark ? Colors.white : AppColors.textPrimaryLight,
-                      fontStyle: gossip.isPurchased ? FontStyle.normal : FontStyle.italic,
+                      fontStyle: gossip.isPurchased
+                          ? FontStyle.normal
+                          : FontStyle.italic,
                     ),
                   ),
                 ],
@@ -264,7 +303,8 @@ class IndustryGossipScreen extends ConsumerWidget {
             if (gossip.isPurchased)
               Row(
                 children: [
-                  const Icon(Icons.check_circle_rounded, color: AppColors.brutalGreen, size: 18),
+                  const Icon(Icons.check_circle_rounded,
+                      color: AppColors.brutalGreen, size: 18),
                   const SizedBox(width: 6),
                   Text(
                     context.tr('gossip_purchased_label'),
@@ -294,20 +334,29 @@ class IndustryGossipScreen extends ConsumerWidget {
                         children: [
                           Text(
                             CurrencyFormatter.format(
-                              (game.hasHighNpcTrust(gossip.sourceNpc == 'cayci_necati' ? 'necati' : gossip.sourceNpc))
+                              (game.hasHighNpcTrust(
+                                      gossip.sourceNpc == 'cayci_necati'
+                                          ? 'necati'
+                                          : gossip.sourceNpc))
                                   ? (gossip.cost * 0.50).roundToDouble()
                                   : gossip.cost,
                             ),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: canAfford ? AppColors.brutalGreen : AppColors.errorRed,
+                              color: canAfford
+                                  ? AppColors.brutalGreen
+                                  : AppColors.errorRed,
                             ),
                           ),
-                          if (game.hasHighNpcTrust(gossip.sourceNpc == 'cayci_necati' ? 'necati' : gossip.sourceNpc)) ...[
+                          if (game.hasHighNpcTrust(
+                              gossip.sourceNpc == 'cayci_necati'
+                                  ? 'necati'
+                                  : gossip.sourceNpc)) ...[
                             const SizedBox(width: 6),
                             NeoBrutalBadge(
-                              text: context.tr('gossip_friend_discount', {'pct': '50'}),
+                              text: context
+                                  .tr('gossip_friend_discount', {'pct': '50'}),
                               backgroundColor: AppColors.brutalGreen,
                               textColor: Colors.black,
                               fontSize: 9,
@@ -320,11 +369,15 @@ class IndustryGossipScreen extends ConsumerWidget {
                   const Spacer(),
                   NeoBrutalButton(
                     label: context.tr('gossip_btn_buy'),
-                    backgroundColor: canAfford ? AppColors.brutalYellow : const Color(0xFF64748B),
+                    backgroundColor: canAfford
+                        ? AppColors.brutalYellow
+                        : const Color(0xFF64748B),
                     textColor: Colors.black,
                     onPressed: canAfford
                         ? () {
-                            final success = ref.read(gameProvider.notifier).buyGossipItem(gossip);
+                            final success = ref
+                                .read(gameProvider.notifier)
+                                .buyGossipItem(gossip);
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
@@ -333,7 +386,8 @@ class IndustryGossipScreen extends ConsumerWidget {
                             }
                           }
                         : () {
-                            NotificationService.showWarning(context, context.tr('insufficient_balance'));
+                            NotificationService.showWarning(
+                                context, context.tr('insufficient_balance'));
                           },
                   ),
                 ],

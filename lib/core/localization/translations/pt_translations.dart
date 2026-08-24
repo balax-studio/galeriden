@@ -2776,5 +2776,16 @@ const Map<String, String> ptTranslations = {
     'mission_consignment_desc': 'Aceite {count} veículos em consignação com comissão no showroom.',
     'mission_side_biz_title': 'Renda de Negócios Secundários',
     'mission_side_biz_desc': 'Aprimore seus negócios secundários ou colete a renda diária.',
+
+    'event_muddy_rain_title': 'CHUVA DE LAMA',
+    'event_muddy_rain_desc': 'Uma chuva de lama caiu durante a noite, sujando todos os veículos expostos. O valor deles caiu 5%, precisam ser lavados imediatamente.',
+    'event_staff_resignation_title': 'DEMISSÃO DE FUNCIONÁRIO',
+    'event_staff_resignation_desc': 'Devido a salários não pagos, {names} deixou sua concessionária e se demitiu.',
+    'event_salary_unpaid_loyal_title': 'SALÁRIOS NÃO PAGOS - LEALDADE',
+    'event_salary_unpaid_loyal_desc': 'Os salários não puderam ser pagos. O moral de {names} caiu a zero, mas graças à lealdade, não se demitiram. Lealdade e moral diminuíram.',
+    'event_salary_unpaid_title': 'SALÁRIOS NÃO PAGOS',
+    'event_salary_unpaid_desc': 'Devido à falta de dinheiro, os salários diários não puderam ser pagos. O moral e a lealdade dos funcionários sofreram um forte impacto. -35 Moral, -20 Lealdade.',
+    'event_ok': 'Ok',
+    'badge_muddy': 'LAMA',
 };
 

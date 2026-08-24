@@ -11,7 +11,8 @@ import '../neo_brutal_card.dart';
 class MicronBodyScanCanvasWidget extends StatefulWidget {
   final Map<String, PartStatus> bodyParts;
   final bool isDark;
-  final Function(String partName, int microns, PartStatus status)? onPartScanned;
+  final Function(String partName, int microns, PartStatus status)?
+      onPartScanned;
 
   const MicronBodyScanCanvasWidget({
     super.key,
@@ -21,7 +22,8 @@ class MicronBodyScanCanvasWidget extends StatefulWidget {
   });
 
   @override
-  State<MicronBodyScanCanvasWidget> createState() => _MicronBodyScanCanvasWidgetState();
+  State<MicronBodyScanCanvasWidget> createState() =>
+      _MicronBodyScanCanvasWidgetState();
 }
 
 class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
@@ -84,7 +86,9 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isFullScanned ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+      borderColor: isFullScanned
+          ? AppColors.brutalGreen
+          : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
       borderWidth: 2.4,
       borderRadius: 14,
       child: Column(
@@ -103,19 +107,28 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: Colors.black, width: 1.5),
                     ),
-                    child: const Icon(Icons.radar_rounded, size: 16, color: Colors.black),
+                    child: const Icon(Icons.radar_rounded,
+                        size: 16, color: Colors.black),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     context.tr('micron_title'),
-                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                    style:
+                        TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
                   ),
                 ],
               ),
               NeoBrutalBadge(
-                text: context.tr('micron_progress', {'scanned': '$scannedCount', 'total': '$totalParts'}),
-                backgroundColor: isFullScanned ? AppColors.brutalGreen : (isDark ? const Color(0xFF222B3F) : const Color(0xFFE2E8F0)),
-                textColor: isFullScanned ? Colors.black : (isDark ? Colors.white : Colors.black),
+                text: context.tr('micron_progress',
+                    {'scanned': '$scannedCount', 'total': '$totalParts'}),
+                backgroundColor: isFullScanned
+                    ? AppColors.brutalGreen
+                    : (isDark
+                        ? const Color(0xFF222B3F)
+                        : const Color(0xFFE2E8F0)),
+                textColor: isFullScanned
+                    ? Colors.black
+                    : (isDark ? Colors.white : Colors.black),
                 fontSize: 9.5,
               ),
             ],
@@ -143,7 +156,10 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                   children: [
                     Text(
                       context.tr('micron_probe_title'),
-                      style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                      style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF64748B)),
                     ),
                     Text(
                       _selectedPartKey != null
@@ -152,7 +168,9 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
-                        color: _selectedPartKey != null ? Colors.white : const Color(0xFF94A3B8),
+                        color: _selectedPartKey != null
+                            ? Colors.white
+                            : const Color(0xFF94A3B8),
                       ),
                     ),
                   ],
@@ -172,7 +190,8 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                       const SizedBox(width: 8),
                       NeoBrutalBadge(
                         text: StatColors.getPartLabel(_selectedStatus!.name),
-                        backgroundColor: StatColors.getPartColor(_selectedStatus!.name),
+                        backgroundColor:
+                            StatColors.getPartColor(_selectedStatus!.name),
                         textColor: Colors.black,
                         fontSize: 10,
                       ),
@@ -191,7 +210,11 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF080A10) : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isDark ? const Color(0xFF263047) : const Color(0xFFCBD5E1), width: 2),
+              border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF263047)
+                      : const Color(0xFFCBD5E1),
+                  width: 2),
             ),
             child: Stack(
               children: [
@@ -351,14 +374,25 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                 onTap: () => _selectPart(entry.key, entry.value),
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.brutalYellow
-                        : (isScanned ? statusColor.withValues(alpha: 0.25) : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9))),
+                        : (isScanned
+                            ? statusColor.withValues(alpha: 0.25)
+                            : (isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFF1F5F9))),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected ? Colors.black : (isScanned ? statusColor : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A))),
+                      color: isSelected
+                          ? Colors.black
+                          : (isScanned
+                              ? statusColor
+                              : (isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A))),
                       width: isSelected ? 2.2 : 1.5,
                     ),
                   ),
@@ -366,14 +400,18 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (isScanned)
-                        Icon(Icons.check_circle_rounded, size: 12, color: isSelected ? Colors.black : statusColor),
+                        Icon(Icons.check_circle_rounded,
+                            size: 12,
+                            color: isSelected ? Colors.black : statusColor),
                       if (isScanned) const SizedBox(width: 4),
                       Text(
                         _getLocalizedPartName(context, entry.key),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
-                          color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                          color: isSelected
+                              ? Colors.black
+                              : (isDark ? Colors.white : Colors.black),
                         ),
                       ),
                     ],
@@ -431,8 +469,15 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
     final status = widget.bodyParts[partName] ??
         widget.bodyParts.entries
             .firstWhere(
-              (e) => e.key.toLowerCase().replaceAll(' ', '').contains(partName.toLowerCase().replaceAll(' ', '')) ||
-                  partName.toLowerCase().replaceAll(' ', '').contains(e.key.toLowerCase().replaceAll(' ', '')),
+              (e) =>
+                  e.key
+                      .toLowerCase()
+                      .replaceAll(' ', '')
+                      .contains(partName.toLowerCase().replaceAll(' ', '')) ||
+                  partName
+                      .toLowerCase()
+                      .replaceAll(' ', '')
+                      .contains(e.key.toLowerCase().replaceAll(' ', '')),
               orElse: () => MapEntry(partName, PartStatus.original),
             )
             .value;
@@ -449,7 +494,9 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
         onTap: () => _selectPart(partName, status),
         child: Container(
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.brutalYellow.withValues(alpha: 0.35) : Colors.transparent,
+            color: isSelected
+                ? AppColors.brutalYellow.withValues(alpha: 0.35)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
           ),
         ),
@@ -628,7 +675,8 @@ class _CarBlueprintPainter extends CustomPainter {
     if (selectedPartKey != null) {
       final pulseRadius = 15.0 + sonarProgress * 25.0;
       final pulsePaint = Paint()
-        ..color = AppColors.brutalYellow.withValues(alpha: (1.0 - sonarProgress).clamp(0.0, 1.0))
+        ..color = AppColors.brutalYellow
+            .withValues(alpha: (1.0 - sonarProgress).clamp(0.0, 1.0))
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0;
 
@@ -637,21 +685,33 @@ class _CarBlueprintPainter extends CustomPainter {
     }
   }
 
-  void _drawPartSection(Canvas canvas, Rect rect, String lookupKey, String displayLabel, Paint border) {
+  void _drawPartSection(Canvas canvas, Rect rect, String lookupKey,
+      String displayLabel, Paint border) {
     final status = bodyParts[lookupKey] ??
         bodyParts.entries
             .firstWhere(
-              (e) => e.key.toLowerCase().replaceAll(' ', '').contains(lookupKey.toLowerCase().replaceAll(' ', '')) ||
-                  lookupKey.toLowerCase().replaceAll(' ', '').contains(e.key.toLowerCase().replaceAll(' ', '')),
+              (e) =>
+                  e.key
+                      .toLowerCase()
+                      .replaceAll(' ', '')
+                      .contains(lookupKey.toLowerCase().replaceAll(' ', '')) ||
+                  lookupKey
+                      .toLowerCase()
+                      .replaceAll(' ', '')
+                      .contains(e.key.toLowerCase().replaceAll(' ', '')),
               orElse: () => MapEntry(lookupKey, PartStatus.original),
             )
             .value;
-    final isScanned = scannedParts.contains(lookupKey) || scannedParts.contains(displayLabel);
-    final isSelected = selectedPartKey == lookupKey || selectedPartKey == displayLabel;
+    final isScanned =
+        scannedParts.contains(lookupKey) || scannedParts.contains(displayLabel);
+    final isSelected =
+        selectedPartKey == lookupKey || selectedPartKey == displayLabel;
 
-    Color fillColor = isDark ? const Color(0xFF1A2232) : const Color(0xFFF8FAFC);
+    Color fillColor =
+        isDark ? const Color(0xFF1A2232) : const Color(0xFFF8FAFC);
     if (isScanned) {
-      fillColor = StatColors.getPartColor(status.name).withValues(alpha: isDark ? 0.40 : 0.30);
+      fillColor = StatColors.getPartColor(status.name)
+          .withValues(alpha: isDark ? 0.40 : 0.30);
     }
     if (isSelected) {
       fillColor = AppColors.brutalYellow.withValues(alpha: 0.65);
@@ -668,7 +728,9 @@ class _CarBlueprintPainter extends CustomPainter {
         style: TextStyle(
           fontSize: 8.5,
           fontWeight: FontWeight.w900,
-          color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF334155)),
+          color: isSelected
+              ? Colors.black
+              : (isDark ? Colors.white70 : const Color(0xFF334155)),
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -676,7 +738,8 @@ class _CarBlueprintPainter extends CustomPainter {
 
     textPainter.paint(
       canvas,
-      Offset(rect.center.dx - textPainter.width / 2, rect.center.dy - textPainter.height / 2),
+      Offset(rect.center.dx - textPainter.width / 2,
+          rect.center.dy - textPainter.height / 2),
     );
   }
 

@@ -45,13 +45,19 @@ class DashboardMissionsList extends ConsumerWidget {
     return Column(
       children: game.activeMissions.map((mission) {
         final targetGoal = mission.targetGoal > 0 ? mission.targetGoal : 1;
-        final progressRatio = (mission.currentProgress / targetGoal).clamp(0.0, 1.0);
+        final progressRatio =
+            (mission.currentProgress / targetGoal).clamp(0.0, 1.0);
         final isCompleted = mission.isCompleted == true;
         final isClaimed = mission.isClaimed == true;
         final isDiscovery = mission.isDiscoveryMission == true;
-        final title = mission.titleKey != null ? context.tr(mission.titleKey!) : mission.title;
+        final title = mission.titleKey != null
+            ? context.tr(mission.titleKey!)
+            : mission.title;
         final desc = mission.descriptionKey != null
-            ? context.tr(mission.descriptionKey!, mission.templateParams?.map((k, v) => MapEntry(k, v.toString())))
+            ? context.tr(
+                mission.descriptionKey!,
+                mission.templateParams
+                    ?.map((k, v) => MapEntry(k, v.toString())))
             : mission.description;
 
         return Padding(
@@ -59,7 +65,8 @@ class DashboardMissionsList extends ConsumerWidget {
           child: NeoBrutalCard(
             padding: const EdgeInsets.all(12),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 12,
             child: Row(
               children: [
@@ -84,12 +91,15 @@ class DashboardMissionsList extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w900,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
                               ),
                             ),
                           ),
                           NeoBrutalBadge(
-                            text: '+${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} • +${mission.rewardXP}XP',
+                            text:
+                                '+${CurrencyFormatter.formatShort(mission.rewardMoney.toDouble())} • +${mission.rewardXP}XP',
                             backgroundColor: const Color(0xFFFFDE59),
                             textColor: Colors.black,
                             fontSize: 9.5,
@@ -102,7 +112,9 @@ class DashboardMissionsList extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -112,9 +124,13 @@ class DashboardMissionsList extends ConsumerWidget {
                         child: LinearProgressIndicator(
                           value: progressRatio,
                           minHeight: 6,
-                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          backgroundColor: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0),
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            isCompleted ? const Color(0xFF00E575) : palette.primaryColor,
+                            isCompleted
+                                ? const Color(0xFF00E575)
+                                : palette.primaryColor,
                           ),
                         ),
                       ),
@@ -137,9 +153,12 @@ class DashboardMissionsList extends ConsumerWidget {
                     backgroundColor: const Color(0xFF00E575),
                     textColor: Colors.black,
                     fontSize: 11,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     onPressed: () {
-                      final success = ref.read(gameProvider.notifier).claimMissionReward(mission.id);
+                      final success = ref
+                          .read(gameProvider.notifier)
+                          .claimMissionReward(mission.id);
                       if (success) {
                         FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
                           mission.rewardMoney.toDouble(),
@@ -158,12 +177,17 @@ class DashboardMissionsList extends ConsumerWidget {
                     onTap: () => context.push(mission.featureRoute!),
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                          color: isDark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFCBD5E1),
                         ),
                       ),
                       child: Row(
@@ -174,14 +198,18 @@ class DashboardMissionsList extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(width: 3),
                           Icon(
                             Icons.arrow_forward_rounded,
                             size: 11,
-                            color: isDark ? Colors.white70 : const Color(0xFF475569),
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF475569),
                           ),
                         ],
                       ),
@@ -260,7 +288,9 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
                 ),
               ),
             ],
@@ -306,18 +336,23 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         '${contract.clientName} - ${context.tr('deliver_action')}',
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
+                      icon: const Icon(Icons.close_rounded,
+                          color: Colors.white70, size: 20),
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 ...matchingCars.map((car) {
-                  final profit = (contract.budget + contract.rewardBonus) - car.currentPurchasePrice;
+                  final profit = (contract.budget + contract.rewardBonus) -
+                      car.currentPurchasePrice;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: NeoBrutalCard(
@@ -333,12 +368,18 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                               children: [
                                 Text(
                                   '${car.brand} ${car.modelName} • ${car.modelYear}',
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 13),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '+${CurrencyFormatter.formatShort(profit)}',
-                                  style: const TextStyle(color: Color(0xFF00E575), fontWeight: FontWeight.w800, fontSize: 11),
+                                  style: const TextStyle(
+                                      color: Color(0xFF00E575),
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 11),
                                 ),
                               ],
                             ),
@@ -349,12 +390,17 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                             backgroundColor: const Color(0xFF00E575),
                             textColor: Colors.black,
                             fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             onPressed: () {
                               Navigator.pop(ctx);
-                              final success = ref.read(gameProvider.notifier).fulfillWantedCarContract(contract.id, car.id);
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .fulfillWantedCarContract(
+                                      contract.id, car.id);
                               if (success) {
-                                FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                                FloatingMoneyOverlay.of(context)
+                                    ?.showMoneyPopUp(
                                   contract.budget + contract.rewardBonus,
                                   label: 'OK',
                                 );
@@ -396,8 +442,10 @@ class DashboardWantedContractsSection extends ConsumerWidget {
         const SizedBox(height: 10),
         ...game.activeContracts.map((contract) {
           final matchingCars = game.ownedCars.where((car) {
-            if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase()) return false;
-            if (contract.targetBodyType != null && car.bodyType != contract.targetBodyType) return false;
+            if (car.brand.toLowerCase() != contract.targetBrand.toLowerCase())
+              return false;
+            if (contract.targetBodyType != null &&
+                car.bodyType != contract.targetBodyType) return false;
             if (car.modelYear < contract.minYear) return false;
             if (car.expertise.mileage > contract.maxMileage) return false;
             if (car.isLockedInShowcase == true) return false;
@@ -411,7 +459,8 @@ class DashboardWantedContractsSection extends ConsumerWidget {
             child: NeoBrutalCard(
               padding: const EdgeInsets.all(12),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,8 +471,13 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                         radius: 16,
                         backgroundColor: const Color(0xFFFF7A00),
                         child: Text(
-                          contract.clientName.isNotEmpty ? contract.clientName[0] : 'V',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                          contract.clientName.isNotEmpty
+                              ? contract.clientName[0]
+                              : 'V',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -433,22 +487,28 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                           children: [
                             Text(
                               contract.clientName,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w900),
                             ),
                             Text(
                               '${contract.targetBrand} • Min. ${contract.minYear} • Max. ${contract.maxMileage ~/ 1000}k km',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ],
                         ),
                       ),
                       NeoBrutalBadge(
-                        text: '${contract.deadlineDays} ${context.tr('hud_day')}',
-                        backgroundColor: contract.deadlineDays <= 2 ? const Color(0xFFEF4444) : const Color(0xFFFFDE59),
+                        text:
+                            '${contract.deadlineDays} ${context.tr('hud_day')}',
+                        backgroundColor: contract.deadlineDays <= 2
+                            ? const Color(0xFFEF4444)
+                            : const Color(0xFFFFDE59),
                         textColor: Colors.black,
                         fontSize: 9.5,
                       ),
@@ -463,28 +523,37 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                         children: [
                           Text(
                             '${CurrencyFormatter.formatShort(totalPayout)} • +${CurrencyFormatter.formatShort(contract.rewardBonus)}',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF00E575)),
                           ),
                         ],
                       ),
                       if (matchingCars.isNotEmpty)
                         NeoBrutalButton(
-                          label: '${context.tr('deliver_action')} • ${matchingCars.length}',
+                          label:
+                              '${context.tr('deliver_action')} • ${matchingCars.length}',
                           icon: Icons.local_shipping_rounded,
                           backgroundColor: const Color(0xFF00E575),
                           textColor: Colors.black,
                           fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          onPressed: () => _showFulfillContractDialog(context, ref, contract, matchingCars),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          onPressed: () => _showFulfillContractDialog(
+                              context, ref, contract, matchingCars),
                         )
                       else
                         NeoBrutalButton(
                           label: context.tr('find_in_market'),
                           icon: Icons.search_rounded,
-                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          backgroundColor: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0),
                           textColor: isDark ? Colors.white : Colors.black,
                           fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           onPressed: () => context.push('/marketplace'),
                         ),
                     ],
@@ -499,4 +568,3 @@ class DashboardWantedContractsSection extends ConsumerWidget {
     );
   }
 }
-

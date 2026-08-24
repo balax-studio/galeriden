@@ -45,22 +45,24 @@ class OfferPullResult {
 mixin GameMarketMixin on GameBaseNotifier {
   /// Buy a side business
   bool buySideBusiness(String businessId) {
-    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    final businessIndex =
+        state.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return false;
 
     final business = state.sideBusinesses[businessIndex];
     if (business.isOwned) return false;
     if (state.balance < business.cost) return false;
 
-    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
+    final updatedBusinesses =
+        List<SideBusinessModel>.from(state.sideBusinesses);
     updatedBusinesses[businessIndex] = business.copyWith(isOwned: true);
 
     state = state.copyWith(
       balance: state.balance - business.cost,
       sideBusinesses: updatedBusinesses,
     );
-    
-    addXP(150); 
+
+    addXP(150);
     updateMissionProgress(MissionType.sideBusinessCollect, 1);
     saveState();
     return true;
@@ -68,7 +70,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Upgrade a side business level (Level 1 to 5)
   bool upgradeSideBusiness(String businessId) {
-    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    final businessIndex =
+        state.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return false;
 
     final business = state.sideBusinesses[businessIndex];
@@ -77,7 +80,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     double upgradeCost = business.nextLevelUpgradeCost;
     if (state.balance < upgradeCost) return false;
 
-    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
+    final updatedBusinesses =
+        List<SideBusinessModel>.from(state.sideBusinesses);
     updatedBusinesses[businessIndex] = business.copyWith(
       level: business.level + 1,
     );
@@ -95,7 +99,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Buy a specific sub-upgrade for a side business
   bool buySideBusinessUpgrade(String businessId, String upgradeId) {
-    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    final businessIndex =
+        state.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return false;
 
     final business = state.sideBusinesses[businessIndex];
@@ -108,11 +113,14 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (upgrade.isPurchased) return false;
     if (state.balance < upgrade.cost) return false;
 
-    final updatedUpgrades = List<SideBusinessUpgradeModel>.from(business.upgrades);
+    final updatedUpgrades =
+        List<SideBusinessUpgradeModel>.from(business.upgrades);
     updatedUpgrades[upgradeIndex] = upgrade.copyWith(isPurchased: true);
 
-    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
-    updatedBusinesses[businessIndex] = business.copyWith(upgrades: updatedUpgrades);
+    final updatedBusinesses =
+        List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] =
+        business.copyWith(upgrades: updatedUpgrades);
 
     state = state.copyWith(
       balance: state.balance - upgrade.cost,
@@ -127,14 +135,16 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Hire a dedicated manager for a side business
   bool hireSideBusinessManager(String businessId) {
-    final businessIndex = state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    final businessIndex =
+        state.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return false;
 
     final business = state.sideBusinesses[businessIndex];
     if (!business.isOwned || business.hasManager) return false;
     if (state.balance < business.managerCost) return false;
 
-    final updatedBusinesses = List<SideBusinessModel>.from(state.sideBusinesses);
+    final updatedBusinesses =
+        List<SideBusinessModel>.from(state.sideBusinesses);
     updatedBusinesses[businessIndex] = business.copyWith(hasManager: true);
 
     state = state.copyWith(
@@ -156,7 +166,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     List<StockModel> updatedStocks = state.marketStocks.map((stock) {
       // Small intraday movement between -1.5% and +1.5%
       double intradayChange = (random.nextDouble() * 0.03) - 0.015;
-      double newPrice = (stock.currentPrice * (1.0 + intradayChange)).clamp(stock.previousPrice * 0.5, stock.previousPrice * 2.0);
+      double newPrice = (stock.currentPrice * (1.0 + intradayChange))
+          .clamp(stock.previousPrice * 0.5, stock.previousPrice * 2.0);
       List<double> newHistory = List.from(stock.priceHistory)..add(newPrice);
       if (newHistory.length > 7) newHistory.removeAt(0);
 
@@ -180,18 +191,19 @@ mixin GameMarketMixin on GameBaseNotifier {
     double grossCost = stock.currentPrice * amount;
     double commission = grossCost * stockCommissionRate;
     double totalCost = grossCost + commission;
-    
+
     if (state.balance < totalCost) return false;
 
     List<PlayerStockModel> updatedOwned = List.from(state.ownedStocks);
     final existingIndex = updatedOwned.indexWhere((s) => s.symbol == symbol);
-    
+
     if (existingIndex != -1) {
       final existing = updatedOwned[existingIndex];
-      double totalSpent = (existing.averageCost * existing.quantity) + totalCost;
+      double totalSpent =
+          (existing.averageCost * existing.quantity) + totalCost;
       int newShares = existing.quantity + amount;
       double newAvgPrice = totalSpent / newShares;
-      
+
       updatedOwned[existingIndex] = existing.copyWith(
         quantity: newShares,
         averageCost: newAvgPrice,
@@ -208,23 +220,24 @@ mixin GameMarketMixin on GameBaseNotifier {
       balance: state.balance - totalCost,
       ownedStocks: updatedOwned,
     );
-    
+
     addXP((grossCost / 50000.0).clamp(0, 25).round());
     updateMissionProgress(MissionType.stockTrade, 1);
     saveState();
     return true;
   }
+
   /// Sell stocks with realistic %0.2 commission
   bool sellStock(String symbol, int amount) {
     if (amount <= 0) return false;
     List<PlayerStockModel> updatedOwned = List.from(state.ownedStocks);
     final existingIndex = updatedOwned.indexWhere((s) => s.symbol == symbol);
-    
+
     if (existingIndex == -1) return false;
-    
+
     final existing = updatedOwned[existingIndex];
     if (existing.quantity < amount) return false;
-    
+
     final stock = state.marketStocks.firstWhere(
       (s) => s.symbol == symbol,
       orElse: () => StockModel(
@@ -253,7 +266,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       totalProfit: state.totalProfit + netProfit,
       ownedStocks: updatedOwned,
     );
-    
+
     if (state.totalProfit >= 250000) checkAchievement('dealer_baron');
     addXP((grossRevenue / 50000.0).clamp(0, 25).round());
     updateMissionProgress(MissionType.stockTrade, 1);
@@ -265,7 +278,8 @@ mixin GameMarketMixin on GameBaseNotifier {
   double calculateDailyStockDividends() {
     double totalDailyDividend = 0.0;
     for (var owned in state.ownedStocks) {
-      final stock = findFirstWhere(state.marketStocks, (s) => s.symbol == owned.symbol);
+      final stock =
+          findFirstWhere(state.marketStocks, (s) => s.symbol == owned.symbol);
       if (stock != null) {
         final double stockValue = owned.quantity * stock.currentPrice;
         final double dailyVal = (stockValue * stock.dividendYield) / 365.0;
@@ -280,7 +294,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (amount <= 0) return false;
     final forex = state.marketForex.firstWhere(
       (f) => f.symbol == symbol,
-      orElse: () => ForexGoldModel.defaultForex.firstWhere((f) => f.symbol == symbol),
+      orElse: () =>
+          ForexGoldModel.defaultForex.firstWhere((f) => f.symbol == symbol),
     );
 
     final double totalCost = amount * forex.buyRate;
@@ -291,7 +306,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     if (existingIndex != -1) {
       final existing = updatedOwned[existingIndex];
-      final double totalSpent = (existing.averageRate * existing.amount) + totalCost;
+      final double totalSpent =
+          (existing.averageRate * existing.amount) + totalCost;
       final double newAmount = existing.amount + amount;
       final double newAvgRate = totalSpent / newAmount;
 
@@ -329,7 +345,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final forex = state.marketForex.firstWhere(
       (f) => f.symbol == symbol,
-      orElse: () => ForexGoldModel.defaultForex.firstWhere((f) => f.symbol == symbol),
+      orElse: () =>
+          ForexGoldModel.defaultForex.firstWhere((f) => f.symbol == symbol),
     );
 
     final double revenue = amount * forex.sellRate;
@@ -364,7 +381,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     final double totalCost = requestedLots * ipo.lotPrice;
     if (state.balance < totalCost) return false;
 
-    final reqIndex = state.playerIpoRequests.indexWhere((r) => r.ipoId == ipoId);
+    final reqIndex =
+        state.playerIpoRequests.indexWhere((r) => r.ipoId == ipoId);
     if (reqIndex != -1) return false;
 
     final newRequest = PlayerIpoRequestModel(
@@ -402,7 +420,9 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (car.isDoped) return false;
 
     // Rule 3: Max 3 active offers per car limit
-    final activeOffersCount = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+    final activeOffersCount = state.incomingOffers
+        .where((o) => o.carId == car.id && !o.isExpired)
+        .length;
     if (activeOffersCount >= 3) return false;
 
     final updatedCar = car.copyWith(isDoped: true);
@@ -421,27 +441,33 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     Future.delayed(Duration(seconds: delay1), () {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
-      final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      final currentOffers = state.incomingOffers
+          .where((o) => o.carId == car.id && !o.isExpired)
+          .length;
       if (currentOffers >= 3) return;
       final newOffer1 = NegotiationEngine.generateBuyerOffer(
         car,
         car.listingPrice,
         isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
       );
-      state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
+      state =
+          state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
       saveState();
     });
 
     Future.delayed(Duration(seconds: delay2), () {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
-      final currentOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      final currentOffers = state.incomingOffers
+          .where((o) => o.carId == car.id && !o.isExpired)
+          .length;
       if (currentOffers >= 3) return;
       final newOffer2 = NegotiationEngine.generateBuyerOffer(
         car,
         car.listingPrice,
         isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
       );
-      state = state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
+      state =
+          state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
       saveState();
     });
 
@@ -456,7 +482,9 @@ mixin GameMarketMixin on GameBaseNotifier {
     final eligibleCars = <CarModel>[];
     for (final car in state.ownedCars) {
       if (!car.isListed || car.isRented || car.isLockedInShowcase) continue;
-      int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      int activeOffers = state.incomingOffers
+          .where((o) => o.carId == car.id && !o.isExpired)
+          .length;
       if (activeOffers < 3) {
         eligibleCars.add(car);
         if (car.isDoped) {
@@ -491,17 +519,22 @@ mixin GameMarketMixin on GameBaseNotifier {
       );
     }
 
-    final listedCars = state.ownedCars.where((c) => c.isListed && !c.isRented && !c.isLockedInShowcase).toList();
+    final listedCars = state.ownedCars
+        .where((c) => c.isListed && !c.isRented && !c.isLockedInShowcase)
+        .toList();
     if (listedCars.isEmpty) {
       return const OfferPullResult(
         hasNewOffer: false,
-        message: 'Teklif alabilmek için önce galerideki araçlarınızı ilana koymalısınız.',
+        message:
+            'Teklif alabilmek için önce galerideki araçlarınızı ilana koymalısınız.',
       );
     }
 
     final eligibleCars = <CarModel>[];
     for (final car in listedCars) {
-      int activeOffers = state.incomingOffers.where((o) => o.carId == car.id && !o.isExpired).length;
+      int activeOffers = state.incomingOffers
+          .where((o) => o.carId == car.id && !o.isExpired)
+          .length;
       if (activeOffers < 3) {
         // Over-tuned cars have 35% lower general appeal
         if (car.isOverTuned && random.nextDouble() < 0.35) {
@@ -529,7 +562,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     }
 
     // Dynamic market lull chance (65% base; drops to 48% with Vlogger Berk trust)
-    final double lullChance = state.hasHighNpcTrust('vlogger_berk') ? 0.48 : 0.65;
+    final double lullChance =
+        state.hasHighNpcTrust('vlogger_berk') ? 0.48 : 0.65;
     if (random.nextDouble() < lullChance) {
       final zeigarnikMessages = [
         'Piyasa şu an durgun • 2 potansiyel alıcı ilanı favorilerine ekledi, yakında dönüş yapabilirler.',
@@ -539,7 +573,8 @@ mixin GameMarketMixin on GameBaseNotifier {
         'Piyasada nakit sıkışıklığı var • Alıcılar kredi sonucunu bekliyor.',
         'Galeri vitrininiz inceleniyor • Ciddi bir alıcı fiyat geçmişine bakıyor.',
       ];
-      final message = zeigarnikMessages[random.nextInt(zeigarnikMessages.length)];
+      final message =
+          zeigarnikMessages[random.nextInt(zeigarnikMessages.length)];
       return OfferPullResult(
         hasNewOffer: false,
         message: message,
@@ -558,22 +593,28 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     return OfferPullResult(
       hasNewOffer: true,
-      message: '${randomCar.brand} ${randomCar.modelName} için yeni bir alıcı teklifi geldi!',
+      message:
+          '${randomCar.brand} ${randomCar.modelName} için yeni bir alıcı teklifi geldi!',
     );
   }
 
   /// Accept offer with fraud inspection evaluation
-  FraudInspectionResult? acceptOfferWithFraudCheck(OfferModel offer, CustomerModel customer) {
+  FraudInspectionResult? acceptOfferWithFraudCheck(
+      OfferModel offer, CustomerModel customer) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);
     if (carIndex == -1) return null;
 
     final car = state.ownedCars[carIndex];
-    final fraudResult = NegotiationEngine.evaluatePlayerFraudInspection(car: car, customer: customer);
+    final fraudResult = NegotiationEngine.evaluatePlayerFraudInspection(
+        car: car, customer: customer);
 
     if (fraudResult.caughtFraud) {
       final newBalance = state.balance - fraudResult.fineAmount;
-      final newReputation = (state.reputationScore - fraudResult.reputationPenalty).clamp(0, 1000);
-      final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
+      final newReputation =
+          (state.reputationScore - fraudResult.reputationPenalty)
+              .clamp(0, 1000);
+      final updatedOffers =
+          state.incomingOffers.where((o) => o.id != offer.id).toList();
 
       state = state.copyWith(
         balance: newBalance,
@@ -589,7 +630,8 @@ mixin GameMarketMixin on GameBaseNotifier {
   }
 
   /// Process notary deed transfer with random events (cancellation, EFT limit, fast clerk bonus)
-  NotaryEventResult processNotarySale(OfferModel offer, CustomerModel customer) {
+  NotaryEventResult processNotarySale(
+      OfferModel offer, CustomerModel customer) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);
     if (carIndex == -1) {
       return const NotaryEventResult(
@@ -609,7 +651,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     if (notaryResult.isCancelled) {
-      final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
+      final updatedOffers =
+          state.incomingOffers.where((o) => o.id != offer.id).toList();
       state = state.copyWith(incomingOffers: updatedOffers);
       saveState();
       return notaryResult;
@@ -621,7 +664,8 @@ mixin GameMarketMixin on GameBaseNotifier {
       addXP(notaryResult.bonusXp);
     }
     if (notaryResult.bonusReputation > 0) {
-      final newRep = (state.reputationScore + notaryResult.bonusReputation).clamp(0, 1000);
+      final newRep =
+          (state.reputationScore + notaryResult.bonusReputation).clamp(0, 1000);
       state = state.copyWith(reputationScore: newRep);
       saveState();
     }
@@ -638,21 +682,29 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (car.isLockedInShowcase) return;
 
     // Kiralık araç kontrolü: Yalnızca kiracının bizzat satın alma talebi (buyout) ise satışa izin ver
-    final isBuyout = offer.buyerName.contains('Kiracı') || offer.id.contains('buyout');
+    final isBuyout =
+        offer.buyerName.contains('Kiracı') || offer.id.contains('buyout');
     if (car.isRented && !isBuyout) return;
 
     // Karaborsa Araç Satışında Noter Şasi Çakışması & Satış Blokesi Denetimi
-    if (car.isBlackMarket || car.modelName.contains('Karaborsa') || car.id.startsWith('bm_')) {
-      final notaryBlockChance = (car.blackMarketRiskPercent > 0 ? car.blackMarketRiskPercent : 30) / 100.0 * 0.70;
+    if (car.isBlackMarket ||
+        car.modelName.contains('Karaborsa') ||
+        car.id.startsWith('bm_')) {
+      final notaryBlockChance =
+          (car.blackMarketRiskPercent > 0 ? car.blackMarketRiskPercent : 30) /
+              100.0 *
+              0.70;
       if (math.Random().nextDouble() < notaryBlockChance) {
         const notaryFine = 8000.0;
-        final updatedOffers = state.incomingOffers.where((o) => o.id != offer.id).toList();
+        final updatedOffers =
+            state.incomingOffers.where((o) => o.id != offer.id).toList();
         final newReputation = (state.reputationScore - 12).clamp(0, 1000);
-        
+
         final blockedEvent = GameEventModel(
           id: 'notary_blocked_${car.id}_${DateTime.now().millisecondsSinceEpoch}',
           title: 'NOTER SATIŞ BLOKESİ: ŞASİ ÇAKIŞMASI!',
-          description: 'Noter memuru devir işlemi sırasında ${car.brand} ${car.modelName} için sistemde ikiz plaka / haciz uyarısı verdi! Satış iptal edildi, alıcı ${offer.buyerName} karakola şikayette bulundu • -12 İtibar, ₺8.000 noter ve idari harç.',
+          description:
+              'Noter memuru devir işlemi sırasında ${car.brand} ${car.modelName} için sistemde ikiz plaka / haciz uyarısı verdi! Satış iptal edildi, alıcı ${offer.buyerName} karakola şikayette bulundu • -12 İtibar, ₺8.000 noter ve idari harç.',
           type: GameEventType.expense,
           amount: -notaryFine,
           date: DateTime.now(),
@@ -677,7 +729,9 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     if (isConsignment) {
       // Konsinye Satış: Sadece komisyon kasaya girer, kâr komisyondur (kalanı araç sahibine ödenir)
-      final commRate = car.consignmentCommissionRate > 0 ? car.consignmentCommissionRate : 0.10;
+      final commRate = car.consignmentCommissionRate > 0
+          ? car.consignmentCommissionRate
+          : 0.10;
       final commissionAmount = (offer.offeredAmount * commRate).roundToDouble();
       profit = commissionAmount;
       cashReceived = commissionAmount;
@@ -685,29 +739,40 @@ mixin GameMarketMixin on GameBaseNotifier {
       updatedInstallments = state.activeInstallments;
     } else {
       final baseProfit = offer.offeredAmount - car.currentPurchasePrice;
-      final multiplier = state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
+      final multiplier =
+          state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
       profit = (baseProfit * multiplier).roundToDouble();
       final paymentResult = _processPayment(offer);
-      cashReceived = (paymentResult.$1 * state.cashSaleProfitBonusMultiplier).roundToDouble();
+      cashReceived = (paymentResult.$1 * state.cashSaleProfitBonusMultiplier)
+          .roundToDouble();
       updatedCheques = paymentResult.$2;
       updatedInstallments = paymentResult.$3;
     }
 
     final updatedCars = state.ownedCars.where((c) => c.id != car.id).toList();
-    final updatedOffers = state.incomingOffers.where((o) => o.carId != car.id).toList();
-    final updatedPendingOrders = state.pendingOrders.where((o) => o.carId != car.id).toList();
-    final updatedActiveRentals = isBuyout ? state.activeRentals.where((r) => r.carId != car.id).toList() : state.activeRentals;
+    final updatedOffers =
+        state.incomingOffers.where((o) => o.carId != car.id).toList();
+    final updatedPendingOrders =
+        state.pendingOrders.where((o) => o.carId != car.id).toList();
+    final updatedActiveRentals = isBuyout
+        ? state.activeRentals.where((r) => r.carId != car.id).toList()
+        : state.activeRentals;
 
     int newCarsSold = state.carsSold + 1;
 
-    final cleanBuyerName = offer.buyerName.replaceAll(RegExp(r'^(Koleksiyoner|Ölücü)\s+'), '');
-    final updatedLoyals = <String>{...state.loyalCustomerNames, cleanBuyerName}.toList();
+    final cleanBuyerName =
+        offer.buyerName.replaceAll(RegExp(r'^(Koleksiyoner|Ölücü)\s+'), '');
+    final updatedLoyals =
+        <String>{...state.loyalCustomerNames, cleanBuyerName}.toList();
 
     final record = SaleRecordModel(
       id: 'sale_${DateTime.now().millisecondsSinceEpoch}',
-      carTitle: '${car.modelYear} ${car.brand} ${car.modelName}${isConsignment ? ' • Konsinye' : ''}',
+      carTitle:
+          '${car.modelYear} ${car.brand} ${car.modelName}${isConsignment ? ' • Konsinye' : ''}',
       buyerName: offer.buyerName,
-      purchasePrice: isConsignment ? (offer.offeredAmount - profit) : car.currentPurchasePrice,
+      purchasePrice: isConsignment
+          ? (offer.offeredAmount - profit)
+          : car.currentPurchasePrice,
       salePrice: offer.offeredAmount,
       netProfit: profit,
       saleDay: state.currentDay,
@@ -716,8 +781,9 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     // 2. Generate customer review & update reputation
-    final (review, rawReputationChange) = _generateCustomerReview(car, offer.buyerName);
-    
+    final (review, rawReputationChange) =
+        _generateCustomerReview(car, offer.buyerName);
+
     // Nişantaşı Vitrin Semt Hakimiyeti (%50+ ise +%20 itibar bonusu)
     final nisantasiShare = state.districtMarketShare['Nişantaşı Vitrin'] ?? 0.0;
     final reputationChange = (rawReputationChange > 0 && nisantasiShare >= 0.50)
@@ -725,7 +791,8 @@ mixin GameMarketMixin on GameBaseNotifier {
         : rawReputationChange;
 
     final updatedReviews = [review, ...state.customerReviews];
-    final newReputation = (state.reputationScore + reputationChange).clamp(0, 1000);
+    final newReputation =
+        (state.reputationScore + reputationChange).clamp(0, 1000);
 
     state = state.copyWith(
       balance: state.balance + cashReceived,
@@ -744,7 +811,9 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     // Balanced logarithmic XP scaling soft-capped at 220 XP max per car sale (§1.3)
-    final int saleXp = 100 + (profit > 0 ? (35.0 * math.log(1.0 + profit / 5000.0)).round() : 0).clamp(0, 120);
+    final int saleXp = 100 +
+        (profit > 0 ? (35.0 * math.log(1.0 + profit / 5000.0)).round() : 0)
+            .clamp(0, 120);
     addXP(saleXp.clamp(0, 220));
     checkAchievement('first_sale');
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarSell);
@@ -767,17 +836,21 @@ mixin GameMarketMixin on GameBaseNotifier {
         isRare: car.isRare,
         isOverTuned: car.isOverTuned,
       );
-      final updatedPendingCrm = List<CustomerCrmEventModel>.from(state.pendingCrmEvents)..add(crmEvent);
+      final updatedPendingCrm =
+          List<CustomerCrmEventModel>.from(state.pendingCrmEvents)
+            ..add(crmEvent);
       state = state.copyWith(pendingCrmEvents: updatedPendingCrm);
     }
 
     saveState();
   }
 
-  (double, List<Cheque>, List<InstallmentContract>) _processPayment(OfferModel offer) {
+  (double, List<Cheque>, List<InstallmentContract>) _processPayment(
+      OfferModel offer) {
     double cashReceived = 0.0;
     List<Cheque> updatedCheques = List.from(state.activeCheques);
-    List<InstallmentContract> updatedInstallments = List.from(state.activeInstallments);
+    List<InstallmentContract> updatedInstallments =
+        List.from(state.activeInstallments);
 
     if (offer.offerType == OfferType.cash) {
       cashReceived = offer.offeredAmount;
@@ -804,8 +877,10 @@ mixin GameMarketMixin on GameBaseNotifier {
     return (cashReceived, updatedCheques, updatedInstallments);
   }
 
-  (CustomerReviewModel, int) _generateCustomerReview(CarModel car, String buyerName) {
-    final hasVipConcierge = state.purchasedAcademyCourses.contains('course_vip_concierge');
+  (CustomerReviewModel, int) _generateCustomerReview(
+      CarModel car, String buyerName) {
+    final hasVipConcierge =
+        state.purchasedAcademyCourses.contains('course_vip_concierge');
     final hasVipLounge = state.hasDecor('decor_vip_lounge');
     final hasTrophy = state.hasDecor('decor_trophy_cabinet');
 
@@ -822,7 +897,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Reject or dismiss an offer
   void rejectOffer(String offerId) {
-    final updatedOffers = state.incomingOffers.where((o) => o.id != offerId).toList();
+    final updatedOffers =
+        state.incomingOffers.where((o) => o.id != offerId).toList();
     state = state.copyWith(incomingOffers: updatedOffers);
     saveState();
   }
@@ -834,7 +910,9 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Clear all expired offers
   void clearExpiredOffers() {
-    final updatedOffers = state.incomingOffers.where((o) => !o.isExpired && o.status != OfferStatus.expired).toList();
+    final updatedOffers = state.incomingOffers
+        .where((o) => !o.isExpired && o.status != OfferStatus.expired)
+        .toList();
     state = state.copyWith(incomingOffers: updatedOffers);
     saveState();
   }
@@ -858,7 +936,8 @@ mixin GameMarketMixin on GameBaseNotifier {
   }
 
   /// Counter offer
-  NegotiationOutcome counterOffer(String offerId, double playerTargetPrice, {String? strategy}) {
+  NegotiationOutcome counterOffer(String offerId, double playerTargetPrice,
+      {String? strategy}) {
     final offerIndex = state.incomingOffers.indexWhere((o) => o.id == offerId);
     if (offerIndex == -1) {
       return NegotiationOutcome(
@@ -896,7 +975,8 @@ mixin GameMarketMixin on GameBaseNotifier {
       negotiationSkillLevel: state.skills.negotiationLevel,
       strategy: strategy,
       purchasedAcademyCourses: state.purchasedAcademyCourses,
-      isTraderSpecialization: state.specializationPath == SpecializationPath.trader,
+      isTraderSpecialization:
+          state.specializationPath == SpecializationPath.trader,
       lifestylePersuasionBonus: state.lifestyleNegotiationBonus,
     );
 
@@ -934,7 +1014,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     // Deduct one scrap part from inventory if using salvaged scrap
     List<SalvagedPart> updatedScrap = List.from(state.salvagedParts);
     if (orderType == OrderType.salvagedScrap && updatedScrap.isNotEmpty) {
-      final scrapIndex = updatedScrap.indexWhere((p) => p.name.toLowerCase() == partName.toLowerCase());
+      final scrapIndex = updatedScrap
+          .indexWhere((p) => p.name.toLowerCase() == partName.toLowerCase());
       if (scrapIndex != -1) {
         updatedScrap.removeAt(scrapIndex);
       } else {
@@ -952,7 +1033,8 @@ mixin GameMarketMixin on GameBaseNotifier {
       deliveryDurationSeconds: deliveryDurationSeconds,
     );
 
-    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)..add(newOrder);
+    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)
+      ..add(newOrder);
 
     state = state.copyWith(
       balance: state.balance - effectiveCost,
@@ -976,7 +1058,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    final restoredCar = RepairEngine.applyInstalledPart(car, partName, orderType);
+    final restoredCar =
+        RepairEngine.applyInstalledPart(car, partName, orderType);
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = restoredCar;
@@ -1001,12 +1084,14 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    final restoredCar = RepairEngine.applyInstalledPart(car, order.partName, order.orderType);
+    final restoredCar =
+        RepairEngine.applyInstalledPart(car, order.partName, order.orderType);
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = restoredCar;
 
-    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)..removeAt(orderIndex);
+    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)
+      ..removeAt(orderIndex);
 
     state = state.copyWith(
       ownedCars: updatedCars,
@@ -1023,7 +1108,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final order = state.pendingOrders[orderIndex];
     final deliveredOrder = order.copyWith(
-      orderedAt: DateTime.now().subtract(Duration(seconds: order.deliveryDurationSeconds + 1)),
+      orderedAt: DateTime.now()
+          .subtract(Duration(seconds: order.deliveryDurationSeconds + 1)),
     );
 
     final updatedOrders = List<PartOrderModel>.from(state.pendingOrders);
@@ -1036,11 +1122,13 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Claim Mission Reward with Cascading Mission Chain (§1.4 & §2.4)
   bool claimMissionReward(String missionId) {
-    final missionIndex = state.activeMissions.indexWhere((m) => m.id == missionId);
+    final missionIndex =
+        state.activeMissions.indexWhere((m) => m.id == missionId);
     if (missionIndex == -1) return false;
 
     final mission = state.activeMissions[missionIndex];
-    if (mission.currentProgress < mission.targetGoal || mission.isClaimed) return false;
+    if (mission.currentProgress < mission.targetGoal || mission.isClaimed)
+      return false;
 
     final updatedMission = mission.copyWith(isCompleted: true, isClaimed: true);
     final updatedMissions = List<MissionModel>.from(state.activeMissions);
@@ -1048,13 +1136,17 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     // Chained campaign progression (§1.4 & §2.4)
     if (mission.id.startsWith('chain_1_')) {
-      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 2, level: state.level));
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(
+          step: 2, level: state.level));
     } else if (mission.id.startsWith('chain_2_')) {
-      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 3, level: state.level));
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(
+          step: 3, level: state.level));
     } else if (mission.id.startsWith('chain_3_')) {
-      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 4, level: state.level));
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(
+          step: 4, level: state.level));
     } else if (mission.id == 'm_heritage_1') {
-      updatedMissions.add(MissionFactory.generateChainedCampaignMission(step: 1, level: state.level));
+      updatedMissions.add(MissionFactory.generateChainedCampaignMission(
+          step: 1, level: state.level));
     }
 
     state = state.copyWith(
@@ -1076,7 +1168,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     switch (skillName) {
       case 'negotiation':
         if (skills.negotiationLevel >= 10) return false;
-        updated = skills.copyWith(negotiationLevel: skills.negotiationLevel + 1);
+        updated =
+            skills.copyWith(negotiationLevel: skills.negotiationLevel + 1);
         break;
       case 'eyeForDetail':
         if (skills.eyeForDetail >= 10) return false;
@@ -1116,7 +1209,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final updatedSkills = state.skills.copyWith(
       xp: state.skills.xp + achievement.rewardXP,
-      bonusSkillPoints: state.skills.bonusSkillPoints + achievement.rewardSkillPoints,
+      bonusSkillPoints:
+          state.skills.bonusSkillPoints + achievement.rewardSkillPoints,
     );
 
     state = state.copyWith(
@@ -1134,11 +1228,15 @@ mixin GameMarketMixin on GameBaseNotifier {
   void addCustomerReview(CustomerReviewModel review) {
     // Deduplication check: Do not add duplicate review from same reviewer for same car
     final isDuplicate = state.customerReviews.any(
-      (r) => r.reviewerName == review.reviewerName && r.carTitle == review.carTitle,
+      (r) =>
+          r.reviewerName == review.reviewerName &&
+          r.carTitle == review.carTitle,
     );
     if (isDuplicate) return;
 
-    final newReputation = (state.reputationScore + (review.rating >= 4.0 ? 5 : -10)).clamp(0, 1000);
+    final newReputation =
+        (state.reputationScore + (review.rating >= 4.0 ? 5 : -10))
+            .clamp(0, 1000);
     state = state.copyWith(
       customerReviews: [review, ...state.customerReviews],
       reputationScore: newReputation,
@@ -1202,7 +1300,9 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     // Gölge İbrahim VIP Black Market discount (15% off)
     final hasGolgeTrust = state.hasHighNpcTrust('golge_ibrahim');
-    final finalCost = hasGolgeTrust ? (bmCar.askingPrice * 0.85).roundToDouble() : bmCar.askingPrice;
+    final finalCost = hasGolgeTrust
+        ? (bmCar.askingPrice * 0.85).roundToDouble()
+        : bmCar.askingPrice;
     if (state.balance < finalCost) return false;
 
     // Convert to CarModel in garage with active black market risk tags
@@ -1321,7 +1421,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     final updatedReview = review.copyWith(
       isCompensated: true,
       rating: review.rating < 4 ? 4 : review.rating,
-      comment: '${review.comment}\n[Güncelleme: Galeri telafi ikramı gönderdi, mağduriyetim giderildi.]',
+      comment:
+          '${review.comment}\n[Güncelleme: Galeri telafi ikramı gönderdi, mağduriyetim giderildi.]',
     );
 
     List<CustomerReviewModel> updatedReviews = List.from(state.customerReviews);
@@ -1343,7 +1444,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final currentBotCount = state.botReviewCount;
     // Diminishing reputation points: First 3 bots = +5, 4-6 bots = +3, 7+ bots = +1
-    final reputationGain = currentBotCount < 3 ? 5 : (currentBotCount < 6 ? 3 : 1);
+    final reputationGain =
+        currentBotCount < 3 ? 5 : (currentBotCount < 6 ? 3 : 1);
 
     final botNames = [
       'Otomobil Meraklısı Can',
@@ -1430,7 +1532,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final updatedBalance = (state.balance - cost).clamp(0.0, double.infinity);
     final updatedReputation = (state.reputationScore + repDelta).clamp(0, 1000);
-    final updatedPending = state.pendingCrmEvents.where((e) => e.id != event.id).toList();
+    final updatedPending =
+        state.pendingCrmEvents.where((e) => e.id != event.id).toList();
 
     state = state.copyWith(
       balance: updatedBalance,
@@ -1448,8 +1551,10 @@ mixin GameMarketMixin on GameBaseNotifier {
   /// Satış Sonrası Memnun Müşteri / Koleksiyoner Ödülünü Kabul Etme
   void acceptCustomerCrmAppreciation(CustomerCrmEventModel event) {
     final updatedBalance = state.balance + event.financialImpact;
-    final updatedReputation = (state.reputationScore + event.reputationImpact).clamp(0, 1000);
-    final updatedPending = state.pendingCrmEvents.where((e) => e.id != event.id).toList();
+    final updatedReputation =
+        (state.reputationScore + event.reputationImpact).clamp(0, 1000);
+    final updatedPending =
+        state.pendingCrmEvents.where((e) => e.id != event.id).toList();
 
     state = state.copyWith(
       balance: updatedBalance,
@@ -1467,4 +1572,3 @@ mixin GameMarketMixin on GameBaseNotifier {
     saveState();
   }
 }
-

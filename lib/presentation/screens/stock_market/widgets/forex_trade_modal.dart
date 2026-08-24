@@ -11,10 +11,12 @@ import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 
 class ForexTradeModal {
-  static void show(BuildContext context, WidgetRef ref, ForexGoldModel forex, PlayerForexModel? owned) {
+  static void show(BuildContext context, WidgetRef ref, ForexGoldModel forex,
+      PlayerForexModel? owned) {
     final game = ref.read(gameProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final amountController = TextEditingController(text: forex.symbol == 'GOLD' ? '5' : '100');
+    final amountController =
+        TextEditingController(text: forex.symbol == 'GOLD' ? '5' : '100');
 
     showModalBottomSheet(
       context: context,
@@ -37,9 +39,12 @@ class ForexTradeModal {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
                     width: 2.5,
                   ),
                 ),
@@ -55,7 +60,8 @@ class ForexTradeModal {
                           children: [
                             Text(
                               '${forex.symbol} • ${forex.name}',
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w900),
                             ),
                             Text(
                               context.tr('forex_rate_label', {
@@ -71,8 +77,11 @@ class ForexTradeModal {
                           ],
                         ),
                         NeoBrutalBadge(
-                          text: '${forex.isUp ? '+' : ''}${forex.changePercentage.toStringAsFixed(1)}%',
-                          backgroundColor: forex.isUp ? AppColors.brutalGreen : AppColors.errorRed,
+                          text:
+                              '${forex.isUp ? '+' : ''}${forex.changePercentage.toStringAsFixed(1)}%',
+                          backgroundColor: forex.isUp
+                              ? AppColors.brutalGreen
+                              : AppColors.errorRed,
                           textColor: forex.isUp ? Colors.black : Colors.white,
                         ),
                       ],
@@ -87,44 +96,59 @@ class ForexTradeModal {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: amountController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       autofocus: true,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 18),
                       decoration: InputDecoration(
                         hintText: context.tr('forex_amount_hint'),
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                        fillColor: isDark
+                            ? const Color(0xFF0F1118)
+                            : const Color(0xFFF1F5F9),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2.0,
                           ),
                         ),
-                        suffixText: forex.symbol == 'GOLD' ? 'GR' : forex.symbol,
-                        suffixStyle: const TextStyle(fontWeight: FontWeight.w900),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        suffixText:
+                            forex.symbol == 'GOLD' ? 'GR' : forex.symbol,
+                        suffixStyle:
+                            const TextStyle(fontWeight: FontWeight.w900),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
                       ),
                       onChanged: (val) => setDialogState(() {}),
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        _buildQuickChip(forex.symbol == 'GOLD' ? '+5' : '+100', () {
+                        _buildQuickChip(forex.symbol == 'GOLD' ? '+5' : '+100',
+                            () {
                           final step = forex.symbol == 'GOLD' ? 5 : 100;
-                          amountController.text = (amount + step).toStringAsFixed(0);
+                          amountController.text =
+                              (amount + step).toStringAsFixed(0);
                           setDialogState(() {});
                         }, isDark),
                         const SizedBox(width: 6),
-                        _buildQuickChip(forex.symbol == 'GOLD' ? '+25' : '+500', () {
+                        _buildQuickChip(forex.symbol == 'GOLD' ? '+25' : '+500',
+                            () {
                           final step = forex.symbol == 'GOLD' ? 25 : 500;
-                          amountController.text = (amount + step).toStringAsFixed(0);
+                          amountController.text =
+                              (amount + step).toStringAsFixed(0);
                           setDialogState(() {});
                         }, isDark),
                         const SizedBox(width: 6),
@@ -135,7 +159,8 @@ class ForexTradeModal {
                         if (currentOwned > 0) ...[
                           const SizedBox(width: 6),
                           _buildQuickChip(context.tr('forex_btn_sell_all'), () {
-                            amountController.text = currentOwned.toStringAsFixed(0);
+                            amountController.text =
+                                currentOwned.toStringAsFixed(0);
                             setDialogState(() {});
                           }, isDark),
                         ],
@@ -145,10 +170,14 @@ class ForexTradeModal {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? const Color(0xFF0F1118)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2.0,
                         ),
                       ),
@@ -157,16 +186,37 @@ class ForexTradeModal {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(context.tr('stock_buy_cost'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                              Text(CurrencyFormatter.formatShort(buyCost), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.brutalGreen)),
+                              Expanded(
+                                  child: Text(context.tr('stock_buy_cost'),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600))),
+                              Expanded(
+                                  child: Text(
+                                      CurrencyFormatter.formatShort(buyCost),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.brutalGreen))),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(context.tr('stock_sell_revenue'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                              Text(CurrencyFormatter.formatShort(sellRevenue), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.errorRed)),
+                              Expanded(
+                                  child: Text(context.tr('stock_sell_revenue'),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600))),
+                              Expanded(
+                                  child: Text(
+                                      CurrencyFormatter.formatShort(
+                                          sellRevenue),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.errorRed))),
                             ],
                           ),
                         ],
@@ -183,18 +233,27 @@ class ForexTradeModal {
                             textColor: Colors.black,
                             onPressed: () {
                               if (amount <= 0) {
-                                NotificationService.showError(context, context.tr('forex_amount_invalid_toast'));
+                                NotificationService.showError(context,
+                                    context.tr('forex_amount_invalid_toast'));
                                 return;
                               }
-                              final success = ref.read(gameProvider.notifier).buyForex(forex.symbol, amount);
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .buyForex(forex.symbol, amount);
                               if (success) {
                                 Navigator.pop(dialogCtx);
                                 NotificationService.showSuccess(
                                   context,
-                                  context.tr('forex_buy_success_toast', {'amount': amount.toStringAsFixed(0), 'symbol': forex.symbol}),
+                                  context.tr('forex_buy_success_toast', {
+                                    'amount': amount.toStringAsFixed(0),
+                                    'symbol': forex.symbol
+                                  }),
                                 );
                               } else {
-                                NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
+                                NotificationService.showError(
+                                    context,
+                                    context
+                                        .tr('stock_insufficient_funds_toast'));
                               }
                             },
                           ),
@@ -208,16 +267,24 @@ class ForexTradeModal {
                               backgroundColor: AppColors.errorRed,
                               textColor: Colors.white,
                               onPressed: () {
-                                final sellAmount = amount > currentOwned ? currentOwned : amount;
-                                final success = ref.read(gameProvider.notifier).sellForex(forex.symbol, sellAmount);
+                                final sellAmount = amount > currentOwned
+                                    ? currentOwned
+                                    : amount;
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .sellForex(forex.symbol, sellAmount);
                                 if (success) {
                                   Navigator.pop(dialogCtx);
                                   NotificationService.showSuccess(
                                     context,
-                                    context.tr('forex_sell_success_toast', {'amount': sellAmount.toStringAsFixed(0), 'symbol': forex.symbol}),
+                                    context.tr('forex_sell_success_toast', {
+                                      'amount': sellAmount.toStringAsFixed(0),
+                                      'symbol': forex.symbol
+                                    }),
                                   );
                                 } else {
-                                  NotificationService.showError(context, context.tr('forex_tx_failed_toast'));
+                                  NotificationService.showError(context,
+                                      context.tr('forex_tx_failed_toast'));
                                 }
                               },
                             ),

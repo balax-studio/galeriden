@@ -34,7 +34,10 @@ class _EnginePulseWidgetState extends State<EnginePulseWidget>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.repeat(reverse: true);
     } else {
@@ -52,7 +55,9 @@ class _EnginePulseWidgetState extends State<EnginePulseWidget>
   Widget build(BuildContext context) {
     final healthColor = widget.engineHealthPercent >= 80
         ? const Color(0xFF00E575)
-        : (widget.engineHealthPercent >= 50 ? const Color(0xFFFFDE59) : const Color(0xFFEF4444));
+        : (widget.engineHealthPercent >= 50
+            ? const Color(0xFFFFDE59)
+            : const Color(0xFFEF4444));
 
     return AnimatedBuilder(
       animation: _pulseScale,

@@ -30,7 +30,8 @@ class AuctionScreen extends ConsumerStatefulWidget {
   ConsumerState<AuctionScreen> createState() => _AuctionScreenState();
 }
 
-class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTickerProviderStateMixin {
+class _AuctionScreenState extends ConsumerState<AuctionScreen>
+    with SingleTickerProviderStateMixin {
   late AuctionModel _auction;
   List<UpcomingLotModel> _upcomingLots = [];
   Timer? _timer;
@@ -45,7 +46,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   bool _isOfficerConsulted = false;
   String? _officerSpeech;
   int _selectedTabIndex = 0;
-  bool _isAuctionInitialized = false; // 0: Canlı Müzayede Masası, 1: Müzayede Kataloğu (Gelecek Lotlar)
+  bool _isAuctionInitialized =
+      false; // 0: Canlı Müzayede Masası, 1: Müzayede Kataloğu (Gelecek Lotlar)
 
   @override
   void didChangeDependencies() {
@@ -53,7 +55,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     if (!_isAuctionInitialized) {
       _isAuctionInitialized = true;
       _bidLogs.add(context.tr('auction_session_started'));
-      _bidLogs.add(context.tr('auction_starting_price_log', {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
+      _bidLogs.add(context.tr('auction_starting_price_log',
+          {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
     }
   }
 
@@ -71,9 +74,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     final game = ref.read(gameProvider);
     _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-    _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
+    _upcomingLots =
+        AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
 
-    
     _startAuctionTimer();
   }
 
@@ -86,13 +89,18 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
       // Only transition to closed if not currently handling an active player round/dialog
       if (windowNow != _isWindowOpen) {
-        if (windowNow || (!_isHandlingAuctionEnd && !_hasPlayerEnteredBid && _auction.secondsRemaining <= 0)) {
+        if (windowNow ||
+            (!_isHandlingAuctionEnd &&
+                !_hasPlayerEnteredBid &&
+                _auction.secondsRemaining <= 0)) {
           setState(() {
             _isWindowOpen = windowNow;
             if (_isWindowOpen) {
               final game = ref.read(gameProvider);
-              _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-              _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
+              _auction =
+                  AuctionEngine.createLiveAuction(playerLevel: game.level);
+              _upcomingLots = AuctionEngine.generateUpcomingLots(
+                  count: 3, playerLevel: game.level);
               _isOfficerConsulted = false;
               _officerSpeech = null;
             }
@@ -109,7 +117,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
             _isWindowOpen = true;
             final game = ref.read(gameProvider);
             _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-            _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
+            _upcomingLots = AuctionEngine.generateUpcomingLots(
+                count: 3, playerLevel: game.level);
             _isOfficerConsulted = false;
             _officerSpeech = null;
           }
@@ -123,14 +132,16 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         _isHandlingAuctionEnd = true;
 
         setState(() {
-          _auction = _auction.copyWith(secondsRemaining: 0, status: AuctionStatus.ended);
+          _auction = _auction.copyWith(
+              secondsRemaining: 0, status: AuctionStatus.ended);
         });
         _handleAuctionEnd();
         return;
       }
 
       setState(() {
-        _auction = _auction.copyWith(secondsRemaining: _auction.secondsRemaining - 1);
+        _auction =
+            _auction.copyWith(secondsRemaining: _auction.secondsRemaining - 1);
       });
 
       // Process rival bot bid
@@ -139,7 +150,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         GameSoundHapticService.playAuctionBid();
         setState(() {
           _auction = updated;
-          _bidLogs.insert(0, context.tr('auction_bid_raised_log', {'bidder': updated.highestBidderName, 'price': CurrencyFormatter.formatShort(updated.currentBid)}));
+          _bidLogs.insert(
+              0,
+              context.tr('auction_bid_raised_log', {
+                'bidder': updated.highestBidderName,
+                'price': CurrencyFormatter.formatShort(updated.currentBid)
+              }));
         });
       }
     });
@@ -147,49 +163,63 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
   void _placePlayerBid(double increment, {bool isAggressiveFlag = false}) {
     if (_auction.isPlayerHighestBidder) {
-      NotificationService.showInfo(context, context.tr('auction_highest_bid_yours'));
+      NotificationService.showInfo(
+          context, context.tr('auction_highest_bid_yours'));
       return;
     }
 
     final game = ref.read(gameProvider);
     if (game.ownedCars.length >= game.maxGarageSlots) {
-      NotificationService.showError(context, context.tr('auction_garage_full_err'));
+      NotificationService.showError(
+          context, context.tr('auction_garage_full_err'));
       return;
     }
 
     final nextBid = _auction.currentBid + increment;
 
     if (game.balance < nextBid) {
-      NotificationService.showError(context, context.tr('deal_insufficient_balance'));
+      NotificationService.showError(
+          context, context.tr('deal_insufficient_balance'));
       return;
     }
 
     GameSoundHapticService.playAuctionBid();
-    ref.read(gameProvider.notifier).updateMissionProgress(MissionType.auctionBid, 1);
+    ref
+        .read(gameProvider.notifier)
+        .updateMissionProgress(MissionType.auctionBid, 1);
     setState(() {
       _hasPlayerEnteredBid = true;
       _auction = _auction.copyWith(
         currentBid: nextBid,
-        highestBidderName: '${game.dealershipName} • ${context.tr('profile_player_suffix')}',
+        highestBidderName:
+            '${game.dealershipName} • ${context.tr('profile_player_suffix')}',
         isPlayerHighestBidder: true,
-        secondsRemaining: (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
-        activeSpeech: isAggressiveFlag ? context.tr('auction_flag_raised_speech') : null,
+        secondsRemaining:
+            (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
+        activeSpeech:
+            isAggressiveFlag ? context.tr('auction_flag_raised_speech') : null,
         activeSpeakerName: isAggressiveFlag ? game.dealershipName : null,
       );
-      _bidLogs.insert(0, isAggressiveFlag
-          ? context.tr('auction_aggressive_flag_bid', {'price': CurrencyFormatter.formatShort(nextBid)})
-          : context.tr('auction_your_bid_log', {'price': CurrencyFormatter.formatShort(nextBid)}));
+      _bidLogs.insert(
+          0,
+          isAggressiveFlag
+              ? context.tr('auction_aggressive_flag_bid',
+                  {'price': CurrencyFormatter.formatShort(nextBid)})
+              : context.tr('auction_your_bid_log',
+                  {'price': CurrencyFormatter.formatShort(nextBid)}));
     });
   }
 
   void _executeTrollBluff() {
     if (_hasBluffedInCurrentAuction) {
-      NotificationService.showWarning(context, context.tr('auction_bluff_already_used'));
+      NotificationService.showWarning(
+          context, context.tr('auction_bluff_already_used'));
       return;
     }
 
     if (_auction.isPlayerHighestBidder) {
-      NotificationService.showWarning(context, context.tr('auction_already_leading'));
+      NotificationService.showWarning(
+          context, context.tr('auction_already_leading'));
       return;
     }
 
@@ -239,7 +269,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         activeSpeakerName: targetRival.name,
         secondsRemaining: 3,
       );
-      _bidLogs.insert(0, context.tr('auction_bluff_move_log', {'name': rName, 'price': CurrencyFormatter.formatShort(counterBid)}));
+      _bidLogs.insert(
+          0,
+          context.tr('auction_bluff_move_log', {
+            'name': rName,
+            'price': CurrencyFormatter.formatShort(counterBid)
+          }));
     });
 
     ref.read(gameProvider.notifier).addXP(earnedXp);
@@ -262,10 +297,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
       if (_isWindowOpen) {
         _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-        _upcomingLots = AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
+        _upcomingLots = AuctionEngine.generateUpcomingLots(
+            count: 3, playerLevel: game.level);
         _bidLogs.clear();
         _bidLogs.add(context.tr('auction_new_car_table'));
-        _bidLogs.add(context.tr('auction_starting_price_log', {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
+        _bidLogs.add(context.tr('auction_starting_price_log',
+            {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
       }
     });
 
@@ -296,32 +333,45 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     color: AppColors.brutalYellow,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.inventory_2_rounded, color: Colors.black, size: 36),
+                  child: const Icon(Icons.inventory_2_rounded,
+                      color: Colors.black, size: 36),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   context.tr('auction_trunk_surprise'),
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   loot.name,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.brutalGreen),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   loot.description,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 12),
                 NeoBrutalBadge(
-                  text: context.tr('auction_earned_value', {'val': CurrencyFormatter.format(loot.value)}),
+                  text: context.tr('auction_earned_value',
+                      {'val': CurrencyFormatter.format(loot.value)}),
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
                   fontSize: 12,
@@ -336,7 +386,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     ref.read(gameProvider.notifier).addMoney(loot.value);
                     Navigator.of(ctx).pop();
                     if (mounted) {
-                      NotificationService.showSuccess(context, '${CurrencyFormatter.format(loot.value)} kasaya eklendi!');
+                      NotificationService.showSuccess(context,
+                          '${CurrencyFormatter.format(loot.value)} kasaya eklendi!');
                       _resetAuctionSilently();
                     }
                   },
@@ -352,7 +403,10 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   void _handleAuctionEnd() {
     if (!_hasPlayerEnteredBid && !_auction.isPlayerHighestBidder) {
       setState(() {
-        _bidLogs.insert(0, context.tr('auction_ended_winner', {'winner': _auction.highestBidderName}));
+        _bidLogs.insert(
+            0,
+            context.tr('auction_ended_winner',
+                {'winner': _auction.highestBidderName}));
       });
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) _resetAuctionSilently();
@@ -361,9 +415,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
     }
 
     if (_auction.isPlayerHighestBidder) {
-      final success = ref.read(gameProvider.notifier).buyCarDirectly(_auction.car, _auction.currentBid);
+      final success = ref
+          .read(gameProvider.notifier)
+          .buyCarDirectly(_auction.car, _auction.currentBid);
       if (!success) {
-        NotificationService.showError(context, context.tr('auction_win_failed_funds'));
+        NotificationService.showError(
+            context, context.tr('auction_win_failed_funds'));
         _resetAuctionSilently();
         return;
       }
@@ -393,11 +450,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       color: AppColors.brutalGreen,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.emoji_events_rounded, color: Colors.black, size: 40),
+                    child: const Icon(Icons.emoji_events_rounded,
+                        color: Colors.black, size: 40),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -417,11 +477,15 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       'bid': CurrencyFormatter.formatShort(_auction.currentBid),
                     }),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, height: 1.4),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600, height: 1.4),
                   ),
                   const SizedBox(height: 8),
                   NeoBrutalBadge(
-                    text: context.tr('auction_market_value_label', {'val': CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}),
+                    text: context.tr('auction_market_value_label', {
+                      'val': CurrencyFormatter.formatShort(
+                          _auction.estimatedMarketValue)
+                    }),
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                   ),
@@ -442,7 +506,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   const SizedBox(height: 8),
                   NeoBrutalButton(
                     label: context.tr('auction_to_showroom_btn'),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fullWidth: true,
                     onPressed: () {
@@ -481,16 +547,20 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       color: AppColors.errorRed,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.gavel_rounded, color: Colors.white, size: 36),
+                    child: const Icon(Icons.gavel_rounded,
+                        color: Colors.white, size: 36),
                   ),
                   const SizedBox(height: 14),
                   Text(
                     context.tr('auction_lost_title'),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -499,7 +569,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       'bid': CurrencyFormatter.formatShort(_auction.currentBid),
                     }),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 18),
                   if (!_hasExtendedAuction) ...[
@@ -514,7 +585,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         Navigator.of(ctx).pop();
                         AdService.instance.showRewardedAdWithFallback(
                           context: context,
-                          customRewardTitle: context.tr('auction_custom_reward_title'),
+                          customRewardTitle:
+                              context.tr('auction_custom_reward_title'),
                           onRewardEarned: () {
                             setState(() {
                               _isHandlingAuctionEnd = false;
@@ -537,7 +609,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   ],
                   NeoBrutalButton(
                     label: context.tr('auction_next_btn'),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fullWidth: true,
                     onPressed: () {
@@ -568,11 +642,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   void _switchToVipAuction() {
     final game = ref.read(gameProvider);
     if (game.level < 5) {
-      NotificationService.showWarning(context, context.tr('auction_vip_level_warn'));
+      NotificationService.showWarning(
+          context, context.tr('auction_vip_level_warn'));
       return;
     }
     if (game.balance < 500000) {
-      NotificationService.showWarning(context, context.tr('auction_vip_deposit_warn'));
+      NotificationService.showWarning(
+          context, context.tr('auction_vip_deposit_warn'));
       return;
     }
 
@@ -582,7 +658,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _auction = AuctionEngine.createVipAuction(playerLevel: game.level);
       _bidLogs.clear();
       _bidLogs.add(context.tr('auction_vip_session_started'));
-      _bidLogs.add(context.tr('auction_starting_price_log', {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
+      _bidLogs.add(context.tr('auction_starting_price_log',
+          {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
       _hasPlayerEnteredBid = false;
       _hasExtendedAuction = false;
       _isHandlingAuctionEnd = false;
@@ -597,7 +674,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
       _selectedTabIndex = 0;
       _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
       _bidLogs.clear();
-      
+
       _hasPlayerEnteredBid = false;
       _hasExtendedAuction = false;
       _isHandlingAuctionEnd = false;
@@ -614,7 +691,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     if (!game.isFeatureUnlocked('/auction')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('auction_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/auction',
@@ -626,23 +704,35 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
     if (game.reputationScore < 30) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('auction_title')),
         body: _buildLowReputationLockedView(isDark, game.reputationScore),
       );
     }
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: _isVipSession ? context.tr('auction_vip_title') : context.tr('auction_title'),
+        title: _isVipSession
+            ? context.tr('auction_vip_title')
+            : context.tr('auction_title'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
             child: Center(
               child: NeoBrutalBadge(
-                text: _isVipSession ? 'VIP PROTOKOL' : (_isWindowOpen ? context.tr('auction_live_badge') : context.tr('auction_closed_badge')),
-                backgroundColor: _isVipSession ? const Color(0xFF7C3AED) : (_isWindowOpen ? AppColors.errorRed : const Color(0xFF64748B)),
+                text: _isVipSession
+                    ? 'VIP PROTOKOL'
+                    : (_isWindowOpen
+                        ? context.tr('auction_live_badge')
+                        : context.tr('auction_closed_badge')),
+                backgroundColor: _isVipSession
+                    ? const Color(0xFF7C3AED)
+                    : (_isWindowOpen
+                        ? AppColors.errorRed
+                        : const Color(0xFF64748B)),
                 textColor: Colors.white,
               ),
             ),
@@ -655,13 +745,16 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               children: [
                 // Top 3-Way Tab Selector (Neo-Brutalist Monolithic Bar)
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF141721) : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF2A3142)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                     boxShadow: const [
@@ -684,10 +777,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: _selectedTabIndex == 0 ? AppColors.brutalYellow : Colors.transparent,
+                              color: _selectedTabIndex == 0
+                                  ? AppColors.brutalYellow
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: _selectedTabIndex == 0
-                                  ? Border.all(color: const Color(0xFF0F172A), width: 1.5)
+                                  ? Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 1.5)
                                   : null,
                               boxShadow: _selectedTabIndex == 0
                                   ? const [
@@ -706,7 +803,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   Icon(
                                     Icons.gavel_rounded,
                                     size: 14,
-                                    color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+                                    color: _selectedTabIndex == 0
+                                        ? Colors.black
+                                        : (isDark
+                                            ? Colors.white60
+                                            : const Color(0xFF64748B)),
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -715,7 +816,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 0.3,
-                                      color: _selectedTabIndex == 0 ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                                      color: _selectedTabIndex == 0
+                                          ? Colors.black
+                                          : (isDark
+                                              ? Colors.white70
+                                              : const Color(0xFF64748B)),
                                     ),
                                   ),
                                 ],
@@ -736,10 +841,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: _selectedTabIndex == 1 ? const Color(0xFFA855F7) : Colors.transparent,
+                              color: _selectedTabIndex == 1
+                                  ? const Color(0xFFA855F7)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: _selectedTabIndex == 1
-                                  ? Border.all(color: const Color(0xFF0F172A), width: 1.5)
+                                  ? Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 1.5)
                                   : null,
                               boxShadow: _selectedTabIndex == 1
                                   ? const [
@@ -758,7 +867,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   Icon(
                                     Icons.stars_rounded,
                                     size: 14,
-                                    color: _selectedTabIndex == 1 ? Colors.black : const Color(0xFFA855F7),
+                                    color: _selectedTabIndex == 1
+                                        ? Colors.black
+                                        : const Color(0xFFA855F7),
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -767,7 +878,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 0.3,
-                                      color: _selectedTabIndex == 1 ? Colors.black : (isDark ? const Color(0xFFA855F7) : const Color(0xFF7C3AED)),
+                                      color: _selectedTabIndex == 1
+                                          ? Colors.black
+                                          : (isDark
+                                              ? const Color(0xFFA855F7)
+                                              : const Color(0xFF7C3AED)),
                                     ),
                                   ),
                                 ],
@@ -788,10 +903,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: _selectedTabIndex == 2 ? const Color(0xFF38BDF8) : Colors.transparent,
+                              color: _selectedTabIndex == 2
+                                  ? const Color(0xFF38BDF8)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: _selectedTabIndex == 2
-                                  ? Border.all(color: const Color(0xFF0F172A), width: 1.5)
+                                  ? Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 1.5)
                                   : null,
                               boxShadow: _selectedTabIndex == 2
                                   ? const [
@@ -810,16 +929,25 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   Icon(
                                     Icons.list_alt_rounded,
                                     size: 14,
-                                    color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+                                    color: _selectedTabIndex == 2
+                                        ? Colors.black
+                                        : (isDark
+                                            ? Colors.white60
+                                            : const Color(0xFF64748B)),
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    context.tr('auction_tab_catalog', {'count': '${_upcomingLots.length}'}),
+                                    context.tr('auction_tab_catalog',
+                                        {'count': '${_upcomingLots.length}'}),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 0.3,
-                                      color: _selectedTabIndex == 2 ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                                      color: _selectedTabIndex == 2
+                                          ? Colors.black
+                                          : (isDark
+                                              ? Colors.white70
+                                              : const Color(0xFF64748B)),
                                     ),
                                   ),
                                 ],
@@ -843,7 +971,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
 
   Widget _buildLiveAuctionTab(bool isDark) {
     final car = _auction.car;
-    final isLastSeconds = _auction.secondsRemaining <= 5 && _auction.secondsRemaining > 0;
+    final isLastSeconds =
+        _auction.secondsRemaining <= 5 && _auction.secondsRemaining > 0;
 
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -855,7 +984,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
           backgroundColor: isLastSeconds
               ? AppColors.errorRed.withValues(alpha: 0.2)
               : (isDark ? const Color(0xFF141721) : Colors.white),
-          borderColor: isLastSeconds ? AppColors.errorRed : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+          borderColor: isLastSeconds
+              ? AppColors.errorRed
+              : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
           borderRadius: 14,
           child: Column(
             children: [
@@ -867,10 +998,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: isLastSeconds ? AppColors.errorRed : AppColors.brutalYellow,
+                          color: isLastSeconds
+                              ? AppColors.errorRed
+                              : AppColors.brutalYellow,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2.0,
                           ),
                         ),
@@ -889,12 +1024,20 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: isLastSeconds ? AppColors.errorRed : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                              color: isLastSeconds
+                                  ? AppColors.errorRed
+                                  : (isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A)),
                             ),
                           ),
                           Text(
-                            context.tr('auction_time_remaining', {'sec': _auction.secondsRemaining}),
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                            context.tr('auction_time_remaining',
+                                {'sec': _auction.secondsRemaining}),
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
@@ -924,7 +1067,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         NeoBrutalCard(
           padding: const EdgeInsets.all(12),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 12,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -934,17 +1078,21 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.verified_user_rounded, color: AppColors.brutalOrange, size: 16),
+                      const Icon(Icons.verified_user_rounded,
+                          color: AppColors.brutalOrange, size: 16),
                       const SizedBox(width: 6),
                       Text(
                         _auction.customsNote.originOffice,
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                        style: const TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.w800),
                       ),
                     ],
                   ),
                   NeoBrutalBadge(
                     text: _auction.customsNote.legalStatus,
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fontSize: 9.5,
                   ),
@@ -953,11 +1101,16 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               const SizedBox(height: 6),
               Row(
                 children: [
-                  Text(context.tr('auction_expert_note'), style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                  Text(context.tr('auction_expert_note'),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w700)),
                   Expanded(
                     child: Text(
                       _auction.customsNote.riskRewardFactor,
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                      style: const TextStyle(
+                          fontSize: 11, fontWeight: FontWeight.w800),
                     ),
                   ),
                 ],
@@ -971,7 +1124,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         NeoBrutalCard(
           padding: const EdgeInsets.all(14),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -988,7 +1142,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -997,14 +1152,19 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B),
                           ),
                         ),
                       ],
                     ),
                   ),
                   NeoBrutalBadge(
-                    text: context.tr('auction_market_est', {'price': CurrencyFormatter.formatShort(_auction.estimatedMarketValue)}),
+                    text: context.tr('auction_market_est', {
+                      'price': CurrencyFormatter.formatShort(
+                          _auction.estimatedMarketValue)
+                    }),
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 10,
@@ -1015,10 +1175,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                  color: isDark
+                      ? const Color(0xFF0F1118)
+                      : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                    color: isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFFCBD5E1),
                     width: 1.2,
                   ),
                 ),
@@ -1062,7 +1226,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             BidPaddleAnimation(
-                              paddleNumber: '${(_auction.currentBid.toInt() % 89) + 10}',
+                              paddleNumber:
+                                  '${(_auction.currentBid.toInt() % 89) + 10}',
                               bidderName: _auction.highestBidderName,
                             ),
                             const SizedBox(width: 6),
@@ -1070,7 +1235,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                               text: _auction.highestBidderName,
                               backgroundColor: _auction.isPlayerHighestBidder
                                   ? AppColors.brutalGreen
-                                  : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                                  : (isDark
+                                      ? const Color(0xFF334155)
+                                      : const Color(0xFFE2E8F0)),
                               textColor: _auction.isPlayerHighestBidder
                                   ? Colors.black
                                   : (isDark ? Colors.white : Colors.black),
@@ -1100,12 +1267,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
             ),
             child: Row(
               children: [
-                const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.brutalYellow, size: 18),
+                const Icon(Icons.chat_bubble_outline_rounded,
+                    color: AppColors.brutalYellow, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     '${_auction.activeSpeakerName ?? "Salondan Biri"}: "${_auction.activeSpeech}"',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                    style: const TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
@@ -1116,7 +1285,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         NeoBrutalCard(
           padding: const EdgeInsets.all(14),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1124,14 +1294,15 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Expanded(
+                      child: Text(
                     context.tr('auction_quick_bids'),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
                     ),
-                  ),
+                  )),
                   if (_auction.isPlayerHighestBidder)
                     NeoBrutalBadge(
                       text: context.tr('auction_leader_you'),
@@ -1149,14 +1320,18 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     child: NeoBrutalButton(
                       label: '+₺5.000',
                       backgroundColor: _auction.isPlayerHighestBidder
-                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          ? (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0))
                           : AppColors.brutalYellow,
                       textColor: _auction.isPlayerHighestBidder
                           ? (isDark ? Colors.white54 : Colors.black54)
                           : Colors.black,
                       fontSize: 12,
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(5000),
+                      onPressed: _auction.isPlayerHighestBidder
+                          ? null
+                          : () => _placePlayerBid(5000),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1164,14 +1339,18 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     child: NeoBrutalButton(
                       label: '+₺15.000',
                       backgroundColor: _auction.isPlayerHighestBidder
-                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          ? (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0))
                           : AppColors.brutalOrange,
                       textColor: _auction.isPlayerHighestBidder
                           ? (isDark ? Colors.white54 : Colors.black54)
                           : Colors.black,
                       fontSize: 12,
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(15000),
+                      onPressed: _auction.isPlayerHighestBidder
+                          ? null
+                          : () => _placePlayerBid(15000),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1179,14 +1358,18 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                     child: NeoBrutalButton(
                       label: '+₺30.000',
                       backgroundColor: _auction.isPlayerHighestBidder
-                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          ? (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0))
                           : AppColors.brutalGreen,
                       textColor: _auction.isPlayerHighestBidder
                           ? (isDark ? Colors.white54 : Colors.black54)
                           : Colors.black,
                       fontSize: 12,
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(30000),
+                      onPressed: _auction.isPlayerHighestBidder
+                          ? null
+                          : () => _placePlayerBid(30000),
                     ),
                   ),
                 ],
@@ -1197,28 +1380,39 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   Expanded(
                     child: NeoBrutalButton(
                       icon: Icons.flag_rounded,
-                      label: context.tr('auction_btn_flag', {'amount': '₺50.000'}),
+                      label:
+                          context.tr('auction_btn_flag', {'amount': '₺50.000'}),
                       backgroundColor: _auction.isPlayerHighestBidder
-                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          ? (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0))
                           : const Color(0xFFFFDE59),
                       textColor: Colors.black,
                       fontSize: 11,
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      onPressed: _auction.isPlayerHighestBidder ? null : () => _placePlayerBid(50000, isAggressiveFlag: true),
+                      onPressed: _auction.isPlayerHighestBidder
+                          ? null
+                          : () =>
+                              _placePlayerBid(50000, isAggressiveFlag: true),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: NeoBrutalButton(
                       icon: Icons.psychology_rounded,
-                      label: context.tr('auction_btn_bluff', {'amount': '₺20.000'}),
+                      label: context
+                          .tr('auction_btn_bluff', {'amount': '₺20.000'}),
                       backgroundColor: _auction.isPlayerHighestBidder
-                          ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                          ? (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0))
                           : const Color(0xFFA855F7),
                       textColor: Colors.white,
                       fontSize: 11,
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      onPressed: _auction.isPlayerHighestBidder ? null : _executeTrollBluff,
+                      onPressed: _auction.isPlayerHighestBidder
+                          ? null
+                          : _executeTrollBluff,
                     ),
                   ),
                 ],
@@ -1232,14 +1426,19 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         NeoBrutalCard(
           padding: const EdgeInsets.all(14),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                context.tr('auction_rivals_title', {'count': '${_auction.rivals.length}'}),
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                context.tr('auction_rivals_title',
+                    {'count': '${_auction.rivals.length}'}),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5),
               ),
               const SizedBox(height: 8),
               ..._auction.rivals.map((r) => Padding(
@@ -1250,9 +1449,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         Row(
                           children: [
                             Icon(
-                              r.isFolded ? Icons.close_rounded : Icons.person_rounded,
+                              r.isFolded
+                                  ? Icons.close_rounded
+                                  : Icons.person_rounded,
                               size: 15,
-                              color: r.isFolded ? AppColors.errorRed : AppColors.brutalGreen,
+                              color: r.isFolded
+                                  ? AppColors.errorRed
+                                  : AppColors.brutalGreen,
                             ),
                             const SizedBox(width: 6),
                             Column(
@@ -1263,24 +1466,41 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                                   style: TextStyle(
                                     fontSize: 11.5,
                                     fontWeight: FontWeight.w700,
-                                    color: r.isFolded ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)) : (isDark ? Colors.white70 : Colors.black87),
+                                    color: r.isFolded
+                                        ? (isDark
+                                            ? const Color(0xFF64748B)
+                                            : const Color(0xFF94A3B8))
+                                        : (isDark
+                                            ? Colors.white70
+                                            : Colors.black87),
                                   ),
                                 ),
                                 if (r.lastSpeech != null)
                                   Text(
                                     '"${r.lastSpeech}"',
-                                    style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B), fontStyle: FontStyle.italic),
+                                    style: const TextStyle(
+                                        fontSize: 9.5,
+                                        color: Color(0xFF64748B),
+                                        fontStyle: FontStyle.italic),
                                   ),
                               ],
                             ),
                           ],
                         ),
                         NeoBrutalBadge(
-                          text: r.isFolded ? context.tr('auction_folded_badge') : r.personality,
+                          text: r.isFolded
+                              ? context.tr('auction_folded_badge')
+                              : r.personality,
                           backgroundColor: r.isFolded
-                              ? (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1))
-                              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                          textColor: r.isFolded ? (isDark ? Colors.white60 : Colors.black54) : (isDark ? Colors.white : Colors.black),
+                              ? (isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFFCBD5E1))
+                              : (isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0)),
+                          textColor: r.isFolded
+                              ? (isDark ? Colors.white60 : Colors.black54)
+                              : (isDark ? Colors.white : Colors.black),
                           fontSize: 9.5,
                         ),
                       ],
@@ -1294,15 +1514,20 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         // 5. LIVE BIDDING LOGS
         NeoBrutalCard(
           padding: const EdgeInsets.all(14),
-          backgroundColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          backgroundColor:
+              isDark ? const Color(0xFF0F1118) : const Color(0xFFF8FAFC),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 context.tr('auction_live_stream_title'),
-                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5),
               ),
               const SizedBox(height: 6),
               ..._bidLogs.take(5).map((log) => Padding(
@@ -1314,7 +1539,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         fontWeight: FontWeight.w600,
                         color: log.contains('SEN')
                             ? AppColors.brutalGreen
-                            : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                            : (isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF475569)),
                       ),
                     ),
                   )),
@@ -1333,16 +1560,19 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         NeoBrutalCard(
           padding: const EdgeInsets.all(12),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 12,
           child: Row(
             children: [
-              const Icon(Icons.info_outline_rounded, color: AppColors.brutalYellow, size: 20),
+              const Icon(Icons.info_outline_rounded,
+                  color: AppColors.brutalYellow, size: 20),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   context.tr('auction_upcoming_desc'),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -1355,7 +1585,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
             child: NeoBrutalCard(
               padding: const EdgeInsets.all(14),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 14,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1370,8 +1601,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                         fontSize: 10.5,
                       ),
                       NeoBrutalBadge(
-                        text: context.tr('auction_estimated_label', {'price': CurrencyFormatter.formatShort(lot.estimatedMarketValue)}),
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        text: context.tr('auction_estimated_label', {
+                          'price': CurrencyFormatter.formatShort(
+                              lot.estimatedMarketValue)
+                        }),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
                         fontSize: 10,
                       ),
@@ -1380,39 +1616,58 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   const SizedBox(height: 8),
                   Text(
                     '${lot.car.brand} ${lot.car.modelName}',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${lot.car.modelYear} • ${lot.car.expertise.mileage} KM • ${lot.car.bodyType}',
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF0F1118)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(context.tr('auction_starting_price_tag'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                        Text(
+                        Expanded(
+                            child: Text(
+                                context.tr('auction_starting_price_tag'),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700))),
+                        Expanded(
+                            child: Text(
                           CurrencyFormatter.formatShort(lot.startingPrice),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                        ),
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.brutalGreen),
+                        )),
                       ],
                     ),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.gavel_rounded, size: 12, color: Color(0xFF64748B)),
+                      const Icon(Icons.gavel_rounded,
+                          size: 12, color: Color(0xFF64748B)),
                       const SizedBox(width: 4),
                       Text(
                         '${lot.customsNote.legalStatus} • ${lot.customsNote.riskRewardFactor}',
-                        style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
@@ -1428,7 +1683,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
   Widget _buildClosedWindowView(bool isDark) {
     final minutes = _closedCountdown ~/ 60;
     final seconds = _closedCountdown % 60;
-    final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    final timeStr =
+        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
     return RefreshIndicator(
       color: Colors.black,
@@ -1445,13 +1701,15 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
         }
       },
       child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
           child: NeoBrutalCard(
             padding: const EdgeInsets.all(22),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 16,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1459,35 +1717,50 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.lock_clock_rounded, color: AppColors.brutalOrange, size: 38),
+                  child: const Icon(Icons.lock_clock_rounded,
+                      color: AppColors.brutalOrange, size: 38),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   context.tr('auction_closed_title'),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   context.tr('auction_closed_desc'),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 16),
                 if (!_isOfficerConsulted) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF0F1118)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFFCBD5E1),
                         width: 1.2,
                       ),
                     ),
@@ -1499,17 +1772,21 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                             color: AppColors.brutalYellow,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: const Icon(Icons.support_agent_rounded, color: Colors.black, size: 20),
+                          child: const Icon(Icons.support_agent_rounded,
+                              color: Colors.black, size: 20),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             context.tr('auction_ask_officer_desc'),
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -1526,7 +1803,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       HapticFeedback.lightImpact();
                       setState(() {
                         _isOfficerConsulted = true;
-                        _officerSpeech = AuctionEngine.getRandomOfficerDialogue(timeStr);
+                        _officerSpeech =
+                            AuctionEngine.getRandomOfficerDialogue(timeStr);
                       });
                     },
                   ),
@@ -1546,23 +1824,32 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.badge_rounded, color: AppColors.brutalYellow, size: 18),
+                            const Icon(Icons.badge_rounded,
+                                color: AppColors.brutalYellow, size: 18),
                             const SizedBox(width: 6),
                             Text(
                               context.tr('auction_officer_label'),
-                              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
+                              style: const TextStyle(
+                                  fontSize: 11.5, fontWeight: FontWeight.w800),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
                           _officerSpeech ?? '',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.3),
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              height: 1.3),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          context.tr('auction_remaining_est_time', {'time': timeStr}),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                          context.tr(
+                              'auction_remaining_est_time', {'time': timeStr}),
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.brutalGreen),
                         ),
                       ],
                     ),
@@ -1570,13 +1857,16 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   const SizedBox(height: 16),
                   NeoBrutalButton(
                     label: context.tr('auction_reask_officer_btn'),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
                     textColor: isDark ? Colors.white : Colors.black,
                     fullWidth: true,
                     onPressed: () {
                       HapticFeedback.selectionClick();
                       setState(() {
-                        _officerSpeech = AuctionEngine.getRandomOfficerDialogue(timeStr);
+                        _officerSpeech =
+                            AuctionEngine.getRandomOfficerDialogue(timeStr);
                       });
                     },
                   ),
@@ -1608,18 +1898,24 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> with SingleTicker
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.brutalOrange, width: 2),
                 ),
-                child: const Icon(Icons.lock_rounded, size: 42, color: AppColors.brutalOrange),
+                child: const Icon(Icons.lock_rounded,
+                    size: 42, color: AppColors.brutalOrange),
               ),
               const SizedBox(height: 16),
               Text(
                 context.tr('auction_hall_locked'),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 8),
               Text(
                 context.tr('auction_hall_locked_desc', {'rep': repScore}),
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B), height: 1.4),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B),
+                    height: 1.4),
               ),
               const SizedBox(height: 20),
               NeoBrutalButton(

@@ -58,7 +58,8 @@ class ShowroomOffersTab extends ConsumerWidget {
           }
         },
         child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics()),
           children: [
             const SizedBox(height: 40),
             NeoBrutalEmptyState(
@@ -69,7 +70,8 @@ class ShowroomOffersTab extends ConsumerWidget {
               actionLabel: context.tr('btn_pull_customers_refresh'),
               actionIcon: Icons.campaign_rounded,
               onActionPressed: () {
-                final res = ref.read(gameProvider.notifier).manualPullOrganicOffer();
+                final res =
+                    ref.read(gameProvider.notifier).manualPullOrganicOffer();
                 if (res.hasNewOffer) {
                   NotificationService.showSuccess(context, res.message);
                 } else {
@@ -100,7 +102,8 @@ class ShowroomOffersTab extends ConsumerWidget {
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         children: [
           // 1. Trade-in Offers Section (§4.6.2)
           if (game.incomingTradeInOffers.isNotEmpty) ...[
@@ -109,15 +112,19 @@ class ShowroomOffersTab extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.sync_alt_rounded, color: Color(0xFFFFDE59), size: 18),
+                    const Icon(Icons.sync_alt_rounded,
+                        color: Color(0xFFFFDE59), size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      context.tr('title_trade_in_offers', {'count': '${game.incomingTradeInOffers.length}'}),
+                      context.tr('title_trade_in_offers',
+                          {'count': '${game.incomingTradeInOffers.length}'}),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -127,17 +134,21 @@ class ShowroomOffersTab extends ConsumerWidget {
                     onTap: () {
                       HapticFeedback.lightImpact();
                       ref.read(gameProvider.notifier).rejectAllTradeInOffers();
-                      NotificationService.showInfo(context, context.tr('toast_all_trade_ins_cleared'));
+                      NotificationService.showInfo(
+                          context, context.tr('toast_all_trade_ins_cleared'));
                     },
                     borderRadius: BorderRadius.circular(6),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       child: Text(
                         context.tr('btn_reject'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626),
+                          color: isDark
+                              ? const Color(0xFFF87171)
+                              : const Color(0xFFDC2626),
                         ),
                       ),
                     ),
@@ -145,7 +156,8 @@ class ShowroomOffersTab extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 8),
-            ...game.incomingTradeInOffers.map((tradeOffer) => _buildTradeInOfferCard(context, ref, tradeOffer, isDark)),
+            ...game.incomingTradeInOffers.map((tradeOffer) =>
+                _buildTradeInOfferCard(context, ref, tradeOffer, isDark)),
             const SizedBox(height: 14),
           ],
 
@@ -156,15 +168,19 @@ class ShowroomOffersTab extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.payments_outlined, color: Color(0xFF00E575), size: 18),
+                    const Icon(Icons.payments_outlined,
+                        color: Color(0xFF00E575), size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      context.tr('title_cash_offers', {'count': '${game.incomingOffers.length}'}),
+                      context.tr('title_cash_offers',
+                          {'count': '${game.incomingOffers.length}'}),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -174,17 +190,21 @@ class ShowroomOffersTab extends ConsumerWidget {
                     onTap: () {
                       HapticFeedback.lightImpact();
                       ref.read(gameProvider.notifier).rejectAllOffers();
-                      NotificationService.showInfo(context, context.tr('toast_all_cash_offers_cleared'));
+                      NotificationService.showInfo(
+                          context, context.tr('toast_all_cash_offers_cleared'));
                     },
                     borderRadius: BorderRadius.circular(6),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       child: Text(
                         context.tr('btn_reject'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626),
+                          color: isDark
+                              ? const Color(0xFFF87171)
+                              : const Color(0xFFDC2626),
                         ),
                       ),
                     ),
@@ -251,11 +271,14 @@ class ShowroomOffersTab extends ConsumerWidget {
                     color: const Color(0xFFFFDE59),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 1.5,
                     ),
                   ),
-                  child: const Icon(Icons.swap_horiz_rounded, size: 18, color: Colors.black),
+                  child: const Icon(Icons.swap_horiz_rounded,
+                      size: 18, color: Colors.black),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -263,21 +286,26 @@ class ShowroomOffersTab extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr('trade_offer_title', {'customer': tradeOffer.customerName}),
+                        context.tr('trade_offer_title',
+                            {'customer': tradeOffer.customerName}),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
-                        context.tr('trade_requested_car', {'car': targetCar.modelName}),
+                        context.tr('trade_requested_car',
+                            {'car': targetCar.modelName}),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -287,7 +315,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                   text: isCashGivenToPlayer
                       ? '+${CurrencyFormatter.format(tradeOffer.cashDifference)}'
                       : '-${CurrencyFormatter.format(-tradeOffer.cashDifference)}',
-                  backgroundColor: isCashGivenToPlayer ? const Color(0xFF00E575) : const Color(0xFFFF9F1C),
+                  backgroundColor: isCashGivenToPlayer
+                      ? const Color(0xFF00E575)
+                      : const Color(0xFFFF9F1C),
                   textColor: Colors.black,
                   fontSize: 10,
                 ),
@@ -300,10 +330,13 @@ class ShowroomOffersTab extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F1117) : const Color(0xFFF8FAFC),
+                color:
+                    isDark ? const Color(0xFF0F1117) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF262C3D)
+                      : const Color(0xFFE2E8F0),
                   width: 1.5,
                 ),
               ),
@@ -313,7 +346,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                  color: isDark
+                      ? const Color(0xFFE2E8F0)
+                      : const Color(0xFF334155),
                 ),
               ),
             ),
@@ -328,14 +363,18 @@ class ShowroomOffersTab extends ConsumerWidget {
                     children: [
                       Text(
                         context.tr('offered_car_title'),
-                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF64748B)),
                       ),
                       Text(
                         tradeOffer.offeredCar.modelName,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
@@ -343,7 +382,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -353,11 +394,17 @@ class ShowroomOffersTab extends ConsumerWidget {
                   children: [
                     NeoBrutalButton(
                       label: context.tr('btn_reject'),
-                      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                      textColor: isDark ? Colors.white70 : const Color(0xFF64748B),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
+                      textColor:
+                          isDark ? Colors.white70 : const Color(0xFF64748B),
                       onPressed: () {
-                        ref.read(gameProvider.notifier).rejectTradeInOffer(tradeOffer.id);
-                        NotificationService.showInfo(context, context.tr('toast_trade_in_rejected'));
+                        ref
+                            .read(gameProvider.notifier)
+                            .rejectTradeInOffer(tradeOffer.id);
+                        NotificationService.showInfo(
+                            context, context.tr('toast_trade_in_rejected'));
                       },
                     ),
                     const SizedBox(width: 8),
@@ -367,14 +414,18 @@ class ShowroomOffersTab extends ConsumerWidget {
                       backgroundColor: const Color(0xFFFFDE59),
                       textColor: Colors.black,
                       onPressed: () {
-                        final success = ref.read(gameProvider.notifier).acceptTradeInOffer(tradeOffer);
+                        final success = ref
+                            .read(gameProvider.notifier)
+                            .acceptTradeInOffer(tradeOffer);
                         if (success) {
                           NotificationService.showSuccess(
                             context,
-                            context.tr('toast_trade_in_success', {'car': targetCar.modelName}),
+                            context.tr('toast_trade_in_success',
+                                {'car': targetCar.modelName}),
                           );
                         } else {
-                          NotificationService.showWarning(context, context.tr('toast_trade_in_insufficient_funds'));
+                          NotificationService.showWarning(context,
+                              context.tr('toast_trade_in_insufficient_funds'));
                         }
                       },
                     ),
@@ -441,7 +492,8 @@ class ShowroomOffersTab extends ConsumerWidget {
           alignment: Alignment.centerLeft,
           child: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.black, size: 26),
+              const Icon(Icons.check_circle_rounded,
+                  color: Colors.black, size: 26),
               const SizedBox(width: 8),
               Text(
                 context.tr('swipe_accept_sell'),
@@ -481,13 +533,15 @@ class ShowroomOffersTab extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.delete_forever_rounded, color: Colors.white, size: 26),
+              const Icon(Icons.delete_forever_rounded,
+                  color: Colors.white, size: 26),
             ],
           ),
         ),
         confirmDismiss: (direction) async {
           HapticFeedback.mediumImpact();
-          final isExpired = offer.isExpired || offer.status == OfferStatus.expired;
+          final isExpired =
+              offer.isExpired || offer.status == OfferStatus.expired;
           if (isExpired) {
             ref.read(gameProvider.notifier).dismissOffer(offer.id);
             return true;
@@ -498,25 +552,33 @@ class ShowroomOffersTab extends ConsumerWidget {
           } else {
             ref.read(gameProvider.notifier).rejectOffer(offer.id);
             if (context.mounted) {
-              NotificationService.showWarning(context, context.tr('toast_offer_rejected', {'buyer': offer.buyerName}));
+              NotificationService.showWarning(
+                  context,
+                  context
+                      .tr('toast_offer_rejected', {'buyer': offer.buyerName}));
             }
             return true;
           }
         },
         child: Builder(
           builder: (context) {
-            final isExpired = offer.isExpired || offer.status == OfferStatus.expired;
+            final isExpired =
+                offer.isExpired || offer.status == OfferStatus.expired;
 
             return NeoBrutalCard(
               padding: const EdgeInsets.all(14),
               backgroundColor: isDark
-                  ? (isExpired ? const Color(0xFF161922) : const Color(0xFF141721))
+                  ? (isExpired
+                      ? const Color(0xFF161922)
+                      : const Color(0xFF141721))
                   : (isExpired ? const Color(0xFFF8FAFC) : Colors.white),
               borderColor: isExpired
                   ? const Color(0xFFEF4444)
                   : (isCountered
                       ? const Color(0xFFFFDE59)
-                      : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
+                      : (isDark
+                          ? const Color(0xFF2A3142)
+                          : const Color(0xFF0F172A))),
               borderRadius: 12,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,7 +595,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -551,38 +615,56 @@ class ShowroomOffersTab extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      Text(
+                      Expanded(
+                          child: Text(
                         CurrencyFormatter.format(offer.offeredAmount),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
                           color: isExpired
                               ? const Color(0xFF94A3B8)
-                              : (isDark ? const Color(0xFF00E575) : const Color(0xFF15803D)),
-                          decoration: isExpired ? TextDecoration.lineThrough : null,
+                              : (isDark
+                                  ? const Color(0xFF00E575)
+                                  : const Color(0xFF15803D)),
+                          decoration:
+                              isExpired ? TextDecoration.lineThrough : null,
                         ),
-                      ),
+                      )),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        context.tr('market_val_short', {'val': CurrencyFormatter.formatShort(car.estimatedRealValue)}),
+                      Expanded(
+                          child: Text(
+                        context.tr('market_val_short', {
+                          'val': CurrencyFormatter.formatShort(
+                              car.estimatedRealValue)
+                        }),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
-                      ),
-                      Text(
-                        context.tr('listing_price_short', {'val': CurrencyFormatter.formatShort(car.listingPrice > 0 ? car.listingPrice : car.estimatedRealValue)}),
+                      )),
+                      Expanded(
+                          child: Text(
+                        context.tr('listing_price_short', {
+                          'val': CurrencyFormatter.formatShort(
+                              car.listingPrice > 0
+                                  ? car.listingPrice
+                                  : car.estimatedRealValue)
+                        }),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                          color: isDark
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF334155),
                         ),
-                      ),
+                      )),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -592,21 +674,27 @@ class ShowroomOffersTab extends ConsumerWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        context.tr('buyer_name_label', {'buyer': offer.buyerName}),
+                        context
+                            .tr('buyer_name_label', {'buyer': offer.buyerName}),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                       if (offer.buyerCustomer != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFDE59),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 1.8,
                             ),
                           ),
@@ -621,18 +709,27 @@ class ShowroomOffersTab extends ConsumerWidget {
                         ),
                       if (offer.offerType != OfferType.cash)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: offer.offerType == OfferType.installment ? const Color(0xFF38BDF8) : const Color(0xFFA855F7),
+                            color: offer.offerType == OfferType.installment
+                                ? const Color(0xFF38BDF8)
+                                : const Color(0xFFA855F7),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 1.8,
                             ),
                           ),
                           child: Text(
                             offer.offerType == OfferType.installment
-                                ? context.tr('installment_badge_text', {'months': offer.installmentMonths.toString(), 'risk': offer.riskLevel})
+                                ? context.tr('installment_badge_text', {
+                                    'months':
+                                        offer.installmentMonths.toString(),
+                                    'risk': offer.riskLevel
+                                  })
                                 : context.tr('cheque_offer_badge'),
                             style: const TextStyle(
                               fontSize: 9.5,
@@ -643,12 +740,16 @@ class ShowroomOffersTab extends ConsumerWidget {
                         ),
                     ],
                   ),
-                  if (offer.requestedTestDrive && offer.testDriveResult != null) ...[
+                  if (offer.requestedTestDrive &&
+                      offer.testDriveResult != null) ...[
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 5),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F291E) : const Color(0xFFDCFCE7),
+                        color: isDark
+                            ? const Color(0xFF0F291E)
+                            : const Color(0xFFDCFCE7),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: const Color(0xFF00E575),
@@ -657,7 +758,8 @@ class ShowroomOffersTab extends ConsumerWidget {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.speed_rounded, size: 14, color: Color(0xFF00E575)),
+                          const Icon(Icons.speed_rounded,
+                              size: 14, color: Color(0xFF00E575)),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
@@ -665,7 +767,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
+                                color: isDark
+                                    ? const Color(0xFF86EFAC)
+                                    : const Color(0xFF15803D),
                               ),
                             ),
                           ),
@@ -678,10 +782,14 @@ class ShowroomOffersTab extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEF2F2),
+                        color: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFFEF2F2),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFCA5A5),
+                          color: isDark
+                              ? const Color(0xFF7F1D1D)
+                              : const Color(0xFFFCA5A5),
                           width: 1.0,
                         ),
                       ),
@@ -700,10 +808,14 @@ class ShowroomOffersTab extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 1.0,
                         ),
                       ),
@@ -711,7 +823,9 @@ class ShowroomOffersTab extends ConsumerWidget {
                         '"${offer.buyerMessage}"',
                         style: TextStyle(
                           fontStyle: FontStyle.italic,
-                          color: isDark ? palette.primaryColor : const Color(0xFF0F172A),
+                          color: isDark
+                              ? palette.primaryColor
+                              : const Color(0xFF0F172A),
                           fontSize: 11.5,
                         ),
                       ),
@@ -724,23 +838,31 @@ class ShowroomOffersTab extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        Expanded(
+                            child: Text(
                           context.tr('offer_expired_label'),
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFFEF4444),
                           ),
-                        ),
+                        )),
                         NeoBrutalButton(
                           label: context.tr('btn_clear_offer'),
                           icon: Icons.delete_outline_rounded,
-                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                          textColor: isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626),
+                          backgroundColor: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFF1F5F9),
+                          textColor: isDark
+                              ? const Color(0xFFEF4444)
+                              : const Color(0xFFDC2626),
                           fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           onPressed: () {
-                            ref.read(gameProvider.notifier).dismissOffer(offer.id);
+                            ref
+                                .read(gameProvider.notifier)
+                                .dismissOffer(offer.id);
                           },
                         ),
                       ],
@@ -751,12 +873,19 @@ class ShowroomOffersTab extends ConsumerWidget {
                       children: [
                         NeoBrutalButton(
                           label: context.tr('btn_reject'),
-                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                          textColor: isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626),
+                          backgroundColor: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0),
+                          textColor: isDark
+                              ? const Color(0xFFEF4444)
+                              : const Color(0xFFDC2626),
                           fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           onPressed: () {
-                            ref.read(gameProvider.notifier).rejectOffer(offer.id);
+                            ref
+                                .read(gameProvider.notifier)
+                                .rejectOffer(offer.id);
                           },
                         ),
                         Row(
@@ -766,9 +895,11 @@ class ShowroomOffersTab extends ConsumerWidget {
                               backgroundColor: const Color(0xFFFFDE59),
                               textColor: Colors.black,
                               fontSize: 11,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               onPressed: () {
-                                ShowroomListingModal.showCounterOfferSheet(context, ref, offer, car);
+                                ShowroomListingModal.showCounterOfferSheet(
+                                    context, ref, offer, car);
                               },
                             ),
                             const SizedBox(width: 8),
@@ -778,9 +909,11 @@ class ShowroomOffersTab extends ConsumerWidget {
                               backgroundColor: const Color(0xFF00E575),
                               textColor: Colors.black,
                               fontSize: 11,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               onPressed: () {
-                                _processOfferAcceptWithNotary(context, ref, offer, car);
+                                _processOfferAcceptWithNotary(
+                                    context, ref, offer, car);
                               },
                             ),
                           ],
@@ -803,11 +936,15 @@ class ShowroomOffersTab extends ConsumerWidget {
     CarModel car,
   ) {
     GameSoundHapticService.playNotarySignature();
-    final customer = offer.buyerCustomer ?? CustomerModel.generateRandomCustomer();
-    final fraudResult = NegotiationEngine.evaluatePlayerFraudInspection(car: car, customer: customer);
+    final customer =
+        offer.buyerCustomer ?? CustomerModel.generateRandomCustomer();
+    final fraudResult = NegotiationEngine.evaluatePlayerFraudInspection(
+        car: car, customer: customer);
 
     if (fraudResult.caughtFraud) {
-      ref.read(gameProvider.notifier).acceptOfferWithFraudCheck(offer, customer);
+      ref
+          .read(gameProvider.notifier)
+          .acceptOfferWithFraudCheck(offer, customer);
       if (context.mounted) {
         showDialog(
           context: context,
@@ -816,7 +953,8 @@ class ShowroomOffersTab extends ConsumerWidget {
             insetPadding: const EdgeInsets.symmetric(horizontal: 18),
             child: NeoBrutalCard(
               padding: const EdgeInsets.all(18),
-              backgroundColor: palette.isDark ? const Color(0xFF141721) : Colors.white,
+              backgroundColor:
+                  palette.isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: palette.errorColor,
               borderRadius: 12,
               borderWidth: 2.5,
@@ -827,7 +965,8 @@ class ShowroomOffersTab extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      VectorIconWidget(type: 'error', color: palette.errorColor, size: 24),
+                      VectorIconWidget(
+                          type: 'error', color: palette.errorColor, size: 24),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -844,8 +983,13 @@ class ShowroomOffersTab extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Text(
                     '${fraudResult.description}\n\n'
-                    '${context.tr('fine_penalty_label', {'amount': CurrencyFormatter.formatShort(fraudResult.fineAmount)})}\n'
-                    '${context.tr('reputation_loss_label', {'points': fraudResult.reputationPenalty.toString()})}',
+                    '${context.tr('fine_penalty_label', {
+                          'amount': CurrencyFormatter.formatShort(
+                              fraudResult.fineAmount)
+                        })}\n'
+                    '${context.tr('reputation_loss_label', {
+                          'points': fraudResult.reputationPenalty.toString()
+                        })}',
                     style: AppTypography.bodyMedium(palette.isDark),
                   ),
                   const SizedBox(height: 16),
@@ -867,7 +1011,8 @@ class ShowroomOffersTab extends ConsumerWidget {
       return;
     }
 
-    final notaryResult = ref.read(gameProvider.notifier).processNotarySale(offer, customer);
+    final notaryResult =
+        ref.read(gameProvider.notifier).processNotarySale(offer, customer);
 
     if (context.mounted) {
       NotaryTransferDialog.show(
@@ -888,7 +1033,8 @@ class ShowroomOffersTab extends ConsumerWidget {
                 'amount': CurrencyFormatter.format(offer.offeredAmount),
               }),
             );
-            final luckyOpp = ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
+            final luckyOpp =
+                ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
             if (luckyOpp != null && context.mounted) {
               Future.delayed(const Duration(milliseconds: 300), () {
                 if (context.mounted) {

@@ -44,7 +44,8 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
     final branchTier = game.currentBranchTier;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0D111A) : const Color(0xFFF4F6F9),
+      backgroundColor:
+          isDark ? const Color(0xFF0D111A) : const Color(0xFFF4F6F9),
       appBar: NeoBrutalAppBar(
         title: context.tr('casino_hub_title'),
         actions: [
@@ -59,11 +60,15 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.account_balance_wallet_rounded, size: 16, color: Colors.black),
+                const Icon(Icons.account_balance_wallet_rounded,
+                    size: 16, color: Colors.black),
                 const SizedBox(width: 6),
                 Text(
                   _formatCurrency(game.balance),
-                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.black),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                      color: Colors.black),
                 ),
               ],
             ),
@@ -210,7 +215,8 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
             color: const Color(0xFFF59E0B),
             badgeText: 'DOUBLE UP • 2x',
             isLocked: branchTier < 7,
-            onTap: () => _openGameModal(const DoubleOrNothingModal(baseProfit: 100000.0)),
+            onTap: () => _openGameModal(
+                const DoubleOrNothingModal(baseProfit: 100000.0)),
           ),
 
           const SizedBox(height: 32),
@@ -219,7 +225,8 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
     );
   }
 
-  Widget _buildStatsCard(BuildContext context, CasinoStatsModel stats, bool isDark) {
+  Widget _buildStatsCard(
+      BuildContext context, CasinoStatsModel stats, bool isDark) {
     final netProfit = stats.totalWonAmount - stats.totalLostAmount;
     final isProfit = netProfit >= 0;
 
@@ -237,16 +244,21 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.query_stats_rounded, color: AppColors.brutalYellow, size: 20),
+                  const Icon(Icons.query_stats_rounded,
+                      color: AppColors.brutalYellow, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     context.tr('casino_stats_header'),
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        letterSpacing: 0.5),
                   ),
                 ],
               ),
               NeoBrutalBadge(
-                label: '${stats.totalGamesPlayed} ${context.tr('casino_games_played_badge')}',
+                label:
+                    '${stats.totalGamesPlayed} ${context.tr('casino_games_played_badge')}',
                 color: const Color(0xFF38BDF8),
                 textColor: Colors.black,
               ),
@@ -260,7 +272,8 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
                   context,
                   title: context.tr('casino_net_profit_label'),
                   value: (isProfit ? '+' : '') + _formatCurrency(netProfit),
-                  valueColor: isProfit ? AppColors.brutalGreen : AppColors.brutalRed,
+                  valueColor:
+                      isProfit ? AppColors.brutalGreen : AppColors.brutalRed,
                 ),
               ),
               Container(width: 1.5, height: 36, color: const Color(0xFF0F172A)),
@@ -277,7 +290,8 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
                 child: _buildStatItem(
                   context,
                   title: context.tr('casino_pink_slip_stats'),
-                  value: '+${stats.vehiclesWonCount} / -${stats.vehiclesLostCount}',
+                  value:
+                      '+${stats.vehiclesWonCount} / -${stats.vehiclesLostCount}',
                   valueColor: const Color(0xFFA855F7),
                 ),
               ),
@@ -288,18 +302,23 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, {required String title, required String value, required Color valueColor}) {
+  Widget _buildStatItem(BuildContext context,
+      {required String title,
+      required String value,
+      required Color valueColor}) {
     return Column(
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white60),
+          style: const TextStyle(
+              fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white60),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: valueColor),
+          style: TextStyle(
+              fontSize: 13, fontWeight: FontWeight.w900, color: valueColor),
           textAlign: TextAlign.center,
         ),
       ],
@@ -314,17 +333,22 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFF0F172A), width: 2.5),
         boxShadow: const [
-          BoxShadow(color: Color(0xFF0F172A), offset: Offset(3, 3), blurRadius: 0),
+          BoxShadow(
+              color: Color(0xFF0F172A), offset: Offset(3, 3), blurRadius: 0),
         ],
       ),
       child: Row(
         children: [
-          const Icon(Icons.key_rounded, color: AppColors.brutalYellow, size: 22),
+          const Icon(Icons.key_rounded,
+              color: AppColors.brutalYellow, size: 22),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               context.tr('casino_pink_slip_banner_desc'),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11),
             ),
           ),
         ],
@@ -351,7 +375,10 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
             ),
             Text(
               subtitle,
-              style: const TextStyle(fontSize: 11, color: Colors.white60, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.white60,
+                  fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -378,7 +405,9 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return NeoBrutalCard(
-      backgroundColor: isLocked ? (isDark ? const Color(0xFF1F2937) : const Color(0xFFE5E7EB)) : (isDark ? const Color(0xFF1A2234) : Colors.white),
+      backgroundColor: isLocked
+          ? (isDark ? const Color(0xFF1F2937) : const Color(0xFFE5E7EB))
+          : (isDark ? const Color(0xFF1A2234) : Colors.white),
       borderColor: const Color(0xFF0F172A),
       borderWidth: 2.5,
       borderRadius: 10.0,
@@ -396,7 +425,8 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
               border: Border.all(color: const Color(0xFF0F172A), width: 2),
             ),
             child: isLocked
-                ? const Icon(Icons.lock_rounded, color: Colors.white70, size: 26)
+                ? const Icon(Icons.lock_rounded,
+                    color: Colors.white70, size: 26)
                 : (vectorIconType != null
                     ? Center(
                         child: VectorIconWidget(
@@ -427,7 +457,9 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 14,
-                          color: isLocked ? Colors.white54 : (isDark ? Colors.white : Colors.black),
+                          color: isLocked
+                              ? Colors.white54
+                              : (isDark ? Colors.white : Colors.black),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -445,7 +477,9 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
                   desc,
                   style: TextStyle(
                     fontSize: 11,
-                    color: isLocked ? Colors.white38 : (isDark ? Colors.white70 : Colors.black87),
+                    color: isLocked
+                        ? Colors.white38
+                        : (isDark ? Colors.white70 : Colors.black87),
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 2,
@@ -458,7 +492,9 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
 
           Icon(
             Icons.chevron_right_rounded,
-            color: isLocked ? Colors.white24 : (isDark ? Colors.white70 : Colors.black87),
+            color: isLocked
+                ? Colors.white24
+                : (isDark ? Colors.white70 : Colors.black87),
             size: 24,
           ),
         ],

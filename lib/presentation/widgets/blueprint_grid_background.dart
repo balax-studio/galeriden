@@ -37,7 +37,8 @@ class BlueprintGridBackground extends StatelessWidget {
     Color effectiveColor;
     if (patternColor != null) {
       effectiveColor = patternColor!.withValues(alpha: opacity);
-    } else if (activePalette != null && activePalette.id == 'toksik_asit_cyber') {
+    } else if (activePalette != null &&
+        activePalette.id == 'toksik_asit_cyber') {
       // Absurd theme uses glowing neon acid / magenta grid
       effectiveColor = const Color(0xFFCCFF00).withValues(alpha: 0.08);
     } else if (activePalette != null && activePalette.id == 'egzotik_neo_pop') {
@@ -111,11 +112,13 @@ class _BlueprintPatternPainter extends CustomPainter {
 
         int col = 0;
         for (double x = 0; x <= size.width; x += spacing, col++) {
-          canvas.drawLine(Offset(x, 0), Offset(x, size.height), (col % 4 == 0) ? majorPaint : paint);
+          canvas.drawLine(Offset(x, 0), Offset(x, size.height),
+              (col % 4 == 0) ? majorPaint : paint);
         }
         int row = 0;
         for (double y = 0; y <= size.height; y += spacing, row++) {
-          canvas.drawLine(Offset(0, y), Offset(size.width, y), (row % 4 == 0) ? majorPaint : paint);
+          canvas.drawLine(Offset(0, y), Offset(size.width, y),
+              (row % 4 == 0) ? majorPaint : paint);
         }
         break;
 
@@ -123,8 +126,10 @@ class _BlueprintPatternPainter extends CustomPainter {
         final crossSize = spacing * 0.25;
         for (double x = spacing; x < size.width; x += spacing) {
           for (double y = spacing; y < size.height; y += spacing) {
-            canvas.drawLine(Offset(x - crossSize, y), Offset(x + crossSize, y), paint);
-            canvas.drawLine(Offset(x, y - crossSize), Offset(x, y + crossSize), paint);
+            canvas.drawLine(
+                Offset(x - crossSize, y), Offset(x + crossSize, y), paint);
+            canvas.drawLine(
+                Offset(x, y - crossSize), Offset(x, y + crossSize), paint);
           }
         }
         break;

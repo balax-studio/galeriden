@@ -46,12 +46,15 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
     final lang = Localizations.localeOf(context).languageCode;
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
-    final isDark = themeExt?.palette.isDark ?? (Theme.of(context).brightness == Brightness.dark);
+    final isDark = themeExt?.palette.isDark ??
+        (Theme.of(context).brightness == Brightness.dark);
 
     if (!game.isFeatureUnlocked('/staff-academy')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: NeoBrutalAppBar(title: context.tr('staff_academy_screen_title')),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar:
+            NeoBrutalAppBar(title: context.tr('staff_academy_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/staff-academy',
           featureTitle: context.tr('staff_academy_screen_title'),
@@ -67,7 +70,8 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
         : allCourses.where((c) => c.role == _selectedRoleFilter).toList();
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('staff_academy_screen_title'),
       ),
@@ -79,7 +83,8 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Row(
               children: [
@@ -89,11 +94,14 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                     color: const Color(0xFFA855F7),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.school_rounded, color: Colors.white, size: 24),
+                  child: const Icon(Icons.school_rounded,
+                      color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -102,12 +110,16 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                     children: [
                       Text(
                         context.tr('academy_header_title'),
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                        style: const TextStyle(
+                            fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         context.tr('academy_header_desc'),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -160,38 +172,48 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                context.tr('academy_courses_count', {'count': '${filteredCourses.length}'}),
+              Expanded(
+                  child: Text(
+                context.tr('academy_courses_count',
+                    {'count': '${filteredCourses.length}'}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
                   color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                 ),
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 10),
 
           ...filteredCourses.map((course) {
-            final matchingStaff = staffList.where((s) => s.role == course.role).toList();
+            final matchingStaff =
+                staffList.where((s) => s.role == course.role).toList();
             final hasStaff = matchingStaff.isNotEmpty;
-            final isFacilityUnlocked = game.isFeatureUnlocked(course.role.requiredFeatureRoute);
+            final isFacilityUnlocked =
+                game.isFeatureUnlocked(course.role.requiredFeatureRoute);
 
             // Check if any matching staff completed this course
-            final trainedStaff = matchingStaff.where((s) => s.completedCourseIds.contains(course.id)).toList();
-            final isCompletedByAllHired = hasStaff && trainedStaff.length == matchingStaff.length;
+            final trainedStaff = matchingStaff
+                .where((s) => s.completedCourseIds.contains(course.id))
+                .toList();
+            final isCompletedByAllHired =
+                hasStaff && trainedStaff.length == matchingStaff.length;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
                 borderColor: isCompletedByAllHired
                     ? AppColors.brutalGreen
                     : (!isFacilityUnlocked
                         ? AppColors.brutalOrange
-                        : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A))),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,11 +230,14 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                                   color: course.color,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? const Color(0xFF333B4F)
+                                        : const Color(0xFF0F172A),
                                     width: 1.5,
                                   ),
                                 ),
-                                child: Icon(course.icon, color: Colors.black, size: 20),
+                                child: Icon(course.icon,
+                                    color: Colors.black, size: 20),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
@@ -221,11 +246,19 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                                   children: [
                                     Text(
                                       course.getLocalizedTitle(lang),
-                                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                                      style: const TextStyle(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w900),
                                     ),
                                     Text(
-                                      context.tr('academy_target_role', {'role': course.role.getLocalizedTitle(lang)}),
-                                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                                      context.tr('academy_target_role', {
+                                        'role':
+                                            course.role.getLocalizedTitle(lang)
+                                      }),
+                                      style: const TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF64748B)),
                                     ),
                                   ],
                                 ),
@@ -252,17 +285,22 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                     const SizedBox(height: 8),
                     Text(
                       course.description,
-                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: course.color.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        context.tr('academy_bonus_label', {'bonus': course.bonusSummary}),
+                        context.tr('academy_bonus_label',
+                            {'bonus': course.bonusSummary}),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
@@ -274,36 +312,49 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          isCompletedByAllHired ? context.tr('academy_graduated') : CurrencyFormatter.formatShort(course.cost),
+                        Expanded(
+                            child: Text(
+                          isCompletedByAllHired
+                              ? context.tr('academy_graduated')
+                              : CurrencyFormatter.formatShort(course.cost),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
-                            color: isCompletedByAllHired ? const Color(0xFF64748B) : AppColors.brutalGreen,
+                            color: isCompletedByAllHired
+                                ? const Color(0xFF64748B)
+                                : AppColors.brutalGreen,
                           ),
-                        ),
+                        )),
                         if (isCompletedByAllHired)
                           NeoBrutalButton(
                             label: context.tr('academy_cert_active'),
                             icon: Icons.check_circle_rounded,
-                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                            backgroundColor: isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white54 : Colors.black54,
                             fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
                             onPressed: null,
                           )
                         else if (!isFacilityUnlocked)
                           NeoBrutalButton(
                             label: context.tr('academy_facility_required'),
                             icon: Icons.lock_rounded,
-                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                            backgroundColor: isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white38 : Colors.black38,
                             fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
                             onPressed: () {
                               NotificationService.showInfo(
                                 context,
-                                context.tr('academy_facility_required_toast', {'facility': course.role.requiredFacilityName}),
+                                context.tr('academy_facility_required_toast', {
+                                  'facility': course.role.requiredFacilityName
+                                }),
                               );
                             },
                           )
@@ -311,14 +362,19 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                           NeoBrutalButton(
                             label: context.tr('academy_no_staff_badge'),
                             icon: Icons.person_off_rounded,
-                            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                            backgroundColor: isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFE2E8F0),
                             textColor: isDark ? Colors.white54 : Colors.black54,
                             fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
                             onPressed: () {
                               NotificationService.showInfo(
                                 context,
-                                context.tr('academy_hire_first_toast', {'role': course.role.getLocalizedTitle(lang)}),
+                                context.tr('academy_hire_first_toast', {
+                                  'role': course.role.getLocalizedTitle(lang)
+                                }),
                               );
                             },
                           )
@@ -329,24 +385,33 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             backgroundColor: course.color,
                             textColor: Colors.black,
                             fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
                             onPressed: () {
                               // Find staff who hasn't finished this course
                               final candidateStaff = matchingStaff.firstWhere(
-                                (s) => !s.completedCourseIds.contains(course.id),
+                                (s) =>
+                                    !s.completedCourseIds.contains(course.id),
                                 orElse: () => matchingStaff.first,
                               );
 
                               if (game.balance < course.cost) {
-                                NotificationService.showError(context, context.tr('insufficient_balance'));
+                                NotificationService.showError(context,
+                                    context.tr('insufficient_balance'));
                                 return;
                               }
 
-                              final success = ref.read(gameProvider.notifier).trainStaffMember(candidateStaff.id, course);
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .trainStaffMember(candidateStaff.id, course);
                               if (success) {
                                 NotificationService.showSuccess(
                                   context,
-                                  context.tr('academy_training_complete_toast', {'name': candidateStaff.name, 'course': course.getLocalizedTitle(lang)}),
+                                  context.tr(
+                                      'academy_training_complete_toast', {
+                                    'name': candidateStaff.name,
+                                    'course': course.getLocalizedTitle(lang)
+                                  }),
                                 );
                               }
                             },

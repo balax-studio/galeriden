@@ -50,7 +50,8 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
           child: NeoBrutalCard(
             padding: const EdgeInsets.all(12),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 12,
             onTap: () => context.push('/marketplace'),
             child: Row(
@@ -60,10 +61,14 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 1.5,
                     ),
                   ),
@@ -73,18 +78,23 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                       Icon(
                         Icons.directions_car_filled_rounded,
                         size: 38,
-                        color: isDark ? palette.primaryColor : const Color(0xFF0F172A),
+                        color: isDark
+                            ? palette.primaryColor
+                            : const Color(0xFF0F172A),
                       ),
                       Positioned(
                         top: 4,
                         left: 4,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 1),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFDE59),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 1.5,
                             ),
                           ),
@@ -113,7 +123,8 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -124,9 +135,11 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                       Row(
                         children: [
                           NeoBrutalBadge(
-                            text: '${(exp.mileage / 1000).toStringAsFixed(0)}k KM',
+                            text:
+                                '${(exp.mileage / 1000).toStringAsFixed(0)}k KM',
                             fontSize: 9.5,
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 2),
                           ),
                           const SizedBox(width: 4),
                           NeoBrutalBadge(
@@ -140,7 +153,8 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                                     : const Color(0xFFFF54B0)),
                             textColor: Colors.black,
                             fontSize: 9.5,
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 2),
                           ),
                           if (isGoodDeal) ...[
                             const SizedBox(width: 4),
@@ -149,7 +163,8 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                               backgroundColor: const Color(0xFF3B82F6),
                               textColor: Colors.white,
                               fontSize: 9.5,
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 2),
                             ),
                           ],
                         ],
@@ -160,22 +175,31 @@ class DashboardMarketplaceVitrinList extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          Expanded(
+                              child: Text(
                             CurrencyFormatter.formatShort(listing.askingPrice),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? const Color(0xFF00E575) : const Color(0xFF15803D),
+                              color: isDark
+                                  ? const Color(0xFF00E575)
+                                  : const Color(0xFF15803D),
                             ),
-                          ),
-                          Text(
-                            context.tr('market_price_label', {'price': CurrencyFormatter.formatShort(car.baseMarketValue)}),
+                          )),
+                          Expanded(
+                              child: Text(
+                            context.tr('market_price_label', {
+                              'price': CurrencyFormatter.formatShort(
+                                  car.baseMarketValue)
+                            }),
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
                             ),
-                          ),
+                          )),
                         ],
                       ),
                     ],
@@ -224,7 +248,9 @@ class DashboardMarketTrendCard extends StatelessWidget {
                   color: const Color(0xFF3B82F6),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
                     width: 2.0,
                   ),
                 ),
@@ -252,10 +278,13 @@ class DashboardMarketTrendCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
+                color:
+                    isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFFCBD5E1),
                   width: 1,
                 ),
               ),
@@ -267,7 +296,9 @@ class DashboardMarketTrendCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w800,
-                      color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309),
+                      color: isDark
+                          ? const Color(0xFFFFDE59)
+                          : const Color(0xFFB45309),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -276,7 +307,9 @@ class DashboardMarketTrendCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -298,14 +331,18 @@ class DashboardMarketTrendCard extends StatelessWidget {
                       ? const Color(0xFF00E575).withValues(alpha: 0.15)
                       : (isLow
                           ? const Color(0xFFEF4444).withValues(alpha: 0.15)
-                          : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))),
+                          : (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0))),
                   borderRadius: BorderRadius.circular(5),
                   border: Border.all(
                     color: isHigh
                         ? const Color(0xFF00E575)
                         : (isLow
                             ? const Color(0xFFEF4444)
-                            : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1))),
+                            : (isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFFCBD5E1))),
                     width: 1.1,
                   ),
                 ),
@@ -315,10 +352,16 @@ class DashboardMarketTrendCard extends StatelessWidget {
                     fontSize: 9.5,
                     fontWeight: FontWeight.w800,
                     color: isHigh
-                        ? (isDark ? const Color(0xFF00E575) : const Color(0xFF15803D))
+                        ? (isDark
+                            ? const Color(0xFF00E575)
+                            : const Color(0xFF15803D))
                         : (isLow
-                            ? (isDark ? const Color(0xFFFF6B6B) : const Color(0xFFDC2626))
-                            : (isDark ? Colors.white70 : const Color(0xFF475569))),
+                            ? (isDark
+                                ? const Color(0xFFFF6B6B)
+                                : const Color(0xFFDC2626))
+                            : (isDark
+                                ? Colors.white70
+                                : const Color(0xFF475569))),
                   ),
                 ),
               );

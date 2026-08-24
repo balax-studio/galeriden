@@ -45,12 +45,15 @@ class WorkshopEquipmentTile extends StatelessWidget {
               color: color,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 2.0,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isDark ? const Color(0xFF000000) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF000000)
+                      : const Color(0xFF0F172A),
                   offset: const Offset(2, 2),
                   blurRadius: 0,
                 ),
@@ -68,7 +71,8 @@ class WorkshopEquipmentTile extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                        style: const TextStyle(
+                            fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
                     ),
                     if (isOwned)
@@ -83,15 +87,23 @@ class WorkshopEquipmentTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   description,
-                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isOwned ? context.tr('equipment_installed') : context.tr('equipment_price_label', {'cost': CurrencyFormatter.format(cost)}),
+                  isOwned
+                      ? context.tr('equipment_installed')
+                      : context.tr('equipment_price_label',
+                          {'cost': CurrencyFormatter.format(cost)}),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
-                    color: isOwned ? const Color(0xFF64748B) : const Color(0xFFFF7A00),
+                    color: isOwned
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFFFF7A00),
                   ),
                 ),
               ],

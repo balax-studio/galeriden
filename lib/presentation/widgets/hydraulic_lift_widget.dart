@@ -32,7 +32,10 @@ class _HydraulicLiftWidgetState extends State<HydraulicLiftWidget>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest && widget.isLifting) {
       _controller.repeat(reverse: true);
     } else {
@@ -43,7 +46,10 @@ class _HydraulicLiftWidgetState extends State<HydraulicLiftWidget>
   @override
   void didUpdateWidget(covariant HydraulicLiftWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (isTest) return;
     if (widget.isLifting && !_controller.isAnimating) {
       _controller.repeat(reverse: true);

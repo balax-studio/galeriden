@@ -74,7 +74,8 @@ class ZeigarnikProgressBar extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: fillColor,
-                  borderRadius: BorderRadius.circular(math.max(0, borderRadius - 2)),
+                  borderRadius:
+                      BorderRadius.circular(math.max(0, borderRadius - 2)),
                 ),
               ),
             );

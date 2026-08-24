@@ -38,9 +38,12 @@ class NeoBrutalAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final p = themeExt?.palette;
     final isDark = p?.isDark ?? Theme.of(context).brightness == Brightness.dark;
 
-    final bgColor = p?.surfaceColor ?? (isDark ? const Color(0xFF141721) : Colors.white);
-    final borderColor = p?.surfaceBorderColor ?? (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A));
-    final textColor = p?.textPrimaryColor ?? (isDark ? Colors.white : const Color(0xFF0F172A));
+    final bgColor =
+        p?.surfaceColor ?? (isDark ? const Color(0xFF141721) : Colors.white);
+    final borderColor = p?.surfaceBorderColor ??
+        (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A));
+    final textColor = p?.textPrimaryColor ??
+        (isDark ? Colors.white : const Color(0xFF0F172A));
 
     return Container(
       decoration: BoxDecoration(
@@ -123,55 +126,58 @@ class NeoBrutalAppBar extends ConsumerWidget implements PreferredSizeWidget {
                               } catch (_) {}
                             }
                           },
-                        child: Container(
-                          padding: const EdgeInsets.all(4.0), // increased hit area
                           child: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: borderColor,
-                                width: 2.0,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
+                            padding:
+                                const EdgeInsets.all(4.0), // increased hit area
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
                                   color: borderColor,
-                                  offset: const Offset(2, 2),
-                                  blurRadius: 0,
+                                  width: 2.0,
                                 ),
-                              ],
-                            ),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.arrow_back_rounded,
-                              size: 20,
-                              color: textColor,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: borderColor,
+                                    offset: const Offset(2, 2),
+                                    blurRadius: 0,
+                                  ),
+                                ],
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.arrow_back_rounded,
+                                size: 20,
+                                color: textColor,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
 
-                  // Far-right: Action items
-                  if (actions != null && actions!.isNotEmpty)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: actions!,
+                    // Far-right: Action items
+                    if (actions != null && actions!.isNotEmpty)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: actions!,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          if (bottom != null) bottom!,
-        ],
+            if (bottom != null) bottom!,
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 }
 
@@ -197,7 +203,8 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
     final p = themeExt?.palette;
     final isDark = p?.isDark ?? Theme.of(context).brightness == Brightness.dark;
 
-    final borderColor = p?.surfaceBorderColor ?? (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A));
+    final borderColor = p?.surfaceBorderColor ??
+        (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A));
 
     return Container(
       height: 48,
@@ -235,7 +242,8 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
         labelColor: const Color(0xFF0F172A),
-        unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+        unselectedLabelColor:
+            isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
         labelStyle: const TextStyle(
           fontWeight: FontWeight.w900,
           fontSize: 12,

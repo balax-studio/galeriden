@@ -34,7 +34,8 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
         child: NeoBrutalCard(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderWidth: 2.5,
           borderRadius: 16,
           shadowOffset: const Offset(4, 4),
@@ -44,7 +45,9 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A1D1D) : const Color(0xFFFEE2E2),
+                  color: isDark
+                      ? const Color(0xFF2A1D1D)
+                      : const Color(0xFFFEE2E2),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: AppColors.errorRed,
@@ -69,7 +72,8 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   NeoBrutalBadge(
-                    text: context.tr('level_required_badge', {'level': reqLevel}),
+                    text:
+                        context.tr('level_required_badge', {'level': reqLevel}),
                     backgroundColor: AppColors.errorRed,
                     textColor: Colors.white,
                     fontSize: 11,
@@ -91,7 +95,9 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
                   height: 1.45,
                 ),
               ),
@@ -113,7 +119,8 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
               NeoBrutalButton(
                 label: context.tr('btn_go_back'),
                 icon: Icons.arrow_back_rounded,
-                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                backgroundColor:
+                    isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
                 textColor: isDark ? Colors.white : Colors.black,
                 fullWidth: true,
                 onPressed: () {

@@ -2776,5 +2776,16 @@ const Map<String, String> esTranslations = {
     'mission_consignment_desc': 'Acepta {count} vehículos en consignación con comisión en tu showroom.',
     'mission_side_biz_title': 'Ingresos de Negocios Secundarios',
     'mission_side_biz_desc': 'Mejora tus negocios secundarios o cobra los ingresos diarios.',
+
+    'event_muddy_rain_title': 'LLUVIA DE BARRO',
+    'event_muddy_rain_desc': 'Una lluvia de barro cayó durante la noche, ensuciando todos los vehículos expuestos. Su valor cayó un 5%, necesitan ser lavados inmediatamente.',
+    'event_staff_resignation_title': 'RENUNCIA DE PERSONAL',
+    'event_staff_resignation_desc': 'Debido a salarios impagos, {names} dejó su concesionario y renunció.',
+    'event_salary_unpaid_loyal_title': 'SALARIOS IMPAGOS - LEALTAD',
+    'event_salary_unpaid_loyal_desc': 'No se pudieron pagar los salarios. La moral de {names} cayó a cero, pero gracias a su lealtad, no renunciaron. La lealtad y la moral disminuyeron.',
+    'event_salary_unpaid_title': 'SALARIOS IMPAGOS',
+    'event_salary_unpaid_desc': 'Debido a la falta de efectivo, no se pudieron pagar los salarios diarios. La moral y la lealtad del personal sufrieron un fuerte impacto. -35 Moral, -20 Lealtad.',
+    'event_ok': 'Vale',
+    'badge_muddy': 'BARRO',
 };
 

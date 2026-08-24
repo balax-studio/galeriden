@@ -99,7 +99,8 @@ class ThemeState {
         ],
       ),
       labelColor: const Color(0xFF0F172A),
-      unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+      unselectedLabelColor:
+          isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
       labelStyle: const TextStyle(
         fontWeight: FontWeight.w900,
         fontSize: 13,
@@ -133,7 +134,9 @@ class ThemeState {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 2.0),
+          side: BorderSide(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 2.0),
         ),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w900,
@@ -169,17 +172,20 @@ class ThemeState {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 2.0),
+        borderSide:
+            BorderSide(color: activePalette.surfaceBorderColor, width: 2.0),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: activePalette.surfaceBorderColor, width: 2.0),
+        borderSide:
+            BorderSide(color: activePalette.surfaceBorderColor, width: 2.0),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: activePalette.primaryColor, width: 2.0),
       ),
-      hintStyle: TextStyle(color: activePalette.textSecondaryColor, fontSize: 13),
+      hintStyle:
+          TextStyle(color: activePalette.textSecondaryColor, fontSize: 13),
     );
   }
 
@@ -193,7 +199,10 @@ class ThemeState {
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(color: activePalette.surfaceBorderColor, width: 1.5),
       ),
-      labelStyle: TextStyle(color: activePalette.textPrimaryColor, fontSize: 12, fontWeight: FontWeight.w700),
+      labelStyle: TextStyle(
+          color: activePalette.textPrimaryColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w700),
     );
   }
 
@@ -250,13 +259,18 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
     final jsonString = prefs.getString(_storageKey);
     final activeId = prefs.getString(_activeIdKey) ?? 'sanayi_ciragi_light';
 
-    List<ThemePaletteModel> basePalettes = List<ThemePaletteModel>.from(ThemePaletteModel.defaultPalettes);
+    List<ThemePaletteModel> basePalettes =
+        List<ThemePaletteModel>.from(ThemePaletteModel.defaultPalettes);
 
     if (jsonString != null) {
       try {
         final List<dynamic> decoded = jsonDecode(jsonString);
-        final storedList = decoded.map((item) => ThemePaletteModel.fromJson(item as Map<String, dynamic>)).toList();
-        final unlockedIds = storedList.where((p) => p.isUnlocked).map((p) => p.id).toSet();
+        final storedList = decoded
+            .map((item) =>
+                ThemePaletteModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+        final unlockedIds =
+            storedList.where((p) => p.isUnlocked).map((p) => p.id).toSet();
 
         basePalettes = basePalettes.map((p) {
           if (unlockedIds.contains(p.id)) {
@@ -283,7 +297,8 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
 
   Future<void> _saveThemeState() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = jsonEncode(state.availablePalettes.map((p) => p.toJson()).toList());
+    final jsonString =
+        jsonEncode(state.availablePalettes.map((p) => p.toJson()).toList());
     await prefs.setString(_storageKey, jsonString);
     await prefs.setString(_activeIdKey, state.activePalette.id);
   }

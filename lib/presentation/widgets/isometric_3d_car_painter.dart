@@ -30,7 +30,10 @@ class Isometric3DCarPainter extends CustomPainter {
       ..color = Colors.black.withValues(alpha: 0.45)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
     final shadowPath = Path()
-      ..addOval(Rect.fromCenter(center: center + Offset(0, 18 * scale), width: 75 * scale, height: 35 * scale));
+      ..addOval(Rect.fromCenter(
+          center: center + Offset(0, 18 * scale),
+          width: 75 * scale,
+          height: 35 * scale));
     canvas.drawPath(shadowPath, shadowPaint);
 
     // 2. Headlight Beam Reflection (Isometric Forward Left)
@@ -43,7 +46,8 @@ class Isometric3DCarPainter extends CustomPainter {
             AppColors.primaryAmber.withValues(alpha: 0.35),
             Colors.white.withValues(alpha: 0.0),
           ],
-        ).createShader(Rect.fromLTWH(center.dx - 60 * scale, center.dy, 45 * scale, 30 * scale));
+        ).createShader(Rect.fromLTWH(
+            center.dx - 60 * scale, center.dy, 45 * scale, 30 * scale));
 
       final beamPath = Path()
         ..moveTo(center.dx - 15 * scale, center.dy + 8 * scale)
@@ -55,8 +59,14 @@ class Isometric3DCarPainter extends CustomPainter {
 
     // 3. Volumetric 3D Car Body Base Colors
     Color topColor = bodyColor;
-    Color sideColor = HSLColor.fromColor(bodyColor).withLightness(math.max(0.1, HSLColor.fromColor(bodyColor).lightness - 0.15)).toColor();
-    Color frontColor = HSLColor.fromColor(bodyColor).withLightness(math.max(0.05, HSLColor.fromColor(bodyColor).lightness - 0.25)).toColor();
+    Color sideColor = HSLColor.fromColor(bodyColor)
+        .withLightness(
+            math.max(0.1, HSLColor.fromColor(bodyColor).lightness - 0.15))
+        .toColor();
+    Color frontColor = HSLColor.fromColor(bodyColor)
+        .withLightness(
+            math.max(0.05, HSLColor.fromColor(bodyColor).lightness - 0.25))
+        .toColor();
 
     // 4. Side Face (Isometric Right-Down)
     final sidePath = Path()
@@ -89,12 +99,22 @@ class Isometric3DCarPainter extends CustomPainter {
       end: Alignment.bottomRight,
       colors: [
         topColor,
-        HSLColor.fromColor(topColor).withLightness(math.min(0.9, HSLColor.fromColor(topColor).lightness + 0.2)).toColor(),
+        HSLColor.fromColor(topColor)
+            .withLightness(
+                math.min(0.9, HSLColor.fromColor(topColor).lightness + 0.2))
+            .toColor(),
         topColor,
       ],
       stops: const [0.0, 0.5, 1.0],
     );
-    canvas.drawPath(topPath, Paint()..shader = metallicGradient.createShader(Rect.fromLTWH(center.dx - 30 * scale, center.dy - 25 * scale, 50 * scale, 45 * scale)));
+    canvas.drawPath(
+        topPath,
+        Paint()
+          ..shader = metallicGradient.createShader(Rect.fromLTWH(
+              center.dx - 30 * scale,
+              center.dy - 25 * scale,
+              50 * scale,
+              45 * scale)));
 
     // 7. Glass Windows (Cyan Obsidian Tint)
     final windshieldPath = Path()
@@ -103,7 +123,8 @@ class Isometric3DCarPainter extends CustomPainter {
       ..lineTo(center.dx - 3 * scale, center.dy + 2 * scale)
       ..lineTo(center.dx - 18 * scale, center.dy - 6 * scale)
       ..close();
-    final glassPaint = Paint()..color = const Color(0xFF0F2B48).withValues(alpha: 0.85);
+    final glassPaint = Paint()
+      ..color = const Color(0xFF0F2B48).withValues(alpha: 0.85);
     canvas.drawPath(windshieldPath, glassPaint);
 
     // 8. Wheels (3D Isometric Cylinder Rims)
@@ -111,12 +132,16 @@ class Isometric3DCarPainter extends CustomPainter {
     final rimPaint = Paint()..color = AppColors.primaryAmber;
 
     // Front-Left Wheel
-    canvas.drawCircle(center + Offset(-18 * scale, 16 * scale), 5 * scale, wheelPaint);
-    canvas.drawCircle(center + Offset(-18 * scale, 16 * scale), 2.5 * scale, rimPaint);
+    canvas.drawCircle(
+        center + Offset(-18 * scale, 16 * scale), 5 * scale, wheelPaint);
+    canvas.drawCircle(
+        center + Offset(-18 * scale, 16 * scale), 2.5 * scale, rimPaint);
 
     // Rear-Left Wheel
-    canvas.drawCircle(center + Offset(15 * scale, 14 * scale), 5 * scale, wheelPaint);
-    canvas.drawCircle(center + Offset(15 * scale, 14 * scale), 2.5 * scale, rimPaint);
+    canvas.drawCircle(
+        center + Offset(15 * scale, 14 * scale), 5 * scale, wheelPaint);
+    canvas.drawCircle(
+        center + Offset(15 * scale, 14 * scale), 2.5 * scale, rimPaint);
 
     // 9. Kaporta Damage Scratch Layer (if damaged)
     if (damagePercent > 20) {
@@ -124,9 +149,11 @@ class Isometric3DCarPainter extends CustomPainter {
         ..color = Colors.black.withValues(alpha: 0.6)
         ..strokeWidth = 1.5
         ..style = PaintingStyle.stroke;
-      canvas.drawLine(center + Offset(-10 * scale, 0), center + Offset(-2 * scale, 8 * scale), scratchPaint);
+      canvas.drawLine(center + Offset(-10 * scale, 0),
+          center + Offset(-2 * scale, 8 * scale), scratchPaint);
       if (damagePercent > 50) {
-        canvas.drawLine(center + Offset(2 * scale, -5 * scale), center + Offset(12 * scale, 2 * scale), scratchPaint);
+        canvas.drawLine(center + Offset(2 * scale, -5 * scale),
+            center + Offset(12 * scale, 2 * scale), scratchPaint);
       }
     }
   }

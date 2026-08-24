@@ -13,7 +13,8 @@ class HydraulicCrushWaveWidget extends StatefulWidget {
   });
 
   @override
-  State<HydraulicCrushWaveWidget> createState() => _HydraulicCrushWaveWidgetState();
+  State<HydraulicCrushWaveWidget> createState() =>
+      _HydraulicCrushWaveWidgetState();
 }
 
 class _HydraulicCrushWaveWidgetState extends State<HydraulicCrushWaveWidget>
@@ -31,7 +32,10 @@ class _HydraulicCrushWaveWidgetState extends State<HydraulicCrushWaveWidget>
 
     _waveProgress = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.forward().then((_) => widget.onComplete?.call());
     } else {
@@ -103,5 +107,6 @@ class _CrushWavePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _CrushWavePainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _CrushWavePainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

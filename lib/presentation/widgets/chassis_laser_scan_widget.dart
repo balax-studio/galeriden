@@ -34,7 +34,10 @@ class _ChassisLaserScanWidgetState extends State<ChassisLaserScanWidget>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest && widget.isScanning) {
       _controller.repeat(reverse: true);
     } else {
@@ -45,7 +48,10 @@ class _ChassisLaserScanWidgetState extends State<ChassisLaserScanWidget>
   @override
   void didUpdateWidget(covariant ChassisLaserScanWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (isTest) return;
 
     if (widget.isScanning && !_controller.isAnimating) {

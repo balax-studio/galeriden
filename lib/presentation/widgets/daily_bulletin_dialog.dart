@@ -46,7 +46,8 @@ class DailyBulletinDialog extends ConsumerWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: NeoBrutalCard(
         padding: const EdgeInsets.all(18),
-        backgroundColor: isDark ? const Color(0xFF141721) : const Color(0xFFFFFBEB),
+        backgroundColor:
+            isDark ? const Color(0xFF141721) : const Color(0xFFFFFBEB),
         borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
         borderWidth: 2.5,
         borderRadius: 16,
@@ -60,7 +61,9 @@ class DailyBulletinDialog extends ConsumerWidget {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
                     width: 2.0,
                   ),
                 ),
@@ -71,7 +74,8 @@ class DailyBulletinDialog extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        context.tr('bulletin_day_header', {'day': game.currentDay}),
+                        context.tr(
+                            'bulletin_day_header', {'day': game.currentDay}),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -100,11 +104,14 @@ class DailyBulletinDialog extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    context.tr('bulletin_season_info', {'day': currentDayName, 'season': season}),
+                    context.tr('bulletin_season_info',
+                        {'day': currentDayName, 'season': season}),
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -127,7 +134,8 @@ class DailyBulletinDialog extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.newspaper_rounded, size: 16, color: Color(0xFFFF7A00)),
+                          const Icon(Icons.newspaper_rounded,
+                              size: 16, color: Color(0xFFFF7A00)),
                           const SizedBox(width: 6),
                           Text(
                             weeklyEvent.title,
@@ -167,10 +175,14 @@ class DailyBulletinDialog extends ConsumerWidget {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1A1F2C) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF1A1F2C)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFFCBD5E1),
                         width: 1.0,
                       ),
                     ),
@@ -179,11 +191,15 @@ class DailyBulletinDialog extends ConsumerWidget {
                       children: [
                         Text(
                           context.tr('bulletin_vault_status'),
-                          style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                          style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF64748B)),
                         ),
                         Text(
                           CurrencyFormatter.formatShort(game.balance),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w900),
                         ),
                       ],
                     ),
@@ -194,10 +210,14 @@ class DailyBulletinDialog extends ConsumerWidget {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1A1F2C) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF1A1F2C)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFFCBD5E1),
                         width: 1.0,
                       ),
                     ),
@@ -206,11 +226,18 @@ class DailyBulletinDialog extends ConsumerWidget {
                       children: [
                         Text(
                           context.tr('bulletin_reputation_status'),
-                          style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                          style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF64748B)),
                         ),
                         Text(
-                          context.tr('bulletin_reputation_pts', {'score': game.reputation}),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
+                          context.tr('bulletin_reputation_pts',
+                              {'score': game.reputation}),
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF00E575)),
                         ),
                       ],
                     ),

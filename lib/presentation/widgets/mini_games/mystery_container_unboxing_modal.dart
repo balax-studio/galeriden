@@ -44,7 +44,8 @@ class MysteryContainerUnboxingModal extends StatefulWidget {
       ),
       transitionBuilder: (ctx, anim1, anim2, child) {
         return Transform.scale(
-          scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack).value,
+          scale:
+              CurvedAnimation(parent: anim1, curve: Curves.easeOutBack).value,
           child: child,
         );
       },
@@ -52,11 +53,12 @@ class MysteryContainerUnboxingModal extends StatefulWidget {
   }
 
   @override
-  State<MysteryContainerUnboxingModal> createState() => _MysteryContainerUnboxingModalState();
+  State<MysteryContainerUnboxingModal> createState() =>
+      _MysteryContainerUnboxingModalState();
 }
 
-class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxingModal>
-    with TickerProviderStateMixin {
+class _MysteryContainerUnboxingModalState
+    extends State<MysteryContainerUnboxingModal> with TickerProviderStateMixin {
   _UnboxingStage _stage = _UnboxingStage.sealed;
 
   late AnimationController _idlePulseController;
@@ -180,14 +182,16 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
             children: [
               // Top title & Port banner
               NeoBrutalCard(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 backgroundColor: const Color(0xFF0F172A),
                 borderColor: rarityColor,
                 borderRadius: 12,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.anchor_rounded, color: AppColors.brutalYellow, size: 20),
+                    const Icon(Icons.anchor_rounded,
+                        color: AppColors.brutalYellow, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       context.tr('bm_container_unboxing_title'),
@@ -204,7 +208,8 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
               const SizedBox(height: 14),
 
               // Main Animation Area
-              if (_stage == _UnboxingStage.sealed || _stage == _UnboxingStage.opening)
+              if (_stage == _UnboxingStage.sealed ||
+                  _stage == _UnboxingStage.opening)
                 _buildSealedContainerView(rarityColor)
               else
                 _buildRevealedCarCard(context, rarityColor),
@@ -219,12 +224,14 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 13,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   onPressed: _triggerBreakSeal,
                 )
               else if (_stage == _UnboxingStage.opening)
                 NeoBrutalCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   backgroundColor: const Color(0xFF1E293B),
                   borderColor: AppColors.brutalYellow,
                   borderRadius: 10,
@@ -234,12 +241,16 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                       const SizedBox(
                         width: 14,
                         height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.brutalYellow),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: AppColors.brutalYellow),
                       ),
                       const SizedBox(width: 10),
                       Text(
                         context.tr('bm_container_unboxing_opening'),
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.brutalYellow),
                       ),
                     ],
                   ),
@@ -251,7 +262,8 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
                   fontSize: 14,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                   onPressed: () {
                     Navigator.of(context).pop();
                     widget.onClaim();
@@ -275,7 +287,9 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
         final shakeOffset = isOpening
             ? math.sin(shakeVal * math.pi * frequency) * amplitude
             : 0.0;
-        final pulseScale = 1.0 + (_idlePulseController.value * 0.03) + (isOpening ? (shakeVal * 0.05) : 0.0);
+        final pulseScale = 1.0 +
+            (_idlePulseController.value * 0.03) +
+            (isOpening ? (shakeVal * 0.05) : 0.0);
 
         return Transform.translate(
           offset: Offset(shakeOffset, 0),
@@ -301,12 +315,14 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                   ),
                   if (isOpening) ...[
                     BoxShadow(
-                      color: rarityColor.withValues(alpha: 0.3 + (shakeVal * 0.6)),
+                      color:
+                          rarityColor.withValues(alpha: 0.3 + (shakeVal * 0.6)),
                       blurRadius: 16.0 + (shakeVal * 32.0),
                       spreadRadius: 2.0 + (shakeVal * 8.0),
                     ),
                     BoxShadow(
-                      color: AppColors.brutalYellow.withValues(alpha: 0.2 + (shakeVal * 0.4)),
+                      color: AppColors.brutalYellow
+                          .withValues(alpha: 0.2 + (shakeVal * 0.4)),
                       blurRadius: 8.0 + (shakeVal * 16.0),
                       spreadRadius: 1.0 + (shakeVal * 3.0),
                     ),
@@ -339,7 +355,8 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                           decoration: BoxDecoration(
                             color: const Color(0xFF1E293B),
                             borderRadius: BorderRadius.circular(2),
-                            border: Border.all(color: const Color(0xFF0F172A), width: 1.0),
+                            border: Border.all(
+                                color: const Color(0xFF0F172A), width: 1.0),
                           ),
                         ),
                       ),
@@ -351,7 +368,9 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: _stage == _UnboxingStage.opening ? AppColors.brutalYellow : const Color(0xFF0F172A),
+                        color: _stage == _UnboxingStage.opening
+                            ? AppColors.brutalYellow
+                            : const Color(0xFF0F172A),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white24, width: 3.0),
                         boxShadow: [
@@ -362,8 +381,12 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                         ],
                       ),
                       child: Icon(
-                        _stage == _UnboxingStage.opening ? Icons.lock_open_rounded : Icons.lock_rounded,
-                        color: _stage == _UnboxingStage.opening ? Colors.black : AppColors.brutalYellow,
+                        _stage == _UnboxingStage.opening
+                            ? Icons.lock_open_rounded
+                            : Icons.lock_rounded,
+                        color: _stage == _UnboxingStage.opening
+                            ? Colors.black
+                            : AppColors.brutalYellow,
                         size: 40,
                       ),
                     ),
@@ -374,7 +397,8 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                     left: 12,
                     bottom: 24,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF0F172A),
                         borderRadius: BorderRadius.circular(6),
@@ -440,7 +464,8 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                     backgroundColor: rarityColor,
                     textColor: Colors.black,
                     fontSize: 11,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   ),
                   const SizedBox(height: 12),
 
@@ -521,12 +546,19 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                             Expanded(
                               child: Text(
                                 context.tr('bm_container_valuation_label'),
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF94A3B8)),
                               ),
                             ),
                             Text(
-                              CurrencyFormatter.formatShort(car.baseMarketValue),
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
+                              CurrencyFormatter.formatShort(
+                                  car.baseMarketValue),
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white),
                             ),
                           ],
                         ),
@@ -537,12 +569,19 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                             Expanded(
                               child: Text(
                                 context.tr('bm_container_cost_label'),
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF94A3B8)),
                               ),
                             ),
                             Text(
-                              CurrencyFormatter.formatShort(BlackMarketContainerEngine.containerCost),
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
+                              CurrencyFormatter.formatShort(
+                                  BlackMarketContainerEngine.containerCost),
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF94A3B8)),
                             ),
                           ],
                         ),
@@ -553,7 +592,10 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                             Expanded(
                               child: Text(
                                 context.tr('bm_container_roi_profit'),
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF94A3B8)),
                               ),
                             ),
                             Text(
@@ -563,7 +605,9 @@ class _MysteryContainerUnboxingModalState extends State<MysteryContainerUnboxing
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w900,
-                                color: widget.result.profitMargin >= 0 ? AppColors.brutalGreen : AppColors.errorRed,
+                                color: widget.result.profitMargin >= 0
+                                    ? AppColors.brutalGreen
+                                    : AppColors.errorRed,
                               ),
                             ),
                           ],
@@ -595,7 +639,9 @@ class _HazardStripePainter extends CustomPainter {
     const stripeSpacing = 20.0;
 
     final path = Path();
-    for (double x = -size.height; x < size.width + size.height; x += stripeSpacing) {
+    for (double x = -size.height;
+        x < size.width + size.height;
+        x += stripeSpacing) {
       path.moveTo(x, size.height);
       path.lineTo(x + stripeWidth, size.height);
       path.lineTo(x + stripeWidth + size.height, 0);

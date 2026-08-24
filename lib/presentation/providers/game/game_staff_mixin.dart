@@ -7,7 +7,8 @@ mixin GameStaffMixin on GameBaseNotifier {
   /// Hire a staff member
   bool hireStaff(StaffModel staff) {
     if (!state.isFeatureUnlocked(staff.role.requiredFeatureRoute)) return false;
-    if (state.hiredStaff.any((s) => s.role == staff.role)) return false; // Max 1 per role
+    if (state.hiredStaff.any((s) => s.role == staff.role))
+      return false; // Max 1 per role
     state = state.copyWith(hiredStaff: [...state.hiredStaff, staff]);
     addXP(25);
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstStaffHire);
@@ -136,9 +137,10 @@ mixin GameStaffMixin on GameBaseNotifier {
     List<StaffModel> updatedList = List<StaffModel>.from(state.hiredStaff);
     updatedList[index] = updatedStaff;
 
-    final updatedAcademyPurchases = state.purchasedAcademyCourses.contains(course.id)
-        ? state.purchasedAcademyCourses
-        : [...state.purchasedAcademyCourses, course.id];
+    final updatedAcademyPurchases =
+        state.purchasedAcademyCourses.contains(course.id)
+            ? state.purchasedAcademyCourses
+            : [...state.purchasedAcademyCourses, course.id];
 
     state = state.copyWith(
       balance: state.balance - course.cost,

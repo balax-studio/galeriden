@@ -39,19 +39,25 @@ class DealerTitlePickerSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.brutalYellow,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF333B4F), width: 2.0),
+                  border:
+                      Border.all(color: const Color(0xFF333B4F), width: 2.0),
                 ),
-                child: const Icon(Icons.workspace_premium_rounded, color: Colors.black, size: 20),
+                child: const Icon(Icons.workspace_premium_rounded,
+                    color: Colors.black, size: 20),
               ),
               const SizedBox(width: 10),
               const Expanded(
                 child: Text(
                   'GALERİCİ LAKAPLARI & ÜNVANLAR',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14),
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 22),
+                icon: const Icon(Icons.close_rounded,
+                    color: Colors.white70, size: 22),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -59,7 +65,10 @@ class DealerTitlePickerSheet extends StatelessWidget {
           const SizedBox(height: 6),
           const Text(
             'Sanayi ve piyasada anıldığınız unvanı seçin; aktif perk kazanın.',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: Color(0xFF94A3B8),
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 14),
           ...DealerTitle.values.map((title) {
@@ -76,10 +85,12 @@ class DealerTitlePickerSheet extends StatelessWidget {
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(12),
                   backgroundColor: const Color(0xFF141721),
-                  borderColor: isSelected ? title.color : const Color(0xFF333B4F),
+                  borderColor:
+                      isSelected ? title.color : const Color(0xFF333B4F),
                   borderRadius: 10,
                   borderWidth: isSelected ? 2.5 : 2.0,
-                  shadowOffset: isSelected ? const Offset(3, 3) : const Offset(2, 2),
+                  shadowOffset:
+                      isSelected ? const Offset(3, 3) : const Offset(2, 2),
                   child: Row(
                     children: [
                       Icon(title.icon, color: title.color, size: 24),
@@ -99,7 +110,8 @@ class DealerTitlePickerSheet extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               title.description,
-                              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                              style: const TextStyle(
+                                  color: Color(0xFF94A3B8), fontSize: 11),
                             ),
                             const SizedBox(height: 6),
                             NeoBrutalBadge(
@@ -114,7 +126,8 @@ class DealerTitlePickerSheet extends StatelessWidget {
                         ),
                       ),
                       if (isSelected)
-                        Icon(Icons.check_circle_rounded, color: title.color, size: 22),
+                        Icon(Icons.check_circle_rounded,
+                            color: title.color, size: 22),
                     ],
                   ),
                 ),

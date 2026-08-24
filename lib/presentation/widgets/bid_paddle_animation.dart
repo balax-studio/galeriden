@@ -31,13 +31,19 @@ class _BidPaddleAnimationState extends State<BidPaddleAnimation>
     );
 
     _slideAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 60.0, end: -10.0), weight: 35),
-      TweenSequenceItem(tween: Tween<double>(begin: -10.0, end: 0.0), weight: 15),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: 60.0, end: -10.0), weight: 35),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: -10.0, end: 0.0), weight: 15),
       TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 0.0), weight: 25),
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 70.0), weight: 25),
+      TweenSequenceItem(
+          tween: Tween<double>(begin: 0.0, end: 70.0), weight: 25),
     ]).animate(_controller);
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.forward().then((_) => widget.onComplete?.call());
     } else {

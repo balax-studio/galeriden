@@ -17,7 +17,8 @@ class PlinkoModal extends ConsumerStatefulWidget {
   ConsumerState<PlinkoModal> createState() => _PlinkoModalState();
 }
 
-class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderStateMixin {
+class _PlinkoModalState extends ConsumerState<PlinkoModal>
+    with TickerProviderStateMixin {
   double _selectedBet = 50000.0;
   bool _isDropping = false;
   PlinkoDropResult? _lastResult;
@@ -29,7 +30,13 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
   List<int> _currentPath = [];
   final List<Offset> _impactPoints = [];
 
-  final List<double> _quickBets = [25000.0, 50000.0, 150000.0, 500000.0, 1000000.0];
+  final List<double> _quickBets = [
+    25000.0,
+    50000.0,
+    150000.0,
+    500000.0,
+    1000000.0
+  ];
 
   @override
   void initState() {
@@ -66,7 +73,9 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
       return;
     }
 
-    final result = ref.read(gameProvider.notifier).playCasinoPlinko(betAmount: _selectedBet);
+    final result = ref
+        .read(gameProvider.notifier)
+        .playCasinoPlinko(betAmount: _selectedBet);
     if (result == null) return;
 
     // Generate path to target slot
@@ -139,7 +148,8 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFF0F172A), width: 3.5),
           boxShadow: const [
-            BoxShadow(color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
+            BoxShadow(
+                color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
           ],
         ),
         child: Column(
@@ -149,16 +159,21 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
               decoration: const BoxDecoration(
                 color: Color(0xFF00E575),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                border: Border(bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
+                border: Border(
+                    bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
               ),
               child: Row(
                 children: [
-                  const VectorIconWidget(type: 'piston', color: Colors.black, size: 22),
+                  const VectorIconWidget(
+                      type: 'piston', color: Colors.black, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.tr('casino_plinko_title'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Colors.black),
                     ),
                   ),
                   GestureDetector(
@@ -170,7 +185,8 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(color: Colors.black, width: 1.5),
                       ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                      child: const Icon(Icons.close_rounded,
+                          color: Colors.white, size: 18),
                     ),
                   ),
                 ],
@@ -185,15 +201,20 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                     decoration: BoxDecoration(
                       color: const Color(0xFF0A0F1D),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF00E575), width: 2.5),
+                      border: Border.all(
+                          color: const Color(0xFF00E575), width: 2.5),
                       boxShadow: const [
-                        BoxShadow(color: Colors.black, offset: Offset(4, 4), blurRadius: 0),
+                        BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(4, 4),
+                            blurRadius: 0),
                       ],
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: AnimatedBuilder(
-                        animation: Listenable.merge([_dropController, _idleController]),
+                        animation: Listenable.merge(
+                            [_dropController, _idleController]),
                         builder: (context, _) {
                           return RepaintBoundary(
                             child: CustomPaint(
@@ -214,7 +235,8 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: CasinoEngine.plinkoMultipliers.asMap().entries.map((e) {
+                    children:
+                        CasinoEngine.plinkoMultipliers.asMap().entries.map((e) {
                       final idx = e.key;
                       final mult = e.value;
                       final isLanded = _highlightedSlot == idx;
@@ -233,7 +255,9 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                       return Expanded(
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          transform: isLanded ? Matrix4.diagonal3Values(1.1, 1.15, 1.0) : Matrix4.identity(),
+                          transform: isLanded
+                              ? Matrix4.diagonal3Values(1.1, 1.15, 1.0)
+                              : Matrix4.identity(),
                           margin: const EdgeInsets.symmetric(horizontal: 1.5),
                           padding: const EdgeInsets.symmetric(vertical: 7),
                           decoration: BoxDecoration(
@@ -244,7 +268,12 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                               width: isLanded ? 2.5 : 1.5,
                             ),
                             boxShadow: isLanded
-                                ? [const BoxShadow(color: AppColors.brutalGreen, blurRadius: 8, spreadRadius: 1)]
+                                ? [
+                                    const BoxShadow(
+                                        color: AppColors.brutalGreen,
+                                        blurRadius: 8,
+                                        spreadRadius: 1)
+                                  ]
                                 : null,
                           ),
                           child: Center(
@@ -253,7 +282,10 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                               style: TextStyle(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w900,
-                                color: (bg == const Color(0xFFFFDE59) || isLanded) ? Colors.black : Colors.white,
+                                color:
+                                    (bg == const Color(0xFFFFDE59) || isLanded)
+                                        ? Colors.black
+                                        : Colors.white,
                               ),
                             ),
                           ),
@@ -264,18 +296,26 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                   const SizedBox(height: 16),
                   if (_lastResult != null) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: _lastResult!.multiplier >= 1.0 ? AppColors.brutalGreen : AppColors.brutalRed,
+                        color: _lastResult!.multiplier >= 1.0
+                            ? AppColors.brutalGreen
+                            : AppColors.brutalRed,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFF0F172A), width: 2),
+                        border: Border.all(
+                            color: const Color(0xFF0F172A), width: 2),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _lastResult!.multiplier >= 1.0 ? Icons.emoji_events_rounded : Icons.trending_down_rounded,
-                            color: _lastResult!.multiplier >= 1.0 ? Colors.black : Colors.white,
+                            _lastResult!.multiplier >= 1.0
+                                ? Icons.emoji_events_rounded
+                                : Icons.trending_down_rounded,
+                            color: _lastResult!.multiplier >= 1.0
+                                ? Colors.black
+                                : Colors.white,
                             size: 18,
                           ),
                           const SizedBox(width: 6),
@@ -284,13 +324,19 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                               _lastResult!.multiplier >= 1.0
                                   ? context.tr('plinko_win_banner', {
                                       'mult': '${_lastResult!.multiplier}x',
-                                      'amount': _formatCurrency(_lastResult!.payoutAmount),
+                                      'amount': _formatCurrency(
+                                          _lastResult!.payoutAmount),
                                     })
-                                  : context.tr('plinko_loss_banner', {'amount': _formatCurrency(_lastResult!.payoutAmount)}),
+                                  : context.tr('plinko_loss_banner', {
+                                      'amount': _formatCurrency(
+                                          _lastResult!.payoutAmount)
+                                    }),
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 12,
-                                color: _lastResult!.multiplier >= 1.0 ? Colors.black : Colors.white,
+                                color: _lastResult!.multiplier >= 1.0
+                                    ? Colors.black
+                                    : Colors.white,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -302,7 +348,8 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                   ],
                   Text(
                     context.tr('casino_bet_amount_label'),
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900, fontSize: 12),
                   ),
                   const SizedBox(height: 6),
                   SingleChildScrollView(
@@ -318,18 +365,28 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                               setState(() => _selectedBet = bet);
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                                color: isSel
+                                    ? AppColors.brutalYellow
+                                    : (isDark
+                                        ? const Color(0xFF1E293B)
+                                        : const Color(0xFFF1F5F9)),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                                border: Border.all(
+                                    color: const Color(0xFF0F172A), width: 1.5),
                               ),
                               child: Text(
                                 _formatCurrency(bet),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w900,
-                                  color: isSel ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                  color: isSel
+                                      ? Colors.black
+                                      : (isDark
+                                          ? Colors.white70
+                                          : Colors.black87),
                                 ),
                               ),
                             ),
@@ -340,7 +397,9 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal> with TickerProviderSt
                   ),
                   const SizedBox(height: 16),
                   NeoBrutalButton(
-                    label: _isDropping ? context.tr('plinko_btn_dropping') : context.tr('plinko_btn_drop'),
+                    label: _isDropping
+                        ? context.tr('plinko_btn_dropping')
+                        : context.tr('plinko_btn_drop'),
                     icon: Icons.south_rounded,
                     backgroundColor: const Color(0xFF00E575),
                     textColor: Colors.black,
@@ -405,7 +464,8 @@ class _PlinkoPhysicsPainter extends CustomPainter {
       for (int c = 0; c < pinCount; c++) {
         final x = (c + 1) * spacing;
         final pinPos = Offset(x, y);
-        canvas.drawCircle(pinPos, 5.0 + math.sin(idleProgress * math.pi + r) * 0.8, pinGlowPaint);
+        canvas.drawCircle(pinPos,
+            5.0 + math.sin(idleProgress * math.pi + r) * 0.8, pinGlowPaint);
         canvas.drawCircle(pinPos, 3.2, pinPaint);
       }
     }
@@ -425,7 +485,8 @@ class _PlinkoPhysicsPainter extends CustomPainter {
 
     if (isDropping && path.isNotEmpty) {
       final stepCount = path.length - 1;
-      final scaledT = (dropProgress * stepCount).clamp(0.0, stepCount.toDouble());
+      final scaledT =
+          (dropProgress * stepCount).clamp(0.0, stepCount.toDouble());
       final currentStep = scaledT.floor();
       final stepFraction = scaledT - currentStep;
 
@@ -450,16 +511,19 @@ class _PlinkoPhysicsPainter extends CustomPainter {
 
       final ballPos = Offset(ballX, ballY);
 
-      final sparkPaint = Paint()..color = const Color(0xFFFFDE59).withValues(alpha: 0.6);
+      final sparkPaint = Paint()
+        ..color = const Color(0xFFFFDE59).withValues(alpha: 0.6);
       canvas.drawCircle(ballPos.translate(0, -6), 4.0, sparkPaint);
       canvas.drawCircle(ballPos.translate(0, -12), 2.5, sparkPaint);
 
       final ballPaint = Paint()..color = const Color(0xFFFFDE59);
-      final ballShadowPaint = Paint()..color = const Color(0xFFFF7A00).withValues(alpha: 0.7);
+      final ballShadowPaint = Paint()
+        ..color = const Color(0xFFFF7A00).withValues(alpha: 0.7);
 
       canvas.drawCircle(ballPos, 9.5, ballShadowPaint);
       canvas.drawCircle(ballPos, 7.5, ballPaint);
-      canvas.drawCircle(ballPos.translate(-2, -2), 2.5, Paint()..color = Colors.white);
+      canvas.drawCircle(
+          ballPos.translate(-2, -2), 2.5, Paint()..color = Colors.white);
     }
   }
 

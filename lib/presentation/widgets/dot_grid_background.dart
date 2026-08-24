@@ -20,7 +20,9 @@ class DotGridBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveDotColor = dotColor ??
-        (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05));
+        (isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.05));
 
     return CustomPaint(
       painter: _DotGridPainter(

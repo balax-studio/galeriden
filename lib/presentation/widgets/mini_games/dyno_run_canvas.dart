@@ -20,7 +20,8 @@ class DynoRunCanvasModal extends StatefulWidget {
     required this.dyno,
   });
 
-  static Future<void> show(BuildContext context, {required CarModel car, required CarDynoStats dyno}) {
+  static Future<void> show(BuildContext context,
+      {required CarModel car, required CarDynoStats dyno}) {
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -47,7 +48,9 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
     _dynoController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
-    )..addListener(_onTick)..forward();
+    )
+      ..addListener(_onTick)
+      ..forward();
   }
 
   void _onTick() {
@@ -71,7 +74,9 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
             y: 110.0,
             vx: -3.0 - _random.nextDouble() * 4.0,
             vy: _random.nextDouble() * 2.0 - 1.0,
-            color: _random.nextBool() ? const Color(0xFFFF9529) : const Color(0xFFFF007F),
+            color: _random.nextBool()
+                ? const Color(0xFFFF9529)
+                : const Color(0xFFFF007F),
           ),
         );
       }
@@ -98,8 +103,10 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
   Widget build(BuildContext context) {
     final dyno = widget.dyno;
     final progress = _dynoController.value;
-    final liveHp = (dyno.baseHp + (dyno.totalHp - dyno.baseHp) * progress).round();
-    final liveNm = (dyno.baseNm + (dyno.totalNm - dyno.baseNm) * progress).round();
+    final liveHp =
+        (dyno.baseHp + (dyno.totalHp - dyno.baseHp) * progress).round();
+    final liveNm =
+        (dyno.baseNm + (dyno.totalNm - dyno.baseNm) * progress).round();
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -120,7 +127,8 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.speed_rounded, color: AppColors.brutalYellow, size: 22),
+                    const Icon(Icons.speed_rounded,
+                        color: AppColors.brutalYellow, size: 22),
                     const SizedBox(width: 8),
                     Text(
                       context.tr('dyno_title'),
@@ -134,8 +142,12 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
                   ],
                 ),
                 NeoBrutalBadge(
-                  text: _isComplete ? context.tr('dyno_status_finished') : context.tr('dyno_status_measuring'),
-                  backgroundColor: _isComplete ? AppColors.brutalGreen : AppColors.brutalYellow,
+                  text: _isComplete
+                      ? context.tr('dyno_status_finished')
+                      : context.tr('dyno_status_measuring'),
+                  backgroundColor: _isComplete
+                      ? AppColors.brutalGreen
+                      : AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 9.5,
                 ),
@@ -154,10 +166,28 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatPill(context.tr('dyno_stat_rpm'), '${_currentRpm.toInt()} RPM', 'MAX 7500', const Color(0xFF38BDF8)),
-                  _buildStatPill(context.tr('dyno_stat_hp'), '$liveHp HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen),
-                  _buildStatPill(context.tr('dyno_stat_nm'), '$liveNm Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange),
-                  _buildStatPill(context.tr('dyno_stat_sound'), '${dyno.exhaustDb} dB', dyno.exhaustDb > 95 ? context.tr('dyno_sound_high') : context.tr('dyno_sound_normal'), const Color(0xFFA855F7)),
+                  _buildStatPill(
+                      context.tr('dyno_stat_rpm'),
+                      '${_currentRpm.toInt()} RPM',
+                      'MAX 7500',
+                      const Color(0xFF38BDF8)),
+                  _buildStatPill(
+                      context.tr('dyno_stat_hp'),
+                      '$liveHp HP',
+                      '+${dyno.totalHp - dyno.baseHp} HP',
+                      AppColors.brutalGreen),
+                  _buildStatPill(
+                      context.tr('dyno_stat_nm'),
+                      '$liveNm Nm',
+                      '+${dyno.totalNm - dyno.baseNm} Nm',
+                      AppColors.brutalOrange),
+                  _buildStatPill(
+                      context.tr('dyno_stat_sound'),
+                      '${dyno.exhaustDb} dB',
+                      dyno.exhaustDb > 95
+                          ? context.tr('dyno_sound_high')
+                          : context.tr('dyno_sound_normal'),
+                      const Color(0xFFA855F7)),
                 ],
               ),
             ),
@@ -188,7 +218,8 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
 
             if (_isComplete) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: AppColors.brutalGreen.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
@@ -196,12 +227,17 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle_rounded, color: AppColors.brutalGreen, size: 16),
+                    const Icon(Icons.check_circle_rounded,
+                        color: AppColors.brutalGreen, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        context.tr('dyno_result_success', {'hp': '${dyno.totalHp}', 'nm': '${dyno.totalNm}'}),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalGreen),
+                        context.tr('dyno_result_success',
+                            {'hp': '${dyno.totalHp}', 'nm': '${dyno.totalNm}'}),
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.brutalGreen),
                       ),
                     ),
                   ],
@@ -213,8 +249,12 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
             SizedBox(
               width: double.infinity,
               child: NeoBrutalButton(
-                label: _isComplete ? context.tr('dyno_btn_save') : context.tr('dyno_btn_measuring'),
-                backgroundColor: _isComplete ? AppColors.brutalYellow : const Color(0xFF475569),
+                label: _isComplete
+                    ? context.tr('dyno_btn_save')
+                    : context.tr('dyno_btn_measuring'),
+                backgroundColor: _isComplete
+                    ? AppColors.brutalYellow
+                    : const Color(0xFF475569),
                 textColor: Colors.black,
                 fontSize: 12,
                 onPressed: _isComplete ? () => Navigator.pop(context) : null,
@@ -229,10 +269,20 @@ class _DynoRunCanvasModalState extends State<DynoRunCanvasModal>
   Widget _buildStatPill(String label, String value, String sub, Color color) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(fontSize: 8.5, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8))),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 8.5,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF94A3B8))),
         const SizedBox(height: 2),
-        Text(value, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900, color: color)),
-        Text(sub, style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+        Text(value,
+            style: TextStyle(
+                fontSize: 13.5, fontWeight: FontWeight.w900, color: color)),
+        Text(sub,
+            style: const TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF64748B))),
       ],
     );
   }
@@ -331,8 +381,10 @@ class _DynoPainter extends CustomPainter {
       ..strokeWidth = 2.0;
 
     // Front & Rear Rollers
-    _drawRoller(canvas, Offset(w * 0.35, h * 0.78), rollerAngle, rollerPaint, rollerBorder);
-    _drawRoller(canvas, Offset(w * 0.68, h * 0.78), rollerAngle, rollerPaint, rollerBorder);
+    _drawRoller(canvas, Offset(w * 0.35, h * 0.78), rollerAngle, rollerPaint,
+        rollerBorder);
+    _drawRoller(canvas, Offset(w * 0.68, h * 0.78), rollerAngle, rollerPaint,
+        rollerBorder);
 
     // Car Outline on Rollers
     final carPaint = Paint()..color = const Color(0xFFFFDE59);
@@ -342,25 +394,33 @@ class _DynoPainter extends CustomPainter {
       ..strokeWidth = 2.2;
 
     final carBody = Rect.fromLTWH(w * 0.25, h * 0.48, w * 0.50, 24);
-    canvas.drawRRect(RRect.fromRectAndRadius(carBody, const Radius.circular(5)), carPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(carBody, const Radius.circular(5)), carBorder);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(carBody, const Radius.circular(5)), carPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(carBody, const Radius.circular(5)), carBorder);
 
     final cabin = Rect.fromLTWH(w * 0.38, h * 0.38, w * 0.22, 14);
-    canvas.drawRRect(RRect.fromRectAndRadius(cabin, const Radius.circular(4)), Paint()..color = const Color(0xFF0F172A));
-    canvas.drawRRect(RRect.fromRectAndRadius(cabin, const Radius.circular(4)), carBorder);
+    canvas.drawRRect(RRect.fromRectAndRadius(cabin, const Radius.circular(4)),
+        Paint()..color = const Color(0xFF0F172A));
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(cabin, const Radius.circular(4)), carBorder);
 
     // Wheels on Rollers
-    canvas.drawCircle(Offset(w * 0.35, h * 0.65), 10, Paint()..color = const Color(0xFF1E293B));
-    canvas.drawCircle(Offset(w * 0.68, h * 0.65), 10, Paint()..color = const Color(0xFF1E293B));
+    canvas.drawCircle(Offset(w * 0.35, h * 0.65), 10,
+        Paint()..color = const Color(0xFF1E293B));
+    canvas.drawCircle(Offset(w * 0.68, h * 0.65), 10,
+        Paint()..color = const Color(0xFF1E293B));
 
     // Exhaust flame sparks
     for (final s in sparks) {
       final sPaint = Paint()..color = s.color.withValues(alpha: s.life / 14.0);
-      canvas.drawCircle(Offset(w * 0.24 + s.x * 0.2, h * 0.62 + s.y * 0.1), 3.0, sPaint);
+      canvas.drawCircle(
+          Offset(w * 0.24 + s.x * 0.2, h * 0.62 + s.y * 0.1), 3.0, sPaint);
     }
   }
 
-  void _drawRoller(Canvas canvas, Offset center, double angle, Paint fill, Paint border) {
+  void _drawRoller(
+      Canvas canvas, Offset center, double angle, Paint fill, Paint border) {
     canvas.drawCircle(center, 14, fill);
     canvas.drawCircle(center, 14, border);
 
@@ -371,7 +431,8 @@ class _DynoPainter extends CustomPainter {
 
     final dx = math.cos(angle) * 12;
     final dy = math.sin(angle) * 12;
-    canvas.drawLine(Offset(center.dx - dx, center.dy - dy), Offset(center.dx + dx, center.dy + dy), spokePaint);
+    canvas.drawLine(Offset(center.dx - dx, center.dy - dy),
+        Offset(center.dx + dx, center.dy + dy), spokePaint);
   }
 
   @override

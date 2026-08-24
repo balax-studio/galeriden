@@ -37,13 +37,17 @@ class NeoBrutalEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final p = themeExt?.palette;
-    final isDark = p?.isDark ?? (Theme.of(context).brightness == Brightness.dark);
-    final effectiveAccent = accentColor ?? p?.primaryColor ?? AppColors.brutalYellow;
-    final borderColor = isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A);
+    final isDark =
+        p?.isDark ?? (Theme.of(context).brightness == Brightness.dark);
+    final effectiveAccent =
+        accentColor ?? p?.primaryColor ?? AppColors.brutalYellow;
+    final borderColor =
+        isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A);
 
     return Center(
       child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         padding: padding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -79,7 +83,8 @@ class NeoBrutalEmptyState extends StatelessWidget {
             // Optional Badge
             if (badgeText != null) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: (badgeColor ?? effectiveAccent).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(6),
@@ -121,7 +126,9 @@ class NeoBrutalEmptyState extends StatelessWidget {
                 description,
                 textAlign: TextAlign.center,
                 style: AppTypography.bodyMedium(isDark).copyWith(
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
                   height: 1.4,
                 ),
               ),

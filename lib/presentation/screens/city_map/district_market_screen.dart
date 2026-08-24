@@ -116,7 +116,8 @@ class DistrictMarketScreen extends ConsumerWidget {
 
     if (!game.isFeatureUnlocked('/districts')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('district_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/districts',
@@ -129,7 +130,8 @@ class DistrictMarketScreen extends ConsumerWidget {
     final districtShares = game.districtMarketShare;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('district_screen_title'),
       ),
@@ -140,12 +142,14 @@ class DistrictMarketScreen extends ConsumerWidget {
           // Info Banner (§1.4 / Q8)
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
+            backgroundColor:
+                isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
             borderColor: const Color(0xFF3B82F6),
             borderRadius: 12,
             child: Row(
               children: [
-                const Icon(Icons.map_rounded, size: 28, color: Color(0xFF3B82F6)),
+                const Icon(Icons.map_rounded,
+                    size: 28, color: Color(0xFF3B82F6)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -156,7 +160,9 @@ class DistrictMarketScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1E3A8A),
+                          color: isDark
+                              ? const Color(0xFF93C5FD)
+                              : const Color(0xFF1E3A8A),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -165,7 +171,8 @@ class DistrictMarketScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white70 : const Color(0xFF334155),
+                          color:
+                              isDark ? Colors.white70 : const Color(0xFF334155),
                         ),
                       ),
                     ],
@@ -178,7 +185,10 @@ class DistrictMarketScreen extends ConsumerWidget {
 
           // District Cards
           ...kDistricts.map((district) {
-            final rawShare = (districtShares[district.name] ?? districtShares[district.key] ?? 0.05).clamp(0.0, 1.0);
+            final rawShare = (districtShares[district.name] ??
+                    districtShares[district.key] ??
+                    0.05)
+                .clamp(0.0, 1.0);
             final sharePercent = (rawShare * 100).round();
             final isMaxed = rawShare >= 1.0;
             final isUnlocked = game.reputation >= district.minReputation;
@@ -186,7 +196,11 @@ class DistrictMarketScreen extends ConsumerWidget {
 
             final cardBorderColor = isMaxed
                 ? AppColors.brutalYellow
-                : (isUnlocked ? district.accentColor : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)));
+                : (isUnlocked
+                    ? district.accentColor
+                    : (isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFFCBD5E1)));
 
             final cardBgColor = isMaxed
                 ? (isDark ? const Color(0xFF1C190D) : const Color(0xFFFEFCE8))
@@ -200,7 +214,8 @@ class DistrictMarketScreen extends ConsumerWidget {
                 borderColor: cardBorderColor,
                 borderWidth: isMaxed ? 2.8 : (isUnlocked ? 2.0 : 1.2),
                 borderRadius: 12,
-                shadowOffset: isMaxed ? const Offset(3.5, 3.5) : const Offset(2.5, 2.5),
+                shadowOffset:
+                    isMaxed ? const Offset(3.5, 3.5) : const Offset(2.5, 2.5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -214,7 +229,11 @@ class DistrictMarketScreen extends ConsumerWidget {
                               size: 22,
                               color: isMaxed
                                   ? AppColors.brutalYellow
-                                  : (isUnlocked ? district.accentColor : (isDark ? Colors.white38 : Colors.black38)),
+                                  : (isUnlocked
+                                      ? district.accentColor
+                                      : (isDark
+                                          ? Colors.white38
+                                          : Colors.black38)),
                             ),
                             const SizedBox(width: 8),
                             Column(
@@ -226,8 +245,12 @@ class DistrictMarketScreen extends ConsumerWidget {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w900,
                                     color: isUnlocked
-                                        ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                                        : (isDark ? Colors.white38 : Colors.black38),
+                                        ? (isDark
+                                            ? Colors.white
+                                            : const Color(0xFF0F172A))
+                                        : (isDark
+                                            ? Colors.white38
+                                            : Colors.black38),
                                   ),
                                 ),
                                 Text(
@@ -235,7 +258,9 @@ class DistrictMarketScreen extends ConsumerWidget {
                                   style: TextStyle(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w700,
-                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                    color: isDark
+                                        ? const Color(0xFF94A3B8)
+                                        : const Color(0xFF64748B),
                                   ),
                                 ),
                               ],
@@ -244,8 +269,10 @@ class DistrictMarketScreen extends ConsumerWidget {
                         ),
                         if (!isUnlocked)
                           NeoBrutalBadge(
-                            text: context.tr('district_req_rep', {'rep': '${district.minReputation}'}),
-                            backgroundColor: isDark ? Colors.white12 : Colors.black12,
+                            text: context.tr('district_req_rep',
+                                {'rep': '${district.minReputation}'}),
+                            backgroundColor:
+                                isDark ? Colors.white12 : Colors.black12,
                             textColor: isDark ? Colors.white60 : Colors.black54,
                             fontSize: 9.5,
                           )
@@ -260,7 +287,8 @@ class DistrictMarketScreen extends ConsumerWidget {
                           )
                         else
                           NeoBrutalBadge(
-                            text: context.tr('district_badge_share', {'share': '$sharePercent'}),
+                            text: context.tr('district_badge_share',
+                                {'share': '$sharePercent'}),
                             backgroundColor: district.accentColor,
                             textColor: Colors.black,
                             fontSize: 10,
@@ -271,10 +299,13 @@ class DistrictMarketScreen extends ConsumerWidget {
 
                     // Perk Pill
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: isMaxed
-                            ? (isDark ? const Color(0xFF26220E) : const Color(0xFFFEF08A))
+                            ? (isDark
+                                ? const Color(0xFF26220E)
+                                : const Color(0xFFFEF08A))
                             : district.accentColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
@@ -288,9 +319,13 @@ class DistrictMarketScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            isMaxed ? Icons.verified_rounded : Icons.star_rounded,
+                            isMaxed
+                                ? Icons.verified_rounded
+                                : Icons.star_rounded,
                             size: 13,
-                            color: isMaxed ? const Color(0xFFCA8A04) : district.accentColor,
+                            color: isMaxed
+                                ? const Color(0xFFCA8A04)
+                                : district.accentColor,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -299,8 +334,12 @@ class DistrictMarketScreen extends ConsumerWidget {
                               fontSize: 10.5,
                               fontWeight: FontWeight.w800,
                               color: isMaxed
-                                  ? (isDark ? AppColors.brutalYellow : const Color(0xFF713F12))
-                                  : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                  ? (isDark
+                                      ? AppColors.brutalYellow
+                                      : const Color(0xFF713F12))
+                                  : (isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A)),
                             ),
                           ),
                         ],
@@ -314,9 +353,13 @@ class DistrictMarketScreen extends ConsumerWidget {
                       child: LinearProgressIndicator(
                         value: rawShare.clamp(0.0, 1.0),
                         minHeight: 7,
-                        backgroundColor: isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0),
+                        backgroundColor: isDark
+                            ? const Color(0xFF232A3B)
+                            : const Color(0xFFE2E8F0),
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          isMaxed ? AppColors.brutalYellow : district.accentColor,
+                          isMaxed
+                              ? AppColors.brutalYellow
+                              : district.accentColor,
                         ),
                       ),
                     ),
@@ -327,12 +370,17 @@ class DistrictMarketScreen extends ConsumerWidget {
                       if (isMaxed)
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF26220E) : const Color(0xFFFEF08A),
+                            color: isDark
+                                ? const Color(0xFF26220E)
+                                : const Color(0xFFFEF08A),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? AppColors.brutalYellow : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? AppColors.brutalYellow
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                             boxShadow: const [
@@ -345,7 +393,8 @@ class DistrictMarketScreen extends ConsumerWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.verified_rounded, size: 16, color: Color(0xFFCA8A04)),
+                              const Icon(Icons.verified_rounded,
+                                  size: 16, color: Color(0xFFCA8A04)),
                               const SizedBox(width: 6),
                               Text(
                                 context.tr('district_dominance_unlocked'),
@@ -353,7 +402,9 @@ class DistrictMarketScreen extends ConsumerWidget {
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 0.3,
-                                  color: isDark ? AppColors.brutalYellow : const Color(0xFF713F12),
+                                  color: isDark
+                                      ? AppColors.brutalYellow
+                                      : const Color(0xFF713F12),
                                 ),
                               ),
                             ],
@@ -364,20 +415,33 @@ class DistrictMarketScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             NeoBrutalButton(
-                              label: context.tr('district_btn_boost', {'cost': CurrencyFormatter.formatShort(boostCost)}),
+                              label: context.tr('district_btn_boost', {
+                                'cost': CurrencyFormatter.formatShort(boostCost)
+                              }),
                               icon: Icons.campaign_rounded,
-                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                              textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                              backgroundColor: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFF1F5F9),
+                              textColor: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                               fontSize: 10,
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
                               onPressed: () {
-                                final success = ref.read(gameProvider.notifier).boostDistrictMarketShare(
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .boostDistrictMarketShare(
                                       district.name,
                                       0.05,
                                       boostCost,
                                     );
                                 if (success) {
-                                  final updated = ((districtShares[district.name] ?? 0.05) + 0.05).clamp(0.0, 1.0) * 100;
+                                  final updated =
+                                      ((districtShares[district.name] ?? 0.05) +
+                                                  0.05)
+                                              .clamp(0.0, 1.0) *
+                                          100;
                                   NotificationService.showSuccess(
                                     context,
                                     '${district.name} semtinde yerel kampanya başlatıldı! Pazar payı: %${updated.round()}',
@@ -389,7 +453,8 @@ class DistrictMarketScreen extends ConsumerWidget {
                                       'Reklam kampanyası için ${CurrencyFormatter.formatShort(boostCost)} bakiye gereklidir.',
                                     );
                                   } else {
-                                    NotificationService.showInfo(context, 'Bu semtte %100 maksimum hakimiyete ulaşıldı!');
+                                    NotificationService.showInfo(context,
+                                        'Bu semtte %100 maksimum hakimiyete ulaşıldı!');
                                   }
                                 }
                               },

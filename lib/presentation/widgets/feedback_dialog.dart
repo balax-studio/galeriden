@@ -71,11 +71,14 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     client.connectionTimeout = const Duration(seconds: 10);
     try {
       final request = await client.postUrl(
-        Uri.parse('https://formsubmit.co/ajax/${FeedbackDialog.developerEmail}'),
+        Uri.parse(
+            'https://formsubmit.co/ajax/${FeedbackDialog.developerEmail}'),
       );
-      request.headers.set(HttpHeaders.contentTypeHeader, 'application/json; charset=UTF-8');
+      request.headers.set(
+          HttpHeaders.contentTypeHeader, 'application/json; charset=UTF-8');
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      request.headers.set(HttpHeaders.userAgentHeader, 'GaleridenTycoon/$version • Dart/Flutter • Mobile');
+      request.headers.set(HttpHeaders.userAgentHeader,
+          'GaleridenTycoon/$version • Dart/Flutter • Mobile');
       request.headers.set('Origin', 'https://galeridentycoon.app');
       request.headers.set('Referer', 'https://galeridentycoon.app');
 
@@ -98,7 +101,8 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final decoded = jsonDecode(responseBody);
-        if (decoded is Map && (decoded['success'] == 'true' || decoded['success'] == true)) {
+        if (decoded is Map &&
+            (decoded['success'] == 'true' || decoded['success'] == true)) {
           return true;
         }
       }
@@ -115,12 +119,14 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     final message = _messageController.text.trim();
 
     if (title.isEmpty || message.isEmpty) {
-      NotificationService.showWarning(context, context.tr('feedback_fill_required'));
+      NotificationService.showWarning(
+          context, context.tr('feedback_fill_required'));
       return;
     }
 
     final game = ref.read(gameProvider);
-    final subject = 'Galeriden Tycoon Geri Bildirim • ${context.tr(_selectedCategory.labelKey)} • $title';
+    final subject =
+        'Galeriden Tycoon Geri Bildirim • ${context.tr(_selectedCategory.labelKey)} • $title';
     final body = '''Kategori: ${context.tr(_selectedCategory.labelKey)}
 Konu: $title
 
@@ -144,7 +150,8 @@ Zaman: ${DateTime.now().toLocal()}''';
     );
 
     try {
-      final launched = await launchUrl(emailUri, mode: LaunchMode.externalApplication);
+      final launched =
+          await launchUrl(emailUri, mode: LaunchMode.externalApplication);
       if (!launched) {
         final fallbackUri = Uri.parse(
           'mailto:${FeedbackDialog.developerEmail}?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}',
@@ -167,7 +174,8 @@ Zaman: ${DateTime.now().toLocal()}''';
       }
     } catch (_) {
       if (mounted) {
-        NotificationService.showError(context, context.tr('feedback_error_occurred'));
+        NotificationService.showError(
+            context, context.tr('feedback_error_occurred'));
       }
     }
   }
@@ -245,7 +253,8 @@ Zaman: ${DateTime.now().toLocal()}''';
     } catch (_) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        NotificationService.showError(context, context.tr('feedback_error_occurred'));
+        NotificationService.showError(
+            context, context.tr('feedback_error_occurred'));
       }
     }
   }
@@ -253,7 +262,8 @@ Zaman: ${DateTime.now().toLocal()}''';
   @override
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
-    final isDark = themeExt?.palette.isDark ?? (Theme.of(context).brightness == Brightness.dark);
+    final isDark = themeExt?.palette.isDark ??
+        (Theme.of(context).brightness == Brightness.dark);
     final game = ref.watch(gameProvider);
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -265,7 +275,8 @@ Zaman: ${DateTime.now().toLocal()}''';
           child: NeoBrutalCard(
             padding: const EdgeInsets.all(18),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
             borderRadius: 16,
             borderWidth: 2.5,
             shadowOffset: const Offset(4, 4),
@@ -285,11 +296,14 @@ Zaman: ${DateTime.now().toLocal()}''';
                             color: AppColors.brutalYellow,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: const Icon(Icons.rate_review_rounded, color: Colors.black, size: 20),
+                          child: const Icon(Icons.rate_review_rounded,
+                              color: Colors.black, size: 20),
                         ),
                         const SizedBox(width: 10),
                         Column(
@@ -297,14 +311,17 @@ Zaman: ${DateTime.now().toLocal()}''';
                           children: [
                             Text(
                               context.tr('feedback_title'),
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w900),
                             ),
                             Text(
                               context.tr('feedback_subtitle'),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ],
@@ -326,7 +343,9 @@ Zaman: ${DateTime.now().toLocal()}''';
                     fontSize: 10.5,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -341,16 +360,21 @@ Zaman: ${DateTime.now().toLocal()}''';
                         setState(() => _selectedCategory = cat);
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.brutalYellow
-                              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
+                              : (isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFF1F5F9)),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
                                 ? const Color(0xFF0F172A)
-                                : (isDark ? const Color(0xFF2E384D) : const Color(0xFFCBD5E1)),
+                                : (isDark
+                                    ? const Color(0xFF2E384D)
+                                    : const Color(0xFFCBD5E1)),
                             width: 1.8,
                           ),
                         ),
@@ -360,7 +384,11 @@ Zaman: ${DateTime.now().toLocal()}''';
                             Icon(
                               cat.icon,
                               size: 14,
-                              color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                              color: isSelected
+                                  ? Colors.black
+                                  : (isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF475569)),
                             ),
                             const SizedBox(width: 5),
                             Text(
@@ -368,7 +396,11 @@ Zaman: ${DateTime.now().toLocal()}''';
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w900,
-                                color: isSelected ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                color: isSelected
+                                    ? Colors.black
+                                    : (isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A)),
                               ),
                             ),
                           ],
@@ -386,7 +418,9 @@ Zaman: ${DateTime.now().toLocal()}''';
                     fontSize: 10.5,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -401,20 +435,29 @@ Zaman: ${DateTime.now().toLocal()}''';
                   decoration: InputDecoration(
                     counterText: '',
                     hintText: context.tr('feedback_topic_hint'),
-                    hintStyle: TextStyle(fontSize: 11.5, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    hintStyle: TextStyle(
+                        fontSize: 11.5,
+                        color:
+                            isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
+                    fillColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFF8FAFC),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: isDark ? const Color(0xFF2E384D) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF2E384D)
+                            : const Color(0xFFCBD5E1),
                         width: 1.8,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.0),
+                      borderSide: const BorderSide(
+                          color: AppColors.brutalYellow, width: 2.0),
                     ),
                   ),
                 ),
@@ -427,7 +470,9 @@ Zaman: ${DateTime.now().toLocal()}''';
                     fontSize: 10.5,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -442,20 +487,28 @@ Zaman: ${DateTime.now().toLocal()}''';
                   ),
                   decoration: InputDecoration(
                     hintText: context.tr('feedback_details_hint'),
-                    hintStyle: TextStyle(fontSize: 11.5, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                    hintStyle: TextStyle(
+                        fontSize: 11.5,
+                        color:
+                            isDark ? Colors.white38 : const Color(0xFF94A3B8)),
                     contentPadding: const EdgeInsets.all(12),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
+                    fillColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFF8FAFC),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: isDark ? const Color(0xFF2E384D) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF2E384D)
+                            : const Color(0xFFCBD5E1),
                         width: 1.8,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.0),
+                      borderSide: const BorderSide(
+                          color: AppColors.brutalYellow, width: 2.0),
                     ),
                   ),
                 ),
@@ -465,10 +518,18 @@ Zaman: ${DateTime.now().toLocal()}''';
                 Row(
                   children: [
                     NeoBrutalBadge(
-                      text: context.tr('feedback_anon_diag', {'ver': GameConstants.appVersion, 'level': game.level, 'day': game.currentDay}),
+                      text: context.tr('feedback_anon_diag', {
+                        'ver': GameConstants.appVersion,
+                        'level': game.level,
+                        'day': game.currentDay
+                      }),
                       icon: Icons.security_rounded,
-                      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                      textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFE2E8F0),
+                      textColor: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF475569),
                       fontSize: 9.5,
                     ),
                   ],
@@ -481,7 +542,9 @@ Zaman: ${DateTime.now().toLocal()}''';
                     Expanded(
                       child: NeoBrutalButton(
                         label: context.tr('feedback_btn_cancel'),
-                        backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
                         textColor: isDark ? Colors.white : Colors.black,
                         fontSize: 11.5,
                         onPressed: () => Navigator.of(context).pop(),
@@ -491,7 +554,9 @@ Zaman: ${DateTime.now().toLocal()}''';
                     Expanded(
                       flex: 2,
                       child: NeoBrutalButton(
-                        label: _isSubmitting ? context.tr('feedback_btn_submitting') : context.tr('feedback_btn_send'),
+                        label: _isSubmitting
+                            ? context.tr('feedback_btn_submitting')
+                            : context.tr('feedback_btn_send'),
                         icon: Icons.send_rounded,
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
@@ -505,8 +570,12 @@ Zaman: ${DateTime.now().toLocal()}''';
                 NeoBrutalButton(
                   label: context.tr('feedback_btn_email'),
                   icon: Icons.mail_outline_rounded,
-                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                  textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFF1F5F9),
+                  textColor: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
                   fontSize: 10.5,
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   fullWidth: true,

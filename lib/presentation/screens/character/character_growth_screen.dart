@@ -31,7 +31,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
     final xpProgress = (xpInCurrentLevel / targetXpForLevel).clamp(0.0, 1.0);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('growth_screen_title'),
       ),
@@ -43,7 +44,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               children: [
@@ -56,11 +58,14 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         color: AppColors.brutalYellow,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2.0,
                         ),
                       ),
-                      child: const Icon(Icons.military_tech_rounded, color: Colors.black, size: 32),
+                      child: const Icon(Icons.military_tech_rounded,
+                          color: Colors.black, size: 32),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -72,13 +77,16 @@ class CharacterGrowthScreen extends ConsumerWidget {
                               Flexible(
                                 child: Text(
                                   game.rpgTitle,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               const SizedBox(width: 8),
                               NeoBrutalBadge(
-                                text: context.tr('growth_level_badge', {'lvl': '$currentLvl'}),
+                                text: context.tr('growth_level_badge',
+                                    {'lvl': '$currentLvl'}),
                                 backgroundColor: const Color(0xFFA855F7),
                                 textColor: Colors.white,
                                 fontSize: 10,
@@ -87,20 +95,34 @@ class CharacterGrowthScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            context.tr('growth_origin_label', {'origin': game.originTitle}),
-                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                            context.tr('growth_origin_label',
+                                {'origin': game.originTitle}),
+                            style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF64748B)),
                           ),
                           const SizedBox(height: 2),
                           Row(
                             children: [
                               Text(
-                                context.tr('growth_reputation_label', {'score': '${game.reputationScore}'}),
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                                context.tr('growth_reputation_label',
+                                    {'score': '${game.reputationScore}'}),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.brutalGreen),
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                context.tr('growth_balance_label', {'balance': CurrencyFormatter.formatShort(game.balance)}),
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalBlue),
+                                context.tr('growth_balance_label', {
+                                  'balance': CurrencyFormatter.formatShort(
+                                      game.balance)
+                                }),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.brutalBlue),
                               ),
                             ],
                           ),
@@ -121,24 +143,34 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       context.tr('growth_xp_progress_title'),
-                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
-                    ),
-                    Text(
+                      style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF64748B)),
+                    )),
+                    Expanded(
+                        child: Text(
                       '$xpInCurrentLevel / $targetXpForLevel XP',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
-                    ),
+                      style: const TextStyle(
+                          fontSize: 11, fontWeight: FontWeight.w900),
+                    )),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Container(
                   height: 12,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
@@ -166,7 +198,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Expanded(
+                  child: Text(
                 context.tr('growth_skill_tree_title'),
                 style: TextStyle(
                   fontSize: 12,
@@ -174,11 +207,16 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   letterSpacing: 0.5,
                   color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                 ),
-              ),
-              Text(
-                context.tr('growth_sp_available', {'sp': '${skills.availableSkillPoints}'}),
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
-              ),
+              )),
+              Expanded(
+                  child: Text(
+                context.tr('growth_sp_available',
+                    {'sp': '${skills.availableSkillPoints}'}),
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.brutalYellow),
+              )),
             ],
           ),
           const SizedBox(height: 10),
@@ -189,7 +227,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref: ref,
             title: context.tr('skill_negotiation_title'),
             desc: context.tr('skill_negotiation_desc'),
-            perk: context.tr('skill_negotiation_perk', {'val': (skills.negotiationMultiplier * 100).toStringAsFixed(0)}),
+            perk: context.tr('skill_negotiation_perk', {
+              'val': (skills.negotiationMultiplier * 100).toStringAsFixed(0)
+            }),
             level: skills.negotiationLevel,
             skillKey: 'negotiation',
             isDark: isDark,
@@ -200,7 +240,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref: ref,
             title: context.tr('skill_detail_title'),
             desc: context.tr('skill_detail_desc'),
-            perk: context.tr('skill_detail_perk', {'val': (skills.expertiseCostDiscount * 100).toStringAsFixed(0)}),
+            perk: context.tr('skill_detail_perk', {
+              'val': (skills.expertiseCostDiscount * 100).toStringAsFixed(0)
+            }),
             level: skills.eyeForDetail,
             skillKey: 'eyeForDetail',
             isDark: isDark,
@@ -211,7 +253,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref: ref,
             title: context.tr('skill_market_title'),
             desc: context.tr('skill_market_desc'),
-            perk: context.tr('skill_market_perk', {'val': (skills.marketingDopingBonus * 100).toStringAsFixed(0)}),
+            perk: context.tr('skill_market_perk', {
+              'val': (skills.marketingDopingBonus * 100).toStringAsFixed(0)
+            }),
             level: skills.marketSense,
             skillKey: 'marketSense',
             isDark: isDark,
@@ -222,7 +266,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref: ref,
             title: context.tr('skill_network_title'),
             desc: context.tr('skill_network_desc'),
-            perk: skills.reputation >= 5 ? context.tr('skill_network_perk_active') : context.tr('skill_network_perk_locked'),
+            perk: skills.reputation >= 5
+                ? context.tr('skill_network_perk_active')
+                : context.tr('skill_network_perk_locked'),
             level: skills.reputation,
             skillKey: 'reputation',
             isDark: isDark,
@@ -233,7 +279,11 @@ class CharacterGrowthScreen extends ConsumerWidget {
             ref: ref,
             title: context.tr('skill_finance_title'),
             desc: context.tr('skill_finance_desc'),
-            perk: context.tr('skill_finance_perk', {'discount': (skills.financeInterestDiscount * 100).toStringAsFixed(0), 'risk': (skills.chequeRiskReduction * 100).toStringAsFixed(1)}),
+            perk: context.tr('skill_finance_perk', {
+              'discount':
+                  (skills.financeInterestDiscount * 100).toStringAsFixed(0),
+              'risk': (skills.chequeRiskReduction * 100).toStringAsFixed(1)
+            }),
             level: skills.financeSense,
             skillKey: 'financeSense',
             isDark: isDark,
@@ -247,7 +297,11 @@ class CharacterGrowthScreen extends ConsumerWidget {
 
           // 5. Achievements Section
           Text(
-            context.tr('growth_achievements_title', {'unlocked': '${game.achievements.where((a) => a.isUnlocked).length}', 'total': '${game.achievements.length}'}),
+            context.tr('growth_achievements_title', {
+              'unlocked':
+                  '${game.achievements.where((a) => a.isUnlocked).length}',
+              'total': '${game.achievements.length}'
+            }),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -263,25 +317,41 @@ class CharacterGrowthScreen extends ConsumerWidget {
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(12),
                 backgroundColor: item.isUnlocked
-                    ? (isDark ? const Color(0xFF16241D) : const Color(0xFFF0FDF4))
+                    ? (isDark
+                        ? const Color(0xFF16241D)
+                        : const Color(0xFFF0FDF4))
                     : (isDark ? const Color(0xFF141721) : Colors.white),
-                borderColor: item.isUnlocked ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                borderColor: item.isUnlocked
+                    ? AppColors.brutalGreen
+                    : (isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFF0F172A)),
                 borderRadius: 12,
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: item.isUnlocked ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                        color: item.isUnlocked
+                            ? AppColors.brutalGreen
+                            : (isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFE2E8F0)),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2.0,
                         ),
                       ),
                       child: Icon(
-                        item.isUnlocked ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
-                        color: item.isUnlocked ? Colors.black : const Color(0xFF64748B),
+                        item.isUnlocked
+                            ? Icons.emoji_events_rounded
+                            : Icons.lock_outline_rounded,
+                        color: item.isUnlocked
+                            ? Colors.black
+                            : const Color(0xFF64748B),
                         size: 22,
                       ),
                     ),
@@ -292,12 +362,14 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         children: [
                           Text(
                             item.title,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             item.description,
-                            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                            style: const TextStyle(
+                                fontSize: 11, color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
@@ -319,7 +391,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSpecializationSection(BuildContext context, WidgetRef ref, DealershipModel game, bool isDark) {
+  Widget _buildSpecializationSection(
+      BuildContext context, WidgetRef ref, DealershipModel game, bool isDark) {
     final hasClass = game.specializationPath != SpecializationPath.none;
     final isUnlocked = game.level >= 4;
 
@@ -329,7 +402,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            Expanded(
+                child: Text(
               context.tr('growth_spec_title'),
               style: TextStyle(
                 fontSize: 12,
@@ -337,31 +411,43 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 letterSpacing: 0.5,
                 color: isDark ? Colors.white70 : const Color(0xFF0F172A),
               ),
-            ),
+            )),
             NeoBrutalBadge(
-              text: isUnlocked ? (hasClass ? game.specializationTitle : context.tr('growth_spec_pending')) : context.tr('growth_spec_locked_badge'),
-              backgroundColor: hasClass ? AppColors.brutalGreen : (isUnlocked ? AppColors.brutalYellow : const Color(0xFF64748B)),
+              text: isUnlocked
+                  ? (hasClass
+                      ? game.specializationTitle
+                      : context.tr('growth_spec_pending'))
+                  : context.tr('growth_spec_locked_badge'),
+              backgroundColor: hasClass
+                  ? AppColors.brutalGreen
+                  : (isUnlocked
+                      ? AppColors.brutalYellow
+                      : const Color(0xFF64748B)),
               textColor: Colors.black,
               fontSize: 10,
             ),
           ],
         ),
         const SizedBox(height: 10),
-
         if (!isUnlocked)
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 12,
             child: Row(
               children: [
-                const Icon(Icons.lock_rounded, color: Color(0xFF64748B), size: 28),
+                const Icon(Icons.lock_rounded,
+                    color: Color(0xFF64748B), size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     context.tr('growth_spec_locked_desc'),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF64748B)),
                   ),
                 ),
               ],
@@ -429,7 +515,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
       onTap: () {
         if (!isSelected) {
           ref.read(gameProvider.notifier).chooseSpecialization(path);
-          NotificationService.showSuccess(context, '$title • ${context.tr('growth_spec_active_badge')}');
+          NotificationService.showSuccess(
+              context, '$title • ${context.tr('growth_spec_active_badge')}');
         }
       },
       borderRadius: BorderRadius.circular(12),
@@ -438,7 +525,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
         backgroundColor: isSelected
             ? (isDark ? const Color(0xFF1E2638) : const Color(0xFFFEF9C3))
             : (isDark ? const Color(0xFF141721) : Colors.white),
-        borderColor: isSelected ? AppColors.brutalYellow : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+        borderColor: isSelected
+            ? AppColors.brutalYellow
+            : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
         borderRadius: 12,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,7 +540,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     color: color,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
@@ -461,7 +552,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w900),
                   ),
                 ),
                 if (isSelected)
@@ -476,23 +568,32 @@ class CharacterGrowthScreen extends ConsumerWidget {
             const SizedBox(height: 6),
             Text(
               desc,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 6),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+                color:
+                    isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFFE2E8F0),
                   width: 1.5,
                 ),
               ),
               child: Text(
                 perks,
-                style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.brutalGreen),
               ),
             ),
           ],
@@ -501,7 +602,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNpcRelationshipsSection(BuildContext context, WidgetRef ref, DealershipModel game, bool isDark) {
+  Widget _buildNpcRelationshipsSection(
+      BuildContext context, WidgetRef ref, DealershipModel game, bool isDark) {
     final npcs = [
       {
         'id': 'haydar_usta',
@@ -551,7 +653,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            Expanded(
+                child: Text(
               context.tr('growth_npc_title'),
               style: TextStyle(
                 fontSize: 12,
@@ -559,7 +662,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 letterSpacing: 0.5,
                 color: isDark ? Colors.white70 : const Color(0xFF0F172A),
               ),
-            ),
+            )),
             NeoBrutalBadge(
               text: context.tr('growth_npc_dynamic_badge'),
               backgroundColor: AppColors.brutalCyan,
@@ -569,7 +672,6 @@ class CharacterGrowthScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 10),
-
         ...npcs.map((npc) {
           final id = npc['id'] as String;
           final trust = game.getNpcRelation(id);
@@ -578,12 +680,18 @@ class CharacterGrowthScreen extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
-              onTap: () => _showNpcInteractionSheet(context, ref, npc, trust, hasHighTrust, isDark),
+              onTap: () => _showNpcInteractionSheet(
+                  context, ref, npc, trust, hasHighTrust, isDark),
               borderRadius: BorderRadius.circular(12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(12),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: hasHighTrust ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: hasHighTrust
+                    ? AppColors.brutalGreen
+                    : (isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFF0F172A)),
                 borderRadius: 12,
                 child: Column(
                   children: [
@@ -595,11 +703,14 @@ class CharacterGrowthScreen extends ConsumerWidget {
                             color: npc['color'] as Color,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: Icon(npc['icon'] as IconData, color: Colors.white, size: 20),
+                          child: Icon(npc['icon'] as IconData,
+                              color: Colors.white, size: 20),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -608,19 +719,29 @@ class CharacterGrowthScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 npc['name'] as String,
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                                style: const TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.w900),
                               ),
                               Text(
                                 npc['role'] as String,
-                                style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                                style: const TextStyle(
+                                    fontSize: 10.5,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w700),
                               ),
                             ],
                           ),
                         ),
                         NeoBrutalBadge(
                           text: '$trust / 100',
-                          backgroundColor: hasHighTrust ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                          textColor: hasHighTrust ? Colors.black : (isDark ? Colors.white : Colors.black),
+                          backgroundColor: hasHighTrust
+                              ? AppColors.brutalGreen
+                              : (isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0)),
+                          textColor: hasHighTrust
+                              ? Colors.black
+                              : (isDark ? Colors.white : Colors.black),
                           fontSize: 11,
                         ),
                       ],
@@ -630,10 +751,14 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     Container(
                       height: 8,
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                          color: isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFFCBD5E1),
                           width: 1.5,
                         ),
                       ),
@@ -642,7 +767,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         widthFactor: (trust / 100.0).clamp(0.0, 1.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: hasHighTrust ? AppColors.brutalGreen : (npc['color'] as Color),
+                            color: hasHighTrust
+                                ? AppColors.brutalGreen
+                                : (npc['color'] as Color),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -652,14 +779,17 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        Expanded(
+                            child: Text(
                           npc['perk'] as String,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: hasHighTrust ? AppColors.brutalGreen : const Color(0xFF64748B),
+                            color: hasHighTrust
+                                ? AppColors.brutalGreen
+                                : const Color(0xFF64748B),
                           ),
-                        ),
+                        )),
                         Row(
                           children: [
                             if (hasHighTrust)
@@ -667,12 +797,18 @@ class CharacterGrowthScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.only(right: 6),
                                 child: Text(
                                   context.tr('active_badge'),
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColors.brutalGreen),
                                 ),
                               ),
                             Text(
                               context.tr('growth_npc_btn_interact'),
-                              style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
+                              style: const TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.brutalYellow),
                             ),
                           ],
                         ),
@@ -705,43 +841,57 @@ class CharacterGrowthScreen extends ConsumerWidget {
     String moodDialogue;
     if (id == 'haydar_usta') {
       if (currentTrust < 40) {
-        moodDialogue = 'Dükkan yoğun usta, acil bir işin yoksa liftleri meşgul etmeyelim.';
+        moodDialogue =
+            'Dükkan yoğun usta, acil bir işin yoksa liftleri meşgul etmeyelim.';
       } else if (currentTrust < 70) {
-        moodDialogue = 'Aleykümselam usta, diagnostik cihazını açık tutuyorum. Ekspertizlik araç varsa getir bakarız.';
+        moodDialogue =
+            'Aleykümselam usta, diagnostik cihazını açık tutuyorum. Ekspertizlik araç varsa getir bakarız.';
       } else {
-        moodDialogue = 'Eyvallah canım kardeşim! Senin getirdiğin arabanın vidasına kadar kefilim, eksper yarı fiyatına feda olsun!';
+        moodDialogue =
+            'Eyvallah canım kardeşim! Senin getirdiğin arabanın vidasına kadar kefilim, eksper yarı fiyatına feda olsun!';
       }
     } else if (id == 'cikmaci_ibo') {
       if (currentTrust < 40) {
-        moodDialogue = 'Hurdaya bedava bakılmaz usta, parçayı söken parasını sayar.';
+        moodDialogue =
+            'Hurdaya bedava bakılmaz usta, parçayı söken parasını sayar.';
       } else if (currentTrust < 70) {
-        moodDialogue = 'Hoş geldin, taze pert kasa indirdik. İşine yarar parça olursa kenara ayırırım.';
+        moodDialogue =
+            'Hoş geldin, taze pert kasa indirdik. İşine yarar parça olursa kenara ayırırım.';
       } else {
-        moodDialogue = 'Sanayinin kralı gelmiş! Çıkma parçada sana liste fiyatı sökmez, %25 dost indirimi helaldir!';
+        moodDialogue =
+            'Sanayinin kralı gelmiş! Çıkma parçada sana liste fiyatı sökmez, %25 dost indirimi helaldir!';
       }
     } else if (id == 'golge_ibrahim') {
       if (currentTrust < 40) {
-        moodDialogue = 'Fazla soru sorma, polis devriyesi geziyor. Paran varsa konuşalım.';
+        moodDialogue =
+            'Fazla soru sorma, polis devriyesi geziyor. Paran varsa konuşalım.';
       } else if (currentTrust < 70) {
-        moodDialogue = 'Gece yarısı limana iki özel makine düşecek. Sessizce payını alırsın.';
+        moodDialogue =
+            'Gece yarısı limana iki özel makine düşecek. Sessizce payını alırsın.';
       } else {
-        moodDialogue = 'Biz artık kader ortağıyız. En temiz change ve gizli ihaleleri önce sana açıyorum, %15 komisyon indirimi sana feda!';
+        moodDialogue =
+            'Biz artık kader ortağıyız. En temiz change ve gizli ihaleleri önce sana açıyorum, %15 komisyon indirimi sana feda!';
       }
     } else if (id == 'vlogger_berk') {
       if (currentTrust < 40) {
-        moodDialogue = 'Kanka kanalda 500 bin abone var, bedavaya hikaye atmamı beklemiyorsun herhalde?';
+        moodDialogue =
+            'Kanka kanalda 500 bin abone var, bedavaya hikaye atmamı beklemiyorsun herhalde?';
       } else if (currentTrust < 70) {
-        moodDialogue = 'Selamlar! Vitrindeki spor kasayı reels videosunda arka plana koydum, etkileşim güzel gidiyor.';
+        moodDialogue =
+            'Selamlar! Vitrindeki spor kasayı reels videosunda arka plana koydum, etkileşim güzel gidiyor.';
       } else {
-        moodDialogue = 'Kankam benim! Yeni videoda senin galeriyi ana sponsor gibi övdüm, vitrinine müşteri yağacak hazır ol!';
+        moodDialogue =
+            'Kankam benim! Yeni videoda senin galeriyi ana sponsor gibi övdüm, vitrinine müşteri yağacak hazır ol!';
       }
     } else {
       if (currentTrust < 40) {
         moodDialogue = 'Çay ₺10 usta, veresiye defterimiz kapalıdır.';
       } else if (currentTrust < 70) {
-        moodDialogue = 'Afiyet olsun usta. Sanayide yine fısıltılar dönüyor, kulisleri takip etmeyi unutma.';
+        moodDialogue =
+            'Afiyet olsun usta. Sanayide yine fısıltılar dönüyor, kulisleri takip etmeyi unutma.';
       } else {
-        moodDialogue = 'Ooo galerici dostum! Maslakta ucuza düşen kelepirleri ilk sana fısıldıyorum, çayın da her zaman benden!';
+        moodDialogue =
+            'Ooo galerici dostum! Maslakta ucuza düşen kelepirleri ilk sana fısıldıyorum, çayın da her zaman benden!';
       }
     }
 
@@ -760,7 +910,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
                 border: Border.all(color: Colors.black, width: 2.5),
               ),
               child: Column(
@@ -798,18 +949,24 @@ class CharacterGrowthScreen extends ConsumerWidget {
                           children: [
                             Text(
                               name,
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w900),
                             ),
                             Text(
                               role,
-                              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF64748B),
+                                  fontWeight: FontWeight.w700),
                             ),
                           ],
                         ),
                       ),
                       NeoBrutalBadge(
                         text: '$liveTrust / 100',
-                        backgroundColor: liveHasHighTrust ? AppColors.brutalGreen : AppColors.brutalYellow,
+                        backgroundColor: liveHasHighTrust
+                            ? AppColors.brutalGreen
+                            : AppColors.brutalYellow,
                         textColor: Colors.black,
                         fontSize: 11,
                       ),
@@ -822,17 +979,22 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFFCBD5E1),
                         width: 1.5,
                       ),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.format_quote_rounded, size: 18, color: AppColors.brutalYellow),
+                        const Icon(Icons.format_quote_rounded,
+                            size: 18, color: AppColors.brutalYellow),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -841,7 +1003,9 @@ class CharacterGrowthScreen extends ConsumerWidget {
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white70 : const Color(0xFF1E293B),
+                              color: isDark
+                                  ? Colors.white70
+                                  : const Color(0xFF1E293B),
                             ),
                           ),
                         ),
@@ -872,16 +1036,18 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     isDark: isDark,
                     canAfford: liveGame.balance >= 250,
                     onTap: () {
-                      final ok = ref.read(gameProvider.notifier).interactWithNpc(
-                        npcId: id,
-                        cost: 250,
-                        trustGain: 3,
-                      );
+                      final ok =
+                          ref.read(gameProvider.notifier).interactWithNpc(
+                                npcId: id,
+                                cost: 250,
+                                trustGain: 3,
+                              );
                       if (ok) {
                         GameSoundHapticService.playCashSuccess();
                         NotificationService.showSuccess(context, '$name • +3');
                       } else {
-                        NotificationService.showError(context, context.tr('insufficient_balance'));
+                        NotificationService.showError(
+                            context, context.tr('insufficient_balance'));
                       }
                     },
                   ),
@@ -898,16 +1064,18 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     isDark: isDark,
                     canAfford: liveGame.balance >= 1500,
                     onTap: () {
-                      final ok = ref.read(gameProvider.notifier).interactWithNpc(
-                        npcId: id,
-                        cost: 1500,
-                        trustGain: 8,
-                      );
+                      final ok =
+                          ref.read(gameProvider.notifier).interactWithNpc(
+                                npcId: id,
+                                cost: 1500,
+                                trustGain: 8,
+                              );
                       if (ok) {
                         GameSoundHapticService.playCashSuccess();
                         NotificationService.showSuccess(context, '$name • +8');
                       } else {
-                        NotificationService.showError(context, context.tr('insufficient_balance'));
+                        NotificationService.showError(
+                            context, context.tr('insufficient_balance'));
                       }
                     },
                   ),
@@ -924,16 +1092,18 @@ class CharacterGrowthScreen extends ConsumerWidget {
                     isDark: isDark,
                     canAfford: liveGame.balance >= 5000,
                     onTap: () {
-                      final ok = ref.read(gameProvider.notifier).interactWithNpc(
-                        npcId: id,
-                        cost: 5000,
-                        trustGain: 18,
-                      );
+                      final ok =
+                          ref.read(gameProvider.notifier).interactWithNpc(
+                                npcId: id,
+                                cost: 5000,
+                                trustGain: 18,
+                              );
                       if (ok) {
                         GameSoundHapticService.playCashSuccess();
                         NotificationService.showSuccess(context, '$name • +18');
                       } else {
-                        NotificationService.showError(context, context.tr('insufficient_balance'));
+                        NotificationService.showError(
+                            context, context.tr('insufficient_balance'));
                       }
                     },
                   ),
@@ -986,11 +1156,15 @@ class CharacterGrowthScreen extends ConsumerWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w900),
                 ),
                 Text(
                   '$subtitle • +$trustGain',
-                  style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                      fontSize: 10,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -1042,13 +1216,22 @@ class CharacterGrowthScreen extends ConsumerWidget {
                         children: [
                           Text(
                             title,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(width: 8),
                           NeoBrutalBadge(
-                            text: isMax ? context.tr('max_badge') : 'LV $level/10',
-                            backgroundColor: isMax ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                            textColor: isMax ? Colors.black : (isDark ? Colors.white : Colors.black),
+                            text: isMax
+                                ? context.tr('max_badge')
+                                : 'LV $level/10',
+                            backgroundColor: isMax
+                                ? AppColors.brutalGreen
+                                : (isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0)),
+                            textColor: isMax
+                                ? Colors.black
+                                : (isDark ? Colors.white : Colors.black),
                             fontSize: 10,
                           ),
                         ],
@@ -1056,7 +1239,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         desc,
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -1065,12 +1251,17 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   NeoBrutalButton(
                     label: '+1 SP',
                     fontSize: 11,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    backgroundColor: hasPoints ? AppColors.brutalYellow : const Color(0xFF64748B),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    backgroundColor: hasPoints
+                        ? AppColors.brutalYellow
+                        : const Color(0xFF64748B),
                     textColor: Colors.black,
                     onPressed: hasPoints
                         ? () {
-                            ref.read(gameProvider.notifier).upgradeSkill(skillKey);
+                            ref
+                                .read(gameProvider.notifier)
+                                .upgradeSkill(skillKey);
                           }
                         : null,
                   ),
@@ -1081,16 +1272,22 @@ class CharacterGrowthScreen extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+                color:
+                    isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                  color: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFFCBD5E1),
                   width: 1.5,
                 ),
               ),
               child: Text(
                 perk,
-                style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.brutalGreen),
               ),
             ),
           ],

@@ -57,12 +57,16 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                     textColor: Colors.black,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   ),
                   NeoBrutalBadge(
                     text: context.tr('badge_optional_opportunity'),
-                    backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white70 : const Color(0xFF475569),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
+                    textColor:
+                        isDark ? Colors.white70 : const Color(0xFF475569),
                     fontSize: 9.5,
                   ),
                 ],
@@ -77,15 +81,20 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E2433) : const Color(0xFFEEF2F6),
+                      color: isDark
+                          ? const Color(0xFF1E2433)
+                          : const Color(0xFFEEF2F6),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF384252) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF384252)
+                            : const Color(0xFF0F172A),
                         width: 2.2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: isDark ? Colors.black54 : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.black54 : const Color(0xFF0F172A),
                           offset: const Offset(2, 2),
                         ),
                       ],
@@ -94,7 +103,9 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                     child: AvatarIconWidget(
                       avatar: card.characterAvatar,
                       size: 26,
-                      color: isDark ? const Color(0xFFF59E0B) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFFF59E0B)
+                          : const Color(0xFF0F172A),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -109,7 +120,9 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
-                            color: isDark ? const Color(0xFFF59E0B) : const Color(0xFFD97706),
+                            color: isDark
+                                ? const Color(0xFFF59E0B)
+                                : const Color(0xFFD97706),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -125,7 +138,9 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                            color: isDark
+                                ? Colors.white60
+                                : const Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -139,10 +154,14 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF191E2C) : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? const Color(0xFF191E2C)
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF2A3444) : const Color(0xFFCBD5E1),
+                    color: isDark
+                        ? const Color(0xFF2A3444)
+                        : const Color(0xFFCBD5E1),
                     width: 2.0,
                   ),
                 ),
@@ -161,9 +180,12 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
 
               // 4. Reward Guarantee Banner
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F261C) : const Color(0xFFECFDF5),
+                  color: isDark
+                      ? const Color(0xFF0F261C)
+                      : const Color(0xFFECFDF5),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: AppColors.brutalGreen,
@@ -172,7 +194,8 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.stars_rounded, color: AppColors.brutalGreen, size: 22),
+                    const Icon(Icons.stars_rounded,
+                        color: AppColors.brutalGreen, size: 22),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -192,7 +215,9 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : const Color(0xFF065F46),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF065F46),
                             ),
                           ),
                         ],
@@ -246,9 +271,11 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
               NeoBrutalButton(
                 label: card.declineLabel,
                 icon: Icons.close_rounded,
-                backgroundColor: isDark ? const Color(0xFF222838) : const Color(0xFFF1F5F9),
+                backgroundColor:
+                    isDark ? const Color(0xFF222838) : const Color(0xFFF1F5F9),
                 textColor: isDark ? Colors.white70 : const Color(0xFF475569),
-                borderColor: isDark ? const Color(0xFF3B465C) : const Color(0xFF94A3B8),
+                borderColor:
+                    isDark ? const Color(0xFF3B465C) : const Color(0xFF94A3B8),
                 borderWidth: 2.0,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,

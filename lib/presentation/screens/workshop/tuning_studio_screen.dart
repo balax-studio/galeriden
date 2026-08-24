@@ -27,7 +27,8 @@ class TuningStudioScreen extends ConsumerStatefulWidget {
 
 class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
   CarModel? _selectedCar;
-  int _selectedTabIndex = 0; // 0: Tümü, 1: Motor, 2: Aero, 3: Yürüyen, 4: Egzoz, 5: Hazır Paketler
+  int _selectedTabIndex =
+      0; // 0: Tümü, 1: Motor, 2: Aero, 3: Yürüyen, 4: Egzoz, 5: Hazır Paketler
   final Set<String> _timedCalibratedCarIds = {};
   final Set<String> _dynoTestedCarIds = {};
 
@@ -47,7 +48,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       onTimingCalibrated: (isPerfect, hpBonus, message) {
         final updatedCar = _selectedCar!.copyWith(
           expertise: _selectedCar!.expertise.copyWith(
-            engineCondition: math.min(100.0, _selectedCar!.expertise.engineCondition + (isPerfect ? 10.0 : 4.0)),
+            engineCondition: math.min(
+                100.0,
+                _selectedCar!.expertise.engineCondition +
+                    (isPerfect ? 10.0 : 4.0)),
           ),
         );
         ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, 0.0);
@@ -59,7 +63,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
           context,
           context.tr('tuning_toast_health_updated'),
         );
-        final luckyOpp = ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
+        final luckyOpp =
+            ref.read(gameProvider.notifier).checkAndRollLuckyOpportunity();
         if (luckyOpp != null && context.mounted) {
           Future.delayed(const Duration(milliseconds: 300), () {
             if (context.mounted) {
@@ -74,13 +79,17 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
   void _applyTuningOption(TuningOptionModel opt) {
     final game = ref.read(gameProvider);
     if (game.balance < opt.cost) {
-      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
+      NotificationService.showError(context,
+          'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
       return;
     }
 
     final wasOverTuned = _selectedCar!.isOverTuned;
     final updatedCar = _selectedCar!.copyWith(
-      appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, opt.id],
+      appliedDetailingOptionIds: [
+        ..._selectedCar!.appliedDetailingOptionIds,
+        opt.id
+      ],
     );
     ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
 
@@ -103,13 +112,16 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     final discountedCost = preset.getDiscountedCost();
 
     if (game.balance < discountedCost) {
-      NotificationService.showError(context, context.tr('err_insufficient_cash'));
+      NotificationService.showError(
+          context, context.tr('err_insufficient_cash'));
       return;
     }
 
     final wasOverTuned = _selectedCar!.isOverTuned;
     // Apply all unapplied options
-    final newOptionIds = Set<String>.from(_selectedCar!.appliedDetailingOptionIds)..addAll(preset.optionIds);
+    final newOptionIds =
+        Set<String>.from(_selectedCar!.appliedDetailingOptionIds)
+          ..addAll(preset.optionIds);
     final updatedCar = _selectedCar!.copyWith(
       appliedDetailingOptionIds: newOptionIds.toList(),
     );
@@ -141,7 +153,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
         ),
         title: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: AppColors.brutalOrange, size: 24),
+            const Icon(Icons.warning_amber_rounded,
+                color: AppColors.brutalOrange, size: 24),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -166,7 +179,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             const SizedBox(height: 8),
             Text(
               context.tr('tuning_overtuned_dialog_sub'),
-              style: const TextStyle(fontSize: 11.5, color: Color(0xFFCBD5E1), fontStyle: FontStyle.italic),
+              style: const TextStyle(
+                  fontSize: 11.5,
+                  color: Color(0xFFCBD5E1),
+                  fontStyle: FontStyle.italic),
             ),
           ],
         ),
@@ -186,12 +202,16 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     const certCost = 4500.0;
     final game = ref.read(gameProvider);
     if (game.balance < certCost) {
-      NotificationService.showError(context, 'Yetersiz bakiye! ${CurrencyFormatter.format(certCost)} gerekli.');
+      NotificationService.showError(context,
+          'Yetersiz bakiye! ${CurrencyFormatter.format(certCost)} gerekli.');
       return;
     }
 
     final updatedCar = _selectedCar!.copyWith(
-      appliedDetailingOptionIds: [..._selectedCar!.appliedDetailingOptionIds, 'tune_legal_project_cert'],
+      appliedDetailingOptionIds: [
+        ..._selectedCar!.appliedDetailingOptionIds,
+        'tune_legal_project_cert'
+      ],
     );
 
     ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, certCost);
@@ -215,7 +235,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     if (!game.isFeatureUnlocked('/tuning-studio')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('tuning_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/tuning-studio',
@@ -227,43 +248,61 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     final ownedCars = game.ownedCars;
 
-    if (_selectedCar != null && !ownedCars.any((c) => c.id == _selectedCar!.id)) {
+    if (_selectedCar != null &&
+        !ownedCars.any((c) => c.id == _selectedCar!.id)) {
       _selectedCar = null;
     } else if (_selectedCar != null) {
       _selectedCar = ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
     }
 
-    final dyno = _selectedCar != null ? CarDynoCalculator.calculateDyno(_selectedCar!) : null;
+    final dyno = _selectedCar != null
+        ? CarDynoCalculator.calculateDyno(_selectedCar!)
+        : null;
 
     final tabs = [
-      (label: context.tr('tuning_tab_all', {'count': TuningCatalog.allOptions.length.toString()}), icon: Icons.tune_rounded),
+      (
+        label: context.tr('tuning_tab_all',
+            {'count': TuningCatalog.allOptions.length.toString()}),
+        icon: Icons.tune_rounded
+      ),
       (label: context.tr('tuning_tab_motor'), icon: Icons.speed_rounded),
       (label: context.tr('tuning_tab_aero'), icon: Icons.palette_rounded),
-      (label: context.tr('tuning_tab_stance'), icon: Icons.directions_car_rounded),
+      (
+        label: context.tr('tuning_tab_stance'),
+        icon: Icons.directions_car_rounded
+      ),
       (label: context.tr('tuning_tab_exhaust'), icon: Icons.volume_up_rounded),
-      (label: context.tr('tuning_tab_packages'), icon: Icons.inventory_2_rounded),
+      (
+        label: context.tr('tuning_tab_packages'),
+        icon: Icons.inventory_2_rounded
+      ),
     ];
 
     List<TuningOptionModel> visibleOptions;
     switch (_selectedTabIndex) {
       case 1:
-        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.powertrain);
+        visibleOptions =
+            TuningCatalog.getOptionsByCategory(TuningCategory.powertrain);
         break;
       case 2:
-        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.aero);
+        visibleOptions =
+            TuningCatalog.getOptionsByCategory(TuningCategory.aero);
         break;
       case 3:
-        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.stance);
+        visibleOptions =
+            TuningCatalog.getOptionsByCategory(TuningCategory.stance);
         break;
       case 4:
-        visibleOptions = TuningCatalog.getOptionsByCategory(TuningCategory.exhaust);
+        visibleOptions =
+            TuningCatalog.getOptionsByCategory(TuningCategory.exhaust);
         break;
       default:
         visibleOptions = TuningCatalog.allOptions;
     }
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('tuning_screen_title'),
       ),
@@ -275,7 +314,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Row(
               children: [
@@ -285,11 +325,14 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.speed_rounded, color: Colors.black, size: 24),
+                  child: const Icon(Icons.speed_rounded,
+                      color: Colors.black, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -298,12 +341,16 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     children: [
                       Text(
                         context.tr('tuning_screen_title'),
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                        style: const TextStyle(
+                            fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         context.tr('tuning_screen_subtitle'),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -329,12 +376,16 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             NeoBrutalCard(
               padding: const EdgeInsets.all(20),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
               child: Center(
                 child: Text(
                   context.tr('tuning_no_cars'),
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B)),
                 ),
               ),
             )
@@ -360,7 +411,11 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                             : (isDark ? const Color(0xFF141721) : Colors.white),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                          color: isSelected
+                              ? const Color(0xFFFF7A00)
+                              : (isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFF0F172A)),
                           width: isSelected ? 2.5 : 2.0,
                         ),
                       ),
@@ -373,7 +428,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w900,
-                              color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                              color: isSelected
+                                  ? Colors.black
+                                  : (isDark ? Colors.white : Colors.black),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -383,7 +440,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: isSelected ? Colors.black87 : const Color(0xFF64748B),
+                              color: isSelected
+                                  ? Colors.black87
+                                  : const Color(0xFF64748B),
                             ),
                           ),
                         ],
@@ -410,11 +469,14 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.speed_rounded, color: AppColors.brutalGreen, size: 18),
+                          const Icon(Icons.speed_rounded,
+                              color: AppColors.brutalGreen, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            context.tr('tuning_dyno_card_title', {'brand': _selectedCar!.brand}),
-                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900),
+                            context.tr('tuning_dyno_card_title',
+                                {'brand': _selectedCar!.brand}),
+                            style: const TextStyle(
+                                fontSize: 11.5, fontWeight: FontWeight.w900),
                           ),
                         ],
                       ),
@@ -429,9 +491,15 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                               fontSize: 9.0,
                             ),
                           NeoBrutalBadge(
-                            text: dyno.isInspectionCompliant ? context.tr('tuning_tuvturk_ok') : context.tr('tuning_tuvturk_fail'),
-                            backgroundColor: dyno.isInspectionCompliant ? AppColors.brutalGreen : AppColors.errorRed,
-                            textColor: dyno.isInspectionCompliant ? Colors.black : Colors.white,
+                            text: dyno.isInspectionCompliant
+                                ? context.tr('tuning_tuvturk_ok')
+                                : context.tr('tuning_tuvturk_fail'),
+                            backgroundColor: dyno.isInspectionCompliant
+                                ? AppColors.brutalGreen
+                                : AppColors.errorRed,
+                            textColor: dyno.isInspectionCompliant
+                                ? Colors.black
+                                : Colors.white,
                             fontSize: 9.0,
                           ),
                         ],
@@ -441,13 +509,39 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_power'), '${dyno.totalHp} HP', '+${dyno.totalHp - dyno.baseHp} HP', AppColors.brutalGreen, isDark)),
+                      Expanded(
+                          child: _buildMetricTile(
+                              context.tr('tuning_metric_power'),
+                              '${dyno.totalHp} HP',
+                              '+${dyno.totalHp - dyno.baseHp} HP',
+                              AppColors.brutalGreen,
+                              isDark)),
                       const SizedBox(width: 6),
-                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_torque'), '${dyno.totalNm} Nm', '+${dyno.totalNm - dyno.baseNm} Nm', AppColors.brutalOrange, isDark)),
+                      Expanded(
+                          child: _buildMetricTile(
+                              context.tr('tuning_metric_torque'),
+                              '${dyno.totalNm} Nm',
+                              '+${dyno.totalNm - dyno.baseNm} Nm',
+                              AppColors.brutalOrange,
+                              isDark)),
                       const SizedBox(width: 6),
-                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_accel'), '${dyno.currentAccel}s', context.tr('tuning_metric_was', {'accel': dyno.baseAccel.toString()}), const Color(0xFF06B6D4), isDark)),
+                      Expanded(
+                          child: _buildMetricTile(
+                              context.tr('tuning_metric_accel'),
+                              '${dyno.currentAccel}s',
+                              context.tr('tuning_metric_was',
+                                  {'accel': dyno.baseAccel.toString()}),
+                              const Color(0xFF06B6D4),
+                              isDark)),
                       const SizedBox(width: 6),
-                      Expanded(child: _buildMetricTile(context.tr('tuning_metric_sound'), '${dyno.exhaustDb} dB', context.tr('tuning_metric_score', {'score': dyno.tuningRating.toString()}), const Color(0xFFA855F7), isDark)),
+                      Expanded(
+                          child: _buildMetricTile(
+                              context.tr('tuning_metric_sound'),
+                              '${dyno.exhaustDb} dB',
+                              context.tr('tuning_metric_score',
+                                  {'score': dyno.tuningRating.toString()}),
+                              const Color(0xFFA855F7),
+                              isDark)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -455,25 +549,53 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     children: [
                       Expanded(
                         child: NeoBrutalButton(
-                          icon: _dynoTestedCarIds.contains(_selectedCar!.id) ? Icons.check_circle_rounded : Icons.speed_rounded,
-                          label: _dynoTestedCarIds.contains(_selectedCar!.id) ? context.tr('tuning_btn_dyno_done') : context.tr('tuning_btn_dyno_test'),
-                          backgroundColor: _dynoTestedCarIds.contains(_selectedCar!.id) ? const Color(0xFF1E293B) : AppColors.brutalYellow,
-                          textColor: _dynoTestedCarIds.contains(_selectedCar!.id) ? Colors.white54 : Colors.black,
+                          icon: _dynoTestedCarIds.contains(_selectedCar!.id)
+                              ? Icons.check_circle_rounded
+                              : Icons.speed_rounded,
+                          label: _dynoTestedCarIds.contains(_selectedCar!.id)
+                              ? context.tr('tuning_btn_dyno_done')
+                              : context.tr('tuning_btn_dyno_test'),
+                          backgroundColor:
+                              _dynoTestedCarIds.contains(_selectedCar!.id)
+                                  ? const Color(0xFF1E293B)
+                                  : AppColors.brutalYellow,
+                          textColor:
+                              _dynoTestedCarIds.contains(_selectedCar!.id)
+                                  ? Colors.white54
+                                  : Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          onPressed: _dynoTestedCarIds.contains(_selectedCar!.id) ? null : () => _runDynoSimulation(context, dyno),
+                          onPressed:
+                              _dynoTestedCarIds.contains(_selectedCar!.id)
+                                  ? null
+                                  : () => _runDynoSimulation(context, dyno),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: NeoBrutalButton(
-                          icon: _timedCalibratedCarIds.contains(_selectedCar!.id) ? Icons.check_circle_rounded : Icons.build_circle_rounded,
-                          label: _timedCalibratedCarIds.contains(_selectedCar!.id) ? context.tr('tuning_btn_timing_done') : context.tr('tuning_btn_timing_adjust'),
-                          backgroundColor: _timedCalibratedCarIds.contains(_selectedCar!.id) ? const Color(0xFF1E293B) : AppColors.brutalOrange,
-                          textColor: _timedCalibratedCarIds.contains(_selectedCar!.id) ? Colors.white54 : Colors.black,
+                          icon:
+                              _timedCalibratedCarIds.contains(_selectedCar!.id)
+                                  ? Icons.check_circle_rounded
+                                  : Icons.build_circle_rounded,
+                          label:
+                              _timedCalibratedCarIds.contains(_selectedCar!.id)
+                                  ? context.tr('tuning_btn_timing_done')
+                                  : context.tr('tuning_btn_timing_adjust'),
+                          backgroundColor:
+                              _timedCalibratedCarIds.contains(_selectedCar!.id)
+                                  ? const Color(0xFF1E293B)
+                                  : AppColors.brutalOrange,
+                          textColor:
+                              _timedCalibratedCarIds.contains(_selectedCar!.id)
+                                  ? Colors.white54
+                                  : Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          onPressed: _timedCalibratedCarIds.contains(_selectedCar!.id) ? null : () => _runEngineTimingCalibration(context),
+                          onPressed:
+                              _timedCalibratedCarIds.contains(_selectedCar!.id)
+                                  ? null
+                                  : () => _runEngineTimingCalibration(context),
                         ),
                       ),
                       if (!dyno.isInspectionCompliant) ...[
@@ -509,14 +631,21 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     onTap: () => setState(() => _selectedTabIndex = i),
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: isTabSelected
                             ? AppColors.brutalYellow
-                            : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                            : (isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFE2E8F0)),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isTabSelected ? const Color(0xFFFF7A00) : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                          color: isTabSelected
+                              ? const Color(0xFFFF7A00)
+                              : (isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFF0F172A)),
                           width: 1.5,
                         ),
                       ),
@@ -526,7 +655,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           Icon(
                             tabs[i].icon,
                             size: 13,
-                            color: isTabSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                            color: isTabSelected
+                                ? Colors.black
+                                : (isDark ? Colors.white70 : Colors.black87),
                           ),
                           const SizedBox(width: 5),
                           Text(
@@ -534,7 +665,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w900,
-                              color: isTabSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                              color: isTabSelected
+                                  ? Colors.black
+                                  : (isDark ? Colors.white70 : Colors.black87),
                             ),
                           ),
                         ],
@@ -550,15 +683,20 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             if (_selectedTabIndex == 5) ...[
               ...TuningPresetBuilds.allPresets.map((preset) {
                 final discountedPrice = preset.getDiscountedCost();
-                final rawPrice = TuningCatalog.calculateRawCost(preset.optionIds);
-                final allApplied = preset.optionIds.every((id) => _selectedCar!.appliedDetailingOptionIds.contains(id));
+                final rawPrice =
+                    TuningCatalog.calculateRawCost(preset.optionIds);
+                final allApplied = preset.optionIds.every((id) =>
+                    _selectedCar!.appliedDetailingOptionIds.contains(id));
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(14),
-                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                    borderColor: allApplied ? AppColors.brutalGreen : AppColors.brutalOrange,
+                    backgroundColor:
+                        isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: allApplied
+                        ? AppColors.brutalGreen
+                        : AppColors.brutalOrange,
                     borderRadius: 14,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,17 +704,29 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(preset.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                            Expanded(
+                                child: Text(preset.title,
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900))),
                             NeoBrutalBadge(
-                              text: allApplied ? context.tr('tuning_badge_applied') : context.tr('tuning_badge_discount'),
-                              backgroundColor: allApplied ? AppColors.brutalGreen : AppColors.brutalYellow,
+                              text: allApplied
+                                  ? context.tr('tuning_badge_applied')
+                                  : context.tr('tuning_badge_discount'),
+                              backgroundColor: allApplied
+                                  ? AppColors.brutalGreen
+                                  : AppColors.brutalYellow,
                               textColor: Colors.black,
                               fontSize: 10,
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
-                        Text(preset.description, style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                        Text(preset.description,
+                            style: const TextStyle(
+                                fontSize: 11.5,
+                                color: Color(0xFF64748B),
+                                fontWeight: FontWeight.w600)),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -594,19 +744,35 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                                   ),
                                 ),
                                 Text(
-                                  CurrencyFormatter.formatShort(discountedPrice),
-                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                  CurrencyFormatter.formatShort(
+                                      discountedPrice),
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColors.brutalGreen),
                                 ),
                               ],
                             ),
                             NeoBrutalButton(
-                              label: allApplied ? context.tr('tuning_btn_pkg_active') : context.tr('tuning_btn_apply_pkg'),
-                              icon: allApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
-                              backgroundColor: allApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : AppColors.brutalYellow,
-                              textColor: allApplied ? Colors.grey : Colors.black,
+                              label: allApplied
+                                  ? context.tr('tuning_btn_pkg_active')
+                                  : context.tr('tuning_btn_apply_pkg'),
+                              icon: allApplied
+                                  ? Icons.check_circle_rounded
+                                  : Icons.flash_on_rounded,
+                              backgroundColor: allApplied
+                                  ? (isDark
+                                      ? const Color(0xFF1E2330)
+                                      : const Color(0xFFE2E8F0))
+                                  : AppColors.brutalYellow,
+                              textColor:
+                                  allApplied ? Colors.grey : Colors.black,
                               fontSize: 11,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              onPressed: allApplied ? null : () => _applyPresetBuild(preset),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
+                              onPressed: allApplied
+                                  ? null
+                                  : () => _applyPresetBuild(preset),
                             ),
                           ],
                         ),
@@ -618,14 +784,20 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             ] else ...[
               // Standard Options List
               ...visibleOptions.map((opt) {
-                final isApplied = _selectedCar!.appliedDetailingOptionIds.contains(opt.id);
+                final isApplied =
+                    _selectedCar!.appliedDetailingOptionIds.contains(opt.id);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(14),
-                    backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                    borderColor: isApplied ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                    backgroundColor:
+                        isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: isApplied
+                        ? AppColors.brutalGreen
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A)),
                     borderRadius: 14,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -641,16 +813,21 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                                     color: opt.color,
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                      color: isDark
+                                          ? const Color(0xFF333B4F)
+                                          : const Color(0xFF0F172A),
                                       width: 2.0,
                                     ),
                                   ),
-                                  child: Icon(opt.icon, color: Colors.black, size: 20),
+                                  child: Icon(opt.icon,
+                                      color: Colors.black, size: 20),
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
                                   opt.title,
-                                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                                  style: const TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w900),
                                 ),
                               ],
                             ),
@@ -668,7 +845,11 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                                     ),
                                   ),
                                 NeoBrutalBadge(
-                                  text: context.tr('tuning_badge_val_gain', {'percent': ((opt.valueMultiplier - 1.0) * 100).toStringAsFixed(0)}),
+                                  text: context.tr('tuning_badge_val_gain', {
+                                    'percent':
+                                        ((opt.valueMultiplier - 1.0) * 100)
+                                            .toStringAsFixed(0)
+                                  }),
                                   backgroundColor: AppColors.brutalYellow,
                                   textColor: Colors.black,
                                   fontSize: 9.5,
@@ -680,7 +861,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         const SizedBox(height: 8),
                         Text(
                           opt.description,
-                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B)),
                         ),
                         const SizedBox(height: 8),
 
@@ -692,28 +876,36 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                             if (opt.hpGain > 0)
                               NeoBrutalBadge(
                                 text: '+${opt.hpGain} HP',
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                backgroundColor: isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0),
                                 textColor: AppColors.brutalGreen,
                                 fontSize: 9.5,
                               ),
                             if (opt.nmGain > 0)
                               NeoBrutalBadge(
                                 text: '+${opt.nmGain} Nm',
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                backgroundColor: isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0),
                                 textColor: AppColors.brutalOrange,
                                 fontSize: 9.5,
                               ),
                             if (opt.accelDelta != 0.0)
                               NeoBrutalBadge(
                                 text: '${opt.accelDelta}s 0-100',
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                backgroundColor: isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0),
                                 textColor: const Color(0xFF06B6D4),
                                 fontSize: 9.5,
                               ),
                             if (opt.soundDbGain > 0)
                               NeoBrutalBadge(
                                 text: '+${opt.soundDbGain} dB',
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                backgroundColor: isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0),
                                 textColor: const Color(0xFFA855F7),
                                 fontSize: 9.5,
                               ),
@@ -732,22 +924,40 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              isApplied ? context.tr('tuning_btn_done') : CurrencyFormatter.formatShort(opt.cost),
+                            Expanded(
+                                child: Text(
+                              isApplied
+                                  ? context.tr('tuning_btn_done')
+                                  : CurrencyFormatter.formatShort(opt.cost),
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w900,
-                                color: isApplied ? const Color(0xFF64748B) : AppColors.brutalOrange,
+                                color: isApplied
+                                    ? const Color(0xFF64748B)
+                                    : AppColors.brutalOrange,
                               ),
-                            ),
+                            )),
                             NeoBrutalButton(
-                              label: isApplied ? context.tr('tuning_btn_applied') : context.tr('tuning_btn_apply'),
-                              icon: isApplied ? Icons.check_circle_rounded : Icons.flash_on_rounded,
-                              backgroundColor: isApplied ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)) : opt.color,
-                              textColor: isApplied ? (isDark ? Colors.white54 : Colors.black54) : Colors.black,
+                              label: isApplied
+                                  ? context.tr('tuning_btn_applied')
+                                  : context.tr('tuning_btn_apply'),
+                              icon: isApplied
+                                  ? Icons.check_circle_rounded
+                                  : Icons.flash_on_rounded,
+                              backgroundColor: isApplied
+                                  ? (isDark
+                                      ? const Color(0xFF1E2330)
+                                      : const Color(0xFFE2E8F0))
+                                  : opt.color,
+                              textColor: isApplied
+                                  ? (isDark ? Colors.white54 : Colors.black54)
+                                  : Colors.black,
                               fontSize: 11.5,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              onPressed: isApplied ? null : () => _applyTuningOption(opt),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              onPressed: isApplied
+                                  ? null
+                                  : () => _applyTuningOption(opt),
                             ),
                           ],
                         ),
@@ -763,7 +973,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     );
   }
 
-  static Widget _buildMetricTile(String title, String val, String sub, Color color, bool isDark) {
+  static Widget _buildMetricTile(
+      String title, String val, String sub, Color color, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
@@ -778,7 +989,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+            style: const TextStyle(
+                fontSize: 8.5,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF64748B)),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -787,14 +1001,18 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             fit: BoxFit.scaleDown,
             child: Text(
               val,
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: color),
+              style: TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w900, color: color),
             ),
           ),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
               sub,
-              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+              style: const TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF64748B)),
             ),
           ),
         ],

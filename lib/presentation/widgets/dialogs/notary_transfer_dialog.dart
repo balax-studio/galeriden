@@ -131,7 +131,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
               decoration: BoxDecoration(
                 color: isCancelled
                     ? const Color(0xFFEF4444)
-                    : (isDark ? const Color(0xFF1E293B) : const Color(0xFF0F172A)),
+                    : (isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFF0F172A)),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -168,7 +170,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                 color: isDark ? const Color(0xFF1E2330) : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFFCBD5E1),
                   width: 1.5,
                 ),
               ),
@@ -184,20 +188,25 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFDE59),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFF0F172A), width: 1.2),
+                          border: Border.all(
+                              color: const Color(0xFF0F172A), width: 1.2),
                         ),
                         child: Text(
-                          widget.car.plateNumber.isNotEmpty ? widget.car.plateNumber : '34 GLR 001',
+                          widget.car.plateNumber.isNotEmpty
+                              ? widget.car.plateNumber
+                              : '34 GLR 001',
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
@@ -213,7 +222,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                   const Divider(height: 16),
@@ -222,16 +233,20 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                     children: [
                       Expanded(
                         child: Text(
-                          context.tr('notary_seller', {'name': widget.sellerName}),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                          context
+                              .tr('notary_seller', {'name': widget.sellerName}),
+                          style: const TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.w700),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          context.tr('notary_buyer', {'name': widget.buyerName}),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                          context
+                              .tr('notary_buyer', {'name': widget.buyerName}),
+                          style: const TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.w700),
                           textAlign: TextAlign.end,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -244,7 +259,8 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                     children: [
                       Text(
                         context.tr('notary_sale_price'),
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(width: 8),
                       Flexible(
@@ -274,14 +290,19 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                 // Event note banner
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: isCancelled
                         ? const Color(0xFFFEF2F2)
-                        : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF0FDF4)),
+                        : (isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFF0FDF4)),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isCancelled ? const Color(0xFFEF4444) : const Color(0xFF00E575),
+                      color: isCancelled
+                          ? const Color(0xFFEF4444)
+                          : const Color(0xFF00E575),
                       width: 1.4,
                     ),
                   ),
@@ -292,7 +313,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w900,
-                          color: isCancelled ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+                          color: isCancelled
+                              ? const Color(0xFFDC2626)
+                              : const Color(0xFF16A34A),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -302,7 +325,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                          color: isDark
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF334155),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -318,14 +343,16 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                     child: Transform.rotate(
                       angle: isCancelled ? 0.12 : -0.10,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isCancelled
                                 ? const Color(0xFFEF4444).withValues(alpha: 0.9)
-                                : const Color(0xFF00E575).withValues(alpha: 0.9),
+                                : const Color(0xFF00E575)
+                                    .withValues(alpha: 0.9),
                             width: 2.8,
                           ),
                         ),
@@ -339,7 +366,8 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                             letterSpacing: 1.5,
                             color: isCancelled
                                 ? const Color(0xFFEF4444).withValues(alpha: 0.9)
-                                : const Color(0xFF00E575).withValues(alpha: 0.9),
+                                : const Color(0xFF00E575)
+                                    .withValues(alpha: 0.9),
                           ),
                         ),
                       ),
@@ -355,7 +383,9 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
               label: isCancelled
                   ? context.tr('notary_return_garage')
                   : context.tr('notary_complete_transfer'),
-              backgroundColor: isCancelled ? const Color(0xFFEF4444) : const Color(0xFF00E575),
+              backgroundColor: isCancelled
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFF00E575),
               textColor: const Color(0xFF0F172A),
               onPressed: () {
                 Navigator.of(context).pop();

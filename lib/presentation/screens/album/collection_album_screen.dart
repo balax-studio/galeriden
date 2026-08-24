@@ -21,7 +21,8 @@ class CollectionAlbumScreen extends ConsumerStatefulWidget {
   const CollectionAlbumScreen({super.key});
 
   @override
-  ConsumerState<CollectionAlbumScreen> createState() => _CollectionAlbumScreenState();
+  ConsumerState<CollectionAlbumScreen> createState() =>
+      _CollectionAlbumScreenState();
 }
 
 class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
@@ -32,7 +33,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
 
   // Static cached catalog to avoid rebuilding catalog objects on every frame
   static final List<_CatalogCarItem> _cachedCatalogCars = _buildStaticCatalog();
-  static final List<String> _cachedSegments = _cachedCatalogCars.map((c) => c.segment).toSet().toList();
+  static final List<String> _cachedSegments =
+      _cachedCatalogCars.map((c) => c.segment).toSet().toList();
 
   static List<_CatalogCarItem> _buildStaticCatalog() {
     final list = <_CatalogCarItem>[];
@@ -61,10 +63,10 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
 
     // Set of discovered keys
     final discoveredKeys = game.discoveredCarModelIds.toSet();
-    final ownedKeys = game.ownedCars
-        .map((c) => _toKey(c.brand, c.modelName))
-        .toSet();
-    final soldTitles = game.salesHistory.map((s) => s.carTitle.toLowerCase()).toSet();
+    final ownedKeys =
+        game.ownedCars.map((c) => _toKey(c.brand, c.modelName)).toSet();
+    final soldTitles =
+        game.salesHistory.map((s) => s.carTitle.toLowerCase()).toSet();
 
     bool isDiscovered(_CatalogCarItem car) {
       final key = _toKey(car.brand, car.modelName);
@@ -77,7 +79,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
         return true;
       }
       final lowerTitle = '${car.brand} ${car.modelName}'.toLowerCase();
-      if (soldTitles.any((t) => t.contains(car.modelName.toLowerCase()) || lowerTitle.contains(t))) {
+      if (soldTitles.any((t) =>
+          t.contains(car.modelName.toLowerCase()) || lowerTitle.contains(t))) {
         return true;
       }
       return false;
@@ -96,7 +99,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
     final discoveredCars = allCatalogCars.where(isDiscovered).toList();
 
     final albumProgress = CollectionAlbumEngine.calculateAlbumProgress(
-      discoveredCarIds: discoveredCars.map((c) => _toKey(c.brand, c.modelName)).toList(),
+      discoveredCarIds:
+          discoveredCars.map((c) => _toKey(c.brand, c.modelName)).toList(),
       discoveredRareColors: game.unlockedShowroomThemeIds,
       discoveredSpecialPlates: const [],
       restoredBarnFinds: const [],
@@ -108,17 +112,20 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
       final discovered = isDiscovered(car);
       if (_selectedFilterIndex == 1 && !discovered) return false;
       if (_selectedFilterIndex == 2 && discovered) return false;
-      if (_selectedSegment != null && car.segment != _selectedSegment) return false;
+      if (_selectedSegment != null && car.segment != _selectedSegment)
+        return false;
       return true;
     }).toList();
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('album_appbar_title'),
       ),
       body: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         slivers: [
           SliverPadding(
             padding: const EdgeInsets.all(14),
@@ -235,11 +242,14 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                       color: const Color(0xFFFFDE59),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
                         width: 2.0,
                       ),
                     ),
-                    child: const Icon(Icons.auto_stories_rounded, color: Colors.black, size: 20),
+                    child: const Icon(Icons.auto_stories_rounded,
+                        color: Colors.black, size: 20),
                   ),
                   const SizedBox(width: 10),
                   Column(
@@ -250,7 +260,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
@@ -258,7 +269,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -281,9 +294,12 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
             child: Container(
               height: 14,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E2433) : const Color(0xFFE2E8F0),
+                color:
+                    isDark ? const Color(0xFF1E2433) : const Color(0xFFE2E8F0),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFF0F172A),
                   width: 1.5,
                 ),
               ),
@@ -326,7 +342,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
   }) {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
-      backgroundColor: isDark ? const Color(0xFF191D2B) : const Color(0xFFFEFCE8),
+      backgroundColor:
+          isDark ? const Color(0xFF191D2B) : const Color(0xFFFEFCE8),
       borderColor: isDark ? const Color(0xFFEAB308) : const Color(0xFF0F172A),
       borderRadius: 14,
       child: Column(
@@ -335,7 +352,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Expanded(
+                  child: Text(
                 context.tr('album_milestones_title'),
                 style: const TextStyle(
                   fontSize: 11,
@@ -343,8 +361,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                   letterSpacing: 0.8,
                   color: Color(0xFFEAB308),
                 ),
-              ),
-              const Icon(Icons.emoji_events_rounded, color: Color(0xFFEAB308), size: 18),
+              )),
+              const Icon(Icons.emoji_events_rounded,
+                  color: Color(0xFFEAB308), size: 18),
             ],
           ),
           const SizedBox(height: 10),
@@ -357,7 +376,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
               separatorBuilder: (context, index) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final target = _milestones[index];
-                final reward = CollectionAlbumEngine.getMilestoneReward(target) ?? 10000;
+                final reward =
+                    CollectionAlbumEngine.getMilestoneReward(target) ?? 10000;
                 final isReached = discoveredCount >= target;
                 final isClaimed = game.claimedAlbumMilestones.contains(target);
 
@@ -370,7 +390,11 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                     border: Border.all(
                       color: isClaimed
                           ? const Color(0xFF64748B)
-                          : (isReached ? const Color(0xFF00E575) : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1))),
+                          : (isReached
+                              ? const Color(0xFF00E575)
+                              : (isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFFCBD5E1))),
                       width: 1.8,
                     ),
                   ),
@@ -386,25 +410,31 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                           if (isClaimed)
-                            const Icon(Icons.check_circle_rounded, color: Color(0xFF64748B), size: 14)
+                            const Icon(Icons.check_circle_rounded,
+                                color: Color(0xFF64748B), size: 14)
                           else if (isReached)
-                            const Icon(Icons.stars_rounded, color: Color(0xFF00E575), size: 14)
+                            const Icon(Icons.stars_rounded,
+                                color: Color(0xFF00E575), size: 14)
                           else
-                            const Icon(Icons.lock_outline_rounded, color: Color(0xFF94A3B8), size: 14),
+                            const Icon(Icons.lock_outline_rounded,
+                                color: Color(0xFF94A3B8), size: 14),
                         ],
                       ),
-                      Text(
+                      Expanded(
+                          child: Text(
                         '+${CurrencyFormatter.formatShort(reward.toDouble())}',
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF00E575),
                         ),
-                      ),
+                      )),
                       SizedBox(
                         width: double.infinity,
                         height: 22,
@@ -423,27 +453,37 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                                 onPressed: isReached
                                     ? () {
                                         HapticFeedback.heavyImpact();
-                                        ref.read(gameProvider.notifier).claimAlbumMilestone(target, reward.toDouble());
+                                        ref
+                                            .read(gameProvider.notifier)
+                                            .claimAlbumMilestone(
+                                                target, reward.toDouble());
                                         NotificationService.showSuccess(
                                           context,
-                                          context.tr('album_toast_reward_claimed'),
+                                          context
+                                              .tr('album_toast_reward_claimed'),
                                         );
                                       }
                                     : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF00E575),
-                                  disabledBackgroundColor: isDark ? const Color(0xFF1E2433) : const Color(0xFFE2E8F0),
+                                  disabledBackgroundColor: isDark
+                                      ? const Color(0xFF1E2433)
+                                      : const Color(0xFFE2E8F0),
                                   padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
                                 child: Text(
-                                  isReached ? context.tr('album_btn_claim_reward') : '$discoveredCount/$target',
+                                  isReached
+                                      ? context.tr('album_btn_claim_reward')
+                                      : '$discoveredCount/$target',
                                   style: TextStyle(
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.w900,
-                                    color: isReached ? Colors.black : const Color(0xFF94A3B8),
+                                    color: isReached
+                                        ? Colors.black
+                                        : const Color(0xFF94A3B8),
                                   ),
                                 ),
                               ),
@@ -481,7 +521,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
             final isSelected = _selectedFilterIndex == index;
             return Expanded(
               child: Padding(
-                padding: EdgeInsets.only(right: index < filters.length - 1 ? 6.0 : 0.0),
+                padding: EdgeInsets.only(
+                    right: index < filters.length - 1 ? 6.0 : 0.0),
                 child: GestureDetector(
                   onTap: () {
                     HapticFeedback.selectionClick();
@@ -493,11 +534,15 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? (isDark ? const Color(0xFFFFDE59) : const Color(0xFF0F172A))
+                          ? (isDark
+                              ? const Color(0xFFFFDE59)
+                              : const Color(0xFF0F172A))
                           : (isDark ? const Color(0xFF1E2433) : Colors.white),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFF0F172A),
                         width: 1.8,
                       ),
                     ),
@@ -510,7 +555,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                         fontWeight: FontWeight.w900,
                         color: isSelected
                             ? (isDark ? Colors.black : Colors.white)
-                            : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF334155)),
+                            : (isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF334155)),
                       ),
                     ),
                   ),
@@ -571,7 +618,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
             border: Border.all(
               color: isSelected
                   ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                  : (isDark ? const Color(0xFF2E384D) : const Color(0xFFCBD5E1)),
+                  : (isDark
+                      ? const Color(0xFF2E384D)
+                      : const Color(0xFFCBD5E1)),
               width: 1.5,
             ),
           ),
@@ -581,7 +630,11 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: isSelected ? Colors.black : (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569)),
+              color: isSelected
+                  ? Colors.black
+                  : (isDark
+                      ? const Color(0xFFCBD5E1)
+                      : const Color(0xFF475569)),
             ),
           ),
         ),
@@ -632,7 +685,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: isDiscovered
                         ? const Color(0xFF38BDF8)
@@ -644,7 +698,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                     style: TextStyle(
                       fontSize: 8.5,
                       fontWeight: FontWeight.w900,
-                      color: isDiscovered ? Colors.black : const Color(0xFF94A3B8),
+                      color:
+                          isDiscovered ? Colors.black : const Color(0xFF94A3B8),
                     ),
                   ),
                 ),
@@ -692,12 +747,16 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                 height: 58,
                 decoration: BoxDecoration(
                   color: isDiscovered
-                      ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9))
+                      ? (isDark
+                          ? const Color(0xFF1E2433)
+                          : const Color(0xFFF1F5F9))
                       : const Color(0xFF090B10),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isDiscovered
-                        ? (isDark ? const Color(0xFF2E384D) : const Color(0xFFE2E8F0))
+                        ? (isDark
+                            ? const Color(0xFF2E384D)
+                            : const Color(0xFFE2E8F0))
                         : const Color(0xFF334155),
                     width: 1.5,
                   ),
@@ -707,7 +766,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                     ? VectorIconWidget(
                         type: 'car',
                         size: 32,
-                        color: isOwned ? const Color(0xFF00E575) : const Color(0xFF38BDF8),
+                        color: isOwned
+                            ? const Color(0xFF00E575)
+                            : const Color(0xFF38BDF8),
                       )
                     : const Icon(
                         Icons.lock_outline_rounded,
@@ -727,7 +788,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: isDiscovered
-                        ? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7))
+                        ? (isDark
+                            ? const Color(0xFF38BDF8)
+                            : const Color(0xFF0284C7))
                         : const Color(0xFF64748B),
                   ),
                 ),
@@ -752,7 +815,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: isDiscovered ? const Color(0xFF00E575) : const Color(0xFF64748B),
+                    color: isDiscovered
+                        ? const Color(0xFF00E575)
+                        : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -816,8 +881,12 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                     NeoBrutalBadge(
                       text: isOwned
                           ? context.tr('album_status_in_garage')
-                          : (isSold ? context.tr('album_status_discovered_sold') : context.tr('album_status_discovered_seen')),
-                      backgroundColor: isOwned ? const Color(0xFF00E575) : const Color(0xFF38BDF8),
+                          : (isSold
+                              ? context.tr('album_status_discovered_sold')
+                              : context.tr('album_status_discovered_seen')),
+                      backgroundColor: isOwned
+                          ? const Color(0xFF00E575)
+                          : const Color(0xFF38BDF8),
                       textColor: Colors.black,
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
@@ -835,7 +904,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                isDiscovered ? '${car.brand} ${car.modelName}' : '${car.brand} • ???',
+                isDiscovered
+                    ? '${car.brand} ${car.modelName}'
+                    : '${car.brand} • ???',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -843,7 +914,6 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-
               if (isDiscovered) ...[
                 _buildStatRow(
                   label: context.tr('album_spec_segment'),
@@ -866,7 +936,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2433) : const Color(0xFFFEF2F2),
+                    color: isDark
+                        ? const Color(0xFF1E2433)
+                        : const Color(0xFFFEF2F2),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: const Color(0xFFEF4444),
@@ -875,7 +947,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.lock_outline_rounded, color: Color(0xFFEF4444), size: 24),
+                      const Icon(Icons.lock_outline_rounded,
+                          color: Color(0xFFEF4444), size: 24),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -883,7 +956,9 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF991B1B),
+                            color: isDark
+                                ? const Color(0xFFCBD5E1)
+                                : const Color(0xFF991B1B),
                           ),
                         ),
                       ),
@@ -891,7 +966,6 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                   ),
                 ),
               ],
-
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -929,28 +1003,31 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          Expanded(
+              child: Text(
             label,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
             ),
-          ),
-          Text(
+          )),
+          Expanded(
+              child: Text(
             value,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
               color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
-          ),
+          )),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyState({required BuildContext context, required bool isDark}) {
+  Widget _buildEmptyState(
+      {required BuildContext context, required bool isDark}) {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(24),
       backgroundColor: isDark ? const Color(0xFF141824) : Colors.white,
@@ -959,7 +1036,8 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.search_off_rounded, size: 36, color: Color(0xFF64748B)),
+            const Icon(Icons.search_off_rounded,
+                size: 36, color: Color(0xFF64748B)),
             const SizedBox(height: 8),
             Text(
               'Bu filtrede araç bulunamadı',

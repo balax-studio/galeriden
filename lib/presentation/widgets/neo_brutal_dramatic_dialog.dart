@@ -27,10 +27,12 @@ class NeoBrutalDramaticDialog extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<NeoBrutalDramaticDialog> createState() => _NeoBrutalDramaticDialogState();
+  ConsumerState<NeoBrutalDramaticDialog> createState() =>
+      _NeoBrutalDramaticDialogState();
 }
 
-class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialog> {
+class _NeoBrutalDramaticDialogState
+    extends ConsumerState<NeoBrutalDramaticDialog> {
   DramaticResolutionResult? _resolutionResult;
   bool _isProcessing = false;
 
@@ -82,7 +84,8 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
     if (choice.upfrontCost > 0 && state.balance < choice.upfrontCost) {
       NotificationService.showError(
         context,
-        context.tr('err_insufficient_cash_choice', {'amount': choice.upfrontCost.toStringAsFixed(0)}),
+        context.tr('err_insufficient_cash_choice',
+            {'amount': choice.upfrontCost.toStringAsFixed(0)}),
       );
       return;
     }
@@ -163,7 +166,8 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
             ),
             NeoBrutalBadge(
               text: _getSeverityLabel(widget.card.severity),
-              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+              backgroundColor:
+                  isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
               textColor: isDark ? Colors.white70 : const Color(0xFF334155),
               fontSize: 9.5,
               fontWeight: FontWeight.w800,
@@ -179,10 +183,13 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
               width: 54,
               height: 54,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1B202E) : const Color(0xFFF1F5F9),
+                color:
+                    isDark ? const Color(0xFF1B202E) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF3A4659) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF3A4659)
+                      : const Color(0xFF0F172A),
                   width: 2.2,
                 ),
                 boxShadow: [
@@ -260,7 +267,8 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
             decoration: BoxDecoration(
               color: catColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: catColor.withValues(alpha: 0.5), width: 2.0),
+              border: Border.all(
+                  color: catColor.withValues(alpha: 0.5), width: 2.0),
             ),
             child: Row(
               children: [
@@ -294,29 +302,40 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
         const SizedBox(height: 8),
 
         ...widget.card.choices.map((choice) {
-          final bool canAfford = choice.upfrontCost <= 0 || currentBalance >= choice.upfrontCost;
+          final bool canAfford =
+              choice.upfrontCost <= 0 || currentBalance >= choice.upfrontCost;
           final bool isPrimary = choice == widget.card.choices.first;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
-              onTap: _isProcessing || !canAfford ? null : () => _onChoiceSelected(choice),
+              onTap: _isProcessing || !canAfford
+                  ? null
+                  : () => _onChoiceSelected(choice),
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: !canAfford
-                      ? (isDark ? const Color(0xFF181C26) : const Color(0xFFF1F5F9))
+                      ? (isDark
+                          ? const Color(0xFF181C26)
+                          : const Color(0xFFF1F5F9))
                       : (isPrimary
                           ? catColor.withValues(alpha: isDark ? 0.22 : 0.14)
-                          : (isDark ? const Color(0xFF1A202C) : const Color(0xFFF8FAFC))),
+                          : (isDark
+                              ? const Color(0xFF1A202C)
+                              : const Color(0xFFF8FAFC))),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: !canAfford
-                        ? (isDark ? const Color(0xFF2D3748) : const Color(0xFFCBD5E1))
+                        ? (isDark
+                            ? const Color(0xFF2D3748)
+                            : const Color(0xFFCBD5E1))
                         : (isPrimary
                             ? catColor
-                            : (isDark ? const Color(0xFF3B4758) : const Color(0xFF94A3B8))),
+                            : (isDark
+                                ? const Color(0xFF3B4758)
+                                : const Color(0xFF94A3B8))),
                     width: isPrimary ? 2.2 : 1.6,
                   ),
                 ),
@@ -333,16 +352,23 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
                               fontSize: 13.5,
                               fontWeight: FontWeight.w900,
                               color: !canAfford
-                                  ? (isDark ? Colors.white38 : const Color(0xFF94A3B8))
-                                  : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                  ? (isDark
+                                      ? Colors.white38
+                                      : const Color(0xFF94A3B8))
+                                  : (isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A)),
                             ),
                           ),
                         ),
                         if (choice.upfrontCost > 0)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: !canAfford ? const Color(0xFFEF4444) : const Color(0xFFDC2626),
+                              color: !canAfford
+                                  ? const Color(0xFFEF4444)
+                                  : const Color(0xFFDC2626),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -362,7 +388,8 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white60 : const Color(0xFF475569),
+                        color:
+                            isDark ? Colors.white60 : const Color(0xFF475569),
                       ),
                     ),
                   ],
@@ -395,14 +422,20 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
                   : const Color(0xFFEF4444).withValues(alpha: 0.2),
               shape: BoxShape.circle,
               border: Border.all(
-                color: outcome.isSuccess ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                color: outcome.isSuccess
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFEF4444),
                 width: 2.5,
               ),
             ),
             alignment: Alignment.center,
             child: Icon(
-              outcome.isSuccess ? Icons.check_circle_outline_rounded : Icons.warning_amber_rounded,
-              color: outcome.isSuccess ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+              outcome.isSuccess
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.warning_amber_rounded,
+              color: outcome.isSuccess
+                  ? const Color(0xFF10B981)
+                  : const Color(0xFFEF4444),
               size: 32,
             ),
           ),
@@ -451,15 +484,23 @@ class _NeoBrutalDramaticDialogState extends ConsumerState<NeoBrutalDramaticDialo
           children: [
             if (outcome.moneyDelta != 0)
               NeoBrutalBadge(
-                text: '${outcome.moneyDelta > 0 ? '+' : ''}₺${outcome.moneyDelta.toStringAsFixed(0)}',
-                backgroundColor: outcome.moneyDelta > 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                text:
+                    '${outcome.moneyDelta > 0 ? '+' : ''}₺${outcome.moneyDelta.toStringAsFixed(0)}',
+                backgroundColor: outcome.moneyDelta > 0
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFEF4444),
                 textColor: Colors.white,
                 fontWeight: FontWeight.w900,
               ),
             if (outcome.reputationDelta != 0)
               NeoBrutalBadge(
-                text: '${outcome.reputationDelta > 0 ? '+' : ''}${context.tr('badge_reputation_pts', {'val': outcome.reputationDelta})}',
-                backgroundColor: outcome.reputationDelta > 0 ? const Color(0xFF3B82F6) : const Color(0xFFF43F5E),
+                text:
+                    '${outcome.reputationDelta > 0 ? '+' : ''}${context.tr('badge_reputation_pts', {
+                      'val': outcome.reputationDelta
+                    })}',
+                backgroundColor: outcome.reputationDelta > 0
+                    ? const Color(0xFF3B82F6)
+                    : const Color(0xFFF43F5E),
                 textColor: Colors.white,
                 fontWeight: FontWeight.w900,
               ),

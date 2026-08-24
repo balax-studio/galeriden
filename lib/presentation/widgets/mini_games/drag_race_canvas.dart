@@ -14,8 +14,8 @@ import '../slam_stamp_widget.dart';
 
 enum RacePhase {
   countdown, // 3, 2, 1, GO
-  racing,    // Multi-gear RPM climb, shift timing, nitro burst
-  finished,  // Victory / Defeat stamp
+  racing, // Multi-gear RPM climb, shift timing, nitro burst
+  finished, // Victory / Defeat stamp
 }
 
 class DragRaceMiniGameModal extends StatefulWidget {
@@ -86,20 +86,20 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
   final math.Random _random = math.Random();
 
   List<String> get _perfectQuotes => [
-    'Oley be!',
-    context.tr('drag_voice_1'),
-    context.tr('drag_voice_2'),
-    context.tr('drag_voice_3'),
-    'Harika devir!',
-    'Kusursuz vites!',
-  ];
+        'Oley be!',
+        context.tr('drag_voice_1'),
+        context.tr('drag_voice_2'),
+        context.tr('drag_voice_3'),
+        'Harika devir!',
+        'Kusursuz vites!',
+      ];
 
   List<String> get _earlyQuotes => [
-    'Hadi be!',
-    context.tr('drag_voice_early_1'),
-    context.tr('drag_voice_early_2'),
-    'Acele ettik!',
-  ];
+        'Hadi be!',
+        context.tr('drag_voice_early_1'),
+        context.tr('drag_voice_early_2'),
+        'Acele ettik!',
+      ];
 
   final List<String> _lateQuotes = [
     'Hadi be kesiciye girdi!',
@@ -140,7 +140,8 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
 
   void _startCountdown() {
     _countdownStep = 3;
-    _countdownTimer = Timer.periodic(const Duration(milliseconds: 700), (timer) {
+    _countdownTimer =
+        Timer.periodic(const Duration(milliseconds: 700), (timer) {
       if (!mounted) return;
       HapticFeedback.mediumImpact();
       if (_countdownStep > 1) {
@@ -196,7 +197,8 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
       // Speed modifier from player shift performance
       if (_perfectShifts > 0) playerSpeed += _perfectShifts * 0.00045;
       if (_earlyShifts > 0) playerSpeed -= _earlyShifts * 0.0003;
-      if (_lateShifts > 0) playerSpeed -= _lateShifts * 0.0004; // Heavy rev-limit penalty
+      if (_lateShifts > 0)
+        playerSpeed -= _lateShifts * 0.0004; // Heavy rev-limit penalty
 
       _playerDistance = (_playerDistance + playerSpeed).clamp(0.0, 1.0);
       _rivalDistance = (_rivalDistance + rivalSpeed).clamp(0.0, 1.0);
@@ -214,10 +216,12 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
       // Rival contextual chatter
       if (_rivalSpeechTicks == 0 && _random.nextDouble() < 0.015) {
         if (_rivalDistance > _playerDistance + 0.06) {
-          _rivalSpeech = _rivalAheadQuotes[_random.nextInt(_rivalAheadQuotes.length)];
+          _rivalSpeech =
+              _rivalAheadQuotes[_random.nextInt(_rivalAheadQuotes.length)];
           _rivalSpeechTicks = 50;
         } else if (_playerDistance > _rivalDistance + 0.06) {
-          _rivalSpeech = _rivalBehindQuotes[_random.nextInt(_rivalBehindQuotes.length)];
+          _rivalSpeech =
+              _rivalBehindQuotes[_random.nextInt(_rivalBehindQuotes.length)];
           _rivalSpeechTicks = 50;
         }
       }
@@ -233,7 +237,9 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
             vy: _random.nextDouble() * 2 - 1,
             color: isNitro
                 ? AppColors.brutalPink
-                : (_rpm > 6500 ? AppColors.brutalGreen : AppColors.brutalYellow),
+                : (_rpm > 6500
+                    ? AppColors.brutalGreen
+                    : AppColors.brutalYellow),
             maxLife: isNitro ? 24 : 16,
           ),
         );
@@ -333,7 +339,8 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
               children: [
                 Row(
                   children: const [
-                    Icon(Icons.sports_score_rounded, color: AppColors.brutalPink, size: 22),
+                    Icon(Icons.sports_score_rounded,
+                        color: AppColors.brutalPink, size: 22),
                     SizedBox(width: 8),
                     Text(
                       'GECE SANAYİSİ DRAG ARENASI',
@@ -359,7 +366,8 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
             // Christmas Tree Countdown
             if (_phase == RacePhase.countdown) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1B2030),
                   borderRadius: BorderRadius.circular(12),
@@ -368,10 +376,20 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildLightBox('3', _countdownStep <= 3 && _countdownStep > 0, const Color(0xFFEAB308)),
-                    _buildLightBox('2', _countdownStep <= 2 && _countdownStep > 0, const Color(0xFFEAB308)),
-                    _buildLightBox('1', _countdownStep <= 1 && _countdownStep > 0, const Color(0xFFEAB308)),
-                    _buildLightBox('GO!', _countdownStep == 0, AppColors.brutalGreen),
+                    _buildLightBox(
+                        '3',
+                        _countdownStep <= 3 && _countdownStep > 0,
+                        const Color(0xFFEAB308)),
+                    _buildLightBox(
+                        '2',
+                        _countdownStep <= 2 && _countdownStep > 0,
+                        const Color(0xFFEAB308)),
+                    _buildLightBox(
+                        '1',
+                        _countdownStep <= 1 && _countdownStep > 0,
+                        const Color(0xFFEAB308)),
+                    _buildLightBox(
+                        'GO!', _countdownStep == 0, AppColors.brutalGreen),
                   ],
                 ),
               ),
@@ -395,8 +413,10 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                       playerDistance: _playerDistance,
                       rivalDistance: _rivalDistance,
                       particles: _particles,
-                      playerCarName: context.tr('drag_race_you', {'name': widget.car.modelName}),
-                      rivalCarName: context.tr('drag_race_rival', {'name': widget.rival.carName}),
+                      playerCarName: context
+                          .tr('drag_race_you', {'name': widget.car.modelName}),
+                      rivalCarName: context.tr(
+                          'drag_race_rival', {'name': widget.rival.carName}),
                       playerSpeech: _playerSpeech,
                       rivalSpeech: _rivalSpeech,
                       currentGear: _currentGear,
@@ -410,11 +430,13 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
             // Tachometer & RPM Gauge & Multi-gear shifting
             if (_phase == RacePhase.racing) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: const Color(0xFF141A28),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF2B364F), width: 1.8),
+                  border:
+                      Border.all(color: const Color(0xFF2B364F), width: 1.8),
                 ),
                 child: Column(
                   children: [
@@ -424,7 +446,10 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                         Row(
                           children: [
                             Text(
-                              _currentGear == _maxGears ? context.tr('drag_race_modal_nitro_mode') : context.tr('drag_race_modal_gear', {'gear': '$_currentGear'}),
+                              _currentGear == _maxGears
+                                  ? context.tr('drag_race_modal_nitro_mode')
+                                  : context.tr('drag_race_modal_gear',
+                                      {'gear': '$_currentGear'}),
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w900,
@@ -440,7 +465,9 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                             fontWeight: FontWeight.w900,
                             color: _rpm >= 6200 && _rpm <= 7500
                                 ? AppColors.brutalGreen
-                                : (_rpm > 7500 ? AppColors.errorRed : AppColors.brutalYellow),
+                                : (_rpm > 7500
+                                    ? AppColors.errorRed
+                                    : AppColors.brutalYellow),
                           ),
                         ),
                       ],
@@ -459,7 +486,9 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                               right: ((8000 - 7500) / 8000) * 260,
                               top: 0,
                               bottom: 0,
-                              child: Container(color: AppColors.brutalGreen.withValues(alpha: 0.5)),
+                              child: Container(
+                                  color: AppColors.brutalGreen
+                                      .withValues(alpha: 0.5)),
                             ),
                             // Current RPM fill
                             FractionallySizedBox(
@@ -467,7 +496,9 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                               child: Container(
                                 color: _rpm >= 6200 && _rpm <= 7500
                                     ? AppColors.brutalGreen
-                                    : (_rpm > 7500 ? AppColors.errorRed : AppColors.brutalYellow),
+                                    : (_rpm > 7500
+                                        ? AppColors.errorRed
+                                        : AppColors.brutalYellow),
                               ),
                             ),
                           ],
@@ -478,7 +509,6 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                 ),
               ),
               const SizedBox(height: 8),
-
               if (_shiftFeedback.isNotEmpty)
                 Text(
                   _shiftFeedback,
@@ -489,17 +519,20 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                   ),
                 ),
               const SizedBox(height: 8),
-
               SizedBox(
                 width: double.infinity,
                 child: NeoBrutalButton(
                   label: _getShiftButtonLabel(),
                   icon: _currentGear == _maxGears
                       ? Icons.local_fire_department_rounded
-                      : (_currentGear == 3 ? Icons.bolt_rounded : Icons.speed_rounded),
+                      : (_currentGear == 3
+                          ? Icons.bolt_rounded
+                          : Icons.speed_rounded),
                   backgroundColor: _currentGear == _maxGears
                       ? const Color(0xFF475569)
-                      : (_currentGear == 3 ? AppColors.brutalPink : AppColors.brutalYellow),
+                      : (_currentGear == 3
+                          ? AppColors.brutalPink
+                          : AppColors.brutalYellow),
                   textColor: _currentGear == 3 ? Colors.white : Colors.black,
                   fontSize: 12,
                   onPressed: _currentGear >= _maxGears ? null : _onShiftPressed,
@@ -511,7 +544,9 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
             if (_phase == RacePhase.finished) ...[
               const SizedBox(height: 8),
               SlamStampWidget(
-                text: isWon ? context.tr('drag_race_stamp_win') : context.tr('drag_race_stamp_lose'),
+                text: isWon
+                    ? context.tr('drag_race_stamp_win')
+                    : context.tr('drag_race_stamp_lose'),
                 color: isWon ? AppColors.brutalGreen : AppColors.errorRed,
                 fontSize: 16,
                 angle: isWon ? -0.06 : 0.06,
@@ -519,7 +554,8 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
               const SizedBox(height: 10),
               if (!isWon) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1F121C),
                     borderRadius: BorderRadius.circular(8),
@@ -527,7 +563,8 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.campaign_rounded, color: AppColors.brutalPink, size: 20),
+                      const Icon(Icons.campaign_rounded,
+                          color: AppColors.brutalPink, size: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -548,7 +585,10 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
               Text(
                 widget.raceResult.raceSummary,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 11.5, color: Color(0xFFCBD5E1), fontStyle: FontStyle.italic),
+                style: const TextStyle(
+                    fontSize: 11.5,
+                    color: Color(0xFFCBD5E1),
+                    fontStyle: FontStyle.italic),
               ),
               const SizedBox(height: 12),
               if (!isWon) ...[
@@ -581,8 +621,11 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
               SizedBox(
                 width: double.infinity,
                 child: NeoBrutalButton(
-                  label: isWon ? context.tr('drag_race_btn_claim') : context.tr('drag_race_btn_garage'),
-                  backgroundColor: isWon ? AppColors.brutalGreen : const Color(0xFF334155),
+                  label: isWon
+                      ? context.tr('drag_race_btn_claim')
+                      : context.tr('drag_race_btn_garage'),
+                  backgroundColor:
+                      isWon ? AppColors.brutalGreen : const Color(0xFF334155),
                   textColor: isWon ? Colors.black : Colors.white,
                   onPressed: () {
                     Navigator.pop(context);
@@ -691,7 +734,8 @@ class _DragTrackPainter extends CustomPainter {
       ..color = const Color(0xFF232C40)
       ..strokeWidth = 2.0;
 
-    canvas.drawLine(Offset(0, size.height / 2), Offset(size.width, size.height / 2), linePaint);
+    canvas.drawLine(Offset(0, size.height / 2),
+        Offset(size.width, size.height / 2), linePaint);
 
     // Finish line (Zebra checkerboard)
     final finishX = size.width - 24;
@@ -759,24 +803,37 @@ class _DragTrackPainter extends CustomPainter {
     final wheelPaint = Paint()..color = const Color(0xFF1E293B);
 
     // Wheels
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(pos.dx + 6, pos.dy + 22, 10, 6), const Radius.circular(2)), wheelPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(pos.dx + 34, pos.dy + 22, 10, 6), const Radius.circular(2)), wheelPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(pos.dx + 6, pos.dy + 22, 10, 6),
+            const Radius.circular(2)),
+        wheelPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(pos.dx + 34, pos.dy + 22, 10, 6),
+            const Radius.circular(2)),
+        wheelPaint);
 
     // Car Body Box
     final carRect = Rect.fromLTWH(pos.dx, pos.dy + 6, 50, 18);
-    canvas.drawRRect(RRect.fromRectAndRadius(carRect, const Radius.circular(4)), bodyPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(carRect, const Radius.circular(4)), borderPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(carRect, const Radius.circular(4)), bodyPaint);
+    canvas.drawRRect(RRect.fromRectAndRadius(carRect, const Radius.circular(4)),
+        borderPaint);
 
     // Cabin
     final cabinRect = Rect.fromLTWH(pos.dx + 12, pos.dy, 22, 10);
-    canvas.drawRRect(RRect.fromRectAndRadius(cabinRect, const Radius.circular(3)), windowPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(cabinRect, const Radius.circular(3)), borderPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(cabinRect, const Radius.circular(3)),
+        windowPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(cabinRect, const Radius.circular(3)),
+        borderPaint);
 
     // Text Label above car
     final textPainter = TextPainter(
       text: TextSpan(
         text: label,
-        style: const TextStyle(fontSize: 8.5, fontWeight: FontWeight.w900, color: Colors.white),
+        style: const TextStyle(
+            fontSize: 8.5, fontWeight: FontWeight.w900, color: Colors.white),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -784,11 +841,13 @@ class _DragTrackPainter extends CustomPainter {
 
     // Dynamic Comic Speech Bubble if speaking
     if (speechText.isNotEmpty) {
-      _drawSpeechBubble(canvas, Offset(pos.dx + 18, pos.dy - 13), speechText, isPlayer);
+      _drawSpeechBubble(
+          canvas, Offset(pos.dx + 18, pos.dy - 13), speechText, isPlayer);
     }
   }
 
-  void _drawSpeechBubble(Canvas canvas, Offset anchor, String text, bool isPlayer) {
+  void _drawSpeechBubble(
+      Canvas canvas, Offset anchor, String text, bool isPlayer) {
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
@@ -811,7 +870,8 @@ class _DragTrackPainter extends CustomPainter {
       const Radius.circular(6),
     );
 
-    final bgPaint = Paint()..color = isPlayer ? const Color(0xFFFEF08A) : Colors.white;
+    final bgPaint = Paint()
+      ..color = isPlayer ? const Color(0xFFFEF08A) : Colors.white;
     final borderPaint = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke

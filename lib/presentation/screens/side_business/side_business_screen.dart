@@ -63,7 +63,8 @@ class SideBusinessScreen extends ConsumerWidget {
 
     if (!game.isFeatureUnlocked('/side-businesses')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('side_biz_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/side-businesses',
@@ -73,12 +74,16 @@ class SideBusinessScreen extends ConsumerWidget {
       );
     }
 
-    final ownedBusinesses = game.sideBusinesses.where((b) => b.isOwned).toList();
-    final totalDailyIncome = game.sideBusinesses.fold(0.0, (sum, b) => sum + b.effectiveDailyIncome);
-    final totalLifetimeEarned = game.sideBusinesses.fold(0.0, (sum, b) => sum + b.totalEarned);
+    final ownedBusinesses =
+        game.sideBusinesses.where((b) => b.isOwned).toList();
+    final totalDailyIncome =
+        game.sideBusinesses.fold(0.0, (sum, b) => sum + b.effectiveDailyIncome);
+    final totalLifetimeEarned =
+        game.sideBusinesses.fold(0.0, (sum, b) => sum + b.totalEarned);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('side_biz_screen_title'),
       ),
@@ -90,7 +95,8 @@ class SideBusinessScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Column(
               children: [
@@ -105,11 +111,14 @@ class SideBusinessScreen extends ConsumerWidget {
                             color: AppColors.brutalGreen,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: const Icon(Icons.monetization_on_rounded, color: Colors.black, size: 24),
+                          child: const Icon(Icons.monetization_on_rounded,
+                              color: Colors.black, size: 24),
                         ),
                         const SizedBox(width: 12),
                         Column(
@@ -117,19 +126,31 @@ class SideBusinessScreen extends ConsumerWidget {
                           children: [
                             Text(
                               context.tr('side_biz_daily_income'),
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                              style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF64748B)),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              context.tr('side_biz_income_per_day', {'income': CurrencyFormatter.formatShort(totalDailyIncome)}),
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                              context.tr('side_biz_income_per_day', {
+                                'income': CurrencyFormatter.formatShort(
+                                    totalDailyIncome)
+                              }),
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.brutalGreen),
                             ),
                           ],
                         ),
                       ],
                     ),
                     NeoBrutalBadge(
-                      text: context.tr('side_biz_active_count', {'owned': '${ownedBusinesses.length}', 'total': '${game.sideBusinesses.length}'}),
+                      text: context.tr('side_biz_active_count', {
+                        'owned': '${ownedBusinesses.length}',
+                        'total': '${game.sideBusinesses.length}'
+                      }),
                       backgroundColor: const Color(0xFFA855F7),
                       textColor: Colors.white,
                       fontSize: 11,
@@ -142,14 +163,22 @@ class SideBusinessScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       context.tr('side_biz_lifetime_earned'),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
-                    ),
-                    Text(
+                      style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF64748B)),
+                    )),
+                    Expanded(
+                        child: Text(
                       CurrencyFormatter.format(totalLifetimeEarned),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalYellow),
-                    ),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.brutalYellow),
+                    )),
                   ],
                 ),
               ],
@@ -177,8 +206,13 @@ class SideBusinessScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isOwned ? AppColors.brutalGreen : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor: isOwned
+                    ? AppColors.brutalGreen
+                    : (isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFF0F172A)),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,14 +226,24 @@ class SideBusinessScreen extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: isOwned ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                                  color: isOwned
+                                      ? AppColors.brutalGreen
+                                      : (isDark
+                                          ? const Color(0xFF1E2330)
+                                          : const Color(0xFFE2E8F0)),
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? const Color(0xFF333B4F)
+                                        : const Color(0xFF0F172A),
                                     width: 2.0,
                                   ),
                                 ),
-                                child: Icon(iconData, color: isOwned ? Colors.black : const Color(0xFF64748B), size: 22),
+                                child: Icon(iconData,
+                                    color: isOwned
+                                        ? Colors.black
+                                        : const Color(0xFF64748B),
+                                    size: 22),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -208,12 +252,21 @@ class SideBusinessScreen extends ConsumerWidget {
                                   children: [
                                     Text(
                                       business.type.getLocalizedName(lang),
-                                      style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+                                      style: const TextStyle(
+                                          fontSize: 14.5,
+                                          fontWeight: FontWeight.w900),
                                     ),
                                     if (isOwned && business.upgrades.isNotEmpty)
                                       Text(
-                                        context.tr('side_biz_modules_active', {'count': '${business.purchasedUpgradeCount}', 'total': '${business.upgrades.length}'}),
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.brutalYellow),
+                                        context.tr('side_biz_modules_active', {
+                                          'count':
+                                              '${business.purchasedUpgradeCount}',
+                                          'total': '${business.upgrades.length}'
+                                        }),
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.brutalYellow),
                                       ),
                                   ],
                                 ),
@@ -236,7 +289,8 @@ class SideBusinessScreen extends ConsumerWidget {
                                   ),
                                 ),
                               NeoBrutalBadge(
-                                text: context.tr('side_biz_level_badge', {'lvl': '${business.level}'}),
+                                text: context.tr('side_biz_level_badge',
+                                    {'lvl': '${business.level}'}),
                                 backgroundColor: AppColors.brutalGreen,
                                 textColor: Colors.black,
                                 fontSize: 10.5,
@@ -248,7 +302,10 @@ class SideBusinessScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Text(
                       business.description,
-                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -259,32 +316,55 @@ class SideBusinessScreen extends ConsumerWidget {
                           children: [
                             Text(
                               context.tr('side_biz_daily_income_header'),
-                              style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF64748B)),
+                              style: const TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF64748B)),
                             ),
                             Text(
-                              context.tr('side_biz_income_rate', {'amount': CurrencyFormatter.formatShort(isOwned ? business.effectiveDailyIncome : business.dailyIncome)}),
+                              context.tr('side_biz_income_rate', {
+                                'amount': CurrencyFormatter.formatShort(isOwned
+                                    ? business.effectiveDailyIncome
+                                    : business.dailyIncome)
+                              }),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w900,
-                                color: isOwned ? AppColors.brutalGreen : (isDark ? Colors.white70 : Colors.black87),
+                                color: isOwned
+                                    ? AppColors.brutalGreen
+                                    : (isDark
+                                        ? Colors.white70
+                                        : Colors.black87),
                               ),
                             ),
                           ],
                         ),
                         if (!isOwned)
                           NeoBrutalButton(
-                            label: context.tr('side_biz_btn_buy', {'cost': CurrencyFormatter.formatShort(business.cost)}),
+                            label: context.tr('side_biz_btn_buy', {
+                              'cost':
+                                  CurrencyFormatter.formatShort(business.cost)
+                            }),
                             icon: Icons.shopping_cart_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
                             fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             onPressed: () {
-                              final success = ref.read(gameProvider.notifier).buySideBusiness(business.id);
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .buySideBusiness(business.id);
                               if (success) {
-                                NotificationService.showSuccess(context, context.tr('side_biz_bought_toast', {'name': business.type.getLocalizedName(lang)}));
+                                NotificationService.showSuccess(
+                                    context,
+                                    context.tr('side_biz_bought_toast', {
+                                      'name':
+                                          business.type.getLocalizedName(lang)
+                                    }));
                               } else {
-                                NotificationService.showError(context, context.tr('insufficient_balance'));
+                                NotificationService.showError(context,
+                                    context.tr('insufficient_balance'));
                               }
                             },
                           )
@@ -295,8 +375,10 @@ class SideBusinessScreen extends ConsumerWidget {
                             backgroundColor: const Color(0xFFA855F7),
                             textColor: Colors.white,
                             fontSize: 11,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            onPressed: () => _openDetailSheet(context, business.id),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            onPressed: () =>
+                                _openDetailSheet(context, business.id),
                           ),
                       ],
                     ),

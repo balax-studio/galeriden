@@ -60,8 +60,11 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    final hasSalesman = game.hiredStaff.any((s) => s.role == StaffRole.salesman);
-    final unwashedCount = game.ownedCars.where((c) => !c.isWashed || !c.isPolished || !c.isDetailedCleaned).length;
+    final hasSalesman =
+        game.hiredStaff.any((s) => s.role == StaffRole.salesman);
+    final unwashedCount = game.ownedCars
+        .where((c) => !c.isWashed || !c.isPolished || !c.isDetailedCleaned)
+        .length;
 
     // Fast O(1) set lookup for active offers
     final Set<String> carsWithActiveOffers = game.incomingOffers
@@ -74,9 +77,14 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
       if (c.isRented) return false;
       switch (_selectedFilterKey) {
         case 'filter_needs_repair':
-          return c.expertise.engineCondition < 80 || c.expertise.transmissionCondition < 80 || !c.isWashed;
+          return c.expertise.engineCondition < 80 ||
+              c.expertise.transmissionCondition < 80 ||
+              !c.isWashed;
         case 'filter_ready_to_list':
-          return !c.isListed && !c.isLockedInShowcase && c.expertise.engineCondition >= 80 && c.expertise.transmissionCondition >= 80;
+          return !c.isListed &&
+              !c.isLockedInShowcase &&
+              c.expertise.engineCondition >= 80 &&
+              c.expertise.transmissionCondition >= 80;
         case 'filter_listed':
           return c.isListed;
         case 'filter_has_offers':
@@ -92,23 +100,27 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
       int score(CarModel c) {
         if (carsWithActiveOffers.contains(c.id)) return 4;
         if (c.isListed) return 3;
-        if (c.expertise.engineCondition >= 80 && c.expertise.transmissionCondition >= 80) return 2;
+        if (c.expertise.engineCondition >= 80 &&
+            c.expertise.transmissionCondition >= 80) return 2;
         return 1;
       }
+
       return score(b).compareTo(score(a));
     });
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(
           title: context.tr('showroom_title'),
           showLeading: widget.showLeading,
           bottom: NeoBrutalTabBar(
             tabs: [
               context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
-              context.tr('showroom_tab_offers', {'count': game.incomingOffers.length}),
+              context.tr(
+                  'showroom_tab_offers', {'count': game.incomingOffers.length}),
             ],
           ),
         ),
@@ -117,7 +129,8 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
             // Tab 1: Owned Cars & Publish Listing (Fully virtualized for 60/120 FPS)
             game.ownedCars.isEmpty
                 ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics()),
                     children: [
                       const SizedBox(height: 40),
                       NeoBrutalEmptyState(
@@ -138,7 +151,9 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                     onRefresh: () async {
                       HapticFeedback.mediumImpact();
                       await Future.delayed(const Duration(milliseconds: 400));
-                      final res = ref.read(gameProvider.notifier).manualPullOrganicOffer();
+                      final res = ref
+                          .read(gameProvider.notifier)
+                          .manualPullOrganicOffer();
                       if (context.mounted) {
                         if (res.hasNewOffer) {
                           NotificationService.showSuccess(context, res.message);
@@ -148,7 +163,8 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                       }
                     },
                     child: CustomScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                      physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics()),
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
@@ -158,33 +174,47 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                               children: [
                                 // Batch Operations Bar
                                 NeoBrutalCard(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFEFF6FF),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 8),
+                                  backgroundColor: isDark
+                                      ? const Color(0xFF1E2330)
+                                      : const Color(0xFFEFF6FF),
                                   borderColor: const Color(0xFF3B82F6),
                                   borderRadius: 10,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            context.tr('batch_operations_title'),
+                                          Expanded(
+                                              child: Text(
+                                            context
+                                                .tr('batch_operations_title'),
                                             style: TextStyle(
                                               fontSize: 10.5,
                                               fontWeight: FontWeight.w900,
                                               letterSpacing: 0.5,
-                                              color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1E3A8A),
+                                              color: isDark
+                                                  ? const Color(0xFF93C5FD)
+                                                  : const Color(0xFF1E3A8A),
                                             ),
-                                          ),
-                                          Text(
-                                            context.tr('showroom_cars_count', {'count': game.ownedCars.length}),
+                                          )),
+                                          Expanded(
+                                              child: Text(
+                                            context.tr('showroom_cars_count', {
+                                              'count': game.ownedCars.length
+                                            }),
                                             style: TextStyle(
                                               fontSize: 10.5,
                                               fontWeight: FontWeight.w700,
-                                              color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                                              color: isDark
+                                                  ? Colors.white70
+                                                  : const Color(0xFF64748B),
                                             ),
-                                          ),
+                                          )),
                                         ],
                                       ),
                                       const SizedBox(height: 8),
@@ -195,33 +225,73 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                           children: [
                                             if (game.level < 2) ...[
                                               NeoBrutalButton(
-                                                label: context.tr('wash_all_lvl2_btn'),
+                                                label: context
+                                                    .tr('wash_all_lvl2_btn'),
                                                 icon: Icons.lock_rounded,
-                                                backgroundColor: isDark ? Colors.white12 : Colors.black12,
-                                                textColor: isDark ? Colors.white54 : Colors.black54,
+                                                backgroundColor: isDark
+                                                    ? Colors.white12
+                                                    : Colors.black12,
+                                                textColor: isDark
+                                                    ? Colors.white54
+                                                    : Colors.black54,
                                                 fontSize: 10,
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 5),
                                                 onPressed: () {
-                                                  NotificationService.showInfo(context, context.tr('wash_all_lvl2_locked'));
+                                                  NotificationService.showInfo(
+                                                      context,
+                                                      context.tr(
+                                                          'wash_all_lvl2_locked'));
                                                 },
                                               ),
                                             ] else ...[
                                               NeoBrutalButton(
                                                 label: unwashedCount > 0
-                                                    ? context.tr('wash_all_btn', {'count': unwashedCount})
-                                                    : context.tr('all_clean_label'),
-                                                icon: Icons.local_car_wash_rounded,
-                                                backgroundColor: unwashedCount > 0 ? const Color(0xFF3B82F6) : (isDark ? Colors.white12 : Colors.black12),
+                                                    ? context.tr(
+                                                        'wash_all_btn', {
+                                                        'count': unwashedCount
+                                                      })
+                                                    : context
+                                                        .tr('all_clean_label'),
+                                                icon: Icons
+                                                    .local_car_wash_rounded,
+                                                backgroundColor: unwashedCount >
+                                                        0
+                                                    ? const Color(0xFF3B82F6)
+                                                    : (isDark
+                                                        ? Colors.white12
+                                                        : Colors.black12),
                                                 textColor: Colors.white,
                                                 fontSize: 10,
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 5),
                                                 onPressed: unwashedCount > 0
                                                     ? () {
-                                                        final count = ref.read(gameProvider.notifier).washAllShowroomCars();
+                                                        final count = ref
+                                                            .read(gameProvider
+                                                                .notifier)
+                                                            .washAllShowroomCars();
                                                         if (count > 0) {
-                                                          NotificationService.showSuccess(context, context.tr('wash_all_success', {'count': count}));
-                                                        } else if (count == -1) {
-                                                          NotificationService.showError(context, context.tr('wash_insufficient_funds'));
+                                                          NotificationService
+                                                              .showSuccess(
+                                                                  context,
+                                                                  context.tr(
+                                                                      'wash_all_success',
+                                                                      {
+                                                                        'count':
+                                                                            count
+                                                                      }));
+                                                        } else if (count ==
+                                                            -1) {
+                                                          NotificationService
+                                                              .showError(
+                                                                  context,
+                                                                  context.tr(
+                                                                      'wash_insufficient_funds'));
                                                         }
                                                       }
                                                     : null,
@@ -229,52 +299,95 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                             ],
                                             const SizedBox(width: 6),
                                             NeoBrutalButton(
-                                              label: context.tr('publish_all_btn'),
+                                              label:
+                                                  context.tr('publish_all_btn'),
                                               icon: Icons.publish_rounded,
-                                              backgroundColor: const Color(0xFF00E575),
+                                              backgroundColor:
+                                                  const Color(0xFF00E575),
                                               textColor: Colors.black,
                                               fontSize: 10,
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 5),
                                               onPressed: () {
-                                                final count = ref.read(gameProvider.notifier).publishAllReadyCars();
+                                                final count = ref
+                                                    .read(gameProvider.notifier)
+                                                    .publishAllReadyCars();
                                                 if (count > 0) {
-                                                  NotificationService.showSuccess(context, context.tr('publish_all_success', {'count': count}));
+                                                  NotificationService.showSuccess(
+                                                      context,
+                                                      context.tr(
+                                                          'publish_all_success',
+                                                          {'count': count}));
                                                 } else {
-                                                  NotificationService.showInfo(context, context.tr('publish_all_none_ready'));
+                                                  NotificationService.showInfo(
+                                                      context,
+                                                      context.tr(
+                                                          'publish_all_none_ready'));
                                                 }
                                               },
                                             ),
                                             const SizedBox(width: 6),
                                             NeoBrutalButton(
-                                              label: context.tr('flash_discount_btn'),
-                                              icon: Icons.local_fire_department_rounded,
-                                              backgroundColor: const Color(0xFFFFDE59),
+                                              label: context
+                                                  .tr('flash_discount_btn'),
+                                              icon: Icons
+                                                  .local_fire_department_rounded,
+                                              backgroundColor:
+                                                  const Color(0xFFFFDE59),
                                               textColor: Colors.black,
                                               fontSize: 10,
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 5),
                                               onPressed: () {
-                                                final count = ref.read(gameProvider.notifier).startWeekendFlashSale();
+                                                final count = ref
+                                                    .read(gameProvider.notifier)
+                                                    .startWeekendFlashSale();
                                                 if (count > 0) {
-                                                  NotificationService.showSuccess(context, context.tr('flash_sale_success', {'count': count}));
+                                                  NotificationService.showSuccess(
+                                                      context,
+                                                      context.tr(
+                                                          'flash_sale_success',
+                                                          {'count': count}));
                                                 } else {
-                                                  NotificationService.showInfo(context, context.tr('flash_sale_no_listings'));
+                                                  NotificationService.showInfo(
+                                                      context,
+                                                      context.tr(
+                                                          'flash_sale_no_listings'));
                                                 }
                                               },
                                             ),
                                             const SizedBox(width: 6),
                                             NeoBrutalButton(
-                                              label: context.tr('delist_stale_btn'),
+                                              label: context
+                                                  .tr('delist_stale_btn'),
                                               icon: Icons.archive_rounded,
-                                              backgroundColor: const Color(0xFFEF4444),
+                                              backgroundColor:
+                                                  const Color(0xFFEF4444),
                                               textColor: Colors.white,
                                               fontSize: 10,
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 5),
                                               onPressed: () {
-                                                final count = ref.read(gameProvider.notifier).delistStaleListings();
+                                                final count = ref
+                                                    .read(gameProvider.notifier)
+                                                    .delistStaleListings();
                                                 if (count > 0) {
-                                                  NotificationService.showSuccess(context, context.tr('delist_stale_success', {'count': count}));
+                                                  NotificationService.showSuccess(
+                                                      context,
+                                                      context.tr(
+                                                          'delist_stale_success',
+                                                          {'count': count}));
                                                 } else {
-                                                  NotificationService.showInfo(context, context.tr('delist_stale_none'));
+                                                  NotificationService.showInfo(
+                                                      context,
+                                                      context.tr(
+                                                          'delist_stale_none'));
                                                 }
                                               },
                                             ),
@@ -298,9 +411,11 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                       'filter_ready_to_list',
                                       'filter_needs_repair',
                                     ].map((filterKey) {
-                                      final isSelected = _selectedFilterKey == filterKey;
+                                      final isSelected =
+                                          _selectedFilterKey == filterKey;
                                       return Padding(
-                                        padding: const EdgeInsets.only(right: 6),
+                                        padding:
+                                            const EdgeInsets.only(right: 6),
                                         child: ChoiceChip(
                                           label: Text(
                                             context.tr(filterKey),
@@ -309,20 +424,31 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                                               fontWeight: FontWeight.w800,
                                               color: isSelected
                                                   ? Colors.black
-                                                  : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                                                  : (isDark
+                                                      ? Colors.white70
+                                                      : const Color(
+                                                          0xFF334155)),
                                             ),
                                           ),
                                           selected: isSelected,
-                                          selectedColor: const Color(0xFFFFDE59),
-                                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                                          selectedColor:
+                                              const Color(0xFFFFDE59),
+                                          backgroundColor: isDark
+                                              ? const Color(0xFF1E2330)
+                                              : const Color(0xFFE2E8F0),
                                           side: BorderSide(
                                             color: isSelected
                                                 ? const Color(0xFF0F172A)
-                                                : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+                                                : (isDark
+                                                    ? const Color(0xFF333B4F)
+                                                    : const Color(0xFFCBD5E1)),
                                             width: 1.4,
                                           ),
                                           onSelected: (sel) {
-                                            if (sel) setState(() => _selectedFilterKey = filterKey);
+                                            if (sel)
+                                              setState(() =>
+                                                  _selectedFilterKey =
+                                                      filterKey);
                                           },
                                         ),
                                       );

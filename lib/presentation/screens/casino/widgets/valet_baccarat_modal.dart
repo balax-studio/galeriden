@@ -18,7 +18,8 @@ class ValetBaccaratModal extends ConsumerStatefulWidget {
   ConsumerState<ValetBaccaratModal> createState() => _ValetBaccaratModalState();
 }
 
-class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with TickerProviderStateMixin {
+class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal>
+    with TickerProviderStateMixin {
   double _selectedBet = 50000.0;
   CarModel? _selectedWagerCar;
   bool _isDealing = false;
@@ -27,7 +28,13 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
   late AnimationController _dealController;
   late AnimationController _idleController;
 
-  final List<double> _quickBets = [25000.0, 50000.0, 150000.0, 500000.0, 1000000.0];
+  final List<double> _quickBets = [
+    25000.0,
+    50000.0,
+    150000.0,
+    500000.0,
+    1000000.0
+  ];
 
   @override
   void initState() {
@@ -110,7 +117,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFF0F172A), width: 3.5),
           boxShadow: const [
-            BoxShadow(color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
+            BoxShadow(
+                color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
           ],
         ),
         child: Column(
@@ -121,16 +129,21 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
               decoration: const BoxDecoration(
                 color: Color(0xFF38BDF8),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                border: Border(bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
+                border: Border(
+                    bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.style_rounded, color: Colors.black, size: 22),
+                  const Icon(Icons.style_rounded,
+                      color: Colors.black, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.tr('casino_baccarat_title'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Colors.black),
                     ),
                   ),
                   GestureDetector(
@@ -142,7 +155,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(color: Colors.black, width: 1.5),
                       ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                      child: const Icon(Icons.close_rounded,
+                          color: Colors.white, size: 18),
                     ),
                   ),
                 ],
@@ -160,9 +174,13 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                     decoration: BoxDecoration(
                       color: const Color(0xFF064E3B),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0F172A), width: 2.5),
+                      border: Border.all(
+                          color: const Color(0xFF0F172A), width: 2.5),
                       boxShadow: const [
-                        BoxShadow(color: Colors.black, offset: Offset(4, 4), blurRadius: 0),
+                        BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(4, 4),
+                            blurRadius: 0),
                       ],
                     ),
                     child: Column(
@@ -177,7 +195,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                                 score: _lastResult?.playerTotal,
                                 cards: _lastResult?.playerCards,
                                 isDealing: _isDealing,
-                                isWinner: _lastResult?.winningChoice == BaccaratBetChoice.player,
+                                isWinner: _lastResult?.winningChoice ==
+                                    BaccaratBetChoice.player,
                                 color: const Color(0xFF38BDF8),
                               ),
                             ),
@@ -189,7 +208,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                                 score: _lastResult?.bankerTotal,
                                 cards: _lastResult?.bankerCards,
                                 isDealing: _isDealing,
-                                isWinner: _lastResult?.winningChoice == BaccaratBetChoice.banker,
+                                isWinner: _lastResult?.winningChoice ==
+                                    BaccaratBetChoice.banker,
                                 color: const Color(0xFFFF7A00),
                               ),
                             ),
@@ -199,30 +219,43 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                         if (_lastResult != null) ...[
                           const SizedBox(height: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: _lastResult!.isWin ? AppColors.brutalGreen : AppColors.brutalRed,
+                              color: _lastResult!.isWin
+                                  ? AppColors.brutalGreen
+                                  : AppColors.brutalRed,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFF0F172A), width: 2),
+                              border: Border.all(
+                                  color: const Color(0xFF0F172A), width: 2),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  _lastResult!.isWin ? Icons.emoji_events_rounded : Icons.cancel_rounded,
-                                  color: _lastResult!.isWin ? Colors.black : Colors.white,
+                                  _lastResult!.isWin
+                                      ? Icons.emoji_events_rounded
+                                      : Icons.cancel_rounded,
+                                  color: _lastResult!.isWin
+                                      ? Colors.black
+                                      : Colors.white,
                                   size: 18,
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
                                     _lastResult!.isWin
-                                        ? context.tr('casino_win_banner', {'amount': _formatCurrency(_lastResult!.payoutAmount)})
+                                        ? context.tr('casino_win_banner', {
+                                            'amount': _formatCurrency(
+                                                _lastResult!.payoutAmount)
+                                          })
                                         : context.tr('casino_loss_banner'),
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,
                                       fontSize: 13,
-                                      color: _lastResult!.isWin ? Colors.black : Colors.white,
+                                      color: _lastResult!.isWin
+                                          ? Colors.black
+                                          : Colors.white,
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -233,7 +266,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                           if (_lastResult!.wonCar != null) ...[
                             const SizedBox(height: 8),
                             NeoBrutalBadge(
-                              label: context.tr('baccarat_trophy_car_won', {'model': _lastResult!.wonCar!.modelName}),
+                              label: context.tr('baccarat_trophy_car_won',
+                                  {'model': _lastResult!.wonCar!.modelName}),
                               color: AppColors.brutalYellow,
                               textColor: Colors.black,
                             ),
@@ -249,7 +283,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                   if (ownedCars.isNotEmpty) ...[
                     Text(
                       context.tr('casino_pink_slip_header'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 12),
                     ),
                     const SizedBox(height: 6),
                     SingleChildScrollView(
@@ -260,7 +295,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                             label: Text(context.tr('casino_chip_cash_only')),
                             selected: _selectedWagerCar == null,
                             selectedColor: AppColors.brutalYellow,
-                            onSelected: (_) => setState(() => _selectedWagerCar = null),
+                            onSelected: (_) =>
+                                setState(() => _selectedWagerCar = null),
                           ),
                           const SizedBox(width: 8),
                           ...ownedCars.map((car) {
@@ -268,10 +304,12 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: ChoiceChip(
-                                label: Text('${car.modelName} • ${_formatCurrency(car.price)}'),
+                                label: Text(
+                                    '${car.modelName} • ${_formatCurrency(car.price)}'),
                                 selected: isSel,
                                 selectedColor: const Color(0xFFA855F7),
-                                onSelected: (_) => setState(() => _selectedWagerCar = car),
+                                onSelected: (_) =>
+                                    setState(() => _selectedWagerCar = car),
                               ),
                             );
                           }),
@@ -285,7 +323,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                   if (_selectedWagerCar == null) ...[
                     Text(
                       context.tr('casino_bet_amount_label'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 12),
                     ),
                     const SizedBox(height: 6),
                     SingleChildScrollView(
@@ -301,18 +340,29 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                                 setState(() => _selectedBet = bet);
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                                  color: isSel
+                                      ? AppColors.brutalYellow
+                                      : (isDark
+                                          ? const Color(0xFF1E293B)
+                                          : const Color(0xFFF1F5F9)),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                                  border: Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 1.5),
                                 ),
                                 child: Text(
                                   _formatCurrency(bet),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w900,
-                                    color: isSel ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                    color: isSel
+                                        ? Colors.black
+                                        : (isDark
+                                            ? Colors.white70
+                                            : Colors.black87),
                                   ),
                                 ),
                               ),
@@ -327,7 +377,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                   // 3 Betting Choice Buttons
                   Text(
                     context.tr('baccarat_choose_side_label'),
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900, fontSize: 12),
                   ),
                   const SizedBox(height: 8),
 
@@ -340,7 +391,9 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                           textColor: Colors.black,
                           fontSize: 12,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          onPressed: _isDealing ? null : () => _play(BaccaratBetChoice.player),
+                          onPressed: _isDealing
+                              ? null
+                              : () => _play(BaccaratBetChoice.player),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -351,7 +404,9 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                           textColor: Colors.black,
                           fontSize: 12,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          onPressed: _isDealing ? null : () => _play(BaccaratBetChoice.tie),
+                          onPressed: _isDealing
+                              ? null
+                              : () => _play(BaccaratBetChoice.tie),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -362,7 +417,9 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                           textColor: Colors.black,
                           fontSize: 12,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          onPressed: _isDealing ? null : () => _play(BaccaratBetChoice.banker),
+                          onPressed: _isDealing
+                              ? null
+                              : () => _play(BaccaratBetChoice.banker),
                         ),
                       ),
                     ],
@@ -399,20 +456,26 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Expanded(
+                  child: Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, color: color),
-              ),
+                style: TextStyle(
+                    fontWeight: FontWeight.w900, fontSize: 11, color: color),
+              )),
               if (score != null && !isDealing)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '$score',
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, color: Colors.black),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 11,
+                        color: Colors.black),
                   ),
                 ),
             ],
@@ -455,7 +518,10 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
                     : const Center(
                         child: Text(
                           '-- --',
-                          style: TextStyle(color: Colors.white38, fontWeight: FontWeight.w900, fontSize: 16),
+                          style: TextStyle(
+                              color: Colors.white38,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16),
                         ),
                       ),
           ),
@@ -475,7 +541,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal> with Ti
         border: Border.all(color: AppColors.brutalYellow, width: 2),
       ),
       child: const Center(
-        child: Icon(Icons.style_rounded, size: 16, color: AppColors.brutalYellow),
+        child:
+            Icon(Icons.style_rounded, size: 16, color: AppColors.brutalYellow),
       ),
     );
   }

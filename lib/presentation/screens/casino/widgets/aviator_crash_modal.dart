@@ -23,7 +23,8 @@ class AviatorCrashModal extends ConsumerStatefulWidget {
   ConsumerState<AviatorCrashModal> createState() => _AviatorCrashModalState();
 }
 
-class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with TickerProviderStateMixin {
+class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal>
+    with TickerProviderStateMixin {
   double _selectedBet = 50000.0;
   CarModel? _selectedWagerCar;
 
@@ -36,7 +37,13 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
   late AnimationController _idleGlowController;
   late AnimationController _shakeController;
 
-  final List<double> _quickBets = [50000.0, 100000.0, 250000.0, 750000.0, 2000000.0];
+  final List<double> _quickBets = [
+    50000.0,
+    100000.0,
+    250000.0,
+    750000.0,
+    2000000.0
+  ];
 
   @override
   void initState() {
@@ -88,9 +95,9 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
 
       // Register loss in game provider
       ref.read(gameProvider.notifier).playCasinoAviatorCrash(
-        betAmount: _selectedBet,
-        wageredCar: _selectedWagerCar,
-      );
+            betAmount: _selectedBet,
+            wageredCar: _selectedWagerCar,
+          );
     } else {
       setState(() {
         _currentMultiplier = formatted;
@@ -117,9 +124,9 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
 
     // Deduct wager initially
     ref.read(gameProvider.notifier).playCasinoAviatorDeductWager(
-      betAmount: _selectedBet,
-      wageredCar: _selectedWagerCar,
-    );
+          betAmount: _selectedBet,
+          wageredCar: _selectedWagerCar,
+        );
 
     setState(() {
       _targetCrashMultiplier = crashPoint;
@@ -144,7 +151,8 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
     });
 
     HapticFeedback.heavyImpact();
-    final effectiveBet = _selectedWagerCar != null ? _selectedWagerCar!.price : _selectedBet;
+    final effectiveBet =
+        _selectedWagerCar != null ? _selectedWagerCar!.price : _selectedBet;
     final result = CasinoEngine.playAviatorCashout(
       betAmount: effectiveBet,
       cashedOutMultiplier: cashedMult,
@@ -153,11 +161,11 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
     );
 
     ref.read(gameProvider.notifier).playCasinoAviatorCashout(
-      betAmount: _selectedBet,
-      multiplier: cashedMult,
-      wageredCar: _selectedWagerCar,
-      isWin: result.isWin,
-    );
+          betAmount: _selectedBet,
+          multiplier: cashedMult,
+          wageredCar: _selectedWagerCar,
+          isWin: result.isWin,
+        );
   }
 
   void _resetFlight() {
@@ -199,7 +207,9 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
       child: AnimatedBuilder(
         animation: _shakeController,
         builder: (context, child) {
-          final shake = math.sin(_shakeController.value * math.pi * 6) * 6.0 * (1.0 - _shakeController.value);
+          final shake = math.sin(_shakeController.value * math.pi * 6) *
+              6.0 *
+              (1.0 - _shakeController.value);
           return Transform.translate(
             offset: Offset(shake, 0),
             child: child,
@@ -225,11 +235,15 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
               children: [
                 // Modal Header
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: const BoxDecoration(
                     color: Color(0xFFFF3366),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(13)),
-                    border: Border(bottom: BorderSide(color: Color(0xFF0F172A), width: 2.5)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(13)),
+                    border: Border(
+                        bottom:
+                            BorderSide(color: Color(0xFF0F172A), width: 2.5)),
                   ),
                   child: Row(
                     children: [
@@ -239,7 +253,8 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                           color: Colors.black,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.rocket_launch_rounded, size: 20, color: Color(0xFFFF3366)),
+                        child: const Icon(Icons.rocket_launch_rounded,
+                            size: 20, color: Color(0xFFFF3366)),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -268,7 +283,8 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                       ),
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close_rounded, color: Colors.white),
+                        icon: const Icon(Icons.close_rounded,
+                            color: Colors.white),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                       ),
@@ -287,7 +303,8 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                         decoration: BoxDecoration(
                           color: const Color(0xFF070B14),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF0F172A), width: 2.5),
+                          border: Border.all(
+                              color: const Color(0xFF0F172A), width: 2.5),
                           boxShadow: const [
                             BoxShadow(
                               color: Color(0xFF0F172A),
@@ -327,7 +344,8 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                                         letterSpacing: -1,
                                         shadows: [
                                           Shadow(
-                                            color: _getMultiplierColor().withValues(alpha: 0.6),
+                                            color: _getMultiplierColor()
+                                                .withValues(alpha: 0.6),
                                             blurRadius: 20,
                                           ),
                                         ],
@@ -336,11 +354,14 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                                     if (_state == AviatorState.crashed) ...[
                                       const SizedBox(height: 4),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
                                           color: AppColors.brutalRed,
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: Colors.black, width: 2),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          border: Border.all(
+                                              color: Colors.black, width: 2),
                                         ),
                                         child: Text(
                                           context.tr('aviator_status_crashed'),
@@ -352,18 +373,24 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                                           ),
                                         ),
                                       ),
-                                    ] else if (_state == AviatorState.cashedOut) ...[
+                                    ] else if (_state ==
+                                        AviatorState.cashedOut) ...[
                                       const SizedBox(height: 4),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
                                           color: AppColors.brutalGreen,
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: Colors.black, width: 2),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          border: Border.all(
+                                              color: Colors.black, width: 2),
                                         ),
                                         child: Text(
-                                          context.tr('aviator_status_cashed_out', {
-                                            'mult': '${_cashedOutAt.toStringAsFixed(2)}x',
+                                          context
+                                              .tr('aviator_status_cashed_out', {
+                                            'mult':
+                                                '${_cashedOutAt.toStringAsFixed(2)}x',
                                           }),
                                           style: const TextStyle(
                                             color: Colors.black,
@@ -383,19 +410,27 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                                   top: 10,
                                   left: 12,
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: Colors.black.withAlpha(200),
                                       borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(color: const Color(0xFFFF3366), width: 1.5),
+                                      border: Border.all(
+                                          color: const Color(0xFFFF3366),
+                                          width: 1.5),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.trending_up_rounded, color: Color(0xFFFF3366), size: 14),
+                                        const Icon(Icons.trending_up_rounded,
+                                            color: Color(0xFFFF3366), size: 14),
                                         const SizedBox(width: 4),
                                         Text(
-                                          _formatCurrency((_selectedWagerCar != null ? _selectedWagerCar!.price : _selectedBet) * _currentMultiplier),
+                                          _formatCurrency(
+                                              (_selectedWagerCar != null
+                                                      ? _selectedWagerCar!.price
+                                                      : _selectedBet) *
+                                                  _currentMultiplier),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w900,
@@ -421,7 +456,8 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                               child: _buildWagerTypeTab(
                                 title: context.tr('wager_type_cash'),
                                 isSelected: _selectedWagerCar == null,
-                                onTap: () => setState(() => _selectedWagerCar = null),
+                                onTap: () =>
+                                    setState(() => _selectedWagerCar = null),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -433,13 +469,15 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                                   if (ownedCars.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(context.tr('no_cars_for_wager')),
+                                        content: Text(
+                                            context.tr('no_cars_for_wager')),
                                         backgroundColor: AppColors.brutalRed,
                                       ),
                                     );
                                     return;
                                   }
-                                  setState(() => _selectedWagerCar = ownedCars.first);
+                                  setState(() =>
+                                      _selectedWagerCar = ownedCars.first);
                                 },
                               ),
                             ),
@@ -454,20 +492,31 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                               final isSelected = _selectedBet == amount;
                               return Expanded(
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 2),
                                   child: GestureDetector(
                                     onTap: () {
                                       HapticFeedback.selectionClick();
                                       setState(() => _selectedBet = amount);
                                     },
                                     child: AnimatedContainer(
-                                      duration: const Duration(milliseconds: 150),
-                                      padding: const EdgeInsets.symmetric(vertical: 8),
+                                      duration:
+                                          const Duration(milliseconds: 150),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8),
                                       decoration: BoxDecoration(
-                                        color: isSelected ? const Color(0xFFFF3366) : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                                        color: isSelected
+                                            ? const Color(0xFFFF3366)
+                                            : (isDark
+                                                ? const Color(0xFF1E293B)
+                                                : const Color(0xFFF1F5F9)),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(
-                                          color: isSelected ? Colors.black : (isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1)),
+                                          color: isSelected
+                                              ? Colors.black
+                                              : (isDark
+                                                  ? const Color(0xFF475569)
+                                                  : const Color(0xFFCBD5E1)),
                                           width: isSelected ? 2 : 1.5,
                                         ),
                                       ),
@@ -477,7 +526,11 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                                           style: TextStyle(
                                             fontWeight: FontWeight.w900,
                                             fontSize: 11,
-                                            color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black),
+                                            color: isSelected
+                                                ? Colors.white
+                                                : (isDark
+                                                    ? Colors.white
+                                                    : Colors.black),
                                           ),
                                         ),
                                       ),
@@ -489,20 +542,25 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                           ),
                         ] else ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFF3366).withAlpha(20),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFFF3366), width: 2),
+                              border: Border.all(
+                                  color: const Color(0xFFFF3366), width: 2),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.directions_car_rounded, color: Color(0xFFFF3366), size: 22),
+                                const Icon(Icons.directions_car_rounded,
+                                    color: Color(0xFFFF3366), size: 22),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     '${_selectedWagerCar!.brand} ${_selectedWagerCar!.modelName} • ${_formatCurrency(_selectedWagerCar!.price)}',
-                                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 12),
                                   ),
                                 ),
                               ],
@@ -517,7 +575,10 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
                       if (_state == AviatorState.flying) ...[
                         NeoBrutalButton(
                           label: context.tr('aviator_btn_cash_out', {
-                            'amount': _formatCurrency((_selectedWagerCar != null ? _selectedWagerCar!.price : _selectedBet) * _currentMultiplier),
+                            'amount': _formatCurrency((_selectedWagerCar != null
+                                    ? _selectedWagerCar!.price
+                                    : _selectedBet) *
+                                _currentMultiplier),
                           }),
                           backgroundColor: AppColors.brutalGreen,
                           textColor: Colors.black,
@@ -569,7 +630,9 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
           color: isSelected ? const Color(0xFFFF3366) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? Colors.black : (isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1)),
+            color: isSelected
+                ? Colors.black
+                : (isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1)),
             width: isSelected ? 2 : 1.5,
           ),
         ),
@@ -579,7 +642,9 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal> with Tick
           style: TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 12,
-            color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+            color: isSelected
+                ? Colors.white
+                : (isDark ? Colors.white70 : Colors.black87),
           ),
         ),
       ),
@@ -623,14 +688,17 @@ class _AviatorRadarPainter extends CustomPainter {
     final start = Offset(20, size.height - 20);
     final currentX = 20 + progress * (size.width - 60);
     // Quadratic flight curve
-    final currentY = (size.height - 20) - math.pow(progress, 1.6) * (size.height - 50);
+    final currentY =
+        (size.height - 20) - math.pow(progress, 1.6) * (size.height - 50);
     final currentPos = Offset(currentX, currentY);
 
-    final controlPoint = Offset(start.dx + (currentX - start.dx) * 0.5, size.height - 20);
+    final controlPoint =
+        Offset(start.dx + (currentX - start.dx) * 0.5, size.height - 20);
 
     final path = Path()
       ..moveTo(start.dx, start.dy)
-      ..quadraticBezierTo(controlPoint.dx, controlPoint.dy, currentPos.dx, currentPos.dy);
+      ..quadraticBezierTo(
+          controlPoint.dx, controlPoint.dy, currentPos.dx, currentPos.dy);
 
     // Gradient Area under curve
     final fillPath = Path.from(path)
@@ -654,12 +722,16 @@ class _AviatorRadarPainter extends CustomPainter {
 
     canvas.drawPath(
       fillPath,
-      Paint()..shader = fillGradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
+      Paint()
+        ..shader = fillGradient
+            .createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
     );
 
     // Glowing Trajectory Line
     final linePaint = Paint()
-      ..color = state == AviatorState.crashed ? AppColors.brutalRed : const Color(0xFFFF3366)
+      ..color = state == AviatorState.crashed
+          ? AppColors.brutalRed
+          : const Color(0xFFFF3366)
       ..strokeWidth = 3.5
       ..style = PaintingStyle.stroke;
 
@@ -667,7 +739,9 @@ class _AviatorRadarPainter extends CustomPainter {
 
     if (state != AviatorState.crashed) {
       // Angle calculation
-      final angle = -math.atan2((size.height - 20) - currentPos.dy, currentPos.dx - start.dx) * 0.6;
+      final angle = -math.atan2(
+              (size.height - 20) - currentPos.dy, currentPos.dx - start.dx) *
+          0.6;
       _drawRocket(canvas, currentPos, angle, pulse);
     } else {
       // Explosion Shockwave
@@ -682,7 +756,8 @@ class _AviatorRadarPainter extends CustomPainter {
 
     // Exhaust flame
     final flamePaint = Paint()
-      ..color = Color.lerp(const Color(0xFFFF7A00), const Color(0xFFFFDE59), pulseVal)!
+      ..color = Color.lerp(
+          const Color(0xFFFF7A00), const Color(0xFFFFDE59), pulseVal)!
       ..style = PaintingStyle.fill;
 
     final flamePath = Path()
@@ -744,14 +819,18 @@ class _AviatorRadarPainter extends CustomPainter {
 
     for (int i = 0; i < 8; i++) {
       final rad = i * (math.pi / 4);
-      final p1 = Offset(pos.dx + math.cos(rad) * 12, pos.dy + math.sin(rad) * 12);
-      final p2 = Offset(pos.dx + math.cos(rad) * 26, pos.dy + math.sin(rad) * 26);
+      final p1 =
+          Offset(pos.dx + math.cos(rad) * 12, pos.dy + math.sin(rad) * 12);
+      final p2 =
+          Offset(pos.dx + math.cos(rad) * 26, pos.dy + math.sin(rad) * 26);
       canvas.drawLine(p1, p2, sparkPaint);
     }
   }
 
   @override
   bool shouldRepaint(covariant _AviatorRadarPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.state != state || oldDelegate.pulse != pulse;
+    return oldDelegate.progress != progress ||
+        oldDelegate.state != state ||
+        oldDelegate.pulse != pulse;
   }
 }

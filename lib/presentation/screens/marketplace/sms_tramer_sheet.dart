@@ -25,7 +25,9 @@ class SmsTramerSheet extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final car = listing.car;
     final exp = car.expertise;
-    final plate = car.plateNumber.isNotEmpty ? car.plateNumber : '34 GLR ${100 + (car.id.hashCode % 899)}';
+    final plate = car.plateNumber.isNotEmpty
+        ? car.plateNumber
+        : '34 GLR ${100 + (car.id.hashCode % 899)}';
 
     return Container(
       decoration: BoxDecoration(
@@ -64,7 +66,8 @@ class SmsTramerSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.black, width: 2.0),
                 ),
-                child: const Icon(Icons.sms_rounded, color: Colors.black, size: 20),
+                child: const Icon(Icons.sms_rounded,
+                    color: Colors.black, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -100,7 +103,8 @@ class SmsTramerSheet extends StatelessWidget {
           // SMS Bubble Card
           NeoBrutalCard(
             backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
             borderRadius: 12,
             borderWidth: 2.0,
             padding: const EdgeInsets.all(14),
@@ -110,7 +114,8 @@ class SmsTramerSheet extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       context.tr('tramer_sender_header'),
                       style: const TextStyle(
                         fontSize: 10.5,
@@ -118,17 +123,19 @@ class SmsTramerSheet extends StatelessWidget {
                         color: Color(0xFF38BDF8),
                         letterSpacing: 0.5,
                       ),
-                    ),
-                    Text(
+                    )),
+                    Expanded(
+                        child: Text(
                       context.tr('tramer_today_time', {
-                        'time': '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+                        'time':
+                            '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
                       }),
                       style: TextStyle(
                         fontSize: 10,
                         color: isDark ? Colors.white54 : Colors.black45,
                         fontWeight: FontWeight.w600,
                       ),
-                    ),
+                    )),
                   ],
                 ),
                 const Divider(height: 16),
@@ -141,18 +148,19 @@ class SmsTramerSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 if (exp.tramerAmount == 0) ...[
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: const Color(0xFF00E575).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF00E575), width: 1.5),
+                      border: Border.all(
+                          color: const Color(0xFF00E575), width: 1.5),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.verified_rounded, color: Color(0xFF00E575), size: 18),
+                        const Icon(Icons.verified_rounded,
+                            color: Color(0xFF00E575), size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -173,14 +181,16 @@ class SmsTramerSheet extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFFEF4444).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFFEF4444), width: 1.5),
+                      border: Border.all(
+                          color: const Color(0xFFEF4444), width: 1.5),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 18),
+                            const Icon(Icons.warning_amber_rounded,
+                                color: Color(0xFFEF4444), size: 18),
                             const SizedBox(width: 8),
                             Text(
                               'TOPLAM HASAR: ${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
@@ -194,8 +204,14 @@ class SmsTramerSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${context.tr('tramer_kz1_desc', {'amount': (exp.tramerAmount * 0.6).round().toString()})}\n'
-                          '${context.tr('tramer_kz2_desc', {'amount': (exp.tramerAmount * 0.4).round().toString()})}',
+                          '${context.tr('tramer_kz1_desc', {
+                                'amount':
+                                    (exp.tramerAmount * 0.6).round().toString()
+                              })}\n'
+                          '${context.tr('tramer_kz2_desc', {
+                                'amount':
+                                    (exp.tramerAmount * 0.4).round().toString()
+                              })}',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -207,7 +223,6 @@ class SmsTramerSheet extends StatelessWidget {
                     ),
                   ),
                 ],
-
                 const SizedBox(height: 10),
                 if (exp.isMileageTampered) ...[
                   Container(
@@ -215,11 +230,13 @@ class SmsTramerSheet extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFFEF4444).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFFEF4444), width: 1.5),
+                      border: Border.all(
+                          color: const Color(0xFFEF4444), width: 1.5),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.report_problem_rounded, color: Color(0xFFEF4444), size: 16),
+                        const Icon(Icons.report_problem_rounded,
+                            color: Color(0xFFEF4444), size: 16),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -236,7 +253,8 @@ class SmsTramerSheet extends StatelessWidget {
                   ),
                 ] else ...[
                   Text(
-                    context.tr('tramer_original_km_note', {'km': (exp.mileage * 0.95).round().toString()}),
+                    context.tr('tramer_original_km_note',
+                        {'km': (exp.mileage * 0.95).round().toString()}),
                     style: TextStyle(
                       fontSize: 10.5,
                       color: isDark ? Colors.white60 : Colors.black54,

@@ -33,7 +33,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
     if (!game.isFeatureUnlocked('/history')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('history_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/history',
@@ -45,7 +46,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
     final history = game.salesHistory;
 
-    final totalRevenue = history.fold<double>(0.0, (sum, s) => sum + s.salePrice);
+    final totalRevenue =
+        history.fold<double>(0.0, (sum, s) => sum + s.salePrice);
     final totalProfit = game.totalProfit;
     final avgProfit = history.isNotEmpty ? totalProfit / history.length : 0.0;
 
@@ -59,7 +61,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     }
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('history_screen_title'),
       ),
@@ -73,20 +76,28 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               Expanded(
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(12),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   borderRadius: 12,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         context.tr('history_total_sold'),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        context.tr('history_sold_count', {'count': '${game.carsSold}'}),
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                        context.tr('history_sold_count',
+                            {'count': '${game.carsSold}'}),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w900),
                       ),
                     ],
                   ),
@@ -96,20 +107,29 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               Expanded(
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(12),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   borderRadius: 12,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         context.tr('history_total_revenue'),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         CurrencyFormatter.formatShort(totalRevenue),
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                        style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen),
                       ),
                     ],
                   ),
@@ -124,15 +144,21 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               Expanded(
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(12),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   borderRadius: 12,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         context.tr('history_total_profit'),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -140,7 +166,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
-                          color: totalProfit >= 0 ? AppColors.brutalGreen : AppColors.errorRed,
+                          color: totalProfit >= 0
+                              ? AppColors.brutalGreen
+                              : AppColors.errorRed,
                         ),
                       ),
                     ],
@@ -151,15 +179,21 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               Expanded(
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(12),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   borderRadius: 12,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         context.tr('history_avg_profit'),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -167,7 +201,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
-                          color: avgProfit >= 0 ? AppColors.brutalYellow : AppColors.errorRed,
+                          color: avgProfit >= 0
+                              ? AppColors.brutalYellow
+                              : AppColors.errorRed,
                         ),
                       ),
                     ],
@@ -182,26 +218,32 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                context.tr('history_sales_records_count', {'count': '${filteredHistory.length}'}),
+              Expanded(
+                  child: Text(
+                context.tr('history_sales_records_count',
+                    {'count': '${filteredHistory.length}'}),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
                   color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                 ),
-              ),
+              )),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterBtn(context.tr('history_filter_all'), 0, isDark),
+                    _buildFilterBtn(
+                        context.tr('history_filter_all'), 0, isDark),
                     const SizedBox(width: 4),
-                    _buildFilterBtn(context.tr('history_filter_profitable'), 1, isDark),
+                    _buildFilterBtn(
+                        context.tr('history_filter_profitable'), 1, isDark),
                     const SizedBox(width: 4),
-                    _buildFilterBtn(context.tr('history_filter_consignment'), 2, isDark),
+                    _buildFilterBtn(
+                        context.tr('history_filter_consignment'), 2, isDark),
                     const SizedBox(width: 4),
-                    _buildFilterBtn(context.tr('history_filter_loss'), 3, isDark),
+                    _buildFilterBtn(
+                        context.tr('history_filter_loss'), 3, isDark),
                   ],
                 ),
               ),
@@ -225,14 +267,17 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               final profitPercentage = sale.purchasePrice > 0
                   ? (sale.netProfit / sale.purchasePrice) * 100
                   : 0.0;
-              final formattedDate = DateFormat('dd.MM.yyyy HH:mm').format(sale.saleDate);
+              final formattedDate =
+                  DateFormat('dd.MM.yyyy HH:mm').format(sale.saleDate);
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(14),
-                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
+                  backgroundColor:
+                      isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor:
+                      isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
                   borderRadius: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,36 +291,60 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                               children: [
                                 Text(
                                   sale.carTitle,
-                                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+                                  style: const TextStyle(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w900),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  context.tr('history_buyer_day', {'buyer': sale.buyerName, 'day': '${sale.saleDay}'}),
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                  context.tr('history_buyer_day', {
+                                    'buyer': sale.buyerName,
+                                    'day': '${sale.saleDay}'
+                                  }),
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF64748B)),
                                 ),
                               ],
                             ),
                           ),
                           NeoBrutalBadge(
-                            text: '${isProfitable ? '+' : ''}${profitPercentage.toStringAsFixed(1)}%',
-                            backgroundColor: isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
-                            textColor: isProfitable ? Colors.black : Colors.white,
+                            text:
+                                '${isProfitable ? '+' : ''}${profitPercentage.toStringAsFixed(1)}%',
+                            backgroundColor: isProfitable
+                                ? AppColors.brutalGreen
+                                : AppColors.errorRed,
+                            textColor:
+                                isProfitable ? Colors.black : Colors.white,
                             fontSize: 11,
                           ),
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Divider(height: 1, color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
+                      Divider(
+                          height: 1,
+                          color: isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFFE2E8F0)),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildPriceColumn(context.tr('history_purchase_price'), CurrencyFormatter.formatShort(sale.purchasePrice), const Color(0xFF64748B)),
-                          _buildPriceColumn(context.tr('history_sale_price'), CurrencyFormatter.formatShort(sale.salePrice), isDark ? Colors.white : Colors.black),
+                          _buildPriceColumn(
+                              context.tr('history_purchase_price'),
+                              CurrencyFormatter.formatShort(sale.purchasePrice),
+                              const Color(0xFF64748B)),
+                          _buildPriceColumn(
+                              context.tr('history_sale_price'),
+                              CurrencyFormatter.formatShort(sale.salePrice),
+                              isDark ? Colors.white : Colors.black),
                           _buildPriceColumn(
                             context.tr('history_net_profit'),
                             CurrencyFormatter.formatShort(sale.netProfit),
-                            isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
+                            isProfitable
+                                ? AppColors.brutalGreen
+                                : AppColors.errorRed,
                           ),
                         ],
                       ),
@@ -284,7 +353,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           formattedDate,
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                          style: const TextStyle(
+                              fontSize: 10, color: Color(0xFF64748B)),
                         ),
                       ),
                     ],
@@ -321,7 +391,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
           style: TextStyle(
             fontSize: 10.5,
             fontWeight: FontWeight.w800,
-            color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF334155)),
+            color: isSelected
+                ? Colors.black
+                : (isDark ? Colors.white70 : const Color(0xFF334155)),
           ),
         ),
       ),
@@ -334,12 +406,16 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+          style: const TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 2),
         Text(
           value,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: valueColor),
+          style: TextStyle(
+              fontSize: 13, fontWeight: FontWeight.w900, color: valueColor),
         ),
       ],
     );

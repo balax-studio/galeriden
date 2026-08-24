@@ -64,12 +64,15 @@ class ExpertiseReportSheet extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('expertise_official_title'), style: AppTypography.titleLarge(p.isDark)),
-                    Text('${car.brand} ${car.modelName} • ${car.modelYear}', style: AppTypography.labelSmall(p.isDark)),
+                    Text(context.tr('expertise_official_title'),
+                        style: AppTypography.titleLarge(p.isDark)),
+                    Text('${car.brand} ${car.modelName} • ${car.modelYear}',
+                        style: AppTypography.labelSmall(p.isDark)),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: p.primaryColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -77,7 +80,10 @@ class ExpertiseReportSheet extends StatelessWidget {
                   ),
                   child: Text(
                     eval['overallGrade'] as String,
-                    style: TextStyle(color: p.primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
+                    style: TextStyle(
+                        color: p.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
                   ),
                 ),
               ],
@@ -91,11 +97,13 @@ class ExpertiseReportSheet extends StatelessWidget {
               decoration: BoxDecoration(
                 color: p.secondaryColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: p.secondaryColor.withValues(alpha: 0.4)),
+                border:
+                    Border.all(color: p.secondaryColor.withValues(alpha: 0.4)),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.fact_check_rounded, color: p.secondaryColor, size: 24),
+                  Icon(Icons.fact_check_rounded,
+                      color: p.secondaryColor, size: 24),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -118,8 +126,13 @@ class ExpertiseReportSheet extends StatelessWidget {
                 Expanded(
                   child: _buildSpecTile(
                     context.tr('listing_tramer'),
-                    car.expertise.tramerAmount > 0 ? CurrencyFormatter.formatShort(car.expertise.tramerAmount.toDouble()) : context.tr('listing_no_damage'),
-                    car.expertise.tramerAmount > 0 ? p.errorColor : p.successColor,
+                    car.expertise.tramerAmount > 0
+                        ? CurrencyFormatter.formatShort(
+                            car.expertise.tramerAmount.toDouble())
+                        : context.tr('listing_no_damage'),
+                    car.expertise.tramerAmount > 0
+                        ? p.errorColor
+                        : p.successColor,
                     p,
                   ),
                 ),
@@ -128,9 +141,13 @@ class ExpertiseReportSheet extends StatelessWidget {
                   child: _buildSpecTile(
                     context.tr('listing_mileage'),
                     '${NumberFormat('#,###', 'tr_TR').format(car.expertise.mileage)} km',
-                    car.expertise.isMileageTampered ? p.errorColor : p.textPrimaryColor,
+                    car.expertise.isMileageTampered
+                        ? p.errorColor
+                        : p.textPrimaryColor,
                     p,
-                    subtitle: car.expertise.isMileageTampered ? context.tr('expertise_tampered_km') : context.tr('expertise_original_km'),
+                    subtitle: car.expertise.isMileageTampered
+                        ? context.tr('expertise_tampered_km')
+                        : context.tr('expertise_original_km'),
                   ),
                 ),
               ],
@@ -138,7 +155,8 @@ class ExpertiseReportSheet extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Kaporta Damage Schema
-            Text(context.tr('expertise_schema_title'), style: AppTypography.labelSmall(p.isDark)),
+            Text(context.tr('expertise_schema_title'),
+                style: AppTypography.labelSmall(p.isDark)),
             const SizedBox(height: 8),
             CarDamageSchemaWidget(bodyParts: car.expertise.bodyParts),
             const SizedBox(height: 20),
@@ -164,7 +182,8 @@ class ExpertiseReportSheet extends StatelessWidget {
             ],
             NeoBrutalButton(
               label: context.tr('btn_close'),
-              backgroundColor: p.isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+              backgroundColor:
+                  p.isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
               textColor: p.textPrimaryColor,
               borderColor: p.surfaceBorderColor,
               fontSize: 13,
@@ -179,7 +198,9 @@ class ExpertiseReportSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildSpecTile(String title, String value, Color valueColor, ThemePaletteModel p, {String? subtitle}) {
+  Widget _buildSpecTile(
+      String title, String value, Color valueColor, ThemePaletteModel p,
+      {String? subtitle}) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -192,10 +213,18 @@ class ExpertiseReportSheet extends StatelessWidget {
         children: [
           Text(title, style: AppTypography.labelSmall(p.isDark)),
           const SizedBox(height: 2),
-          Text(value, style: TextStyle(color: valueColor, fontWeight: FontWeight.bold, fontSize: 15)),
+          Text(value,
+              style: TextStyle(
+                  color: valueColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15)),
           if (subtitle != null) ...[
             const SizedBox(height: 2),
-            Text(subtitle, style: TextStyle(color: valueColor, fontSize: 10, fontWeight: FontWeight.w600)),
+            Text(subtitle,
+                style: TextStyle(
+                    color: valueColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600)),
           ],
         ],
       ),

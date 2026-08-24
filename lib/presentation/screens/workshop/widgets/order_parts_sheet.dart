@@ -13,7 +13,9 @@ import '../../../widgets/neo_brutal_button.dart';
 class OrderPartsSheet extends StatefulWidget {
   final CarModel car;
   final DealershipModel game;
-  final Function(String partName, OrderType type, double cost, int durationSeconds) onOrderConfirmed;
+  final Function(
+          String partName, OrderType type, double cost, int durationSeconds)
+      onOrderConfirmed;
 
   const OrderPartsSheet({
     super.key,
@@ -26,7 +28,9 @@ class OrderPartsSheet extends StatefulWidget {
     required BuildContext context,
     required CarModel car,
     required DealershipModel game,
-    required Function(String partName, OrderType type, double cost, int durationSeconds) onOrderConfirmed,
+    required Function(
+            String partName, OrderType type, double cost, int durationSeconds)
+        onOrderConfirmed,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -71,7 +75,9 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
   List<String> get _availableParts {
     final needed = <String>[];
     widget.car.expertise.bodyParts.forEach((part, status) {
-      if (status == PartStatus.changed || status == PartStatus.damaged || status == PartStatus.painted) {
+      if (status == PartStatus.changed ||
+          status == PartStatus.damaged ||
+          status == PartStatus.painted) {
         needed.add(part);
       }
     });
@@ -109,20 +115,28 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
     if ((widget.game.districtMarketShare['İkitelli Sanayi'] ?? 0.0) >= 0.50) {
       discountFactor *= 0.85; // İkitelli Sanayi %15 İndirim
     }
-    if (widget.game.purchasedAcademyCourses.contains('course_mechanic_master')) {
+    if (widget.game.purchasedAcademyCourses
+        .contains('course_mechanic_master')) {
       discountFactor *= 0.90; // Personel Akademisi Usta İndirimi %10
     }
     if (widget.game.specializationPath == SpecializationPath.restorer) {
       discountFactor *= 0.80; // Restoratör Usta Sınıf Bonusu %20
     }
 
-    final cost = RepairEngine.calculatePartRepairCost(widget.car, _selectedPart, _selectedType, discountFactor: discountFactor);
+    final cost = RepairEngine.calculatePartRepairCost(
+        widget.car, _selectedPart, _selectedType,
+        discountFactor: discountFactor);
 
     // Duration calculation (Academy mechanic master speeds up by 30%)
-    final baseDuration = _selectedType == OrderType.quickPatch ? 30 : (_selectedType == OrderType.masterRepair ? 60 : (_selectedType == OrderType.salvagedScrap ? 20 : 120));
-    final durationSeconds = widget.game.purchasedAcademyCourses.contains('course_mechanic_master')
-        ? (baseDuration * 0.70).round()
-        : baseDuration;
+    final baseDuration = _selectedType == OrderType.quickPatch
+        ? 30
+        : (_selectedType == OrderType.masterRepair
+            ? 60
+            : (_selectedType == OrderType.salvagedScrap ? 20 : 120));
+    final durationSeconds =
+        widget.game.purchasedAcademyCourses.contains('course_mechanic_master')
+            ? (baseDuration * 0.70).round()
+            : baseDuration;
 
     final hasScrapParts = widget.game.salvagedParts.isNotEmpty;
 
@@ -140,10 +154,12 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Expanded(
+                  child: Text(
                 context.tr('order_parts_sheet_title'),
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-              ),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+              )),
               IconButton(
                 icon: const Icon(Icons.close_rounded),
                 onPressed: () => Navigator.pop(context),
@@ -163,13 +179,16 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.brutalYellow : const Color(0xFF92400E),
+                  color:
+                      isDark ? AppColors.brutalYellow : const Color(0xFF92400E),
                 ),
               ),
             ),
             const SizedBox(height: 8),
           ],
-          Text(context.tr('order_parts_select_part'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+          Text(context.tr('order_parts_select_part'),
+              style:
+                  const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -177,7 +196,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
               color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 2.0,
               ),
             ),
@@ -189,7 +209,9 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 items: _partsList.map((p) {
                   return DropdownMenuItem(
                     value: p,
-                    child: Text(p, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+                    child: Text(p,
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w800)),
                   );
                 }).toList(),
                 onChanged: (val) {
@@ -199,7 +221,9 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
             ),
           ),
           const SizedBox(height: 14),
-          Text(context.tr('order_parts_select_quality'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+          Text(context.tr('order_parts_select_quality'),
+              style:
+                  const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -210,7 +234,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                   type: OrderType.salvagedScrap,
                   selected: _selectedType,
                   isDark: isDark,
-                  onTap: () => setState(() => _selectedType = OrderType.salvagedScrap),
+                  onTap: () =>
+                      setState(() => _selectedType = OrderType.salvagedScrap),
                 ),
                 const SizedBox(width: 6),
               ],
@@ -220,7 +245,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 type: OrderType.quickPatch,
                 selected: _selectedType,
                 isDark: isDark,
-                onTap: () => setState(() => _selectedType = OrderType.quickPatch),
+                onTap: () =>
+                    setState(() => _selectedType = OrderType.quickPatch),
               ),
               const SizedBox(width: 6),
               _buildOrderTypeTile(
@@ -229,7 +255,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 type: OrderType.masterRepair,
                 selected: _selectedType,
                 isDark: isDark,
-                onTap: () => setState(() => _selectedType = OrderType.masterRepair),
+                onTap: () =>
+                    setState(() => _selectedType = OrderType.masterRepair),
               ),
               const SizedBox(width: 6),
               _buildOrderTypeTile(
@@ -238,7 +265,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 type: OrderType.newOemPart,
                 selected: _selectedType,
                 isDark: isDark,
-                onTap: () => setState(() => _selectedType = OrderType.newOemPart),
+                onTap: () =>
+                    setState(() => _selectedType = OrderType.newOemPart),
               ),
             ],
           ),
@@ -249,7 +277,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
               color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 2.0,
               ),
             ),
@@ -259,28 +288,45 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('order_parts_cost_label'), style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                    Text(context.tr('order_parts_cost_label'),
+                        style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF64748B))),
                     Text(
-                      _selectedType == OrderType.salvagedScrap ? '0 • Stock' : CurrencyFormatter.format(cost),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                      _selectedType == OrderType.salvagedScrap
+                          ? '0 • Stock'
+                          : CurrencyFormatter.format(cost),
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.brutalGreen),
                     ),
                   ],
                 ),
-                Text(
-                  context.tr('order_parts_delivery_time', {'sec': durationSeconds}),
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalOrange),
-                ),
+                Expanded(
+                    child: Text(
+                  context.tr(
+                      'order_parts_delivery_time', {'sec': durationSeconds}),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.brutalOrange),
+                )),
               ],
             ),
           ),
           const SizedBox(height: 16),
           NeoBrutalButton(
-            label: _selectedType == OrderType.salvagedScrap ? context.tr('order_parts_btn_salvage') : context.tr('order_parts_btn_confirm'),
+            label: _selectedType == OrderType.salvagedScrap
+                ? context.tr('order_parts_btn_salvage')
+                : context.tr('order_parts_btn_confirm'),
             icon: Icons.shopping_cart_checkout_rounded,
             backgroundColor: AppColors.brutalGreen,
             textColor: Colors.black,
             fullWidth: true,
-            onPressed: () => widget.onOrderConfirmed(_selectedPart, _selectedType, cost, durationSeconds),
+            onPressed: () => widget.onOrderConfirmed(
+                _selectedPart, _selectedType, cost, durationSeconds),
           ),
         ],
       ),
@@ -306,7 +352,9 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
           decoration: BoxDecoration(
-            color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+            color: isSel
+                ? AppColors.brutalYellow
+                : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -320,7 +368,9 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w900,
-                  color: isSel ? Colors.black : (isDark ? Colors.white : Colors.black87),
+                  color: isSel
+                      ? Colors.black
+                      : (isDark ? Colors.white : Colors.black87),
                 ),
               ),
               const SizedBox(height: 2),

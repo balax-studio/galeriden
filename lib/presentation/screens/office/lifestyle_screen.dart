@@ -20,9 +20,11 @@ class LifestyleScreen extends ConsumerStatefulWidget {
   ConsumerState<LifestyleScreen> createState() => _LifestyleScreenState();
 }
 
-class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTickerProviderStateMixin {
+class _LifestyleScreenState extends ConsumerState<LifestyleScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _selectedThemeFilter = 'all'; // 'all', 'classic_baron', 'traditional_artisan', 'street_modern', 'motorsport'
+  String _selectedThemeFilter =
+      'all'; // 'all', 'classic_baron', 'traditional_artisan', 'street_modern', 'motorsport'
 
   @override
   void initState() {
@@ -44,15 +46,18 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     final game = ref.watch(gameProvider);
 
     var suits = LifestyleItemModel.allItems.where((i) => i.isApparel).toList();
-    var accessories = LifestyleItemModel.allItems.where((i) => i.isAccessory).toList();
+    var accessories =
+        LifestyleItemModel.allItems.where((i) => i.isAccessory).toList();
 
     if (_selectedThemeFilter != 'all') {
       suits = suits.where((i) => i.theme == _selectedThemeFilter).toList();
-      accessories = accessories.where((i) => i.theme == _selectedThemeFilter).toList();
+      accessories =
+          accessories.where((i) => i.theme == _selectedThemeFilter).toList();
     }
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('lifestyle_title'),
         actions: [
@@ -79,7 +84,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                   NeoBrutalCard(
                     borderColor: const Color(0xFFEAB308),
                     borderWidth: 2.5,
-                    backgroundColor: isDark ? const Color(0xFF1E1D11) : const Color(0xFFFEFCE8),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E1D11)
+                        : const Color(0xFFFEFCE8),
                     padding: const EdgeInsets.all(14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,11 +99,14 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                                 color: const Color(0xFFEAB308),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  color: isDark
+                                      ? const Color(0xFF333B4F)
+                                      : const Color(0xFF0F172A),
                                   width: 1.5,
                                 ),
                               ),
-                              child: const Icon(Icons.person_rounded, color: Colors.black, size: 22),
+                              child: const Icon(Icons.person_rounded,
+                                  color: Colors.black, size: 22),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -108,7 +118,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      color: isDark
+                                          ? Colors.white
+                                          : const Color(0xFF0F172A),
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -117,7 +129,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                      color: isDark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B),
                                     ),
                                   ),
                                 ],
@@ -129,10 +143,13 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF141721) : Colors.white,
+                            color:
+                                isDark ? const Color(0xFF141721) : Colors.white,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0),
+                              color: isDark
+                                  ? const Color(0xFF2A3142)
+                                  : const Color(0xFFE2E8F0),
                               width: 1.5,
                             ),
                           ),
@@ -171,11 +188,24 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                     physics: const BouncingScrollPhysics(),
                     child: Row(
                       children: [
-                        _buildThemeFilterChip(context.tr('lifestyle_theme_all'), 'all', isDark),
-                        _buildThemeFilterChip(context.tr('lifestyle_theme_baron'), 'classic_baron', isDark),
-                        _buildThemeFilterChip(context.tr('lifestyle_theme_artisan'), 'traditional_artisan', isDark),
-                        _buildThemeFilterChip(context.tr('lifestyle_theme_street'), 'street_modern', isDark),
-                        _buildThemeFilterChip(context.tr('lifestyle_theme_motorsport'), 'motorsport', isDark),
+                        _buildThemeFilterChip(
+                            context.tr('lifestyle_theme_all'), 'all', isDark),
+                        _buildThemeFilterChip(
+                            context.tr('lifestyle_theme_baron'),
+                            'classic_baron',
+                            isDark),
+                        _buildThemeFilterChip(
+                            context.tr('lifestyle_theme_artisan'),
+                            'traditional_artisan',
+                            isDark),
+                        _buildThemeFilterChip(
+                            context.tr('lifestyle_theme_street'),
+                            'street_modern',
+                            isDark),
+                        _buildThemeFilterChip(
+                            context.tr('lifestyle_theme_motorsport'),
+                            'motorsport',
+                            isDark),
                       ],
                     ),
                   ),
@@ -184,10 +214,14 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                   // Neo Tab Bar (2 Tabs: Kıyafet & Kombin, Saat & Aksesuar)
                   Container(
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
+                      color: isDark
+                          ? const Color(0xFF141721)
+                          : const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                        color: isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A),
                         width: 2,
                       ),
                     ),
@@ -198,13 +232,18 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                         color: const Color(0xFFFFDE59),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2,
                         ),
                       ),
                       labelColor: Colors.black,
-                      unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                      labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      unselectedLabelColor: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
+                      labelStyle: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 12),
                       tabs: [
                         Tab(text: context.tr('lifestyle_tab_apparel')),
                         Tab(text: context.tr('lifestyle_tab_accessories')),
@@ -248,7 +287,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
             border: Border.all(
               color: isSelected
                   ? const Color(0xFF0F172A)
-                  : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                  : (isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFFCBD5E1)),
               width: isSelected ? 2.0 : 1.5,
             ),
             boxShadow: isSelected
@@ -268,7 +309,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
               fontWeight: FontWeight.w900,
               color: isSelected
                   ? Colors.black
-                  : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                  : (isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569)),
             ),
           ),
         ),
@@ -276,7 +319,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     );
   }
 
-  Widget _buildPerkMetric(String label, String value, Color color, bool isDark) {
+  Widget _buildPerkMetric(
+      String label, String value, Color color, bool isDark) {
     return Column(
       children: [
         Text(
@@ -300,7 +344,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     );
   }
 
-  Widget _buildItemsList(List<LifestyleItemModel> items, dynamic game, bool isDark) {
+  Widget _buildItemsList(
+      List<LifestyleItemModel> items, dynamic game, bool isDark) {
     if (items.isEmpty) {
       return Center(
         child: Padding(
@@ -324,7 +369,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
       itemBuilder: (context, index) {
         final item = items[index];
         final isOwned = game.ownedLifestyleItems.contains(item.id);
-        final isEquipped = game.equippedSuitId == item.id || game.equippedAccessoryId == item.id;
+        final isEquipped = game.equippedSuitId == item.id ||
+            game.equippedAccessoryId == item.id;
         final canAfford = game.balance >= item.price;
 
         return Padding(
@@ -349,16 +395,22 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                       decoration: BoxDecoration(
                         color: isEquipped
                             ? const Color(0xFFFFDE59)
-                            : (isDark ? const Color(0xFF2A3142) : const Color(0xFFF1F5F9)),
+                            : (isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFFF1F5F9)),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
                           width: 2,
                         ),
                       ),
                       child: Icon(
                         _getItemIcon(item.iconType),
-                        color: isEquipped ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                        color: isEquipped
+                            ? Colors.black
+                            : (isDark ? Colors.white : const Color(0xFF0F172A)),
                         size: 24,
                       ),
                     ),
@@ -376,7 +428,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
                                   ),
                                 ),
                               ),
@@ -394,7 +448,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                           Row(
                             children: [
                               NeoBrutalBadge(
-                                text: context.tr('lifestyle_reputation_bonus', {'points': item.reputationBonus}),
+                                text: context.tr('lifestyle_reputation_bonus',
+                                    {'points': item.reputationBonus}),
                                 backgroundColor: const Color(0xFFFFDE59),
                                 textColor: Colors.black,
                                 fontSize: 10,
@@ -402,8 +457,12 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                               const SizedBox(width: 6),
                               NeoBrutalBadge(
                                 text: _getThemeLabel(context, item.theme),
-                                backgroundColor: isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0),
-                                textColor: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                                backgroundColor: isDark
+                                    ? const Color(0xFF2A3142)
+                                    : const Color(0xFFE2E8F0),
+                                textColor: isDark
+                                    ? const Color(0xFFCBD5E1)
+                                    : const Color(0xFF475569),
                                 fontSize: 9,
                               ),
                             ],
@@ -419,7 +478,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                     height: 1.35,
                   ),
                 ),
@@ -430,11 +491,26 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                   runSpacing: 6,
                   children: [
                     if (item.negotiationBonus > 0)
-                      _buildMiniBadge(context.tr('lifestyle_badge_negotiation', {'percent': (item.negotiationBonus * 100).toInt()}), const Color(0xFF38BDF8), isDark),
+                      _buildMiniBadge(
+                          context.tr('lifestyle_badge_negotiation', {
+                            'percent': (item.negotiationBonus * 100).toInt()
+                          }),
+                          const Color(0xFF38BDF8),
+                          isDark),
                     if (item.richCustomerBonus > 0)
-                      _buildMiniBadge(context.tr('lifestyle_badge_rich_customer', {'percent': (item.richCustomerBonus * 100).toInt()}), const Color(0xFFFFDE59), isDark),
+                      _buildMiniBadge(
+                          context.tr('lifestyle_badge_rich_customer', {
+                            'percent': (item.richCustomerBonus * 100).toInt()
+                          }),
+                          const Color(0xFFFFDE59),
+                          isDark),
                     if (item.interestDiscount > 0)
-                      _buildMiniBadge(context.tr('lifestyle_badge_interest_discount', {'percent': (item.interestDiscount * 100).toInt()}), const Color(0xFF10B981), isDark),
+                      _buildMiniBadge(
+                          context.tr('lifestyle_badge_interest_discount', {
+                            'percent': (item.interestDiscount * 100).toInt()
+                          }),
+                          const Color(0xFF10B981),
+                          isDark),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -451,7 +527,9 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                               fontSize: 16,
                               fontWeight: FontWeight.w900,
                               color: canAfford
-                                  ? (isDark ? const Color(0xFFFFDE59) : const Color(0xFFD97706))
+                                  ? (isDark
+                                      ? const Color(0xFFFFDE59)
+                                      : const Color(0xFFD97706))
                                   : const Color(0xFFEF4444),
                             ),
                           ),
@@ -463,16 +541,23 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     if (!isOwned)
                       NeoBrutalButton(
-                        label: context.tr('lifestyle_btn_buy', {'price': CurrencyFormatter.formatShort(item.price)}),
-                        backgroundColor: canAfford ? const Color(0xFFFFDE59) : const Color(0xFF64748B),
+                        label: context.tr('lifestyle_btn_buy', {
+                          'price': CurrencyFormatter.formatShort(item.price)
+                        }),
+                        backgroundColor: canAfford
+                            ? const Color(0xFFFFDE59)
+                            : const Color(0xFF64748B),
                         textColor: canAfford ? Colors.black : Colors.white,
                         fontSize: 11,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         onPressed: canAfford ? () => _buyItem(item) : null,
                       )
                     else if (!isEquipped)
@@ -481,7 +566,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
                         backgroundColor: const Color(0xFF38BDF8),
                         textColor: Colors.black,
                         fontSize: 11,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         onPressed: () => _equipItem(item),
                       )
                     else
@@ -577,7 +663,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> with SingleTi
     } else {
       NotificationService.showError(
         context,
-        context.tr('lifestyle_insufficient_funds_toast', {'price': CurrencyFormatter.formatShort(item.price)}),
+        context.tr('lifestyle_insufficient_funds_toast',
+            {'price': CurrencyFormatter.formatShort(item.price)}),
       );
     }
   }

@@ -19,7 +19,8 @@ import '../../widgets/neo_brutal_locked_feature_view.dart';
 class StaffScreen extends ConsumerWidget {
   const StaffScreen({super.key});
 
-  void _showRoleTrainingSheet(BuildContext context, WidgetRef ref, StaffModel staff) {
+  void _showRoleTrainingSheet(
+      BuildContext context, WidgetRef ref, StaffModel staff) {
     final lang = Localizations.localeOf(context).languageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final game = ref.read(gameProvider);
@@ -53,7 +54,8 @@ class StaffScreen extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       context.tr('staff_training_title', {'name': staff.name}),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w900),
                     ),
                   ),
                   NeoBrutalBadge(
@@ -67,21 +69,29 @@ class StaffScreen extends ConsumerWidget {
               const SizedBox(height: 6),
               Text(
                 context.tr('staff_training_desc'),
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
               ...courses.map((course) {
-                final isCompleted = staff.completedCourseIds.contains(course.id);
+                final isCompleted =
+                    staff.completedCourseIds.contains(course.id);
                 final canAfford = game.balance >= course.cost;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(12),
-                    backgroundColor: isDark ? const Color(0xFF0F121C) : const Color(0xFFF8FAFC),
+                    backgroundColor: isDark
+                        ? const Color(0xFF0F121C)
+                        : const Color(0xFFF8FAFC),
                     borderColor: isCompleted
                         ? AppColors.brutalGreen
-                        : (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1)),
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFFCBD5E1)),
                     borderRadius: 12,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,11 +101,14 @@ class StaffScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(course.icon, color: course.color, size: 18),
+                                Icon(course.icon,
+                                    color: course.color, size: 18),
                                 const SizedBox(width: 8),
                                 Text(
                                   course.getLocalizedTitle(lang),
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w900),
                                 ),
                               ],
                             ),
@@ -109,40 +122,61 @@ class StaffScreen extends ConsumerWidget {
                             else
                               Text(
                                 CurrencyFormatter.format(course.cost),
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.brutalGreen),
                               ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
                           course.description,
-                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                              fontSize: 11.5,
+                              color: Color(0xFF64748B),
+                              fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 color: course.color.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 course.bonusSummary,
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: course.color),
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: course.color),
                               ),
                             ),
                             if (!isCompleted)
                               NeoBrutalButton(
                                 label: context.tr('btn_train_staff'),
-                                backgroundColor: canAfford ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                                textColor: canAfford ? Colors.black : (isDark ? Colors.white38 : Colors.black38),
+                                backgroundColor: canAfford
+                                    ? AppColors.brutalGreen
+                                    : (isDark
+                                        ? const Color(0xFF1E2330)
+                                        : const Color(0xFFE2E8F0)),
+                                textColor: canAfford
+                                    ? Colors.black
+                                    : (isDark
+                                        ? Colors.white38
+                                        : Colors.black38),
                                 fontSize: 10,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 onPressed: canAfford
                                     ? () {
-                                        final success = ref.read(gameProvider.notifier).trainStaffMember(staff.id, course);
+                                        final success = ref
+                                            .read(gameProvider.notifier)
+                                            .trainStaffMember(staff.id, course);
                                         Navigator.of(ctx).pop();
                                         if (success) {
                                           NotificationService.showSuccess(
@@ -169,7 +203,8 @@ class StaffScreen extends ConsumerWidget {
 
   void _showBonusSheet(BuildContext context, WidgetRef ref, StaffModel staff) {
     if (staff.morale >= 100) {
-      NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+      NotificationService.showInfo(
+          context, context.tr('staff_morale_already_full'));
       return;
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -197,31 +232,54 @@ class StaffScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(context.tr('staff_bonus_title', {'name': staff.name}), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
-                  NeoBrutalBadge(text: context.tr('staff_bonus_badge'), backgroundColor: AppColors.brutalGreen, textColor: Colors.black, fontSize: 10),
+                  Expanded(
+                      child: Text(
+                          context.tr('staff_bonus_title', {'name': staff.name}),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w900))),
+                  NeoBrutalBadge(
+                      text: context.tr('staff_bonus_badge'),
+                      backgroundColor: AppColors.brutalGreen,
+                      textColor: Colors.black,
+                      fontSize: 10),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
                 context.tr('staff_bonus_desc'),
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
               ...bonusAmounts.map((amt) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: NeoBrutalButton(
-                    label: context.tr('staff_btn_distribute_bonus', {'amount': CurrencyFormatter.format(amt)}),
-                    backgroundColor: game.balance >= amt ? AppColors.brutalGreen : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                    textColor: game.balance >= amt ? Colors.black : (isDark ? Colors.white38 : Colors.black38),
+                    label: context.tr('staff_btn_distribute_bonus',
+                        {'amount': CurrencyFormatter.format(amt)}),
+                    backgroundColor: game.balance >= amt
+                        ? AppColors.brutalGreen
+                        : (isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0)),
+                    textColor: game.balance >= amt
+                        ? Colors.black
+                        : (isDark ? Colors.white38 : Colors.black38),
                     fullWidth: true,
                     onPressed: game.balance >= amt
                         ? () {
-                            ref.read(gameProvider.notifier).giveStaffBonus(staff.id, amt);
+                            ref
+                                .read(gameProvider.notifier)
+                                .giveStaffBonus(staff.id, amt);
                             Navigator.of(ctx).pop();
                             NotificationService.showSuccess(
                               context,
-                              context.tr('staff_bonus_success', {'name': staff.name, 'amount': CurrencyFormatter.format(amt)}),
+                              context.tr('staff_bonus_success', {
+                                'name': staff.name,
+                                'amount': CurrencyFormatter.format(amt)
+                              }),
                             );
                           }
                         : null,
@@ -240,11 +298,13 @@ class StaffScreen extends ConsumerWidget {
     final lang = Localizations.localeOf(context).languageCode;
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
-    final isDark = themeExt?.palette.isDark ?? (Theme.of(context).brightness == Brightness.dark);
+    final isDark = themeExt?.palette.isDark ??
+        (Theme.of(context).brightness == Brightness.dark);
 
     if (!game.isFeatureUnlocked('/staff')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('staff_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/staff',
@@ -257,7 +317,8 @@ class StaffScreen extends ConsumerWidget {
     final synergies = TeamSynergyEngine.calculateSynergies(game.hiredStaff);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('staff_title'),
       ),
@@ -269,7 +330,8 @@ class StaffScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Row(
               children: [
@@ -279,11 +341,14 @@ class StaffScreen extends ConsumerWidget {
                     color: AppColors.brutalYellow,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.groups_rounded, color: Colors.black, size: 26),
+                  child: const Icon(Icons.groups_rounded,
+                      color: Colors.black, size: 26),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -292,12 +357,19 @@ class StaffScreen extends ConsumerWidget {
                     children: [
                       Text(
                         context.tr('staff_active_team_title'),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr('staff_on_duty_count', {'hired': '${game.hiredStaff.length}', 'total': '${StaffRole.values.length}'}),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                        context.tr('staff_on_duty_count', {
+                          'hired': '${game.hiredStaff.length}',
+                          'total': '${StaffRole.values.length}'
+                        }),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w900),
                       ),
                     ],
                   ),
@@ -322,13 +394,17 @@ class StaffScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.bolt_rounded, color: AppColors.brutalGreen, size: 18),
+                          const Icon(Icons.bolt_rounded,
+                              color: AppColors.brutalGreen, size: 18),
                           const SizedBox(width: 6),
-                          Text(context.tr('staff_synergies_title'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900)),
+                          Text(context.tr('staff_synergies_title'),
+                              style: const TextStyle(
+                                  fontSize: 11, fontWeight: FontWeight.w900)),
                         ],
                       ),
                       NeoBrutalBadge(
-                        text: context.tr('staff_synergies_active_badge', {'count': '${synergies.length}'}),
+                        text: context.tr('staff_synergies_active_badge',
+                            {'count': '${synergies.length}'}),
                         backgroundColor: AppColors.brutalGreen,
                         textColor: Colors.black,
                         fontSize: 9.5,
@@ -341,12 +417,15 @@ class StaffScreen extends ConsumerWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(syn.vectorIcon, size: 14, color: AppColors.brutalGreen),
+                            Icon(syn.vectorIcon,
+                                size: 14, color: AppColors.brutalGreen),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 '${syn.getLocalizedTitle(lang)}: ${syn.getLocalizedDescription(lang)}',
-                                style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+                                style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700),
                               ),
                             ),
                           ],
@@ -362,7 +441,8 @@ class StaffScreen extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -376,11 +456,14 @@ class StaffScreen extends ConsumerWidget {
                           color: const Color(0xFFA855F7),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2.0,
                           ),
                         ),
-                        child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
+                        child: const Icon(Icons.school_rounded,
+                            color: Colors.white, size: 22),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -389,12 +472,16 @@ class StaffScreen extends ConsumerWidget {
                           children: [
                             Text(
                               context.tr('staff_academy_banner_title'),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w900),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               context.tr('staff_academy_banner_desc'),
-                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                              style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -404,20 +491,26 @@ class StaffScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalButton(
-                  label: game.isFeatureUnlocked('/staff-academy') ? context.tr('staff_btn_train') : context.tr('locked_badge'),
+                  label: game.isFeatureUnlocked('/staff-academy')
+                      ? context.tr('staff_btn_train')
+                      : context.tr('locked_badge'),
                   backgroundColor: game.isFeatureUnlocked('/staff-academy')
                       ? const Color(0xFFA855F7)
                       : const Color(0xFF64748B),
                   textColor: Colors.white,
                   fontSize: 11,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   onPressed: () {
                     if (game.isFeatureUnlocked('/staff-academy')) {
                       context.push('/staff-academy');
                     } else {
                       NotificationService.showInfo(
                         context,
-                        context.tr('staff_academy_locked_toast', {'branch': DealershipModel.getRequiredBranchName('/staff-academy')}),
+                        context.tr('staff_academy_locked_toast', {
+                          'branch': DealershipModel.getRequiredBranchName(
+                              '/staff-academy')
+                        }),
                       );
                     }
                   },
@@ -443,18 +536,22 @@ class StaffScreen extends ConsumerWidget {
             final matches = game.hiredStaff.where((s) => s.role == role);
             final hired = matches.isEmpty ? null : matches.first;
             final isHired = hired != null;
-            final isFacilityUnlocked = game.isFeatureUnlocked(role.requiredFeatureRoute);
+            final isFacilityUnlocked =
+                game.isFeatureUnlocked(role.requiredFeatureRoute);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
                 borderColor: isHired
                     ? AppColors.brutalGreen
                     : (!isFacilityUnlocked
                         ? AppColors.brutalOrange
-                        : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))),
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A))),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,15 +568,20 @@ class StaffScreen extends ConsumerWidget {
                                   color: isHired
                                       ? AppColors.brutalGreen
                                       : (!isFacilityUnlocked
-                                          ? AppColors.brutalOrange.withValues(alpha: 0.2)
-                                          : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))),
+                                          ? AppColors.brutalOrange
+                                              .withValues(alpha: 0.2)
+                                          : (isDark
+                                              ? const Color(0xFF1E2330)
+                                              : const Color(0xFFE2E8F0))),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
                                     color: isHired
                                         ? AppColors.brutalGreen
                                         : (!isFacilityUnlocked
                                             ? AppColors.brutalOrange
-                                            : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A))),
+                                            : (isDark
+                                                ? const Color(0xFF333B4F)
+                                                : const Color(0xFF0F172A))),
                                     width: 1.5,
                                   ),
                                 ),
@@ -489,7 +591,9 @@ class StaffScreen extends ConsumerWidget {
                                       ? Colors.black
                                       : (!isFacilityUnlocked
                                           ? AppColors.brutalOrange
-                                          : (isDark ? Colors.white70 : Colors.black87)),
+                                          : (isDark
+                                              ? Colors.white70
+                                              : Colors.black87)),
                                   size: 18,
                                 ),
                               ),
@@ -499,15 +603,25 @@ class StaffScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      isHired ? hired.name : role.getLocalizedTitle(lang),
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                                      isHired
+                                          ? hired.name
+                                          : role.getLocalizedTitle(lang),
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w900),
                                     ),
                                     Text(
                                       isHired
                                           ? '${hired.masteryTitle} • ${role.getLocalizedTitle(lang)}'
                                           : (!isFacilityUnlocked
-                                              ? context.tr('staff_facility_locked_subtitle', {'facility': role.requiredFacilityName})
-                                              : context.tr('staff_open_position')),
+                                              ? context.tr(
+                                                  'staff_facility_locked_subtitle',
+                                                  {
+                                                      'facility': role
+                                                          .requiredFacilityName
+                                                    })
+                                              : context
+                                                  .tr('staff_open_position')),
                                       style: TextStyle(
                                         fontSize: 10.5,
                                         color: !isFacilityUnlocked && !isHired
@@ -525,12 +639,16 @@ class StaffScreen extends ConsumerWidget {
                         NeoBrutalBadge(
                           text: isHired
                               ? context.tr('staff_badge_on_duty')
-                              : (!isFacilityUnlocked ? context.tr('staff_badge_facility_locked') : context.tr('staff_badge_open')),
+                              : (!isFacilityUnlocked
+                                  ? context.tr('staff_badge_facility_locked')
+                                  : context.tr('staff_badge_open')),
                           backgroundColor: isHired
                               ? AppColors.brutalGreen
                               : (!isFacilityUnlocked
                                   ? AppColors.brutalOrange
-                                  : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))),
+                                  : (isDark
+                                      ? const Color(0xFF1E2330)
+                                      : const Color(0xFFE2E8F0))),
                           textColor: isHired
                               ? Colors.black
                               : (!isFacilityUnlocked
@@ -543,10 +661,12 @@ class StaffScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Text(
                       role.getLocalizedDescription(lang),
-                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 10),
-
                     if (isHired) ...[
                       // Morale Bar & Perk Row
                       Row(
@@ -554,7 +674,10 @@ class StaffScreen extends ConsumerWidget {
                         children: [
                           Row(
                             children: [
-                              Text(context.tr('staff_morale_label'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                              Text(context.tr('staff_morale_label'),
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700)),
                               Text(
                                 '%${hired.morale}',
                                 style: TextStyle(
@@ -562,7 +685,9 @@ class StaffScreen extends ConsumerWidget {
                                   fontWeight: FontWeight.w900,
                                   color: hired.morale > 75
                                       ? AppColors.brutalGreen
-                                      : (hired.morale > 40 ? AppColors.brutalYellow : AppColors.errorRed),
+                                      : (hired.morale > 40
+                                          ? AppColors.brutalYellow
+                                          : AppColors.errorRed),
                                 ),
                               ),
                             ],
@@ -571,7 +696,11 @@ class StaffScreen extends ConsumerWidget {
                             children: [
                               if (hired.completedCourseIds.isNotEmpty) ...[
                                 NeoBrutalBadge(
-                                  text: context.tr('staff_specialization_count', {'count': '${hired.completedCourseIds.length}'}),
+                                  text: context.tr(
+                                      'staff_specialization_count', {
+                                    'count':
+                                        '${hired.completedCourseIds.length}'
+                                  }),
                                   backgroundColor: const Color(0xFFA855F7),
                                   textColor: Colors.white,
                                   fontSize: 9.5,
@@ -580,9 +709,13 @@ class StaffScreen extends ConsumerWidget {
                               ],
                               if (hired.perk != null)
                                 NeoBrutalBadge(
-                                  text: '${hired.perk!.icon} ${hired.perk!.getLocalizedTitle(lang)}',
-                                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                                  textColor: isDark ? Colors.white : Colors.black,
+                                  text:
+                                      '${hired.perk!.icon} ${hired.perk!.getLocalizedTitle(lang)}',
+                                  backgroundColor: isDark
+                                      ? const Color(0xFF1E2330)
+                                      : const Color(0xFFE2E8F0),
+                                  textColor:
+                                      isDark ? Colors.white : Colors.black,
                                   fontSize: 9.5,
                                 ),
                             ],
@@ -593,7 +726,9 @@ class StaffScreen extends ConsumerWidget {
                       Container(
                         height: 6,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F1118) : const Color(0xFFE2E8F0),
+                          color: isDark
+                              ? const Color(0xFF0F1118)
+                              : const Color(0xFFE2E8F0),
                           borderRadius: BorderRadius.circular(3),
                         ),
                         child: FractionallySizedBox(
@@ -603,7 +738,9 @@ class StaffScreen extends ConsumerWidget {
                             decoration: BoxDecoration(
                               color: hired.morale > 75
                                   ? AppColors.brutalGreen
-                                  : (hired.morale > 40 ? AppColors.brutalYellow : AppColors.errorRed),
+                                  : (hired.morale > 40
+                                      ? AppColors.brutalYellow
+                                      : AppColors.errorRed),
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),
@@ -615,15 +752,28 @@ class StaffScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            context.tr('staff_career_summary', {'tasks': '${hired.tasksCompleted}', 'salary': CurrencyFormatter.format(hired.dailySalary)}),
-                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
-                          ),
+                          Expanded(
+                              child: Text(
+                            context.tr('staff_career_summary', {
+                              'tasks': '${hired.tasksCompleted}',
+                              'salary':
+                                  CurrencyFormatter.format(hired.dailySalary)
+                            }),
+                            style: const TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF64748B)),
+                          )),
                           InkWell(
-                            onTap: () => ref.read(gameProvider.notifier).fireStaff(hired.id),
+                            onTap: () => ref
+                                .read(gameProvider.notifier)
+                                .fireStaff(hired.id),
                             child: Text(
                               context.tr('btn_fire_staff'),
-                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                              style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.errorRed),
                             ),
                           ),
                         ],
@@ -637,20 +787,29 @@ class StaffScreen extends ConsumerWidget {
                             child: NeoBrutalButton(
                               icon: Icons.local_cafe_rounded,
                               label: context.tr('staff_btn_tea'),
-                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                              backgroundColor: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0),
                               textColor: isDark ? Colors.white : Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               onPressed: () {
                                 if (hired.morale >= 100) {
-                                  NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+                                  NotificationService.showInfo(context,
+                                      context.tr('staff_morale_already_full'));
                                   return;
                                 }
-                                final success = ref.read(gameProvider.notifier).treatStaffTea(hired.id);
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .treatStaffTea(hired.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, context.tr('staff_tea_success', {'name': hired.name}));
+                                  NotificationService.showSuccess(
+                                      context,
+                                      context.tr('staff_tea_success',
+                                          {'name': hired.name}));
                                 } else {
-                                  NotificationService.showError(context, context.tr('insufficient_balance'));
+                                  NotificationService.showError(context,
+                                      context.tr('insufficient_balance'));
                                 }
                               },
                             ),
@@ -666,14 +825,21 @@ class StaffScreen extends ConsumerWidget {
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               onPressed: () {
                                 if (hired.morale >= 100) {
-                                  NotificationService.showInfo(context, context.tr('staff_morale_already_full'));
+                                  NotificationService.showInfo(context,
+                                      context.tr('staff_morale_already_full'));
                                   return;
                                 }
-                                final success = ref.read(gameProvider.notifier).treatStaffMeal(hired.id);
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .treatStaffMeal(hired.id);
                                 if (success) {
-                                  NotificationService.showSuccess(context, context.tr('staff_meal_success', {'name': hired.name}));
+                                  NotificationService.showSuccess(
+                                      context,
+                                      context.tr('staff_meal_success',
+                                          {'name': hired.name}));
                                 } else {
-                                  NotificationService.showError(context, context.tr('insufficient_balance'));
+                                  NotificationService.showError(context,
+                                      context.tr('insufficient_balance'));
                                 }
                               },
                             ),
@@ -687,7 +853,8 @@ class StaffScreen extends ConsumerWidget {
                               textColor: Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: () => _showBonusSheet(context, ref, hired),
+                              onPressed: () =>
+                                  _showBonusSheet(context, ref, hired),
                             ),
                           ),
                         ],
@@ -704,27 +871,36 @@ class StaffScreen extends ConsumerWidget {
                           textColor: Colors.white,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(vertical: 7),
-                          onPressed: () => _showRoleTrainingSheet(context, ref, hired),
+                          onPressed: () =>
+                              _showRoleTrainingSheet(context, ref, hired),
                         ),
                       ),
                     ] else ...[
                       if (!isFacilityUnlocked) ...[
                         Container(
                           margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.brutalOrange.withValues(alpha: 0.12),
+                            color:
+                                AppColors.brutalOrange.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.brutalOrange, width: 1.5),
+                            border: Border.all(
+                                color: AppColors.brutalOrange, width: 1.5),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.lock_rounded, size: 14, color: AppColors.brutalOrange),
+                              const Icon(Icons.lock_rounded,
+                                  size: 14, color: AppColors.brutalOrange),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  context.tr('staff_req_facility_notice', {'facility': role.requiredFacilityName}),
-                                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.brutalOrange),
+                                  context.tr('staff_req_facility_notice',
+                                      {'facility': role.requiredFacilityName}),
+                                  style: const TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.brutalOrange),
                                 ),
                               ),
                             ],
@@ -734,10 +910,17 @@ class StaffScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            context.tr('staff_daily_salary_rate', {'salary': CurrencyFormatter.format(role.dailySalary)}),
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
-                          ),
+                          Expanded(
+                              child: Text(
+                            context.tr('staff_daily_salary_rate', {
+                              'salary':
+                                  CurrencyFormatter.format(role.dailySalary)
+                            }),
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.brutalGreen),
+                          )),
                           if (isFacilityUnlocked)
                             NeoBrutalButton(
                               label: context.tr('btn_hire_staff'),
@@ -745,7 +928,8 @@ class StaffScreen extends ConsumerWidget {
                               backgroundColor: AppColors.brutalYellow,
                               textColor: Colors.black,
                               fontSize: 11,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 6),
                               onPressed: () {
                                 final random = Random();
                                 final names = [
@@ -765,7 +949,9 @@ class StaffScreen extends ConsumerWidget {
                                   hiredAt: DateTime.now(),
                                   perk: perks[random.nextInt(perks.length)],
                                 );
-                                final success = ref.read(gameProvider.notifier).hireStaff(newStaff);
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .hireStaff(newStaff);
                                 if (success) {
                                   NotificationService.showSuccess(
                                     context,
@@ -778,14 +964,19 @@ class StaffScreen extends ConsumerWidget {
                             NeoBrutalButton(
                               label: context.tr('locked_badge'),
                               icon: Icons.lock_rounded,
-                              backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                              textColor: isDark ? Colors.white38 : Colors.black38,
+                              backgroundColor: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0),
+                              textColor:
+                                  isDark ? Colors.white38 : Colors.black38,
                               fontSize: 11,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 6),
                               onPressed: () {
                                 NotificationService.showInfo(
                                   context,
-                                  context.tr('staff_hire_facility_req_toast', {'facility': role.requiredFacilityName}),
+                                  context.tr('staff_hire_facility_req_toast',
+                                      {'facility': role.requiredFacilityName}),
                                 );
                               },
                             ),

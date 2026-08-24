@@ -21,14 +21,20 @@ class ShowroomListingModal {
   // =========================================================================
   // 1. KARŞI TEKLİF SUN MODAL (COUNTER OFFER SHEET)
   // =========================================================================
-  static void showCounterOfferSheet(BuildContext context, WidgetRef ref, OfferModel offer, CarModel car) {
+  static void showCounterOfferSheet(
+      BuildContext context, WidgetRef ref, OfferModel offer, CarModel car) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
     final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
-    final effectiveListingPrice = (car.listingPrice > 0 ? car.listingPrice : (car.estimatedRealValue * 1.15)).roundToDouble();
+    final effectiveListingPrice = (car.listingPrice > 0
+            ? car.listingPrice
+            : (car.estimatedRealValue * 1.15))
+        .roundToDouble();
     final double minOfferPrice = offer.offeredAmount;
     final double maxOfferPrice = max(minOfferPrice, effectiveListingPrice);
-    double targetPrice = (minOfferPrice + (maxOfferPrice - minOfferPrice) * 0.4).roundToDouble().clamp(minOfferPrice, maxOfferPrice);
+    double targetPrice = (minOfferPrice + (maxOfferPrice - minOfferPrice) * 0.4)
+        .roundToDouble()
+        .clamp(minOfferPrice, maxOfferPrice);
 
     final dynamicTactics = NegotiationEngine.generateTactics(
       isBuying: false,
@@ -43,7 +49,8 @@ class ShowroomListingModal {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         side: BorderSide(
@@ -55,7 +62,8 @@ class ShowroomListingModal {
         return StatefulBuilder(
           builder: (context, setState) {
             final double priceGap = maxOfferPrice - minOfferPrice;
-            final double progressRatio = priceGap > 0 ? (targetPrice - minOfferPrice) / priceGap : 0.0;
+            final double progressRatio =
+                priceGap > 0 ? (targetPrice - minOfferPrice) / priceGap : 0.0;
 
             Color tensionColor;
             IconData tensionIcon;
@@ -103,11 +111,14 @@ class ShowroomListingModal {
                                 color: AppColors.brutalYellow,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                  color: isDark
+                                      ? const Color(0xFF333B4F)
+                                      : const Color(0xFF0F172A),
                                   width: 2.0,
                                 ),
                               ),
-                              child: const Icon(Icons.handshake_rounded, size: 20, color: Colors.black),
+                              child: const Icon(Icons.handshake_rounded,
+                                  size: 20, color: Colors.black),
                             ),
                             const SizedBox(width: 10),
                             Column(
@@ -122,11 +133,14 @@ class ShowroomListingModal {
                                   ),
                                 ),
                                 Text(
-                                  context.tr('counter_offer_table_sub', {'name': offer.buyerName}),
+                                  context.tr('counter_offer_table_sub',
+                                      {'name': offer.buyerName}),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                                    color: isDark
+                                        ? Colors.white60
+                                        : const Color(0xFF64748B),
                                   ),
                                 ),
                               ],
@@ -139,7 +153,9 @@ class ShowroomListingModal {
                             'max': offer.maxCounters.toString(),
                           }),
                           icon: Icons.repeat_rounded,
-                          backgroundColor: remainingCounters <= 1 ? AppColors.errorRed : AppColors.brutalYellow,
+                          backgroundColor: remainingCounters <= 1
+                              ? AppColors.errorRed
+                              : AppColors.brutalYellow,
                           textColor: Colors.black,
                           fontSize: 11,
                         ),
@@ -150,8 +166,11 @@ class ShowroomListingModal {
                     // Price Card
                     NeoBrutalCard(
                       padding: const EdgeInsets.all(14),
-                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                      borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      backgroundColor:
+                          isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       borderRadius: 12,
                       child: Column(
                         children: [
@@ -166,15 +185,20 @@ class ShowroomListingModal {
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                                      color: isDark
+                                          ? Colors.white60
+                                          : const Color(0xFF64748B),
                                     ),
                                   ),
                                   Text(
-                                    CurrencyFormatter.format(offer.offeredAmount),
+                                    CurrencyFormatter.format(
+                                        offer.offeredAmount),
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w800,
-                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      color: isDark
+                                          ? Colors.white
+                                          : const Color(0xFF0F172A),
                                     ),
                                   ),
                                 ],
@@ -187,7 +211,9 @@ class ShowroomListingModal {
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
-                                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                      color: isDark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B),
                                     ),
                                   ),
                                   Text(
@@ -195,7 +221,9 @@ class ShowroomListingModal {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800,
-                                      color: isDark ? AppColors.brutalYellow : const Color(0xFFB45309),
+                                      color: isDark
+                                          ? AppColors.brutalYellow
+                                          : const Color(0xFFB45309),
                                     ),
                                   ),
                                 ],
@@ -208,7 +236,9 @@ class ShowroomListingModal {
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
-                                      color: isDark ? AppColors.brutalGreen : const Color(0xFF15803D),
+                                      color: isDark
+                                          ? AppColors.brutalGreen
+                                          : const Color(0xFF15803D),
                                     ),
                                   ),
                                   Text(
@@ -227,17 +257,25 @@ class ShowroomListingModal {
                           SliderTheme(
                             data: SliderTheme.of(context).copyWith(
                               activeTrackColor: AppColors.brutalGreen,
-                              inactiveTrackColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
+                              inactiveTrackColor: isDark
+                                  ? const Color(0xFF262C3D)
+                                  : const Color(0xFFE2E8F0),
                               thumbColor: AppColors.brutalYellow,
-                              overlayColor: AppColors.brutalYellow.withValues(alpha: 0.2),
+                              overlayColor:
+                                  AppColors.brutalYellow.withValues(alpha: 0.2),
                               trackHeight: 6,
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10, elevation: 2),
+                              thumbShape: const RoundSliderThumbShape(
+                                  enabledThumbRadius: 10, elevation: 2),
                             ),
                             child: Slider(
-                              value: targetPrice.clamp(minOfferPrice, maxOfferPrice),
+                              value: targetPrice.clamp(
+                                  minOfferPrice, maxOfferPrice),
                               min: minOfferPrice,
                               max: maxOfferPrice,
-                              divisions: max(1, ((maxOfferPrice - minOfferPrice) / 1000).round()),
+                              divisions: max(
+                                  1,
+                                  ((maxOfferPrice - minOfferPrice) / 1000)
+                                      .round()),
                               onChanged: (val) {
                                 HapticFeedback.selectionClick();
                                 setState(() {
@@ -249,15 +287,18 @@ class ShowroomListingModal {
                           const SizedBox(height: 6),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
                               color: tensionColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: tensionColor, width: 1.5),
+                              border:
+                                  Border.all(color: tensionColor, width: 1.5),
                             ),
                             child: Row(
                               children: [
-                                Icon(tensionIcon, size: 16, color: tensionColor),
+                                Icon(tensionIcon,
+                                    size: 16, color: tensionColor),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -265,7 +306,9 @@ class ShowroomListingModal {
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w800,
-                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      color: isDark
+                                          ? Colors.white
+                                          : const Color(0xFF0F172A),
                                     ),
                                   ),
                                 ),
@@ -280,7 +323,8 @@ class ShowroomListingModal {
                     // Strategy Choices
                     Row(
                       children: [
-                        const Icon(Icons.psychology_rounded, size: 16, color: AppColors.brutalCyan),
+                        const Icon(Icons.psychology_rounded,
+                            size: 16, color: AppColors.brutalCyan),
                         const SizedBox(width: 6),
                         Text(
                           context.tr('counter_tactics_header'),
@@ -288,7 +332,9 @@ class ShowroomListingModal {
                             fontSize: 11.5,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
-                            color: isDark ? AppColors.brutalCyan : const Color(0xFF0F172A),
+                            color: isDark
+                                ? AppColors.brutalCyan
+                                : const Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -306,7 +352,8 @@ class ShowroomListingModal {
                               subtitle: tactic.badgeText,
                               isSelected: selectedStrategy == tactic.id,
                               activeColor: _getTacticColor(tactic.iconKey),
-                              onTap: () => setState(() => selectedStrategy = tactic.id),
+                              onTap: () =>
+                                  setState(() => selectedStrategy = tactic.id),
                               isDark: isDark,
                             ),
                           ),
@@ -323,12 +370,14 @@ class ShowroomListingModal {
                       fullWidth: true,
                       onPressed: () {
                         Navigator.pop(context);
-                        final outcome = ref.read(gameProvider.notifier).counterOffer(
-                              offer.id,
-                              targetPrice,
-                              strategy: selectedStrategy,
-                            );
-                        NotificationService.showSuccess(context, outcome.responseMessage);
+                        final outcome =
+                            ref.read(gameProvider.notifier).counterOffer(
+                                  offer.id,
+                                  targetPrice,
+                                  strategy: selectedStrategy,
+                                );
+                        NotificationService.showSuccess(
+                            context, outcome.responseMessage);
                       },
                     ),
                   ],
@@ -344,7 +393,8 @@ class ShowroomListingModal {
   // =========================================================================
   // 2. İLAN AYARLARI & STRATEJİ MERKEZİ (LISTING EDIT SHEET)
   // =========================================================================
-  static void showListingEditSheet(BuildContext context, WidgetRef ref, CarModel car) {
+  static void showListingEditSheet(
+      BuildContext context, WidgetRef ref, CarModel car) {
     if (car.isLockedInShowcase) {
       NotificationService.showError(
         context,
@@ -364,28 +414,40 @@ class ShowroomListingModal {
     final p = themeExt?.palette ?? ThemePaletteModel.defaultPalettes.first;
     final isDark = p.isDark;
 
-    double selectedPrice = car.listingPrice > 0 ? car.listingPrice : (car.estimatedRealValue * 1.20).roundToDouble();
+    double selectedPrice = car.listingPrice > 0
+        ? car.listingPrice
+        : (car.estimatedRealValue * 1.20).roundToDouble();
     ListingDeclarationType selectedDeclaration = car.declarationType;
-    String selectedPhotoLocation = (car.listingPhotoLocation == 'dealership' || car.listingPhotoLocation == 'scenic' || car.listingPhotoLocation == 'studio')
+    String selectedPhotoLocation = (car.listingPhotoLocation == 'dealership' ||
+            car.listingPhotoLocation == 'scenic' ||
+            car.listingPhotoLocation == 'studio')
         ? car.listingPhotoLocation
         : 'dealership';
-    int selectedPhotoCount = (car.listingPhotoCount == 4 || car.listingPhotoCount == 8 || car.listingPhotoCount == 12)
+    int selectedPhotoCount = (car.listingPhotoCount == 4 ||
+            car.listingPhotoCount == 8 ||
+            car.listingPhotoCount == 12)
         ? car.listingPhotoCount
         : 4;
-    String selectedTone = (car.listingTone == 'standard' || car.listingTone == 'friendly' || car.listingTone == 'vip')
+    String selectedTone = (car.listingTone == 'standard' ||
+            car.listingTone == 'friendly' ||
+            car.listingTone == 'vip')
         ? car.listingTone
         : 'standard';
     bool hideDamagedPhotos = car.hideDamagedPhotos;
-    final isFinanceUnlockedInitial = ref.read(gameProvider).isFeatureUnlocked('/finance');
-    bool allowsInstallments = isFinanceUnlockedInitial ? car.allowsInstallments : false;
+    final isFinanceUnlockedInitial =
+        ref.read(gameProvider).isFeatureUnlocked('/finance');
+    bool allowsInstallments =
+        isFinanceUnlockedInitial ? car.allowsInstallments : false;
 
-    final double minPrice = (car.currentPurchasePrice * 0.8).clamp(10000.0, car.estimatedRealValue);
+    final double minPrice =
+        (car.currentPurchasePrice * 0.8).clamp(10000.0, car.estimatedRealValue);
     final double maxPrice = (car.estimatedRealValue * 1.6).roundToDouble();
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
         side: BorderSide(
@@ -396,7 +458,8 @@ class ShowroomListingModal {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            final isFinanceUnlocked = ref.read(gameProvider).isFeatureUnlocked('/finance');
+            final isFinanceUnlocked =
+                ref.read(gameProvider).isFeatureUnlocked('/finance');
             return Padding(
               padding: EdgeInsets.only(
                 left: 18,
@@ -432,7 +495,9 @@ class ShowroomListingModal {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                  color: isDark
+                                      ? const Color(0xFF94A3B8)
+                                      : const Color(0xFF64748B),
                                 ),
                               ),
                               if (car.isDoped) ...[
@@ -453,15 +518,21 @@ class ShowroomListingModal {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E2330) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
                                 width: 2.0,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: isDark ? Colors.black : const Color(0xFF0F172A),
+                                  color: isDark
+                                      ? Colors.black
+                                      : const Color(0xFF0F172A),
                                   offset: const Offset(2, 2),
                                 ),
                               ],
@@ -469,7 +540,9 @@ class ShowroomListingModal {
                             child: Icon(
                               Icons.close_rounded,
                               size: 20,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                         ),
@@ -480,7 +553,8 @@ class ShowroomListingModal {
                     // SECTION 1: PRICE & VALUATION SLIDER
                     Row(
                       children: [
-                        const Icon(Icons.monetization_on_rounded, size: 16, color: AppColors.brutalYellow),
+                        const Icon(Icons.monetization_on_rounded,
+                            size: 16, color: AppColors.brutalYellow),
                         const SizedBox(width: 6),
                         Text(
                           context.tr('listing_target_price_title'),
@@ -488,7 +562,9 @@ class ShowroomListingModal {
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
-                            color: isDark ? AppColors.brutalYellow : const Color(0xFF0F172A),
+                            color: isDark
+                                ? AppColors.brutalYellow
+                                : const Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -498,15 +574,19 @@ class ShowroomListingModal {
                       context.tr('listing_target_price_desc'),
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        color:
+                            isDark ? Colors.white60 : const Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(height: 8),
 
                     NeoBrutalCard(
                       padding: const EdgeInsets.all(14),
-                      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                      borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      backgroundColor:
+                          isDark ? const Color(0xFF141721) : Colors.white,
+                      borderColor: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       borderWidth: 2.0,
                       borderRadius: 14,
                       shadowOffset: const Offset(3.5, 3.5),
@@ -515,22 +595,26 @@ class ShowroomListingModal {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              Expanded(
+                                  child: Text(
                                 context.tr('listing_sale_price_label'),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w800,
-                                  color: isDark ? Colors.white70 : const Color(0xFF475569),
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF475569),
                                 ),
-                              ),
-                              Text(
+                              )),
+                              Expanded(
+                                  child: Text(
                                 CurrencyFormatter.format(selectedPrice),
                                 style: const TextStyle(
                                   fontSize: 19,
                                   fontWeight: FontWeight.w900,
                                   color: AppColors.brutalGreen,
                                 ),
-                              ),
+                              )),
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -539,16 +623,25 @@ class ShowroomListingModal {
                             children: [
                               NeoBrutalBadge(
                                 text: context.tr('market_expertise_val', {
-                                  'val': CurrencyFormatter.formatShort(car.estimatedRealValue),
+                                  'val': CurrencyFormatter.formatShort(
+                                      car.estimatedRealValue),
                                 }),
                                 icon: Icons.speed_rounded,
-                                backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-                                textColor: isDark ? Colors.white70 : const Color(0xFF475569),
+                                backgroundColor: isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFF1F5F9),
+                                textColor: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF475569),
                                 fontSize: 10,
                               ),
                               NeoBrutalBadge(
                                 text: context.tr('anchor_pct_badge', {
-                                  'val': ((selectedPrice / car.estimatedRealValue) * 100).toInt().toString(),
+                                  'val': ((selectedPrice /
+                                              car.estimatedRealValue) *
+                                          100)
+                                      .toInt()
+                                      .toString(),
                                 }),
                                 icon: Icons.anchor_rounded,
                                 backgroundColor: AppColors.brutalCyan,
@@ -561,11 +654,15 @@ class ShowroomListingModal {
                           SliderTheme(
                             data: SliderTheme.of(context).copyWith(
                               activeTrackColor: AppColors.brutalGreen,
-                              inactiveTrackColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0),
+                              inactiveTrackColor: isDark
+                                  ? const Color(0xFF262C3D)
+                                  : const Color(0xFFE2E8F0),
                               thumbColor: AppColors.brutalYellow,
-                              overlayColor: AppColors.brutalYellow.withValues(alpha: 0.2),
+                              overlayColor:
+                                  AppColors.brutalYellow.withValues(alpha: 0.2),
                               trackHeight: 8,
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 11, elevation: 3),
+                              thumbShape: const RoundSliderThumbShape(
+                                  enabledThumbRadius: 11, elevation: 3),
                             ),
                             child: Slider(
                               value: selectedPrice.clamp(minPrice, maxPrice),
@@ -584,7 +681,9 @@ class ShowroomListingModal {
                           // Real-Time Inline Market Valuation & Buyer Interest Badge
                           Builder(
                             builder: (context) {
-                              final double diffRatio = (selectedPrice - car.estimatedRealValue) / car.estimatedRealValue;
+                              final double diffRatio =
+                                  (selectedPrice - car.estimatedRealValue) /
+                                      car.estimatedRealValue;
                               final double diffPct = diffRatio * 100;
                               Color badgeColor;
                               Color textColor;
@@ -595,37 +694,49 @@ class ShowroomListingModal {
                                 badgeColor = AppColors.brutalGreen;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.bolt_rounded;
-                                badgeText = context.tr('listing_price_bargain_badge', {'pct': diffPct.abs().toStringAsFixed(0)});
+                                badgeText = context.tr(
+                                    'listing_price_bargain_badge',
+                                    {'pct': diffPct.abs().toStringAsFixed(0)});
                               } else if (diffPct <= 5) {
                                 badgeColor = AppColors.brutalYellow;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.balance_rounded;
-                                badgeText = context.tr('listing_price_balanced_badge');
+                                badgeText =
+                                    context.tr('listing_price_balanced_badge');
                               } else if (diffPct <= 20) {
                                 badgeColor = AppColors.brutalOrange;
                                 textColor = Colors.black;
                                 badgeIcon = Icons.hourglass_bottom_rounded;
-                                badgeText = context.tr('listing_price_high_badge', {'pct': diffPct.toStringAsFixed(0)});
+                                badgeText = context.tr(
+                                    'listing_price_high_badge',
+                                    {'pct': diffPct.toStringAsFixed(0)});
                               } else {
                                 badgeColor = AppColors.errorRed;
                                 textColor = Colors.white;
                                 badgeIcon = Icons.warning_amber_rounded;
-                                badgeText = context.tr('listing_price_risky_badge', {'pct': diffPct.toStringAsFixed(0)});
+                                badgeText = context.tr(
+                                    'listing_price_risky_badge',
+                                    {'pct': diffPct.toStringAsFixed(0)});
                               }
 
                               return Container(
                                 width: double.infinity,
                                 margin: const EdgeInsets.symmetric(vertical: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: badgeColor,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? const Color(0xFF333B4F)
+                                        : const Color(0xFF0F172A),
                                     width: 2.0,
                                   ),
                                   boxShadow: const [
-                                    BoxShadow(color: Colors.black, offset: Offset(2, 2)),
+                                    BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(2, 2)),
                                   ],
                                 ),
                                 child: Row(
@@ -659,7 +770,8 @@ class ShowroomListingModal {
                                   label: context.tr('btn_preset_market_val'),
                                   onTap: () {
                                     HapticFeedback.selectionClick();
-                                    setState(() => selectedPrice = car.estimatedRealValue.roundToDouble());
+                                    setState(() => selectedPrice =
+                                        car.estimatedRealValue.roundToDouble());
                                   },
                                   isDark: isDark,
                                 ),
@@ -670,7 +782,9 @@ class ShowroomListingModal {
                                   label: context.tr('btn_preset_plus_10'),
                                   onTap: () {
                                     HapticFeedback.selectionClick();
-                                    setState(() => selectedPrice = (car.estimatedRealValue * 1.10).roundToDouble());
+                                    setState(() => selectedPrice =
+                                        (car.estimatedRealValue * 1.10)
+                                            .roundToDouble());
                                   },
                                   isDark: isDark,
                                 ),
@@ -681,7 +795,9 @@ class ShowroomListingModal {
                                   label: context.tr('btn_preset_plus_20'),
                                   onTap: () {
                                     HapticFeedback.selectionClick();
-                                    setState(() => selectedPrice = (car.estimatedRealValue * 1.20).roundToDouble());
+                                    setState(() => selectedPrice =
+                                        (car.estimatedRealValue * 1.20)
+                                            .roundToDouble());
                                   },
                                   isDark: isDark,
                                 ),
@@ -696,7 +812,8 @@ class ShowroomListingModal {
                     // SECTION 2: PHOTO SHOOT LOCATION & QUALITY
                     Row(
                       children: [
-                        const Icon(Icons.camera_alt_rounded, size: 16, color: AppColors.brutalCyan),
+                        const Icon(Icons.camera_alt_rounded,
+                            size: 16, color: AppColors.brutalCyan),
                         const SizedBox(width: 6),
                         Text(
                           context.tr('photo_shoot_title'),
@@ -704,7 +821,9 @@ class ShowroomListingModal {
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
-                            color: isDark ? AppColors.brutalCyan : const Color(0xFF0F172A),
+                            color: isDark
+                                ? AppColors.brutalCyan
+                                : const Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -719,7 +838,8 @@ class ShowroomListingModal {
                             icon: Icons.storefront_rounded,
                             activeColor: AppColors.brutalYellow,
                             isSelected: selectedPhotoLocation == 'dealership',
-                            onTap: () => setState(() => selectedPhotoLocation = 'dealership'),
+                            onTap: () => setState(
+                                () => selectedPhotoLocation = 'dealership'),
                             isDark: isDark,
                           ),
                         ),
@@ -731,7 +851,8 @@ class ShowroomListingModal {
                             icon: Icons.landscape_rounded,
                             activeColor: AppColors.brutalCyan,
                             isSelected: selectedPhotoLocation == 'scenic',
-                            onTap: () => setState(() => selectedPhotoLocation = 'scenic'),
+                            onTap: () => setState(
+                                () => selectedPhotoLocation = 'scenic'),
                             isDark: isDark,
                           ),
                         ),
@@ -743,7 +864,8 @@ class ShowroomListingModal {
                             icon: Icons.camera_rounded,
                             activeColor: AppColors.brutalPink,
                             isSelected: selectedPhotoLocation == 'studio',
-                            onTap: () => setState(() => selectedPhotoLocation = 'studio'),
+                            onTap: () => setState(
+                                () => selectedPhotoLocation = 'studio'),
                             isDark: isDark,
                           ),
                         ),
@@ -763,35 +885,70 @@ class ShowroomListingModal {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
-                                  color: isDark ? Colors.white70 : const Color(0xFF475569),
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF475569),
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF141721) : Colors.white,
+                                  color: isDark
+                                      ? const Color(0xFF141721)
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? const Color(0xFF333B4F)
+                                        : const Color(0xFF0F172A),
                                     width: 2.0,
                                   ),
                                   boxShadow: const [
-                                    BoxShadow(color: Colors.black, offset: Offset(2, 2)),
+                                    BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(2, 2)),
                                   ],
                                 ),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 2),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<int>(
                                     value: selectedPhotoCount,
                                     isExpanded: true,
-                                    dropdownColor: isDark ? const Color(0xFF161922) : Colors.white,
-                                    icon: const Icon(Icons.arrow_drop_down_rounded, size: 28),
+                                    dropdownColor: isDark
+                                        ? const Color(0xFF161922)
+                                        : Colors.white,
+                                    icon: const Icon(
+                                        Icons.arrow_drop_down_rounded,
+                                        size: 28),
                                     items: [
-                                      DropdownMenuItem(value: 4, child: Text(context.tr('photo_count_4'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 8, child: Text(context.tr('photo_count_8'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 12, child: Text(context.tr('photo_count_12'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(
+                                          value: 4,
+                                          child: Text(
+                                              context.tr('photo_count_4'),
+                                              style: const TextStyle(
+                                                  fontSize: 11.5,
+                                                  fontWeight:
+                                                      FontWeight.w700))),
+                                      DropdownMenuItem(
+                                          value: 8,
+                                          child: Text(
+                                              context.tr('photo_count_8'),
+                                              style: const TextStyle(
+                                                  fontSize: 11.5,
+                                                  fontWeight:
+                                                      FontWeight.w700))),
+                                      DropdownMenuItem(
+                                          value: 12,
+                                          child: Text(
+                                              context.tr('photo_count_12'),
+                                              style: const TextStyle(
+                                                  fontSize: 11.5,
+                                                  fontWeight:
+                                                      FontWeight.w700))),
                                     ],
-                                    onChanged: (val) => setState(() => selectedPhotoCount = val ?? 4),
+                                    onChanged: (val) => setState(
+                                        () => selectedPhotoCount = val ?? 4),
                                   ),
                                 ),
                               ),
@@ -808,35 +965,72 @@ class ShowroomListingModal {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
-                                  color: isDark ? Colors.white70 : const Color(0xFF475569),
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF475569),
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF141721) : Colors.white,
+                                  color: isDark
+                                      ? const Color(0xFF141721)
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                                    color: isDark
+                                        ? const Color(0xFF333B4F)
+                                        : const Color(0xFF0F172A),
                                     width: 2.0,
                                   ),
                                   boxShadow: const [
-                                    BoxShadow(color: Colors.black, offset: Offset(2, 2)),
+                                    BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(2, 2)),
                                   ],
                                 ),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 2),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: selectedTone,
                                     isExpanded: true,
-                                    dropdownColor: isDark ? const Color(0xFF161922) : Colors.white,
-                                    icon: const Icon(Icons.arrow_drop_down_rounded, size: 28),
+                                    dropdownColor: isDark
+                                        ? const Color(0xFF161922)
+                                        : Colors.white,
+                                    icon: const Icon(
+                                        Icons.arrow_drop_down_rounded,
+                                        size: 28),
                                     items: [
-                                      DropdownMenuItem(value: 'standard', child: Text(context.tr('listing_tone_standard'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 'friendly', child: Text(context.tr('listing_tone_friendly'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
-                                      DropdownMenuItem(value: 'vip', child: Text(context.tr('listing_tone_vip'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700))),
+                                      DropdownMenuItem(
+                                          value: 'standard',
+                                          child: Text(
+                                              context
+                                                  .tr('listing_tone_standard'),
+                                              style: const TextStyle(
+                                                  fontSize: 11.5,
+                                                  fontWeight:
+                                                      FontWeight.w700))),
+                                      DropdownMenuItem(
+                                          value: 'friendly',
+                                          child: Text(
+                                              context
+                                                  .tr('listing_tone_friendly'),
+                                              style: const TextStyle(
+                                                  fontSize: 11.5,
+                                                  fontWeight:
+                                                      FontWeight.w700))),
+                                      DropdownMenuItem(
+                                          value: 'vip',
+                                          child: Text(
+                                              context.tr('listing_tone_vip'),
+                                              style: const TextStyle(
+                                                  fontSize: 11.5,
+                                                  fontWeight:
+                                                      FontWeight.w700))),
                                     ],
-                                    onChanged: (val) => setState(() => selectedTone = val ?? 'standard'),
+                                    onChanged: (val) => setState(
+                                        () => selectedTone = val ?? 'standard'),
                                   ),
                                 ),
                               ),
@@ -853,7 +1047,9 @@ class ShowroomListingModal {
                       subtitle: isFinanceUnlocked
                           ? context.tr('installments_toggle_desc_unlocked')
                           : context.tr('installments_toggle_desc_locked'),
-                      icon: isFinanceUnlocked ? Icons.payments_rounded : Icons.lock_rounded,
+                      icon: isFinanceUnlocked
+                          ? Icons.payments_rounded
+                          : Icons.lock_rounded,
                       isActive: isFinanceUnlocked && allowsInstallments,
                       isLocked: !isFinanceUnlocked,
                       lockedBadgeText: context.tr('locked_lvl5_badge'),
@@ -868,7 +1064,8 @@ class ShowroomListingModal {
                           );
                           return;
                         }
-                        setState(() => allowsInstallments = !allowsInstallments);
+                        setState(
+                            () => allowsInstallments = !allowsInstallments);
                       },
                       isDark: isDark,
                     ),
@@ -881,7 +1078,8 @@ class ShowroomListingModal {
                       activeLabel: context.tr('hide_damages_active_badge'),
                       inactiveLabel: context.tr('hide_damages_inactive_badge'),
                       activeColor: AppColors.brutalOrange,
-                      onToggle: () => setState(() => hideDamagedPhotos = !hideDamagedPhotos),
+                      onToggle: () => setState(
+                          () => hideDamagedPhotos = !hideDamagedPhotos),
                       isDark: isDark,
                     ),
 
@@ -890,7 +1088,8 @@ class ShowroomListingModal {
                     // SECTION 4: STRATEGIC DECLARATION CARDS
                     Row(
                       children: [
-                        const Icon(Icons.gavel_rounded, size: 16, color: AppColors.brutalOrange),
+                        const Icon(Icons.gavel_rounded,
+                            size: 16, color: AppColors.brutalOrange),
                         const SizedBox(width: 6),
                         Text(
                           context.tr('listing_declaration_title'),
@@ -898,7 +1097,9 @@ class ShowroomListingModal {
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
-                            color: isDark ? AppColors.brutalOrange : const Color(0xFF0F172A),
+                            color: isDark
+                                ? AppColors.brutalOrange
+                                : const Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -911,8 +1112,10 @@ class ShowroomListingModal {
                       badgeText: context.tr('declaration_honest_badge'),
                       icon: Icons.verified_rounded,
                       accentColor: AppColors.brutalGreen,
-                      isSelected: selectedDeclaration == ListingDeclarationType.honest,
-                      onTap: () => setState(() => selectedDeclaration = ListingDeclarationType.honest),
+                      isSelected:
+                          selectedDeclaration == ListingDeclarationType.honest,
+                      onTap: () => setState(() =>
+                          selectedDeclaration = ListingDeclarationType.honest),
                       isDark: isDark,
                     ),
                     const SizedBox(height: 8),
@@ -922,8 +1125,10 @@ class ShowroomListingModal {
                       badgeText: context.tr('declaration_flawless_badge'),
                       icon: Icons.car_crash_rounded,
                       accentColor: AppColors.brutalOrange,
-                      isSelected: selectedDeclaration == ListingDeclarationType.flawlessClaim,
-                      onTap: () => setState(() => selectedDeclaration = ListingDeclarationType.flawlessClaim),
+                      isSelected: selectedDeclaration ==
+                          ListingDeclarationType.flawlessClaim,
+                      onTap: () => setState(() => selectedDeclaration =
+                          ListingDeclarationType.flawlessClaim),
                       isDark: isDark,
                     ),
                     const SizedBox(height: 8),
@@ -933,8 +1138,10 @@ class ShowroomListingModal {
                       badgeText: context.tr('declaration_tamper_badge'),
                       icon: Icons.speed_rounded,
                       accentColor: AppColors.errorRed,
-                      isSelected: selectedDeclaration == ListingDeclarationType.tamperedMileageClaim,
-                      onTap: () => setState(() => selectedDeclaration = ListingDeclarationType.tamperedMileageClaim),
+                      isSelected: selectedDeclaration ==
+                          ListingDeclarationType.tamperedMileageClaim,
+                      onTap: () => setState(() => selectedDeclaration =
+                          ListingDeclarationType.tamperedMileageClaim),
                       isDark: isDark,
                     ),
 
@@ -942,7 +1149,8 @@ class ShowroomListingModal {
                       const SizedBox(height: 18),
                       Row(
                         children: [
-                          const Icon(Icons.history_edu_rounded, size: 16, color: AppColors.brutalYellow),
+                          const Icon(Icons.history_edu_rounded,
+                              size: 16, color: AppColors.brutalYellow),
                           const SizedBox(width: 6),
                           Text(
                             context.tr('provenance_log_title'),
@@ -950,7 +1158,9 @@ class ShowroomListingModal {
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.5,
-                              color: isDark ? AppColors.brutalYellow : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? AppColors.brutalYellow
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                         ],
@@ -958,18 +1168,21 @@ class ShowroomListingModal {
                       const SizedBox(height: 8),
                       NeoBrutalCard(
                         padding: const EdgeInsets.all(12),
-                        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                        backgroundColor:
+                            isDark ? const Color(0xFF141721) : Colors.white,
                         borderColor: AppColors.brutalYellow,
                         borderRadius: 10,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: car.provenanceLog.map((log) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 3.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 3.0),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.check_circle_outline_rounded, size: 16, color: AppColors.brutalYellow),
+                                  const Icon(Icons.check_circle_outline_rounded,
+                                      size: 16, color: AppColors.brutalYellow),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -977,7 +1190,9 @@ class ShowroomListingModal {
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white70 : const Color(0xFF334155),
+                                        color: isDark
+                                            ? Colors.white70
+                                            : const Color(0xFF334155),
                                       ),
                                     ),
                                   ),
@@ -1005,12 +1220,17 @@ class ShowroomListingModal {
                               listingPhotoCount: selectedPhotoCount,
                               listingTone: selectedTone,
                               hideDamagedPhotos: hideDamagedPhotos,
-                              allowsInstallments: ref.read(gameProvider).isFeatureUnlocked('/finance') ? allowsInstallments : false,
+                              allowsInstallments: ref
+                                      .read(gameProvider)
+                                      .isFeatureUnlocked('/finance')
+                                  ? allowsInstallments
+                                  : false,
                             );
                         Navigator.pop(context);
                         NotificationService.showSuccess(
                           context,
-                          context.tr('listing_updated_toast', {'car': '${car.brand} ${car.modelName}'}),
+                          context.tr('listing_updated_toast',
+                              {'car': '${car.brand} ${car.modelName}'}),
                         );
                       },
                     ),
@@ -1080,14 +1300,17 @@ class ShowroomListingModal {
           : (isDark ? const Color(0xFF2A3142) : Colors.grey.shade400),
       borderWidth: isSelected ? 2.2 : 1.4,
       borderRadius: 10,
-      shadowOffset: isSelected ? const Offset(3.0, 3.0) : const Offset(2.0, 2.0),
+      shadowOffset:
+          isSelected ? const Offset(3.0, 3.0) : const Offset(2.0, 2.0),
       onTap: onTap,
       child: Column(
         children: [
           Icon(
             icon,
             size: 22,
-            color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
+            color: isSelected
+                ? Colors.black
+                : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
           ),
           const SizedBox(height: 4),
           Text(
@@ -1096,7 +1319,9 @@ class ShowroomListingModal {
             style: TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w900,
-              color: isSelected ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
+              color: isSelected
+                  ? Colors.black
+                  : (isDark ? Colors.white : const Color(0xFF0F172A)),
             ),
           ),
           const SizedBox(height: 2),
@@ -1106,7 +1331,9 @@ class ShowroomListingModal {
             style: TextStyle(
               fontSize: 9.5,
               fontWeight: FontWeight.w700,
-              color: isSelected ? Colors.black87 : (isDark ? Colors.grey : Colors.grey.shade600),
+              color: isSelected
+                  ? Colors.black87
+                  : (isDark ? Colors.grey : Colors.grey.shade600),
             ),
           ),
         ],
@@ -1129,7 +1356,9 @@ class ShowroomListingModal {
   }) {
     final borderColor = isLocked
         ? (isDark ? const Color(0xFF2A3142) : Colors.grey.shade400)
-        : (isActive ? activeColor : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)));
+        : (isActive
+            ? activeColor
+            : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)));
 
     final badgeText = isLocked
         ? (lockedBadgeText ?? 'KİLİTLİ')
@@ -1137,11 +1366,15 @@ class ShowroomListingModal {
 
     final badgeBgColor = isLocked
         ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-        : (isActive ? activeColor : (isDark ? const Color(0xFF262C3D) : const Color(0xFFCBD5E1)));
+        : (isActive
+            ? activeColor
+            : (isDark ? const Color(0xFF262C3D) : const Color(0xFFCBD5E1)));
 
     final badgeTextColor = isLocked
         ? const Color(0xFF94A3B8)
-        : (isActive ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)));
+        : (isActive
+            ? Colors.black
+            : (isDark ? Colors.white70 : const Color(0xFF475569)));
 
     return NeoBrutalCard(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1158,10 +1391,15 @@ class ShowroomListingModal {
             decoration: BoxDecoration(
               color: isLocked
                   ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                  : (isActive ? activeColor : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9))),
+                  : (isActive
+                      ? activeColor
+                      : (isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFF1F5F9))),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 1.5,
               ),
             ),
@@ -1170,7 +1408,9 @@ class ShowroomListingModal {
               size: 18,
               color: isLocked
                   ? const Color(0xFF94A3B8)
-                  : (isActive ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B))),
+                  : (isActive
+                      ? Colors.black
+                      : (isDark ? Colors.white70 : const Color(0xFF64748B))),
             ),
           ),
           const SizedBox(width: 10),
@@ -1194,7 +1434,9 @@ class ShowroomListingModal {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -1228,10 +1470,13 @@ class ShowroomListingModal {
       backgroundColor: isSelected
           ? accentColor.withValues(alpha: isDark ? 0.20 : 0.12)
           : (isDark ? const Color(0xFF141721) : Colors.white),
-      borderColor: isSelected ? accentColor : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+      borderColor: isSelected
+          ? accentColor
+          : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
       borderWidth: isSelected ? 2.5 : 1.5,
       borderRadius: 12,
-      shadowOffset: isSelected ? const Offset(3.5, 3.5) : const Offset(2.0, 2.0),
+      shadowOffset:
+          isSelected ? const Offset(3.5, 3.5) : const Offset(2.0, 2.0),
       onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1239,17 +1484,24 @@ class ShowroomListingModal {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isSelected ? accentColor : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
+              color: isSelected
+                  ? accentColor
+                  : (isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFF1F5F9)),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 1.5,
               ),
             ),
             child: Icon(
               isSelected ? Icons.check_circle_rounded : icon,
               size: 20,
-              color: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+              color: isSelected
+                  ? Colors.black
+                  : (isDark ? Colors.white70 : const Color(0xFF64748B)),
             ),
           ),
           const SizedBox(width: 10),
@@ -1260,18 +1512,25 @@ class ShowroomListingModal {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       title,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
                         color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
-                    ),
+                    )),
                     NeoBrutalBadge(
                       text: badgeText,
-                      backgroundColor: isSelected ? accentColor : (isDark ? const Color(0xFF262C3D) : const Color(0xFFE2E8F0)),
-                      textColor: isSelected ? Colors.black : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                      backgroundColor: isSelected
+                          ? accentColor
+                          : (isDark
+                              ? const Color(0xFF262C3D)
+                              : const Color(0xFFE2E8F0)),
+                      textColor: isSelected
+                          ? Colors.black
+                          : (isDark ? Colors.white70 : const Color(0xFF475569)),
                       fontSize: 9.5,
                     ),
                   ],
@@ -1282,7 +1541,9 @@ class ShowroomListingModal {
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -1304,11 +1565,16 @@ class ShowroomListingModal {
   }) {
     return NeoBrutalCard(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-      backgroundColor: isSelected ? activeColor : (isDark ? const Color(0xFF141721) : Colors.white),
-      borderColor: isSelected ? Colors.black : (isDark ? const Color(0xFF2A3142) : Colors.grey.shade400),
+      backgroundColor: isSelected
+          ? activeColor
+          : (isDark ? const Color(0xFF141721) : Colors.white),
+      borderColor: isSelected
+          ? Colors.black
+          : (isDark ? const Color(0xFF2A3142) : Colors.grey.shade400),
       borderWidth: isSelected ? 2.0 : 1.2,
       borderRadius: 10,
-      shadowOffset: isSelected ? const Offset(2.5, 2.5) : const Offset(1.5, 1.5),
+      shadowOffset:
+          isSelected ? const Offset(2.5, 2.5) : const Offset(1.5, 1.5),
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1318,7 +1584,9 @@ class ShowroomListingModal {
               Icon(
                 icon,
                 size: 13,
-                color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                color: isSelected
+                    ? Colors.black
+                    : (isDark ? Colors.white : Colors.black),
               ),
               const SizedBox(width: 5),
               Text(
@@ -1326,7 +1594,9 @@ class ShowroomListingModal {
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w900,
-                  color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                  color: isSelected
+                      ? Colors.black
+                      : (isDark ? Colors.white : Colors.black),
                 ),
               ),
             ],
@@ -1337,7 +1607,9 @@ class ShowroomListingModal {
             style: TextStyle(
               fontSize: 9.5,
               fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.black87 : (isDark ? Colors.grey : Colors.grey.shade600),
+              color: isSelected
+                  ? Colors.black87
+                  : (isDark ? Colors.grey : Colors.grey.shade600),
             ),
           ),
         ],

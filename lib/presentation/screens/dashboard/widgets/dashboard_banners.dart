@@ -71,7 +71,9 @@ class DashboardProfileBanner extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -94,7 +96,8 @@ class DashboardProfileBanner extends StatelessWidget {
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
                           fontStyle: FontStyle.italic,
-                          color: DealershipLogoBadge.getBackgroundColor(game.logoBadgeColor),
+                          color: DealershipLogoBadge.getBackgroundColor(
+                              game.logoBadgeColor),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -106,7 +109,9 @@ class DashboardProfileBanner extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -117,7 +122,9 @@ class DashboardProfileBanner extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   Icons.settings_rounded,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
                   size: 22,
                 ),
                 onPressed: () => context.push('/settings'),
@@ -134,19 +141,26 @@ class DashboardProfileBanner extends StatelessWidget {
                   progress: xpProgress,
                   height: 12,
                   fillColor: palette.primaryColor,
-                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
-                  borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFE2E8F0),
+                  borderColor: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   borderWidth: 1.4,
                   borderRadius: 6,
                 ),
               ),
               const SizedBox(width: 10),
               Text(
-                context.tr('next_level_xp', {'level': game.level + 1, 'xp': remainingXp}),
+                context.tr('next_level_xp',
+                    {'level': game.level + 1, 'xp': remainingXp}),
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w900,
-                  color: isDark ? const Color(0xFFFFDE59) : const Color(0xFFD97706),
+                  color: isDark
+                      ? const Color(0xFFFFDE59)
+                      : const Color(0xFFD97706),
                 ),
               ),
             ],
@@ -173,7 +187,15 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
     final isDark = palette.isDark;
     final lang = Localizations.localeOf(context).languageCode;
     final event = WeeklyEventEngine.getEventForDay(game.currentDay);
-    final dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+    final dayNames = [
+      'Pazartesi',
+      'Salı',
+      'Çarşamba',
+      'Perşembe',
+      'Cuma',
+      'Cumartesi',
+      'Pazar'
+    ];
     final dayName = dayNames[(event.dayOfWeek - 1).clamp(0, 6)];
     final IconData icon = event.dayOfWeek == 1
         ? Icons.credit_card_rounded
@@ -192,7 +214,8 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
     return NeoBrutalCard(
       onTap: () => DailyBulletinDialog.show(context),
       padding: const EdgeInsets.all(12),
-      backgroundColor: isDark ? const Color(0xFF191D2B) : const Color(0xFFEFF6FF),
+      backgroundColor:
+          isDark ? const Color(0xFF191D2B) : const Color(0xFFEFF6FF),
       borderColor: const Color(0xFF3B82F6),
       borderRadius: 12,
       borderWidth: 2.0,
@@ -229,7 +252,9 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -249,7 +274,9 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                    color: isDark
+                        ? const Color(0xFFCBD5E1)
+                        : const Color(0xFF475569),
                   ),
                 ),
               ],
@@ -315,7 +342,8 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
               color: const Color(0xFFFFDE59),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
                 width: 2.0,
               ),
             ),
@@ -347,7 +375,8 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 3),
-                        const Icon(Icons.arrow_forward_rounded, size: 13, color: Colors.black),
+                        const Icon(Icons.arrow_forward_rounded,
+                            size: 13, color: Colors.black),
                       ],
                     ),
                   ],
@@ -400,14 +429,24 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
     IconData adviceIcon;
     VoidCallback onAdviceTap;
 
-    final dirtyCars = game.ownedCars.where((c) => !c.isWashed || !c.isPolished).toList();
-    final damagedCars = game.ownedCars.where((c) => c.expertise.engineCondition < 80 || c.expertise.transmissionCondition < 80 || c.expertise.bodyParts.values.any((s) => s == PartStatus.damaged)).toList();
+    final dirtyCars =
+        game.ownedCars.where((c) => !c.isWashed || !c.isPolished).toList();
+    final damagedCars = game.ownedCars
+        .where((c) =>
+            c.expertise.engineCondition < 80 ||
+            c.expertise.transmissionCondition < 80 ||
+            c.expertise.bodyParts.values.any((s) => s == PartStatus.damaged))
+        .toList();
     final unlistedCars = game.ownedCars.where((c) => !c.isListed).toList();
-    final carsWithOffers = game.ownedCars.where((c) => game.incomingOffers.any((o) => o.carId == c.id && !o.isExpired)).toList();
+    final carsWithOffers = game.ownedCars
+        .where((c) =>
+            game.incomingOffers.any((o) => o.carId == c.id && !o.isExpired))
+        .toList();
 
     if (carsWithOffers.isNotEmpty) {
       adviceTitle = context.tr('advisor_offers_title');
-      adviceSubtitle = context.tr('advisor_offers_sub', {'count': carsWithOffers.length});
+      adviceSubtitle =
+          context.tr('advisor_offers_sub', {'count': carsWithOffers.length});
       adviceIcon = Icons.handshake_rounded;
       onAdviceTap = onGoToShowroom;
     } else if (game.ownedCars.isEmpty) {
@@ -417,7 +456,8 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
       onAdviceTap = () => context.push('/marketplace');
     } else if (dirtyCars.isNotEmpty) {
       if (game.isFeatureUnlocked('/car-wash')) {
-        adviceTitle = context.tr('advisor_dirty_title', {'count': dirtyCars.length});
+        adviceTitle =
+            context.tr('advisor_dirty_title', {'count': dirtyCars.length});
         adviceSubtitle = context.tr('advisor_dirty_sub');
         adviceIcon = Icons.local_car_wash_rounded;
         onAdviceTap = () => context.push('/car-wash');
@@ -430,7 +470,8 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
     } else if (damagedCars.isNotEmpty) {
       if (game.isFeatureUnlocked('/workshop')) {
         adviceTitle = context.tr('advisor_damaged_title');
-        adviceSubtitle = context.tr('advisor_damaged_sub', {'count': damagedCars.length});
+        adviceSubtitle =
+            context.tr('advisor_damaged_sub', {'count': damagedCars.length});
         adviceIcon = Icons.build_circle_rounded;
         onAdviceTap = () => context.push('/workshop');
       } else {
@@ -440,7 +481,8 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
         onAdviceTap = () => context.push('/branches');
       }
     } else if (unlistedCars.isNotEmpty) {
-      adviceTitle = context.tr('advisor_unlisted_title', {'count': unlistedCars.length});
+      adviceTitle =
+          context.tr('advisor_unlisted_title', {'count': unlistedCars.length});
       adviceSubtitle = context.tr('advisor_unlisted_sub');
       adviceIcon = Icons.storefront_rounded;
       onAdviceTap = onGoToShowroom;
@@ -454,7 +496,8 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
     return NeoBrutalCard(
       onTap: onAdviceTap,
       padding: const EdgeInsets.all(12),
-      backgroundColor: isDark ? const Color(0xFF19231D) : const Color(0xFFECFDF5),
+      backgroundColor:
+          isDark ? const Color(0xFF19231D) : const Color(0xFFECFDF5),
       borderColor: const Color(0xFF10B981),
       borderRadius: 12,
       child: Row(
@@ -493,7 +536,8 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 3),
-                        const Icon(Icons.arrow_forward_rounded, size: 13, color: Color(0xFF10B981)),
+                        const Icon(Icons.arrow_forward_rounded,
+                            size: 13, color: Color(0xFF10B981)),
                       ],
                     ),
                   ],
@@ -513,7 +557,9 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                    color: isDark
+                        ? const Color(0xFFCBD5E1)
+                        : const Color(0xFF475569),
                   ),
                 ),
               ],
@@ -543,7 +589,8 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
       0.0,
       (sum, c) => sum + c.estimatedRealValue,
     );
-    final totalAssets = game.balance + game.bankDepositBalance + totalOwnedValue;
+    final totalAssets =
+        game.balance + game.bankDepositBalance + totalOwnedValue;
     final canClaimBailout = totalAssets <= 15000;
 
     final bool canWorkGig = game.lastScrapyardGigDate == null ||
@@ -551,7 +598,8 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(12),
-      backgroundColor: isDark ? const Color(0xFF261818) : const Color(0xFFFEF2F2),
+      backgroundColor:
+          isDark ? const Color(0xFF261818) : const Color(0xFFFEF2F2),
       borderColor: const Color(0xFFEF4444),
       borderRadius: 12,
       borderWidth: 2.0,
@@ -560,7 +608,8 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 22),
+              const Icon(Icons.warning_amber_rounded,
+                  color: Color(0xFFEF4444), size: 22),
               const SizedBox(width: 8),
               Text(
                 context.tr('emergency_title'),
@@ -574,7 +623,8 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            context.tr('emergency_desc', {'balance': CurrencyFormatter.formatShort(game.balance)}),
+            context.tr('emergency_desc',
+                {'balance': CurrencyFormatter.formatShort(game.balance)}),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -587,25 +637,39 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
               // 1. Scrapyard Gig
               Expanded(
                 child: NeoBrutalButton(
-                  label: canWorkGig ? context.tr('scrapyard_gig_btn') : context.tr('scrapyard_gig_done'),
-                  icon: canWorkGig ? Icons.handyman_rounded : Icons.check_circle_rounded,
+                  label: canWorkGig
+                      ? context.tr('scrapyard_gig_btn')
+                      : context.tr('scrapyard_gig_done'),
+                  icon: canWorkGig
+                      ? Icons.handyman_rounded
+                      : Icons.check_circle_rounded,
                   backgroundColor: canWorkGig
                       ? const Color(0xFFFFDE59)
-                      : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
-                  textColor: canWorkGig ? Colors.black : (isDark ? Colors.white54 : Colors.black54),
+                      : (isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0)),
+                  textColor: canWorkGig
+                      ? Colors.black
+                      : (isDark ? Colors.white54 : Colors.black54),
                   fontSize: 10.5,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   onPressed: canWorkGig
                       ? () {
-                          final success = ref.read(gameProvider.notifier).workScrapyardSideGig();
+                          final success = ref
+                              .read(gameProvider.notifier)
+                              .workScrapyardSideGig();
                           if (success) {
-                            FloatingMoneyOverlay.of(context)?.showMoneyPopUp(5000, label: 'Çıraklık Yevmiyesi!');
+                            FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                                5000,
+                                label: 'Çıraklık Yevmiyesi!');
                             NotificationService.showSuccess(
                               context,
                               'Hurdalıkta akşama kadar çıraklık yaptın. ₺5.000 yevmiye kasana girdi!',
                             );
                           } else {
-                            NotificationService.showWarning(context, 'Bugün zaten çıraklık yaptın! Yarın tekrar gel.');
+                            NotificationService.showWarning(context,
+                                'Bugün zaten çıraklık yaptın! Yarın tekrar gel.');
                           }
                         }
                       : null,
@@ -621,17 +685,22 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
                     backgroundColor: const Color(0xFF00E575),
                     textColor: Colors.black,
                     fontSize: 10.5,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     onPressed: () {
-                      final success = ref.read(gameProvider.notifier).claimEmergencyBailout();
+                      final success = ref
+                          .read(gameProvider.notifier)
+                          .claimEmergencyBailout();
                       if (success) {
-                        FloatingMoneyOverlay.of(context)?.showMoneyPopUp(50000, label: 'Can Suyu Mirası!');
+                        FloatingMoneyOverlay.of(context)
+                            ?.showMoneyPopUp(50000, label: 'Can Suyu Mirası!');
                         NotificationService.showSuccess(
                           context,
                           'Aile büyüklerinden gelen ₺50.000 can suyu desteği kasana eklendi!',
                         );
                       } else {
-                        NotificationService.showWarning(context, 'Mevcut varlıkların ₺15.000 üzerinde olduğu için can suyu onaylanmadı.');
+                        NotificationService.showWarning(context,
+                            'Mevcut varlıkların ₺15.000 üzerinde olduğu için can suyu onaylanmadı.');
                       }
                     },
                   ),
@@ -669,10 +738,12 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
         // 1. Rivals Leaderboard
         Expanded(
           child: NeoBrutalCard(
-            onTap: () => DashboardRetentionModals.showRivalLeaderboardModal(context, game),
+            onTap: () => DashboardRetentionModals.showRivalLeaderboardModal(
+                context, game),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 10,
             child: Row(
               children: [
@@ -682,7 +753,8 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                     color: const Color(0xFFFFDE59),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Icon(Icons.leaderboard_rounded, color: Colors.black, size: 18),
+                  child: const Icon(Icons.leaderboard_rounded,
+                      color: Colors.black, size: 18),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -694,14 +766,17 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
                         context.tr('rivals_count', {'count': 5}),
                         style: TextStyle(
                           fontSize: 10,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -719,7 +794,8 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
             onTap: () => context.push('/album'),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 10,
             child: Row(
               children: [
@@ -729,7 +805,8 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                     color: const Color(0xFFA855F7),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Icon(Icons.auto_stories_rounded, color: Colors.white, size: 18),
+                  child: const Icon(Icons.auto_stories_rounded,
+                      color: Colors.white, size: 18),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -741,7 +818,8 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
@@ -765,7 +843,8 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: NeoBrutalCard(
-              onTap: () => DashboardRetentionModals.showPrestigeModal(context, game, ref),
+              onTap: () => DashboardRetentionModals.showPrestigeModal(
+                  context, game, ref),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               backgroundColor: const Color(0xFFFFDE59),
               borderColor: Colors.black,
@@ -778,7 +857,8 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Icon(Icons.stars_rounded, color: Color(0xFFFFDE59), size: 18),
+                    child: const Icon(Icons.stars_rounded,
+                        color: Color(0xFFFFDE59), size: 18),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -787,11 +867,17 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                       children: [
                         Text(
                           context.tr('prestige_transfer'),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black),
                         ),
                         Text(
                           context.tr('prestige_new_season'),
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+                          style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87),
                         ),
                       ],
                     ),
@@ -820,7 +906,9 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
     final now = DateTime.now();
     if (game.lastRewardClaimDate != null) {
       final lastClaim = game.lastRewardClaimDate!;
-      if (lastClaim.year == now.year && lastClaim.month == now.month && lastClaim.day == now.day) {
+      if (lastClaim.year == now.year &&
+          lastClaim.month == now.month &&
+          lastClaim.day == now.day) {
         return const SizedBox.shrink();
       }
     }
@@ -852,7 +940,8 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.tr('daily_streak_title', {'count': game.loginStreak}),
+                    context
+                        .tr('daily_streak_title', {'count': game.loginStreak}),
                     style: const TextStyle(
                       color: Color(0xFF0F172A),
                       fontSize: 13.5,
@@ -881,8 +970,10 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
               fontSize: 11.5,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               onPressed: () {
-                final reward = ref.read(gameProvider.notifier).claimDailyStreak();
-                FloatingMoneyOverlay.of(context)?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
+                final reward =
+                    ref.read(gameProvider.notifier).claimDailyStreak();
+                FloatingMoneyOverlay.of(context)
+                    ?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
                 NotificationService.showSuccess(
                   context,
                   '${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!',
@@ -910,10 +1001,11 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = palette.isDark;
-    final dailyPassiveIncome = game.sideBusinesses.where((b) => b.isOwned).fold<double>(
-      0.0,
-      (sum, b) => sum + b.grossDailyIncome,
-    );
+    final dailyPassiveIncome =
+        game.sideBusinesses.where((b) => b.isOwned).fold<double>(
+              0.0,
+              (sum, b) => sum + b.grossDailyIncome,
+            );
     final dailySalaries = game.hiredStaff.fold<double>(
       0.0,
       (sum, s) => sum + (s.dailySalary),
@@ -944,7 +1036,9 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
                   Icon(
                     Icons.account_balance_wallet_rounded,
                     size: 16,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF475569),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -964,14 +1058,18 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
-                      color: netDailyFlow >= 0 ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                      color: netDailyFlow >= 0
+                          ? const Color(0xFF00E575)
+                          : const Color(0xFFEF4444),
                     ),
                   ),
                   const SizedBox(width: 4),
                   Icon(
                     Icons.chevron_right_rounded,
                     size: 16,
-                    color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                    color: isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8),
                   ),
                 ],
               ),
@@ -981,22 +1079,37 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                context.tr('side_incomes', {'amount': CurrencyFormatter.formatShort(dailyPassiveIncome)}),
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF00E575)),
-              ),
-              Text(
-                context.tr('salaries', {'amount': CurrencyFormatter.formatShort(dailySalaries)}),
+              Expanded(
+                  child: Text(
+                context.tr('side_incomes', {
+                  'amount': CurrencyFormatter.formatShort(dailyPassiveIncome)
+                }),
+                style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF00E575)),
+              )),
+              Expanded(
+                  child: Text(
+                context.tr('salaries',
+                    {'amount': CurrencyFormatter.formatShort(dailySalaries)}),
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
                 ),
-              ),
+              )),
               if (dailyLoanPayment > 0)
                 Text(
-                  context.tr('loans', {'amount': CurrencyFormatter.formatShort(dailyLoanPayment)}),
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                  context.tr('loans', {
+                    'amount': CurrencyFormatter.formatShort(dailyLoanPayment)
+                  }),
+                  style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFEF4444)),
                 ),
             ],
           ),

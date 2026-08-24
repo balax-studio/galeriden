@@ -14,7 +14,8 @@ class ScratchCardModal extends ConsumerStatefulWidget {
   ConsumerState<ScratchCardModal> createState() => _ScratchCardModalState();
 }
 
-class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with SingleTickerProviderStateMixin {
+class _ScratchCardModalState extends ConsumerState<ScratchCardModal>
+    with SingleTickerProviderStateMixin {
   double _selectedCost = 25000.0;
   bool _hasActiveCard = false;
   ScratchCardResult? _currentCard;
@@ -51,7 +52,9 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
       return;
     }
 
-    final result = ref.read(gameProvider.notifier).buyAndScratchCard(cardCost: _selectedCost);
+    final result = ref
+        .read(gameProvider.notifier)
+        .buyAndScratchCard(cardCost: _selectedCost);
     if (result == null) return;
 
     HapticFeedback.heavyImpact();
@@ -106,7 +109,8 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFF0F172A), width: 3.5),
           boxShadow: const [
-            BoxShadow(color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
+            BoxShadow(
+                color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
           ],
         ),
         child: Column(
@@ -117,16 +121,21 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
               decoration: const BoxDecoration(
                 color: Color(0xFFEC4899),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                border: Border(bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
+                border: Border(
+                    bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.touch_app_rounded, color: Colors.white, size: 22),
+                  const Icon(Icons.touch_app_rounded,
+                      color: Colors.white, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.tr('casino_scratch_title'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.white),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Colors.white),
                     ),
                   ),
                   GestureDetector(
@@ -138,7 +147,8 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(color: Colors.black, width: 1.5),
                       ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                      child: const Icon(Icons.close_rounded,
+                          color: Colors.white, size: 18),
                     ),
                   ),
                 ],
@@ -156,16 +166,21 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
                     decoration: BoxDecoration(
                       color: const Color(0xFF0A0F1D),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFEC4899), width: 2.5),
+                      border: Border.all(
+                          color: const Color(0xFFEC4899), width: 2.5),
                       boxShadow: const [
-                        BoxShadow(color: Colors.black, offset: Offset(4, 4), blurRadius: 0),
+                        BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(4, 4),
+                            blurRadius: 0),
                       ],
                     ),
                     child: _hasActiveCard && _currentCard != null
                         ? GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
                               mainAxisSpacing: 10,
                               crossAxisSpacing: 10,
@@ -174,27 +189,36 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
                             itemCount: 9,
                             itemBuilder: (context, index) {
                               final spot = _currentCard!.grid[index];
-                              final isScratched = _scratchedIndices.contains(index);
+                              final isScratched =
+                                  _scratchedIndices.contains(index);
 
                               return GestureDetector(
                                 onTap: () => _scratchSpot(index),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
                                   decoration: BoxDecoration(
-                                    color: isScratched ? const Color(0xFFFFFBEB) : const Color(0xFF334155),
+                                    color: isScratched
+                                        ? const Color(0xFFFFFBEB)
+                                        : const Color(0xFF334155),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: isScratched ? const Color(0xFFFFDE59) : const Color(0xFF94A3B8),
+                                      color: isScratched
+                                          ? const Color(0xFFFFDE59)
+                                          : const Color(0xFF94A3B8),
                                       width: 2.5,
                                     ),
                                     boxShadow: const [
-                                      BoxShadow(color: Colors.black54, offset: Offset(2, 2), blurRadius: 0),
+                                      BoxShadow(
+                                          color: Colors.black54,
+                                          offset: Offset(2, 2),
+                                          blurRadius: 0),
                                     ],
                                   ),
                                   child: isScratched
                                       ? Center(
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               _buildSymbolIcon(spot.symbol),
                                               const SizedBox(height: 3),
@@ -238,7 +262,10 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
                             child: Center(
                               child: Text(
                                 context.tr('scratch_buy_card_prompt'),
-                                style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w900, fontSize: 13),
+                                style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 13),
                               ),
                             ),
                           ),
@@ -248,30 +275,43 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
 
                   if (_hasActiveCard && isComplete && _currentCard != null) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: _currentCard!.isWin ? AppColors.brutalGreen : AppColors.brutalRed,
+                        color: _currentCard!.isWin
+                            ? AppColors.brutalGreen
+                            : AppColors.brutalRed,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFF0F172A), width: 2),
+                        border: Border.all(
+                            color: const Color(0xFF0F172A), width: 2),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _currentCard!.isWin ? Icons.emoji_events_rounded : Icons.cancel_rounded,
-                            color: _currentCard!.isWin ? Colors.black : Colors.white,
+                            _currentCard!.isWin
+                                ? Icons.emoji_events_rounded
+                                : Icons.cancel_rounded,
+                            color: _currentCard!.isWin
+                                ? Colors.black
+                                : Colors.white,
                             size: 18,
                           ),
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
                               _currentCard!.isWin
-                                  ? context.tr('casino_win_banner', {'amount': _formatCurrency(_currentCard!.payoutAmount)})
+                                  ? context.tr('casino_win_banner', {
+                                      'amount': _formatCurrency(
+                                          _currentCard!.payoutAmount)
+                                    })
                                   : context.tr('casino_loss_banner'),
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 13,
-                                color: _currentCard!.isWin ? Colors.black : Colors.white,
+                                color: _currentCard!.isWin
+                                    ? Colors.black
+                                    : Colors.white,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -286,7 +326,8 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
                     // Cost Selector
                     Text(
                       context.tr('casino_bet_amount_label'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 12),
                     ),
                     const SizedBox(height: 6),
                     SingleChildScrollView(
@@ -302,18 +343,29 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
                                 setState(() => _selectedCost = cost);
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: isSel ? AppColors.brutalYellow : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                                  color: isSel
+                                      ? AppColors.brutalYellow
+                                      : (isDark
+                                          ? const Color(0xFF1E293B)
+                                          : const Color(0xFFF1F5F9)),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                                  border: Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 1.5),
                                 ),
                                 child: Text(
                                   _formatCurrency(cost),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w900,
-                                    color: isSel ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                                    color: isSel
+                                        ? Colors.black
+                                        : (isDark
+                                            ? Colors.white70
+                                            : Colors.black87),
                                   ),
                                 ),
                               ),
@@ -325,7 +377,8 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
                     const SizedBox(height: 16),
 
                     NeoBrutalButton(
-                      label: context.tr('scratch_btn_buy_card', {'cost': _formatCurrency(_selectedCost)}),
+                      label: context.tr('scratch_btn_buy_card',
+                          {'cost': _formatCurrency(_selectedCost)}),
                       icon: Icons.shopping_cart_rounded,
                       backgroundColor: const Color(0xFFEC4899),
                       textColor: Colors.white,
@@ -359,18 +412,24 @@ class _ScratchCardModalState extends ConsumerState<ScratchCardModal> with Single
   Widget _buildSymbolIcon(String symbol) {
     switch (symbol) {
       case 'diamond':
-        return const Icon(Icons.diamond_rounded, color: Color(0xFF38BDF8), size: 26);
+        return const Icon(Icons.diamond_rounded,
+            color: Color(0xFF38BDF8), size: 26);
       case 'seven':
-        return const Icon(Icons.filter_7_rounded, color: Color(0xFFEF4444), size: 26);
+        return const Icon(Icons.filter_7_rounded,
+            color: Color(0xFFEF4444), size: 26);
       case 'crown':
-        return const Icon(Icons.military_tech_rounded, color: Color(0xFFFFDE59), size: 26);
+        return const Icon(Icons.military_tech_rounded,
+            color: Color(0xFFFFDE59), size: 26);
       case 'bell':
-        return const Icon(Icons.notifications_active_rounded, color: Color(0xFFFF7A00), size: 26);
+        return const Icon(Icons.notifications_active_rounded,
+            color: Color(0xFFFF7A00), size: 26);
       case 'coin':
-        return const Icon(Icons.monetization_on_rounded, color: Color(0xFF00E575), size: 26);
+        return const Icon(Icons.monetization_on_rounded,
+            color: Color(0xFF00E575), size: 26);
       case 'bar':
       default:
-        return const Icon(Icons.view_headline_rounded, color: Color(0xFFA855F7), size: 26);
+        return const Icon(Icons.view_headline_rounded,
+            color: Color(0xFFA855F7), size: 26);
     }
   }
 

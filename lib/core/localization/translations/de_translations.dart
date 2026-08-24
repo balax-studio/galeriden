@@ -2776,5 +2776,16 @@ const Map<String, String> deTranslations = {
     'mission_consignment_desc': 'Nimm {count} Kommissionsfahrzeuge in deinen Showroom auf.',
     'mission_side_biz_title': 'Nebengeschäft Einnahmen',
     'mission_side_biz_desc': 'Erweitere deine Nebengeschäfte oder sammle Tageseinnahmen.',
+
+    'event_muddy_rain_title': 'SCHLAMMIGER REGEN',
+    'event_muddy_rain_desc': 'Über Nacht fiel schlammiger Regen und verschmutzte alle ausgestellten Fahrzeuge. Ihr Wert sank um 5%, sie müssen sofort gewaschen werden.',
+    'event_staff_resignation_title': 'PERSONAL KÜNDIGUNG',
+    'event_staff_resignation_desc': 'Wegen unbezahlter Gehälter hat {names} dein Autohaus verlassen und gekündigt.',
+    'event_salary_unpaid_loyal_title': 'GEHÄLTER UNBEZAHLT - LOYALITÄT',
+    'event_salary_unpaid_loyal_desc': 'Gehälter konnten nicht bezahlt werden. Die Moral von {names} sank auf Null, aber dank ihrer Loyalität haben sie nicht gekündigt. Loyalität und Moral gesunken.',
+    'event_salary_unpaid_title': 'GEHÄLTER UNBEZAHLT',
+    'event_salary_unpaid_desc': 'Aufgrund von Bargeldmangel konnten die Tagesgehälter nicht bezahlt werden. Die Moral und Loyalität des Personals haben einen schweren Schlag erlitten. -35 Moral, -20 Loyalität.',
+    'event_ok': 'Okay',
+    'badge_muddy': 'SCHLAMMIG',
 };
 

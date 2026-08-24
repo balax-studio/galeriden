@@ -52,7 +52,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
 
     if (!game.isFeatureUnlocked('/black-market')) {
       return Scaffold(
-        backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
         appBar: NeoBrutalAppBar(title: context.tr('bm_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/black-market',
@@ -63,7 +64,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
     }
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(title: context.tr('bm_screen_title')),
       body: Column(
         children: [
@@ -76,7 +78,9 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                 color: isDark ? const Color(0xFF141721) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
                 boxShadow: const [
@@ -92,12 +96,18 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                 indicator: BoxDecoration(
                   color: AppColors.brutalYellow,
                   borderRadius: BorderRadius.circular(9),
-                  border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                  border:
+                      Border.all(color: const Color(0xFF0F172A), width: 1.5),
                 ),
                 labelColor: Colors.black,
-                unselectedLabelColor: isDark ? Colors.white70 : const Color(0xFF64748B),
-                labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
-                unselectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                unselectedLabelColor:
+                    isDark ? Colors.white70 : const Color(0xFF64748B),
+                labelStyle: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5),
+                unselectedLabelStyle:
+                    const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
                 tabs: [
                   Tab(
                     child: Row(
@@ -160,9 +170,11 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                 decoration: BoxDecoration(
                   color: AppColors.errorRed,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF0F172A), width: 2.0),
+                  border:
+                      Border.all(color: const Color(0xFF0F172A), width: 2.0),
                 ),
-                child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+                child: const Icon(Icons.warning_amber_rounded,
+                    color: Colors.white, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -171,12 +183,18 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                   children: [
                     Text(
                       context.tr('bm_warning_banner_title'),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.errorRed),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.errorRed),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       context.tr('bm_warning_banner_desc'),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFEF4444)),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFEF4444)),
                     ),
                   ],
                 ),
@@ -190,18 +208,21 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
         NeoBrutalCard(
           padding: const EdgeInsets.all(12),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          borderColor:
+              isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 12,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.person_pin_rounded, color: AppColors.brutalYellow, size: 20),
+                  const Icon(Icons.person_pin_rounded,
+                      color: AppColors.brutalYellow, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     context.tr('bm_npc_status_label'),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -236,12 +257,16 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
           NeoBrutalCard(
             padding: const EdgeInsets.all(20),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Center(
               child: Text(
                 context.tr('bm_no_cars_available'),
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B)),
               ),
             ),
           )
@@ -255,8 +280,10 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isCleansed ? AppColors.brutalGreen : AppColors.errorRed,
+                backgroundColor:
+                    isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor:
+                    isCleansed ? AppColors.brutalGreen : AppColors.errorRed,
                 borderRadius: 14,
                 child: Stack(
                   children: [
@@ -264,7 +291,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                       const Positioned(
                         right: 4,
                         top: 4,
-                        child: FakeDocInkSpreadWidget(stampText: 'AKLANDI', size: 55),
+                        child: FakeDocInkSpreadWidget(
+                            stampText: 'AKLANDI', size: 55),
                       ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +306,9 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                                 children: [
                                   Text(
                                     '${car.modelYear} ${car.brand} ${car.modelName}',
-                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900),
                                   ),
                                 ],
                               ),
@@ -286,25 +316,37 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                             NeoBrutalBadge(
                               text: isCleansed
                                   ? context.tr('bm_police_risk_clean')
-                                  : context.tr('bm_police_risk_val', {'risk': '$displayRisk'}),
-                              backgroundColor: isCleansed ? AppColors.brutalGreen : AppColors.errorRed,
-                              textColor: isCleansed ? Colors.black : Colors.white,
+                                  : context.tr('bm_police_risk_val',
+                                      {'risk': '$displayRisk'}),
+                              backgroundColor: isCleansed
+                                  ? AppColors.brutalGreen
+                                  : AppColors.errorRed,
+                              textColor:
+                                  isCleansed ? Colors.black : Colors.white,
                               fontSize: 10,
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          context.tr('bm_seller_label', {'seller': car.sellerAlias}),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.brutalYellow),
+                          context.tr(
+                              'bm_seller_label', {'seller': car.sellerAlias}),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.brutalYellow),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          isCleansed ? context.tr('bm_clean_desc') : car.riskDescription,
+                          isCleansed
+                              ? context.tr('bm_clean_desc')
+                              : car.riskDescription,
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: isCleansed ? AppColors.brutalGreen : const Color(0xFFEF4444),
+                            color: isCleansed
+                                ? AppColors.brutalGreen
+                                : const Color(0xFFEF4444),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -328,12 +370,17 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                                     Text(
                                       CurrencyFormatter.formatShort(
                                         game.hasHighNpcTrust('golge_ibrahim')
-                                            ? (car.askingPrice * 0.85).roundToDouble()
+                                            ? (car.askingPrice * 0.85)
+                                                .roundToDouble()
                                             : car.askingPrice,
                                       ),
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.brutalGreen),
                                     ),
-                                    if (game.hasHighNpcTrust('golge_ibrahim')) ...[
+                                    if (game
+                                        .hasHighNpcTrust('golge_ibrahim')) ...[
                                       const SizedBox(width: 6),
                                       NeoBrutalBadge(
                                         text: context.tr('bm_shadow_discount'),
@@ -350,27 +397,39 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 NeoBrutalButton(
-                                  label: isScanned ? context.tr('bm_btn_scanned_stash') : context.tr('bm_btn_scan_stash'),
-                                  icon: isScanned ? Icons.check_circle_rounded : Icons.radar_rounded,
-                                  backgroundColor: isScanned ? const Color(0xFF1E293B) : const Color(0xFF6366F1),
-                                  textColor: isScanned ? Colors.white54 : Colors.white,
+                                  label: isScanned
+                                      ? context.tr('bm_btn_scanned_stash')
+                                      : context.tr('bm_btn_scan_stash'),
+                                  icon: isScanned
+                                      ? Icons.check_circle_rounded
+                                      : Icons.radar_rounded,
+                                  backgroundColor: isScanned
+                                      ? const Color(0xFF1E293B)
+                                      : const Color(0xFF6366F1),
+                                  textColor:
+                                      isScanned ? Colors.white54 : Colors.white,
                                   fontSize: 10,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
                                   onPressed: isScanned
                                       ? null
                                       : () {
                                           HiddenStashModal.show(
                                             context,
                                             car: car,
-                                            onInspectionCompleted: (stashFound, rewardCash, itemDesc) {
+                                            onInspectionCompleted: (stashFound,
+                                                rewardCash, itemDesc) {
                                               setState(() {
                                                 _scannedCarIds.add(car.id);
                                               });
                                               if (stashFound) {
-                                                ref.read(gameProvider.notifier).addMoney(rewardCash);
+                                                ref
+                                                    .read(gameProvider.notifier)
+                                                    .addMoney(rewardCash);
                                                 NotificationService.showSuccess(
                                                   context,
-                                                  context.tr('black_market_toast_stash_seized'),
+                                                  context.tr(
+                                                      'black_market_toast_stash_seized'),
                                                 );
                                               }
                                             },
@@ -385,18 +444,22 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                                     backgroundColor: const Color(0xFF10B981),
                                     textColor: Colors.black,
                                     fontSize: 10,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
                                     onPressed: () {
-                                      AdService.instance.showRewardedAdWithFallback(
+                                      AdService.instance
+                                          .showRewardedAdWithFallback(
                                         context: context,
-                                        customRewardTitle: 'Gölge Muhbir & Sahte Plaka Evrakı',
+                                        customRewardTitle:
+                                            'Gölge Muhbir & Sahte Plaka Evrakı',
                                         onRewardEarned: () {
                                           setState(() {
                                             _cleansedRiskCarIds.add(car.id);
                                           });
                                           NotificationService.showSuccess(
                                             context,
-                                            context.tr('black_market_toast_fake_plate'),
+                                            context.tr(
+                                                'black_market_toast_fake_plate'),
                                           );
                                         },
                                       );
@@ -410,15 +473,22 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                                   backgroundColor: AppColors.errorRed,
                                   textColor: Colors.white,
                                   fontSize: 11,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 8),
                                   onPressed: () {
-                                    if (game.ownedCars.length >= game.maxGarageSlots) {
-                                      NotificationService.showError(context, context.tr('black_market_toast_no_space'));
+                                    if (game.ownedCars.length >=
+                                        game.maxGarageSlots) {
+                                      NotificationService.showError(
+                                          context,
+                                          context.tr(
+                                              'black_market_toast_no_space'));
                                       return;
                                     }
-                                    final effectiveCost = game.hasHighNpcTrust('golge_ibrahim')
-                                        ? (car.askingPrice * 0.85).roundToDouble()
-                                        : car.askingPrice;
+                                    final effectiveCost =
+                                        game.hasHighNpcTrust('golge_ibrahim')
+                                            ? (car.askingPrice * 0.85)
+                                                .roundToDouble()
+                                            : car.askingPrice;
                                     if (game.balance < effectiveCost) {
                                       NotificationService.showError(
                                         context,
@@ -427,11 +497,14 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                                       return;
                                     }
 
-                                    final success = ref.read(gameProvider.notifier).buyBlackMarketCar(car.id);
+                                    final success = ref
+                                        .read(gameProvider.notifier)
+                                        .buyBlackMarketCar(car.id);
                                     if (success) {
                                       NotificationService.showSuccess(
                                         context,
-                                        context.tr('black_market_toast_car_bought'),
+                                        context.tr(
+                                            'black_market_toast_car_bought'),
                                       );
                                     }
                                   },
@@ -452,7 +525,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
   }
 
   /// Tab 2: Gizemli Liman Konteyneri (Gacha Unboxing)
-  Widget _buildMysteryContainerTab(BuildContext context, dynamic game, bool isDark) {
+  Widget _buildMysteryContainerTab(
+      BuildContext context, dynamic game, bool isDark) {
     final daysLeft = game.mysteryContainerDaysRemaining;
     final isAvailable = game.isMysteryContainerAvailable;
     final containerCost = BlackMarketContainerEngine.containerCost;
@@ -466,7 +540,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
         NeoBrutalCard(
           padding: const EdgeInsets.all(16),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isAvailable ? AppColors.brutalYellow : const Color(0xFF64748B),
+          borderColor:
+              isAvailable ? AppColors.brutalYellow : const Color(0xFF64748B),
           borderRadius: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -479,9 +554,12 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: isAvailable ? AppColors.brutalYellow : const Color(0xFF334155),
+                          color: isAvailable
+                              ? AppColors.brutalYellow
+                              : const Color(0xFF334155),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                          border: Border.all(
+                              color: const Color(0xFF0F172A), width: 1.5),
                         ),
                         child: Icon(
                           Icons.anchor_rounded,
@@ -492,15 +570,19 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                       const SizedBox(width: 10),
                       Text(
                         context.tr('bm_container_header_title'),
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w900),
                       ),
                     ],
                   ),
                   NeoBrutalBadge(
                     text: isAvailable
                         ? context.tr('bm_container_ready_badge')
-                        : context.tr('bm_container_locked_badge', {'days': '$daysLeft'}),
-                    backgroundColor: isAvailable ? AppColors.brutalGreen : const Color(0xFF334155),
+                        : context.tr(
+                            'bm_container_locked_badge', {'days': '$daysLeft'}),
+                    backgroundColor: isAvailable
+                        ? AppColors.brutalGreen
+                        : const Color(0xFF334155),
                     textColor: isAvailable ? Colors.black : Colors.white,
                     fontSize: 10,
                   ),
@@ -512,7 +594,9 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
                 ),
               ),
               const SizedBox(height: 14),
@@ -521,10 +605,14 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+                  color: isDark
+                      ? const Color(0xFF0C0E14)
+                      : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                    color: isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFFCBD5E1),
                     width: 1.5,
                   ),
                 ),
@@ -536,7 +624,10 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                       children: [
                         Text(
                           context.tr('bm_container_cost_label'),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B)),
                         ),
                         Text(
                           CurrencyFormatter.formatShort(containerCost),
@@ -553,16 +644,22 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                       children: [
                         Text(
                           context.tr('bm_container_cooldown_label'),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B)),
                         ),
                         Text(
                           isAvailable
                               ? context.tr('bm_container_ready_now')
-                              : context.tr('bm_container_days_left', {'days': '$daysLeft'}),
+                              : context.tr('bm_container_days_left',
+                                  {'days': '$daysLeft'}),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            color: isAvailable ? AppColors.brutalYellow : const Color(0xFFEF4444),
+                            color: isAvailable
+                                ? AppColors.brutalYellow
+                                : const Color(0xFFEF4444),
                           ),
                         ),
                       ],
@@ -578,22 +675,32 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                 child: NeoBrutalButton(
                   label: isAvailable
                       ? context.tr('bm_container_btn_purchase')
-                      : context.tr('bm_container_btn_waiting', {'days': '$daysLeft'}),
-                  icon: isAvailable ? Icons.lock_open_rounded : Icons.timer_rounded,
+                      : context.tr(
+                          'bm_container_btn_waiting', {'days': '$daysLeft'}),
+                  icon: isAvailable
+                      ? Icons.lock_open_rounded
+                      : Icons.timer_rounded,
                   backgroundColor: isAvailable
-                      ? (hasEnoughBalance ? AppColors.brutalYellow : const Color(0xFF475569))
+                      ? (hasEnoughBalance
+                          ? AppColors.brutalYellow
+                          : const Color(0xFF475569))
                       : const Color(0xFF1E293B),
-                  textColor: isAvailable ? (hasEnoughBalance ? Colors.black : Colors.white60) : Colors.white38,
+                  textColor: isAvailable
+                      ? (hasEnoughBalance ? Colors.black : Colors.white60)
+                      : Colors.white38,
                   fontSize: 12,
                   padding: const EdgeInsets.symmetric(vertical: 13),
                   onPressed: isAvailable && hasEnoughBalance
                       ? () {
                           if (game.ownedCars.length >= game.maxGarageSlots) {
-                            NotificationService.showError(context, context.tr('black_market_toast_no_space'));
+                            NotificationService.showError(context,
+                                context.tr('black_market_toast_no_space'));
                             return;
                           }
 
-                          final result = ref.read(gameProvider.notifier).buyMysteryContainer();
+                          final result = ref
+                              .read(gameProvider.notifier)
+                              .buyMysteryContainer();
                           if (result != null) {
                             MysteryContainerUnboxingModal.show(
                               context,
@@ -601,7 +708,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                               onClaim: () {
                                 NotificationService.showSuccess(
                                   context,
-                                  context.tr('bm_container_toast_bought', {'model': result.car.modelName}),
+                                  context.tr('bm_container_toast_bought',
+                                      {'model': result.car.modelName}),
                                 );
                               },
                             );
@@ -611,10 +719,12 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                           if (!isAvailable) {
                             NotificationService.showWarning(
                               context,
-                              context.tr('bm_container_toast_cooldown', {'days': '$daysLeft'}),
+                              context.tr('bm_container_toast_cooldown',
+                                  {'days': '$daysLeft'}),
                             );
                           } else if (!hasEnoughBalance) {
-                            NotificationService.showError(context, context.tr('err_insufficient_cash'));
+                            NotificationService.showError(
+                                context, context.tr('err_insufficient_cash'));
                           }
                         },
                 ),
@@ -710,7 +820,10 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
             ),
             child: Text(
               badge,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.black),
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black),
             ),
           ),
           const SizedBox(width: 10),
@@ -721,18 +834,22 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Expanded(
+                        child: Text(
                       title,
-                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
-                    ),
-                    Text(
+                      style: const TextStyle(
+                          fontSize: 12.5, fontWeight: FontWeight.w900),
+                    )),
+                    Expanded(
+                        child: Text(
                       priceRange,
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                        color:
+                            isDark ? Colors.white70 : const Color(0xFF0F172A),
                       ),
-                    ),
+                    )),
                   ],
                 ),
                 const SizedBox(height: 3),
@@ -741,7 +858,9 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
               ],

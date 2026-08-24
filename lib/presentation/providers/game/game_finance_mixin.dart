@@ -47,16 +47,22 @@ mixin GameFinanceMixin on GameBaseNotifier {
   }
 
   /// Take bank loan
-  bool takeBankLoan({required String bankName, required double amount, required int months}) {
+  bool takeBankLoan(
+      {required String bankName, required double amount, required int months}) {
     if (state.activeLoans.length >= 3) return false; // Max 3 active loans
-    if (amount <= 0 || amount > state.bankCreditLimit) return false; // Must be within approved credit limit
+    if (amount <= 0 || amount > state.bankCreditLimit)
+      return false; // Must be within approved credit limit
 
     final baseInterestRate = months == 3 ? 0.10 : (months == 6 ? 0.18 : 0.28);
     final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);
-    final eventDiscount = weeklyEvent.id == 'credit_ease_monday' ? weeklyEvent.discountMultiplier : 1.0;
+    final eventDiscount = weeklyEvent.id == 'credit_ease_monday'
+        ? weeklyEvent.discountMultiplier
+        : 1.0;
     final skillDiscount = 1.0 - state.skills.financeInterestDiscount;
-    final originDiscount = state.characterOrigin == CharacterOrigin.sehirliYatirimci ? 0.80 : 1.0;
-    final interestRate = baseInterestRate * eventDiscount * skillDiscount * originDiscount;
+    final originDiscount =
+        state.characterOrigin == CharacterOrigin.sehirliYatirimci ? 0.80 : 1.0;
+    final interestRate =
+        baseInterestRate * eventDiscount * skillDiscount * originDiscount;
     final totalRepayment = amount * (1.0 + interestRate);
     final monthlyPayment = totalRepayment / months;
 
@@ -117,7 +123,8 @@ mixin GameFinanceMixin on GameBaseNotifier {
     final cheque = state.activeCheques[index];
     if (cheque.isDefaulted || cheque.inLegalCollection) return false;
 
-    final double cashReceived = cheque.calculateFactoringCash(discountRate: discountRate);
+    final double cashReceived =
+        cheque.calculateFactoringCash(discountRate: discountRate);
 
     List<Cheque> updatedCheques = List<Cheque>.from(state.activeCheques);
     updatedCheques.removeAt(index);
@@ -160,13 +167,16 @@ mixin GameFinanceMixin on GameBaseNotifier {
 
   /// Settle all remaining installments of a contract early with cash discount
   bool settleInstallmentEarly(String contractId, {double discountRate = 0.05}) {
-    final index = state.activeInstallments.indexWhere((c) => c.id == contractId);
+    final index =
+        state.activeInstallments.indexWhere((c) => c.id == contractId);
     if (index == -1) return false;
 
     final contract = state.activeInstallments[index];
-    final double netCash = contract.calculateEarlySettlementCash(discountRate: discountRate);
+    final double netCash =
+        contract.calculateEarlySettlementCash(discountRate: discountRate);
 
-    List<InstallmentContract> updatedContracts = List<InstallmentContract>.from(state.activeInstallments);
+    List<InstallmentContract> updatedContracts =
+        List<InstallmentContract>.from(state.activeInstallments);
     updatedContracts.removeAt(index);
 
     state = state.copyWith(
@@ -181,16 +191,26 @@ mixin GameFinanceMixin on GameBaseNotifier {
 
   /// Calculate dealership current liquidity and solvency status
   LiquidityStatus calculateLiquidityStatus() {
-    final double carStockValue = state.ownedCars.fold(0.0, (sum, c) => sum + c.purchasePrice);
-    final double installmentReceivables = state.activeInstallments.fold(0.0, (sum, c) => sum + (c.totalAmount - c.paidAmount));
-    final double chequeReceivables = state.activeCheques.fold(0.0, (sum, c) => sum + c.amount);
+    final double carStockValue =
+        state.ownedCars.fold(0.0, (sum, c) => sum + c.purchasePrice);
+    final double installmentReceivables = state.activeInstallments
+        .fold(0.0, (sum, c) => sum + (c.totalAmount - c.paidAmount));
+    final double chequeReceivables =
+        state.activeCheques.fold(0.0, (sum, c) => sum + c.amount);
 
-    final double totalLiquidAssets = state.balance + state.bankDepositBalance + carStockValue + installmentReceivables + chequeReceivables;
-    final double totalLoanLiabilities = state.activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
+    final double totalLiquidAssets = state.balance +
+        state.bankDepositBalance +
+        carStockValue +
+        installmentReceivables +
+        chequeReceivables;
+    final double totalLoanLiabilities =
+        state.activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
     final double shortTermTax = state.dailyTaxRate * 30.0;
     final double totalShortTermDebts = totalLoanLiabilities + shortTermTax;
 
-    final double ratio = totalShortTermDebts <= 0 ? 10.0 : (totalLiquidAssets / totalShortTermDebts);
+    final double ratio = totalShortTermDebts <= 0
+        ? 10.0
+        : (totalLiquidAssets / totalShortTermDebts);
 
     LiquidityLevel level;
     String badgeLabelKey;
@@ -203,19 +223,22 @@ mixin GameFinanceMixin on GameBaseNotifier {
       badgeLabelKey = 'liquidity_strong_badge';
       descriptionKey = 'liquidity_strong_desc';
       badgeLabel = 'Sağlam & Likit • Güçlü Nakit';
-      description = 'Kasa ve dönen varlıkların borçlarını rahatça karşılıyor. Yeni araç yatırımlarına hazır.';
+      description =
+          'Kasa ve dönen varlıkların borçlarını rahatça karşılıyor. Yeni araç yatırımlarına hazır.';
     } else if (ratio >= 1.2) {
       level = LiquidityLevel.moderate;
       badgeLabelKey = 'liquidity_moderate_badge';
       descriptionKey = 'liquidity_moderate_desc';
       badgeLabel = 'Dengeli & İzlemede • Stabil';
-      description = 'Alacak ve borç dengesi normal seviyede. Taksit ve çek vadelerini takip et.';
+      description =
+          'Alacak ve borç dengesi normal seviyede. Taksit ve çek vadelerini takip et.';
     } else {
       level = LiquidityLevel.tight;
       badgeLabelKey = 'liquidity_tight_badge';
       descriptionKey = 'liquidity_tight_desc';
       badgeLabel = 'Nakit Sıkışıklığı • Riskli Likidite';
-      description = 'Kısa vadeli borçlar yüksek. Çek kırdırma veya acil araç satışı ile nakit yarat.';
+      description =
+          'Kısa vadeli borçlar yüksek. Çek kırdırma veya acil araç satışı ile nakit yarat.';
     }
 
     return LiquidityStatus(

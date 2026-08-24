@@ -39,7 +39,10 @@ class _SweatDropWidgetState extends State<SweatDropWidget>
       TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_controller);
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.repeat();
     } else {
@@ -96,7 +99,8 @@ class _SweatDropPainter extends CustomPainter {
     final path = Path()
       ..moveTo(w * 0.5, 0)
       ..cubicTo(w * 0.1, h * 0.5, 0, h * 0.7, 0, h * 0.78)
-      ..arcToPoint(Offset(w, h * 0.78), radius: Radius.circular(w * 0.5), clockwise: false)
+      ..arcToPoint(Offset(w, h * 0.78),
+          radius: Radius.circular(w * 0.5), clockwise: false)
       ..cubicTo(w, h * 0.7, w * 0.9, h * 0.5, w * 0.5, 0)
       ..close();
 
@@ -112,7 +116,8 @@ class _SweatDropPainter extends CustomPainter {
 
     final highlightPath = Path()
       ..moveTo(w * 0.25, h * 0.7)
-      ..arcToPoint(Offset(w * 0.45, h * 0.88), radius: Radius.circular(w * 0.35), clockwise: false);
+      ..arcToPoint(Offset(w * 0.45, h * 0.88),
+          radius: Radius.circular(w * 0.35), clockwise: false);
 
     canvas.drawPath(highlightPath, highlightPaint);
   }

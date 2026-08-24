@@ -26,9 +26,10 @@ class CarSilhouetteWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveColor = (color == Colors.transparent || color == Colors.black)
-        ? (isDark ? const Color(0xFFFFDE59) : const Color(0xFFE11D48))
-        : color;
+    final effectiveColor =
+        (color == Colors.transparent || color == Colors.black)
+            ? (isDark ? const Color(0xFFFFDE59) : const Color(0xFFE11D48))
+            : color;
 
     final Widget content = RepaintBoundary(
       child: CustomPaint(
@@ -60,5 +61,3 @@ class CarSilhouetteWidget extends StatelessWidget {
     );
   }
 }
-
-

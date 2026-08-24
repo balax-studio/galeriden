@@ -37,7 +37,8 @@ class DashboardOfficeView extends ConsumerWidget {
     final smartHook = SmartOfficeHookEngine.evaluate(game);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('office_title'),
       ),
@@ -49,7 +50,8 @@ class DashboardOfficeView extends ConsumerWidget {
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 12,
             child: Row(
               children: [
@@ -59,11 +61,14 @@ class DashboardOfficeView extends ConsumerWidget {
                     color: const Color(0xFFFFDE59),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
-                  child: const Icon(Icons.star_rounded, color: Colors.black, size: 24),
+                  child: const Icon(Icons.star_rounded,
+                      color: Colors.black, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -75,16 +80,20 @@ class DashboardOfficeView extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr('office_reputation_desc', {'score': '${game.reputationScore}'}),
+                        context.tr('office_reputation_desc',
+                            {'score': '${game.reputationScore}'}),
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -105,9 +114,11 @@ class DashboardOfficeView extends ConsumerWidget {
           // Card A: Dynamic Daily Grant / Zarf Fonu
           Builder(
             builder: (context) {
-              final dailyGrant = SmartOfficeHookEngine.getDailyGrantVariant(game);
+              final dailyGrant =
+                  SmartOfficeHookEngine.getDailyGrantVariant(game);
               final isGrantUsed = game.isOfficeGrantClaimedToday;
-              final garageTotal = game.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+              final garageTotal = game.ownedCars
+                  .fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
               final outcome = AdRewardCalculator.calculateDynamicReward(
                 playerLevel: game.level,
                 totalGarageValue: garageTotal,
@@ -115,8 +126,11 @@ class DashboardOfficeView extends ConsumerWidget {
 
               return NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF191D2B) : const Color(0xFFFEFCE8),
-                borderColor: isGrantUsed ? const Color(0xFF475569) : const Color(0xFFEAB308),
+                backgroundColor:
+                    isDark ? const Color(0xFF191D2B) : const Color(0xFFFEFCE8),
+                borderColor: isGrantUsed
+                    ? const Color(0xFF475569)
+                    : const Color(0xFFEAB308),
                 borderWidth: 2.4,
                 borderRadius: 14,
                 child: Column(
@@ -127,7 +141,9 @@ class DashboardOfficeView extends ConsumerWidget {
                       children: [
                         NeoBrutalBadge(
                           text: dailyGrant.badgeText,
-                          backgroundColor: isGrantUsed ? const Color(0xFF475569) : const Color(0xFFEAB308),
+                          backgroundColor: isGrantUsed
+                              ? const Color(0xFF475569)
+                              : const Color(0xFFEAB308),
                           textColor: isGrantUsed ? Colors.white : Colors.black,
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -143,7 +159,8 @@ class DashboardOfficeView extends ConsumerWidget {
                           )
                         else
                           NeoBrutalBadge(
-                            text: '+${CurrencyFormatter.formatShort(outcome.moneyAmount)} HİBE',
+                            text:
+                                '+${CurrencyFormatter.formatShort(outcome.moneyAmount)} HİBE',
                             icon: Icons.play_circle_filled_rounded,
                             backgroundColor: AppColors.brutalGreen,
                             textColor: Colors.black,
@@ -160,19 +177,25 @@ class DashboardOfficeView extends ConsumerWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF242A3D) : const Color(0xFFFEF08A),
+                            color: isDark
+                                ? const Color(0xFF242A3D)
+                                : const Color(0xFFFEF08A),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isGrantUsed
                                   ? const Color(0xFF475569)
-                                  : (isDark ? const Color(0xFFEAB308) : const Color(0xFF0F172A)),
+                                  : (isDark
+                                      ? const Color(0xFFEAB308)
+                                      : const Color(0xFF0F172A)),
                               width: 2.0,
                             ),
                           ),
                           alignment: Alignment.center,
                           child: AvatarIconWidget(
                             avatar: 'deal',
-                            color: isGrantUsed ? const Color(0xFF64748B) : const Color(0xFFEAB308),
+                            color: isGrantUsed
+                                ? const Color(0xFF64748B)
+                                : const Color(0xFFEAB308),
                             size: 24,
                           ),
                         ),
@@ -187,8 +210,12 @@ class DashboardOfficeView extends ConsumerWidget {
                                   fontSize: 13,
                                   fontWeight: FontWeight.w900,
                                   color: isGrantUsed
-                                      ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
-                                      : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                      ? (isDark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B))
+                                      : (isDark
+                                          ? Colors.white
+                                          : const Color(0xFF0F172A)),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -197,7 +224,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: isGrantUsed ? const Color(0xFF64748B) : const Color(0xFFEAB308),
+                                  color: isGrantUsed
+                                      ? const Color(0xFF64748B)
+                                      : const Color(0xFFEAB308),
                                 ),
                               ),
                               const SizedBox(height: 3),
@@ -208,7 +237,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontStyle: FontStyle.italic,
-                                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                                  color: isDark
+                                      ? const Color(0xFFCBD5E1)
+                                      : const Color(0xFF475569),
                                 ),
                               ),
                             ],
@@ -230,7 +261,10 @@ class DashboardOfficeView extends ConsumerWidget {
                               onPressed: null,
                             )
                           : NeoBrutalButton(
-                              label: context.tr('office_grant_open_btn', {'amount': CurrencyFormatter.formatShort(outcome.moneyAmount)}),
+                              label: context.tr('office_grant_open_btn', {
+                                'amount': CurrencyFormatter.formatShort(
+                                    outcome.moneyAmount)
+                              }),
                               icon: Icons.play_circle_filled_rounded,
                               backgroundColor: const Color(0xFFEAB308),
                               textColor: Colors.black,
@@ -243,7 +277,10 @@ class DashboardOfficeView extends ConsumerWidget {
                                   customRewardTitle: outcome.title,
                                   outcome: outcome,
                                   onRewardEarned: () {
-                                    ref.read(gameProvider.notifier).claimOfficeAdGrant(outcome.moneyAmount);
+                                    ref
+                                        .read(gameProvider.notifier)
+                                        .claimOfficeAdGrant(
+                                            outcome.moneyAmount);
                                     NotificationService.showSuccess(
                                       context,
                                       '${dailyGrant.callerName} Desteği Alındı! Kasaya +${CurrencyFormatter.format(outcome.moneyAmount)} Eklendi!',
@@ -267,8 +304,11 @@ class DashboardOfficeView extends ConsumerWidget {
 
               return NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF161A26) : const Color(0xFFF0FDF4),
-                borderColor: isHookUsed ? const Color(0xFF475569) : smartHook.accentColor,
+                backgroundColor:
+                    isDark ? const Color(0xFF161A26) : const Color(0xFFF0FDF4),
+                borderColor: isHookUsed
+                    ? const Color(0xFF475569)
+                    : smartHook.accentColor,
                 borderWidth: 2.4,
                 borderRadius: 14,
                 child: Column(
@@ -279,7 +319,9 @@ class DashboardOfficeView extends ConsumerWidget {
                       children: [
                         NeoBrutalBadge(
                           text: context.tr('office_dynamic_opportunity'),
-                          backgroundColor: isHookUsed ? const Color(0xFF475569) : smartHook.accentColor,
+                          backgroundColor: isHookUsed
+                              ? const Color(0xFF475569)
+                              : smartHook.accentColor,
                           textColor: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -296,8 +338,10 @@ class DashboardOfficeView extends ConsumerWidget {
                         else
                           NeoBrutalBadge(
                             text: smartHook.rewardBadgeText,
-                            backgroundColor: isDark ? const Color(0xFF232B3E) : Colors.white,
-                            textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                            backgroundColor:
+                                isDark ? const Color(0xFF232B3E) : Colors.white,
+                            textColor:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                             borderColor: smartHook.accentColor,
                             fontSize: 9.5,
                             fontWeight: FontWeight.w900,
@@ -312,17 +356,23 @@ class DashboardOfficeView extends ConsumerWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF22293A) : const Color(0xFFDCFCE7),
+                            color: isDark
+                                ? const Color(0xFF22293A)
+                                : const Color(0xFFDCFCE7),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isHookUsed ? const Color(0xFF475569) : smartHook.accentColor,
+                              color: isHookUsed
+                                  ? const Color(0xFF475569)
+                                  : smartHook.accentColor,
                               width: 2.0,
                             ),
                           ),
                           alignment: Alignment.center,
                           child: AvatarIconWidget(
                             avatar: smartHook.characterAvatar,
-                            color: isHookUsed ? const Color(0xFF64748B) : smartHook.accentColor,
+                            color: isHookUsed
+                                ? const Color(0xFF64748B)
+                                : smartHook.accentColor,
                             size: 24,
                           ),
                         ),
@@ -339,8 +389,12 @@ class DashboardOfficeView extends ConsumerWidget {
                                       fontSize: 13,
                                       fontWeight: FontWeight.w900,
                                       color: isHookUsed
-                                          ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
-                                          : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                          ? (isDark
+                                              ? const Color(0xFF94A3B8)
+                                              : const Color(0xFF64748B))
+                                          : (isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A)),
                                     ),
                                   ),
                                 ],
@@ -350,7 +404,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: isHookUsed ? const Color(0xFF64748B) : smartHook.accentColor,
+                                  color: isHookUsed
+                                      ? const Color(0xFF64748B)
+                                      : smartHook.accentColor,
                                 ),
                               ),
                               const SizedBox(height: 3),
@@ -361,7 +417,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontStyle: FontStyle.italic,
-                                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                                  color: isDark
+                                      ? const Color(0xFFCBD5E1)
+                                      : const Color(0xFF475569),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -370,7 +428,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w700,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF334155),
+                                  color: isDark
+                                      ? const Color(0xFF94A3B8)
+                                      : const Color(0xFF334155),
                                 ),
                               ),
                             ],
@@ -404,7 +464,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                   context: context,
                                   customRewardTitle: smartHook.rewardBadgeText,
                                   onRewardEarned: () {
-                                    ref.read(gameProvider.notifier).executeSmartOfficeHook(smartHook.type);
+                                    ref
+                                        .read(gameProvider.notifier)
+                                        .executeSmartOfficeHook(smartHook.type);
                                     NotificationService.showSuccess(
                                       context,
                                       '${smartHook.title}: ${smartHook.rewardBadgeText} Başarıyla Uygulandı!',
@@ -424,12 +486,15 @@ class DashboardOfficeView extends ConsumerWidget {
           // Card C: Esnaf Dedikoduları & Piyasa Fısıltıları
           Builder(
             builder: (context) {
-              final gossipList = SmartOfficeHookEngine.getOfficeGossipAndTips(game);
+              final gossipList =
+                  SmartOfficeHookEngine.getOfficeGossipAndTips(game);
 
               return NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
-                backgroundColor: isDark ? const Color(0xFF141824) : Colors.white,
-                borderColor: isDark ? const Color(0xFF2A344A) : const Color(0xFF0F172A),
+                backgroundColor:
+                    isDark ? const Color(0xFF141824) : Colors.white,
+                borderColor:
+                    isDark ? const Color(0xFF2A344A) : const Color(0xFF0F172A),
                 borderWidth: 2.2,
                 borderRadius: 14,
                 child: Column(
@@ -445,14 +510,18 @@ class DashboardOfficeView extends ConsumerWidget {
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
                         ),
-                        Text(
-                          context.tr('whispers_day', {'day': '${game.currentDay}'}),
+                        Expanded(
+                            child: Text(
+                          context.tr(
+                              'whispers_day', {'day': '${game.currentDay}'}),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B),
                           ),
-                        ),
+                        )),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -462,10 +531,14 @@ class DashboardOfficeView extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF8FAFC),
+                            color: isDark
+                                ? const Color(0xFF1E2433)
+                                : const Color(0xFFF8FAFC),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF2E384D) : const Color(0xFFE2E8F0),
+                              color: isDark
+                                  ? const Color(0xFF2E384D)
+                                  : const Color(0xFFE2E8F0),
                               width: 1.5,
                             ),
                           ),
@@ -476,7 +549,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                 width: 34,
                                 height: 34,
                                 decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF2A3347) : const Color(0xFFE0F2FE),
+                                  color: isDark
+                                      ? const Color(0xFF2A3347)
+                                      : const Color(0xFFE0F2FE),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 alignment: Alignment.center,
@@ -492,24 +567,29 @@ class DashboardOfficeView extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
+                                        Expanded(
+                                            child: Text(
                                           gossip.sourceName,
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w800,
-                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                            color: isDark
+                                                ? Colors.white
+                                                : const Color(0xFF0F172A),
                                           ),
-                                        ),
-                                        Text(
+                                        )),
+                                        Expanded(
+                                            child: Text(
                                           gossip.title,
                                           style: const TextStyle(
                                             fontSize: 9.5,
                                             fontWeight: FontWeight.w700,
                                             color: Color(0xFF38BDF8),
                                           ),
-                                        ),
+                                        )),
                                       ],
                                     ),
                                     const SizedBox(height: 2),
@@ -518,7 +598,9 @@ class DashboardOfficeView extends ConsumerWidget {
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontStyle: FontStyle.italic,
-                                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                                        color: isDark
+                                            ? const Color(0xFFCBD5E1)
+                                            : const Color(0xFF475569),
                                       ),
                                     ),
                                   ],
@@ -539,7 +621,11 @@ class DashboardOfficeView extends ConsumerWidget {
           // 4. Management Sections Header
           Text(
             context.tr('office_management_ops'),
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: Color(0xFF64748B)),
+            style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.8,
+                color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 8),
 
@@ -550,9 +636,14 @@ class DashboardOfficeView extends ConsumerWidget {
             color: const Color(0xFFA855F7),
             title: context.tr('staff_title'),
             subtitle: game.isFeatureUnlocked('/staff')
-                ? context.tr('staff_desc', {'count': '${game.hiredStaff.length}'})
-                : context.tr('office_locked_branch', {'branch': DealershipModel.getRequiredBranchName('/staff')}),
-            actionLabel: game.isFeatureUnlocked('/staff') ? context.tr('office_btn_manage') : context.tr('office_btn_locked'),
+                ? context
+                    .tr('staff_desc', {'count': '${game.hiredStaff.length}'})
+                : context.tr('office_locked_branch', {
+                    'branch': DealershipModel.getRequiredBranchName('/staff')
+                  }),
+            actionLabel: game.isFeatureUnlocked('/staff')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
             route: '/staff',
             isUnlocked: game.isFeatureUnlocked('/staff'),
             isDark: isDark,
@@ -566,9 +657,14 @@ class DashboardOfficeView extends ConsumerWidget {
             color: const Color(0xFFFFDE59),
             title: context.tr('reviews_title'),
             subtitle: game.isFeatureUnlocked('/reviews')
-                ? context.tr('reviews_desc', {'count': '${game.customerReviews.length}'})
-                : context.tr('office_locked_branch', {'branch': DealershipModel.getRequiredBranchName('/reviews')}),
-            actionLabel: game.isFeatureUnlocked('/reviews') ? context.tr('office_btn_inspect') : context.tr('office_btn_locked'),
+                ? context.tr(
+                    'reviews_desc', {'count': '${game.customerReviews.length}'})
+                : context.tr('office_locked_branch', {
+                    'branch': DealershipModel.getRequiredBranchName('/reviews')
+                  }),
+            actionLabel: game.isFeatureUnlocked('/reviews')
+                ? context.tr('office_btn_inspect')
+                : context.tr('office_btn_locked'),
             route: '/reviews',
             isUnlocked: game.isFeatureUnlocked('/reviews'),
             isDark: isDark,
@@ -582,9 +678,14 @@ class DashboardOfficeView extends ConsumerWidget {
             color: const Color(0xFF3B82F6),
             title: context.tr('sales_history_title'),
             subtitle: game.isFeatureUnlocked('/history')
-                ? context.tr('sales_history_desc', {'count': '${game.salesHistory.length}'})
-                : context.tr('office_locked_branch', {'branch': DealershipModel.getRequiredBranchName('/history')}),
-            actionLabel: game.isFeatureUnlocked('/history') ? context.tr('office_btn_view') : context.tr('office_btn_locked'),
+                ? context.tr('sales_history_desc',
+                    {'count': '${game.salesHistory.length}'})
+                : context.tr('office_locked_branch', {
+                    'branch': DealershipModel.getRequiredBranchName('/history')
+                  }),
+            actionLabel: game.isFeatureUnlocked('/history')
+                ? context.tr('office_btn_view')
+                : context.tr('office_btn_locked'),
             route: '/history',
             isUnlocked: game.isFeatureUnlocked('/history'),
             isDark: isDark,
@@ -611,8 +712,12 @@ class DashboardOfficeView extends ConsumerWidget {
             icon: Icons.campaign_rounded,
             color: const Color(0xFF38BDF8),
             title: context.tr('media_pr_title'),
-            subtitle: game.activePrCampaign != null && game.activePrCampaign!.isActive(game.currentDay)
-                ? context.tr('media_campaign_running', {'days': '${game.activePrCampaign!.remainingDays(game.currentDay)}'})
+            subtitle: game.activePrCampaign != null &&
+                    game.activePrCampaign!.isActive(game.currentDay)
+                ? context.tr('media_campaign_running', {
+                    'days':
+                        '${game.activePrCampaign!.remainingDays(game.currentDay)}'
+                  })
                 : context.tr('media_pr_desc'),
             actionLabel: context.tr('office_btn_launch'),
             route: '/media-agency',
@@ -641,7 +746,8 @@ class DashboardOfficeView extends ConsumerWidget {
             icon: Icons.bolt_rounded,
             color: const Color(0xFF00E575),
             title: context.tr('talent_tree_title'),
-            subtitle: context.tr('talent_tree_desc', {'level': '${game.level}'}),
+            subtitle:
+                context.tr('talent_tree_desc', {'level': '${game.level}'}),
             actionLabel: context.tr('office_btn_upgrade'),
             route: '/character-growth',
             isUnlocked: true,
@@ -714,7 +820,9 @@ class DashboardOfficeView extends ConsumerWidget {
                     color: activeColor,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
                       width: 2.0,
                     ),
                   ),
@@ -735,8 +843,12 @@ class DashboardOfficeView extends ConsumerWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
                           color: isUnlocked
-                              ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                              : (isDark ? Colors.white60 : const Color(0xFF475569)),
+                              ? (isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A))
+                              : (isDark
+                                  ? Colors.white60
+                                  : const Color(0xFF475569)),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -748,8 +860,12 @@ class DashboardOfficeView extends ConsumerWidget {
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
                           color: isUnlocked
-                              ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
-                              : (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626)),
+                              ? (isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B))
+                              : (isDark
+                                  ? const Color(0xFFF87171)
+                                  : const Color(0xFFDC2626)),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

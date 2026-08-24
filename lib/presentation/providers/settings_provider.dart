@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/localization/language_model.dart';
 
-final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
+final settingsProvider =
+    StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
   return SettingsNotifier();
 });
 
@@ -48,11 +49,12 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final isDark = prefs.getBool('is_dark_mode') ?? true;
-    
+
     // Auto-detect or load saved
     String lang = prefs.getString('language_code') ?? '';
     if (lang.isEmpty) {
-      final systemLocale = ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase();
+      final systemLocale =
+          ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase();
       final supportedCodes = AppLanguage.values.map((e) => e.code).toSet();
       if (supportedCodes.contains(systemLocale)) {
         lang = systemLocale;
@@ -71,7 +73,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 
   Future<void> toggleThemeMode() async {
-    final newMode = state.themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    final newMode =
+        state.themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     state = state.copyWith(themeMode: newMode);
 
     final prefs = await SharedPreferences.getInstance();

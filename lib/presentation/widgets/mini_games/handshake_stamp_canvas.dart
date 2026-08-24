@@ -57,13 +57,15 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
-    )..addListener(() {
+    )
+      ..addListener(() {
         if (_controller.value > 0.65 && !_hasStamped) {
           _hasStamped = true;
           HapticFeedback.heavyImpact();
         }
         setState(() {});
-      })..forward();
+      })
+      ..forward();
   }
 
   @override
@@ -93,7 +95,8 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.handshake_rounded, color: Color(0xFFFFDE59), size: 24),
+                    const Icon(Icons.handshake_rounded,
+                        color: Color(0xFFFFDE59), size: 24),
                     const SizedBox(width: 8),
                     Text(
                       context.tr('handshake_title'),
@@ -131,18 +134,28 @@ class _HandshakeStampModalState extends State<HandshakeStampModal>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr('handshake_seller_label', {'seller': widget.sellerName}),
-                        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
+                        context.tr('handshake_seller_label',
+                            {'seller': widget.sellerName}),
+                        style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF94A3B8)),
                       ),
                       Text(
                         widget.carModel,
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: Colors.white),
+                        style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white),
                       ),
                     ],
                   ),
                   Text(
                     CurrencyFormatter.format(widget.agreedPrice),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.brutalGreen),
                   ),
                 ],
               ),
@@ -217,7 +230,8 @@ class _HandshakePainter extends CustomPainter {
 
     // Handshake animation: Left hand comes from left, right hand from right
     final handProgress = progress.clamp(0.0, 0.65) / 0.65;
-    final shakeOffset = (progress > 0.65) ? math.sin(progress * math.pi * 12) * 5.0 : 0.0;
+    final shakeOffset =
+        (progress > 0.65) ? math.sin(progress * math.pi * 12) * 5.0 : 0.0;
 
     final leftHandX = -50 + handProgress * (w * 0.45);
     final rightHandX = w + 50 - handProgress * (w * 0.45);
@@ -230,13 +244,27 @@ class _HandshakePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.4;
 
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(leftHandX, handY - 15, 60, 30), const Radius.circular(8)), leftHandPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(leftHandX, handY - 15, 60, 30), const Radius.circular(8)), borderPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(leftHandX, handY - 15, 60, 30),
+            const Radius.circular(8)),
+        leftHandPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(leftHandX, handY - 15, 60, 30),
+            const Radius.circular(8)),
+        borderPaint);
 
     // Draw Right Hand (Satıcı)
     final rightHandPaint = Paint()..color = const Color(0xFF38BDF8);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(rightHandX - 60, handY - 15, 60, 30), const Radius.circular(8)), rightHandPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(rightHandX - 60, handY - 15, 60, 30), const Radius.circular(8)), borderPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromLTWH(rightHandX - 60, handY - 15, 60, 30),
+            const Radius.circular(8)),
+        rightHandPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromLTWH(rightHandX - 60, handY - 15, 60, 30),
+            const Radius.circular(8)),
+        borderPaint);
 
     // Big Red Notary Stamp Slam (after progress > 0.65)
     if (progress > 0.65) {
@@ -249,15 +277,21 @@ class _HandshakePainter extends CustomPainter {
       canvas.scale(stampScale);
       canvas.rotate(-0.12);
 
-      final stampRect = Rect.fromCenter(center: Offset.zero, width: 140, height: 44);
-      final stampFill = Paint()..color = AppColors.errorRed.withValues(alpha: stampAlpha * 0.2);
+      final stampRect =
+          Rect.fromCenter(center: Offset.zero, width: 140, height: 44);
+      final stampFill = Paint()
+        ..color = AppColors.errorRed.withValues(alpha: stampAlpha * 0.2);
       final stampBorder = Paint()
         ..color = AppColors.errorRed.withValues(alpha: stampAlpha)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3.0;
 
-      canvas.drawRRect(RRect.fromRectAndRadius(stampRect, const Radius.circular(6)), stampFill);
-      canvas.drawRRect(RRect.fromRectAndRadius(stampRect, const Radius.circular(6)), stampBorder);
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(stampRect, const Radius.circular(6)),
+          stampFill);
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(stampRect, const Radius.circular(6)),
+          stampBorder);
 
       final textPainter = TextPainter(
         text: TextSpan(
@@ -273,7 +307,8 @@ class _HandshakePainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
 
-      textPainter.paint(canvas, Offset(-textPainter.width / 2, -textPainter.height / 2));
+      textPainter.paint(
+          canvas, Offset(-textPainter.width / 2, -textPainter.height / 2));
       canvas.restore();
     }
   }

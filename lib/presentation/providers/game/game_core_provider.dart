@@ -36,7 +36,6 @@ class GameCoreNotifier extends GameBaseNotifier
         GameStaffMixin,
         GameTimeMixin,
         GameWorkshopDetailingMixin {
-  
   Timer? _saveDebounceTimer;
   Map<String, dynamic>? pendingOfflineRecap;
   bool _isLoaded = false;
@@ -98,28 +97,36 @@ class GameCoreNotifier extends GameBaseNotifier
           now: now,
           hasStreakFreeze: loaded.hasStreakFreeze,
         );
-        final calDays = DateTime(now.year, now.month, now.day).difference(
-          DateTime(loaded.lastLoginDate.year, loaded.lastLoginDate.month, loaded.lastLoginDate.day),
-        ).inDays;
+        final calDays = DateTime(now.year, now.month, now.day)
+            .difference(
+              DateTime(loaded.lastLoginDate.year, loaded.lastLoginDate.month,
+                  loaded.lastLoginDate.day),
+            )
+            .inDays;
         final bool freezeConsumed = loaded.hasStreakFreeze && (calDays > 1);
 
         // Filter expired offers
-        final activeOffers = loaded.incomingOffers.where((o) => !o.isExpired).toList();
+        final activeOffers =
+            loaded.incomingOffers.where((o) => !o.isExpired).toList();
 
         // Process offline time progression
-        final offlineResult = OfflineProgression.processOfflineTime(loaded.copyWith(incomingOffers: activeOffers));
-        DealershipModel updated = offlineResult['updatedDealership'] as DealershipModel;
+        final offlineResult = OfflineProgression.processOfflineTime(
+            loaded.copyWith(incomingOffers: activeOffers));
+        DealershipModel updated =
+            offlineResult['updatedDealership'] as DealershipModel;
         updated = updated.copyWith(
           loginStreak: streak,
           lastLoginDate: now,
           hasStreakFreeze: freezeConsumed ? false : updated.hasStreakFreeze,
         );
 
-        final offlineHours = (offlineResult['hoursAway'] as int?) ?? (offlineResult['offlineHours'] as int? ?? 0);
+        final offlineHours = (offlineResult['hoursAway'] as int?) ??
+            (offlineResult['offlineHours'] as int? ?? 0);
         final elapsedMinutes = (offlineResult['elapsedMinutes'] as int?) ?? 0;
         final earnedIncome = (offlineResult['earnedIncome'] as double?) ??
             (offlineResult['passiveIncome'] as double? ?? 0.0);
-        final partsArrivedCount = offlineResult['partsArrivedCount'] as int? ?? 0;
+        final partsArrivedCount =
+            offlineResult['partsArrivedCount'] as int? ?? 0;
         final newOffersCount = offlineResult['newOffersCount'] as int? ?? 0;
 
         if (offlineHours > 0 || elapsedMinutes >= 30) {
@@ -162,7 +169,7 @@ class GameCoreNotifier extends GameBaseNotifier
   void saveState() {
     if (!mounted) return;
     _checkAchievementsInternal();
-    
+
     _saveDebounceTimer?.cancel();
     _saveDebounceTimer = Timer(const Duration(milliseconds: 350), () async {
       if (!mounted) return;
@@ -246,9 +253,12 @@ class GameCoreNotifier extends GameBaseNotifier
               (c.isDetailedCleaned || (c.isWashed && c.isPolished)));
           break;
         case 'restoration_5':
-          final restoredCount = state.ownedCars.where((c) =>
-              c.expertise.engineCondition >= 95 &&
-              c.expertise.transmissionCondition >= 95).length + (state.carsSold >= 5 ? 3 : 0);
+          final restoredCount = state.ownedCars
+                  .where((c) =>
+                      c.expertise.engineCondition >= 95 &&
+                      c.expertise.transmissionCondition >= 95)
+                  .length +
+              (state.carsSold >= 5 ? 3 : 0);
           unlock = restoredCount >= 5;
           break;
       }
@@ -299,11 +309,12 @@ class GameCoreNotifier extends GameBaseNotifier
     _recentXpTimestamps.add(now);
 
     final int effectiveXp = (rawAmount * multiplier).round().clamp(1, 500);
-    final updatedSkills = state.skills.copyWith(xp: state.skills.xp + effectiveXp);
+    final updatedSkills =
+        state.skills.copyWith(xp: state.skills.xp + effectiveXp);
     final calculatedLevel = updatedSkills.currentLevel;
     final isLevelUp = calculatedLevel > state.level;
     final newLevel = isLevelUp ? calculatedLevel : state.level;
-    
+
     // Level 3 milestone grants Streak Freeze reward (§3.3)
     final grantFreeze = newLevel >= 3 && !state.hasStreakFreeze;
 
@@ -350,7 +361,7 @@ class GameCoreNotifier extends GameBaseNotifier
       '/theme-store',
       '/branches',
     };
-    
+
     if (!state.unlockedBuildings.containsAll(baseRoutes)) {
       state = state.copyWith(
         unlockedBuildings: {...state.unlockedBuildings, ...baseRoutes},
@@ -385,7 +396,8 @@ class GameCoreNotifier extends GameBaseNotifier
       return false;
     }
 
-    final updatedSet = Set<String>.from(state.completedFirstTimeActions)..add(actionKey);
+    final updatedSet = Set<String>.from(state.completedFirstTimeActions)
+      ..add(actionKey);
     state = state.copyWith(
       completedFirstTimeActions: updatedSet,
       balance: state.balance + bonusMoney,
@@ -412,7 +424,8 @@ class GameCoreNotifier extends GameBaseNotifier
     if (state.tutorialCompleted) return; // Prevent duplicate rewards
     state = state.copyWith(
       tutorialCompleted: true,
-      balance: state.balance + 50000.0, // Bonus capital reward for completing tutorial!
+      balance: state.balance +
+          50000.0, // Bonus capital reward for completing tutorial!
     );
     saveState();
   }
@@ -550,7 +563,10 @@ class GameCoreNotifier extends GameBaseNotifier
       maxGarageSlots: 20,
       reputationScore: 100,
       skills: updatedSkills,
-      unlockedBuildings: {...state.unlockedBuildings, ...allPropertiesAndRoutes},
+      unlockedBuildings: {
+        ...state.unlockedBuildings,
+        ...allPropertiesAndRoutes
+      },
     );
     saveState();
   }
@@ -567,27 +583,51 @@ class GameCoreNotifier extends GameBaseNotifier
     }
     if (clamped >= 3) {
       slots = 6;
-      updatedBuildings.addAll({'property_tier_3', '/workshop', '/staff', '/staff-academy'});
+      updatedBuildings
+          .addAll({'property_tier_3', '/workshop', '/staff', '/staff-academy'});
     }
     if (clamped >= 4) {
       slots = 8;
-      updatedBuildings.addAll({'property_tier_4', '/tuning-studio', '/showroom-decor'});
+      updatedBuildings
+          .addAll({'property_tier_4', '/tuning-studio', '/showroom-decor'});
     }
     if (clamped >= 5) {
       slots = 10;
-      updatedBuildings.addAll({'property_tier_5', '/auction', '/finance', '/reviews'});
+      updatedBuildings
+          .addAll({'property_tier_5', '/auction', '/finance', '/reviews'});
     }
     if (clamped >= 6) {
       slots = 13;
-      updatedBuildings.addAll({'property_tier_6', '/bank-investments', '/stock-market'});
+      updatedBuildings
+          .addAll({'property_tier_6', '/bank-investments', '/stock-market'});
     }
     if (clamped >= 7) {
       slots = 16;
-      updatedBuildings.addAll({'property_tier_7', '/rent-a-car', '/black-market', '/district-market', '/districts', '/gossip-hotline', '/gossip'});
+      updatedBuildings.addAll({
+        'property_tier_7',
+        '/rent-a-car',
+        '/black-market',
+        '/district-market',
+        '/districts',
+        '/gossip-hotline',
+        '/gossip'
+      });
     }
     if (clamped >= 8) {
       slots = 20;
-      updatedBuildings.addAll({'property_tier_8', '/scrapyard', '/side-businesses', '/consignment-market', '/consignment', '/second-branch', '/vip-appointments', '/customs-import', '/guild-chamber', '/franchise', '/prestige-dynasty'});
+      updatedBuildings.addAll({
+        'property_tier_8',
+        '/scrapyard',
+        '/side-businesses',
+        '/consignment-market',
+        '/consignment',
+        '/second-branch',
+        '/vip-appointments',
+        '/customs-import',
+        '/guild-chamber',
+        '/franchise',
+        '/prestige-dynasty'
+      });
     }
 
     state = state.copyWith(
@@ -605,9 +645,11 @@ class GameCoreNotifier extends GameBaseNotifier
   }
 }
 
-final gameCoreProvider = StateNotifierProvider<GameCoreNotifier, DealershipModel>((ref) {
+final gameCoreProvider =
+    StateNotifierProvider<GameCoreNotifier, DealershipModel>((ref) {
   return GameCoreNotifier();
 });
 
 /// Top-level helper function for background isolate serialization
-String _encodeDealershipToJson(Map<String, dynamic> jsonMap) => jsonEncode(jsonMap);
+String _encodeDealershipToJson(Map<String, dynamic> jsonMap) =>
+    jsonEncode(jsonMap);

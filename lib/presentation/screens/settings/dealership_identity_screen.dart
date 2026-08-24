@@ -19,10 +19,12 @@ class DealershipIdentityScreen extends ConsumerStatefulWidget {
   const DealershipIdentityScreen({super.key});
 
   @override
-  ConsumerState<DealershipIdentityScreen> createState() => _DealershipIdentityScreenState();
+  ConsumerState<DealershipIdentityScreen> createState() =>
+      _DealershipIdentityScreenState();
 }
 
-class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScreen> {
+class _DealershipIdentityScreenState
+    extends ConsumerState<DealershipIdentityScreen> {
   late TextEditingController _nameController;
   late TextEditingController _galleryController;
   late TextEditingController _taglineController;
@@ -128,21 +130,26 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
   }
 
   void _saveIdentity() {
-    final newPlayerName = _nameController.text.trim().isEmpty ? 'Kaptan' : _nameController.text.trim();
-    final newGalleryName = _galleryController.text.trim().isEmpty ? 'Miras Oto Galeri' : _galleryController.text.trim();
+    final newPlayerName = _nameController.text.trim().isEmpty
+        ? 'Kaptan'
+        : _nameController.text.trim();
+    final newGalleryName = _galleryController.text.trim().isEmpty
+        ? 'Miras Oto Galeri'
+        : _galleryController.text.trim();
     final newTagline = _taglineController.text.trim();
 
     ref.read(gameProvider.notifier).updateDealershipIdentity(
-      playerName: newPlayerName,
-      dealershipName: newGalleryName,
-      logoEmblemId: _selectedEmblem,
-      logoBadgeShape: _selectedShape,
-      logoBadgeColor: _selectedColor,
-      dealershipTagline: newTagline,
-      characterOrigin: _selectedOrigin,
-    );
+          playerName: newPlayerName,
+          dealershipName: newGalleryName,
+          logoEmblemId: _selectedEmblem,
+          logoBadgeShape: _selectedShape,
+          logoBadgeColor: _selectedColor,
+          dealershipTagline: newTagline,
+          characterOrigin: _selectedOrigin,
+        );
 
-    NotificationService.showSuccess(context, context.tr('identity_saved_success'));
+    NotificationService.showSuccess(
+        context, context.tr('identity_saved_success'));
 
     if (context.canPop()) {
       context.pop();
@@ -161,7 +168,8 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
     final currentTagline = _taglineController.text.trim();
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('identity_screen_title'),
       ),
@@ -173,7 +181,8 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -190,8 +199,11 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _galleryController.text.trim().isEmpty ? 'Miras Oto Galeri' : _galleryController.text.trim(),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                        _galleryController.text.trim().isEmpty
+                            ? 'Miras Oto Galeri'
+                            : _galleryController.text.trim(),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w900),
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (currentTagline.isNotEmpty) ...[
@@ -202,7 +214,8 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             fontStyle: FontStyle.italic,
-                            color: DealershipLogoBadge.getBackgroundColor(_selectedColor),
+                            color: DealershipLogoBadge.getBackgroundColor(
+                                _selectedColor),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -210,12 +223,16 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                       const SizedBox(height: 3),
                       Text(
                         '${state.corporateTierTitle} • ${_nameController.text.trim().isEmpty ? 'Kaptan' : _nameController.text.trim()}',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF64748B)),
                       ),
                       if (state.dynastyGeneration > 1) ...[
                         const SizedBox(height: 4),
                         NeoBrutalBadge(
-                          text: context.tr('dynasty_generation_heritage', {'gen': state.dynastyGeneration}),
+                          text: context.tr('dynasty_generation_heritage',
+                              {'gen': state.dynastyGeneration}),
                           backgroundColor: const Color(0xFFA855F7),
                           textColor: Colors.white,
                           fontSize: 9.5,
@@ -252,22 +269,28 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.0),
+                borderSide:
+                    const BorderSide(color: AppColors.brutalYellow, width: 2.0),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
           ),
           const SizedBox(height: 12),
@@ -283,22 +306,28 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.0),
+                borderSide:
+                    const BorderSide(color: AppColors.brutalYellow, width: 2.0),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
           ),
           const SizedBox(height: 12),
@@ -326,22 +355,28 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                  color: isDark
+                      ? const Color(0xFF333B4F)
+                      : const Color(0xFF0F172A),
                   width: 2.0,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.brutalYellow, width: 2.0),
+                borderSide:
+                    const BorderSide(color: AppColors.brutalYellow, width: 2.0),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
           ),
           const SizedBox(height: 8),
@@ -381,14 +416,19 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                   setState(() => _selectedShape = s['id']!);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.brutalYellow
                         : (isDark ? const Color(0xFF141721) : Colors.white),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF0F172A) : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+                      color: isSelected
+                          ? const Color(0xFF0F172A)
+                          : (isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A)),
                       width: 2.0,
                     ),
                   ),
@@ -408,7 +448,9 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w800,
-                          color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                          color: isSelected
+                              ? Colors.black
+                              : (isDark ? Colors.white : Colors.black),
                         ),
                       ),
                     ],
@@ -443,14 +485,21 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                   setState(() => _selectedColor = c['id'] as String);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? (isDark ? const Color(0xFF1E2638) : const Color(0xFFFEF9C3))
+                        ? (isDark
+                            ? const Color(0xFF1E2638)
+                            : const Color(0xFFFEF9C3))
                         : (isDark ? const Color(0xFF141721) : Colors.white),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected ? AppColors.brutalYellow : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+                      color: isSelected
+                          ? AppColors.brutalYellow
+                          : (isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A)),
                       width: isSelected ? 2.5 : 1.5,
                     ),
                   ),
@@ -506,14 +555,19 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                   setState(() => _selectedEmblem = e['id']!);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.brutalYellow
                         : (isDark ? const Color(0xFF141721) : Colors.white),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF0F172A) : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+                      color: isSelected
+                          ? const Color(0xFF0F172A)
+                          : (isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A)),
                       width: 2.0,
                     ),
                   ),
@@ -531,7 +585,9 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w800,
-                          color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black),
+                          color: isSelected
+                              ? Colors.black
+                              : (isDark ? Colors.white : Colors.black),
                         ),
                       ),
                     ],
@@ -566,11 +622,15 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(12),
                     backgroundColor: isSelected
-                        ? (isDark ? const Color(0xFF1E2638) : const Color(0xFFFEF9C3))
+                        ? (isDark
+                            ? const Color(0xFF1E2638)
+                            : const Color(0xFFFEF9C3))
                         : (isDark ? const Color(0xFF141721) : Colors.white),
                     borderColor: isSelected
                         ? AppColors.brutalYellow
-                        : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A)),
                     borderRadius: 12,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -581,11 +641,14 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                             color: item['color'] as Color,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
                               width: 2.0,
                             ),
                           ),
-                          child: Icon(item['icon'] as IconData, color: Colors.white, size: 24),
+                          child: Icon(item['icon'] as IconData,
+                              color: Colors.white, size: 24),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -596,12 +659,15 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                                 children: [
                                   Text(
                                     context.tr(item['titleKey'] as String),
-                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900),
                                   ),
                                   const Spacer(),
                                   if (isSelected)
                                     NeoBrutalBadge(
-                                      text: context.tr('lifestyle_equipped_badge'),
+                                      text: context
+                                          .tr('lifestyle_equipped_badge'),
                                       backgroundColor: AppColors.brutalGreen,
                                       textColor: Colors.black,
                                       fontSize: 10,
@@ -611,22 +677,33 @@ class _DealershipIdentityScreenState extends ConsumerState<DealershipIdentityScr
                               const SizedBox(height: 2),
                               Text(
                                 context.tr(item['descKey'] as String),
-                                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+                                  color: isDark
+                                      ? const Color(0xFF0C0E14)
+                                      : const Color(0xFFF1F5F9),
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
-                                    color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                                    color: isDark
+                                        ? const Color(0xFF2A3142)
+                                        : const Color(0xFFCBD5E1),
                                     width: 1.5,
                                   ),
                                 ),
                                 child: Text(
                                   context.tr(item['perkKey'] as String),
-                                  style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.brutalGreen),
+                                  style: const TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.brutalGreen),
                                 ),
                               ),
                             ],

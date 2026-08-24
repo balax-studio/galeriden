@@ -123,9 +123,12 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 NeoBrutalBadge(
-                  text: outcome != null ? outcome!.badgeText : context.tr(story.badgeKey),
+                  text: outcome != null
+                      ? outcome!.badgeText
+                      : context.tr(story.badgeKey),
                   icon: outcome != null ? Icons.stars_rounded : story.icon,
-                  backgroundColor: outcome != null && outcome!.tier == AdRewardTier.legendaryJackpot
+                  backgroundColor: outcome != null &&
+                          outcome!.tier == AdRewardTier.legendaryJackpot
                       ? AppColors.brutalYellow
                       : story.accentColor,
                   textColor: Colors.black,
@@ -133,8 +136,12 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
                 ),
                 NeoBrutalBadge(
                   text: context.tr('ad_fallback_sponsor_gesture'),
-                  backgroundColor: isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                  backgroundColor: isDark
+                      ? const Color(0xFF232A3B)
+                      : const Color(0xFFE2E8F0),
+                  textColor: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
                   fontSize: 10,
                 ),
               ],
@@ -171,11 +178,14 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          outcome != null ? outcome!.title : context.tr(story.titleKey),
+                          outcome != null
+                              ? outcome!.title
+                              : context.tr(story.titleKey),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -213,13 +223,15 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
                 fontSize: 12,
                 height: 1.45,
                 fontWeight: FontWeight.w600,
-                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                color:
+                    isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
               ),
             ),
             if (outcome?.bonusItemDescription != null) ...[
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.brutalYellow.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
@@ -227,7 +239,8 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.military_tech_rounded, color: AppColors.brutalYellow, size: 16),
+                    const Icon(Icons.military_tech_rounded,
+                        color: AppColors.brutalYellow, size: 16),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -247,24 +260,30 @@ class NeoBrutalFallbackAdDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+                color:
+                    isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF262E3E) : const Color(0xFFCBD5E1),
+                  color: isDark
+                      ? const Color(0xFF262E3E)
+                      : const Color(0xFFCBD5E1),
                   width: 1.5,
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle_rounded, color: AppColors.successGreen, size: 15),
+                  const Icon(Icons.check_circle_rounded,
+                      color: AppColors.successGreen, size: 15),
                   const SizedBox(width: 6),
                   Text(
                     context.tr('ad_fallback_busy_reward'),
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                 ],

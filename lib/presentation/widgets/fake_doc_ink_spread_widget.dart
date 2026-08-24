@@ -39,7 +39,10 @@ class _FakeDocInkSpreadWidgetState extends State<FakeDocInkSpreadWidget>
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.forward().then((_) => widget.onComplete?.call());
     } else {

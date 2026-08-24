@@ -41,11 +41,15 @@ class _StaggeredItemEntryState extends State<StaggeredItemEntry>
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    _slideAnimation = Tween<double>(begin: widget.slideOffset, end: 0.0).animate(
+    _slideAnimation =
+        Tween<double>(begin: widget.slideOffset, end: 0.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (isTest) {
       _controller.value = 1.0;
     } else {

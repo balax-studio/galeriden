@@ -8,7 +8,8 @@ import 'game_base_notifier.dart';
 mixin GameScrapyardMixin on GameBaseNotifier {
   /// Buys a scrap car from the scrapyard so player owns it
   bool buyScrapCar(String scrapCarId) {
-    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+    final scrapIndex =
+        state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
     if (scrapIndex == -1) return false;
 
     final scrapCar = state.scrapyardCars[scrapIndex];
@@ -16,7 +17,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
 
     double effectivePrice = scrapCar.scrapPrice;
     if (state.hasHighNpcTrust('cikmaci_ibo')) {
-      effectivePrice = (effectivePrice * 0.75).roundToDouble(); // Çıkmacı İbo dost indirimi -%25!
+      effectivePrice = (effectivePrice * 0.75)
+          .roundToDouble(); // Çıkmacı İbo dost indirimi -%25!
     }
     if (state.balance < effectivePrice) return false;
 
@@ -24,7 +26,9 @@ mixin GameScrapyardMixin on GameBaseNotifier {
       isPurchased: true,
       parts: scrapCar.parts.isNotEmpty
           ? scrapCar.parts
-          : ScrapyardCar.generateRandomParts('${scrapCar.brand} ${scrapCar.modelName}', scrapCar.scrapPrice * 1.5),
+          : ScrapyardCar.generateRandomParts(
+              '${scrapCar.brand} ${scrapCar.modelName}',
+              scrapCar.scrapPrice * 1.5),
     );
     final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars);
     updatedScrapCars[scrapIndex] = updatedScrapCar;
@@ -41,8 +45,10 @@ mixin GameScrapyardMixin on GameBaseNotifier {
   }
 
   /// Purchase and dismantle a scrap car into salvaged parts with realistic RNG loss risk
-  BulkScrapDismantleResult buyAndDismantleScrapCar(String scrapCarId, {Random? random}) {
-    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+  BulkScrapDismantleResult buyAndDismantleScrapCar(String scrapCarId,
+      {Random? random}) {
+    final scrapIndex =
+        state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
     if (scrapIndex == -1) {
       return const BulkScrapDismantleResult(
         success: false,
@@ -53,7 +59,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     final scrapCar = state.scrapyardCars[scrapIndex];
     double effectivePrice = scrapCar.scrapPrice;
     if (state.hasHighNpcTrust('cikmaci_ibo')) {
-      effectivePrice = (effectivePrice * 0.75).roundToDouble(); // Çıkmacı İbo dost indirimi -%25!
+      effectivePrice = (effectivePrice * 0.75)
+          .roundToDouble(); // Çıkmacı İbo dost indirimi -%25!
     }
     if (state.balance < effectivePrice) {
       return const BulkScrapDismantleResult(
@@ -64,7 +71,9 @@ mixin GameScrapyardMixin on GameBaseNotifier {
 
     final allParts = scrapCar.parts.isNotEmpty
         ? scrapCar.parts
-        : ScrapyardCar.generateRandomParts('${scrapCar.brand} ${scrapCar.modelName}', scrapCar.scrapPrice * 1.5);
+        : ScrapyardCar.generateRandomParts(
+            '${scrapCar.brand} ${scrapCar.modelName}',
+            scrapCar.scrapPrice * 1.5);
 
     final rng = random ?? Random();
     final salvagedList = <SalvagedPart>[];
@@ -84,7 +93,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
       salvagedList.add(lostList.removeLast());
     }
 
-    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars)..removeAt(scrapIndex);
+    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars)
+      ..removeAt(scrapIndex);
 
     state = state.copyWith(
       balance: state.balance - effectivePrice,
@@ -119,7 +129,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     bool? forceSuccess,
     int? customCondition,
   }) {
-    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+    final scrapIndex =
+        state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
     if (scrapIndex == -1) {
       return const SinglePartDismantleResult(
         success: false,
@@ -146,8 +157,11 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     }
 
     final originalPart = scrapCar.parts[partIndex];
-    final part = customCondition != null ? originalPart.copyWith(conditionPercent: customCondition) : originalPart;
-    final updatedParts = List<SalvagedPart>.from(scrapCar.parts)..removeAt(partIndex);
+    final part = customCondition != null
+        ? originalPart.copyWith(conditionPercent: customCondition)
+        : originalPart;
+    final updatedParts = List<SalvagedPart>.from(scrapCar.parts)
+      ..removeAt(partIndex);
     final updatedScrapCar = scrapCar.copyWith(parts: updatedParts);
 
     final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars);
@@ -179,14 +193,16 @@ mixin GameScrapyardMixin on GameBaseNotifier {
         success: true,
         isSalvaged: false,
         part: part,
-        message: 'Civata kaynamış! ${part.name} sökülürken hasar gördü ve ziyan oldu.',
+        message:
+            'Civata kaynamış! ${part.name} sökülürken hasar gördü ve ziyan oldu.',
       );
     }
   }
 
   /// Crush the remaining car chassis into scrap metal and extract surprise finds
   ChassisCrushResult crushChassisToScrapMetal(String scrapCarId) {
-    final scrapIndex = state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
+    final scrapIndex =
+        state.scrapyardCars.indexWhere((c) => c.id == scrapCarId);
     if (scrapIndex == -1) {
       return const ChassisCrushResult(
         success: false,
@@ -202,7 +218,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
         success: false,
         scrapMetalEarned: 0,
         surpriseEarned: 0,
-        message: 'Şasiyi presleyebilmek için önce hurda aracı satın almalısınız.',
+        message:
+            'Şasiyi presleyebilmek için önce hurda aracı satın almalısınız.',
       );
     }
     final scrapMetalVal = scrapCar.chassisScrapValue;
@@ -210,7 +227,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     final surpriseName = scrapCar.surpriseFindItem;
     final totalEarned = scrapMetalVal + surpriseVal;
 
-    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars)..removeAt(scrapIndex);
+    final updatedScrapCars = List<ScrapyardCar>.from(state.scrapyardCars)
+      ..removeAt(scrapIndex);
 
     state = state.copyWith(
       balance: state.balance + totalEarned,
@@ -220,7 +238,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     addXP(30);
     saveState();
 
-    String msg = '${scrapCar.brand} ${scrapCar.modelName} şasisi preslendi! ₺${scrapMetalVal.toInt()} hurda demir geliri kazanıldı.';
+    String msg =
+        '${scrapCar.brand} ${scrapCar.modelName} şasisi preslendi! ₺${scrapMetalVal.toInt()} hurda demir geliri kazanıldı.';
     if (surpriseName != null && surpriseVal > 0) {
       msg += ' Torpidodan "$surpriseName" çıktı • +₺${surpriseVal.toInt()}!';
     }
@@ -274,20 +293,24 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     if (part.category != order.requiredCategory) return false;
 
     if (order.requiredCarBrand != null) {
-      final matchesBrand = part.carModelName.toLowerCase().contains(order.requiredCarBrand!.toLowerCase());
+      final matchesBrand = part.carModelName
+          .toLowerCase()
+          .contains(order.requiredCarBrand!.toLowerCase());
       if (!matchesBrand) return false;
     }
 
     if (part.tier.index < order.minQualityTier.index) return false;
 
-    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)..removeAt(partIndex);
+    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)
+      ..removeAt(partIndex);
     final updatedOrder = order.copyWith(isCompleted: true);
     final updatedOrders = List<B2BPartOrder>.from(state.b2bPartOrders);
     updatedOrders[orderIndex] = updatedOrder;
 
     state = state.copyWith(
       balance: state.balance + order.offeredPrice,
-      reputationScore: (state.reputationScore + order.reputationReward).clamp(0, 1000),
+      reputationScore:
+          (state.reputationScore + order.reputationReward).clamp(0, 1000),
       salvagedParts: updatedParts,
       b2bPartOrders: updatedOrders,
     );
@@ -303,7 +326,8 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     if (partIndex == -1) return false;
 
     final part = state.salvagedParts[partIndex];
-    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)..removeAt(partIndex);
+    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)
+      ..removeAt(partIndex);
 
     state = state.copyWith(
       balance: state.balance + part.estimatedValue,
@@ -325,29 +349,43 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isRented || car.isConsignment) return false;
 
-    final isBrandMatch = part.carModelName.toLowerCase().contains(car.brand.toLowerCase());
+    final isBrandMatch =
+        part.carModelName.toLowerCase().contains(car.brand.toLowerCase());
     final compMultiplier = isBrandMatch ? 1.0 : 0.60;
 
     double engineBoost = 0.0;
     double transBoost = 0.0;
 
-    if (part.category == 'engine' || part.category == 'turbo' || part.category == 'ecu' || part.category == 'radiator') {
-      engineBoost = (part.conditionPercent * 0.35 * compMultiplier).clamp(10.0, 45.0);
-    } else if (part.category == 'transmission' || part.category == 'brakes' || part.category == 'suspension') {
-      transBoost = (part.conditionPercent * 0.35 * compMultiplier).clamp(10.0, 45.0);
+    if (part.category == 'engine' ||
+        part.category == 'turbo' ||
+        part.category == 'ecu' ||
+        part.category == 'radiator') {
+      engineBoost =
+          (part.conditionPercent * 0.35 * compMultiplier).clamp(10.0, 45.0);
+    } else if (part.category == 'transmission' ||
+        part.category == 'brakes' ||
+        part.category == 'suspension') {
+      transBoost =
+          (part.conditionPercent * 0.35 * compMultiplier).clamp(10.0, 45.0);
     }
 
-    final newEngineCond = (car.expertise.engineCondition + engineBoost).clamp(0.0, 100.0);
-    final newTransCond = (car.expertise.transmissionCondition + transBoost).clamp(0.0, 100.0);
+    final newEngineCond =
+        (car.expertise.engineCondition + engineBoost).clamp(0.0, 100.0);
+    final newTransCond =
+        (car.expertise.transmissionCondition + transBoost).clamp(0.0, 100.0);
 
     bool isRestored = car.isBarnFindRestored;
     bool isRare = car.isRare;
     List<String> newProvenance = List.from(car.provenanceLog);
 
-    if (car.isBarnFind && !isRestored && newEngineCond >= 95.0 && newTransCond >= 95.0) {
+    if (car.isBarnFind &&
+        !isRestored &&
+        newEngineCond >= 95.0 &&
+        newTransCond >= 95.0) {
       isRestored = true;
       isRare = true;
-      newProvenance.add('Gün ${state.currentDay}: Hurdalıktan kurtarılan klasik tam restorasyondan geçti! Değeri katlandı.');
+      newProvenance.add(
+          'Gün ${state.currentDay}: Hurdalıktan kurtarılan klasik tam restorasyondan geçti! Değeri katlandı.');
       checkAchievement('collector_king');
     }
 
@@ -373,13 +411,15 @@ mixin GameScrapyardMixin on GameBaseNotifier {
         } else if (nextTasks >= 10 && nextLevel < 2) {
           nextLevel = 2;
         }
-        updatedStaff[i] = staff.copyWith(tasksCompleted: nextTasks, masteryLevel: nextLevel);
+        updatedStaff[i] =
+            staff.copyWith(tasksCompleted: nextTasks, masteryLevel: nextLevel);
       }
     }
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
-    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)..removeAt(partIndex);
+    final updatedParts = List<SalvagedPart>.from(state.salvagedParts)
+      ..removeAt(partIndex);
 
     state = state.copyWith(
       ownedCars: updatedCars,
@@ -433,8 +473,11 @@ mixin GameScrapyardMixin on GameBaseNotifier {
   }
 
   /// Hurdalıkta Kayıp Hazine Arama (§17)
-  double? searchScrapForTreasures({ScrapyardZoneType zone = ScrapyardZoneType.ostim}) {
-    final searchCount = (state.lastScrapyardSearchDay == state.currentDay) ? state.scrapyardSearchesToday : 0;
+  double? searchScrapForTreasures(
+      {ScrapyardZoneType zone = ScrapyardZoneType.ostim}) {
+    final searchCount = (state.lastScrapyardSearchDay == state.currentDay)
+        ? state.scrapyardSearchesToday
+        : 0;
     if (searchCount >= 3) return null;
 
     final cost = zone.cost;

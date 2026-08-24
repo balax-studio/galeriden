@@ -26,7 +26,9 @@ class CarCostBreakdownSheet extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Calculate itemized investments
-    final purchaseCost = car.currentPurchasePrice > 0 ? car.currentPurchasePrice : car.estimatedRealValue * 0.85;
+    final purchaseCost = car.currentPurchasePrice > 0
+        ? car.currentPurchasePrice
+        : car.estimatedRealValue * 0.85;
 
     double detailingCost = 0;
     final List<Map<String, dynamic>> extraCosts = [];
@@ -37,11 +39,13 @@ class CarCostBreakdownSheet extends StatelessWidget {
     }
     if (car.hasRestoredHeadlights) {
       detailingCost += 850;
-      extraCosts.add({'title': context.tr('cost_item_headlight'), 'cost': 850.0});
+      extraCosts
+          .add({'title': context.tr('cost_item_headlight'), 'cost': 850.0});
     }
     if (car.hasIronDecon) {
       detailingCost += 450;
-      extraCosts.add({'title': context.tr('cost_item_iron_decon'), 'cost': 450.0});
+      extraCosts
+          .add({'title': context.tr('cost_item_iron_decon'), 'cost': 450.0});
     }
     if (car.hasPdrRepaired) {
       detailingCost += 3200;
@@ -49,7 +53,8 @@ class CarCostBreakdownSheet extends StatelessWidget {
     }
     if (car.hasTuvturkCertified) {
       detailingCost += 1500;
-      extraCosts.add({'title': context.tr('cost_item_tuvturk'), 'cost': 1500.0});
+      extraCosts
+          .add({'title': context.tr('cost_item_tuvturk'), 'cost': 1500.0});
     }
     if (car.isWashed) {
       detailingCost += 250;
@@ -61,11 +66,13 @@ class CarCostBreakdownSheet extends StatelessWidget {
     }
     if (car.isCeramicCoated) {
       detailingCost += 8000;
-      extraCosts.add({'title': context.tr('cost_item_ceramic'), 'cost': 8000.0});
+      extraCosts
+          .add({'title': context.tr('cost_item_ceramic'), 'cost': 8000.0});
     }
 
     final totalCost = purchaseCost + detailingCost;
-    final targetPrice = car.isListed ? car.listingPrice : car.estimatedRealValue * 1.10;
+    final targetPrice =
+        car.isListed ? car.listingPrice : car.estimatedRealValue * 1.10;
     final netProfit = targetPrice - totalCost;
     final roiPercent = totalCost > 0 ? (netProfit / totalCost) * 100 : 0.0;
 
@@ -106,7 +113,8 @@ class CarCostBreakdownSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.black, width: 2.0),
                 ),
-                child: const Icon(Icons.calculate_rounded, color: Colors.black, size: 20),
+                child: const Icon(Icons.calculate_rounded,
+                    color: Colors.black, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -144,21 +152,28 @@ class CarCostBreakdownSheet extends StatelessWidget {
           // Itemized Cost Card
           NeoBrutalCard(
             backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            borderColor:
+                isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
             borderRadius: 12,
             borderWidth: 2.0,
             padding: const EdgeInsets.all(14),
             child: Column(
               children: [
-                _buildCostRow(context.tr('cost_item_purchase_price'), purchaseCost, isDark),
+                _buildCostRow(context.tr('cost_item_purchase_price'),
+                    purchaseCost, isDark),
                 if (extraCosts.isNotEmpty) ...[
                   const Divider(height: 14),
-                  ...extraCosts.map((item) => _buildCostRow(item['title'] as String, item['cost'] as double, isDark, isSubItem: true)),
+                  ...extraCosts.map((item) => _buildCostRow(
+                      item['title'] as String, item['cost'] as double, isDark,
+                      isSubItem: true)),
                 ],
                 const Divider(height: 16),
-                _buildCostRow(context.tr('cost_total_cost'), totalCost, isDark, isBold: true),
+                _buildCostRow(context.tr('cost_total_cost'), totalCost, isDark,
+                    isBold: true),
                 const SizedBox(height: 6),
-                _buildCostRow(context.tr('cost_target_price'), targetPrice, isDark, isHighlight: true),
+                _buildCostRow(
+                    context.tr('cost_target_price'), targetPrice, isDark,
+                    isHighlight: true),
               ],
             ),
           ),
@@ -173,7 +188,9 @@ class CarCostBreakdownSheet extends StatelessWidget {
                   : const Color(0xFFEF4444).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: netProfit >= 0 ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                color: netProfit >= 0
+                    ? const Color(0xFF00E575)
+                    : const Color(0xFFEF4444),
                 width: 2.0,
               ),
             ),
@@ -188,7 +205,9 @@ class CarCostBreakdownSheet extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w900,
-                        color: netProfit >= 0 ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                        color: netProfit >= 0
+                            ? const Color(0xFF00E575)
+                            : const Color(0xFFEF4444),
                       ),
                     ),
                     Text(
@@ -196,14 +215,18 @@ class CarCostBreakdownSheet extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: netProfit >= 0 ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                        color: netProfit >= 0
+                            ? const Color(0xFF00E575)
+                            : const Color(0xFFEF4444),
                       ),
                     ),
                   ],
                 ),
                 NeoBrutalBadge(
                   text: '%${roiPercent.toStringAsFixed(1)} ROI',
-                  backgroundColor: netProfit >= 0 ? const Color(0xFF00E575) : const Color(0xFFEF4444),
+                  backgroundColor: netProfit >= 0
+                      ? const Color(0xFF00E575)
+                      : const Color(0xFFEF4444),
                   textColor: Colors.black,
                   fontSize: 11,
                 ),
@@ -227,32 +250,39 @@ class CarCostBreakdownSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildCostRow(String title, double amount, bool isDark, {bool isBold = false, bool isHighlight = false, bool isSubItem = false}) {
+  Widget _buildCostRow(String title, double amount, bool isDark,
+      {bool isBold = false, bool isHighlight = false, bool isSubItem = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: isSubItem ? 2 : 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          Expanded(
+              child: Text(
             isSubItem ? '  ↳ $title' : title,
             style: TextStyle(
               fontSize: isBold || isHighlight ? 12 : 11,
-              fontWeight: isBold || isHighlight ? FontWeight.w900 : FontWeight.w600,
+              fontWeight:
+                  isBold || isHighlight ? FontWeight.w900 : FontWeight.w600,
               color: isHighlight
                   ? const Color(0xFF38BDF8)
-                  : (isDark ? (isSubItem ? Colors.white60 : Colors.white) : (isSubItem ? Colors.black54 : Colors.black87)),
+                  : (isDark
+                      ? (isSubItem ? Colors.white60 : Colors.white)
+                      : (isSubItem ? Colors.black54 : Colors.black87)),
             ),
-          ),
-          Text(
+          )),
+          Expanded(
+              child: Text(
             CurrencyFormatter.formatShort(amount),
             style: TextStyle(
               fontSize: isBold || isHighlight ? 12.5 : 11,
-              fontWeight: isBold || isHighlight ? FontWeight.w900 : FontWeight.w700,
+              fontWeight:
+                  isBold || isHighlight ? FontWeight.w900 : FontWeight.w700,
               color: isHighlight
                   ? const Color(0xFF38BDF8)
                   : (isDark ? Colors.white : const Color(0xFF0F172A)),
             ),
-          ),
+          )),
         ],
       ),
     );

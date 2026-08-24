@@ -58,7 +58,8 @@ class ThemeStoreScreen extends ConsumerWidget {
             NeoBrutalCard(
               padding: const EdgeInsets.all(14),
               backgroundColor: isDark ? p.surfaceColor : Colors.white,
-              borderColor: isDark ? p.surfaceBorderColor : const Color(0xFF0F172A),
+              borderColor:
+                  isDark ? p.surfaceBorderColor : const Color(0xFF0F172A),
               borderRadius: 14,
               showBlueprintGrid: true,
               patternType: BlueprintPatternType.dots,
@@ -71,7 +72,10 @@ class ThemeStoreScreen extends ConsumerWidget {
                       children: [
                         Text(
                           context.tr('theme_store_balance_title'),
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+                          style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF64748B)),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -79,7 +83,9 @@ class ThemeStoreScreen extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? p.textPrimaryColor : const Color(0xFF0F172A),
+                            color: isDark
+                                ? p.textPrimaryColor
+                                : const Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -115,7 +121,8 @@ class ThemeStoreScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      Expanded(
+                          child: Text(
                         context.tr('theme_active_preview_title'),
                         style: TextStyle(
                           fontSize: 10,
@@ -123,7 +130,7 @@ class ThemeStoreScreen extends ConsumerWidget {
                           letterSpacing: 0.8,
                           color: p.primaryColor,
                         ),
-                      ),
+                      )),
                       NeoBrutalBadge(
                         text: p.name.toUpperCase(),
                         backgroundColor: p.primaryColor,
@@ -138,11 +145,13 @@ class ThemeStoreScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8),
                           decoration: BoxDecoration(
                             color: p.backgroundColor,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: p.surfaceBorderColor, width: 1.5),
+                            border: Border.all(
+                                color: p.surfaceBorderColor, width: 1.5),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,11 +180,13 @@ class ThemeStoreScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8),
                           decoration: BoxDecoration(
                             color: p.surfaceColor,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: p.surfaceBorderColor, width: 1.5),
+                            border: Border.all(
+                                color: p.surfaceBorderColor, width: 1.5),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +222,11 @@ class ThemeStoreScreen extends ConsumerWidget {
             // 3. Theme List Header
             Text(
               context.tr('theme_palettes_header'),
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: Color(0xFF64748B)),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.8,
+                  color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 8),
 
@@ -226,11 +241,15 @@ class ThemeStoreScreen extends ConsumerWidget {
                 child: NeoBrutalCard(
                   padding: const EdgeInsets.all(12),
                   backgroundColor: isActive
-                      ? (isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9))
+                      ? (isDark
+                          ? const Color(0xFF1E2433)
+                          : const Color(0xFFF1F5F9))
                       : (isDark ? palette.surfaceColor : Colors.white),
                   borderColor: isActive
                       ? palette.primaryColor
-                      : (isDark ? palette.surfaceBorderColor : const Color(0xFF0F172A)),
+                      : (isDark
+                          ? palette.surfaceBorderColor
+                          : const Color(0xFF0F172A)),
                   borderWidth: isActive ? 2.5 : 1.8,
                   borderRadius: 12,
                   child: Row(
@@ -268,7 +287,9 @@ class ThemeStoreScreen extends ConsumerWidget {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      color: isDark
+                                          ? Colors.white
+                                          : const Color(0xFF0F172A),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -299,13 +320,28 @@ class ThemeStoreScreen extends ConsumerWidget {
                             const SizedBox(height: 2),
                             Text(
                               palette.price == 0
-                                  ? (palette.isUnlocked ? context.tr('theme_status_free') : context.tr('theme_status_ad_unlockable'))
+                                  ? (palette.isUnlocked
+                                      ? context.tr('theme_status_free')
+                                      : context
+                                          .tr('theme_status_ad_unlockable'))
                                   : (palette.isUnlocked
                                       ? context.tr('theme_status_purchased')
                                       : (palette.isAdUnlockable
-                                          ? context.tr('theme_status_ad_or_price', {'price': CurrencyFormatter.formatShort(palette.price.toDouble())})
-                                          : context.tr('theme_status_price', {'price': CurrencyFormatter.formatShort(palette.price.toDouble())}))),
-                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                          ? context.tr(
+                                              'theme_status_ad_or_price', {
+                                              'price':
+                                                  CurrencyFormatter.formatShort(
+                                                      palette.price.toDouble())
+                                            })
+                                          : context.tr('theme_status_price', {
+                                              'price':
+                                                  CurrencyFormatter.formatShort(
+                                                      palette.price.toDouble())
+                                            }))),
+                              style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -321,32 +357,45 @@ class ThemeStoreScreen extends ConsumerWidget {
                       else if (palette.isUnlocked)
                         NeoBrutalButton(
                           label: context.tr('theme_apply_btn'),
-                          backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0),
+                          backgroundColor: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0),
                           textColor: isDark ? Colors.white : Colors.black,
                           fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
                           onPressed: () {
-                            ref.read(themeProvider.notifier).selectPalette(palette.id);
+                            ref
+                                .read(themeProvider.notifier)
+                                .selectPalette(palette.id);
                           },
                         )
                       else if (palette.isAdUnlockable)
                         NeoBrutalButton(
                           label: context.tr('theme_watch_ad_btn'),
                           icon: Icons.play_circle_filled_rounded,
-                          backgroundColor: isExotic ? const Color(0xFFFF5EAE) : (isAbsurd ? AppColors.hotMagenta : AppColors.brutalGreen),
+                          backgroundColor: isExotic
+                              ? const Color(0xFFFF5EAE)
+                              : (isAbsurd
+                                  ? AppColors.hotMagenta
+                                  : AppColors.brutalGreen),
                           textColor: Colors.white,
                           fontSize: 10.5,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8),
                           onPressed: () {
                             HapticFeedback.heavyImpact();
                             AdService.instance.showRewardedAdWithFallback(
                               context: context,
                               customRewardTitle: '${palette.name} Tema Kilidi',
                               onRewardEarned: () {
-                                ref.read(themeProvider.notifier).unlockPaletteViaAd(palette.id);
+                                ref
+                                    .read(themeProvider.notifier)
+                                    .unlockPaletteViaAd(palette.id);
                                 NotificationService.showSuccess(
                                   context,
-                                  context.tr('theme_unlocked_ad_toast', {'name': palette.name}),
+                                  context.tr('theme_unlocked_ad_toast',
+                                      {'name': palette.name}),
                                 );
                               },
                             );
@@ -358,16 +407,23 @@ class ThemeStoreScreen extends ConsumerWidget {
                           backgroundColor: AppColors.brutalGreen,
                           textColor: Colors.black,
                           fontSize: 11,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
                           onPressed: () {
-                            final success =
-                                ref.read(themeProvider.notifier).unlockPalette(palette.id, game.balance);
+                            final success = ref
+                                .read(themeProvider.notifier)
+                                .unlockPalette(palette.id, game.balance);
                             if (success) {
-                              ref.read(gameProvider.notifier).deductBalance(palette.price.toDouble());
+                              ref
+                                  .read(gameProvider.notifier)
+                                  .deductBalance(palette.price.toDouble());
                               NotificationService.showSuccess(
-                                  context, context.tr('theme_bought_toast', {'name': palette.name}));
+                                  context,
+                                  context.tr('theme_bought_toast',
+                                      {'name': palette.name}));
                             } else {
-                              NotificationService.showError(context, context.tr('theme_insufficient_funds'));
+                              NotificationService.showError(context,
+                                  context.tr('theme_insufficient_funds'));
                             }
                           },
                         ),

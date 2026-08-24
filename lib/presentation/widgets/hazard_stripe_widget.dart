@@ -49,7 +49,10 @@ class _HazardStripeWidgetState extends State<HazardStripeWidget>
       duration: const Duration(milliseconds: 1600),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller?.repeat();
     } else {
@@ -152,7 +155,9 @@ class HazardStripePainter extends CustomPainter {
     final totalHeight = size.height;
     final step = stripeWidth * 2;
 
-    for (double x = -totalHeight - step + offset; x < totalWidth + totalHeight + step; x += step) {
+    for (double x = -totalHeight - step + offset;
+        x < totalWidth + totalHeight + step;
+        x += step) {
       path.moveTo(x, totalHeight);
       path.lineTo(x + stripeWidth, totalHeight);
       path.lineTo(x + stripeWidth + totalHeight, 0);

@@ -41,6 +41,7 @@ class GameEventModel {
   final GameEventType type;
   final DateTime date;
   final List<GameEventChoice> choices;
+  final Map<String, dynamic>? params;
 
   GameEventModel({
     required this.id,
@@ -51,6 +52,7 @@ class GameEventModel {
     required this.type,
     required this.date,
     this.choices = const [],
+    this.params,
   });
 
   Map<String, dynamic> toJson() => {
@@ -62,6 +64,7 @@ class GameEventModel {
         'type': type.name,
         'date': date.toIso8601String(),
         'choices': choices.map((c) => c.toJson()).toList(),
+        if (params != null) 'params': params,
       };
 
   factory GameEventModel.fromJson(Map<String, dynamic> json) => GameEventModel(
@@ -79,5 +82,6 @@ class GameEventModel {
                 ?.map((c) => GameEventChoice.fromJson(Map<String, dynamic>.from(c as Map)))
                 .toList() ??
             const [],
+        params: json['params'] != null ? Map<String, dynamic>.from(json['params'] as Map) : null,
       );
 }

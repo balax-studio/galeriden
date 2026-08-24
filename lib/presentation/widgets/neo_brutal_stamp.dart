@@ -28,7 +28,8 @@ class NeoBrutalStamp extends StatelessWidget {
         padding: const EdgeInsets.all(2),
         decoration: showDoubleBorder
             ? BoxDecoration(
-                border: Border.all(color: color.withValues(alpha: 0.5), width: 1.0),
+                border:
+                    Border.all(color: color.withValues(alpha: 0.5), width: 1.0),
                 borderRadius: BorderRadius.circular(4),
               )
             : null,

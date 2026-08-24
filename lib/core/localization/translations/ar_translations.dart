@@ -2777,5 +2777,16 @@ const Map<String, String> arTranslations = {
     'mission_consignment_desc': 'اقبل {count} سيارات أمانة بالعمولة في معرضك.',
     'mission_side_biz_title': 'دخل المشاريع الجانبية',
     'mission_side_biz_desc': 'طور مشاريعك الجانبية أو اجمع الإيرادات اليومية.',
+
+    'event_muddy_rain_title': 'مطر طيني',
+    'event_muddy_rain_desc': 'سقط مطر طيني طوال الليل، مما أدى إلى اتساخ جميع المركبات المعروضة. انخفضت قيمتها بنسبة 5٪، تحتاج إلى غسيل على الفور.',
+    'event_staff_resignation_title': 'استقالة الموظفين',
+    'event_staff_resignation_desc': 'بسبب الرواتب غير المدفوعة، ترك {names} وكالتك واستقالوا.',
+    'event_salary_unpaid_loyal_title': 'رواتب غير مدفوعة - ولاء',
+    'event_salary_unpaid_loyal_desc': 'لم يكن من الممكن دفع الرواتب. انخفضت معنويات {names} إلى الصفر، ولكن بفضل ولائهم، لم يستقيلوا. انخفض الولاء والمعنويات.',
+    'event_salary_unpaid_title': 'رواتب غير مدفوعة',
+    'event_salary_unpaid_desc': 'بسبب نقص النقد، لم يكن من الممكن دفع الرواتب اليومية. تأثرت معنويات الموظفين وولاؤهم بشدة. -35 معنويات، -20 ولاء.',
+    'event_ok': 'حسنا',
+    'badge_muddy': 'وحل',
 };
 

@@ -61,7 +61,8 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
   void _drawGroundShadow(Canvas canvas) {
     // Neo-Brutalist Hard Block Shadow underneath tires
     final shadowPaint = Paint()
-      ..color = (isDark ? Colors.black : const Color(0xFF0F172A)).withValues(alpha: 0.85)
+      ..color = (isDark ? Colors.black : const Color(0xFF0F172A))
+          .withValues(alpha: 0.85)
       ..style = PaintingStyle.fill;
 
     final shadowRect = RRect.fromRectAndRadius(
@@ -75,81 +76,100 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
     final Path bodyPath = Path();
     final normalizedType = bodyType.toLowerCase();
 
-    if (normalizedType.contains('suv') || normalizedType.contains('4x4') || normalizedType.contains('jeep')) {
+    if (normalizedType.contains('suv') ||
+        normalizedType.contains('4x4') ||
+        normalizedType.contains('jeep')) {
       // SUV: Tall, rugged, boxy hood, high roof
       bodyPath.moveTo(6, 38);
       bodyPath.lineTo(14, 38);
       // Front Wheel Arch
-      bodyPath.arcToPoint(const Offset(30, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(30, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(68, 38);
       // Rear Wheel Arch
-      bodyPath.arcToPoint(const Offset(84, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(84, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(94, 38);
       bodyPath.lineTo(94, 22); // Tall flat rear
       bodyPath.lineTo(91, 14); // Rear roof edge
       bodyPath.lineTo(44, 14); // Flat roof
       bodyPath.lineTo(26, 23); // Windshield slope
-      bodyPath.lineTo(6, 24);  // High boxy hood
-      bodyPath.lineTo(5, 34);  // Front bumper
+      bodyPath.lineTo(6, 24); // High boxy hood
+      bodyPath.lineTo(5, 34); // Front bumper
       bodyPath.close();
-    } else if (normalizedType.contains('hatch') || normalizedType.contains('kompakt')) {
+    } else if (normalizedType.contains('hatch') ||
+        normalizedType.contains('kompakt')) {
       // Hatchback: Compact 2-box, steep rear slope
       bodyPath.moveTo(7, 38);
       bodyPath.lineTo(15, 38);
       // Front Wheel Arch
-      bodyPath.arcToPoint(const Offset(31, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(31, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(67, 38);
       // Rear Wheel Arch
-      bodyPath.arcToPoint(const Offset(83, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(83, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(93, 38);
       bodyPath.lineTo(93, 27); // Rear bumper
       bodyPath.lineTo(84, 18); // Steep hatch slope
       bodyPath.lineTo(42, 17); // Roof
       bodyPath.lineTo(24, 25); // Windshield
-      bodyPath.lineTo(7, 26);  // Hood
-      bodyPath.lineTo(6, 35);  // Front nose
+      bodyPath.lineTo(7, 26); // Hood
+      bodyPath.lineTo(6, 35); // Front nose
       bodyPath.close();
-    } else if (normalizedType.contains('spor') || normalizedType.contains('sport') || normalizedType.contains('coupe') || normalizedType.contains('cabrio')) {
+    } else if (normalizedType.contains('spor') ||
+        normalizedType.contains('sport') ||
+        normalizedType.contains('coupe') ||
+        normalizedType.contains('cabrio')) {
       // Sport / Coupe: Low wedge profile, aerodynamic sweep
       bodyPath.moveTo(6, 38);
       bodyPath.lineTo(14, 38);
       // Front Wheel Arch
-      bodyPath.arcToPoint(const Offset(30, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(30, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(69, 38);
       // Rear Wheel Arch
-      bodyPath.arcToPoint(const Offset(85, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(85, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(95, 38);
       bodyPath.lineTo(95, 30); // Low rear bumper
       bodyPath.lineTo(87, 26); // Short trunk lip
       bodyPath.lineTo(70, 19); // Fastback slope
       bodyPath.lineTo(45, 18); // Low roof
       bodyPath.lineTo(28, 26); // Long rake windshield
-      bodyPath.lineTo(6, 29);  // Low pointed nose
+      bodyPath.lineTo(6, 29); // Low pointed nose
       bodyPath.lineTo(5, 36);
       bodyPath.close();
-    } else if (normalizedType.contains('klasik') || normalizedType.contains('classic')) {
+    } else if (normalizedType.contains('klasik') ||
+        normalizedType.contains('classic')) {
       // Classic: Curved vintage fenders, rounded roof
       bodyPath.moveTo(6, 38);
       bodyPath.lineTo(13, 38);
-      bodyPath.arcToPoint(const Offset(31, 38), radius: const Radius.circular(9), clockwise: false);
+      bodyPath.arcToPoint(const Offset(31, 38),
+          radius: const Radius.circular(9), clockwise: false);
       bodyPath.lineTo(67, 38);
-      bodyPath.arcToPoint(const Offset(85, 38), radius: const Radius.circular(9), clockwise: false);
+      bodyPath.arcToPoint(const Offset(85, 38),
+          radius: const Radius.circular(9), clockwise: false);
       bodyPath.lineTo(94, 38);
       bodyPath.lineTo(94, 28);
       bodyPath.lineTo(86, 26); // Vintage rounded boot
       bodyPath.lineTo(72, 17); // Rounded C pillar
       bodyPath.lineTo(40, 16); // High dome roof
       bodyPath.lineTo(26, 24); // Windshield
-      bodyPath.lineTo(7, 27);  // Long straight classic hood
+      bodyPath.lineTo(7, 27); // Long straight classic hood
       bodyPath.lineTo(5, 35);
       bodyPath.close();
-    } else if (normalizedType.contains('van') || normalizedType.contains('station') || normalizedType.contains('ticari')) {
+    } else if (normalizedType.contains('van') ||
+        normalizedType.contains('station') ||
+        normalizedType.contains('ticari')) {
       // Commercial Van / Station: High long roof, maximal cargo box
       bodyPath.moveTo(6, 38);
       bodyPath.lineTo(14, 38);
-      bodyPath.arcToPoint(const Offset(30, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(30, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(68, 38);
-      bodyPath.arcToPoint(const Offset(84, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(84, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(94, 38);
       bodyPath.lineTo(95, 14); // Tall vertical van rear
       bodyPath.lineTo(40, 13); // High flat roof
@@ -162,18 +182,20 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
       bodyPath.moveTo(6, 38);
       bodyPath.lineTo(14, 38);
       // Front Wheel Arch
-      bodyPath.arcToPoint(const Offset(30, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(30, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(68, 38);
       // Rear Wheel Arch
-      bodyPath.arcToPoint(const Offset(84, 38), radius: const Radius.circular(8), clockwise: false);
+      bodyPath.arcToPoint(const Offset(84, 38),
+          radius: const Radius.circular(8), clockwise: false);
       bodyPath.lineTo(94, 38);
       bodyPath.lineTo(94, 29); // Rear bumper
       bodyPath.lineTo(85, 25); // Sedan trunk decklid
       bodyPath.lineTo(72, 17); // Rear windshield slope
       bodyPath.lineTo(42, 17); // Roof
       bodyPath.lineTo(25, 25); // Front windshield rake
-      bodyPath.lineTo(6, 27);  // Sedan hood
-      bodyPath.lineTo(5, 35);  // Front grill nose
+      bodyPath.lineTo(6, 27); // Sedan hood
+      bodyPath.lineTo(5, 35); // Front grill nose
       bodyPath.close();
     }
 
@@ -218,7 +240,8 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final glossHighlight = Paint()
-      ..color = const Color(0xFF38BDF8).withValues(alpha: 0.75) // Cyan Cel-Shaded highlight
+      ..color = const Color(0xFF38BDF8)
+          .withValues(alpha: 0.75) // Cyan Cel-Shaded highlight
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -243,9 +266,13 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
       canvas.drawPath(frontWin, windowOutline);
       canvas.drawPath(rearWin, windowOutline);
       // Cel-Shading Gloss
-      canvas.drawLine(const Offset(31, 23), const Offset(42, 17), glossHighlight);
-      canvas.drawLine(const Offset(52, 23), const Offset(62, 17), glossHighlight);
-    } else if (normalizedType.contains('spor') || normalizedType.contains('coupe') || normalizedType.contains('cabrio')) {
+      canvas.drawLine(
+          const Offset(31, 23), const Offset(42, 17), glossHighlight);
+      canvas.drawLine(
+          const Offset(52, 23), const Offset(62, 17), glossHighlight);
+    } else if (normalizedType.contains('spor') ||
+        normalizedType.contains('coupe') ||
+        normalizedType.contains('cabrio')) {
       // Sport Coupe Sleek Curved Glass
       final sportWin = Path()
         ..moveTo(30, 26)
@@ -255,8 +282,10 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
         ..close();
       canvas.drawPath(sportWin, windowPaint);
       canvas.drawPath(sportWin, windowOutline);
-      canvas.drawLine(const Offset(34, 25), const Offset(46, 21), glossHighlight);
-      canvas.drawLine(const Offset(52, 25), const Offset(64, 21), glossHighlight);
+      canvas.drawLine(
+          const Offset(34, 25), const Offset(46, 21), glossHighlight);
+      canvas.drawLine(
+          const Offset(52, 25), const Offset(64, 21), glossHighlight);
     } else {
       // Standard Sedan / Hatch / Classic Dual Windows
       final frontWin = Path()
@@ -279,8 +308,10 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
       canvas.drawPath(rearWin, windowOutline);
 
       // Cel-Shading Gloss
-      canvas.drawLine(const Offset(30, 24), const Offset(41, 20), glossHighlight);
-      canvas.drawLine(const Offset(50, 24), const Offset(61, 20), glossHighlight);
+      canvas.drawLine(
+          const Offset(30, 24), const Offset(41, 20), glossHighlight);
+      canvas.drawLine(
+          const Offset(50, 24), const Offset(61, 20), glossHighlight);
     }
 
     // Door Handle Accent
@@ -414,7 +445,12 @@ class NeoBrutalCarVectorPainter extends CustomPainter {
       ..close();
 
     canvas.drawPath(path, sparklePaint);
-    canvas.drawPath(path, Paint()..color = Colors.black..strokeWidth = 1.0..style = PaintingStyle.stroke);
+    canvas.drawPath(
+        path,
+        Paint()
+          ..color = Colors.black
+          ..strokeWidth = 1.0
+          ..style = PaintingStyle.stroke);
   }
 
   @override

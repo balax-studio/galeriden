@@ -24,40 +24,62 @@ class IpoRequestModal {
             final double totalCost = requestedLots * ipo.lotPrice;
 
             return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(dialogCtx).viewInsets.bottom),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(dialogCtx).viewInsets.bottom),
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  border: Border.all(color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A), width: 2.5),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
+                      width: 2.5),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('stock_ipo_demand_title', {'symbol': ipo.symbol}), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                    Text(
+                        context.tr(
+                            'stock_ipo_demand_title', {'symbol': ipo.symbol}),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 4),
-                    Text(context.tr('stock_ipo_max_limit', {'amount': ipo.maxLotPerUser}), style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                    Text(
+                        context.tr('stock_ipo_max_limit',
+                            {'amount': ipo.maxLotPerUser}),
+                        style: const TextStyle(
+                            fontSize: 12, color: Color(0xFF64748B))),
                     const SizedBox(height: 12),
                     TextField(
                       controller: lotCtrl,
                       keyboardType: TextInputType.number,
                       autofocus: true,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 18),
                       decoration: InputDecoration(
                         hintText: context.tr('stock_lot_hint'),
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF0F1118) : const Color(0xFFF1F5F9),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        fillColor: isDark
+                            ? const Color(0xFF0F1118)
+                            : const Color(0xFFF1F5F9),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
                         suffixText: 'LOT',
                       ),
                       onChanged: (val) => setDialogState(() {}),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      context.tr('ipo_total_demand_cost', {'cost': totalCost.round()}),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.brutalGreen),
+                      context.tr(
+                          'ipo_total_demand_cost', {'cost': totalCost.round()}),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.brutalGreen),
                     ),
                     const SizedBox(height: 16),
                     NeoBrutalButton(
@@ -67,23 +89,29 @@ class IpoRequestModal {
                       textColor: Colors.black,
                       fullWidth: true,
                       onPressed: () {
-                        if (requestedLots <= 0 || requestedLots > ipo.maxLotPerUser) {
+                        if (requestedLots <= 0 ||
+                            requestedLots > ipo.maxLotPerUser) {
                           NotificationService.showError(
                             context,
-                            context.tr('ipo_max_lot_error', {'max': ipo.maxLotPerUser}),
+                            context.tr('ipo_max_lot_error',
+                                {'max': ipo.maxLotPerUser}),
                           );
                           return;
                         }
                         if (game.balance < totalCost) {
-                          NotificationService.showError(context, context.tr('stock_insufficient_funds_toast'));
+                          NotificationService.showError(context,
+                              context.tr('stock_insufficient_funds_toast'));
                           return;
                         }
-                        final success = ref.read(gameProvider.notifier).requestIpo(ipo.id, requestedLots);
+                        final success = ref
+                            .read(gameProvider.notifier)
+                            .requestIpo(ipo.id, requestedLots);
                         if (success) {
                           Navigator.pop(dialogCtx);
                           NotificationService.showSuccess(
                             context,
-                            context.tr('ipo_demand_success_toast', {'symbol': ipo.symbol}),
+                            context.tr('ipo_demand_success_toast',
+                                {'symbol': ipo.symbol}),
                           );
                         }
                       },

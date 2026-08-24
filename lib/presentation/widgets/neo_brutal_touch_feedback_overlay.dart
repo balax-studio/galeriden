@@ -32,16 +32,19 @@ class NeoBrutalTouchFeedbackOverlay extends StatefulWidget {
   });
 
   @override
-  State<NeoBrutalTouchFeedbackOverlay> createState() => NeoBrutalTouchFeedbackOverlayState();
+  State<NeoBrutalTouchFeedbackOverlay> createState() =>
+      NeoBrutalTouchFeedbackOverlayState();
 }
 
-class NeoBrutalTouchFeedbackOverlayState extends State<NeoBrutalTouchFeedbackOverlay>
+class NeoBrutalTouchFeedbackOverlayState
+    extends State<NeoBrutalTouchFeedbackOverlay>
     with SingleTickerProviderStateMixin {
   final List<TouchParticle> _activeParticles = [];
   Ticker? _ticker;
   static const int _particleLifetimeMs = 240;
 
-  List<TouchParticle> get activeParticles => List.unmodifiable(_activeParticles);
+  List<TouchParticle> get activeParticles =>
+      List.unmodifiable(_activeParticles);
 
   static const List<Color> _accentColors = [
     Color(0xFF00E575), // Neo Brutal Green
@@ -70,7 +73,8 @@ class NeoBrutalTouchFeedbackOverlayState extends State<NeoBrutalTouchFeedbackOve
     }
 
     final now = DateTime.now();
-    _activeParticles.removeWhere((p) => now.difference(p.createdAt).inMilliseconds >= _particleLifetimeMs);
+    _activeParticles.removeWhere((p) =>
+        now.difference(p.createdAt).inMilliseconds >= _particleLifetimeMs);
 
     if (mounted) {
       setState(() {});
@@ -181,8 +185,10 @@ class _NeoBrutalTouchPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.4;
 
-      final rect = Rect.fromCircle(center: const Offset(1.5, 1.5), radius: currentRadius);
-      final rrect = RRect.fromRectAndRadius(rect, Radius.circular(currentRadius * 0.28));
+      final rect = Rect.fromCircle(
+          center: const Offset(1.5, 1.5), radius: currentRadius);
+      final rrect =
+          RRect.fromRectAndRadius(rect, Radius.circular(currentRadius * 0.28));
       canvas.drawRRect(rrect, shadowPaint);
 
       // 2. Primary Vibrant Stroke
@@ -191,8 +197,10 @@ class _NeoBrutalTouchPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.4;
 
-      final mainRect = Rect.fromCircle(center: Offset.zero, radius: currentRadius);
-      final mainRRect = RRect.fromRectAndRadius(mainRect, Radius.circular(currentRadius * 0.28));
+      final mainRect =
+          Rect.fromCircle(center: Offset.zero, radius: currentRadius);
+      final mainRRect = RRect.fromRectAndRadius(
+          mainRect, Radius.circular(currentRadius * 0.28));
       canvas.drawRRect(mainRRect, primaryPaint);
 
       // 3. Center Punch Dot

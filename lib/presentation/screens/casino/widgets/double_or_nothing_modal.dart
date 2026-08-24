@@ -22,10 +22,12 @@ class DoubleOrNothingModal extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<DoubleOrNothingModal> createState() => _DoubleOrNothingModalState();
+  ConsumerState<DoubleOrNothingModal> createState() =>
+      _DoubleOrNothingModalState();
 }
 
-class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> with TickerProviderStateMixin {
+class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal>
+    with TickerProviderStateMixin {
   bool _isFlipping = false;
   bool? _isWin;
 
@@ -89,7 +91,9 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveStake = widget.wageredCar != null ? widget.wageredCar!.price : widget.baseProfit;
+    final effectiveStake = widget.wageredCar != null
+        ? widget.wageredCar!.price
+        : widget.baseProfit;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -101,7 +105,8 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFF0F172A), width: 3.5),
           boxShadow: const [
-            BoxShadow(color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
+            BoxShadow(
+                color: Color(0xFF0F172A), offset: Offset(6, 6), blurRadius: 0),
           ],
         ),
         child: Column(
@@ -113,16 +118,21 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
               decoration: const BoxDecoration(
                 color: AppColors.brutalYellow,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                border: Border(bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
+                border: Border(
+                    bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.monetization_on_rounded, color: Colors.black, size: 22),
+                  const Icon(Icons.monetization_on_rounded,
+                      color: Colors.black, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.tr('casino_double_or_nothing_title'),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Colors.black),
                     ),
                   ),
                   if (_isWin != null || !_isFlipping)
@@ -138,7 +148,8 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(color: Colors.black, width: 1.5),
                         ),
-                        child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                        child: const Icon(Icons.close_rounded,
+                            color: Colors.white, size: 18),
                       ),
                     ),
                 ],
@@ -150,15 +161,20 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
               child: Column(
                 children: [
                   Text(
-                    context.tr('double_stake_header', {'amount': _formatCurrency(effectiveStake)}),
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                    context.tr('double_stake_header',
+                        {'amount': _formatCurrency(effectiveStake)}),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900, fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                   if (widget.wageredCar != null) ...[
                     const SizedBox(height: 4),
                     Text(
                       '${widget.wageredCar!.modelName} • ${context.tr('casino_pink_slip_header')}',
-                      style: const TextStyle(color: Color(0xFFA855F7), fontWeight: FontWeight.w900, fontSize: 12),
+                      style: const TextStyle(
+                          color: Color(0xFFA855F7),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12),
                     ),
                   ],
 
@@ -169,7 +185,8 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
                     height: 120,
                     child: Center(
                       child: AnimatedBuilder(
-                        animation: Listenable.merge([_flipController, _idleController]),
+                        animation: Listenable.merge(
+                            [_flipController, _idleController]),
                         builder: (context, child) {
                           if (_isFlipping) {
                             final val = _flipController.value;
@@ -187,7 +204,8 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
                               ),
                             );
                           } else {
-                            final idleFloat = math.sin(_idleController.value * math.pi) * 4.0;
+                            final idleFloat =
+                                math.sin(_idleController.value * math.pi) * 4.0;
                             return Transform.translate(
                               offset: Offset(0, idleFloat),
                               child: _buildCoinView(),
@@ -202,17 +220,23 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
 
                   if (_isWin != null) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: _isWin! ? AppColors.brutalGreen : AppColors.brutalRed,
+                        color: _isWin!
+                            ? AppColors.brutalGreen
+                            : AppColors.brutalRed,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFF0F172A), width: 2),
+                        border: Border.all(
+                            color: const Color(0xFF0F172A), width: 2),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _isWin! ? Icons.emoji_events_rounded : Icons.cancel_rounded,
+                            _isWin!
+                                ? Icons.emoji_events_rounded
+                                : Icons.cancel_rounded,
                             color: _isWin! ? Colors.black : Colors.white,
                             size: 20,
                           ),
@@ -220,7 +244,10 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
                           Flexible(
                             child: Text(
                               _isWin!
-                                  ? context.tr('double_win_banner', {'amount': _formatCurrency(effectiveStake * 2.0)})
+                                  ? context.tr('double_win_banner', {
+                                      'amount':
+                                          _formatCurrency(effectiveStake * 2.0)
+                                    })
                                   : context.tr('double_loss_banner'),
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
@@ -267,7 +294,9 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
                   ] else ...[
                     NeoBrutalButton(
                       label: context.tr('modal_btn_close'),
-                      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFE2E8F0),
                       textColor: isDark ? Colors.white : Colors.black,
                       fontSize: 13,
                       fullWidth: true,
@@ -296,7 +325,8 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
         color: AppColors.brutalYellow,
         border: Border.all(color: const Color(0xFF0F172A), width: 3.5),
         boxShadow: const [
-          BoxShadow(color: Color(0xFF0F172A), offset: Offset(4, 4), blurRadius: 0),
+          BoxShadow(
+              color: Color(0xFF0F172A), offset: Offset(4, 4), blurRadius: 0),
         ],
       ),
       child: Center(
@@ -308,7 +338,8 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal> wit
             border: Border.all(color: const Color(0xFF0F172A), width: 2),
           ),
           child: const Center(
-            child: Icon(Icons.attach_money_rounded, size: 44, color: Colors.black),
+            child:
+                Icon(Icons.attach_money_rounded, size: 44, color: Colors.black),
           ),
         ),
       ),

@@ -56,7 +56,8 @@ class NeoBrutalNativeAdCard extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<NeoBrutalNativeAdCard> createState() => _NeoBrutalNativeAdCardState();
+  ConsumerState<NeoBrutalNativeAdCard> createState() =>
+      _NeoBrutalNativeAdCardState();
 }
 
 class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
@@ -69,7 +70,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
   static final List<InGameSponsorSnippet> _marketplaceSnippets = [
     const InGameSponsorSnippet(
       title: 'MEGUIARS OTO DETAY VE PASTA CİLA',
-      description: 'Sanayinin 1 numaralı boya koruma atölyesi! Güneş yanığını bile gizleriz garantisiyle hizmetinizde.',
+      description:
+          'Sanayinin 1 numaralı boya koruma atölyesi! Güneş yanığını bile gizleriz garantisiyle hizmetinizde.',
       badgeText: 'ad_native_sponsor_tag',
       actionText: 'ad_native_cta',
       icon: Icons.auto_fix_high_rounded,
@@ -78,7 +80,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
     ),
     const InGameSponsorSnippet(
       title: 'TÜRKİYE GENELİ ÇEKİCİ VE OTO KURTARICI',
-      description: '7 gün 24 saat şehirlerarası filo transferi. Galeriden oyuncularına özel ilk çekici yarı fiyatına.',
+      description:
+          '7 gün 24 saat şehirlerarası filo transferi. Galeriden oyuncularına özel ilk çekici yarı fiyatına.',
       badgeText: 'ÖZEL HİZMET',
       actionText: 'NUMARAYI KAYDET',
       icon: Icons.local_shipping_rounded,
@@ -90,24 +93,28 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
   static final List<InGameSponsorSnippet> _gossipSnippets = [
     const InGameSponsorSnippet(
       title: 'GÜMRÜK VE TASFİYE DERNEĞİ DUYURUSU',
-      description: 'Almanya ve Hollandadan gelen hacizli tırlarda nadir parçalar bulundu. Gelecek hafta müzayedede izdiham bekleniyor!',
+      description:
+          'Almanya ve Hollandadan gelen hacizli tırlarda nadir parçalar bulundu. Gelecek hafta müzayedede izdiham bekleniyor!',
       badgeText: 'SEKTÖR BÜLTENİ',
       actionText: 'DETAYI İNCELE',
       icon: Icons.newspaper_rounded,
       accentColor: Color(0xFFA855F7),
-      benefitToast: 'Gümrük istihbaratı not edildi - Müzayede takip listen güncellendi!',
+      benefitToast:
+          'Gümrük istihbaratı not edildi - Müzayede takip listen güncellendi!',
     ),
   ];
 
   static final List<InGameSponsorSnippet> _stockSnippets = [
     const InGameSponsorSnippet(
       title: 'BORSACI CEMAL BEYDEN SEKTÖR ANALİZİ',
-      description: 'Otomotiv yedek parça ve lojistik hisselerinde kurumsal alım sinyali var. Portföyünü çeşitlendirmeyi unutma!',
+      description:
+          'Otomotiv yedek parça ve lojistik hisselerinde kurumsal alım sinyali var. Portföyünü çeşitlendirmeyi unutma!',
       badgeText: 'ANALİST RAPORU',
       actionText: 'RAPORU OKU',
       icon: Icons.trending_up_rounded,
       accentColor: AppColors.successGreen,
-      benefitToast: 'Cemal Beyin analist bültenini okudun - Borsa bilgin arttı!',
+      benefitToast:
+          'Cemal Beyin analist bültenini okudun - Borsa bilgin arttı!',
     ),
   ];
 
@@ -121,13 +128,16 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
     final random = Random();
     switch (widget.contextType) {
       case NativeAdContextType.marketplace:
-        _fallbackSnippet = _marketplaceSnippets[random.nextInt(_marketplaceSnippets.length)];
+        _fallbackSnippet =
+            _marketplaceSnippets[random.nextInt(_marketplaceSnippets.length)];
         break;
       case NativeAdContextType.gossip:
-        _fallbackSnippet = _gossipSnippets[random.nextInt(_gossipSnippets.length)];
+        _fallbackSnippet =
+            _gossipSnippets[random.nextInt(_gossipSnippets.length)];
         break;
       case NativeAdContextType.stockMarket:
-        _fallbackSnippet = _stockSnippets[random.nextInt(_stockSnippets.length)];
+        _fallbackSnippet =
+            _stockSnippets[random.nextInt(_stockSnippets.length)];
         break;
     }
   }
@@ -136,7 +146,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
     if (_lastDayEvaluated == currentDay) return;
     _lastDayEvaluated = currentDay;
 
-    final bool shouldShow = AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
+    final bool shouldShow =
+        AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
     if (!shouldShow) {
       if (_nativeAd != null) {
         _nativeAd?.dispose();
@@ -175,7 +186,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
       },
       onAdFailedToLoad: (error) {
         if (!mounted) return;
-        debugPrint('[NeoBrutalNativeAdCard] Ad failed to load: ${error.message}. Switching to in-game lore sponsor.');
+        debugPrint(
+            '[NeoBrutalNativeAdCard] Ad failed to load: ${error.message}. Switching to in-game lore sponsor.');
         setState(() {
           _isAdLoaded = false;
           _isAdLoading = false;
@@ -197,7 +209,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
   @override
   Widget build(BuildContext context) {
     final currentDay = ref.watch(gameProvider.select((g) => g.currentDay));
-    final shouldShow = AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
+    final shouldShow =
+        AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
 
     _evaluateAdLoading(currentDay);
 
@@ -244,7 +257,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
       margin: widget.margin,
       child: NeoBrutalCard(
         padding: const EdgeInsets.all(14),
-        backgroundColor: isDark ? const Color(0xFF131722) : const Color(0xFFFAF9F6),
+        backgroundColor:
+            isDark ? const Color(0xFF131722) : const Color(0xFFFAF9F6),
         borderColor: _fallbackSnippet.accentColor,
         borderWidth: 2.5,
         borderRadius: 12,
@@ -264,8 +278,12 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
                 ),
                 NeoBrutalBadge(
                   text: 'YEREL DUYURU',
-                  backgroundColor: isDark ? const Color(0xFF1F2432) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                  backgroundColor: isDark
+                      ? const Color(0xFF1F2432)
+                      : const Color(0xFFE2E8F0),
+                  textColor: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
                   fontSize: 9.5,
                 ),
               ],
@@ -287,7 +305,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
                 fontSize: 11.5,
                 height: 1.4,
                 fontWeight: FontWeight.w600,
-                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                color:
+                    isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
               ),
             ),
             const SizedBox(height: 10),
@@ -296,11 +315,15 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
               children: [
                 InkWell(
                   onTap: () {
-                    NotificationService.showSuccess(context, _resolveLocalized(context, _fallbackSnippet.benefitToast));
+                    NotificationService.showSuccess(
+                        context,
+                        _resolveLocalized(
+                            context, _fallbackSnippet.benefitToast));
                   },
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: _fallbackSnippet.accentColor,
                       borderRadius: BorderRadius.circular(6),
@@ -310,7 +333,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _resolveLocalized(context, _fallbackSnippet.actionText),
+                          _resolveLocalized(
+                              context, _fallbackSnippet.actionText),
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
@@ -318,7 +342,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward_rounded, color: Colors.black, size: 13),
+                        const Icon(Icons.arrow_forward_rounded,
+                            color: Colors.black, size: 13),
                       ],
                     ),
                   ),

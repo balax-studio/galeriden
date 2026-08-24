@@ -69,11 +69,14 @@ class WhatsNewDialog extends ConsumerWidget {
                           color: AppColors.brutalYellow,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2.0,
                           ),
                         ),
-                        child: const Icon(Icons.new_releases_rounded, color: Colors.black, size: 22),
+                        child: const Icon(Icons.new_releases_rounded,
+                            color: Colors.black, size: 22),
                       ),
                       const SizedBox(width: 10),
                       Column(
@@ -81,14 +84,18 @@ class WhatsNewDialog extends ConsumerWidget {
                         children: [
                           Text(
                             context.tr('whats_new_title'),
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w900),
                           ),
                           Text(
-                            context.tr('whats_new_version_subtitle', {'version': GameConstants.appVersion}),
+                            context.tr('whats_new_version_subtitle',
+                                {'version': GameConstants.appVersion}),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.brutalYellow : const Color(0xFFB45309),
+                              color: isDark
+                                  ? AppColors.brutalYellow
+                                  : const Color(0xFFB45309),
                             ),
                           ),
                         ],
@@ -165,10 +172,14 @@ class WhatsNewDialog extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2433) : const Color(0xFFF1F5F9),
+                  color: isDark
+                      ? const Color(0xFF1E2433)
+                      : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1),
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFFCBD5E1),
                     width: 1.8,
                   ),
                 ),
@@ -177,7 +188,8 @@ class WhatsNewDialog extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: AppColors.brutalYellow),
+                        const Icon(Icons.chat_bubble_outline_rounded,
+                            size: 16, color: AppColors.brutalYellow),
                         const SizedBox(width: 6),
                         Text(
                           context.tr('whats_new_feedback_title'),
@@ -185,7 +197,8 @@ class WhatsNewDialog extends ConsumerWidget {
                             fontSize: 10.5,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -196,17 +209,22 @@ class WhatsNewDialog extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                        color: isDark
+                            ? const Color(0xFFCBD5E1)
+                            : const Color(0xFF475569),
                       ),
                     ),
                     const SizedBox(height: 8),
                     NeoBrutalButton(
                       label: context.tr('whats_new_feedback_btn'),
                       icon: Icons.rate_review_rounded,
-                      backgroundColor: isDark ? const Color(0xFF2A3142) : Colors.white,
-                      textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                      backgroundColor:
+                          isDark ? const Color(0xFF2A3142) : Colors.white,
+                      textColor:
+                          isDark ? Colors.white : const Color(0xFF0F172A),
                       fontSize: 10.5,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       onPressed: () {
                         HapticFeedback.lightImpact();
                         FeedbackDialog.show(context);
@@ -279,7 +297,9 @@ class WhatsNewDialog extends ConsumerWidget {
                   fontSize: 10.5,
                   fontWeight: FontWeight.w500,
                   height: 1.35,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
                 ),
               ),
             ],

@@ -2775,5 +2775,16 @@ const Map<String, String> trTranslations = {
     'mission_consignment_desc': 'Galerine {count} adet komisyonlu konsinye araç kabul et.',
     'mission_side_biz_title': 'Yan İşletme Geliri',
     'mission_side_biz_desc': 'Yan işletmelerini geliştir veya günlük gelirini topla.',
+
+    'event_muddy_rain_title': 'ÇAMURLU YAĞMUR',
+    'event_muddy_rain_desc': 'Gece yağan çamurlu yağmur galerindeki sergilenen tüm araçları kirletti. Araçların değeri %5 düştü, acilen yıkanmaları gerekiyor.',
+    'event_staff_resignation_title': 'PERSONEL İSTİFASI',
+    'event_staff_resignation_desc': 'Maaş ödemeleri yapılamadığı için {names} galerinizi terk etti ve istifa etti.',
+    'event_salary_unpaid_loyal_title': 'MAAŞLAR ÖDENEMEDİ - SADAKAT',
+    'event_salary_unpaid_loyal_desc': 'Maaşlar ödenemedi. {names} isimli personelin morali sıfırlandı ancak size olan sadakati sayesinde istifa etmedi. Sadakat ve moral düştü.',
+    'event_salary_unpaid_title': 'MAAŞLAR ÖDENEMEDİ',
+    'event_salary_unpaid_desc': 'Kasada yeterli nakit olmadığı için personellerin günlük maaşı ödenemedi. Personel morali ve sadakati ağır darbe aldı. -35 Moral, -20 Sadakat.',
+    'event_ok': 'Tamam',
+    'badge_muddy': 'ÇAMURLU',
 };
 

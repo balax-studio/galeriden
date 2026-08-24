@@ -47,11 +47,15 @@ class _NeoBrutalSkeletonBoxState extends State<NeoBrutalSkeletonBox>
   @override
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
-    final isDark = themeExt?.palette.isDark ?? Theme.of(context).brightness == Brightness.dark;
+    final isDark = themeExt?.palette.isDark ??
+        Theme.of(context).brightness == Brightness.dark;
 
-    final baseColor = isDark ? const Color(0xFF1B202E) : const Color(0xFFE2E8F0);
-    final highlightColor = isDark ? const Color(0xFF2C354B) : const Color(0xFFF8FAFC);
-    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final baseColor =
+        isDark ? const Color(0xFF1B202E) : const Color(0xFFE2E8F0);
+    final highlightColor =
+        isDark ? const Color(0xFF2C354B) : const Color(0xFFF8FAFC);
+    final borderColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
 
     return AnimatedBuilder(
       animation: _animation,
@@ -61,7 +65,9 @@ class _NeoBrutalSkeletonBoxState extends State<NeoBrutalSkeletonBox>
           height: widget.height,
           decoration: BoxDecoration(
             shape: widget.isCircle ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius: widget.isCircle ? null : BorderRadius.circular(widget.borderRadius),
+            borderRadius: widget.isCircle
+                ? null
+                : BorderRadius.circular(widget.borderRadius),
             border: Border.all(color: borderColor, width: 2.0),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -94,9 +100,11 @@ class NeoBrutalSkeletonCarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeExt = Theme.of(context).extension<AppThemeExtension>();
-    final isDark = themeExt?.palette.isDark ?? Theme.of(context).brightness == Brightness.dark;
+    final isDark = themeExt?.palette.isDark ??
+        Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF141721) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final borderColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -148,9 +156,13 @@ class NeoBrutalSkeletonCarCard extends StatelessWidget {
           // Action Buttons Row
           Row(
             children: const [
-              Expanded(child: NeoBrutalSkeletonBox(width: double.infinity, height: 36, borderRadius: 8)),
+              Expanded(
+                  child: NeoBrutalSkeletonBox(
+                      width: double.infinity, height: 36, borderRadius: 8)),
               SizedBox(width: 8),
-              Expanded(child: NeoBrutalSkeletonBox(width: double.infinity, height: 36, borderRadius: 8)),
+              Expanded(
+                  child: NeoBrutalSkeletonBox(
+                      width: double.infinity, height: 36, borderRadius: 8)),
             ],
           ),
         ],

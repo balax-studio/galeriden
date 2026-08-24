@@ -32,8 +32,10 @@ class AppFloatingDock extends StatelessWidget {
     final isDark = p.isDark;
 
     final bgColor = isDark ? const Color(0xFF141721) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
-    final shadowColor = isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
+    final borderColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final shadowColor =
+        isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
     final activeBg = p.primaryColor;
     final activeText = isDark ? Colors.black : Colors.black;
 
@@ -72,7 +74,8 @@ class AppFloatingDock extends StatelessWidget {
             children: List.generate(items.length, (index) {
               final item = items[index];
               final isSelected = index == currentIndex;
-              final inactiveColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+              final inactiveColor =
+                  isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
               return GestureDetector(
                 onTap: () {
@@ -92,7 +95,9 @@ class AppFloatingDock extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     border: isSelected
                         ? Border.all(
-                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
                             width: 2.0,
                           )
                         : null,

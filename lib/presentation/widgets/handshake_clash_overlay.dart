@@ -39,7 +39,10 @@ class _HandshakeClashOverlayState extends State<HandshakeClashOverlay>
       TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 70),
     ]).animate(_controller);
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.forward().then((_) {
         widget.onComplete?.call();

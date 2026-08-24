@@ -12,7 +12,8 @@ import '../slam_stamp_widget.dart';
 
 class VehicleInspectionModal extends StatefulWidget {
   final CarModel car;
-  final Function(bool passed, double brakeScore, double headlightScore, String reportBadge) onInspectionFinished;
+  final Function(bool passed, double brakeScore, double headlightScore,
+      String reportBadge) onInspectionFinished;
 
   const VehicleInspectionModal({
     super.key,
@@ -23,7 +24,9 @@ class VehicleInspectionModal extends StatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required CarModel car,
-    required Function(bool passed, double brakeScore, double headlightScore, String reportBadge) onInspectionFinished,
+    required Function(bool passed, double brakeScore, double headlightScore,
+            String reportBadge)
+        onInspectionFinished,
   }) {
     return showDialog(
       context: context,
@@ -96,7 +99,9 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
       // Simulating hydraulic stabilization
       _leftBrakeForce = 3.2 + math.sin(_brakeProgress * 10) * 0.15;
       _rightBrakeForce = 3.1 + math.cos(_brakeProgress * 8) * 0.18;
-      _brakeImbalancePercent = ((_leftBrakeForce - _rightBrakeForce).abs() / _leftBrakeForce * 100.0).clamp(2.0, 15.0);
+      _brakeImbalancePercent =
+          ((_leftBrakeForce - _rightBrakeForce).abs() / _leftBrakeForce * 100.0)
+              .clamp(2.0, 15.0);
 
       if (_brakeProgress >= 1.0) {
         _isBraking = false;
@@ -133,7 +138,9 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
 
   void _evaluateFinalReport() {
     _isPassed = _brakeImbalancePercent < 20.0 && _headlightAccuracy >= 0.85;
-    _stampText = _isPassed ? context.tr('inspection_stamp_passed') : context.tr('inspection_stamp_minor');
+    _stampText = _isPassed
+        ? context.tr('inspection_stamp_passed')
+        : context.tr('inspection_stamp_minor');
     _currentStage = 2;
   }
 
@@ -185,8 +192,14 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: _currentStage == 0 ? context.tr('inspection_step_brake') : (_currentStage == 1 ? context.tr('inspection_step_light') : context.tr('inspection_step_finished')),
-                  backgroundColor: _currentStage == 2 ? AppColors.brutalGreen : const Color(0xFF38BDF8),
+                  text: _currentStage == 0
+                      ? context.tr('inspection_step_brake')
+                      : (_currentStage == 1
+                          ? context.tr('inspection_step_light')
+                          : context.tr('inspection_step_finished')),
+                  backgroundColor: _currentStage == 2
+                      ? AppColors.brutalGreen
+                      : const Color(0xFF38BDF8),
                   textColor: Colors.black,
                   fontSize: 9.5,
                 ),
@@ -218,7 +231,8 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                               imbalance: _brakeImbalancePercent,
                               isBraking: _isBraking,
                               progress: _brakeProgress,
-                              rightForceLabel: context.tr('inspection_right_force'),
+                              rightForceLabel:
+                                  context.tr('inspection_right_force'),
                             ),
                           ),
                         );
@@ -234,7 +248,8 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                           ),
                           child: RepaintBoundary(
                             child: CustomPaint(
-                              size: Size(constraints.maxWidth, constraints.maxHeight),
+                              size: Size(
+                                  constraints.maxWidth, constraints.maxHeight),
                               painter: _HeadlightBeamPainter(
                                 beamOffset: _currentBeamOffset,
                                 targetOffset: _headlightTarget,
@@ -249,8 +264,11 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                     Positioned.fill(
                       child: Center(
                         child: SlamStampWidget(
-                          text: _stampText ?? context.tr('inspection_passed_perfect'),
-                          color: _isPassed ? AppColors.brutalGreen : AppColors.brutalYellow,
+                          text: _stampText ??
+                              context.tr('inspection_passed_perfect'),
+                          color: _isPassed
+                              ? AppColors.brutalGreen
+                              : AppColors.brutalYellow,
                           fontSize: 22,
                           angle: -0.06,
                         ),
@@ -273,7 +291,8 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
               child: Text(
                 _currentStage == 0
                     ? (_isBraking
-                        ? context.tr('inspection_msg_brake_active', {'pct': _brakeImbalancePercent.toStringAsFixed(1)})
+                        ? context.tr('inspection_msg_brake_active',
+                            {'pct': _brakeImbalancePercent.toStringAsFixed(1)})
                         : context.tr('inspection_msg_brake_idle'))
                     : (_currentStage == 1
                         ? context.tr('inspection_msg_light_drag')
@@ -312,7 +331,9 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                       ? 'FREN KİLİTLENİYOR • BASILI TUT (%${(_brakeProgress * 100).round()})'
                       : 'FREN PEDALINA BASILI TUT',
                   icon: Icons.airline_stops_rounded,
-                  backgroundColor: _isBraking ? AppColors.brutalGreen : AppColors.brutalYellow,
+                  backgroundColor: _isBraking
+                      ? AppColors.brutalGreen
+                      : AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 13,
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -327,9 +348,13 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
               ),
             ] else if (_currentStage == 1) ...[
               NeoBrutalButton(
-                label: _isHeadlightAligned ? context.tr('inspection_btn_light_aligned') : context.tr('inspection_btn_light_drag'),
+                label: _isHeadlightAligned
+                    ? context.tr('inspection_btn_light_aligned')
+                    : context.tr('inspection_btn_light_drag'),
                 icon: Icons.center_focus_strong_rounded,
-                backgroundColor: _isHeadlightAligned ? AppColors.brutalGreen : const Color(0xFF38BDF8),
+                backgroundColor: _isHeadlightAligned
+                    ? AppColors.brutalGreen
+                    : const Color(0xFF38BDF8),
                 textColor: Colors.black,
                 fontSize: 13,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -395,7 +420,9 @@ class _BrakeRollerPainter extends CustomPainter {
     final cx = size.width / 2;
 
     // 1. Grid
-    final gridPaint = Paint()..color = const Color(0xFF141926)..strokeWidth = 1.0;
+    final gridPaint = Paint()
+      ..color = const Color(0xFF141926)
+      ..strokeWidth = 1.0;
     for (double x = 0; x < size.width; x += 20) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
     }
@@ -406,8 +433,10 @@ class _BrakeRollerPainter extends CustomPainter {
     // 2. Dual Brake Rollers (Left & Right)
     final rollerWidth = 70.0;
     final rollerHeight = 44.0;
-    final leftRollerRect = Rect.fromLTWH(cx - 100, 30, rollerWidth, rollerHeight);
-    final rightRollerRect = Rect.fromLTWH(cx + 30, 30, rollerWidth, rollerHeight);
+    final leftRollerRect =
+        Rect.fromLTWH(cx - 100, 30, rollerWidth, rollerHeight);
+    final rightRollerRect =
+        Rect.fromLTWH(cx + 30, 30, rollerWidth, rollerHeight);
 
     final rollerPaint = Paint()..color = const Color(0xFF1E283D);
     final rollerBorder = Paint()
@@ -415,41 +444,69 @@ class _BrakeRollerPainter extends CustomPainter {
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    canvas.drawRRect(RRect.fromRectAndRadius(leftRollerRect, const Radius.circular(6)), rollerPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(leftRollerRect, const Radius.circular(6)), rollerBorder);
-    canvas.drawRRect(RRect.fromRectAndRadius(rightRollerRect, const Radius.circular(6)), rollerPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(rightRollerRect, const Radius.circular(6)), rollerBorder);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(leftRollerRect, const Radius.circular(6)),
+        rollerPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(leftRollerRect, const Radius.circular(6)),
+        rollerBorder);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(rightRollerRect, const Radius.circular(6)),
+        rollerPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(rightRollerRect, const Radius.circular(6)),
+        rollerBorder);
 
     // Roller spin stripes
     final stripePaint = Paint()
-      ..color = isBraking ? AppColors.brutalGreen.withValues(alpha: 0.6) : const Color(0xFF475569)
+      ..color = isBraking
+          ? AppColors.brutalGreen.withValues(alpha: 0.6)
+          : const Color(0xFF475569)
       ..strokeWidth = 3.0;
 
     final stripeOffset = (rollerProgress * 20.0);
-    for (double x = leftRollerRect.left + 8; x < leftRollerRect.right - 4; x += 16) {
-      final dx = leftRollerRect.left + ((x - leftRollerRect.left + stripeOffset) % (rollerWidth - 10));
-      canvas.drawLine(Offset(dx, leftRollerRect.top + 4), Offset(dx, leftRollerRect.bottom - 4), stripePaint);
+    for (double x = leftRollerRect.left + 8;
+        x < leftRollerRect.right - 4;
+        x += 16) {
+      final dx = leftRollerRect.left +
+          ((x - leftRollerRect.left + stripeOffset) % (rollerWidth - 10));
+      canvas.drawLine(Offset(dx, leftRollerRect.top + 4),
+          Offset(dx, leftRollerRect.bottom - 4), stripePaint);
     }
-    for (double x = rightRollerRect.left + 8; x < rightRollerRect.right - 4; x += 16) {
-      final dx = rightRollerRect.left + ((x - rightRollerRect.left + stripeOffset) % (rollerWidth - 10));
-      canvas.drawLine(Offset(dx, rightRollerRect.top + 4), Offset(dx, rightRollerRect.bottom - 4), stripePaint);
+    for (double x = rightRollerRect.left + 8;
+        x < rightRollerRect.right - 4;
+        x += 16) {
+      final dx = rightRollerRect.left +
+          ((x - rightRollerRect.left + stripeOffset) % (rollerWidth - 10));
+      canvas.drawLine(Offset(dx, rightRollerRect.top + 4),
+          Offset(dx, rightRollerRect.bottom - 4), stripePaint);
     }
 
     // 3. Digital Gauges (Left / Right Force)
     final gaugeY = 120.0;
-    _drawDigitalNeedle(canvas, Offset(cx - 65, gaugeY), 'SOL: ${leftForce.toStringAsFixed(1)} kN', leftForce / 5.0);
-    _drawDigitalNeedle(canvas, Offset(cx + 65, gaugeY), '$rightForceLabel ${rightForce.toStringAsFixed(1)} kN', rightForce / 5.0);
+    _drawDigitalNeedle(canvas, Offset(cx - 65, gaugeY),
+        'SOL: ${leftForce.toStringAsFixed(1)} kN', leftForce / 5.0);
+    _drawDigitalNeedle(
+        canvas,
+        Offset(cx + 65, gaugeY),
+        '$rightForceLabel ${rightForce.toStringAsFixed(1)} kN',
+        rightForce / 5.0);
 
     // 4. Progress bar at bottom
     final barRect = Rect.fromLTWH(30, size.height - 24, size.width - 60, 10);
     final bgBarPaint = Paint()..color = const Color(0xFF1E283D);
     final fillBarPaint = Paint()..color = AppColors.brutalGreen;
-    canvas.drawRRect(RRect.fromRectAndRadius(barRect, const Radius.circular(5)), bgBarPaint);
-    final fillRect = Rect.fromLTWH(30, size.height - 24, (size.width - 60) * progress, 10);
-    canvas.drawRRect(RRect.fromRectAndRadius(fillRect, const Radius.circular(5)), fillBarPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(barRect, const Radius.circular(5)), bgBarPaint);
+    final fillRect =
+        Rect.fromLTWH(30, size.height - 24, (size.width - 60) * progress, 10);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(fillRect, const Radius.circular(5)),
+        fillBarPaint);
   }
 
-  void _drawDigitalNeedle(Canvas canvas, Offset center, String label, double ratio) {
+  void _drawDigitalNeedle(
+      Canvas canvas, Offset center, String label, double ratio) {
     final arcPaint = Paint()
       ..color = const Color(0xFF334155)
       ..style = PaintingStyle.stroke
@@ -462,7 +519,8 @@ class _BrakeRollerPainter extends CustomPainter {
       ..strokeWidth = 6.0
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawArc(Rect.fromCircle(center: center, radius: 26), math.pi * 0.8, math.pi * 1.4, false, arcPaint);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: 26), math.pi * 0.8,
+        math.pi * 1.4, false, arcPaint);
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: 26),
       math.pi * 0.8,
@@ -500,8 +558,10 @@ class _HeadlightBeamPainter extends CustomPainter {
     // Crosshair target circle
     canvas.drawCircle(center + targetOffset, 18, targetPaint);
     canvas.drawCircle(center + targetOffset, 36, targetPaint);
-    canvas.drawLine(Offset(center.dx - 50, center.dy), Offset(center.dx + 50, center.dy), targetPaint);
-    canvas.drawLine(Offset(center.dx, center.dy - 50), Offset(center.dx, center.dy + 50), targetPaint);
+    canvas.drawLine(Offset(center.dx - 50, center.dy),
+        Offset(center.dx + 50, center.dy), targetPaint);
+    canvas.drawLine(Offset(center.dx, center.dy - 50),
+        Offset(center.dx, center.dy + 50), targetPaint);
 
     // 2. Optical Headlight Beam Flare (Draggable)
     final beamCenter = center + beamOffset;

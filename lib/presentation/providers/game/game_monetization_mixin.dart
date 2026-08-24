@@ -38,7 +38,8 @@ mixin GameMonetizationMixin on GameBaseNotifier {
   bool claimLuckyOpportunity(LuckyOpportunityModel opp) {
     state = state.copyWith(
       balance: state.balance + opp.cashReward,
-      reputationScore: (state.reputationScore + opp.reputationBonus).clamp(0, 100),
+      reputationScore:
+          (state.reputationScore + opp.reputationBonus).clamp(0, 100),
       luckyOpportunityPityCounter: 0,
       lastLuckyOpportunityDay: state.currentDay,
     );
@@ -47,7 +48,8 @@ mixin GameMonetizationMixin on GameBaseNotifier {
   }
 
   /// Purchases a store progression bundle or no-ads license (b.2)
-  bool purchaseStoreBundle(StoreBundleModel bundle, {bool paidRealMoney = true}) {
+  bool purchaseStoreBundle(StoreBundleModel bundle,
+      {bool paidRealMoney = true}) {
     // 1. Check if single-purchase bundle already owned
     switch (bundle.type) {
       case StoreBundleType.starterPack:
@@ -202,10 +204,12 @@ mixin GameMonetizationMixin on GameBaseNotifier {
     if (state.level < theme.minDealershipLevel) return false;
     if (state.balance < theme.cost) return false;
 
-    final newThemes = List<String>.from(state.unlockedShowroomThemeIds)..add(theme.id);
+    final newThemes = List<String>.from(state.unlockedShowroomThemeIds)
+      ..add(theme.id);
     state = state.copyWith(
       balance: state.balance - theme.cost,
-      reputationScore: (state.reputationScore + theme.reputationBonus.toInt()).clamp(0, 100),
+      reputationScore:
+          (state.reputationScore + theme.reputationBonus.toInt()).clamp(0, 100),
       unlockedShowroomThemeIds: newThemes,
       activeShowroomThemeId: theme.id,
     );
@@ -226,7 +230,8 @@ mixin GameMonetizationMixin on GameBaseNotifier {
     if (state.unlockedCustomPaintIds.contains(paint.id)) return true;
     if (state.balance < paint.cost) return false;
 
-    final newPaints = List<String>.from(state.unlockedCustomPaintIds)..add(paint.id);
+    final newPaints = List<String>.from(state.unlockedCustomPaintIds)
+      ..add(paint.id);
     state = state.copyWith(
       balance: state.balance - paint.cost,
       unlockedCustomPaintIds: newPaints,

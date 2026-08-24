@@ -58,6 +58,8 @@ class CarModel {
   final int blackMarketRiskPercent; // 15..50% risk rate
   final String? blackMarketSellerAlias;
   final bool isPeriodicMaintained; // 10.000 KM periodic maintenance performed
+  final int washDurationRemaining; // Decreases daily, removes isWashed when 0
+  final bool hasMuddyPenalty; // True if affected by Muddy Rain event
 
   CarModel({
     required this.id,
@@ -109,6 +111,8 @@ class CarModel {
     this.blackMarketRiskPercent = 20,
     this.blackMarketSellerAlias,
     this.isPeriodicMaintained = false,
+    this.washDurationRemaining = 0,
+    this.hasMuddyPenalty = false,
   }) : modelName = sanitizeModelName(brand, modelName);
 
   /// Strips redundant brand name prefixes if present (e.g. 'Merso G-63' with brand 'Merso' -> 'G-63')
@@ -311,14 +315,19 @@ class CarModel {
 
     // 1. Cleaning & Washing Bonus (Capped at +8% with maximum ₺80.000 cap for supercars)
     double cleanBonusFactor = 0.0;
-    if (isDetailedCleaned || (isWashed && isPolished)) {
+    if (hasMuddyPenalty) {
+      cleanBonusFactor = -0.05; // 5% penalty for muddy rain
+    } else if (isDetailedCleaned || (isWashed && isPolished)) {
       cleanBonusFactor = 0.08;
     } else if (isWashed || isPolished) {
       cleanBonusFactor = 0.04;
     }
+    
     if (cleanBonusFactor > 0) {
       final maxAllowedCleanFactor = (80000.0 / baseMarketValue).clamp(0.0, cleanBonusFactor);
       factor += maxAllowedCleanFactor;
+    } else if (cleanBonusFactor < 0) {
+      factor += cleanBonusFactor;
     }
 
     // 2. Cosmetic & Certification Detailing Bonus (Far, Demir tozu, PDR, Dyno, Ozon, TÜVTÜRK - +2.5% each, Capped at +10% with max ₺100.000)
@@ -438,6 +447,8 @@ class CarModel {
       'blackMarketRiskPercent': blackMarketRiskPercent,
       'blackMarketSellerAlias': blackMarketSellerAlias,
       'isPeriodicMaintained': isPeriodicMaintained,
+      'washDurationRemaining': washDurationRemaining,
+      'hasMuddyPenalty': hasMuddyPenalty,
     };
   }
 
@@ -499,6 +510,8 @@ class CarModel {
       blackMarketRiskPercent: json['blackMarketRiskPercent'] as int? ?? 20,
       blackMarketSellerAlias: json['blackMarketSellerAlias'] as String?,
       isPeriodicMaintained: json['isPeriodicMaintained'] as bool? ?? false,
+      washDurationRemaining: json['washDurationRemaining'] as int? ?? 0,
+      hasMuddyPenalty: json['hasMuddyPenalty'] as bool? ?? false,
     );
   }
 
@@ -553,6 +566,8 @@ class CarModel {
     int? blackMarketRiskPercent,
     String? blackMarketSellerAlias,
     bool? isPeriodicMaintained,
+    int? washDurationRemaining,
+    bool? hasMuddyPenalty,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -604,6 +619,8 @@ class CarModel {
       blackMarketRiskPercent: blackMarketRiskPercent ?? this.blackMarketRiskPercent,
       blackMarketSellerAlias: blackMarketSellerAlias ?? this.blackMarketSellerAlias,
       isPeriodicMaintained: isPeriodicMaintained ?? this.isPeriodicMaintained,
+      washDurationRemaining: washDurationRemaining ?? this.washDurationRemaining,
+      hasMuddyPenalty: hasMuddyPenalty ?? this.hasMuddyPenalty,
     );
   }
 }

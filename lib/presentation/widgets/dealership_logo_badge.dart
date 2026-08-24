@@ -6,7 +6,8 @@ import 'app_vector_icons.dart';
 class DealershipLogoBadge extends StatelessWidget {
   final String emblemId;
   final String badgeShape; // 'square', 'circle', 'shield', 'hexagon', 'laurel'
-  final String badgeColor; // 'yellow', 'blue', 'red', 'green', 'purple', 'dark', 'cyan', 'orange'
+  final String
+      badgeColor; // 'yellow', 'blue', 'red', 'green', 'purple', 'dark', 'cyan', 'orange'
   final double size;
   final Color? iconColor;
   final bool showBorder;
@@ -83,7 +84,8 @@ class DealershipLogoBadge extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: bg,
-            border: showBorder ? Border.all(color: Colors.black, width: 2.2) : null,
+            border:
+                showBorder ? Border.all(color: Colors.black, width: 2.2) : null,
             boxShadow: showShadow
                 ? const [
                     BoxShadow(
@@ -105,7 +107,9 @@ class DealershipLogoBadge extends StatelessWidget {
             height: size * 1.08,
             decoration: BoxDecoration(
               color: bg,
-              border: showBorder ? Border.all(color: Colors.black, width: 2.2) : null,
+              border: showBorder
+                  ? Border.all(color: Colors.black, width: 2.2)
+                  : null,
               boxShadow: showShadow
                   ? const [
                       BoxShadow(
@@ -152,7 +156,8 @@ class DealershipLogoBadge extends StatelessWidget {
             children: [
               CustomPaint(
                 size: Size(size, size),
-                painter: _LaurelWreathPainter(color: effectiveIconColor.withValues(alpha: 0.3)),
+                painter: _LaurelWreathPainter(
+                    color: effectiveIconColor.withValues(alpha: 0.3)),
               ),
               emblemChild,
             ],
@@ -167,7 +172,8 @@ class DealershipLogoBadge extends StatelessWidget {
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(size * 0.22),
-            border: showBorder ? Border.all(color: Colors.black, width: 2.2) : null,
+            border:
+                showBorder ? Border.all(color: Colors.black, width: 2.2) : null,
             boxShadow: showShadow
                 ? const [
                     BoxShadow(
@@ -241,5 +247,6 @@ class _LaurelWreathPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _LaurelWreathPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant _LaurelWreathPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

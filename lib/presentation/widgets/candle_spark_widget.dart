@@ -33,7 +33,10 @@ class _CandleSparkWidgetState extends State<CandleSparkWidget>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().toLowerCase().contains('test');
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
     if (!isTest) {
       _controller.repeat(reverse: true);
     } else {
@@ -49,7 +52,8 @@ class _CandleSparkWidgetState extends State<CandleSparkWidget>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.isPositive ? const Color(0xFF00E575) : const Color(0xFFEF4444);
+    final color =
+        widget.isPositive ? const Color(0xFF00E575) : const Color(0xFFEF4444);
 
     return AnimatedBuilder(
       animation: _sparkScale,
@@ -82,12 +86,15 @@ class _CandleSparkPainter extends CustomPainter {
 
     for (int i = 0; i < 4; i++) {
       final angle = i * math.pi / 2;
-      final p1 = Offset(center.dx + math.cos(angle) * 2, center.dy + math.sin(angle) * 2);
-      final p2 = Offset(center.dx + math.cos(angle) * 8, center.dy + math.sin(angle) * 8);
+      final p1 = Offset(
+          center.dx + math.cos(angle) * 2, center.dy + math.sin(angle) * 2);
+      final p2 = Offset(
+          center.dx + math.cos(angle) * 8, center.dy + math.sin(angle) * 8);
       canvas.drawLine(p1, p2, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _CandleSparkPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant _CandleSparkPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
