@@ -714,8 +714,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Enters an underground night modification street race (§4.4)
-  NightRaceResult enterNightRace(CarModel car, {NightRivalModel? rival}) {
+  /// Prepares and starts a night race by deducting entry fee and applying wear
+  NightRaceResult startNightRace(CarModel car, {NightRivalModel? rival}) {
     final activeRival = rival ?? NightMarketEngine.getMatchedRival(car);
     final entryFee = NightMarketEngine.getEntryFeeForRival(activeRival);
     if (state.dailyRacesRemaining <= 0) {
@@ -766,33 +766,73 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedCar = car.copyWith(expertise: updatedExpertise);
     final updatedCars =
         state.ownedCars.map((c) => c.id == car.id ? updatedCar : c).toList();
-
-    final result =
-        NightMarketEngine.simulateNightRace(updatedCar, rival: activeRival);
     final remainingRaces = (state.dailyRacesRemaining - 1).clamp(0, 3);
 
-    if (result.isWon) {
+    state = state.copyWith(
+      balance: state.balance - entryFee,
+      ownedCars: updatedCars,
+      dailyRacesRemaining: remainingRaces,
+    );
+
+    updateMissionProgress(MissionType.nightMarketVisit, 1);
+    saveState();
+
+    return NightRaceResult(
+      isWon: false,
+      prizeMoney: NightMarketEngine.getBasePrizeForRival(activeRival),
+      reputationBonus: NightMarketEngine.getRepBonusForRival(activeRival),
+      raceSummary: 'Yarış başladı!',
+      rivalName: activeRival.name,
+      rivalCarName: activeRival.carName,
+      rivalTitle: activeRival.title,
+      playerPowerScore: NightMarketEngine.calculatePlayerPower(updatedCar),
+      rivalPowerScore: activeRival.basePower,
+    );
+  }
+
+  /// Resolves the final interactive outcome of a night race (§4.4)
+  void resolveNightRaceOutcome({
+    required CarModel car,
+    required NightRivalModel rival,
+    required NightRaceResult finalResult,
+  }) {
+    if (finalResult.isWon) {
       state = state.copyWith(
-        balance: state.balance - entryFee + result.prizeMoney,
+        balance: state.balance + finalResult.prizeMoney,
         reputationScore:
-            (state.reputationScore + result.reputationBonus).clamp(0, 1000),
-        ownedCars: updatedCars,
-        dailyRacesRemaining: remainingRaces,
+            (state.reputationScore + finalResult.reputationBonus).clamp(0, 1000),
       );
       addXP(50);
     } else {
       state = state.copyWith(
-        balance: state.balance - entryFee,
         reputationScore:
-            (state.reputationScore + result.reputationBonus).clamp(0, 1000),
-        ownedCars: updatedCars,
-        dailyRacesRemaining: remainingRaces,
+            (state.reputationScore + finalResult.reputationBonus).clamp(0, 1000),
       );
     }
-
-    updateMissionProgress(MissionType.nightMarketVisit, 1);
     saveState();
-    return result;
+  }
+
+  /// Enters an underground night modification street race with synchronous resolution (§4.4)
+  NightRaceResult enterNightRace(CarModel car, {NightRivalModel? rival}) {
+    final activeRival = rival ?? NightMarketEngine.getMatchedRival(car);
+    final startRes = startNightRace(car, rival: activeRival);
+    if (state.dailyRacesRemaining == 0 &&
+        startRes.rivalCarName == 'Pist Kapalı') {
+      return startRes;
+    }
+    if (startRes.rivalCarName == 'Kasa Yetersiz' ||
+        startRes.rivalCarName == 'Mekanik İptal') {
+      return startRes;
+    }
+
+    final simResult =
+        NightMarketEngine.simulateNightRace(car, rival: activeRival);
+    resolveNightRaceOutcome(
+      car: car,
+      rival: activeRival,
+      finalResult: simResult,
+    );
+    return simResult;
   }
 
   /// Repair body part with tier

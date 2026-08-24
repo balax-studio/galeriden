@@ -66,6 +66,82 @@ class NightMarketEngine {
     }
   }
 
+  /// Dynamic prize pool for winning against rival
+  static double getBasePrizeForRival(NightRivalModel rival) {
+    switch (rival.tier) {
+      case 1:
+        return 25000.0 + _random.nextInt(15000);
+      case 2:
+        return 45000.0 + _random.nextInt(25000);
+      case 3:
+        return 80000.0 + _random.nextInt(45000);
+      default:
+        return 25000.0;
+    }
+  }
+
+  /// Reputation bonus for winning against rival
+  static int getRepBonusForRival(NightRivalModel rival) {
+    switch (rival.tier) {
+      case 1:
+        return 4;
+      case 2:
+        return 6;
+      case 3:
+        return 10;
+      default:
+        return 4;
+    }
+  }
+
+  /// Creates a race result matching the real-time interactive canvas performance
+  static NightRaceResult createInteractiveRaceResult({
+    required CarModel playerCar,
+    required NightRivalModel rival,
+    required bool isWon,
+    int perfectShifts = 0,
+    int missedShifts = 0,
+  }) {
+    final playerPower = calculatePlayerPower(playerCar);
+    final basePrize = getBasePrizeForRival(rival);
+    final repBonus = getRepBonusForRival(rival);
+
+    String summary;
+    if (isWon) {
+      if (perfectShifts >= 2) {
+        summary = 'Açık ara zafer! ${playerCar.modelName} ile yaptığın kusursuz vites geçişleri ve nitro patlaması sayesinde ${rival.name} • ${rival.carName} geride kaldı ve finişi önde geçtin!';
+      } else {
+        summary = 'Nefes kesen mücadele! Son metrelerde ${rival.name} ile tampon tampona girdin ve reflekslerinle çizgiyi ilk geçen sen oldun!';
+      }
+
+      return NightRaceResult(
+        isWon: true,
+        prizeMoney: basePrize,
+        reputationBonus: repBonus,
+        raceSummary: summary,
+        rivalName: rival.name,
+        rivalCarName: rival.carName,
+        rivalTitle: rival.title,
+        playerPowerScore: playerPower,
+        rivalPowerScore: rival.basePower,
+      );
+    } else {
+      summary = '${rival.name} • ${rival.carName} finiş çizgisini önce geçti. Rövanş için vites zamanlamalarını geliştir veya atölyede motora bakım yap!';
+
+      return NightRaceResult(
+        isWon: false,
+        prizeMoney: 0.0,
+        reputationBonus: -1,
+        raceSummary: summary,
+        rivalName: rival.name,
+        rivalCarName: rival.carName,
+        rivalTitle: rival.title,
+        playerPowerScore: playerPower,
+        rivalPowerScore: rival.basePower,
+      );
+    }
+  }
+
   /// Comprehensive roster of 12 authentic street opponents across 3 difficulty tiers
   static const List<NightRivalModel> allRivals = [
     // --- Tier 1: Sanayi Çırakları & Mahalle Gazcıları (Güç: 75 - 130 HP) ---

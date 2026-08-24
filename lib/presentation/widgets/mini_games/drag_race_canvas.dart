@@ -98,14 +98,14 @@ class DragRaceMiniGameModal extends StatefulWidget {
   final CarModel car;
   final NightRivalModel rival;
   final NightRaceResult raceResult;
-  final VoidCallback onFinished;
+  final Function(NightRaceResult result)? onFinished;
 
   const DragRaceMiniGameModal({
     super.key,
     required this.car,
     required this.rival,
     required this.raceResult,
-    required this.onFinished,
+    this.onFinished,
   });
 
   static Future<void> show(
@@ -113,7 +113,7 @@ class DragRaceMiniGameModal extends StatefulWidget {
     required CarModel car,
     required NightRivalModel rival,
     required NightRaceResult raceResult,
-    required VoidCallback onFinished,
+    Function(NightRaceResult result)? onFinished,
   }) {
     return showDialog(
       context: context,
@@ -134,6 +134,7 @@ class DragRaceMiniGameModal extends StatefulWidget {
 class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late NightRaceResult _activeRaceResult;
   RacePhase _phase = RacePhase.countdown;
 
   int _countdownStep = 3; // 3, 2, 1, 0 (GO)
@@ -214,6 +215,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
   @override
   void initState() {
     super.initState();
+    _activeRaceResult = widget.raceResult;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 15),
@@ -319,33 +321,38 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
         _rpm = 7400.0 + _random.nextDouble() * 400.0;
       }
 
-      // Base speeds calculated for dynamic 5-7 second race
-      double playerSpeed = 0.0030 + (_currentGear * 0.00075);
-      double rivalSpeed = 0.0031 + (_currentGear * 0.00070);
+      // Base speeds calculated from car power and current gear
+      final playerPower = NightMarketEngine.calculatePlayerPower(widget.car);
+      final rivalPower = widget.rival.basePower;
 
-      // Apply outcome bias based on precalculated raceResult
-      if (widget.raceResult.isWon) {
-        playerSpeed *= 1.08;
-        rivalSpeed *= 0.96;
-      } else {
-        playerSpeed *= 0.94;
-        rivalSpeed *= 1.06;
-      }
+      double playerSpeed = 0.0030 + (_currentGear * 0.00085);
+      double rivalSpeed = 0.0031 + (_currentGear * 0.00078);
+
+      // Power scaling: Faster cars naturally have higher baseline top end
+      final powerRatio =
+          (playerPower.toDouble() / rivalPower.clamp(50, 1500).toDouble())
+              .clamp(0.85, 1.25);
+      playerSpeed *= math.sqrt(powerRatio);
 
       // Dynamic Rubber-banding: Player mistakes let rival surge forward
       if (_earlyShifts > 0 || _lateShifts > 0) {
-        rivalSpeed *= (1.0 + (_earlyShifts + _lateShifts) * 0.12);
+        rivalSpeed *= (1.0 + (_earlyShifts + _lateShifts) * 0.08);
       }
 
       // Speed modifier from player shift performance
       if (_perfectShifts > 0) {
-        playerSpeed += _perfectShifts * 0.00055;
+        playerSpeed += _perfectShifts * 0.00075;
       }
       if (_earlyShifts > 0) {
-        playerSpeed -= _earlyShifts * 0.00035;
+        playerSpeed -= _earlyShifts * 0.00030;
       }
       if (_lateShifts > 0) {
         playerSpeed -= _lateShifts * 0.00045; // Heavy rev-limit penalty
+      }
+
+      // Nitro stage speed explosion
+      if (_currentGear == _maxGears) {
+        playerSpeed *= 1.35;
       }
 
       _playerDistance = (_playerDistance + playerSpeed).clamp(0.0, 1.0);
@@ -452,7 +459,16 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
         _controller.stop();
         HapticFeedback.heavyImpact();
 
-        if (widget.raceResult.isWon) {
+        final isWon = _playerDistance >= _rivalDistance;
+        _activeRaceResult = NightMarketEngine.createInteractiveRaceResult(
+          playerCar: widget.car,
+          rival: widget.rival,
+          isWon: isWon,
+          perfectShifts: _perfectShifts,
+          missedShifts: _earlyShifts + _lateShifts,
+        );
+
+        if (isWon) {
           _playerSpeech = 'Oley be şampiyonuz!';
           _addComicPopup(
             text: 'FİNİŞ! KAZANDIN!',
@@ -594,7 +610,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
 
   @override
   Widget build(BuildContext context) {
-    final isWon = widget.raceResult.isWon;
+    final isWon = _activeRaceResult.isWon;
     final isIdealShift = _rpm >= 6200 && _rpm <= 7500;
     final isOverRev = _rpm > 7500;
 
@@ -893,7 +909,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                       child: Text(
                         context.tr('drag_race_prize_won', {
                           'amount': CurrencyFormatter.format(
-                              widget.raceResult.prizeMoney)
+                              _activeRaceResult.prizeMoney)
                         }),
                         style: const TextStyle(
                           fontSize: 12,
@@ -935,7 +951,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                     const SizedBox(height: 8),
                   ],
                   Text(
-                    widget.raceResult.raceSummary,
+                    _activeRaceResult.raceSummary,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 11,
@@ -984,7 +1000,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                       textColor: isWon ? Colors.black : Colors.white,
                       onPressed: () {
                         Navigator.pop(context);
-                        widget.onFinished();
+                        widget.onFinished?.call(_activeRaceResult);
                       },
                     ),
                   ),

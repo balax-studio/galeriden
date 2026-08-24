@@ -83,7 +83,7 @@ void main() {
               car: car,
               rival: rival,
               raceResult: raceResult,
-              onFinished: () => isFinishedCalled = true,
+              onFinished: (result) => isFinishedCalled = true,
             ),
           ),
         ),

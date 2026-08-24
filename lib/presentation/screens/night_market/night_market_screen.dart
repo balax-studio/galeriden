@@ -560,15 +560,58 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                   textColor: Colors.white,
                   onPressed: dailyRacesRemaining > 0
                       ? () {
-                          final result = ref
+                          final entryFee =
+                              NightMarketEngine.getEntryFeeForRival(rival);
+                          final balance = ref.read(gameProvider).balance;
+                          if (balance < entryFee) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Bu yarışa katılmak için ₺${entryFee.toInt()} giriş bahsi gereklidir!',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                backgroundColor: AppColors.errorRed,
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (car.expertise.engineCondition < 30) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Motor sağlığı %30 altında olan araçlar piste çıkarılamaz!',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                backgroundColor: AppColors.errorRed,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final startResult = ref
                               .read(gameProvider.notifier)
-                              .enterNightRace(car, rival: rival);
+                              .startNightRace(car, rival: rival);
+
                           DragRaceMiniGameModal.show(
                             context,
                             car: car,
                             rival: rival,
-                            raceResult: result,
-                            onFinished: () {
+                            raceResult: startResult,
+                            onFinished: (resolvedResult) {
+                              ref
+                                  .read(gameProvider.notifier)
+                                  .resolveNightRaceOutcome(
+                                    car: car,
+                                    rival: rival,
+                                    finalResult: resolvedResult,
+                                  );
                               setState(() {
                                 _currentRival =
                                     NightMarketEngine.getMatchedRival(car);
