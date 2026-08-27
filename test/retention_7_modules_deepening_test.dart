@@ -75,6 +75,11 @@ void main() {
     });
 
     testWidgets('DailyLoginSheet renders, claims Day 1, and disables button after claim', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       final container = ProviderContainer();
       final notifier = container.read(gameProvider.notifier);
       notifier.stopPeriodicOrganicOfferTimer();
@@ -95,11 +100,12 @@ void main() {
         ),
       );
 
-      // Verify Day 1 claim button is shown and enabled
+      // Verify Day 1 claim button and 2x rewarded ad button are shown
+      expect(find.text('ÖDÜLÜ 2X AL • REKLAM İZLE'), findsOneWidget);
       expect(find.text('GÜN 1 SİFTAHINI KASAYA AT'), findsOneWidget);
       expect(find.text('SİFTAH HAZIR'), findsOneWidget);
 
-      // Tap claim button
+      // Tap standard claim button
       await tester.tap(find.text('GÜN 1 SİFTAHINI KASAYA AT'));
       await tester.pumpAndSettle();
 

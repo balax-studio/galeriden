@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/casino_game_model.dart';
@@ -59,11 +60,11 @@ class _LuckyWheelModalState extends ConsumerState<LuckyWheelModal>
     super.dispose();
   }
 
-  void _spin() {
+  void _spin({bool isFreeAd = false}) {
     if (_isSpinning) return;
     final game = ref.read(gameProvider);
 
-    if (_selectedWagerCar == null && game.balance < _selectedBet) {
+    if (!isFreeAd && _selectedWagerCar == null && game.balance < _selectedBet) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.tr('casino_insufficient_balance')),
@@ -75,7 +76,8 @@ class _LuckyWheelModalState extends ConsumerState<LuckyWheelModal>
 
     final result = ref.read(gameProvider.notifier).spinCasinoWheel(
           betAmount: _selectedBet,
-          wageredCar: _selectedWagerCar,
+          wageredCar: isFreeAd ? null : _selectedWagerCar,
+          isFreeAd: isFreeAd,
         );
 
     if (result == null) return;
@@ -439,6 +441,30 @@ class _LuckyWheelModalState extends ConsumerState<LuckyWheelModal>
                     const SizedBox(height: 16),
                   ],
 
+                  // Rewarded Ad Free Spin Button
+                  NeoBrutalButton(
+                    label: context.tr('casino_wheel_free_ad_btn'),
+                    icon: Icons.smart_display_rounded,
+                    backgroundColor: const Color(0xFF00E575),
+                    textColor: Colors.black,
+                    fontSize: 13,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    onPressed: _isSpinning
+                        ? null
+                        : () {
+                            AdService.instance.showRewardedAdWithFallback(
+                              context: context,
+                              customRewardTitle:
+                                  context.tr('casino_wheel_ad_reward_title'),
+                              onRewardEarned: () {
+                                _spin(isFreeAd: true);
+                              },
+                            );
+                          },
+                  ),
+                  const SizedBox(height: 10),
+
                   // Spin Action Button
                   NeoBrutalButton(
                     label: _isSpinning
@@ -450,7 +476,7 @@ class _LuckyWheelModalState extends ConsumerState<LuckyWheelModal>
                     fontSize: 14,
                     fullWidth: true,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    onPressed: _isSpinning ? null : _spin,
+                    onPressed: _isSpinning ? null : () => _spin(),
                   ),
                 ],
               ),

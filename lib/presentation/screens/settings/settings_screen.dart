@@ -324,7 +324,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  context.tr('support_rating_desc'),
+                  (defaultTargetPlatform == TargetPlatform.iOS ||
+                          defaultTargetPlatform == TargetPlatform.macOS)
+                      ? context.tr('support_rating_desc_ios')
+                      : context.tr('support_rating_desc_android'),
                   style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -349,8 +352,7 @@ class SettingsScreen extends ConsumerWidget {
                         );
                       }
                       try {
-                        final uri = Uri.parse(
-                            'https://play.google.com/store/apps/details?id=com.balax.galeriden');
+                        final uri = Uri.parse(GameConstants.storeReviewUrl);
                         if (await canLaunchUrl(uri)) {
                           await launchUrl(uri,
                               mode: LaunchMode.externalApplication);

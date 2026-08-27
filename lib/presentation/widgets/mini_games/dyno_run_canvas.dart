@@ -9,6 +9,7 @@ import '../../../data/models/tuning_model.dart';
 import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class DynoRunCanvasModal extends StatefulWidget {
   final CarModel car;
@@ -329,110 +330,224 @@ class _DynoPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // Background Grid
-    final gridPaint = Paint()
-      ..color = const Color(0xFF141A28)
-      ..strokeWidth = 1.0;
+    // 1. Technical CRT Oscilloscope Grid
+    NeoBrutalPolyPainter.drawCRTGrid(
+      canvas,
+      size,
+      gridColor: const Color(0xFF141A28),
+      spacing: 16.0,
+      drawCrosshair: true,
+    );
 
-    for (double x = 0; x < w; x += 18) {
-      canvas.drawLine(Offset(x, 0), Offset(x, h), gridPaint);
-    }
-    for (double y = 0; y < h; y += 18) {
-      canvas.drawLine(Offset(0, y), Offset(w, y), gridPaint);
-    }
+    // Hazard Safety Striping at Bottom Dyno Bed
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromLTWH(8, h * 0.88, w - 16, 12),
+      stripeWidth: 8,
+      borderWidth: 1.5,
+    );
 
-    // Live HP / Torque Graph Curve
+    // 2. Live Stepped Oscilloscope Curves (HP & NM)
     final hpCurvePaint = Paint()
       ..color = AppColors.brutalGreen
-      ..strokeWidth = 2.4
+      ..strokeWidth = 2.8
       ..style = PaintingStyle.stroke;
 
     final nmCurvePaint = Paint()
       ..color = AppColors.brutalOrange
-      ..strokeWidth = 2.0
+      ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke;
 
     final hpPath = Path();
     final nmPath = Path();
 
-    hpPath.moveTo(0, h * 0.85);
-    nmPath.moveTo(0, h * 0.85);
+    hpPath.moveTo(0, h * 0.82);
+    nmPath.moveTo(0, h * 0.82);
 
     final currentX = w * progress;
+    double lastHpY = h * 0.82;
+    double lastNmY = h * 0.82;
+
     for (double x = 0; x <= currentX; x += 4) {
       final normX = x / w;
-      // Exponential curve for HP
-      final curveYHp = h * 0.85 - (h * 0.70) * (math.pow(normX, 1.3));
-      // Bell/plateau curve for Torque
-      final curveYNm = h * 0.85 - (h * 0.60) * math.sin(normX * math.pi * 0.8);
+      final curveYHp = h * 0.82 - (h * 0.65) * (math.pow(normX, 1.3));
+      final curveYNm = h * 0.82 - (h * 0.55) * math.sin(normX * math.pi * 0.8);
 
       hpPath.lineTo(x, curveYHp);
       nmPath.lineTo(x, curveYNm);
+      lastHpY = curveYHp;
+      lastNmY = curveYNm;
     }
 
     canvas.drawPath(hpPath, hpCurvePaint);
     canvas.drawPath(nmPath, nmCurvePaint);
 
-    // Dyno Rollers (Bottom Platform)
-    final rollerPaint = Paint()..color = const Color(0xFF2B364F);
-    final rollerBorder = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+    // Live Peak Prismatic Diamonds at leading edge of graph
+    if (progress > 0.05) {
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        Offset(currentX, lastHpY),
+        7.0,
+        AppColors.brutalGreen,
+        strokeWidth: 1.5,
+      );
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        Offset(currentX, lastNmY),
+        6.0,
+        AppColors.brutalOrange,
+        strokeWidth: 1.5,
+      );
+    }
 
-    // Front & Rear Rollers
-    _drawRoller(canvas, Offset(w * 0.35, h * 0.78), rollerAngle, rollerPaint,
-        rollerBorder);
-    _drawRoller(canvas, Offset(w * 0.68, h * 0.78), rollerAngle, rollerPaint,
-        rollerBorder);
+    // 3. Low-Poly 3D Dyno Rollers (Left & Right)
+    _drawLowPolyRoller(canvas, Offset(w * 0.35, h * 0.76), rollerAngle);
+    _drawLowPolyRoller(canvas, Offset(w * 0.68, h * 0.76), rollerAngle);
 
-    // Car Outline on Rollers
-    final carPaint = Paint()..color = const Color(0xFFFFDE59);
-    final carBorder = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2;
+    // 4. Low-Poly Faceted Car Side Profile
+    _drawLowPolyCarSide(canvas, size);
 
-    final carBody = Rect.fromLTWH(w * 0.25, h * 0.48, w * 0.50, 24);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(carBody, const Radius.circular(5)), carPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(carBody, const Radius.circular(5)), carBorder);
-
-    final cabin = Rect.fromLTWH(w * 0.38, h * 0.38, w * 0.22, 14);
-    canvas.drawRRect(RRect.fromRectAndRadius(cabin, const Radius.circular(4)),
-        Paint()..color = const Color(0xFF0F172A));
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(cabin, const Radius.circular(4)), carBorder);
-
-    // Wheels on Rollers
-    canvas.drawCircle(Offset(w * 0.35, h * 0.65), 10,
-        Paint()..color = const Color(0xFF1E293B));
-    canvas.drawCircle(Offset(w * 0.68, h * 0.65), 10,
-        Paint()..color = const Color(0xFF1E293B));
-
-    // Exhaust flame sparks
+    // 5. Prismatic Exhaust Flame Spark Bursts
     for (final s in sparks) {
-      final sPaint = Paint()..color = s.color.withValues(alpha: s.life / 14.0);
-      canvas.drawCircle(
-          Offset(w * 0.24 + s.x * 0.2, h * 0.62 + s.y * 0.1), 3.0, sPaint);
+      final alpha = (s.life / 14.0).clamp(0.0, 1.0);
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        Offset(w * 0.20 + s.x * 0.25, h * 0.60 + s.y * 0.15),
+        5.5 * alpha,
+        s.color.withValues(alpha: alpha),
+        strokeWidth: 1.0,
+      );
     }
   }
 
-  void _drawRoller(
-      Canvas canvas, Offset center, double angle, Paint fill, Paint border) {
-    canvas.drawCircle(center, 14, fill);
-    canvas.drawCircle(center, 14, border);
+  void _drawLowPolyRoller(Canvas canvas, Offset center, double angle) {
+    // 8-faceted low-poly drum
+    final numSides = 8;
+    final radius = 16.0;
+    final vertices = <Offset>[];
+    for (int i = 0; i < numSides; i++) {
+      final a = angle + (i * 2 * math.pi / numSides);
+      vertices.add(Offset(
+        center.dx + radius * math.cos(a),
+        center.dy + radius * math.sin(a),
+      ));
+    }
 
-    // Rotating spokes lines
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      vertices,
+      color: const Color(0xFF334155),
+      lightFactor: 1.0,
+      strokeWidth: 2.0,
+    );
+
+    // Rotating segment lines
     final spokePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.6)
-      ..strokeWidth = 1.8;
-
+      ..color = Colors.white.withValues(alpha: 0.8)
+      ..strokeWidth = 2.0;
     final dx = math.cos(angle) * 12;
     final dy = math.sin(angle) * 12;
-    canvas.drawLine(Offset(center.dx - dx, center.dy - dy),
-        Offset(center.dx + dx, center.dy + dy), spokePaint);
+    canvas.drawLine(
+      Offset(center.dx - dx, center.dy - dy),
+      Offset(center.dx + dx, center.dy + dy),
+      spokePaint,
+    );
+
+    // 3D Hex Bolt Hub at Center
+    NeoBrutalPolyPainter.draw3DHexBolt(
+      canvas,
+      center,
+      6.0,
+      baseColor: const Color(0xFF64748B),
+      isLoosened: false,
+    );
+  }
+
+  void _drawLowPolyCarSide(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    // Faceted Lower Body Chassis
+    final bodyVertices = [
+      Offset(w * 0.22, h * 0.62),
+      Offset(w * 0.28, h * 0.50),
+      Offset(w * 0.40, h * 0.48),
+      Offset(w * 0.70, h * 0.49),
+      Offset(w * 0.78, h * 0.56),
+      Offset(w * 0.78, h * 0.65),
+      Offset(w * 0.22, h * 0.65),
+    ];
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      bodyVertices,
+      color: const Color(0xFFFFDE59),
+      lightFactor: 1.0,
+      strokeWidth: 2.2,
+    );
+
+    // Faceted Cockpit / Roof
+    final cabinVertices = [
+      Offset(w * 0.38, h * 0.48),
+      Offset(w * 0.44, h * 0.36),
+      Offset(w * 0.58, h * 0.36),
+      Offset(w * 0.65, h * 0.48),
+    ];
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      cabinVertices,
+      color: const Color(0xFF0F172A),
+      lightFactor: 0.85,
+      strokeWidth: 2.0,
+    );
+
+    // Low-poly side glass
+    final glassVertices = [
+      Offset(w * 0.45, h * 0.46),
+      Offset(w * 0.47, h * 0.39),
+      Offset(w * 0.56, h * 0.39),
+      Offset(w * 0.62, h * 0.46),
+    ];
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      glassVertices,
+      color: const Color(0xFF38BDF8),
+      lightFactor: 1.2,
+      strokeWidth: 1.2,
+      strokeColor: Colors.black,
+    );
+
+    // Wheels (Octagonal Low-Poly)
+    _drawOctaWheel(canvas, Offset(w * 0.35, h * 0.64));
+    _drawOctaWheel(canvas, Offset(w * 0.68, h * 0.64));
+  }
+
+  void _drawOctaWheel(Canvas canvas, Offset center) {
+    final numSides = 8;
+    final radius = 11.0;
+    final vertices = <Offset>[];
+    for (int i = 0; i < numSides; i++) {
+      final a = (i * 2 * math.pi / numSides);
+      vertices.add(Offset(
+        center.dx + radius * math.cos(a),
+        center.dy + radius * math.sin(a),
+      ));
+    }
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      vertices,
+      color: const Color(0xFF1E293B),
+      lightFactor: 0.9,
+      strokeWidth: 2.0,
+    );
+
+    // Hub center
+    NeoBrutalPolyPainter.draw3DHexBolt(
+      canvas,
+      center,
+      4.0,
+      baseColor: const Color(0xFF94A3B8),
+      isLoosened: false,
+    );
   }
 
   @override

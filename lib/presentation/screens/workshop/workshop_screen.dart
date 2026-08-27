@@ -1262,6 +1262,25 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           onTierSelected: (tier, cost) => _executeTierRepair(
                               _selectedCar!, 'engine', tier, cost),
                         ),
+                        onAdRepair: () {
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle: 'Ücretsiz Motor Rektifiye',
+                            onRewardEarned: () {
+                              final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                                _selectedCar!.id,
+                                repairType: 'engine',
+                                cost: 0.0,
+                              );
+                              if (success) {
+                                NotificationService.showSuccess(context, 'Motor ücretsiz rektifiye edildi! Kondisyon %100.');
+                                setState(() {
+                                  _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                });
+                              }
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
@@ -1287,6 +1306,25 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           onTierSelected: (tier, cost) => _executeTierRepair(
                               _selectedCar!, 'transmission', tier, cost),
                         ),
+                        onAdRepair: () {
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle: 'Ücretsiz Şanzıman Yenileme',
+                            onRewardEarned: () {
+                              final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                                _selectedCar!.id,
+                                repairType: 'transmission',
+                                cost: 0.0,
+                              );
+                              if (success) {
+                                NotificationService.showSuccess(context, 'Şanzıman ücretsiz yenilendi! Kondisyon %100.');
+                                setState(() {
+                                  _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                });
+                              }
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
@@ -1312,6 +1350,25 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           onTierSelected: (tier, cost) => _executeTierRepair(
                               _selectedCar!, 'ecu', tier, cost),
                         ),
+                        onAdRepair: () {
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle: 'Ücretsiz Beyin Arıza Tespiti',
+                            onRewardEarned: () {
+                              final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                                _selectedCar!.id,
+                                repairType: 'ecu',
+                                cost: 0.0,
+                              );
+                              if (success) {
+                                NotificationService.showSuccess(context, 'Gizli arızalar ücretsiz silindi!');
+                                setState(() {
+                                  _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                });
+                              }
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
@@ -1339,6 +1396,25 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           onTierSelected: (tier, cost) => _executeTierRepair(
                               _selectedCar!, 'bodywork', tier, cost),
                         ),
+                        onAdRepair: () {
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle: 'Ücretsiz Kaporta & Boya',
+                            onRewardEarned: () {
+                              final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                                _selectedCar!.id,
+                                repairType: 'bodywork',
+                                cost: 0.0,
+                              );
+                              if (success) {
+                                NotificationService.showSuccess(context, 'Kaporta kusurları ücretsiz onarıldı!');
+                                setState(() {
+                                  _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                });
+                              }
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
@@ -1366,6 +1442,25 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           onTierSelected: (tier, cost) => _executeTierRepair(
                               _selectedCar!, 'chassis', tier, cost),
                         ),
+                        onAdRepair: () {
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle: 'Ücretsiz Şasi Düzeltme',
+                            onRewardEarned: () {
+                              final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                                _selectedCar!.id,
+                                repairType: 'chassis',
+                                cost: 0.0,
+                              );
+                              if (success) {
+                                NotificationService.showSuccess(context, 'Şasi sıfır toleransla ücretsiz doğrultuldu!');
+                                setState(() {
+                                  _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
+                                });
+                              }
+                            },
+                          );
+                        },
                       ),
                     ],
                   );

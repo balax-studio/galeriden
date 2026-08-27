@@ -7,6 +7,7 @@ import '../../../core/theme/stat_colors.dart';
 import '../../../data/models/expertise_model.dart';
 import '../neo_brutal_badge.dart';
 import '../neo_brutal_card.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class MicronBodyScanCanvasWidget extends StatefulWidget {
   final Map<String, PartStatus> bodyParts;
@@ -525,34 +526,48 @@ class _CarBlueprintPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // Grid blueprint background lines
-    final gridPaint = Paint()
-      ..color = isDark ? const Color(0xFF161E2E) : const Color(0xFFE2E8F0)
-      ..strokeWidth = 1.0;
+    // 1. Technical CRT Blueprint Grid
+    NeoBrutalPolyPainter.drawCRTGrid(
+      canvas,
+      size,
+      gridColor: isDark ? const Color(0xFF161E2E) : const Color(0xFFE2E8F0),
+      spacing: 16.0,
+      drawCrosshair: true,
+    );
 
-    for (double x = 0; x < w; x += 20) {
-      canvas.drawLine(Offset(x, 0), Offset(x, h), gridPaint);
-    }
-    for (double y = 0; y < h; y += 20) {
-      canvas.drawLine(Offset(0, y), Offset(w, y), gridPaint);
-    }
+    // Hazard Safety Striping Accents
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromLTWH(w * 0.03, h * 0.01, w * 0.94, 6),
+      stripeWidth: 6,
+      borderWidth: 1.0,
+    );
 
-    // Vehicle Silhouette Outer Body
-    final bodyPaint = Paint()
-      ..color = isDark ? const Color(0xFF131A26) : Colors.white
-      ..style = PaintingStyle.fill;
+    // 2. Faceted Low-Poly Outer Vehicle Blueprint Silhouette
+    final outerChassisVertices = [
+      Offset(w * 0.04, h * 0.28),
+      Offset(w * 0.12, h * 0.06),
+      Offset(w * 0.88, h * 0.06),
+      Offset(w * 0.96, h * 0.28),
+      Offset(w * 0.96, h * 0.72),
+      Offset(w * 0.88, h * 0.94),
+      Offset(w * 0.12, h * 0.94),
+      Offset(w * 0.04, h * 0.72),
+    ];
+
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      outerChassisVertices,
+      color: isDark ? const Color(0xFF131A26) : Colors.white,
+      lightFactor: 1.0,
+      strokeWidth: 2.4,
+      strokeColor: isDark ? const Color(0xFF475569) : const Color(0xFF0F172A),
+    );
 
     final borderPaint = Paint()
       ..color = isDark ? const Color(0xFF475569) : const Color(0xFF0F172A)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
-
-    final carRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(w * 0.03, h * 0.05, w * 0.94, h * 0.90),
-      const Radius.circular(16),
-    );
-    canvas.drawRRect(carRect, bodyPaint);
-    canvas.drawRRect(carRect, borderPaint);
 
     // 1. Ön Tampon
     _drawPartSection(
@@ -671,22 +686,57 @@ class _CarBlueprintPainter extends CustomPainter {
       borderPaint,
     );
 
-    // Sonar Pulse Ring if a part is selected
+    // 3. Prismatic Diamond Probe Sonar Pulse if a part is selected
     if (selectedPartKey != null) {
-      final pulseRadius = 15.0 + sonarProgress * 25.0;
-      final pulsePaint = Paint()
-        ..color = AppColors.brutalYellow
-            .withValues(alpha: (1.0 - sonarProgress).clamp(0.0, 1.0))
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0;
+      final pulseRadius = 12.0 + sonarProgress * 28.0;
+      final pulseAlpha = (1.0 - sonarProgress).clamp(0.0, 1.0);
 
+      // Center crosshair diamond pulse
       final center = Offset(w * 0.50, h * 0.50);
-      canvas.drawCircle(center, pulseRadius, pulsePaint);
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        center,
+        pulseRadius,
+        AppColors.brutalYellow.withValues(alpha: pulseAlpha),
+        strokeWidth: 2.0,
+      );
+
+      // Technical 4-corner targeting brackets
+      _drawTargetBrackets(canvas, size, pulseAlpha);
     }
   }
 
-  void _drawPartSection(Canvas canvas, Rect rect, String lookupKey,
-      String displayLabel, Paint border) {
+  void _drawTargetBrackets(Canvas canvas, Size size, double alpha) {
+    final bracketPaint = Paint()
+      ..color = AppColors.brutalYellow.withValues(alpha: alpha)
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+
+    final w = size.width;
+    final h = size.height;
+    const len = 10.0;
+
+    // Top-left
+    canvas.drawLine(const Offset(6, 6), const Offset(6 + len, 6), bracketPaint);
+    canvas.drawLine(const Offset(6, 6), const Offset(6, 6 + len), bracketPaint);
+    // Top-right
+    canvas.drawLine(Offset(w - 6, 6), Offset(w - 6 - len, 6), bracketPaint);
+    canvas.drawLine(Offset(w - 6, 6), Offset(w - 6, 6 + len), bracketPaint);
+    // Bottom-left
+    canvas.drawLine(Offset(6, h - 6), Offset(6 + len, h - 6), bracketPaint);
+    canvas.drawLine(Offset(6, h - 6), Offset(6, h - 6 - len), bracketPaint);
+    // Bottom-right
+    canvas.drawLine(Offset(w - 6, h - 6), Offset(w - 6 - len, h - 6), bracketPaint);
+    canvas.drawLine(Offset(w - 6, h - 6), Offset(w - 6, h - 6 - len), bracketPaint);
+  }
+
+  void _drawPartSection(
+    Canvas canvas,
+    Rect rect,
+    String lookupKey,
+    String displayLabel,
+    Paint border,
+  ) {
     final status = bodyParts[lookupKey] ??
         bodyParts.entries
             .firstWhere(
@@ -717,10 +767,41 @@ class _CarBlueprintPainter extends CustomPainter {
       fillColor = AppColors.brutalYellow.withValues(alpha: 0.65);
     }
 
-    final fillPaint = Paint()..color = fillColor;
-    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(6));
-    canvas.drawRRect(rrect, fillPaint);
-    canvas.drawRRect(rrect, border);
+    // Draw faceted polygonal chamber for part
+    final chamfer = 4.0;
+    final partVertices = [
+      Offset(rect.left + chamfer, rect.top),
+      Offset(rect.right - chamfer, rect.top),
+      Offset(rect.right, rect.top + chamfer),
+      Offset(rect.right, rect.bottom - chamfer),
+      Offset(rect.right - chamfer, rect.bottom),
+      Offset(rect.left + chamfer, rect.bottom),
+      Offset(rect.left, rect.bottom - chamfer),
+      Offset(rect.left, rect.top + chamfer),
+    ];
+
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      partVertices,
+      color: fillColor,
+      lightFactor: isSelected ? 1.15 : (isScanned ? 1.05 : 0.95),
+      strokeWidth: isSelected ? 2.4 : 1.6,
+      strokeColor: isSelected
+          ? Colors.black
+          : (isDark ? const Color(0xFF475569) : const Color(0xFF0F172A)),
+    );
+
+    // Indicator diamond if scanned
+    if (isScanned) {
+      final statusColor = StatColors.getPartColor(status.name);
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        Offset(rect.left + 8, rect.top + 8),
+        4.0,
+        statusColor,
+        strokeWidth: 1.0,
+      );
+    }
 
     final textPainter = TextPainter(
       text: TextSpan(
@@ -738,8 +819,10 @@ class _CarBlueprintPainter extends CustomPainter {
 
     textPainter.paint(
       canvas,
-      Offset(rect.center.dx - textPainter.width / 2,
-          rect.center.dy - textPainter.height / 2),
+      Offset(
+        rect.center.dx - textPainter.width / 2,
+        rect.center.dy - textPainter.height / 2,
+      ),
     );
   }
 

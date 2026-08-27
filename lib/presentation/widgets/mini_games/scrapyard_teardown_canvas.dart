@@ -8,6 +8,7 @@ import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 import '../slam_stamp_widget.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class ScrapyardTeardownModal extends StatefulWidget {
   final String partName;
@@ -352,50 +353,57 @@ class _ScrapyardTeardownPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final cx = size.width / 2;
-    final cy = size.height / 2 - 15;
+    final cy = size.height / 2 - 18;
 
-    // 1. Grid Background
-    final gridPaint = Paint()
-      ..color = const Color(0xFF151C2C)
-      ..strokeWidth = 1.0;
+    // 1. CRT Technical Grid
+    NeoBrutalPolyPainter.drawCRTGrid(canvas, size, gridColor: const Color(0xFF151C2C));
 
-    for (double x = 0; x < size.width; x += 20) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-    for (double y = 0; y < size.height; y += 20) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
+    // 2. Central Faceted Low-Poly Engine Block
+    final engineVertices = [
+      Offset(cx - 65, cy - 35),
+      Offset(cx + 65, cy - 35),
+      Offset(cx + 72, cy - 10),
+      Offset(cx + 62, cy + 38),
+      Offset(cx - 62, cy + 38),
+      Offset(cx - 72, cy - 10),
+    ];
 
-    // 2. Central Mechanical Part Silhouette
-    final partRect =
-        Rect.fromCenter(center: Offset(cx, cy), width: 140, height: 90);
-    final partPaint = Paint()
-      ..color = const Color(0xFF1E283D)
-      ..style = PaintingStyle.fill;
-    final partBorderPaint = Paint()
-      ..color = const Color(0xFF384A6E)
-      ..strokeWidth = 2.4
-      ..style = PaintingStyle.stroke;
+    // Engine Base Shadow (0-blur)
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      engineVertices,
+      color: const Color(0xFF1E283D),
+      lightFactor: 1.0,
+      strokeWidth: 2.8,
+      strokeColor: Colors.black,
+      showHardShadow: true,
+      shadowOffset: const Offset(4, 4),
+      shadowColor: Colors.black,
+    );
 
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(partRect, const Radius.circular(8)), partPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(partRect, const Radius.circular(8)),
-        partBorderPaint);
+    // Engine Block Facet Divisions
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      [Offset(cx - 40, cy - 25), Offset(cx + 40, cy - 25), Offset(cx + 35, cy + 20), Offset(cx - 35, cy + 20)],
+      color: const Color(0xFF0F172A),
+      lightFactor: 1.15,
+      strokeWidth: 2.0,
+    );
 
-    // Inner mechanical lines
-    final innerPaint = Paint()
-      ..color = const Color(0xFF283650)
-      ..strokeWidth = 2.0;
-    canvas.drawCircle(Offset(cx, cy), 22, innerPaint);
-    canvas.drawLine(Offset(cx - 50, cy), Offset(cx + 50, cy), innerPaint);
+    // Hazard Stripes Badge on Block
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromCenter(center: Offset(cx, cy - 2), width: 50, height: 12),
+      stripeWidth: 8,
+      borderWidth: 1.5,
+    );
 
-    // 3. 4 Bolt Positions
+    // 3. 4 Low-Poly 3D Hexagonal Bolts
     final boltOffsets = [
-      Offset(cx - 50, cy - 30),
-      Offset(cx + 50, cy - 30),
-      Offset(cx + 50, cy + 30),
-      Offset(cx - 50, cy + 30),
+      Offset(cx - 50, cy - 24),
+      Offset(cx + 50, cy - 24),
+      Offset(cx + 46, cy + 24),
+      Offset(cx - 46, cy + 24),
     ];
 
     for (int i = 0; i < boltOffsets.length; i++) {
@@ -403,82 +411,88 @@ class _ScrapyardTeardownPainter extends CustomPainter {
       final isLoosened = boltsLoosened[i];
       final isActive = i == activeBoltIndex && !isLoosened;
 
-      // Active pulse glow
-      if (isActive) {
-        final glowPaint = Paint()
-          ..color = AppColors.brutalYellow.withValues(alpha: 0.35)
-          ..style = PaintingStyle.fill;
-        canvas.drawCircle(pos, 16, glowPaint);
-      }
+      final boltColor = isLoosened
+          ? AppColors.brutalGreen
+          : (isActive ? AppColors.brutalYellow : const Color(0xFF94A3B8));
 
-      // Bolt outer hex
-      final hexPaint = Paint()
-        ..color = isLoosened
-            ? AppColors.brutalGreen
-            : (isActive ? AppColors.brutalYellow : const Color(0xFF64748B))
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(pos, 10, hexPaint);
-
-      // Bolt inner thread
-      final threadPaint = Paint()
-        ..color = Colors.black
-        ..strokeWidth = 2.0
-        ..style = PaintingStyle.stroke;
-      canvas.drawCircle(pos, 5, threadPaint);
-
-      // Hex cross slot
-      canvas.drawLine(
-          Offset(pos.dx - 3, pos.dy), Offset(pos.dx + 3, pos.dy), threadPaint);
-      canvas.drawLine(
-          Offset(pos.dx, pos.dy - 3), Offset(pos.dx, pos.dy + 3), threadPaint);
+      NeoBrutalPolyPainter.draw3DHexBolt(
+        canvas,
+        pos,
+        12.0,
+        rotation: i * 0.4,
+        boltColor: boltColor,
+        depth: isLoosened ? 1.0 : 4.5,
+        strokeWidth: 2.2,
+      );
     }
 
-    // 4. Bottom Torque Meter Scale
+    // 4. Prismatic Diamond Sparks
+    for (final spark in sparks) {
+      if (spark.life > 0) {
+        NeoBrutalPolyPainter.drawPrismaticDiamond(
+          canvas,
+          boltOffsets[activeBoltIndex] + Offset(spark.x, spark.y),
+          8.0 * spark.life,
+          spark.color,
+        );
+      }
+    }
+
+    // 5. Bottom Neo-Brutal Torque Gauge
     final meterY = size.height - 24;
-    final meterLeft = 30.0;
-    final meterRight = size.width - 30.0;
+    final meterLeft = 24.0;
+    final meterRight = size.width - 24.0;
     final meterWidth = meterRight - meterLeft;
 
-    // Background track
-    final trackPaint = Paint()
-      ..color = const Color(0xFF1E283D)
-      ..strokeWidth = 10.0
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-        Offset(meterLeft, meterY), Offset(meterRight, meterY), trackPaint);
-
-    // Green zone (65% to 88%)
-    final greenZonePaint = Paint()
-      ..color = AppColors.brutalGreen
-      ..strokeWidth = 10.0;
-    canvas.drawLine(
-      Offset(meterLeft + meterWidth * 0.65, meterY),
-      Offset(meterLeft + meterWidth * 0.88, meterY),
-      greenZonePaint,
+    // Outer Gauge Box
+    final meterRect = Rect.fromLTWH(meterLeft, meterY - 8, meterWidth, 16);
+    canvas.drawRect(meterRect, Paint()..color = const Color(0xFF0F172A));
+    canvas.drawRect(
+      meterRect,
+      Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.4,
     );
 
-    // Red zone (>88%)
-    final redZonePaint = Paint()
-      ..color = AppColors.errorRed
-      ..strokeWidth = 10.0
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-      Offset(meterLeft + meterWidth * 0.88, meterY),
-      Offset(meterRight, meterY),
-      redZonePaint,
+    // Green Zone
+    final greenRect = Rect.fromLTWH(
+      meterLeft + meterWidth * 0.65,
+      meterY - 8,
+      meterWidth * 0.23,
+      16,
+    );
+    canvas.drawRect(greenRect, Paint()..color = AppColors.brutalGreen);
+    canvas.drawRect(
+      greenRect,
+      Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8,
     );
 
-    // Sweeping indicator needle
+    // Red Over-torque Zone
+    final redRect = Rect.fromLTWH(
+      meterLeft + meterWidth * 0.88,
+      meterY - 8,
+      meterWidth * 0.12,
+      16,
+    );
+    canvas.drawRect(redRect, Paint()..color = AppColors.errorRed);
+
+    // Sweep Pointer (Low-Poly Triangle)
     final needleX = meterLeft + meterWidth * sweepProgress;
-    final needlePaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3.2;
-    canvas.drawLine(Offset(needleX, meterY - 10), Offset(needleX, meterY + 10),
-        needlePaint);
-
-    // Needle pointer cap
-    final capPaint = Paint()..color = AppColors.brutalYellow;
-    canvas.drawCircle(Offset(needleX, meterY - 10), 4, capPaint);
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      [
+        Offset(needleX - 6, meterY - 14),
+        Offset(needleX + 6, meterY - 14),
+        Offset(needleX, meterY + 12),
+      ],
+      color: Colors.white,
+      lightFactor: 1.2,
+      strokeWidth: 2.0,
+    );
   }
 
   @override

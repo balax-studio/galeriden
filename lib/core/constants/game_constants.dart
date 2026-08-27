@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class CarBrandData {
   final String name;
   final String segment;
@@ -19,6 +21,23 @@ class GameConstants {
   static const String appVersion = '1.0.0';
   static const String privacyPolicyUrl =
       'https://docs.google.com/document/d/e/2PACX-1vSIja6S76xfAAy2wwWh12Mi0rEdjiMailne09VQj5gbPnhDTSpFVU5SKmwb2AdeuqO41L3EjjSI0kfd/pub';
+
+  // Store URLs & Reviews
+  static const String playStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.balax.galeriden';
+  static const String appStoreUrl =
+      'https://apps.apple.com/app/id6742468307?action=write-review';
+  static const String appStoreWebUrl =
+      'https://apps.apple.com/app/galeriden/id6742468307';
+
+  /// Returns the platform-specific store URL for rating & reviews.
+  static String get storeReviewUrl {
+    if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS) {
+      return appStoreUrl;
+    }
+    return playStoreUrl;
+  }
 
   // Economy Defaults
   static const double startingBalance = 50000.0;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../data/models/casino_game_model.dart';
 import '../../../../domain/usecases/casino_engine.dart';
@@ -59,11 +60,11 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal>
     super.dispose();
   }
 
-  void _drop() {
+  void _drop({bool isFreeAd = false}) {
     if (_isDropping) return;
     final game = ref.read(gameProvider);
 
-    if (game.balance < _selectedBet) {
+    if (!isFreeAd && game.balance < _selectedBet) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.tr('casino_insufficient_balance')),
@@ -75,7 +76,7 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal>
 
     final result = ref
         .read(gameProvider.notifier)
-        .playCasinoPlinko(betAmount: _selectedBet);
+        .playCasinoPlinko(betAmount: _selectedBet, isFreeAd: isFreeAd);
     if (result == null) return;
 
     // Generate path to target slot
@@ -396,6 +397,31 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal>
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Rewarded Ad Free Drop Button
+                  NeoBrutalButton(
+                    label: context.tr('casino_plinko_free_ad_btn'),
+                    icon: Icons.smart_display_rounded,
+                    backgroundColor: const Color(0xFFFFDE59),
+                    textColor: Colors.black,
+                    fontSize: 13,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    onPressed: _isDropping
+                        ? null
+                        : () {
+                            AdService.instance.showRewardedAdWithFallback(
+                              context: context,
+                              customRewardTitle:
+                                  context.tr('casino_plinko_ad_reward_title'),
+                              onRewardEarned: () {
+                                _drop(isFreeAd: true);
+                              },
+                            );
+                          },
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Drop Action Button
                   NeoBrutalButton(
                     label: _isDropping
                         ? context.tr('plinko_btn_dropping')
@@ -406,7 +432,7 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal>
                     fontSize: 14,
                     fullWidth: true,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    onPressed: _isDropping ? null : _drop,
+                    onPressed: _isDropping ? null : () => _drop(),
                   ),
                 ],
               ),

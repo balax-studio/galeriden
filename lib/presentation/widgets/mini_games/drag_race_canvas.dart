@@ -13,6 +13,7 @@ import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 import '../slam_stamp_widget.dart';
+import 'neo_brutal_poly_painter.dart';
 
 enum RacePhase {
   countdown, // 3, 2, 1, GO
@@ -1310,52 +1311,62 @@ class _DragTrackPainter extends CustomPainter {
   void _drawParticles(Canvas canvas) {
     for (final p in particles) {
       final alpha = (p.life / p.maxLife).clamp(0.0, 1.0);
-      final pPaint = Paint()..color = p.color.withValues(alpha: alpha);
 
       if (p.type == ParticleType.triangleFlame) {
-        final path = Path();
-        final h = p.size;
-        path.moveTo(p.x, p.y - h);
-        path.lineTo(p.x - h * 1.4, p.y + h * 0.6);
-        path.lineTo(p.x + h * 0.4, p.y + h * 0.6);
-        path.close();
-
-        canvas.save();
-        canvas.translate(p.x, p.y);
-        canvas.rotate(p.rotation);
-        canvas.translate(-p.x, -p.y);
-        canvas.drawPath(path, pPaint);
-
-        final strokePaint = Paint()
-          ..color = Colors.black.withValues(alpha: alpha)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2;
-        canvas.drawPath(path, strokePaint);
-        canvas.restore();
+        // Prismatic Flame Diamond
+        NeoBrutalPolyPainter.drawPrismaticDiamond(
+          canvas,
+          Offset(p.x, p.y),
+          p.size * 1.5,
+          p.color.withValues(alpha: alpha),
+          rotation: p.rotation,
+          strokeWidth: 1.2,
+        );
       } else if (p.type == ParticleType.smokePuff) {
         final rect = Rect.fromCenter(
           center: Offset(p.x, p.y),
           width: p.size,
           height: p.size,
         );
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(rect, const Radius.circular(2)),
-          pPaint,
+        NeoBrutalPolyPainter.drawFacetedPolygon(
+          canvas,
+          [
+            Offset(rect.left, rect.top),
+            Offset(rect.right, rect.top),
+            Offset(rect.right, rect.bottom),
+            Offset(rect.left, rect.bottom),
+          ],
+          color: p.color.withValues(alpha: alpha),
+          lightFactor: 0.9,
+          strokeWidth: 1.0,
         );
       } else if (p.type == ParticleType.sparkShard) {
-        final path = Path()
-          ..moveTo(p.x, p.y - p.size)
-          ..lineTo(p.x + p.size, p.y)
-          ..lineTo(p.x, p.y + p.size)
-          ..lineTo(p.x - p.size, p.y)
-          ..close();
-        canvas.drawPath(path, pPaint);
+        NeoBrutalPolyPainter.drawPrismaticDiamond(
+          canvas,
+          Offset(p.x, p.y),
+          p.size * 1.6,
+          p.color.withValues(alpha: alpha),
+          strokeWidth: 1.0,
+        );
       } else if (p.type == ParticleType.nitroShockwave) {
-        final ringPaint = Paint()
-          ..color = p.color.withValues(alpha: alpha * 0.7)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.4;
-        canvas.drawCircle(Offset(p.x, p.y), p.size, ringPaint);
+        // Octagonal shockwave ring
+        final numSides = 8;
+        final vertices = <Offset>[];
+        for (int i = 0; i < numSides; i++) {
+          final a = (i * 2 * math.pi / numSides);
+          vertices.add(Offset(
+            p.x + p.size * math.cos(a),
+            p.y + p.size * math.sin(a),
+          ));
+        }
+        NeoBrutalPolyPainter.drawFacetedPolygon(
+          canvas,
+          vertices,
+          color: p.color.withValues(alpha: alpha * 0.25),
+          lightFactor: 1.2,
+          strokeWidth: 2.0,
+          strokeColor: p.color.withValues(alpha: alpha * 0.8),
+        );
       }
     }
   }
@@ -1368,64 +1379,24 @@ class _DragTrackPainter extends CustomPainter {
     String speechText,
     bool isPlayer,
   ) {
-    final bodyPaint = Paint()..color = color;
-    final borderPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2;
-
-    final windowPaint = Paint()..color = const Color(0xFF0F172A);
-    final wheelPaint = Paint()..color = const Color(0xFF1E293B);
-    final wheelRimPaint = Paint()..color = const Color(0xFFCBD5E1);
+    // 1. Headlight Laser Beam
+    final beamPath = Path()
+      ..moveTo(pos.dx + 48, pos.dy + 12)
+      ..lineTo(pos.dx + 96, pos.dy + 2)
+      ..lineTo(pos.dx + 96, pos.dy + 24)
+      ..close();
     final lightBeamPaint = Paint()
       ..color = const Color(0xFFFEF08A).withValues(alpha: 0.25);
-
-    // Headlight Laser Beam (illuminating the road ahead)
-    final beamPath = Path()
-      ..moveTo(pos.dx + 52, pos.dy + 12)
-      ..lineTo(pos.dx + 90, pos.dy + 4)
-      ..lineTo(pos.dx + 90, pos.dy + 22)
-      ..close();
     canvas.drawPath(beamPath, lightBeamPaint);
 
-    // Hard Offset Shadow under car
-    final shadowPaint = Paint()..color = Colors.black.withValues(alpha: 0.6);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(pos.dx + 2, pos.dy + 24, 48, 5),
-        const Radius.circular(3),
-      ),
-      shadowPaint,
+    // 2. Low-Poly Volumetric Isometric Car Mesh
+    NeoBrutalPolyPainter.drawLowPolyIsometricCar(
+      canvas,
+      Offset(pos.dx + 26, pos.dy + 14),
+      0.90,
+      bodyColor: color,
+      isHeadlightsOn: true,
     );
-
-    // Wheels with alloy rims
-    _drawWheel(canvas, Offset(pos.dx + 6, pos.dy + 19), wheelPaint, wheelRimPaint);
-    _drawWheel(canvas, Offset(pos.dx + 36, pos.dy + 19), wheelPaint, wheelRimPaint);
-
-    // Main Car Body Box
-    final carRect = Rect.fromLTWH(pos.dx, pos.dy + 5, 52, 19);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(carRect, const Radius.circular(4)), bodyPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(carRect, const Radius.circular(4)), borderPaint);
-
-    // Cabin / Windshield
-    final cabinRect = Rect.fromLTWH(pos.dx + 12, pos.dy, 24, 11);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(cabinRect, const Radius.circular(3)),
-        windowPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(cabinRect, const Radius.circular(3)),
-        borderPaint);
-
-    // Headlight bulb
-    final bulbPaint = Paint()..color = const Color(0xFFFEF08A);
-    canvas.drawRect(Rect.fromLTWH(pos.dx + 48, pos.dy + 10, 4, 6), bulbPaint);
-    canvas.drawRect(Rect.fromLTWH(pos.dx + 48, pos.dy + 10, 4, 6), borderPaint);
-
-    // Taillight bulb
-    final tailBulbPaint = Paint()..color = const Color(0xFFEF4444);
-    canvas.drawRect(Rect.fromLTWH(pos.dx, pos.dy + 10, 3, 5), tailBulbPaint);
 
     // Text Label above car
     final textPainter = TextPainter(
@@ -1447,24 +1418,6 @@ class _DragTrackPainter extends CustomPainter {
       _drawSpeechBubble(
           canvas, Offset(pos.dx + 18, pos.dy - 13), speechText, isPlayer);
     }
-  }
-
-  void _drawWheel(Canvas canvas, Offset pos, Paint tirePaint, Paint rimPaint) {
-    final borderPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6;
-
-    final wheelRect = Rect.fromLTWH(pos.dx, pos.dy, 10, 8);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(wheelRect, const Radius.circular(2)),
-        tirePaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(wheelRect, const Radius.circular(2)),
-        borderPaint);
-
-    // Rim center dot
-    canvas.drawCircle(Offset(pos.dx + 5, pos.dy + 4), 1.8, rimPaint);
   }
 
   void _drawSpeechBubble(

@@ -12,8 +12,28 @@ class OfflineProgression {
     DateTime? currentTime,
   }) {
     final now = currentTime ?? DateTime.now();
+    final rawDiff = now.difference(dealership.lastActiveTime).inMinutes;
+
+    // Clock rollback detection: Prevent time-travel exploitation
+    if (rawDiff < 0) {
+      return {
+        'elapsedMinutes': 0,
+        'hoursAway': 0,
+        'offlineHours': 0,
+        'daysElapsed': 0,
+        'passiveIncome': 0.0,
+        'earnedIncome': 0.0,
+        'expensesPaid': 0.0,
+        'netEarned': 0.0,
+        'partsArrivedCount': 0,
+        'newOffersCount': 0,
+        'missedOpportunities': <String>[],
+        'updatedDealership': dealership,
+      };
+    }
+
     // 16 hours max cap = 960 minutes (§3.6)
-    final elapsedMinutes = now.difference(dealership.lastActiveTime).inMinutes.clamp(0, 960);
+    final elapsedMinutes = rawDiff.clamp(0, 960);
     final hoursAway = (elapsedMinutes / 60).floor();
 
     if (elapsedMinutes < 2) {

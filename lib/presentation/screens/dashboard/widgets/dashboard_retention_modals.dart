@@ -466,7 +466,7 @@ class DashboardRetentionModals {
               ),
               const SizedBox(height: 16),
               NeoBrutalButton(
-                label: 'ŞİMDİ KEŞFET',
+                label: context.tr('explore_now_btn'),
                 icon: Icons.rocket_launch_rounded,
                 backgroundColor: const Color(0xFFFFDE59),
                 textColor: Colors.black,
@@ -1066,7 +1066,7 @@ class DashboardRetentionModals {
                 children: [
                   Expanded(
                     child: NeoBrutalButton(
-                      label: 'Vazgeç',
+                      label: context.tr('btn_cancel'),
                       backgroundColor: isDark
                           ? const Color(0xFF1E2330)
                           : const Color(0xFFE2E8F0),
@@ -1079,7 +1079,7 @@ class DashboardRetentionModals {
                   Expanded(
                     flex: 2,
                     child: NeoBrutalButton(
-                      label: 'Galeriyi Devret • Sezon Başlat',
+                      label: context.tr('prestige_transfer_btn'),
                       icon: Icons.rocket_launch_rounded,
                       backgroundColor: const Color(0xFFFFDE59),
                       textColor: Colors.black,

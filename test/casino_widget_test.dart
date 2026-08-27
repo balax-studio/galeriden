@@ -153,10 +153,15 @@ void main() {
       expect(find.text('DAHA KÜÇÜK • DÜŞÜK'), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
     });
 
     testWidgets('PlinkoModal drops ball and lands in slot', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       container.read(gameProvider.notifier).state = DealershipModel.initial().copyWith(
         balance: 1000000.0,
         unlockedBuildings: {'property_tier_6'},
@@ -166,17 +171,26 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       expect(find.text('Plinko • Şans Piramidi'), findsOneWidget);
+      expect(find.text('ÜCRETSİZ AT • REKLAM İZLE'), findsOneWidget);
       expect(find.text('TOPU BIRAK'), findsOneWidget);
 
       await tester.tap(find.text('TOPU BIRAK'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 2500));
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(container.read(gameProvider).casinoStats.totalGamesPlayed, equals(1));
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 500));
     });
 
     testWidgets('LuckyWheelModal spins wheel with deceleration', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       container.read(gameProvider.notifier).state = DealershipModel.initial().copyWith(
         balance: 2000000.0,
         unlockedBuildings: {'property_tier_6'},
@@ -186,14 +200,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       expect(find.text('Mega Wheel • Şans Çarkı'), findsOneWidget);
+      expect(find.text('ÜCRETSİZ ÇEVİR • REKLAM İZLE'), findsOneWidget);
       expect(find.text('ÇARKI ÇEVİR'), findsOneWidget);
 
       await tester.tap(find.text('ÇARKI ÇEVİR'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 4500));
-      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(container.read(gameProvider).casinoStats.totalGamesPlayed, equals(1));
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 500));
     });
 
     testWidgets('ScratchCardModal buys card and scratches spots', (tester) async {
@@ -219,7 +237,7 @@ void main() {
       expect(container.read(gameProvider).casinoStats.totalGamesPlayed, equals(1));
 
       await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
     });
 
     testWidgets('DoubleOrNothingModal flips coin for 2x or 0x', (tester) async {
@@ -237,9 +255,12 @@ void main() {
       await tester.tap(find.text('YAZI • 2x'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 2200));
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(container.read(gameProvider).casinoStats.totalGamesPlayed, equals(1));
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 500));
     });
 
     testWidgets('AviatorCrashModal launches flight and cashes out', (tester) async {
@@ -258,7 +279,6 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
 
-      // Button should now show cashout or flight ended
       final cashoutFinder = find.byWidgetPredicate((w) => w.toString().contains('KAZANCI AL'));
       if (cashoutFinder.evaluate().isNotEmpty) {
         await tester.tap(cashoutFinder.first);
@@ -266,6 +286,9 @@ void main() {
       }
 
       expect(container.read(gameProvider).casinoStats.totalGamesPlayed, equals(1));
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 500));
     });
 
     testWidgets('SanayiBarbutuModal shakes cup and rolls dice', (tester) async {

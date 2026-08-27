@@ -576,7 +576,7 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
             physics: const BouncingScrollPhysics(),
             children: [
               _buildSegmentChip(
-                label: 'Tüm Segmentler',
+                label: context.tr('all_segments_filter'),
                 isSelected: _selectedSegment == null,
                 isDark: isDark,
                 onTap: () => setState(() => _selectedSegment = null),
@@ -971,7 +971,7 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
               SizedBox(
                 width: double.infinity,
                 child: NeoBrutalButton(
-                  label: 'Kapat',
+                  label: context.tr('btn_close'),
                   icon: Icons.close_rounded,
                   backgroundColor: const Color(0xFF0F172A),
                   textColor: Colors.white,

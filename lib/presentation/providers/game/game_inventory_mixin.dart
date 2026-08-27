@@ -1381,7 +1381,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
   }
 
   /// 21. 28 Günlük Esnaf Takvimi (Aylık Giriş Serisi) Ödülünü Talep Etme
-  DailyLoginRewardModel? claimDailyLoginReward({DateTime? customNow}) {
+  DailyLoginRewardModel? claimDailyLoginReward({DateTime? customNow, double rewardMultiplier = 1.0}) {
     final now = customNow ?? DateTime.now();
     final todayStr =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -1421,7 +1421,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
           if (diff == 1) {
             newStreak = state.loginStreak + 1;
           } else if (diff > 1) {
-            newStreak = 1;
+            newStreak = state.hasStreakFreeze ? (state.loginStreak + 1) : 1;
           }
         }
       } catch (_) {
@@ -1431,10 +1431,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
       newStreak = 1;
     }
 
+    final effectiveMoney = (reward.moneyAmount * rewardMultiplier).roundToDouble();
+    final effectiveRep = (reward.reputationAmount * rewardMultiplier).round();
+
     state = state.copyWith(
-      balance: state.balance + reward.moneyAmount,
+      balance: state.balance + effectiveMoney,
       reputationScore:
-          (state.reputationScore + reward.reputationAmount).clamp(0, 1000),
+          (state.reputationScore + effectiveRep).clamp(0, 1000),
       lastRealLoginDateStr: todayStr,
       lastLoginDate: now,
       lastRewardClaimDate: now,
@@ -1445,9 +1448,18 @@ mixin GameInventoryMixin on GameBaseNotifier {
       streakVouchers: updatedVouchers,
     );
 
-    addXP(reward.reputationAmount * 15 + 50);
+    addXP(effectiveRep * 15 + 50);
     saveState();
     return reward;
+  }
+
+  /// 21.1 Ödüllü Reklam ile Giriş Serisi Kurtarma ve Dondurma Kalkanı
+  void activateStreakRescue() {
+    state = state.copyWith(
+      hasStreakFreeze: true,
+      loginStreak: state.loginStreak < 1 ? 1 : state.loginStreak,
+    );
+    saveState();
   }
 
   /// 22. Şirketi Borsa İstanbul'da Halka Arz Etme (BIST: GLRD)

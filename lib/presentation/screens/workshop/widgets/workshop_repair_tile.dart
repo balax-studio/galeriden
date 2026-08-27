@@ -19,6 +19,7 @@ class WorkshopRepairTile extends StatelessWidget {
   final bool isRepaired;
   final String? disabledLabel;
   final VoidCallback onRepair;
+  final VoidCallback? onAdRepair;
 
   const WorkshopRepairTile({
     super.key,
@@ -32,6 +33,7 @@ class WorkshopRepairTile extends StatelessWidget {
     this.isRepaired = false,
     this.disabledLabel,
     required this.onRepair,
+    this.onAdRepair,
   });
 
   @override
@@ -135,22 +137,39 @@ class WorkshopRepairTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          NeoBrutalButton(
-            label: isRepaired
-                ? (disabledLabel ?? context.tr('tuning_btn_applied'))
-                : context.tr('workshop_btn_repair'),
-            icon: isRepaired
-                ? Icons.check_circle_rounded
-                : Icons.build_circle_rounded,
-            backgroundColor: isRepaired
-                ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                : AppColors.brutalYellow,
-            textColor: isRepaired
-                ? (isDark ? Colors.white54 : Colors.black54)
-                : Colors.black,
-            fontSize: 11,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            onPressed: isRepaired ? null : onRepair,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              NeoBrutalButton(
+                label: isRepaired
+                    ? (disabledLabel ?? context.tr('tuning_btn_applied'))
+                    : context.tr('workshop_btn_repair'),
+                icon: isRepaired
+                    ? Icons.check_circle_rounded
+                    : Icons.build_circle_rounded,
+                backgroundColor: isRepaired
+                    ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                    : AppColors.brutalYellow,
+                textColor: isRepaired
+                    ? (isDark ? Colors.white54 : Colors.black54)
+                    : Colors.black,
+                fontSize: 11,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                onPressed: isRepaired ? null : onRepair,
+              ),
+              if (!isRepaired && onAdRepair != null) ...[
+                const SizedBox(height: 6),
+                NeoBrutalButton(
+                  label: 'ÜCRETSİZ', // Free
+                  icon: Icons.play_circle_filled_rounded,
+                  backgroundColor: const Color(0xFFA855F7),
+                  textColor: Colors.white,
+                  fontSize: 10,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  onPressed: onAdRepair,
+                ),
+              ],
+            ],
           ),
         ],
       ),

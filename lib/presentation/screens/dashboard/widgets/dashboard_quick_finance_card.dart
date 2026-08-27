@@ -32,65 +32,74 @@ class DashboardQuickFinanceCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: activeLoans.isNotEmpty
-                      ? const Color(0xFFFF7A00)
-                      : const Color(0xFF00E575),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: isDark
-                        ? const Color(0xFF333B4F)
-                        : const Color(0xFF0F172A),
-                    width: 2.0,
-                  ),
-                ),
-                child: Icon(
-                  activeLoans.isNotEmpty
-                      ? Icons.account_balance_rounded
-                      : Icons.savings_rounded,
-                  size: 20,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    activeLoans.isNotEmpty
-                        ? context.tr(
-                            'active_loans_count', {'count': activeLoans.length})
-                        : context.tr('bank_credit_ready'),
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    activeLoans.isNotEmpty
-                        ? context.tr('remaining_debt_label', {
-                            'amount':
-                                CurrencyFormatter.formatShort(totalLoanDebt)
-                          })
-                        : context.tr('bank_credit_sub'),
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: activeLoans.isNotEmpty
+                        ? const Color(0xFFFF7A00)
+                        : const Color(0xFF00E575),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
                       color: isDark
-                          ? const Color(0xFF94A3B8)
-                          : const Color(0xFF64748B),
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
+                      width: 2.0,
                     ),
                   ),
-                ],
-              ),
-            ],
+                  child: Icon(
+                    activeLoans.isNotEmpty
+                        ? Icons.account_balance_rounded
+                        : Icons.savings_rounded,
+                    size: 20,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        activeLoans.isNotEmpty
+                            ? context.tr(
+                                'active_loans_count', {'count': activeLoans.length})
+                            : context.tr('bank_credit_ready'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        activeLoans.isNotEmpty
+                            ? context.tr('remaining_debt_label', {
+                                'amount':
+                                    CurrencyFormatter.formatShort(totalLoanDebt)
+                              })
+                            : context.tr('bank_credit_sub'),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           NeoBrutalButton(
             label: activeLoans.isNotEmpty
                 ? context.tr('manage_btn')

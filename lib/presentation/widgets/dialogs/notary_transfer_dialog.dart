@@ -121,46 +121,48 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
           ],
         ),
         padding: const EdgeInsets.all(18),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header Bar with Notary Seal title
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: isCancelled
-                    ? const Color(0xFFEF4444)
-                    : (isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFF0F172A)),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.account_balance_rounded,
-                    color: Color(0xFFFFDE59),
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      context.tr('notary_title'),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header Bar with Notary Seal title
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: isCancelled
+                      ? const Color(0xFFEF4444)
+                      : (isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFF0F172A)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.account_balance_rounded,
+                      color: Color(0xFFFFDE59),
+                      size: 18,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        context.tr('notary_title'),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 14),
 
             // Vehicle Information Box
@@ -194,6 +196,7 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
@@ -257,10 +260,13 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        context.tr('notary_sale_price'),
-                        style: const TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w800),
+                      Expanded(
+                        child: Text(
+                          context.tr('notary_sale_price'),
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w800),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Flexible(
@@ -394,6 +400,7 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
             ),
           ],
         ),
+      ),
       ),
     );
   }

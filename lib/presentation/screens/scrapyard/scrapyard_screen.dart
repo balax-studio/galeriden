@@ -1499,7 +1499,8 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                     ),
                                     const SizedBox(width: 6),
                                     NeoBrutalButton(
-                                      label: 'HEPSİNİ SÖK',
+                                      label: context
+                                          .tr('scrapyard_strip_all_btn'),
                                       icon: Icons.all_inbox_rounded,
                                       backgroundColor: AppColors.brutalYellow,
                                       textColor: Colors.black,

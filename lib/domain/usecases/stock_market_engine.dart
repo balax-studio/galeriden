@@ -173,6 +173,9 @@ class StockMarketEngine {
             amount: playerReq.totalSpent * outcomeMultiplier,
             date: DateTime.now(),
           ));
+
+          // Prune processed IPO request so resetting cycles never award duplicate payouts
+          updatedRequests.removeWhere((r) => r.ipoId == ipo.id);
         }
       } else {
         updatedIpos.add(ipo.copyWith(daysUntilListing: remainingDays));

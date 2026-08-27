@@ -87,10 +87,11 @@ Kullanıcının tutunmayı artırma ve oyunun tekrar eden/sığ yönlerini derin
   - `DEĞİŞENLİ • KAPORTA İŞLEM` (2+ replaced panels) with wrench icon.
   - `MEKANİK • MOTOR KUSURLU` (Engine/Transmission < 50%) with engine gear icon.
   - `BOYALI • BEL ALTI BOYA` (2+ repainted panels) with paint icon.
-  - `TRAMER • YÜKSEK HASAR` (Tramer > 30.000 ₺) with ledger record icon.
-  - `AĞIR HASARLI • CAM ÇATLAK` (Default / minor flaw) with animated spiderweb cracked glass canvas.
-- **Simultaneous 7-Language Parity**: Synchronized all keys across `tr`, `en`, `de`, `pt`, `es`, `ru`, and `ar` with zero emojis and zero parentheses.
-- **Automated Tests**: Added [cracked_glass_badge_test.dart](file:///c:/Users/YSR_MONSTER/.antigravity/Galerisinden/test/cracked_glass_badge_test.dart) (7/7 tests passed).
+  - `TRAMER • YÜKSEK HASAR` (Tramer > 30.000 ₺)### C. Onboarding Ekranı Görsel & Çeviri Düzeltmeleri
+- **Eksik Çeviri Anahtarları**: Onboarding ekranının ihtiyaç duyduğu 9 anahtar (`onboarding_tag_story`, `onboarding_title_story`, `onboarding_desc_story`, `onboarding_tag_workshop`, `onboarding_title_workshop`, `onboarding_desc_workshop`, `onboarding_tag_market`, `onboarding_title_market`, `onboarding_desc_market`) 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) tanımlanarak ekrandaki alt çizgili ham anahtar görünümü (`_`) tamamen giderildi.
+- **Neo-Brutalist Görsel Hero Kutusu**: İnce çizgi/tel kafes CustomPainter yerine, yüksek kontrastlı dairesel rozet ve solid Flutter ikonları (`Icons.directions_car_filled_rounded`, `Icons.handyman_rounded`, `Icons.trending_up_rounded`) ile 116x116 boyutunda sert gölgeli görsel kutular entegre edildi.
+- **Taşma Koruması**: Onboarding kart gövdesi `SingleChildScrollView` ile sarılarak küçük yüksekliklerdeki ekranlarda güvenli kaydırma sağlandı.
+dart](file:///c:/Users/YSR_MONSTER/.antigravity/Galerisinden/test/cracked_glass_badge_test.dart) (7/7 tests passed).
 
 ---
 

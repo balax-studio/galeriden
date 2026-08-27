@@ -9,6 +9,7 @@ import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 import '../slam_stamp_widget.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class VehicleInspectionModal extends StatefulWidget {
   final CarModel car;
@@ -419,114 +420,183 @@ class _BrakeRollerPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final cx = size.width / 2;
 
-    // 1. Grid
-    final gridPaint = Paint()
-      ..color = const Color(0xFF141926)
-      ..strokeWidth = 1.0;
-    for (double x = 0; x < size.width; x += 20) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-    for (double y = 0; y < size.height; y += 20) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
+    // 1. Technical CRT Grid
+    NeoBrutalPolyPainter.drawCRTGrid(
+      canvas,
+      size,
+      gridColor: const Color(0xFF141926),
+      spacing: 16.0,
+      drawCrosshair: true,
+    );
 
-    // 2. Dual Brake Rollers (Left & Right)
-    final rollerWidth = 70.0;
-    final rollerHeight = 44.0;
-    final leftRollerRect =
-        Rect.fromLTWH(cx - 100, 30, rollerWidth, rollerHeight);
-    final rightRollerRect =
-        Rect.fromLTWH(cx + 30, 30, rollerWidth, rollerHeight);
+    // Hazard Safety Striping Top and Bottom
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromLTWH(8, 8, size.width - 16, 8),
+      stripeWidth: 6,
+      borderWidth: 1.0,
+    );
 
-    final rollerPaint = Paint()..color = const Color(0xFF1E283D);
-    final rollerBorder = Paint()
-      ..color = const Color(0xFF384A6E)
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
+    // 2. Dual Low-Poly 3D Brake Rollers (Left & Right)
+    final rollerWidth = 74.0;
+    final rollerHeight = 46.0;
+    final leftRollerRect = Rect.fromLTWH(cx - 105, 26, rollerWidth, rollerHeight);
+    final rightRollerRect = Rect.fromLTWH(cx + 31, 26, rollerWidth, rollerHeight);
 
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(leftRollerRect, const Radius.circular(6)),
-        rollerPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(leftRollerRect, const Radius.circular(6)),
-        rollerBorder);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(rightRollerRect, const Radius.circular(6)),
-        rollerPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(rightRollerRect, const Radius.circular(6)),
-        rollerBorder);
-
-    // Roller spin stripes
-    final stripePaint = Paint()
-      ..color = isBraking
-          ? AppColors.brutalGreen.withValues(alpha: 0.6)
-          : const Color(0xFF475569)
-      ..strokeWidth = 3.0;
-
-    final stripeOffset = (rollerProgress * 20.0);
-    for (double x = leftRollerRect.left + 8;
-        x < leftRollerRect.right - 4;
-        x += 16) {
-      final dx = leftRollerRect.left +
-          ((x - leftRollerRect.left + stripeOffset) % (rollerWidth - 10));
-      canvas.drawLine(Offset(dx, leftRollerRect.top + 4),
-          Offset(dx, leftRollerRect.bottom - 4), stripePaint);
-    }
-    for (double x = rightRollerRect.left + 8;
-        x < rightRollerRect.right - 4;
-        x += 16) {
-      final dx = rightRollerRect.left +
-          ((x - rightRollerRect.left + stripeOffset) % (rollerWidth - 10));
-      canvas.drawLine(Offset(dx, rightRollerRect.top + 4),
-          Offset(dx, rightRollerRect.bottom - 4), stripePaint);
-    }
+    _drawFacetedRollerBox(canvas, leftRollerRect, rollerProgress, isBraking);
+    _drawFacetedRollerBox(canvas, rightRollerRect, rollerProgress, isBraking);
 
     // 3. Digital Gauges (Left / Right Force)
-    final gaugeY = 120.0;
-    _drawDigitalNeedle(canvas, Offset(cx - 65, gaugeY),
-        'SOL: ${leftForce.toStringAsFixed(1)} kN', leftForce / 5.0);
-    _drawDigitalNeedle(
-        canvas,
-        Offset(cx + 65, gaugeY),
-        '$rightForceLabel ${rightForce.toStringAsFixed(1)} kN',
-        rightForce / 5.0);
+    final gaugeY = 118.0;
+    _drawNeoBrutalDial(
+      canvas,
+      Offset(cx - 65, gaugeY),
+      'SOL: ${leftForce.toStringAsFixed(1)} kN',
+      leftForce / 5.0,
+      AppColors.brutalGreen,
+    );
+    _drawNeoBrutalDial(
+      canvas,
+      Offset(cx + 65, gaugeY),
+      '$rightForceLabel ${rightForce.toStringAsFixed(1)} kN',
+      rightForce / 5.0,
+      AppColors.brutalOrange,
+    );
 
-    // 4. Progress bar at bottom
-    final barRect = Rect.fromLTWH(30, size.height - 24, size.width - 60, 10);
-    final bgBarPaint = Paint()..color = const Color(0xFF1E283D);
-    final fillBarPaint = Paint()..color = AppColors.brutalGreen;
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(barRect, const Radius.circular(5)), bgBarPaint);
-    final fillRect =
-        Rect.fromLTWH(30, size.height - 24, (size.width - 60) * progress, 10);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(fillRect, const Radius.circular(5)),
-        fillBarPaint);
+    // 4. Low-Poly Segmented Progress Bar
+    final barRect = Rect.fromLTWH(24, size.height - 22, size.width - 48, 12);
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      [
+        Offset(barRect.left, barRect.top),
+        Offset(barRect.right, barRect.top),
+        Offset(barRect.right, barRect.bottom),
+        Offset(barRect.left, barRect.bottom),
+      ],
+      color: const Color(0xFF1E283D),
+      lightFactor: 1.0,
+      strokeWidth: 1.5,
+    );
+
+    final fillWidth = (barRect.width * progress).clamp(0.0, barRect.width);
+    if (fillWidth > 4) {
+      NeoBrutalPolyPainter.drawFacetedPolygon(
+        canvas,
+        [
+          Offset(barRect.left, barRect.top),
+          Offset(barRect.left + fillWidth, barRect.top),
+          Offset(barRect.left + fillWidth, barRect.bottom),
+          Offset(barRect.left, barRect.bottom),
+        ],
+        color: isBraking ? AppColors.brutalGreen : AppColors.brutalYellow,
+        lightFactor: 1.1,
+        strokeWidth: 1.5,
+      );
+    }
   }
 
-  void _drawDigitalNeedle(
-      Canvas canvas, Offset center, String label, double ratio) {
+  void _drawFacetedRollerBox(
+    Canvas canvas,
+    Rect rect,
+    double spinProgress,
+    bool brakingActive,
+  ) {
+    // 3D Beveled Box Frame
+    final chamfer = 6.0;
+    final vertices = [
+      Offset(rect.left + chamfer, rect.top),
+      Offset(rect.right - chamfer, rect.top),
+      Offset(rect.right, rect.top + chamfer),
+      Offset(rect.right, rect.bottom - chamfer),
+      Offset(rect.right - chamfer, rect.bottom),
+      Offset(rect.left + chamfer, rect.bottom),
+      Offset(rect.left, rect.bottom - chamfer),
+      Offset(rect.left, rect.top + chamfer),
+    ];
+
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      vertices,
+      color: const Color(0xFF1E283D),
+      lightFactor: brakingActive ? 1.15 : 1.0,
+      strokeWidth: 2.0,
+      strokeColor: brakingActive ? AppColors.brutalGreen : const Color(0xFF384A6E),
+    );
+
+    // Rotating faceted ribs
+    final stripeOffset = (spinProgress * 24.0);
+    final stripePaint = Paint()
+      ..color = brakingActive
+          ? AppColors.brutalGreen.withValues(alpha: 0.75)
+          : const Color(0xFF64748B)
+      ..strokeWidth = 2.4;
+
+    for (double x = rect.left + 8; x < rect.right - 4; x += 16) {
+      final dx = rect.left + ((x - rect.left + stripeOffset) % (rect.width - 10));
+      canvas.drawLine(
+        Offset(dx, rect.top + 5),
+        Offset(dx, rect.bottom - 5),
+        stripePaint,
+      );
+    }
+
+    // Hex Bolt in corner
+    NeoBrutalPolyPainter.draw3DHexBolt(
+      canvas,
+      Offset(rect.left + 8, rect.top + 8),
+      3.5,
+      baseColor: const Color(0xFF94A3B8),
+      isLoosened: false,
+    );
+  }
+
+  void _drawNeoBrutalDial(
+    Canvas canvas,
+    Offset center,
+    String label,
+    double ratio,
+    Color activeColor,
+  ) {
+    // Segmented Background Gauge Arc
     final arcPaint = Paint()
       ..color = const Color(0xFF334155)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.butt;
 
     final fillArc = Paint()
-      ..color = isBraking ? AppColors.brutalGreen : const Color(0xFF38BDF8)
+      ..color = isBraking ? activeColor : const Color(0xFF38BDF8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.butt;
 
-    canvas.drawArc(Rect.fromCircle(center: center, radius: 26), math.pi * 0.8,
-        math.pi * 1.4, false, arcPaint);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: 26),
+      math.pi * 0.8,
+      math.pi * 1.4,
+      false,
+      arcPaint,
+    );
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: 26),
       math.pi * 0.8,
       math.pi * 1.4 * ratio.clamp(0.0, 1.0),
       false,
       fillArc,
+    );
+
+    // Diamond Needle Indicator at Tip of Dial
+    final tipAngle = math.pi * 0.8 + math.pi * 1.4 * ratio.clamp(0.0, 1.0);
+    final tipOffset = Offset(
+      center.dx + 26 * math.cos(tipAngle),
+      center.dy + 26 * math.sin(tipAngle),
+    );
+    NeoBrutalPolyPainter.drawPrismaticDiamond(
+      canvas,
+      tipOffset,
+      5.0,
+      Colors.white,
+      strokeWidth: 1.2,
     );
   }
 
@@ -549,39 +619,79 @@ class _HeadlightBeamPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
 
-    // 1. Grid & Crosshair Target
-    final targetPaint = Paint()
-      ..color = accuracy > 0.8 ? AppColors.brutalGreen : const Color(0xFF38BDF8)
-      ..strokeWidth = 1.6
-      ..style = PaintingStyle.stroke;
+    // 1. Technical CRT Grid with Crosshairs
+    NeoBrutalPolyPainter.drawCRTGrid(
+      canvas,
+      size,
+      gridColor: const Color(0xFF131B2A),
+      spacing: 16.0,
+      drawCrosshair: true,
+    );
 
-    // Crosshair target circle
-    canvas.drawCircle(center + targetOffset, 18, targetPaint);
-    canvas.drawCircle(center + targetOffset, 36, targetPaint);
-    canvas.drawLine(Offset(center.dx - 50, center.dy),
-        Offset(center.dx + 50, center.dy), targetPaint);
-    canvas.drawLine(Offset(center.dx, center.dy - 50),
-        Offset(center.dx, center.dy + 50), targetPaint);
+    // 2. Octagonal Target Reticle
+    final targetCenter = center + targetOffset;
+    final isLocked = accuracy > 0.8;
+    final targetColor = isLocked ? AppColors.brutalGreen : const Color(0xFF38BDF8);
 
-    // 2. Optical Headlight Beam Flare (Draggable)
+    // Outer Octagon
+    final numSides = 8;
+    final outerRadius = 38.0;
+    final outerVertices = <Offset>[];
+    for (int i = 0; i < numSides; i++) {
+      final a = (i * 2 * math.pi / numSides) + (math.pi / 8);
+      outerVertices.add(Offset(
+        targetCenter.dx + outerRadius * math.cos(a),
+        targetCenter.dy + outerRadius * math.sin(a),
+      ));
+    }
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      outerVertices,
+      color: targetColor.withValues(alpha: 0.15),
+      lightFactor: 1.0,
+      strokeWidth: 2.0,
+      strokeColor: targetColor,
+    );
+
+    // Center Prismatic Diamond Target
+    NeoBrutalPolyPainter.drawPrismaticDiamond(
+      canvas,
+      targetCenter,
+      12.0,
+      targetColor,
+      strokeWidth: 1.8,
+    );
+
+    // 3. Optical Headlight Beam Flare (Draggable)
     final beamCenter = center + beamOffset;
 
-    final flareOuter = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFF38BDF8).withValues(alpha: 0.7),
-          const Color(0xFF0284C7).withValues(alpha: 0.3),
-          Colors.transparent,
-        ],
-        stops: const [0.0, 0.5, 1.0],
-      ).createShader(Rect.fromCircle(center: beamCenter, radius: 45));
+    // Outer Prismatic Flare Polygon
+    final beamRadius = 46.0;
+    final beamVertices = <Offset>[];
+    for (int i = 0; i < 6; i++) {
+      final a = (i * 2 * math.pi / 6);
+      beamVertices.add(Offset(
+        beamCenter.dx + beamRadius * math.cos(a),
+        beamCenter.dy + beamRadius * math.sin(a),
+      ));
+    }
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      beamVertices,
+      color: const Color(0xFF38BDF8).withValues(alpha: 0.35),
+      lightFactor: 1.2,
+      strokeWidth: 1.5,
+      strokeColor: Colors.cyanAccent,
+    );
 
-    final flareCore = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(beamCenter, 45, flareOuter);
-    canvas.drawCircle(beamCenter, 8, flareCore);
+    // Core White Prismatic Diamond
+    NeoBrutalPolyPainter.drawPrismaticDiamond(
+      canvas,
+      beamCenter,
+      10.0,
+      Colors.white,
+      strokeWidth: 1.5,
+    );
   }
 
   @override

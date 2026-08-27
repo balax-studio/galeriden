@@ -1038,6 +1038,19 @@ class NegotiationEngine {
     final double declaredListingPrice = car.listingPrice > 0 ? car.listingPrice : (car.estimatedRealValue * 1.15);
     final double maxCeiling = dynamicMaxMultiplier ?? getDynamicCeilingMultiplier(car, offer: currentOffer);
     double strategyBonus = 0.0;
+    // Input validation: Protect against NaN, Infinite, or non-positive values
+    if (playerTargetPrice.isNaN ||
+        !playerTargetPrice.isFinite ||
+        playerTargetPrice <= 0) {
+      return NegotiationOutcome(
+        updatedOffer: currentOffer.copyWith(
+            status: OfferStatus.rejected, counterStrategy: strategy),
+        responseMessage:
+            'Geçersiz bir teklif girdiniz • Lütfen geçerli bir rakam yazın.',
+        isAccepted: false,
+        isWalkaway: false,
+      );
+    }
     double walkawayModifier = 0.0;
 
     // Strict Rule: If counter offer is above the advertised listing sticker price, customer immediately rejects

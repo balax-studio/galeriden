@@ -1,4 +1,5 @@
 import '../../../core/localization/app_localizations.dart';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,6 +9,7 @@ import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 import '../slam_stamp_widget.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class HiddenStashModal extends StatefulWidget {
   final BlackMarketCarModel car;
@@ -300,70 +302,77 @@ class _HiddenStashPainter extends CustomPainter {
     final cx = size.width / 2;
     final cy = size.height / 2;
 
-    // 1. Grid
-    final gridPaint = Paint()
-      ..color = const Color(0xFF0F1420)
-      ..strokeWidth = 1.0;
-    for (double x = 0; x < size.width; x += 20) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-    for (double y = 0; y < size.height; y += 20) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
+    // 1. Technical CRT Grid with UV Scanner Spectrum
+    NeoBrutalPolyPainter.drawCRTGrid(
+      canvas,
+      size,
+      gridColor: const Color(0xFF0F1420),
+      spacing: 16.0,
+      drawCrosshair: true,
+    );
 
-    // 2. Car Blueprint Silhouette Outline
-    final carPath = Path();
+    // Hazard Safety Striping Perimeter
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromLTWH(8, 8, size.width - 16, 8),
+      stripeWidth: 6,
+      borderWidth: 1.0,
+    );
+
+    // 2. Faceted Low-Poly Car Silhouette Blueprint
     final carLeft = cx - 110;
     final carTop = cy - 20;
 
-    carPath.moveTo(carLeft, carTop + 35);
-    carPath.lineTo(carLeft + 25, carTop + 35); // Front bumper
-    carPath.lineTo(carLeft + 45, carTop + 10); // Hood
-    carPath.lineTo(carLeft + 85, carTop - 15); // Windshield
-    carPath.lineTo(carLeft + 155, carTop - 15); // Roof
-    carPath.lineTo(carLeft + 185, carTop + 10); // Rear window
-    carPath.lineTo(carLeft + 220, carTop + 15); // Trunk
-    carPath.lineTo(carLeft + 220, carTop + 35); // Rear bumper
-    carPath.lineTo(carLeft, carTop + 35); // Bottom
+    final carVertices = [
+      Offset(carLeft, carTop + 35),
+      Offset(carLeft + 25, carTop + 35),
+      Offset(carLeft + 45, carTop + 10),
+      Offset(carLeft + 85, carTop - 15),
+      Offset(carLeft + 155, carTop - 15),
+      Offset(carLeft + 185, carTop + 10),
+      Offset(carLeft + 220, carTop + 15),
+      Offset(carLeft + 220, carTop + 35),
+      Offset(carLeft, carTop + 35),
+    ];
 
-    final carPaint = Paint()
-      ..color = const Color(0xFF1E293B)
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-    canvas.drawPath(carPath, carPaint);
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      carVertices,
+      color: const Color(0xFF131A26),
+      lightFactor: 1.0,
+      strokeWidth: 2.2,
+      strokeColor: const Color(0xFF334155),
+    );
 
-    // Wheels
-    final wheelPaint = Paint()
-      ..color = const Color(0xFF334155)
-      ..strokeWidth = 2.4
-      ..style = PaintingStyle.stroke;
-    canvas.drawCircle(Offset(carLeft + 45, carTop + 35), 14, wheelPaint);
-    canvas.drawCircle(Offset(carLeft + 175, carTop + 35), 14, wheelPaint);
+    // Octagonal Wheels
+    _drawOctaBlueprintWheel(canvas, Offset(carLeft + 45, carTop + 35));
+    _drawOctaBlueprintWheel(canvas, Offset(carLeft + 175, carTop + 35));
 
     // 3. Secret Stash Compartment
     if (discoveryProgress > 0.0) {
-      final stashPaint = Paint()
-        ..color = (isFound ? AppColors.brutalGreen : AppColors.errorRed)
-            .withValues(alpha: discoveryProgress)
-        ..style = PaintingStyle.fill;
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(center: stashTarget, width: 28, height: 18),
-          const Radius.circular(4),
-        ),
-        stashPaint,
+      final stashColor = (isFound ? AppColors.brutalGreen : AppColors.errorRed)
+          .withValues(alpha: discoveryProgress);
+
+      // Glowing Diamond Stash Box
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        stashTarget,
+        22.0,
+        stashColor,
+        strokeWidth: 2.0,
       );
 
-      final iconPaint = Paint()
-        ..color = Colors.black
-        ..strokeWidth = 2.0;
-      canvas.drawLine(Offset(stashTarget.dx - 6, stashTarget.dy),
-          Offset(stashTarget.dx + 6, stashTarget.dy), iconPaint);
-      canvas.drawLine(Offset(stashTarget.dx, stashTarget.dy - 5),
-          Offset(stashTarget.dx, stashTarget.dy + 5), iconPaint);
+      // Center Hex Bolt Lock
+      NeoBrutalPolyPainter.draw3DHexBolt(
+        canvas,
+        stashTarget,
+        4.5,
+        baseColor: isFound ? AppColors.brutalGreen : AppColors.brutalYellow,
+        isLoosened: isFound,
+      );
     }
 
-    // 4. UV Flashlight Beam
+    // 4. Low-Poly Faceted UV Flashlight Cone
     final beamGradient = RadialGradient(
       colors: [
         const Color(0xFF818CF8).withValues(alpha: 0.65),
@@ -371,13 +380,48 @@ class _HiddenStashPainter extends CustomPainter {
         Colors.transparent,
       ],
       stops: const [0.0, 0.5, 1.0],
-    ).createShader(Rect.fromCircle(center: flashlightPos, radius: 45));
+    ).createShader(Rect.fromCircle(center: flashlightPos, radius: 48));
 
     final uvPaint = Paint()..shader = beamGradient;
-    canvas.drawCircle(flashlightPos, 45, uvPaint);
+    canvas.drawCircle(flashlightPos, 48, uvPaint);
 
-    // Flashlight center dot
-    canvas.drawCircle(flashlightPos, 4, Paint()..color = Colors.white);
+    // Flashlight targeting diamond reticle
+    NeoBrutalPolyPainter.drawPrismaticDiamond(
+      canvas,
+      flashlightPos,
+      12.0,
+      Colors.white.withValues(alpha: 0.8),
+      strokeWidth: 1.5,
+    );
+  }
+
+  void _drawOctaBlueprintWheel(Canvas canvas, Offset center) {
+    final numSides = 8;
+    final radius = 13.0;
+    final vertices = <Offset>[];
+    for (int i = 0; i < numSides; i++) {
+      final a = (i * 2 * math.pi / numSides);
+      vertices.add(Offset(
+        center.dx + radius * math.cos(a),
+        center.dy + radius * math.sin(a),
+      ));
+    }
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      vertices,
+      color: const Color(0xFF1E293B),
+      lightFactor: 0.85,
+      strokeWidth: 1.8,
+      strokeColor: const Color(0xFF475569),
+    );
+
+    NeoBrutalPolyPainter.draw3DHexBolt(
+      canvas,
+      center,
+      4.0,
+      baseColor: const Color(0xFF64748B),
+      isLoosened: false,
+    );
   }
 
   @override

@@ -8,6 +8,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class HandshakeStampModal extends StatefulWidget {
   final String sellerName;
@@ -220,15 +221,24 @@ class _HandshakePainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // Background Grid
-    final gridPaint = Paint()
-      ..color = const Color(0xFF161E2E)
-      ..strokeWidth = 1.0;
-    for (double x = 0; x < w; x += 16) {
-      canvas.drawLine(Offset(x, 0), Offset(x, h), gridPaint);
-    }
+    // 1. Technical CRT Grid
+    NeoBrutalPolyPainter.drawCRTGrid(
+      canvas,
+      size,
+      gridColor: const Color(0xFF161E2E),
+      spacing: 16.0,
+      drawCrosshair: true,
+    );
 
-    // Handshake animation: Left hand comes from left, right hand from right
+    // Hazard Safety Striping at Top
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromLTWH(8, 6, w - 16, 8),
+      stripeWidth: 6,
+      borderWidth: 1.0,
+    );
+
+    // 2. Faceted Handshake Animation
     final handProgress = progress.clamp(0.0, 0.65) / 0.65;
     final shakeOffset =
         (progress > 0.65) ? math.sin(progress * math.pi * 12) * 5.0 : 0.0;
@@ -237,36 +247,13 @@ class _HandshakePainter extends CustomPainter {
     final rightHandX = w + 50 - handProgress * (w * 0.45);
     final handY = h * 0.50 + shakeOffset;
 
-    // Draw Left Hand (Alıcı / Galerici)
-    final leftHandPaint = Paint()..color = const Color(0xFFFFDE59);
-    final borderPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4;
+    // Draw Left Low-Poly Hand & Sleeve (Buyer / Dealer)
+    _drawLowPolyHand(canvas, Offset(leftHandX, handY), true, AppColors.brutalYellow);
 
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(leftHandX, handY - 15, 60, 30),
-            const Radius.circular(8)),
-        leftHandPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(leftHandX, handY - 15, 60, 30),
-            const Radius.circular(8)),
-        borderPaint);
+    // Draw Right Low-Poly Hand & Sleeve (Seller)
+    _drawLowPolyHand(canvas, Offset(rightHandX, handY), false, const Color(0xFF38BDF8));
 
-    // Draw Right Hand (Satıcı)
-    final rightHandPaint = Paint()..color = const Color(0xFF38BDF8);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(rightHandX - 60, handY - 15, 60, 30),
-            const Radius.circular(8)),
-        rightHandPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(rightHandX - 60, handY - 15, 60, 30),
-            const Radius.circular(8)),
-        borderPaint);
-
-    // Big Red Notary Stamp Slam (after progress > 0.65)
+    // 3. Octagonal Notary Brass Stamp Slam
     if (progress > 0.65) {
       final stampProgress = ((progress - 0.65) / 0.35).clamp(0.0, 1.0);
       final stampScale = 2.0 - stampProgress * 1.0;
@@ -275,23 +262,66 @@ class _HandshakePainter extends CustomPainter {
       canvas.save();
       canvas.translate(w * 0.50, h * 0.50);
       canvas.scale(stampScale);
-      canvas.rotate(-0.12);
+      canvas.rotate(-0.09);
 
-      final stampRect =
-          Rect.fromCenter(center: Offset.zero, width: 140, height: 44);
-      final stampFill = Paint()
-        ..color = AppColors.errorRed.withValues(alpha: stampAlpha * 0.2);
-      final stampBorder = Paint()
-        ..color = AppColors.errorRed.withValues(alpha: stampAlpha)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.0;
+      // Octagonal Stamp Border
+      final numSides = 8;
+      final stampRadius = 48.0;
+      final stampVertices = <Offset>[];
+      for (int i = 0; i < numSides; i++) {
+        final a = (i * 2 * math.pi / numSides) + (math.pi / 8);
+        stampVertices.add(Offset(
+          stampRadius * math.cos(a),
+          stampRadius * 0.65 * math.sin(a),
+        ));
+      }
 
-      canvas.drawRRect(
-          RRect.fromRectAndRadius(stampRect, const Radius.circular(6)),
-          stampFill);
-      canvas.drawRRect(
-          RRect.fromRectAndRadius(stampRect, const Radius.circular(6)),
-          stampBorder);
+      NeoBrutalPolyPainter.drawFacetedPolygon(
+        canvas,
+        stampVertices,
+        color: AppColors.errorRed.withValues(alpha: stampAlpha * 0.25),
+        lightFactor: 1.1,
+        strokeWidth: 3.0,
+        strokeColor: AppColors.errorRed.withValues(alpha: stampAlpha),
+      );
+
+      // 3D Hex Bolt rivets on stamp corners
+      NeoBrutalPolyPainter.draw3DHexBolt(
+        canvas,
+        const Offset(-38, 0),
+        4.0,
+        baseColor: AppColors.errorRed.withValues(alpha: stampAlpha),
+        isLoosened: false,
+      );
+      NeoBrutalPolyPainter.draw3DHexBolt(
+        canvas,
+        const Offset(38, 0),
+        4.0,
+        baseColor: AppColors.errorRed.withValues(alpha: stampAlpha),
+        isLoosened: false,
+      );
+
+      // Prismatic Diamond Ink Splatters
+      if (hasStamped) {
+        NeoBrutalPolyPainter.drawPrismaticDiamond(
+          canvas,
+          const Offset(-46, -18),
+          6.0,
+          AppColors.errorRed,
+        );
+        NeoBrutalPolyPainter.drawPrismaticDiamond(
+          canvas,
+          const Offset(48, 16),
+          8.0,
+          AppColors.errorRed,
+        );
+        NeoBrutalPolyPainter.drawPrismaticDiamond(
+          canvas,
+          const Offset(0, -26),
+          5.0,
+          AppColors.brutalYellow,
+        );
+      }
 
       final textPainter = TextPainter(
         text: TextSpan(
@@ -308,9 +338,47 @@ class _HandshakePainter extends CustomPainter {
       )..layout();
 
       textPainter.paint(
-          canvas, Offset(-textPainter.width / 2, -textPainter.height / 2));
+        canvas,
+        Offset(-textPainter.width / 2, -textPainter.height / 2),
+      );
+
       canvas.restore();
     }
+  }
+
+  void _drawLowPolyHand(Canvas canvas, Offset center, bool isLeft, Color skinColor) {
+    final sign = isLeft ? 1.0 : -1.0;
+
+    // Sleeve Casing
+    final sleeveVertices = [
+      Offset(center.dx - sign * 50, center.dy - 18),
+      Offset(center.dx - sign * 15, center.dy - 16),
+      Offset(center.dx - sign * 15, center.dy + 16),
+      Offset(center.dx - sign * 50, center.dy + 18),
+    ];
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      sleeveVertices,
+      color: const Color(0xFF1E293B),
+      lightFactor: 1.0,
+      strokeWidth: 2.2,
+    );
+
+    // Faceted Palm & Fingers
+    final handVertices = [
+      Offset(center.dx - sign * 15, center.dy - 14),
+      Offset(center.dx + sign * 15, center.dy - 10),
+      Offset(center.dx + sign * 20, center.dy),
+      Offset(center.dx + sign * 15, center.dy + 12),
+      Offset(center.dx - sign * 15, center.dy + 14),
+    ];
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      handVertices,
+      color: skinColor,
+      lightFactor: 1.1,
+      strokeWidth: 2.2,
+    );
   }
 
   @override

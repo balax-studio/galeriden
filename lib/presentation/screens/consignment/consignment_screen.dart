@@ -83,7 +83,7 @@ class ConsignmentScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 20),
                   NeoBrutalButton(
-                    label: 'PAZARA GİT & İTİBAR KAZAN',
+                    label: context.tr('consignment_go_market_btn'),
                     icon: Icons.storefront_rounded,
                     backgroundColor: AppColors.brutalYellow,
                     textColor: Colors.black,

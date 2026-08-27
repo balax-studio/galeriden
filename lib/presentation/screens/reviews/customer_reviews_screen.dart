@@ -50,7 +50,8 @@ class CustomerReviewsScreen extends ConsumerWidget {
         subtitle: context.tr('customer_reviews_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.starSpin,
         statusBadge: NeoBrutalBadge(
-          text: '★ ${avgRating.toStringAsFixed(1)} / 5.0',
+          icon: Icons.star_rounded,
+          text: '${avgRating.toStringAsFixed(1)} / 5.0',
           backgroundColor: AppColors.brutalYellow,
           textColor: Colors.black,
           fontSize: 9.5,

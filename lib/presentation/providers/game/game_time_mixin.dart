@@ -858,9 +858,9 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   double _processBankInterest(double deposit) {
-    if (deposit > 0) {
+    if (deposit >= 100.0) {
       final double dailyInterest = (deposit * 0.0012).roundToDouble();
-      deposit += (dailyInterest > 0 ? dailyInterest : 1.0);
+      deposit += dailyInterest;
     }
     return deposit;
   }

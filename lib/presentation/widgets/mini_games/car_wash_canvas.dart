@@ -9,6 +9,7 @@ import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 import '../slam_stamp_widget.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class CarWashMiniGameModal extends StatefulWidget {
   final CarModel car;
@@ -313,86 +314,94 @@ class _CarWashPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // Floor & Grid
-    final gridPaint = Paint()
-      ..color = const Color(0xFF161F30)
-      ..strokeWidth = 1.0;
-    for (double x = 0; x < w; x += 16) {
-      canvas.drawLine(Offset(x, 0), Offset(x, h), gridPaint);
-    }
+    // 1. CRT Technical Floor Grid
+    NeoBrutalPolyPainter.drawCRTGrid(canvas, size, gridColor: const Color(0xFF161F30), spacing: 18.0);
 
-    final carPaint = Paint()..color = _parseColor(carColorHex);
-    final carBorder = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4;
+    // Hazard Safety Striping at Top
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromLTWH(12, 10, w - 24, 12),
+      stripeWidth: 8,
+      borderWidth: 1.5,
+    );
 
-    // Car Body
-    final carRect = Rect.fromLTWH(w * 0.15, h * 0.42, w * 0.70, 36);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(carRect, const Radius.circular(8)), carPaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(carRect, const Radius.circular(8)), carBorder);
+    // 2. Volumetric Low-Poly Isometric Car Body
+    final carCenter = Offset(w * 0.50, h * 0.52);
+    final carColor = _parseColor(carColorHex);
+    NeoBrutalPolyPainter.drawLowPolyIsometricCar(
+      canvas,
+      carCenter,
+      1.85,
+      bodyColor: carColor,
+      isHeadlightsOn: true,
+    );
 
-    // Cabin
-    final cabinRect = Rect.fromLTWH(w * 0.32, h * 0.26, w * 0.36, 26);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(cabinRect, const Radius.circular(6)),
-        Paint()..color = const Color(0xFF0F172A));
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(cabinRect, const Radius.circular(6)),
-        carBorder);
-
-    // Wheels
-    canvas.drawCircle(Offset(w * 0.30, h * 0.72), 14,
-        Paint()..color = const Color(0xFF1E293B));
-    canvas.drawCircle(Offset(w * 0.30, h * 0.72), 14, carBorder);
-    canvas.drawCircle(Offset(w * 0.70, h * 0.72), 14,
-        Paint()..color = const Color(0xFF1E293B));
-    canvas.drawCircle(Offset(w * 0.70, h * 0.72), 14, carBorder);
-
-    // Mud Mask Grid Over Car
+    // 3. Faceted Mud Encrustation Plates (Low-Poly Dirt Crust)
     if (!isFinished) {
-      final mudPaint = Paint()
-        ..color = const Color(0xFF78350F).withValues(alpha: 0.85);
+      final mudColor = const Color(0xFF78350F);
 
-      for (double mx = w * 0.15; mx < w * 0.85; mx += 14) {
-        for (double my = h * 0.26; my < h * 0.75; my += 14) {
-          final isCleaned =
-              cleanedPoints.any((pt) => (pt - Offset(mx, my)).distance < 20);
+      for (double mx = w * 0.20; mx < w * 0.80; mx += 22) {
+        for (double my = h * 0.35; my < h * 0.70; my += 20) {
+          final isCleaned = cleanedPoints.any((pt) => (pt - Offset(mx, my)).distance < 24);
           if (!isCleaned) {
-            canvas.drawCircle(Offset(mx, my), 8, mudPaint);
+            final mudVertices = [
+              Offset(mx - 8, my - 6),
+              Offset(mx + 9, my - 7),
+              Offset(mx + 7, my + 8),
+              Offset(mx - 7, my + 6),
+            ];
+            NeoBrutalPolyPainter.drawFacetedPolygon(
+              canvas,
+              mudVertices,
+              color: mudColor,
+              lightFactor: 0.9 + ((mx + my) % 5) * 0.05,
+              strokeWidth: 1.6,
+              strokeColor: Colors.black,
+            );
           }
         }
       }
     }
 
-    // Water Spray particles
+    // 4. Prismatic Water Spray Droplets
     for (final p in waterParticles) {
       final alpha = (p.life / 10.0).clamp(0.0, 1.0);
-      final pPaint = Paint()..color = p.color.withValues(alpha: alpha);
-      canvas.drawCircle(Offset(p.x, p.y), 3.5, pPaint);
+      if (alpha > 0) {
+        NeoBrutalPolyPainter.drawPrismaticDiamond(
+          canvas,
+          Offset(p.x, p.y),
+          7.0 * alpha,
+          p.color.withValues(alpha: alpha),
+          strokeWidth: 1.0,
+        );
+      }
     }
 
-    // Sparkle Glints if finished
+    // 5. Prismatic Diamond Glints when Finished
     if (isFinished) {
-      _drawGlint(canvas, Offset(w * 0.25, h * 0.45), sparkleTick);
-      _drawGlint(canvas, Offset(w * 0.50, h * 0.30), (sparkleTick + 0.3) % 1.0);
-      _drawGlint(canvas, Offset(w * 0.75, h * 0.48), (sparkleTick + 0.6) % 1.0);
+      final glintOffset1 = Offset(w * 0.32, h * 0.44);
+      final glintOffset2 = Offset(w * 0.52, h * 0.32);
+      final glintOffset3 = Offset(w * 0.72, h * 0.48);
+
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        glintOffset1,
+        14.0 * (0.6 + 0.4 * math.sin(sparkleTick * math.pi)),
+        Colors.white,
+      );
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        glintOffset2,
+        16.0 * (0.6 + 0.4 * math.sin((sparkleTick + 0.3) * math.pi)),
+        AppColors.brutalYellow,
+      );
+      NeoBrutalPolyPainter.drawPrismaticDiamond(
+        canvas,
+        glintOffset3,
+        14.0 * (0.6 + 0.4 * math.sin((sparkleTick + 0.6) * math.pi)),
+        AppColors.brutalGreen,
+      );
     }
-  }
-
-  void _drawGlint(Canvas canvas, Offset center, double tick) {
-    final scale = math.sin(tick * math.pi) * 8.0;
-    final starPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2.0;
-
-    canvas.drawLine(Offset(center.dx - scale, center.dy),
-        Offset(center.dx + scale, center.dy), starPaint);
-    canvas.drawLine(Offset(center.dx, center.dy - scale),
-        Offset(center.dx, center.dy + scale), starPaint);
-    canvas.drawCircle(center, 2.0, Paint()..color = AppColors.brutalYellow);
   }
 
   @override

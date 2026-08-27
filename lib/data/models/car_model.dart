@@ -393,7 +393,8 @@ class CarModel {
       }
     }
 
-    return (baseMarketValue * factor).clamp(baseMarketValue * 0.2, baseMarketValue * 1.6);
+    final safeBase = baseMarketValue.clamp(0.0, double.infinity);
+    return (safeBase * factor).clamp(safeBase * 0.2, safeBase * 1.6);
   }
 
   Map<String, dynamic> toJson() {

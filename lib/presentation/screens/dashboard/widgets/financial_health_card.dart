@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../data/models/dealership_model.dart';
@@ -70,7 +71,7 @@ class FinancialHealthCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'BİLANÇO & FİNANSAL SAĞLIK',
+                  context.tr('financial_health_title'),
                   style: TextStyle(
                     color: isDark
                         ? const Color(0xFF94A3B8)
@@ -92,7 +93,7 @@ class FinancialHealthCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           NeoBrutalButton(
-            label: 'SİFTAH ET',
+            label: context.tr('siftah_btn'),
             icon: Icons.monetization_on_rounded,
             backgroundColor: AppColors.brutalYellow,
             textColor: Colors.black,

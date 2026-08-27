@@ -145,14 +145,21 @@ class RepairTierSelectionSheet extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
+              flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Text(title,
+                      Flexible(
+                        child: Text(
+                          title,
                           style: const TextStyle(
-                              fontSize: 12.5, fontWeight: FontWeight.w900)),
+                              fontSize: 12.5, fontWeight: FontWeight.w900),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -172,23 +179,34 @@ class RepairTierSelectionSheet extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 3),
-                  Text(subtitle,
-                      style: const TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B))),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B)),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
+              flex: 1,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
                 child: Text(
-              CurrencyFormatter.formatShort(cost),
-              style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.brutalGreen),
-            )),
+                  CurrencyFormatter.formatShort(cost),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.brutalGreen),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -4,7 +4,6 @@ import '../../core/theme/app_colors.dart';
 enum LoginRewardType {
   money,
   reputation,
-  vipAuctionPass,
   specialPlateVoucher,
   salvagedPartCrate,
   legendaryChassisCrate,
@@ -42,8 +41,6 @@ class DailyLoginRewardModel {
         return Icons.attach_money_rounded;
       case LoginRewardType.reputation:
         return Icons.star_rounded;
-      case LoginRewardType.vipAuctionPass:
-        return Icons.confirmation_number_rounded;
       case LoginRewardType.specialPlateVoucher:
         return Icons.badge_rounded;
       case LoginRewardType.salvagedPartCrate:
@@ -274,12 +271,12 @@ class DailyLoginRewardModel {
                     ? '₺120.000 Nakit ve Hurdalık Çifte Arama Bileti'
                     : (seasonIndex == 3
                         ? '₺150.000 Nakit ve BIST Yatırımcı İlişkileri Fonu'
-                        : '₺100.000 Nakit Siftah ve VIP Müzayede Katılım Bileti')),
-            type: LoginRewardType.vipAuctionPass,
-            moneyAmount: (100000.0 * cycleMultiplier).roundToDouble(),
+                        : '₺150.000 Büyük Kapanış Nakit Ödülü')),
+            type: LoginRewardType.money,
+            moneyAmount: (150000.0 * cycleMultiplier).roundToDouble(),
             reputationAmount: 15,
-            itemCode: 'vip_pass_s${seasonIndex}_w1',
-            itemDisplayName: 'Haftalık VIP Fırsat Kartı',
+            itemCode: 'cash_reward_s${seasonIndex}_w1',
+            itemDisplayName: 'Haftalık Nakit Desteği',
             isMilestone: true,
           ));
         } else if (day == 14) {

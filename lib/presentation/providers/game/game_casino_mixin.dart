@@ -77,6 +77,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
     );
 
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
     return result;
   }
 
@@ -110,6 +111,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
         balance: currentBalance,
         ownedCars: updatedCars,
       );
+      saveState();
     }
 
     final effectiveBet = wageredCar != null ? wageredCar.price : betAmount;
@@ -151,6 +153,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
         ownedCars: updatedCars,
         casinoStats: newStats,
       );
+      saveState();
     }
 
     return result;
@@ -162,6 +165,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
   bool startHiLoGame(double betAmount) {
     if (state.balance < betAmount || betAmount <= 0) return false;
     state = state.copyWith(balance: state.balance - betAmount);
+    saveState();
     return true;
   }
 
@@ -186,6 +190,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
       casinoStats: newStats,
     );
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
   }
 
   void recordHiLoBust(double initialBet) {
@@ -197,16 +202,19 @@ mixin GameCasinoMixin on GameBaseNotifier {
 
     state = state.copyWith(casinoStats: newStats);
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
   }
 
   // ==========================================
   // 4. PISTON PLINKO
   // ==========================================
-  PlinkoDropResult? playCasinoPlinko({required double betAmount}) {
-    if (state.balance < betAmount || betAmount <= 0) return null;
+  PlinkoDropResult? playCasinoPlinko({required double betAmount, bool isFreeAd = false}) {
+    if (!isFreeAd) {
+      if (state.balance < betAmount || betAmount <= 0) return null;
+    }
 
     final result = CasinoEngine.dropPlinkoBuji(betAmount: betAmount);
-    final profit = result.payoutAmount - betAmount;
+    final profit = isFreeAd ? result.payoutAmount : (result.payoutAmount - betAmount);
 
     final oldStats = state.casinoStats;
     final newStats = oldStats.copyWith(
@@ -219,11 +227,12 @@ mixin GameCasinoMixin on GameBaseNotifier {
     );
 
     state = state.copyWith(
-      balance: state.balance - betAmount + result.payoutAmount,
+      balance: isFreeAd ? (state.balance + result.payoutAmount) : (state.balance - betAmount + result.payoutAmount),
       casinoStats: newStats,
     );
 
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
     return result;
   }
 
@@ -233,32 +242,37 @@ mixin GameCasinoMixin on GameBaseNotifier {
   LuckyWheelSpinResult? spinCasinoWheel({
     required double betAmount,
     CarModel? wageredCar,
+    bool isFreeAd = false,
   }) {
-    if (wageredCar != null) {
-      if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
-    } else {
-      if (state.balance < betAmount || betAmount <= 0) return null;
+    if (!isFreeAd) {
+      if (wageredCar != null) {
+        if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
+      } else {
+        if (state.balance < betAmount || betAmount <= 0) return null;
+      }
     }
 
     double currentBalance = state.balance;
     List<CarModel> updatedCars = List.from(state.ownedCars);
 
-    if (wageredCar != null) {
-      updatedCars.removeWhere((c) => c.id == wageredCar.id);
-    } else {
-      currentBalance -= betAmount;
+    if (!isFreeAd) {
+      if (wageredCar != null) {
+        updatedCars.removeWhere((c) => c.id == wageredCar.id);
+      } else {
+        currentBalance -= betAmount;
+      }
     }
 
     final result = CasinoEngine.spinLuckyWheel(
       betAmount: betAmount,
-      wageredCar: wageredCar,
+      wageredCar: isFreeAd ? null : wageredCar,
     );
 
-    final effectiveBet = wageredCar != null ? wageredCar.price : betAmount;
+    final effectiveBet = isFreeAd ? 0.0 : (wageredCar != null ? wageredCar.price : betAmount);
 
     if (!result.isBankrupt && result.slice.multiplier > 0) {
       currentBalance += result.payoutAmount;
-      if (wageredCar != null) {
+      if (wageredCar != null && !isFreeAd) {
         updatedCars.add(wageredCar);
       }
     }
@@ -278,9 +292,9 @@ mixin GameCasinoMixin on GameBaseNotifier {
       biggestMultiplierRecord:
           math.max(oldStats.biggestMultiplierRecord, result.slice.multiplier),
       vehiclesWageredCount:
-          oldStats.vehiclesWageredCount + (wageredCar != null ? 1 : 0),
+          oldStats.vehiclesWageredCount + (wageredCar != null && !isFreeAd ? 1 : 0),
       vehiclesLostCount: oldStats.vehiclesLostCount +
-          (wageredCar != null && result.isBankrupt ? 1 : 0),
+          (wageredCar != null && !isFreeAd && result.isBankrupt ? 1 : 0),
       vehiclesWonCount:
           oldStats.vehiclesWonCount + (result.awardedCar != null ? 1 : 0),
     );
@@ -292,6 +306,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
     );
 
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
     return result;
   }
 
@@ -320,6 +335,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
     );
 
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
     return result;
   }
 
@@ -372,6 +388,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
     );
 
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
     return isWin;
   }
 
@@ -395,6 +412,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
       balance: currentBalance,
       ownedCars: updatedCars,
     );
+    saveState();
   }
 
   void playCasinoAviatorCashout({
@@ -435,6 +453,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
       casinoStats: newStats,
     );
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
   }
 
   void playCasinoAviatorCrash({
@@ -456,6 +475,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
       casinoStats: newStats,
     );
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
   }
 
   // ==========================================
@@ -519,6 +539,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
     );
 
     updateMissionProgress(MissionType.casinoPlay, 1);
+    saveState();
     return result;
   }
 }

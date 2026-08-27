@@ -10,6 +10,7 @@ import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 import '../app_vector_icons.dart';
+import 'neo_brutal_poly_painter.dart';
 
 enum _UnboxingStage {
   sealed,
@@ -628,28 +629,14 @@ class _MysteryContainerUnboxingModalState
 class _HazardStripePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final bgPaint = Paint()..color = const Color(0xFF0F172A);
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
-
-    final stripePaint = Paint()
-      ..color = AppColors.brutalYellow
-      ..style = PaintingStyle.fill;
-
-    const stripeWidth = 12.0;
-    const stripeSpacing = 20.0;
-
-    final path = Path();
-    for (double x = -size.height;
-        x < size.width + size.height;
-        x += stripeSpacing) {
-      path.moveTo(x, size.height);
-      path.lineTo(x + stripeWidth, size.height);
-      path.lineTo(x + stripeWidth + size.height, 0);
-      path.lineTo(x + size.height, 0);
-      path.close();
-    }
-
-    canvas.drawPath(path, stripePaint);
+    NeoBrutalPolyPainter.drawHazardStripes(
+      canvas,
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      primaryColor: const Color(0xFF0F172A),
+      stripeColor: AppColors.brutalYellow,
+      stripeWidth: 10.0,
+      borderWidth: 0.0,
+    );
   }
 
   @override

@@ -140,7 +140,10 @@ class SmsTramerSheet extends StatelessWidget {
                 ),
                 const Divider(height: 16),
                 Text(
-                  'Sayin Ilgili, $plate plakali ${car.brand} ${car.modelName} ${car.modelYear} araci icin SBM kayitlari sorgulanmistir.',
+                  context.tr('tramer_inquiry_body', {
+                    'plate': plate,
+                    'vehicle': '${car.brand} ${car.modelName} ${car.modelYear}',
+                  }),
                   style: const TextStyle(
                     fontSize: 12,
                     height: 1.4,
@@ -192,12 +195,17 @@ class SmsTramerSheet extends StatelessWidget {
                             const Icon(Icons.warning_amber_rounded,
                                 color: Color(0xFFEF4444), size: 18),
                             const SizedBox(width: 8),
-                            Text(
-                              'TOPLAM HASAR: ${CurrencyFormatter.formatShort(exp.tramerAmount.toDouble())}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFFEF4444),
+                            Expanded(
+                              child: Text(
+                                context.tr('tramer_total_damage_label', {
+                                  'amount': CurrencyFormatter.formatShort(
+                                      exp.tramerAmount.toDouble()),
+                                }),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFFEF4444),
+                                ),
                               ),
                             ),
                           ],

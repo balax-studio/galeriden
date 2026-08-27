@@ -652,19 +652,25 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       return;
     }
 
-    setState(() {
-      _isVipSession = true;
-      _selectedTabIndex = 1;
-      _auction = AuctionEngine.createVipAuction(playerLevel: game.level);
-      _bidLogs.clear();
-      _bidLogs.add(context.tr('auction_vip_session_started'));
-      _bidLogs.add(context.tr('auction_starting_price_log',
-          {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
-      _hasPlayerEnteredBid = false;
-      _hasExtendedAuction = false;
-      _isHandlingAuctionEnd = false;
-    });
-    _startAuctionTimer();
+    AdService.instance.showRewardedAdWithFallback(
+      context: context,
+      customRewardTitle: context.tr('auction_vip_ad_reward'),
+      onRewardEarned: () {
+        setState(() {
+          _isVipSession = true;
+          _selectedTabIndex = 1;
+          _auction = AuctionEngine.createVipAuction(playerLevel: game.level);
+          _bidLogs.clear();
+          _bidLogs.add(context.tr('auction_vip_session_started'));
+          _bidLogs.add(context.tr('auction_starting_price_log',
+              {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
+          _hasPlayerEnteredBid = false;
+          _hasExtendedAuction = false;
+          _isHandlingAuctionEnd = false;
+        });
+        _startAuctionTimer();
+      },
+    );
   }
 
   void _switchToStandardAuction() {

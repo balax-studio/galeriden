@@ -7,7 +7,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/tutorial_provider.dart';
-import '../../widgets/app_vector_icons.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -42,7 +41,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       'tagColor': AppColors.brutalYellow,
       'titleKey': 'onboarding_title_story',
       'subtitleKey': 'onboarding_desc_story',
-      'vectorType': 'car',
       'icon': Icons.directions_car_filled_rounded,
       'accent': AppColors.brutalYellow,
     },
@@ -51,8 +49,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       'tagColor': AppColors.brutalOrange,
       'titleKey': 'onboarding_title_workshop',
       'subtitleKey': 'onboarding_desc_workshop',
-      'vectorType': 'workshop',
-      'icon': Icons.build_circle_rounded,
+      'icon': Icons.handyman_rounded,
       'accent': AppColors.brutalOrange,
     },
     {
@@ -60,8 +57,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       'tagColor': AppColors.brutalGreen,
       'titleKey': 'onboarding_title_market',
       'subtitleKey': 'onboarding_desc_market',
-      'vectorType': 'expertise',
-      'icon': Icons.monetization_on_rounded,
+      'icon': Icons.trending_up_rounded,
       'accent': AppColors.brutalGreen,
     },
   ];
@@ -193,82 +189,105 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         borderRadius: 12,
                         borderWidth: 2.5,
                         shadowOffset: const Offset(4, 4),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Tag Badge
-                            NeoBrutalBadge(
-                              text: context.tr(item['tagKey'] as String),
-                              backgroundColor: item['tagColor'] as Color,
-                              textColor: Colors.black,
-                              fontSize: 11,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                            ),
-                            const SizedBox(height: 24),
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Tag Badge
+                              NeoBrutalBadge(
+                                text: context.tr(item['tagKey'] as String),
+                                backgroundColor: item['tagColor'] as Color,
+                                textColor: Colors.black,
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                              ),
+                              const SizedBox(height: 24),
 
-                            // Monolithic Icon Frame
-                            Container(
-                              width: 110,
-                              height: 110,
-                              decoration: BoxDecoration(
-                                color: (item['accent'] as Color)
-                                    .withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isDark
-                                      ? const Color(0xFF333B4F)
-                                      : const Color(0xFF0F172A),
-                                  width: 2.5,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
+                              // High-Impact Neo-Brutalist Visual Hero Frame
+                              Container(
+                                width: 116,
+                                height: 116,
+                                decoration: BoxDecoration(
+                                  color: (item['accent'] as Color)
+                                      .withValues(alpha: isDark ? 0.20 : 0.15),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
                                     color: isDark
-                                        ? const Color(0xFF000000)
+                                        ? const Color(0xFF333B4F)
                                         : const Color(0xFF0F172A),
-                                    offset: const Offset(3, 3),
-                                    blurRadius: 0,
+                                    width: 2.5,
                                   ),
-                                ],
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: isDark
+                                          ? const Color(0xFF000000)
+                                          : const Color(0xFF0F172A),
+                                      offset: const Offset(3.5, 3.5),
+                                      blurRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                alignment: Alignment.center,
+                                child: Container(
+                                  width: 76,
+                                  height: 76,
+                                  decoration: BoxDecoration(
+                                    color: item['accent'] as Color,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 2.5,
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0xFF0F172A),
+                                        offset: Offset(2, 2),
+                                        blurRadius: 0,
+                                      ),
+                                    ],
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    item['icon'] as IconData,
+                                    size: 44,
+                                    color: const Color(0xFF0F172A),
+                                  ),
+                                ),
                               ),
-                              alignment: Alignment.center,
-                              child: VectorIconWidget(
-                                type: item['vectorType'] as String,
-                                color: item['accent'] as Color,
-                                size: 54,
-                              ),
-                            ),
-                            const SizedBox(height: 28),
+                              const SizedBox(height: 28),
 
-                            // Title
-                            Text(
-                              context.tr(item['titleKey'] as String),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: isDark
-                                    ? Colors.white
-                                    : const Color(0xFF0F172A),
-                                height: 1.25,
+                              // Title
+                              Text(
+                                context.tr(item['titleKey'] as String),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
+                                  height: 1.25,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 14),
+                              const SizedBox(height: 14),
 
-                            // Subtitle
-                            Text(
-                              context.tr(item['subtitleKey'] as String),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF475569),
-                                height: 1.45,
+                              // Subtitle
+                              Text(
+                                context.tr(item['subtitleKey'] as String),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? const Color(0xFF94A3B8)
+                                      : const Color(0xFF475569),
+                                  height: 1.45,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );

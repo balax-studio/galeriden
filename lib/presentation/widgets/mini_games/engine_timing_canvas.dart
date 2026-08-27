@@ -9,6 +9,7 @@ import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
 import '../slam_stamp_widget.dart';
+import 'neo_brutal_poly_painter.dart';
 
 class EngineTimingModal extends StatefulWidget {
   final CarModel car;
@@ -346,21 +347,13 @@ class _EngineTimingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final cx = size.width / 2;
 
-    // 1. Grid
-    final gridPaint = Paint()
-      ..color = const Color(0xFF141926)
-      ..strokeWidth = 1.0;
-    for (double x = 0; x < size.width; x += 20) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-    for (double y = 0; y < size.height; y += 20) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
+    // 1. CRT Technical Grid
+    NeoBrutalPolyPainter.drawCRTGrid(canvas, size, gridColor: const Color(0xFF141926));
 
     if (phase == 0 || phase == 2) {
       // 2. Camshaft & Crankshaft Sprockets with Timing Belt
-      final camCenter = Offset(cx, 60);
-      final crankCenter = Offset(cx, 150);
+      final camCenter = Offset(cx, 58);
+      final crankCenter = Offset(cx, 148);
 
       final camRadius = 40.0;
       final crankRadius = 26.0;
@@ -368,94 +361,142 @@ class _EngineTimingPainter extends CustomPainter {
       // Laser Alignment Reference Line (Vertical)
       final laserPaint = Paint()
         ..color = isAligned ? AppColors.brutalGreen : AppColors.errorRed
-        ..strokeWidth = 2.0
-        ..strokeCap = StrokeCap.round;
+        ..strokeWidth = 2.4
+        ..strokeCap = StrokeCap.square;
       canvas.drawLine(Offset(cx, 10), Offset(cx, size.height - 10), laserPaint);
 
-      // Timing Belt (Connecting outer tangets)
-      final beltPaint = Paint()
-        ..color = const Color(0xFF334155)
-        ..strokeWidth = 6.0
-        ..style = PaintingStyle.stroke;
-      final path = Path()
-        ..moveTo(camCenter.dx - camRadius, camCenter.dy)
-        ..lineTo(crankCenter.dx - crankRadius, crankCenter.dy)
-        ..arcToPoint(
-          Offset(crankCenter.dx + crankRadius, crankCenter.dy),
-          radius: Radius.circular(crankRadius),
-          clockwise: true,
-        )
-        ..lineTo(camCenter.dx + camRadius, camCenter.dy)
-        ..arcToPoint(
-          Offset(camCenter.dx - camRadius, camCenter.dy),
-          radius: Radius.circular(camRadius),
-          clockwise: true,
-        );
-      canvas.drawPath(path, beltPaint);
+      // Low-Poly Faceted Timing Belt
+      final beltPath = Path()
+        ..moveTo(camCenter.dx - camRadius - 2, camCenter.dy)
+        ..lineTo(crankCenter.dx - crankRadius - 2, crankCenter.dy)
+        ..lineTo(crankCenter.dx + crankRadius + 2, crankCenter.dy)
+        ..lineTo(camCenter.dx + camRadius + 2, camCenter.dy)
+        ..close();
+      canvas.drawPath(
+        beltPath,
+        Paint()
+          ..color = const Color(0xFF0F172A)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 8.0,
+      );
 
-      // Draw Gears
-      _drawGear(canvas, camCenter, camRadius, camAngle, camshaftLabel);
-      _drawGear(canvas, crankCenter, crankRadius, crankAngle, 'KRANK');
+      // Draw Faceted Sprockets
+      _drawLowPolySprocket(canvas, camCenter, camRadius, camAngle, 12, camshaftLabel);
+      _drawLowPolySprocket(canvas, crankCenter, crankRadius, crankAngle, 8, 'KRANK');
     } else {
       // Phase 1: Torque Scale Wrench View
       final scaleY = size.height / 2;
-      final scaleLeft = 35.0;
-      final scaleRight = size.width - 35.0;
+      final scaleLeft = 28.0;
+      final scaleRight = size.width - 28.0;
       final scaleWidth = scaleRight - scaleLeft;
 
-      // Background Scale Bar
-      final barPaint = Paint()
-        ..color = const Color(0xFF1E283D)
-        ..strokeWidth = 14.0
-        ..strokeCap = StrokeCap.round;
-      canvas.drawLine(
-          Offset(scaleLeft, scaleY), Offset(scaleRight, scaleY), barPaint);
-
-      // Green target torque zone (105-118 Nm -> ~60% to 80%)
-      final greenPaint = Paint()
-        ..color = AppColors.brutalGreen
-        ..strokeWidth = 14.0;
-      canvas.drawLine(
-        Offset(scaleLeft + scaleWidth * 0.58, scaleY),
-        Offset(scaleLeft + scaleWidth * 0.80, scaleY),
-        greenPaint,
+      // Hazard Header Banner
+      NeoBrutalPolyPainter.drawHazardStripes(
+        canvas,
+        Rect.fromLTWH(scaleLeft, scaleY - 45, scaleWidth, 14),
+        stripeWidth: 8,
       );
 
-      // Sweep needle
-      final needleX = scaleLeft + scaleWidth * sweepProgress;
-      final needlePaint = Paint()
-        ..color = Colors.white
-        ..strokeWidth = 3.5;
-      canvas.drawLine(Offset(needleX, scaleY - 18),
-          Offset(needleX, scaleY + 18), needlePaint);
+      // Outer Gauge Frame Box
+      final boxRect = Rect.fromLTWH(scaleLeft, scaleY - 10, scaleWidth, 20);
+      canvas.drawRect(boxRect, Paint()..color = const Color(0xFF0F172A));
+      canvas.drawRect(
+        boxRect,
+        Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.4,
+      );
 
-      final capPaint = Paint()..color = AppColors.brutalOrange;
-      canvas.drawCircle(Offset(needleX, scaleY - 18), 5, capPaint);
+      // Green target torque zone (58% to 80%)
+      final greenRect = Rect.fromLTWH(
+        scaleLeft + scaleWidth * 0.58,
+        scaleY - 10,
+        scaleWidth * 0.22,
+        20,
+      );
+      canvas.drawRect(greenRect, Paint()..color = AppColors.brutalGreen);
+      canvas.drawRect(
+        greenRect,
+        Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.8,
+      );
+
+      // Sweep Needle (Low-Poly Triangle Pointer)
+      final needleX = scaleLeft + scaleWidth * sweepProgress;
+      NeoBrutalPolyPainter.drawFacetedPolygon(
+        canvas,
+        [
+          Offset(needleX - 7, scaleY - 18),
+          Offset(needleX + 7, scaleY - 18),
+          Offset(needleX, scaleY + 16),
+        ],
+        color: AppColors.brutalOrange,
+        lightFactor: 1.2,
+        strokeWidth: 2.0,
+      );
     }
   }
 
-  void _drawGear(
-      Canvas canvas, Offset center, double radius, double angle, String label) {
-    final gearPaint = Paint()
-      ..color = const Color(0xFF1E293B)
-      ..style = PaintingStyle.fill;
-    final borderPaint = Paint()
-      ..color = const Color(0xFF475569)
-      ..strokeWidth = 2.4
-      ..style = PaintingStyle.stroke;
+  void _drawLowPolySprocket(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double angle,
+    int toothCount,
+    String label,
+  ) {
+    // Generate faceted tooth vertices
+    final pts = <Offset>[];
+    final step = (2 * math.pi) / toothCount;
+    for (int i = 0; i < toothCount; i++) {
+      final a1 = angle + (i * step);
+      final a2 = a1 + step * 0.35;
+      final a3 = a1 + step * 0.65;
+      final a4 = a1 + step;
 
-    canvas.drawCircle(center, radius, gearPaint);
-    canvas.drawCircle(center, radius, borderPaint);
-    canvas.drawCircle(
-        center, radius * 0.35, Paint()..color = const Color(0xFF0F172A));
+      pts.add(Offset(center.dx + (radius + 4) * math.sin(a1), center.dy - (radius + 4) * math.cos(a1)));
+      pts.add(Offset(center.dx + (radius + 4) * math.sin(a2), center.dy - (radius + 4) * math.cos(a2)));
+      pts.add(Offset(center.dx + radius * math.sin(a3), center.dy - radius * math.cos(a3)));
+      pts.add(Offset(center.dx + radius * math.sin(a4), center.dy - radius * math.cos(a4)));
+    }
 
-    // Timing Notch (Sente Çentiği)
-    final notchX = center.dx + math.sin(angle) * radius;
-    final notchY = center.dy - math.cos(angle) * radius;
-    final notchPaint = Paint()
-      ..color = AppColors.brutalYellow
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(notchX, notchY), 5, notchPaint);
+    // Sprocket Body Fill
+    NeoBrutalPolyPainter.drawFacetedPolygon(
+      canvas,
+      pts,
+      color: const Color(0xFF334155),
+      lightFactor: 1.1,
+      strokeWidth: 2.4,
+      strokeColor: Colors.black,
+      showHardShadow: true,
+      shadowOffset: const Offset(3, 3),
+    );
+
+    // Central 3D Hex Hub
+    NeoBrutalPolyPainter.draw3DHexBolt(
+      canvas,
+      center,
+      radius * 0.40,
+      rotation: angle,
+      boltColor: const Color(0xFF64748B),
+      depth: 3.0,
+      strokeWidth: 1.8,
+    );
+
+    // Timing Notch (Prismatic diamond indicator)
+    final notchPos = Offset(
+      center.dx + math.sin(angle) * (radius + 2),
+      center.dy - math.cos(angle) * (radius + 2),
+    );
+    NeoBrutalPolyPainter.drawPrismaticDiamond(
+      canvas,
+      notchPos,
+      10.0,
+      AppColors.brutalYellow,
+    );
   }
 
   @override

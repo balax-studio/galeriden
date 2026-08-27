@@ -305,14 +305,16 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
                   ],
                 ),
                 Expanded(
-                    child: Text(
-                  context.tr(
-                      'order_parts_delivery_time', {'sec': durationSeconds}),
-                  style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.brutalOrange),
-                )),
+                  child: Text(
+                    context.tr(
+                        'order_parts_delivery_time', {'sec': durationSeconds}),
+                    style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.brutalOrange),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
               ],
             ),
           ),
@@ -363,14 +365,18 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
           ),
           child: Column(
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w900,
-                  color: isSel
-                      ? Colors.black
-                      : (isDark ? Colors.white : Colors.black87),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w900,
+                    color: isSel
+                        ? Colors.black
+                        : (isDark ? Colors.white : Colors.black87),
+                  ),
+                  maxLines: 1,
                 ),
               ),
               const SizedBox(height: 2),

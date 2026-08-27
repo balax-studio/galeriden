@@ -1009,6 +1009,10 @@ mixin GameMarketMixin on GameBaseNotifier {
         ? 0.0
         : (isPartsDay ? (cost * weeklyEvent.discountMultiplier) : cost);
 
+    if (orderType == OrderType.salvagedScrap && state.salvagedParts.isEmpty) {
+      return false;
+    }
+
     if (state.balance < effectiveCost) return false;
 
     // Deduct one scrap part from inventory if using salvaged scrap
@@ -1052,10 +1056,25 @@ mixin GameMarketMixin on GameBaseNotifier {
     required OrderType orderType,
     required double cost,
   }) {
+    if (orderType == OrderType.salvagedScrap && state.salvagedParts.isEmpty) {
+      return false;
+    }
+
     if (state.balance < cost) return false;
 
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
+
+    List<SalvagedPart> updatedScrap = List.from(state.salvagedParts);
+    if (orderType == OrderType.salvagedScrap && updatedScrap.isNotEmpty) {
+      final scrapIndex = updatedScrap
+          .indexWhere((p) => p.name.toLowerCase() == partName.toLowerCase());
+      if (scrapIndex != -1) {
+        updatedScrap.removeAt(scrapIndex);
+      } else {
+        updatedScrap.removeLast();
+      }
+    }
 
     final car = state.ownedCars[carIndex];
     final restoredCar =
@@ -1067,6 +1086,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     state = state.copyWith(
       balance: state.balance - cost,
       ownedCars: updatedCars,
+      salvagedParts: updatedScrap,
     );
     saveState();
     return true;

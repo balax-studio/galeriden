@@ -37,45 +37,52 @@ class LuckyOpportunityDialog extends ConsumerWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: NeoBrutalCard(
-        padding: const EdgeInsets.all(20),
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        borderColor: opportunity.accentColor,
-        borderWidth: 3.0,
-        borderRadius: 16,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Badge Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                NeoBrutalBadge(
-                  text: context.tr('lucky_banner_badge'),
-                  icon: Icons.stars_rounded,
-                  backgroundColor: opportunity.accentColor,
-                  textColor: Colors.black,
-                  fontSize: 11,
-                ),
-                NeoBrutalBadge(
-                  text: context.tr('lucky_limited_time'),
-                  icon: Icons.timer_rounded,
-                  backgroundColor: isDark
-                      ? const Color(0xFF222938)
-                      : const Color(0xFFE2E8F0),
-                  textColor: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF475569),
-                  fontSize: 10,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(20),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: opportunity.accentColor,
+          borderWidth: 3.0,
+          borderRadius: 16,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top Badge Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: NeoBrutalBadge(
+                      text: context.tr('lucky_banner_badge'),
+                      icon: Icons.stars_rounded,
+                      backgroundColor: opportunity.accentColor,
+                      textColor: Colors.black,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: NeoBrutalBadge(
+                      text: context.tr('lucky_limited_time'),
+                      icon: Icons.timer_rounded,
+                      backgroundColor: isDark
+                          ? const Color(0xFF222938)
+                          : const Color(0xFFE2E8F0),
+                      textColor: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF475569),
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-            // Icon and Title
-            Row(
-              children: [
+              // Icon and Title
+              Row(
+                children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -332,6 +339,7 @@ class LuckyOpportunityDialog extends ConsumerWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

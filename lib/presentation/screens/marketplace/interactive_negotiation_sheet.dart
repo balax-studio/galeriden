@@ -1063,7 +1063,7 @@ class _InteractiveNegotiationSheetState
                                 if (!_hasRescuedWithTea) ...[
                                   const SizedBox(height: 8),
                                   NeoBrutalButton(
-                                    label: context.tr('deal_tea_rescue_btn'),
+                                    label: context.tr('deal_tea_ad_btn'),
                                     icon: Icons.local_cafe_rounded,
                                     backgroundColor: AppColors.brutalYellow,
                                     textColor: Colors.black,

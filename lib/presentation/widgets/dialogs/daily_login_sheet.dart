@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -370,31 +371,117 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
 
-          // Claim Action Button
-          NeoBrutalButton(
-            label: canClaim
-                ? context.tr('streak_claim_btn', {'day': currentStreakDay})
-                : context.tr('streak_already_claimed_btn'),
-            icon: canClaim
-                ? Icons.card_giftcard_rounded
-                : Icons.check_circle_rounded,
-            backgroundColor: canClaim
-                ? AppColors.brutalGreen
-                : (isDark ? const Color(0xFF232A3B) : const Color(0xFFE2E8F0)),
-            textColor: canClaim
-                ? Colors.black
-                : (isDark ? Colors.white54 : Colors.black45),
-            fullWidth: true,
-            onPressed: canClaim
-                ? () {
-                    final claimed =
-                        ref.read(gameProvider.notifier).claimDailyLoginReward();
+          // Streak Rescue / Freeze Banner
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E2433) : const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: game.hasStreakFreeze
+                    ? const Color(0xFF38BDF8)
+                    : (isDark ? Colors.white12 : Colors.black12),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  game.hasStreakFreeze
+                      ? Icons.shield_rounded
+                      : Icons.security_rounded,
+                  size: 20,
+                  color: game.hasStreakFreeze
+                      ? const Color(0xFF38BDF8)
+                      : const Color(0xFFF59E0B),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('streak_rescue_banner_title'),
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      Text(
+                        context.tr('streak_rescue_banner_desc'),
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (game.hasStreakFreeze)
+                  NeoBrutalBadge(
+                    text: context.tr('streak_rescue_active_badge'),
+                    icon: Icons.check_circle_rounded,
+                    backgroundColor: const Color(0xFF38BDF8),
+                    textColor: Colors.black,
+                    fontSize: 9,
+                  )
+                else
+                  NeoBrutalButton(
+                    label: context.tr('streak_rescue_btn'),
+                    icon: Icons.shield_rounded,
+                    backgroundColor: const Color(0xFFF59E0B),
+                    textColor: Colors.black,
+                    fontSize: 10,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    onPressed: () {
+                      AdService.instance.showRewardedAdWithFallback(
+                        context: context,
+                        customRewardTitle: context.tr('streak_rescue_banner_title'),
+                        onRewardEarned: () {
+                          ref.read(gameProvider.notifier).activateStreakRescue();
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('toast_streak_rescued'),
+                          );
+                          setState(() {});
+                        },
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Claim Action Buttons
+          if (canClaim) ...[
+            NeoBrutalButton(
+              label: context.tr('streak_double_reward_btn'),
+              icon: Icons.stars_rounded,
+              backgroundColor: AppColors.brutalYellow,
+              textColor: Colors.black,
+              fontSize: 13,
+              fullWidth: true,
+              onPressed: () {
+                AdService.instance.showRewardedAdWithFallback(
+                  context: context,
+                  customRewardTitle: context.tr('streak_double_reward_title'),
+                  onRewardEarned: () {
+                    final claimed = ref
+                        .read(gameProvider.notifier)
+                        .claimDailyLoginReward(rewardMultiplier: 2.0);
                     if (claimed != null) {
-                      final rewardSummary = claimed.moneyAmount > 0
-                          ? '+${CurrencyFormatter.formatShort(claimed.moneyAmount)}'
-                          : '+${claimed.reputationAmount}';
+                      final doubleMoney = claimed.moneyAmount * 2;
+                      final doubleRep = claimed.reputationAmount * 2;
+                      final rewardSummary = doubleMoney > 0
+                          ? '+${CurrencyFormatter.formatShort(doubleMoney)}'
+                          : '+$doubleRep';
                       NotificationService.showSuccess(
                         context,
                         context.tr('toast_daily_reward_claimed', {
@@ -404,9 +491,48 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                       );
                       setState(() {});
                     }
-                  }
-                : null,
-          ),
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            NeoBrutalButton(
+              label: context.tr('streak_claim_btn', {'day': currentStreakDay}),
+              icon: Icons.card_giftcard_rounded,
+              backgroundColor: AppColors.brutalGreen,
+              textColor: Colors.black,
+              fontSize: 12,
+              fullWidth: true,
+              onPressed: () {
+                final claimed =
+                    ref.read(gameProvider.notifier).claimDailyLoginReward();
+                if (claimed != null) {
+                  final rewardSummary = claimed.moneyAmount > 0
+                      ? '+${CurrencyFormatter.formatShort(claimed.moneyAmount)}'
+                      : '+${claimed.reputationAmount}';
+                  NotificationService.showSuccess(
+                    context,
+                    context.tr('toast_daily_reward_claimed', {
+                      'day': claimed.dayNumber,
+                      'reward': rewardSummary,
+                    }),
+                  );
+                  setState(() {});
+                }
+              },
+            ),
+          ] else ...[
+            NeoBrutalButton(
+              label: context.tr('streak_already_claimed_btn'),
+              icon: Icons.check_circle_rounded,
+              backgroundColor: isDark
+                  ? const Color(0xFF232A3B)
+                  : const Color(0xFFE2E8F0),
+              textColor: isDark ? Colors.white54 : Colors.black45,
+              fullWidth: true,
+              onPressed: null,
+            ),
+          ],
         ],
       ),
     );
