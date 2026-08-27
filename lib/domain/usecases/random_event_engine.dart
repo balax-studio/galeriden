@@ -1371,6 +1371,32 @@ class RandomEventEngine {
             GameEventChoice(label: 'Sadece Peşin Nakit Çalışmaya Devam Et', resultText: 'Nakit disiplinini korudun.', balanceChange: 0.0, reputationChange: 5, xpGain: 40),
           ],
         ),
+        GameEventModel(
+          id: 'event_impound_lot_auction',
+          title: 'Yediemin Otoparkı İcra İhalesi Fırsatı',
+          description: 'İcra dairesi yediemin otoparkında hacizli bekleyen lüks araçları toplu ihale ile piyasa değerinin altına satışa çıkardı!',
+          iconEmoji: 'gavel',
+          amount: -15000.0,
+          type: GameEventType.goodEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'İhaleye Katıl & Dosya Masrafını Yatır • -15.000 ₺', resultText: 'İhaleden 2 adet kelepir araç kapıldı, büyük kâr sağlandı.', balanceChange: -15000.0, reputationChange: 20, xpGain: 140),
+            GameEventChoice(label: 'İhaleyi Pas Geç & Risk Alma', resultText: 'İhaleye katılmadın, sermayeni korudun.', balanceChange: 0.0, reputationChange: 0, xpGain: 20),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_night_drag_sponsorship',
+          title: 'Gece İllegal Drag Yarışı Sponsorluk Teklifi',
+          description: 'Şehrin hız tutkunları modifiyeli araçların kapışacağı gece yarışı için galerine sponsorluk teklif etti!',
+          iconEmoji: 'flag',
+          amount: -12000.0,
+          type: GameEventType.meme,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Atölyeyi Yarış Takımına Aç & Sponsor Ol • -12.000 ₺', resultText: 'Modifiye ettiğin araç birinci geldi, galerinin şöhreti ve genç müşteri akını patladı!', balanceChange: -12000.0, reputationChange: 35, xpGain: 180),
+            GameEventChoice(label: 'Yarış Teklifini Reddet & Kurumsal Çizgini Koru', resultText: 'İllegal yarıştan uzak durdun, kurumsal itibarını korudun.', balanceChange: 0.0, reputationChange: 10, xpGain: 30),
+          ],
+        ),
       ];
 
   /// Randomly pick an event
@@ -1404,6 +1430,10 @@ class RandomEventEngine {
       }
 
       bool isUnlocked(String route) {
+        if (unlockedBuildings.contains(route)) return true;
+        try {
+          if (state.isFeatureUnlocked(route) == true) return true;
+        } catch (_) {}
         if (route == '/scrapyard') {
           return unlockedBuildings.contains('property_tier_2') ||
               unlockedBuildings.contains('property_tier_3') ||
