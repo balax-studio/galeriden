@@ -269,13 +269,17 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                NeoBrutalBadge(
-                  text: _resolveLocalized(context, _fallbackSnippet.badgeText),
-                  icon: _fallbackSnippet.icon,
-                  backgroundColor: _fallbackSnippet.accentColor,
-                  textColor: Colors.black,
-                  fontSize: 10.5,
+                Flexible(
+                  child: NeoBrutalBadge(
+                    text:
+                        _resolveLocalized(context, _fallbackSnippet.badgeText),
+                    icon: _fallbackSnippet.icon,
+                    backgroundColor: _fallbackSnippet.accentColor,
+                    textColor: Colors.black,
+                    fontSize: 10.5,
+                  ),
                 ),
+                const SizedBox(width: 8),
                 NeoBrutalBadge(
                   text: 'YEREL DUYURU',
                   backgroundColor: isDark

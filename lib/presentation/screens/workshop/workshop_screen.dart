@@ -108,35 +108,45 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 28,
-                              height: 28,
-                              decoration: BoxDecoration(
-                                color: paint.color,
-                                shape: BoxShape.circle,
-                                border:
-                                    Border.all(color: Colors.black, width: 2),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: paint.color,
+                                  shape: BoxShape.circle,
+                                  border:
+                                      Border.all(color: Colors.black, width: 2),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(paint.name,
-                                    style: const TextStyle(
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w900)),
-                                Text(CurrencyFormatter.format(paint.cost),
-                                    style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.brutalOrange)),
-                              ],
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      paint.name,
+                                      style: const TextStyle(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w900),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      CurrencyFormatter.format(paint.cost),
+                                      style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.brutalOrange),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         NeoBrutalButton(
                           label: context.tr('paint_action_btn'),
                           backgroundColor: AppColors.brutalYellow,
