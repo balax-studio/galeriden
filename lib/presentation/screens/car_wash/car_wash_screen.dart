@@ -546,27 +546,30 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                    context.tr('car_wash_service_label',
-                                        {'service': job.washType.name}),
-                                    style: const TextStyle(
-                                        fontSize: 10.5,
-                                        color: Color(0xFF64748B),
-                                        fontWeight: FontWeight.w700)),
-                                Text(
-                                    context.tr('car_wash_income_label', {
-                                      'amount': CurrencyFormatter.format(
-                                          job.paymentReward)
-                                    }),
-                                    style: const TextStyle(
-                                        fontSize: 13.5,
-                                        fontWeight: FontWeight.w900,
-                                        color: Color(0xFF00E575))),
-                              ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      context.tr('car_wash_service_label',
+                                          {'service': job.washType.name}),
+                                      style: const TextStyle(
+                                          fontSize: 10.5,
+                                          color: Color(0xFF64748B),
+                                          fontWeight: FontWeight.w700)),
+                                  Text(
+                                      context.tr('car_wash_income_label', {
+                                        'amount': CurrencyFormatter.format(
+                                            job.paymentReward)
+                                      }),
+                                      style: const TextStyle(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w900,
+                                          color: Color(0xFF00E575))),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             NeoBrutalButton(
                               label: context.tr('car_wash_btn_wash_earn'),
                               icon: Icons.cleaning_services_rounded,

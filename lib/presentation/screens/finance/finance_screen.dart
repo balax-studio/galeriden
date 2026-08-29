@@ -496,73 +496,76 @@ class FinanceScreen extends ConsumerWidget {
             borderColor:
                 isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.brutalGreen,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF333B4F)
-                                : const Color(0xFF0F172A),
-                            width: 2.0,
-                          ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.brutalGreen,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 2.0,
                         ),
-                        child: const Icon(Icons.account_balance_rounded,
-                            color: Colors.black, size: 22),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
+                      child: const Icon(Icons.account_balance_rounded,
+                          color: Colors.black, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
                                   context.tr('bank_deposit_account_title'),
                                   style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w900),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(width: 6),
-                                const CandleSparkWidget(
-                                    isPositive: true, size: 16),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              context.tr('bank_deposit_desc'),
-                              style: const TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF64748B)),
-                            ),
-                          ],
-                        ),
+                              ),
+                              const SizedBox(width: 6),
+                              const CandleSparkWidget(
+                                  isPositive: true, size: 16),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            context.tr('bank_deposit_desc'),
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B)),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 10),
                 NeoBrutalButton(
                   label: game.isFeatureUnlocked('/bank-investments')
                       ? context.tr('finance_open_bank_btn')
                       : context.tr('btn_locked'),
+                  icon: game.isFeatureUnlocked('/bank-investments')
+                      ? Icons.arrow_forward_rounded
+                      : Icons.lock_rounded,
+                  fullWidth: true,
                   backgroundColor: game.isFeatureUnlocked('/bank-investments')
                       ? AppColors.brutalGreen
                       : const Color(0xFF64748B),
                   textColor: game.isFeatureUnlocked('/bank-investments')
                       ? Colors.black
                       : Colors.white,
-                  fontSize: 11,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  fontSize: 12,
                   onPressed: () {
                     if (game.isFeatureUnlocked('/bank-investments')) {
                       context.push('/bank-investments');
@@ -589,59 +592,57 @@ class FinanceScreen extends ConsumerWidget {
             borderColor:
                 isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 14,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFDE59),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF333B4F)
-                                : const Color(0xFF0F172A),
-                            width: 2.0,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFDE59),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
+                      ),
+                      child: const Icon(Icons.receipt_long_rounded,
+                          color: Colors.black, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.tr('cashflow_title'),
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w900),
                           ),
-                        ),
-                        child: const Icon(Icons.receipt_long_rounded,
-                            color: Colors.black, size: 22),
+                          const SizedBox(height: 2),
+                          Text(
+                            context.tr('cashflow_advice_burn_title'),
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B)),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.tr('cashflow_title'),
-                              style: const TextStyle(
-                                  fontSize: 13, fontWeight: FontWeight.w900),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              context.tr('cashflow_advice_burn_title'),
-                              style: const TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF64748B)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 10),
                 NeoBrutalButton(
                   label: context.tr('finance_open_cashflow_btn'),
+                  icon: Icons.analytics_rounded,
+                  fullWidth: true,
                   backgroundColor: const Color(0xFFFFDE59),
                   textColor: Colors.black,
-                  fontSize: 11,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  fontSize: 12,
                   onPressed: () => context.push('/finance/daily-cashflow'),
                 ),
               ],

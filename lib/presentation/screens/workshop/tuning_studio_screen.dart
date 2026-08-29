@@ -735,28 +735,31 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  CurrencyFormatter.formatShort(rawPrice),
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    decoration: TextDecoration.lineThrough,
-                                    color: Color(0xFF64748B),
-                                    fontWeight: FontWeight.w700,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    CurrencyFormatter.formatShort(rawPrice),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      decoration: TextDecoration.lineThrough,
+                                      color: Color(0xFF64748B),
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  CurrencyFormatter.formatShort(
-                                      discountedPrice),
-                                  style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.brutalGreen),
-                                ),
-                              ],
+                                  Text(
+                                    CurrencyFormatter.formatShort(
+                                        discountedPrice),
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.brutalGreen),
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             NeoBrutalButton(
                               label: allApplied
                                   ? context.tr('tuning_btn_pkg_active')

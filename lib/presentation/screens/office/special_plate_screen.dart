@@ -471,30 +471,33 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr('plate_fee_label'),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color:
-                            isDark ? Colors.white60 : const Color(0xFF64748B),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('plate_fee_label'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color:
+                              isDark ? Colors.white60 : const Color(0xFF64748B),
+                        ),
                       ),
-                    ),
-                    Text(
-                      CurrencyFormatter.format(plate.price),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: isDark
-                            ? const Color(0xFFFFDE59)
-                            : const Color(0xFFB45309),
+                      Text(
+                        CurrencyFormatter.format(plate.price),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: isDark
+                              ? const Color(0xFFFFDE59)
+                              : const Color(0xFFB45309),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 NeoBrutalButton(
                   label: isAlreadyOwned
                       ? context.tr('plate_btn_in_use')
