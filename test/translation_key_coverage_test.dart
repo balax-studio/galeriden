@@ -21,6 +21,7 @@ void main() {
     };
 
     final trKeyRegex = RegExp(r'''\btr\(\s*['"]([a-zA-Z0-9_\-]+)['"]''');
+    final declaredKeyRegex = RegExp(r'''['"]([a-z][a-z0-9_]+(?:_[a-z0-9_]+)+)['"]''');
     final libDir = Directory('lib');
 
     final missingKeysByLang = <String, Set<String>>{
@@ -45,6 +46,23 @@ void main() {
             }
           }
         }
+
+        // Also check declared keys ending in 'Key' or defined in models/enums if used with translation
+        if (entity.path.contains('model') || entity.path.contains('widget') || entity.path.contains('screen') || entity.path.contains('dialog')) {
+          final declaredMatches = declaredKeyRegex.allMatches(content);
+          for (final dm in declaredMatches) {
+            final possibleKey = dm.group(1)!;
+            // If it exists in trTranslations (meaning it's definitely a translation key), verify all 6 other languages also have it!
+            if (trTranslations.containsKey(possibleKey)) {
+              fileUsageMap.putIfAbsent(possibleKey, () => []).add(entity.path);
+              for (final entry in allTranslations.entries) {
+                if (!entry.value.containsKey(possibleKey)) {
+                  missingKeysByLang[entry.key]!.add(possibleKey);
+                }
+              }
+            }
+          }
+        }
       }
     }
 
@@ -58,12 +76,54 @@ void main() {
       }
     }
 
-    File('missing_keys_report.txt').writeAsStringSync(summary.toString());
-
     expect(
       missingKeysByLang.values.every((set) => set.isEmpty),
       isTrue,
       reason: 'Found missing translation keys:\n$summary',
+    );
+  });
+
+  test('Check that all 7 translation files have identical key sets (complete symmetry)', () {
+    final allTranslations = <String, Map<String, String>>{
+      'tr': trTranslations,
+      'en': enTranslations,
+      'de': deTranslations,
+      'pt': ptTranslations,
+      'es': esTranslations,
+      'ru': ruTranslations,
+      'ar': arTranslations,
+    };
+
+    final allUniqueKeys = <String>{};
+    for (final map in allTranslations.values) {
+      allUniqueKeys.addAll(map.keys);
+    }
+
+    final missingParity = <String, List<String>>{};
+    for (final entry in allTranslations.entries) {
+      final lang = entry.key;
+      final map = entry.value;
+      final missing = allUniqueKeys.difference(map.keys.toSet()).toList();
+      if (missing.isNotEmpty) {
+        missingParity[lang] = missing;
+      }
+    }
+
+    final paritySummary = StringBuffer();
+    for (final entry in missingParity.entries) {
+      paritySummary.writeln('\n=== ${entry.key.toUpperCase()} is missing ${entry.value.length} keys ===');
+      for (final k in entry.value.take(20)) {
+        paritySummary.writeln('  - $k');
+      }
+      if (entry.value.length > 20) {
+        paritySummary.writeln('  ... and ${entry.value.length - 20} more');
+      }
+    }
+
+    expect(
+      missingParity.isEmpty,
+      isTrue,
+      reason: 'Translation key asymmetry detected across languages:\n$paritySummary',
     );
   });
 }
