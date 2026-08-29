@@ -3124,5 +3124,11 @@ const Map<String, String> arTranslations = {
     'stock_sector_tech': 'التكنولوجيا والبرمجيات',
     'stock_sector_energy': 'الطاقة والوقود',
     'stocks_live_badge': 'البورصة مباشر',
+    'stamp_expert_approved': 'فحص معتمد',
+    'stamp_accident_free': 'خالٍ من الحوادث',
+    'stamp_deal_opportunity': 'فرصة مميزة',
+    'stamp_urgent_sale': 'بيع عاجل',
+    'stamp_rare_collector': 'قطعة نادرة',
+    'trend_7d_profit': 'زخم الربح 7 أيام',
 };
 

@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 
 class BranchScreen extends ConsumerWidget {
   const BranchScreen({super.key});
@@ -36,10 +37,12 @@ class BranchScreen extends ConsumerWidget {
       appBar: NeoBrutalAppBar(
         title: context.tr('branch_screen_title'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.dealership,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 1. Current Branch Status Card
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
@@ -574,7 +577,8 @@ class BranchScreen extends ConsumerWidget {
           }),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildInfoColumn(String title, String value, bool isDark) {

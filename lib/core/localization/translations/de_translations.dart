@@ -3124,5 +3124,11 @@ const Map<String, String> deTranslations = {
     'stock_sector_tech': 'Technologie & Software',
     'stock_sector_energy': 'Energie & Kraftstoffe',
     'stocks_live_badge': 'BÖRSE LIVE',
+    'stamp_expert_approved': 'GUTACHTEN GEPRÜFT',
+    'stamp_accident_free': 'UNFALLFREI',
+    'stamp_deal_opportunity': 'TOP ANGEBOT',
+    'stamp_urgent_sale': 'DRINGENDER VERKAUF',
+    'stamp_rare_collector': 'SAMMLERSTÜCK',
+    'trend_7d_profit': '7-Tage Gewinn-Dynamik',
 };
 

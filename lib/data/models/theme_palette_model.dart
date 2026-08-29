@@ -106,7 +106,7 @@ class ThemePaletteModel {
       isDark: false,
       primaryColor: Color(0xFFEAB308),
       secondaryColor: Color(0xFF2563EB),
-      backgroundColor: Color(0xFFF4F4F0),
+      backgroundColor: Color(0xFFE9ECEF),
       surfaceColor: Color(0xFFFFFFFF),
       surfaceBorderColor: Color(0xFF0F172A),
       textPrimaryColor: Color(0xFF0F172A),

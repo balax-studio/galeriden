@@ -16,6 +16,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/mini_games/car_wash_canvas.dart';
 
@@ -275,10 +276,12 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
           fontSize: 9.5,
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.carWash,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 1. Top Segmented Tab Controller
           Row(
             children: [
@@ -1210,7 +1213,8 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
           ],
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildWashStatusPill({

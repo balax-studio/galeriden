@@ -20,6 +20,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import 'widgets/animated_order_card.dart';
@@ -362,10 +363,12 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
         subtitle: context.tr('workshop_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.wrenchRotate,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.workshop,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 1. Top Segmented Tab Controller
           Row(
             children: [
@@ -1691,7 +1694,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
           ],
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildHealthBar({

@@ -16,6 +16,7 @@ import '../../../widgets/floating_money_overlay.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/pulsing_dot.dart';
 import '../../../widgets/zeigarnik_progress_bar.dart';
 import 'dashboard_retention_modals.dart';
 
@@ -40,7 +41,7 @@ class DashboardProfileBanner extends StatelessWidget {
 
     return NeoBrutalCard(
       onTap: () => context.push('/character-growth'),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(13),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
       borderRadius: 14,
@@ -54,9 +55,9 @@ class DashboardProfileBanner extends StatelessWidget {
                 emblemId: game.logoEmblemId,
                 badgeShape: game.logoBadgeShape,
                 badgeColor: game.logoBadgeColor,
-                size: 48,
+                size: 44,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
 
               // Title & Level Info
               Expanded(
@@ -69,7 +70,7 @@ class DashboardProfileBanner extends StatelessWidget {
                           child: Text(
                             game.dealershipName,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 15.5,
                               fontWeight: FontWeight.w900,
                               color: isDark
                                   ? Colors.white
@@ -103,11 +104,11 @@ class DashboardProfileBanner extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     Text(
                       '${game.playerName} • ${game.corporateTierTitle}',
                       style: TextStyle(
-                        fontSize: 11.5,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: isDark
                             ? const Color(0xFF94A3B8)
@@ -131,7 +132,7 @@ class DashboardProfileBanner extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Level Progress Bar (Goal Gradient & Zeigarnik Effect §2.2)
           Row(
@@ -139,7 +140,7 @@ class DashboardProfileBanner extends StatelessWidget {
               Expanded(
                 child: ZeigarnikProgressBar(
                   progress: xpProgress,
-                  height: 12,
+                  height: 11,
                   fillColor: palette.primaryColor,
                   backgroundColor: isDark
                       ? const Color(0xFF1E2330)
@@ -149,6 +150,7 @@ class DashboardProfileBanner extends StatelessWidget {
                       : const Color(0xFF0F172A),
                   borderWidth: 1.4,
                   borderRadius: 6,
+                  isHazardStriped: true,
                 ),
               ),
               const SizedBox(width: 10),
@@ -213,7 +215,7 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
 
     return NeoBrutalCard(
       onTap: () => DailyBulletinDialog.show(context),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       backgroundColor:
           isDark ? const Color(0xFF191D2B) : const Color(0xFFEFF6FF),
       borderColor: const Color(0xFF3B82F6),
@@ -329,7 +331,7 @@ class DashboardFirstDayQuestBanner extends StatelessWidget {
 
     return NeoBrutalCard(
       onTap: onQuestTap,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       backgroundColor: const Color(0xFFFEF3C7),
       borderColor: Colors.black,
       borderRadius: 12,
@@ -495,7 +497,7 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
 
     return NeoBrutalCard(
       onTap: onAdviceTap,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       backgroundColor:
           isDark ? const Color(0xFF19231D) : const Color(0xFFECFDF5),
       borderColor: const Color(0xFF10B981),
@@ -503,14 +505,14 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
               color: const Color(0xFF10B981),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(adviceIcon, color: Colors.black, size: 22),
+            child: Icon(adviceIcon, color: Colors.black, size: 20),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -542,7 +544,7 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   adviceTitle,
                   style: TextStyle(
@@ -913,75 +915,86 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: NeoBrutalCard(
-        padding: const EdgeInsets.all(12),
-        backgroundColor: const Color(0xFFFFDE59),
-        borderColor: const Color(0xFF0F172A),
-        borderRadius: 12,
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(8),
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(10),
+      backgroundColor: const Color(0xFFFFDE59),
+      borderColor: const Color(0xFF0F172A),
+      borderRadius: 12,
+      child: Row(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.local_fire_department_rounded,
+                  color: Color(0xFFFF7A00),
+                  size: 22,
+                ),
               ),
-              child: const Icon(
-                Icons.local_fire_department_rounded,
-                color: Color(0xFFFF7A00),
-                size: 24,
+              const Positioned(
+                top: -3,
+                right: -3,
+                child: PulsingDot(
+                  color: Color(0xFF00E575),
+                  size: 8.0,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context
-                        .tr('daily_streak_title', {'count': game.loginStreak}),
-                    style: const TextStyle(
-                      color: Color(0xFF0F172A),
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w900,
-                    ),
+            ],
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context
+                      .tr('daily_streak_title', {'count': game.loginStreak}),
+                  style: const TextStyle(
+                    color: Color(0xFF0F172A),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    context.tr('daily_streak_sub'),
-                    style: const TextStyle(
-                      color: Color(0xFF334155),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  context.tr('daily_streak_sub'),
+                  style: const TextStyle(
+                    color: Color(0xFF334155),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            NeoBrutalButton(
-              label: context.tr('claim_btn'),
-              icon: Icons.attach_money_rounded,
-              backgroundColor: const Color(0xFF00E575),
-              textColor: Colors.black,
-              borderColor: const Color(0xFF0F172A),
-              fontSize: 11.5,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              onPressed: () {
-                final reward =
-                    ref.read(gameProvider.notifier).claimDailyStreak();
-                FloatingMoneyOverlay.of(context)
-                    ?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
-                NotificationService.showSuccess(
-                  context,
-                  '${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!',
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 8),
+          NeoBrutalButton(
+            label: context.tr('claim_btn'),
+            icon: Icons.attach_money_rounded,
+            backgroundColor: const Color(0xFF00E575),
+            textColor: Colors.black,
+            borderColor: const Color(0xFF0F172A),
+            fontSize: 11,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              final reward =
+                  ref.read(gameProvider.notifier).claimDailyStreak();
+              FloatingMoneyOverlay.of(context)
+                  ?.showMoneyPopUp(reward.toDouble(), label: 'Seri Ödülü!');
+              NotificationService.showSuccess(
+                context,
+                '${CurrencyFormatter.formatShort(reward.toDouble())} Günlük Seri Ödülü Hesabına Eklendi!',
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -1021,7 +1034,7 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
         HapticFeedback.lightImpact();
         context.push('/finance/daily-cashflow');
       },
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
       borderRadius: 12,
@@ -1053,6 +1066,8 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
               ),
               Row(
                 children: [
+                  _buildSparklineBars(isDark, netDailyFlow >= 0),
+                  const SizedBox(width: 8),
                   Text(
                     '${netDailyFlow >= 0 ? '+' : ''}${CurrencyFormatter.formatShort(netDailyFlow)}/${context.tr('hud_day').toLowerCase()}',
                     style: TextStyle(
@@ -1061,6 +1076,7 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
                       color: netDailyFlow >= 0
                           ? const Color(0xFF00E575)
                           : const Color(0xFFEF4444),
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -1115,6 +1131,31 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSparklineBars(bool isDark, bool isPositive) {
+    final bars = isPositive
+        ? [0.35, 0.5, 0.45, 0.7, 0.65, 0.85, 1.0]
+        : [1.0, 0.8, 0.75, 0.6, 0.5, 0.4, 0.3];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: List.generate(bars.length, (index) {
+        final height = 3.5 + (bars[index] * 9.5);
+        final isLast = index == bars.length - 1;
+        return Container(
+          width: 2.5,
+          height: height,
+          margin: const EdgeInsets.symmetric(horizontal: 0.8),
+          decoration: BoxDecoration(
+            color: isLast
+                ? (isPositive ? const Color(0xFF00E575) : const Color(0xFFEF4444))
+                : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+            borderRadius: BorderRadius.circular(1.0),
+          ),
+        );
+      }),
     );
   }
 }

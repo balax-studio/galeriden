@@ -3124,5 +3124,11 @@ const Map<String, String> enTranslations = {
     'stock_sector_tech': 'Technology & Software',
     'stock_sector_energy': 'Energy & Fuel',
     'stocks_live_badge': 'LIVE MARKET',
+    'stamp_expert_approved': 'INSPECTION PASSED',
+    'stamp_accident_free': 'ACCIDENT FREE',
+    'stamp_deal_opportunity': 'HOT DEAL',
+    'stamp_urgent_sale': 'URGENT SALE',
+    'stamp_rare_collector': 'COLLECTOR ITEM',
+    'trend_7d_profit': '7-Day Profit Momentum',
 };
 

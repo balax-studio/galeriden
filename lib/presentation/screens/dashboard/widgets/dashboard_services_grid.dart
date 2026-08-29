@@ -258,7 +258,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
               Expanded(
                   child: _buildServiceCard(
                       context, game, palette, isDark, unlockedItems[i])),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
                   child: _buildServiceCard(
                       context, game, palette, isDark, unlockedItems[i + 1])),
@@ -273,14 +273,14 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         );
       }
       if (i + 2 < unlockedItems.length) {
-        gridRows.add(const SizedBox(height: 10));
+        gridRows.add(const SizedBox(height: 8));
       }
     }
 
     // If there are locked items, append the Heartbeat & Dynamic Rotating Target Banner
     if (lockedItems.isNotEmpty) {
       if (gridRows.isNotEmpty) {
-        gridRows.add(const SizedBox(height: 10));
+        gridRows.add(const SizedBox(height: 8));
       }
       gridRows.add(
         _DynamicNextTargetBanner(
@@ -312,9 +312,9 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     final isUnlocked = game.isFeatureUnlocked(item.route);
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 96),
+      constraints: const BoxConstraints(minHeight: 86),
       child: NeoBrutalCard(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         backgroundColor: isUnlocked
             ? (isDark ? const Color(0xFF141721) : Colors.white)
             : (isDark ? const Color(0xFF0F1118) : const Color(0xFFE2E8F0)),
@@ -335,7 +335,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     color: isUnlocked ? item.color : const Color(0xFF64748B),
                     borderRadius: BorderRadius.circular(6),
@@ -363,13 +363,14 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   ),
               ],
             ),
+            const SizedBox(height: 6),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.title,
                   style: TextStyle(
-                    fontSize: 12.5,
+                    fontSize: 12,
                     fontWeight: FontWeight.w900,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
@@ -380,7 +381,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                 Text(
                   item.subtitle,
                   style: TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: isDark
                         ? const Color(0xFF94A3B8)
@@ -406,9 +407,9 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     _ServiceItem item,
   ) {
     return SizedBox(
-      height: 72,
+      height: 68,
       child: NeoBrutalCard(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
         borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
         borderWidth: 2.0,

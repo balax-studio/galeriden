@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/mini_games/dyno_run_canvas.dart';
 import '../../widgets/mini_games/engine_timing_canvas.dart';
@@ -310,10 +311,12 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
         titleTextColor: Colors.white,
         headerAnimation: NeoBrutalHeaderAnimation.revBarFlash,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.workshop,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 1. Header Banner
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
@@ -977,7 +980,8 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
           ],
         ],
       ),
-    );
+    ),
+  );
   }
 
   static Widget _buildMetricTile(

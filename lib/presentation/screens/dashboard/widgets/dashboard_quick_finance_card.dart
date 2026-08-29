@@ -25,7 +25,7 @@ class DashboardQuickFinanceCard extends StatelessWidget {
         activeLoans.fold(0.0, (sum, l) => sum + l.remainingAmount);
 
     return NeoBrutalCard(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(11),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
       borderRadius: 12,
@@ -71,27 +71,36 @@ class DashboardQuickFinanceCard extends StatelessWidget {
                           fontSize: 12.5,
                           fontWeight: FontWeight.w900,
                           color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        activeLoans.isNotEmpty
-                            ? context.tr('remaining_debt_label', {
-                                'amount':
-                                    CurrencyFormatter.formatShort(totalLoanDebt)
-                              })
-                            : context.tr('bank_credit_sub'),
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF64748B),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              activeLoans.isNotEmpty
+                                  ? context.tr('remaining_debt_label', {
+                                      'amount':
+                                          CurrencyFormatter.formatShort(totalLoanDebt)
+                                    })
+                                  : context.tr('bank_credit_sub'),
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
+                                fontFeatures: const [FontFeature.tabularFigures()],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          _buildMiniTrendBars(isDark, activeLoans.isEmpty),
+                        ],
                       ),
                     ],
                   ),
@@ -114,6 +123,29 @@ class DashboardQuickFinanceCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMiniTrendBars(bool isDark, bool isHealthy) {
+    final bars = isHealthy ? [0.4, 0.6, 0.5, 0.8, 0.7, 0.9, 1.0] : [0.9, 0.8, 0.6, 0.7, 0.5, 0.4, 0.3];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: List.generate(bars.length, (index) {
+        final height = 4.0 + (bars[index] * 10.0);
+        final isLast = index == bars.length - 1;
+        return Container(
+          width: 2.5,
+          height: height,
+          margin: const EdgeInsets.symmetric(horizontal: 1.0),
+          decoration: BoxDecoration(
+            color: isLast
+                ? (isHealthy ? const Color(0xFF00E575) : const Color(0xFFFF7A00))
+                : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+            borderRadius: BorderRadius.circular(1.0),
+          ),
+        );
+      }),
     );
   }
 }

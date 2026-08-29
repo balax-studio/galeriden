@@ -22,6 +22,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_skeleton.dart';
 import '../../widgets/pulsing_dot.dart';
 import '../../widgets/staggered_item_entry.dart';
@@ -133,8 +134,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.dealership,
+        child: Column(
+          children: [
           // Search Input Bar with Real-Time Debounce and Clear Button
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
@@ -473,6 +476,37 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                                       p.secondaryColor,
                                                   fontSize: 9.5,
                                                 ),
+                                                if (car.currentPurchasePrice < car.baseMarketValue * 0.9)
+                                                  NeoBrutalBadge(
+                                                    text: context.tr('stamp_deal_opportunity'),
+                                                    backgroundColor: const Color(0xFFFFDE59),
+                                                    textColor: Colors.black,
+                                                    borderColor: const Color(0xFF0F172A),
+                                                    borderWidth: 1.6,
+                                                    borderRadius: 4.0,
+                                                    fontSize: 8.5,
+                                                    fontWeight: FontWeight.w900,
+                                                    angle: 0.05,
+                                                    showHardShadow: true,
+                                                    shadowOffset: const Offset(1.5, 1.5),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                                  )
+                                                else if (car.expertise.tramerAmount == 0 &&
+                                                    !car.expertise.bodyParts.values.any((s) => s != PartStatus.original))
+                                                  NeoBrutalBadge(
+                                                    text: context.tr('stamp_accident_free'),
+                                                    backgroundColor: const Color(0xFF0EA5E9),
+                                                    textColor: Colors.black,
+                                                    borderColor: const Color(0xFF0F172A),
+                                                    borderWidth: 1.6,
+                                                    borderRadius: 4.0,
+                                                    fontSize: 8.5,
+                                                    fontWeight: FontWeight.w900,
+                                                    angle: -0.05,
+                                                    showHardShadow: true,
+                                                    shadowOffset: const Offset(1.5, 1.5),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                                  ),
                                                 if (car.isBarnFind)
                                                   NeoBrutalBadge(
                                                     text: context
@@ -856,7 +890,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildSortMenuButton(ThemePaletteModel p, bool isDark) {

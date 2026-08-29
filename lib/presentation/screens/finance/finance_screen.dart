@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/candle_spark_widget.dart';
 import '../../widgets/fountain_pen_signature_widget.dart';
 import '../../widgets/tax_alert_bell_widget.dart';
@@ -365,10 +366,12 @@ class FinanceScreen extends ConsumerWidget {
       appBar: NeoBrutalAppBar(
         title: context.tr('finance_title'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.finance,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 0. CARİ LİKİDİTE & FİNANSAL SAĞLIK KARTI
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
@@ -964,7 +967,8 @@ class FinanceScreen extends ConsumerWidget {
                 _buildChequeCard(context, ref, isDark, ch, game.currentDay)),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildSummary(

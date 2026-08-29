@@ -3124,5 +3124,11 @@ const Map<String, String> ruTranslations = {
     'stock_sector_tech': 'Технологии & IT',
     'stock_sector_energy': 'Энергетика & Топливо',
     'stocks_live_badge': 'БИРЖА ОНЛАЙН',
+    'stamp_expert_approved': 'ПРОВЕРЕНО ЭКСПЕРТОМ',
+    'stamp_accident_free': 'БЕЗ ДТП',
+    'stamp_deal_opportunity': 'ГОРЯЧЕЕ ПРЕДЛОЖЕНИЕ',
+    'stamp_urgent_sale': 'СРОЧНАЯ ПРОДАЖА',
+    'stamp_rare_collector': 'КОЛЛЕКЦИОННЫЙ',
+    'trend_7d_profit': 'Динамика прибыли за 7 дней',
 };
 

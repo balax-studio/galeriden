@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import 'widgets/forex_trade_modal.dart';
@@ -109,27 +110,30 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
           ],
         ),
       ),
-      body: RefreshIndicator(
-        color: Colors.black,
-        backgroundColor: AppColors.brutalYellow,
-        strokeWidth: 2.5,
-        onRefresh: () async {
-          HapticFeedback.mediumImpact();
-          await Future.delayed(const Duration(milliseconds: 300));
-          ref.read(gameProvider.notifier).refreshStockMarket();
-          if (context.mounted) {
-            NotificationService.showInfo(
-                context, context.tr('stock_refresh_toast'));
-          }
-        },
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildStocksTab(game, isDark),
-            _buildPortfolioTab(game, isDark),
-            _buildForexTab(game, isDark),
-            _buildIpoTab(game, isDark),
-          ],
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.stockMarket,
+        child: RefreshIndicator(
+          color: Colors.black,
+          backgroundColor: AppColors.brutalYellow,
+          strokeWidth: 2.5,
+          onRefresh: () async {
+            HapticFeedback.mediumImpact();
+            await Future.delayed(const Duration(milliseconds: 300));
+            ref.read(gameProvider.notifier).refreshStockMarket();
+            if (context.mounted) {
+              NotificationService.showInfo(
+                  context, context.tr('stock_refresh_toast'));
+            }
+          },
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildStocksTab(game, isDark),
+              _buildPortfolioTab(game, isDark),
+              _buildForexTab(game, isDark),
+              _buildIpoTab(game, isDark),
+            ],
+          ),
         ),
       ),
     );

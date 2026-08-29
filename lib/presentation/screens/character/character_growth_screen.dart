@@ -12,6 +12,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 
 class CharacterGrowthScreen extends ConsumerWidget {
   const CharacterGrowthScreen({super.key});
@@ -36,10 +37,12 @@ class CharacterGrowthScreen extends ConsumerWidget {
       appBar: NeoBrutalAppBar(
         title: context.tr('growth_screen_title'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.character,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 1. Profile Header Card
           NeoBrutalCard(
             padding: const EdgeInsets.all(16),
@@ -388,7 +391,8 @@ class CharacterGrowthScreen extends ConsumerWidget {
           }),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildSpecializationSection(

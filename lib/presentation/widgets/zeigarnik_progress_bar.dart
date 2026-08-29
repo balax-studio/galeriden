@@ -24,7 +24,7 @@ class ZeigarnikProgressCurve extends Curve {
   }
 }
 
-/// Neo-Brutalist Zeigarnik Progress Bar
+/// Neo-Brutalist Zeigarnik Progress Bar (Hazard & Industrial Stripe Capable)
 class ZeigarnikProgressBar extends StatelessWidget {
   final double progress; // 0.0 to 1.0
   final double height;
@@ -34,6 +34,8 @@ class ZeigarnikProgressBar extends StatelessWidget {
   final double borderWidth;
   final double borderRadius;
   final Duration animationDuration;
+  final bool isHazardStriped;
+  final Color? stripeColor;
 
   const ZeigarnikProgressBar({
     super.key,
@@ -45,6 +47,8 @@ class ZeigarnikProgressBar extends StatelessWidget {
     this.borderWidth = 1.6,
     this.borderRadius = 6.0,
     this.animationDuration = const Duration(milliseconds: 900),
+    this.isHazardStriped = false,
+    this.stripeColor,
   });
 
   @override
@@ -71,17 +75,66 @@ class ZeigarnikProgressBar extends StatelessWidget {
             return FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: animatedValue,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: fillColor,
-                  borderRadius:
-                      BorderRadius.circular(math.max(0, borderRadius - 2)),
-                ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: fillColor,
+                      borderRadius:
+                          BorderRadius.circular(math.max(0, borderRadius - 2)),
+                    ),
+                  ),
+                  if (isHazardStriped)
+                    ClipRRect(
+                      borderRadius:
+                          BorderRadius.circular(math.max(0, borderRadius - 2)),
+                      child: CustomPaint(
+                        painter: _HazardStripePainter(
+                          stripeColor: stripeColor ??
+                              Colors.black.withValues(alpha: 0.18),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             );
           },
         ),
       ),
     );
+  }
+}
+
+class _HazardStripePainter extends CustomPainter {
+  final Color stripeColor;
+
+  const _HazardStripePainter({
+    required this.stripeColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double stripeWidth = 3.5;
+    const double gap = 3.5;
+    final paint = Paint()
+      ..color = stripeColor
+      ..strokeWidth = stripeWidth
+      ..style = PaintingStyle.stroke;
+
+    const total = stripeWidth + gap;
+    final maxDist = size.width + size.height;
+    for (double x = -size.height; x < maxDist; x += total) {
+      canvas.drawLine(
+        Offset(x, size.height),
+        Offset(x + size.height, 0),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _HazardStripePainter oldDelegate) {
+    return oldDelegate.stripeColor != stripeColor;
   }
 }

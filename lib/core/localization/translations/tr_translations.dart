@@ -3124,5 +3124,11 @@ const Map<String, String> trTranslations = {
     'stock_sector_tech': 'Teknoloji & Yazılım',
     'stock_sector_energy': 'Enerji & Akaryakıt',
     'stocks_live_badge': 'BİST CANLI',
+    'stamp_expert_approved': 'EKSPERTİZ ONAYLI',
+    'stamp_accident_free': 'HATASIZ BOYASIZ',
+    'stamp_deal_opportunity': 'FIRSAT ARACI',
+    'stamp_urgent_sale': 'ACİL SATILIK',
+    'stamp_rare_collector': 'KOLEKSİYONLUK',
+    'trend_7d_profit': '7 Günlük Kâr İvmesi',
 };
 

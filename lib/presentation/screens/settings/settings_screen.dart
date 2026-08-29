@@ -17,6 +17,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/whats_new_dialog.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -36,10 +37,12 @@ class SettingsScreen extends ConsumerWidget {
       appBar: NeoBrutalAppBar(
         title: context.tr('settings_title'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.none,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 1. Dealership Identity
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
@@ -967,7 +970,8 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   void _showPrivacyPolicyDialog(BuildContext context, bool isDark) {

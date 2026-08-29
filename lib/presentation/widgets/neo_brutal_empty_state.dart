@@ -54,29 +54,49 @@ class NeoBrutalEmptyState extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon Illustration Box with Neo-Brutalist Hard Shadow
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: effectiveAccent.withValues(alpha: isDark ? 0.25 : 0.95),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: borderColor, width: 2.2),
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark ? Colors.black54 : Colors.black,
-                    offset: const Offset(3.5, 3.5),
-                    blurRadius: 0,
+            // Icon Illustration Box with Neo-Brutalist Technical Blueprint Framing
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                // Outer Blueprint Bracket Frame
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+                      width: 1.5,
+                      style: BorderStyle.solid,
+                    ),
                   ),
-                ],
-              ),
-              child: Center(
-                child: Icon(
-                  icon,
-                  size: 40,
-                  color: isDark ? Colors.white : Colors.black,
                 ),
-              ),
+                // Main Neo-Brutalist Icon Container
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: effectiveAccent.withValues(alpha: isDark ? 0.25 : 0.95),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: borderColor, width: 2.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark ? Colors.black54 : Colors.black,
+                        offset: const Offset(3.5, 3.5),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      size: 40,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 

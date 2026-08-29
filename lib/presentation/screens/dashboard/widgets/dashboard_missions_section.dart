@@ -63,7 +63,7 @@ class DashboardMissionsList extends ConsumerWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: NeoBrutalCard(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor:
                 isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),

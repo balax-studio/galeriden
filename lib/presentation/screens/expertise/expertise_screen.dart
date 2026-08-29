@@ -16,11 +16,11 @@ import '../../../domain/usecases/expertise_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/animated_rolling_counter.dart';
-import '../../widgets/dot_grid_background.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/slam_stamp_widget.dart';
@@ -74,7 +74,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
           fontSize: 9.5,
         ),
       ),
-      body: DotGridBackground(
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.workshop,
         child: ListView(
           padding: const EdgeInsets.all(14),
           physics: const BouncingScrollPhysics(),

@@ -13,6 +13,7 @@ import '../../widgets/app_floating_dock.dart';
 import '../../widgets/app_hero_header.dart';
 import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
 import '../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../../widgets/neo_brutal_random_event_dialog.dart';
@@ -88,7 +89,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final selectedIndex = ref.watch(dashboardTabProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
-    final isDark = p.isDark;
 
     // Listen for level-ups, story ad encounters, dramatic decision cards & random events
     ref.listen<DealershipModel>(gameProvider, (previous, next) async {
@@ -162,11 +162,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         DashboardRetentionModals.showExitHookDialog(context, game);
       },
       child: Scaffold(
-        backgroundColor:
-            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        body: FloatingMoneyOverlay(
-          child: Stack(
-            children: [
+        backgroundColor: p.backgroundColor,
+        body: NeoBrutalPageBackground(
+          watermark: ThematicWatermarkType.dealership,
+          child: FloatingMoneyOverlay(
+            child: Stack(
+              children: [
               // Body Content based on selected tab
               Positioned.fill(
                 child: Column(
@@ -242,7 +243,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   /// Sahibinden.com Inspired Neo-Brutalist & Monolithic Dashboard
@@ -255,16 +257,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         .any((m) => m.isCompleted == true && m.isClaimed != true);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 90),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 78),
       physics: const BouncingScrollPhysics(),
       children: [
         // 1. Monolithic Dealership Profile Banner
         DashboardProfileBanner(game: game, palette: p),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
 
         // 1.1 Weekly Dynamic Event Bulletin
         DashboardWeeklyEventBanner(game: game, palette: p),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
 
         // 1.2 First-Day Quest Guide Banner (if player has not completed their first sale)
         if (game.carsSold == 0) ...[
@@ -272,7 +274,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             game: game,
             onGoToShowroom: () => context.push('/showroom'),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
         ] else ...[
           // 1.3 Persistent Next Action / Advisor Advice (if carsSold > 0)
           DashboardAdvisorGuidanceBanner(
@@ -280,25 +282,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             palette: p,
             onGoToShowroom: () => context.push('/showroom'),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
         ],
 
         // 1.4 Emergency Bailout / Scrapyard Rescue Banner (if low balance)
         if (game.balance < 20000) ...[
           DashboardEmergencyRescueBanner(game: game, palette: p),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
         ],
 
         // 2. Retention Hub: Rivals Leaderboard, Album, Prestige
         DashboardRetentionHighlightsRow(game: game, palette: p, ref: ref),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
 
         // 2.1 Daily Streak Reward Block (if available)
         DashboardDailyStreakBanner(game: game),
 
         // 2.2 Estimated Daily Cash Flow Breakdown
         DashboardDailyCashFlowCard(game: game, palette: p),
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
 
         // 3. Sahibinden-Style "Hızlı Hizmetler & Kategoriler" (Monolithic Block Grid)
         _buildSectionHeader(
@@ -307,9 +309,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           isDark: isDark,
           p: p,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         DashboardServicesGrid(game: game, palette: p),
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
 
         // 5. Piyasa Trendi & Otomotiv Bülteni (Monolithic Market Pulse)
         _buildSectionHeader(
@@ -318,9 +320,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           isDark: isDark,
           p: p,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         DashboardMarketTrendCard(game: game, palette: p),
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
 
         // 6. Günün Görevleri & Hedefler
         _buildSectionHeader(
@@ -332,9 +334,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           isDark: isDark,
           p: p,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         DashboardMissionsList(game: game, palette: p),
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
 
         // 7. VIP Aranan Araç Siparişleri (Sözleşmeler)
         DashboardWantedContractsSection(game: game, palette: p),

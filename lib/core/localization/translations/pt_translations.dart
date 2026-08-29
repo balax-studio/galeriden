@@ -3124,5 +3124,11 @@ const Map<String, String> ptTranslations = {
     'stock_sector_tech': 'Tecnologia & Software',
     'stock_sector_energy': 'Energia & Combustíveis',
     'stocks_live_badge': 'BOLSA AO VIVO',
+    'stamp_expert_approved': 'LAUDO APROVADO',
+    'stamp_accident_free': 'SEM SINISTRO',
+    'stamp_deal_opportunity': 'OPORTUNIDADE',
+    'stamp_urgent_sale': 'VENDA URGENTE',
+    'stamp_rare_collector': 'COLECIONADOR',
+    'trend_7d_profit': 'Tendência 7D de Lucro',
 };
 

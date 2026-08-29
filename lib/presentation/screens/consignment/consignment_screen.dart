@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 
@@ -116,10 +117,12 @@ class ConsignmentScreen extends ConsumerWidget {
           fontSize: 9.5,
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.dealership,
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          physics: const BouncingScrollPhysics(),
+          children: [
           // 1. Explanatory Banner with Branch Tier & Parking Fee Highlights
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
@@ -280,7 +283,8 @@ class ConsignmentScreen extends ConsumerWidget {
                 .map((car) => _buildOfferCard(context, ref, car, isDark)),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildActiveConsignmentCard(

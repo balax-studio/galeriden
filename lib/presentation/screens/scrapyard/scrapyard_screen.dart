@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/pneumatic_nut_particle_widget.dart';
 import '../../widgets/hydraulic_crush_wave_widget.dart';
@@ -1014,9 +1015,11 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
+      body: NeoBrutalPageBackground(
+        watermark: ThematicWatermarkType.scrapyard,
+        child: TabBarView(
+          controller: _tabController,
+          children: [
           // ==================== TAB 1: PERT HURDA ARAÇLAR ====================
           Builder(
             builder: (context) {
@@ -2095,6 +2098,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                 ),
         ],
       ),
-    );
+    ),
+  );
   }
 }

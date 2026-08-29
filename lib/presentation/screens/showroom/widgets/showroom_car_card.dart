@@ -9,6 +9,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/dealership_model.dart';
+import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/visitor_queue_engine.dart';
 import '../../../providers/game_provider.dart';
@@ -97,9 +98,18 @@ class ShowroomCarCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    NeoBrutalBadge(
-                      text: car.bodyType,
-                      fontSize: 9.5,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_buildContextualStampBadge(context) != null) ...[
+                          _buildContextualStampBadge(context)!,
+                          const SizedBox(width: 6),
+                        ],
+                        NeoBrutalBadge(
+                          text: car.bodyType,
+                          fontSize: 9.5,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -1115,5 +1125,74 @@ class ShowroomCarCard extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget? _buildContextualStampBadge(BuildContext context) {
+    if (car.isRare) {
+      return NeoBrutalBadge(
+        text: context.tr('stamp_rare_collector'),
+        backgroundColor: const Color(0xFFA855F7),
+        textColor: Colors.white,
+        borderColor: const Color(0xFF0F172A),
+        borderWidth: 1.6,
+        borderRadius: 4.0,
+        fontSize: 8.5,
+        fontWeight: FontWeight.w900,
+        angle: -0.06,
+        showHardShadow: true,
+        shadowOffset: const Offset(1.5, 1.5),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      );
+    }
+    if (car.expertise.engineCondition >= 90 && car.expertise.transmissionCondition >= 90) {
+      return NeoBrutalBadge(
+        text: context.tr('stamp_expert_approved'),
+        backgroundColor: const Color(0xFF10B981),
+        textColor: Colors.black,
+        borderColor: const Color(0xFF0F172A),
+        borderWidth: 1.6,
+        borderRadius: 4.0,
+        fontSize: 8.5,
+        fontWeight: FontWeight.w900,
+        angle: 0.05,
+        showHardShadow: true,
+        shadowOffset: const Offset(1.5, 1.5),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      );
+    }
+    if (car.expertise.tramerAmount == 0 &&
+        !car.expertise.bodyParts.values.any((s) => s != PartStatus.original)) {
+      return NeoBrutalBadge(
+        text: context.tr('stamp_accident_free'),
+        backgroundColor: const Color(0xFF0EA5E9),
+        textColor: Colors.black,
+        borderColor: const Color(0xFF0F172A),
+        borderWidth: 1.6,
+        borderRadius: 4.0,
+        fontSize: 8.5,
+        fontWeight: FontWeight.w900,
+        angle: -0.05,
+        showHardShadow: true,
+        shadowOffset: const Offset(1.5, 1.5),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      );
+    }
+    if (car.isStaleListing) {
+      return NeoBrutalBadge(
+        text: context.tr('stamp_urgent_sale'),
+        backgroundColor: const Color(0xFFEF4444),
+        textColor: Colors.white,
+        borderColor: const Color(0xFF0F172A),
+        borderWidth: 1.6,
+        borderRadius: 4.0,
+        fontSize: 8.5,
+        fontWeight: FontWeight.w900,
+        angle: 0.06,
+        showHardShadow: true,
+        shadowOffset: const Offset(1.5, 1.5),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      );
+    }
+    return null;
   }
 }
