@@ -26,9 +26,9 @@ class GameConstants {
   static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=com.balax.galeriden';
   static const String appStoreUrl =
-      'https://apps.apple.com/app/id6742468307?action=write-review';
+      'https://apps.apple.com/app/id6802756838?action=write-review';
   static const String appStoreWebUrl =
-      'https://apps.apple.com/app/galeriden/id6742468307';
+      'https://apps.apple.com/app/galeriden/id6802756838';
 
   /// Returns the platform-specific store URL for rating & reviews.
   static String get storeReviewUrl {

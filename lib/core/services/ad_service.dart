@@ -99,8 +99,12 @@ class AdService {
             }
           } catch (attError) {
             debugPrint('[AdService] ATT request error: $attError');
+          } finally {
+            loadRewardedAd();
           }
         });
+      } else {
+        loadRewardedAd();
       }
     } catch (e) {
       debugPrint('[AdService] MobileAds initialization failed or not supported on this platform: $e');
@@ -169,12 +173,15 @@ class AdService {
         ad.dispose();
         _rewardedAd = null;
         _rewardedAdLoadedAt = null;
+        // Preload next rewarded ad immediately for continuous seamless experience
+        loadRewardedAd();
       },
       onAdFailedToShowFullScreenContent: (ad, AdError error) {
         debugPrint('[AdService] Rewarded ad failed to show: ${error.message}');
         ad.dispose();
         _rewardedAd = null;
         _rewardedAdLoadedAt = null;
+        loadRewardedAd();
       },
     );
   }

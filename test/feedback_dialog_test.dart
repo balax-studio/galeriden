@@ -58,7 +58,6 @@ void main() {
       expect(find.text('Oyun Dengesi & Ekonomi'), findsOneWidget);
       expect(find.text('Genel Öneri & Fikir'), findsOneWidget);
       expect(find.text('BİLDİRİMİ GÖNDER'), findsOneWidget);
-      expect(find.text('E-POSTA UYGULAMASIYLA GÖNDER'), findsOneWidget);
       expect(find.text('VAZGEÇ'), findsOneWidget);
 
       notifier.stopPeriodicOrganicOfferTimer();

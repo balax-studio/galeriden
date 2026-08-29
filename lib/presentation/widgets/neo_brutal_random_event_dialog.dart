@@ -130,7 +130,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      event.title,
+                      _resolveEventText(context, event.title),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -158,7 +158,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  event.description,
+                  _resolveEventText(context, event.description),
                   style: TextStyle(
                     fontSize: 13,
                     height: 1.4,
@@ -205,9 +205,10 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                         GameSoundHapticService.playWarningVibration();
                       }
 
+                      final resolvedResult = _resolveEventText(context, choice.resultText);
                       NotificationService.showSuccess(
                         context,
-                        '${choice.resultText}\n'
+                        '${resolvedResult.isNotEmpty ? "$resolvedResult\n" : ""}'
                         '${choice.balanceChange != 0 ? (choice.balanceChange > 0 ? "+${CurrencyFormatter.formatShort(choice.balanceChange)}" : CurrencyFormatter.formatShort(choice.balanceChange)) : ""} '
                         '${choice.reputationChange != 0 ? "• ${choice.reputationChange > 0 ? "+" : ""}${context.tr('label_reputation_delta', {
                                 'val': choice.reputationChange
@@ -250,7 +251,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  choice.label,
+                                  _resolveEventText(context, choice.label),
                                   style: TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w900,
@@ -262,7 +263,7 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
                                 if (choice.resultText.isNotEmpty) ...[
                                   const SizedBox(height: 2),
                                   Text(
-                                    choice.resultText,
+                                    _resolveEventText(context, choice.resultText),
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       color: isDark
@@ -287,5 +288,13 @@ class NeoBrutalRandomEventDialog extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _resolveEventText(BuildContext context, String text) {
+    if (text.isEmpty) return text;
+    if (text.startsWith('event_')) {
+      return context.tr(text);
+    }
+    return text;
   }
 }

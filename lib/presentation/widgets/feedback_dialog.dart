@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/game_constants.dart';
 import '../../core/theme/app_colors.dart';
@@ -58,7 +57,7 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     super.dispose();
   }
 
-  Future<bool> _dispatchToEmailEndpoint({
+  Future<void> _dispatchToEmailEndpoint({
     required String category,
     required String title,
     required String message,
@@ -66,10 +65,11 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     required int level,
     required int day,
   }) async {
-    if (kIsWeb) return false;
-    final client = HttpClient();
-    client.connectionTimeout = const Duration(seconds: 10);
+    if (kIsWeb) return;
+    HttpClient? client;
     try {
+      client = HttpClient();
+      client.connectionTimeout = const Duration(seconds: 8);
       final request = await client.postUrl(
         Uri.parse(
             'https://formsubmit.co/ajax/${FeedbackDialog.developerEmail}'),
@@ -97,86 +97,12 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
 
       request.write(payload);
       final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final decoded = jsonDecode(responseBody);
-        if (decoded is Map &&
-            (decoded['success'] == 'true' || decoded['success'] == true)) {
-          return true;
-        }
-      }
-      return false;
+      await response.drain();
     } catch (_) {
-      return false;
+      // Background dispatch errors are handled silently because the feedback
+      // is already stored in the local queue
     } finally {
-      client.close(force: true);
-    }
-  }
-
-  Future<void> _sendViaMailApp() async {
-    final title = _titleController.text.trim();
-    final message = _messageController.text.trim();
-
-    if (title.isEmpty || message.isEmpty) {
-      NotificationService.showWarning(
-          context, context.tr('feedback_fill_required'));
-      return;
-    }
-
-    final game = ref.read(gameProvider);
-    final subject =
-        'Galeriden Tycoon Geri Bildirim • ${context.tr(_selectedCategory.labelKey)} • $title';
-    final body = '''Kategori: ${context.tr(_selectedCategory.labelKey)}
-Konu: $title
-
-Mesaj:
-$message
-
-----------------------------------------
-Sistem Teşhis Bilgileri:
-Oyun Sürümü: v${GameConstants.appVersion}
-Oyuncu Seviyesi: ${game.level}
-Oyun Günü: ${game.currentDay}
-Zaman: ${DateTime.now().toLocal()}''';
-
-    final emailUri = Uri(
-      scheme: 'mailto',
-      path: FeedbackDialog.developerEmail,
-      queryParameters: {
-        'subject': subject,
-        'body': body,
-      },
-    );
-
-    try {
-      final launched =
-          await launchUrl(emailUri, mode: LaunchMode.externalApplication);
-      if (!launched) {
-        final fallbackUri = Uri.parse(
-          'mailto:${FeedbackDialog.developerEmail}?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}',
-        );
-        await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
-      }
-      final prefs = await SharedPreferences.getInstance();
-      final todayStr = DateTime.now().toIso8601String().split('T').first;
-      final lastRewardedDate = prefs.getString('last_feedback_xp_date');
-      if (lastRewardedDate != todayStr) {
-        await prefs.setString('last_feedback_xp_date', todayStr);
-        ref.read(gameProvider.notifier).addXP(15);
-      }
-      if (mounted) {
-        Navigator.of(context).pop();
-        NotificationService.showSuccess(
-          context,
-          context.tr('feedback_mail_opened'),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        NotificationService.showError(
-            context, context.tr('feedback_error_occurred'));
-      }
+      client?.close(force: true);
     }
   }
 
@@ -213,8 +139,8 @@ Zaman: ${DateTime.now().toLocal()}''';
       existingQueue.add(jsonEncode(feedbackEntry));
       await prefs.setStringList('in_app_feedback_queue', existingQueue);
 
-      // 2. Dispatch to endpoint with valid headers
-      final isSent = await _dispatchToEmailEndpoint(
+      // 2. Dispatch silently in background
+      _dispatchToEmailEndpoint(
         category: categoryName,
         title: title,
         message: message,
@@ -223,32 +149,20 @@ Zaman: ${DateTime.now().toLocal()}''';
         day: game.currentDay,
       );
 
-      if (isSent) {
-        // 3. Thank-you reward for contributing (max once per day)
-        final todayStr = DateTime.now().toIso8601String().split('T').first;
-        final lastRewardedDate = prefs.getString('last_feedback_xp_date');
-        if (lastRewardedDate != todayStr) {
-          await prefs.setString('last_feedback_xp_date', todayStr);
-          ref.read(gameProvider.notifier).addXP(15);
-        }
+      // 3. Thank-you reward for contributing (max once per day)
+      final todayStr = DateTime.now().toIso8601String().split('T').first;
+      final lastRewardedDate = prefs.getString('last_feedback_xp_date');
+      if (lastRewardedDate != todayStr) {
+        await prefs.setString('last_feedback_xp_date', todayStr);
+        ref.read(gameProvider.notifier).addXP(15);
+      }
 
-        if (mounted) {
-          Navigator.of(context).pop();
-          NotificationService.showSuccess(
-            context,
-            context.tr('feedback_sent_success'),
-          );
-        }
-      } else {
-        // FormSubmit not activated yet or offline fallback
-        if (mounted) {
-          setState(() => _isSubmitting = false);
-          NotificationService.showInfo(
-            context,
-            context.tr('feedback_fallback_notice'),
-          );
-          await _sendViaMailApp();
-        }
+      if (mounted) {
+        Navigator.of(context).pop();
+        NotificationService.showSuccess(
+          context,
+          context.tr('feedback_sent_success'),
+        );
       }
     } catch (_) {
       if (mounted) {
@@ -565,21 +479,6 @@ Zaman: ${DateTime.now().toLocal()}''';
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                NeoBrutalButton(
-                  label: context.tr('feedback_btn_email'),
-                  icon: Icons.mail_outline_rounded,
-                  backgroundColor: isDark
-                      ? const Color(0xFF1E2330)
-                      : const Color(0xFFF1F5F9),
-                  textColor: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF475569),
-                  fontSize: 10.5,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  fullWidth: true,
-                  onPressed: _isSubmitting ? null : _sendViaMailApp,
                 ),
               ],
             ),
