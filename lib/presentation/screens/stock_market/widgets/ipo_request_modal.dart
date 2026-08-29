@@ -23,25 +23,29 @@ class IpoRequestModal {
             final int requestedLots = int.tryParse(lotCtrl.text) ?? 0;
             final double totalCost = requestedLots * ipo.lotPrice;
 
-            return Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(dialogCtx).viewInsets.bottom),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
-                  border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF333B4F)
-                          : const Color(0xFF0F172A),
-                      width: 2.5),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+            return SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(dialogCtx).viewInsets.bottom),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF141721) : Colors.white,
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
+                        width: 2.5),
+                  ),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                     Text(
                         context.tr(
                             'stock_ipo_demand_title', {'symbol': ipo.symbol}),
@@ -119,10 +123,12 @@ class IpoRequestModal {
                   ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
-    ).then((_) => lotCtrl.dispose());
-  }
+    );
+  },
+).then((_) => lotCtrl.dispose());
+}
 }

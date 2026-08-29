@@ -43,11 +43,12 @@ class DashboardRetentionModals {
           borderColor: const Color(0xFF00E575),
           borderRadius: 12,
           borderWidth: 2.5,
-          shadowOffset: const Offset(4, 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Row(
                 children: [
                   Container(
@@ -143,8 +144,9 @@ class DashboardRetentionModals {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   /// Exit Hook Dialog with Peak-End Rule & Open Loops (§1.5 & §2.1)
   static void showExitHookDialog(BuildContext context, DealershipModel game) {
@@ -176,11 +178,12 @@ class DashboardRetentionModals {
               isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 12,
           borderWidth: 2.5,
-          shadowOffset: const Offset(4, 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Text(
                 openLoops['title'] as String? ?? 'DÖNÜŞÜNÜ BEKLEYENLER',
                 style: TextStyle(
@@ -237,8 +240,9 @@ class DashboardRetentionModals {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   /// Reciprocity Starter Welcome Gift Dialog (§4.3)
   static void showReciprocityStarterGiftModal(
@@ -504,12 +508,20 @@ class DashboardRetentionModals {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        return SafeArea(
+          top: false,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(ctx).height * 0.90,
+            ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -753,8 +765,11 @@ class DashboardRetentionModals {
               }),
             ],
           ),
-        );
-      },
+        ),
+      ),
+    ),
+  );
+},
     );
   }
 
@@ -778,12 +793,20 @@ class DashboardRetentionModals {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        return SafeArea(
+          top: false,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(ctx).height * 0.90,
+            ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -899,8 +922,11 @@ class DashboardRetentionModals {
                   isDark),
             ],
           ),
-        );
-      },
+        ),
+      ),
+    ),
+  );
+},
     );
   }
 

@@ -76,20 +76,27 @@ class CarCostBreakdownSheet extends StatelessWidget {
     final netProfit = targetPrice - totalCost;
     final roiPercent = totalCost > 0 ? (netProfit / totalCost) * 100 : 0.0;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: Border.all(
-          color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-          width: 2.5,
+    return SafeArea(
+      top: false,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.90,
         ),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          border: Border.all(
+            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            width: 2.5,
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
           // Drag handle
           Center(
             child: Container(
@@ -235,25 +242,24 @@ class CarCostBreakdownSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          SafeArea(
-            top: false,
-            child: NeoBrutalButton(
-              label: context.tr('ok_button'),
-              icon: Icons.check_rounded,
-              fullWidth: true,
-              minHeight: 48.0,
-              backgroundColor: const Color(0xFFFFDE59),
-              textColor: Colors.black,
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.of(context).pop();
-              },
-            ),
+          NeoBrutalButton(
+            label: context.tr('ok_button'),
+            icon: Icons.check_rounded,
+            fullWidth: true,
+            minHeight: 48.0,
+            backgroundColor: const Color(0xFFFFDE59),
+            textColor: Colors.black,
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Navigator.of(context).pop();
+            },
           ),
         ],
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   Widget _buildCostRow(String title, double amount, bool isDark,
       {bool isBold = false, bool isHighlight = false, bool isSubItem = false}) {

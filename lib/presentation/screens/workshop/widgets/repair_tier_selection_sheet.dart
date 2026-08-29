@@ -62,12 +62,16 @@ class RepairTierSelectionSheet extends StatelessWidget {
                     ? context.tr('repair_tier_chassis_title')
                     : context.tr('repair_tier_body_title'))));
 
-    return Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -116,8 +120,10 @@ class RepairTierSelectionSheet extends StatelessWidget {
           const SizedBox(height: 10),
         ],
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   Widget _buildTierOption({
     required String title,

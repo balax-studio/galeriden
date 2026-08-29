@@ -31,27 +31,31 @@ class ForexTradeModal {
             final double maxBuyable = (game.balance / forex.buyRate);
             final double currentOwned = owned?.amount ?? 0.0;
 
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(dialogCtx).viewInsets.bottom,
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF141721) : Colors.white,
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
-                  border: Border.all(
-                    color: isDark
-                        ? const Color(0xFF333B4F)
-                        : const Color(0xFF0F172A),
-                    width: 2.5,
-                  ),
+            return SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(dialogCtx).viewInsets.bottom,
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF141721) : Colors.white,
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
+                      width: 2.5,
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -295,12 +299,14 @@ class ForexTradeModal {
                   ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
-    ).then((_) => amountController.dispose());
-  }
+    );
+  },
+).then((_) => amountController.dispose());
+}
 
   static Widget _buildQuickChip(String label, VoidCallback onTap, bool isDark) {
     return Expanded(

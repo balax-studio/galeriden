@@ -431,74 +431,93 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Row(
-                                            children: [
-                                              NeoBrutalBadge(
-                                                text: persona
-                                                    .getLocalizedBadge(lang),
-                                                backgroundColor: persona.color
-                                                    .withValues(alpha: 0.2),
-                                                textColor: isDark
-                                                    ? Colors.white
-                                                    : const Color(0xFF0F172A),
-                                                borderColor: persona.color,
-                                                fontSize: 9.5,
-                                              ),
-                                              const SizedBox(width: 6),
-                                              NeoBrutalBadge(
-                                                text: car.bodyType,
-                                                backgroundColor: p
-                                                    .secondaryColor
-                                                    .withValues(alpha: 0.2),
-                                                textColor: isDark
-                                                    ? p.secondaryColor
-                                                    : const Color(0xFF0F172A),
-                                                borderColor: p.secondaryColor,
-                                                fontSize: 9.5,
-                                              ),
-                                              if (car.isBarnFind) ...[
-                                                const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Wrap(
+                                              spacing: 6,
+                                              runSpacing: 4,
+                                              crossAxisAlignment:
+                                                  WrapCrossAlignment.center,
+                                              children: [
                                                 NeoBrutalBadge(
-                                                  text: context
-                                                      .tr('badge_barn_find'),
+                                                  text: persona
+                                                      .getLocalizedBadge(lang),
                                                   backgroundColor:
-                                                      const Color(0xFFD97706),
-                                                  textColor: Colors.white,
+                                                      persona.color.withValues(
+                                                          alpha: 0.2),
+                                                  textColor: isDark
+                                                      ? Colors.white
+                                                      : const Color(
+                                                          0xFF0F172A),
+                                                  borderColor: persona.color,
                                                   fontSize: 9.5,
                                                 ),
-                                              ] else if (car.isRare) ...[
-                                                const SizedBox(width: 6),
                                                 NeoBrutalBadge(
-                                                  text:
-                                                      context.tr('badge_rare'),
-                                                  backgroundColor:
-                                                      const Color(0xFFA855F7),
-                                                  textColor: Colors.white,
+                                                  text: car.bodyType,
+                                                  backgroundColor: p
+                                                      .secondaryColor
+                                                      .withValues(alpha: 0.2),
+                                                  textColor: isDark
+                                                      ? p.secondaryColor
+                                                      : const Color(
+                                                          0xFF0F172A),
+                                                  borderColor:
+                                                      p.secondaryColor,
                                                   fontSize: 9.5,
+                                                ),
+                                                if (car.isBarnFind)
+                                                  NeoBrutalBadge(
+                                                    text: context
+                                                        .tr('badge_barn_find'),
+                                                    backgroundColor:
+                                                        const Color(
+                                                            0xFFD97706),
+                                                    textColor: Colors.white,
+                                                    fontSize: 9.5,
+                                                  )
+                                                else if (car.isRare)
+                                                  NeoBrutalBadge(
+                                                    text: context
+                                                        .tr('badge_rare'),
+                                                    backgroundColor:
+                                                        const Color(
+                                                            0xFFA855F7),
+                                                    textColor: Colors.white,
+                                                    fontSize: 9.5,
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 2),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const PulsingDot(
+                                                  color: Color(0xFF00E575),
+                                                  size: 6.5,
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  context.tr('viewers_count',
+                                                      {'count': viewerCount}),
+                                                  style: TextStyle(
+                                                    fontSize: 10.5,
+                                                    fontWeight:
+                                                        FontWeight.w700,
+                                                    color: isDark
+                                                        ? const Color(
+                                                            0xFF94A3B8)
+                                                        : const Color(
+                                                            0xFF64748B),
+                                                  ),
                                                 ),
                                               ],
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              const PulsingDot(
-                                                color: Color(0xFF00E575),
-                                                size: 6.5,
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                context.tr('viewers_count',
-                                                    {'count': viewerCount}),
-                                                style: TextStyle(
-                                                  fontSize: 10.5,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: isDark
-                                                      ? const Color(0xFF94A3B8)
-                                                      : const Color(0xFF64748B),
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -702,98 +721,110 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                                       : const Color(0xFF64748B),
                                                 ),
                                               ),
-                                              AnimatedRollingCounter(
-                                                value: item.askingPrice,
-                                                style: TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w900,
-                                                  color: isDark
-                                                      ? const Color(0xFF00E575)
-                                                      : const Color(0xFF15803D),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              NeoBrutalButton(
-                                                label: context
-                                                    .tr('sms_tramer_btn'),
-                                                icon: Icons.sms_outlined,
-                                                backgroundColor: isDark
-                                                    ? const Color(0xFF1E2330)
-                                                    : const Color(0xFFE2E8F0),
-                                                textColor:
-                                                    const Color(0xFF38BDF8),
-                                                fontSize: 10,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 7),
-                                                onPressed: () {
-                                                  HapticFeedback.lightImpact();
-                                                  ref
-                                                      .read(
-                                                          gameProvider.notifier)
-                                                      .checkAndAwardFirstTimeAction(
-                                                          FirstTimeActionKeys
-                                                              .firstSmsInquiry);
-                                                  ref
-                                                      .read(
-                                                          gameProvider.notifier)
-                                                      .updateMissionProgress(
-                                                          MissionType
-                                                              .smsInquiry,
-                                                          1);
-                                                  SmsTramerSheet.show(
-                                                      context, item);
-                                                },
-                                              ),
-                                              const SizedBox(width: 6),
-                                              NeoBrutalButton(
-                                                label: item.isExpertiseCompleted
-                                                    ? context.tr('report_btn')
-                                                    : context
-                                                        .tr('expertise_btn'),
-                                                icon: Icons.assignment_outlined,
-                                                backgroundColor: isDark
-                                                    ? const Color(0xFF1E2330)
-                                                    : const Color(0xFFE2E8F0),
-                                                textColor: isDark
-                                                    ? Colors.white
-                                                    : const Color(0xFF0F172A),
-                                                fontSize: 10,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 7),
-                                                onPressed: () {
-                                                  context.push('/expertise',
-                                                      extra: item);
-                                                },
-                                              ),
-                                              const SizedBox(width: 6),
-                                              NeoBrutalButton(
-                                                label:
-                                                    context.tr('negotiate_btn'),
-                                                icon: Icons.handshake_rounded,
-                                                backgroundColor:
-                                                    const Color(0xFFFFDE59),
-                                                textColor: Colors.black,
-                                                fontSize: 10.5,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 7),
-                                                onPressed: () {
-                                                  context.push('/negotiation',
-                                                      extra: item);
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                               AnimatedRollingCounter(
+                                                 value: item.askingPrice,
+                                                 style: TextStyle(
+                                                   fontSize: 16,
+                                                   fontWeight: FontWeight.w900,
+                                                   color: isDark
+                                                       ? const Color(0xFF00E575)
+                                                       : const Color(0xFF15803D),
+                                                 ),
+                                               ),
+                                             ],
+                                           ),
+                                         ],
+                                       ),
+                                       const SizedBox(height: 10),
+
+                                       // Action Buttons Row (Proportionally Distributed)
+                                       Row(
+                                         children: [
+                                           Expanded(
+                                             flex: 3,
+                                             child: NeoBrutalButton(
+                                               label: context
+                                                   .tr('sms_tramer_btn'),
+                                               icon: Icons.sms_outlined,
+                                               backgroundColor: isDark
+                                                   ? const Color(0xFF1E2330)
+                                                   : const Color(0xFFE2E8F0),
+                                               textColor:
+                                                   const Color(0xFF38BDF8),
+                                               fontSize: 10.5,
+                                               padding:
+                                                   const EdgeInsets.symmetric(
+                                                       horizontal: 4,
+                                                       vertical: 8),
+                                               onPressed: () {
+                                                 HapticFeedback.lightImpact();
+                                                 ref
+                                                     .read(
+                                                         gameProvider.notifier)
+                                                     .checkAndAwardFirstTimeAction(
+                                                         FirstTimeActionKeys
+                                                             .firstSmsInquiry);
+                                                 ref
+                                                     .read(
+                                                         gameProvider.notifier)
+                                                     .updateMissionProgress(
+                                                         MissionType
+                                                             .smsInquiry,
+                                                         1);
+                                                 SmsTramerSheet.show(
+                                                     context, item);
+                                               },
+                                             ),
+                                           ),
+                                           const SizedBox(width: 6),
+                                           Expanded(
+                                             flex: 4,
+                                             child: NeoBrutalButton(
+                                               label: item.isExpertiseCompleted
+                                                   ? context.tr('report_btn')
+                                                   : context
+                                                       .tr('expertise_btn'),
+                                               icon: Icons.assignment_outlined,
+                                               backgroundColor: isDark
+                                                   ? const Color(0xFF1E2330)
+                                                   : const Color(0xFFE2E8F0),
+                                               textColor: isDark
+                                                   ? Colors.white
+                                                   : const Color(0xFF0F172A),
+                                               fontSize: 10.5,
+                                               padding:
+                                                   const EdgeInsets.symmetric(
+                                                       horizontal: 4,
+                                                       vertical: 8),
+                                               onPressed: () {
+                                                 context.push('/expertise',
+                                                     extra: item);
+                                               },
+                                             ),
+                                           ),
+                                           const SizedBox(width: 6),
+                                           Expanded(
+                                             flex: 4,
+                                             child: NeoBrutalButton(
+                                               label:
+                                                   context.tr('negotiate_btn'),
+                                               icon: Icons.handshake_rounded,
+                                               backgroundColor:
+                                                   const Color(0xFFFFDE59),
+                                               textColor: Colors.black,
+                                               fontSize: 11,
+                                               padding:
+                                                   const EdgeInsets.symmetric(
+                                                       horizontal: 4,
+                                                       vertical: 8),
+                                               onPressed: () {
+                                                 context.push('/negotiation',
+                                                     extra: item);
+                                               },
+                                             ),
+                                           ),
+                                         ],
+                                       ),
                                     ],
                                   ),
                                 ),

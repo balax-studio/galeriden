@@ -62,85 +62,93 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
         game.streakCycleCount,
         langCode: langCode);
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF10131B) : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border.all(color: Colors.black, width: 3.0),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Drag Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white24 : Colors.black26,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+    return SafeArea(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.90,
+        ),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF10131B) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: Colors.black, width: 3.0),
           ),
-          const SizedBox(height: 12),
-
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      seasonTitle,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                        color: AppColors.brutalYellow,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Drag Handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.black26,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    Text(
-                      context.tr('streak_cycle_day', {
-                        'cycle': game.streakCycleCount + 1,
-                        'day': currentStreakDay,
-                      }),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            seasonTitle,
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.3,
+                              color: AppColors.brutalYellow,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            context.tr('streak_cycle_day', {
+                              'cycle': game.streakCycleCount + 1,
+                              'day': currentStreakDay,
+                            }),
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    NeoBrutalBadge(
+                      text: canClaim
+                          ? context.tr('streak_ready_badge')
+                          : context.tr('streak_come_back'),
+                      icon: canClaim
+                          ? Icons.check_circle_rounded
+                          : Icons.lock_clock_rounded,
+                      backgroundColor: canClaim
+                          ? AppColors.brutalGreen
+                          : (isDark
+                              ? const Color(0xFF242C3D)
+                              : const Color(0xFFE2E8F0)),
+                      textColor: canClaim
+                          ? Colors.black
+                          : (isDark ? Colors.white70 : Colors.black87),
+                      fontSize: 10,
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              NeoBrutalBadge(
-                text: canClaim
-                    ? context.tr('streak_ready_badge')
-                    : context.tr('streak_come_back'),
-                icon: canClaim
-                    ? Icons.check_circle_rounded
-                    : Icons.lock_clock_rounded,
-                backgroundColor: canClaim
-                    ? AppColors.brutalGreen
-                    : (isDark
-                        ? const Color(0xFF242C3D)
-                        : const Color(0xFFE2E8F0)),
-                textColor: canClaim
-                    ? Colors.black
-                    : (isDark ? Colors.white70 : Colors.black87),
-                fontSize: 10.5,
-              ),
-            ],
-          ),
           const SizedBox(height: 8),
 
           // Season description card
@@ -375,10 +383,10 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
 
           // Streak Rescue / Freeze Banner
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E2433) : const Color(0xFFEFF6FF),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: game.hasStreakFreeze
                     ? const Color(0xFF38BDF8)
@@ -386,65 +394,73 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                 width: 1.5,
               ),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  game.hasStreakFreeze
-                      ? Icons.shield_rounded
-                      : Icons.security_rounded,
-                  size: 20,
-                  color: game.hasStreakFreeze
-                      ? const Color(0xFF38BDF8)
-                      : const Color(0xFFF59E0B),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+                Row(
+                  children: [
+                    Icon(
+                      game.hasStreakFreeze
+                          ? Icons.shield_rounded
+                          : Icons.security_rounded,
+                      size: 18,
+                      color: game.hasStreakFreeze
+                          ? const Color(0xFF38BDF8)
+                          : const Color(0xFFF59E0B),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
                         context.tr('streak_rescue_banner_title'),
                         style: const TextStyle(
-                          fontSize: 10.5,
+                          fontSize: 11,
                           fontWeight: FontWeight.w900,
+                          letterSpacing: 0.3,
                         ),
                       ),
-                      Text(
-                        context.tr('streak_rescue_banner_desc'),
-                        style: TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF64748B),
-                        ),
+                    ),
+                    if (game.hasStreakFreeze)
+                      NeoBrutalBadge(
+                        text: context.tr('streak_rescue_active_badge'),
+                        icon: Icons.check_circle_rounded,
+                        backgroundColor: const Color(0xFF38BDF8),
+                        textColor: Colors.black,
+                        fontSize: 9.5,
                       ),
-                    ],
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  context.tr('streak_rescue_banner_desc'),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                   ),
                 ),
-                const SizedBox(width: 8),
-                if (game.hasStreakFreeze)
-                  NeoBrutalBadge(
-                    text: context.tr('streak_rescue_active_badge'),
-                    icon: Icons.check_circle_rounded,
-                    backgroundColor: const Color(0xFF38BDF8),
-                    textColor: Colors.black,
-                    fontSize: 9,
-                  )
-                else
+                if (!game.hasStreakFreeze) ...[
+                  const SizedBox(height: 10),
                   NeoBrutalButton(
                     label: context.tr('streak_rescue_btn'),
                     icon: Icons.shield_rounded,
                     backgroundColor: const Color(0xFFF59E0B),
                     textColor: Colors.black,
-                    fontSize: 10,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    fontSize: 11,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 8),
                     onPressed: () {
                       AdService.instance.showRewardedAdWithFallback(
                         context: context,
-                        customRewardTitle: context.tr('streak_rescue_banner_title'),
+                        customRewardTitle:
+                            context.tr('streak_rescue_banner_title'),
                         onRewardEarned: () {
-                          ref.read(gameProvider.notifier).activateStreakRescue();
+                          ref
+                              .read(gameProvider.notifier)
+                              .activateStreakRescue();
                           NotificationService.showSuccess(
                             context,
                             context.tr('toast_streak_rescued'),
@@ -454,6 +470,7 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
                       );
                     },
                   ),
+                ],
               ],
             ),
           ),
@@ -533,7 +550,10 @@ class _DailyLoginSheetState extends ConsumerState<DailyLoginSheet> {
               onPressed: null,
             ),
           ],
-        ],
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

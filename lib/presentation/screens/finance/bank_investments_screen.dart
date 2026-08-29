@@ -762,17 +762,21 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
             final totalRepayment = selectedAmount * (1.0 + baseInterestRate);
             final monthlyPayment = totalRepayment / selectedMonths;
 
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 18,
-                right: 18,
-                top: 20,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            return SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 18,
+                  right: 18,
+                  top: 20,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                ),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -963,8 +967,10 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ),
+        );
+      },
         );
       },
     );

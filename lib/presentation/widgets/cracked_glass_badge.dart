@@ -187,13 +187,17 @@ class _CrackedGlassBadgeState extends State<CrackedGlassBadge>
                 ),
               if (widget.showLabel) ...[
                 const SizedBox(width: 4.5),
-                Text(
-                  info.label,
-                  style: const TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 0.3,
+                Flexible(
+                  child: Text(
+                    info.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 0.3,
+                    ),
                   ),
                 ),
               ],

@@ -906,18 +906,25 @@ class CharacterGrowthScreen extends ConsumerWidget {
             final liveTrust = liveGame.getNpcRelation(id);
             final liveHasHighTrust = liveGame.hasHighNpcTrust(id);
 
-            return Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-                border: Border.all(color: Colors.black, width: 2.5),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            return SafeArea(
+              top: false,
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(ctx).height * 0.90,
+                ),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  border: Border.all(color: Colors.black, width: 2.5),
+                ),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                   Center(
                     child: Container(
                       width: 40,
@@ -1110,8 +1117,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                 ],
               ),
-            );
-          },
+            ),
+          ),
+        );
+      },
         );
       },
     );

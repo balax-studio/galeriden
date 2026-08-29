@@ -18,9 +18,12 @@ import 'package:galeriden/data/models/lucky_opportunity_model.dart';
 import 'package:galeriden/data/models/notary_event_model.dart';
 import 'package:galeriden/data/models/theme_palette_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
+import 'package:galeriden/presentation/providers/market_provider.dart';
 import 'package:galeriden/presentation/screens/dashboard/widgets/dashboard_quick_finance_card.dart';
 import 'package:galeriden/presentation/screens/dashboard/widgets/financial_health_card.dart';
+import 'package:galeriden/presentation/screens/marketplace/marketplace_screen.dart';
 import 'package:galeriden/presentation/widgets/dialogs/customer_follow_up_dialog.dart';
+import 'package:galeriden/presentation/widgets/dialogs/daily_login_sheet.dart';
 import 'package:galeriden/presentation/widgets/dialogs/lucky_opportunity_dialog.dart';
 import 'package:galeriden/presentation/widgets/dialogs/notary_transfer_dialog.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_badge.dart';
@@ -362,6 +365,61 @@ void main() {
           expect(map[key]!.contains(')'), isFalse, reason: 'Language $lang key $key contains illegal closing parenthesis');
         }
       }
+    });
+
+    testWidgets('10. DailyLoginSheet builds with SingleChildScrollView and properly stacked banner without overflow', (tester) async {
+      final container = ProviderContainer();
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.dispose();
+      });
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: _buildTestApp(
+            const DailyLoginSheet(),
+            screenSize: const Size(360, 600),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DailyLoginSheet), findsOneWidget);
+      expect(find.byType(SingleChildScrollView), findsWidgets);
+      expect(find.text('SERİ KORUMA VE KURTARMA KALKANI'), findsOneWidget);
+      expect(find.text('SERİYİ DONDUR VE KURTAR • REKLAM İZLE'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('11. MarketplaceScreen car card action bar renders cleanly without horizontal overflow in compact 360dp width and German locale', (tester) async {
+      final container = ProviderContainer();
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.read(marketProvider.notifier).onAppPaused();
+        container.dispose();
+      });
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+      container.read(marketProvider.notifier).onAppPaused();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: _buildTestApp(
+            const MarketplaceScreen(),
+            locale: const Locale('de'),
+            screenSize: const Size(360, 640),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byType(MarketplaceScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 500));
     });
   });
 }
