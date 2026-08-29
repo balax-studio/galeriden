@@ -516,7 +516,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         } else {
                           NotificationService.showInfo(
                             context,
-                            'Kilitli Özellik! Personel kadrosu ${DealershipModel.getRequiredBranchName('/staff')} satın alındığında açılır.',
+                            context.tr('cashflow_locked_feature_toast', {
+                              'branch': DealershipModel.getRequiredBranchName(
+                                  '/staff', context)
+                            }),
                           );
                         }
                       },
@@ -787,7 +790,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         } else {
                           NotificationService.showInfo(
                             context,
-                            'Kilitli Özellik! Tuning Stüdyosu ${DealershipModel.getRequiredBranchName('/tuning-studio')} satın alındığında açılır.',
+                            context.tr('cashflow_locked_feature_toast', {
+                              'branch': DealershipModel.getRequiredBranchName(
+                                  '/tuning-studio', context)
+                            }),
                           );
                         }
                       },

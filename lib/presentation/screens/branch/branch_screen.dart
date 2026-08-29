@@ -151,13 +151,12 @@ class BranchScreen extends ConsumerWidget {
                     if (game.isFeatureUnlocked('/showroom-decor')) {
                       context.push('/showroom-decor');
                     } else {
-                      final reqLvl =
-                          DealershipModel.getRequiredLevel('/showroom-decor');
                       final reqBranch = DealershipModel.getRequiredBranchName(
-                          '/showroom-decor');
+                          '/showroom-decor', context);
                       NotificationService.showInfo(
                         context,
-                        'Showroom dekorasyonu Seviye $reqLvl • $reqBranch gerektirir.',
+                        context.tr('cashflow_locked_feature_toast',
+                            {'branch': reqBranch}),
                       );
                     }
                   },
@@ -231,13 +230,13 @@ class BranchScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      b.name,
+                                      b.getLocalizedName(context),
                                       style: const TextStyle(
                                           fontSize: 14.5,
                                           fontWeight: FontWeight.w900),
                                     ),
                                     Text(
-                                      b.locationName,
+                                      b.getLocalizedLocation(context),
                                       style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
@@ -334,7 +333,7 @@ class BranchScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               context.tr('branch_unlocked_features',
-                                  {'summary': b.unlockedSummary}),
+                                  {'summary': b.getLocalizedSummary(context)}),
                               style: const TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w600,

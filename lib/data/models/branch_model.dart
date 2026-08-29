@@ -1,3 +1,6 @@
+import 'package:flutter/widgets.dart';
+import '../../core/localization/app_localizations.dart';
+
 class BranchModel {
   final String id;
   final String name;
@@ -28,6 +31,12 @@ class BranchModel {
     required this.deedCost,
     this.isDeedOwned = false,
   });
+
+  String getLocalizedName(BuildContext context) => context.tr('${id}_name');
+  String getLocalizedLocation(BuildContext context) =>
+      context.tr('${id}_location');
+  String getLocalizedSummary(BuildContext context) =>
+      context.tr('${id}_summary');
 
   static List<BranchModel> getAllBranches({
     int currentSlotCount = 3,

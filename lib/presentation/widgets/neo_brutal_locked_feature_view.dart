@@ -26,7 +26,7 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final reqLevel = DealershipModel.getRequiredLevel(route);
-    final reqBranch = DealershipModel.getRequiredBranchName(route);
+    final reqBranch = DealershipModel.getRequiredBranchName(route, context);
 
     return Center(
       child: SingleChildScrollView(

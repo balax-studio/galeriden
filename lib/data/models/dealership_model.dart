@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+import '../../core/localization/app_localizations.dart';
 import 'car_model.dart';
 import 'offer_model.dart';
 import 'loan_model.dart';
@@ -822,50 +824,49 @@ class DealershipModel {
     }
   }
 
-  static String getRequiredBranchName(String route) {
+  static String getRequiredBranchName(String route,
+      [BuildContext? context, String? langCode]) {
     final reqLvl = getRequiredLevel(route);
-    switch (reqLvl) {
-      case 1:
-        return 'Kaldırım Başı Ayakçı Galerisi • Seviye 1';
-      case 2:
-        return 'Mahalle Tipi Açık Oto Galeri • Seviye 2';
-      case 3:
-        return 'Sanayi Sitesi Esnaf Galerisi • Seviye 3';
-      case 4:
-        return 'Cadde Üstü Butik Oto Galeri • Seviye 4';
-      case 5:
-        return 'Oto Center Kurumsal Galeri • Seviye 5';
-      case 6:
-        return 'Premium Cam Showroom Plaza • Seviye 6';
-      case 7:
-        return 'Lüks Koleksiyoner VIP Galeri • Seviye 7';
-      case 8:
-        return 'Mega Otomotiv Holding Plazası • Seviye 8';
-      default:
-        return 'Kaldırım Başı Ayakçı Galerisi';
-    }
+    return getBranchNameForTier(reqLvl, context, langCode);
   }
 
-  static String getBranchNameForTier(int tier) {
+  static String getBranchNameForTier(int tier,
+      [BuildContext? context, String? langCode]) {
+    final safeTier = tier.clamp(1, 8);
+    if (context != null) {
+      return '${context.tr('branch_${safeTier}_name')} • ${context.tr('branch_tier_badge', {'tier': '$safeTier'})}';
+    }
+    final nameKey = 'branch_${safeTier}_name';
+    final name = AppLocalizations.getAllKeysFor(langCode ?? 'tr')[nameKey] ??
+        _defaultBranchName(safeTier);
+    final badgeKey = 'branch_tier_badge';
+    final badgePattern =
+        AppLocalizations.getAllKeysFor(langCode ?? 'tr')[badgeKey] ??
+            'Seviye {tier}';
+    final badge = badgePattern.replaceAll('{tier}', '$safeTier');
+    return '$name • $badge';
+  }
+
+  static String _defaultBranchName(int tier) {
     switch (tier) {
       case 1:
-        return 'Kaldırım Başı Ayakçı Galerisi • Seviye 1';
+        return 'Kaldırım Başı Ayakçı Galerisi';
       case 2:
-        return 'Mahalle Tipi Açık Oto Galeri • Seviye 2';
+        return 'Mahalle Tipi Açık Oto Galeri';
       case 3:
-        return 'Sanayi Sitesi Esnaf Galerisi • Seviye 3';
+        return 'Sanayi Sitesi Esnaf Galerisi';
       case 4:
-        return 'Cadde Üstü Butik Oto Galeri • Seviye 4';
+        return 'Cadde Üstü Butik Oto Galeri';
       case 5:
-        return 'Oto Center Kurumsal Galeri • Seviye 5';
+        return 'Oto Center Kurumsal Galeri';
       case 6:
-        return 'Premium Cam Showroom Plaza • Seviye 6';
+        return 'Premium Cam Showroom Plaza';
       case 7:
-        return 'Lüks Koleksiyoner VIP Galeri • Seviye 7';
+        return 'Lüks Koleksiyoner VIP Galeri';
       case 8:
-        return 'Mega Otomotiv Holding Plazası • Seviye 8';
+        return 'Mega Otomotiv Holding Plazası';
       default:
-        return 'Kaldırım Başı Ayakçı Galerisi • Seviye 1';
+        return 'Kaldırım Başı Ayakçı Galerisi';
     }
   }
 
@@ -880,7 +881,18 @@ class DealershipModel {
     return 1;
   }
 
-  String get currentBranchName => getBranchNameForTier(currentBranchTier);
+  String get currentBranchName =>
+      getBranchNameForTier(currentBranchTier);
+
+  String getLocalizedBranchName([BuildContext? context, String? langCode]) =>
+      getBranchNameForTier(currentBranchTier, context, langCode);
+
+  String getLocalizedDealershipName([BuildContext? context]) {
+    if (dealershipName == 'Miras Oto Galeri' && context != null) {
+      return context.tr('default_dealership_name');
+    }
+    return dealershipName;
+  }
 
   bool isFeatureUnlocked(String route) {
     if (route == '/gossip' || route == '/gossip-hotline') {

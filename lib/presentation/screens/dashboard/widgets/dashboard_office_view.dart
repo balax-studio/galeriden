@@ -639,7 +639,7 @@ class DashboardOfficeView extends ConsumerWidget {
                 ? context
                     .tr('staff_desc', {'count': '${game.hiredStaff.length}'})
                 : context.tr('office_locked_branch', {
-                    'branch': DealershipModel.getRequiredBranchName('/staff')
+                    'branch': DealershipModel.getRequiredBranchName('/staff', context)
                   }),
             actionLabel: game.isFeatureUnlocked('/staff')
                 ? context.tr('office_btn_manage')
@@ -660,7 +660,7 @@ class DashboardOfficeView extends ConsumerWidget {
                 ? context.tr(
                     'reviews_desc', {'count': '${game.customerReviews.length}'})
                 : context.tr('office_locked_branch', {
-                    'branch': DealershipModel.getRequiredBranchName('/reviews')
+                    'branch': DealershipModel.getRequiredBranchName('/reviews', context)
                   }),
             actionLabel: game.isFeatureUnlocked('/reviews')
                 ? context.tr('office_btn_inspect')
@@ -681,7 +681,7 @@ class DashboardOfficeView extends ConsumerWidget {
                 ? context.tr('sales_history_desc',
                     {'count': '${game.salesHistory.length}'})
                 : context.tr('office_locked_branch', {
-                    'branch': DealershipModel.getRequiredBranchName('/history')
+                    'branch': DealershipModel.getRequiredBranchName('/history', context)
                   }),
             actionLabel: game.isFeatureUnlocked('/history')
                 ? context.tr('office_btn_view')
@@ -889,7 +889,9 @@ class DashboardOfficeView extends ConsumerWidget {
               } else {
                 NotificationService.showInfo(
                   context,
-                  'Kilitli Alan! Bu özellik ${DealershipModel.getRequiredBranchName(route)} satın alındığında açılır. Şubeler ekranından inceleyebilirsin.',
+                  context.tr('cashflow_locked_feature_toast', {
+                    'branch': DealershipModel.getRequiredBranchName(route, context)
+                  }),
                 );
               }
             },

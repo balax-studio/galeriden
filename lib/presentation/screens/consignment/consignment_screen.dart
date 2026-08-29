@@ -198,7 +198,7 @@ class ConsignmentScreen extends ConsumerWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          game.currentBranchName,
+                          game.getLocalizedBranchName(context),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,

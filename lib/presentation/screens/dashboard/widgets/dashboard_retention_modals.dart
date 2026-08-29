@@ -531,7 +531,7 @@ class DashboardRetentionModals {
                           color: Color(0xFFFFDE59), size: 24),
                       const SizedBox(width: 8),
                       Text(
-                        'ŞEHİR GALERİCİLERİ SIRALAMASI',
+                        context.tr('rival_leaderboard_title'),
                         style: AppTypography.titleLarge(p.isDark),
                       ),
                     ],
@@ -544,7 +544,7 @@ class DashboardRetentionModals {
               ),
               const SizedBox(height: 4),
               Text(
-                'Bölgedeki 5 rakip galeriye karşı ciro, itibar ve satış performansın',
+                context.tr('rival_leaderboard_subtitle'),
                 style: AppTypography.labelSmall(p.isDark),
               ),
               const SizedBox(height: 12),
@@ -584,7 +584,7 @@ class DashboardRetentionModals {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        nearMissInfo.motivationMessage,
+                        nearMissInfo.getLocalizedMotivation(ctx),
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
@@ -707,7 +707,7 @@ class DashboardRetentionModals {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    item.name,
+                                    item.getLocalizedName(ctx),
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,
@@ -724,9 +724,9 @@ class DashboardRetentionModals {
                                 ),
                                 if (isPlayer) ...[
                                   const SizedBox(width: 6),
-                                  const NeoBrutalBadge(
-                                    text: 'SEN',
-                                    backgroundColor: Color(0xFFFFDE59),
+                                  NeoBrutalBadge(
+                                    text: ctx.tr('rival_badge_you'),
+                                    backgroundColor: const Color(0xFFFFDE59),
                                     textColor: Colors.black,
                                     fontSize: 8.5,
                                   ),
@@ -735,7 +735,7 @@ class DashboardRetentionModals {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${item.tagline.isNotEmpty ? "${item.tagline} • " : ""}${item.carsSold} Araç • İtibar: ${item.reputation}',
+                              '${item.getLocalizedTagline(ctx).isNotEmpty ? "${item.getLocalizedTagline(ctx)} • " : ""}${ctx.tr('rival_stat_cars_rep', {'cars': '${item.carsSold}', 'rep': '${item.reputation}'})}',
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 10,

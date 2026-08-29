@@ -32,6 +32,13 @@ class DistrictInfo {
     required this.minReputation,
     required this.accentColor,
   });
+
+  String getLocalizedName(BuildContext context) =>
+      context.tr('district_${key}_name');
+  String getLocalizedSegment(BuildContext context) =>
+      context.tr('district_${key}_segment');
+  String getLocalizedPerk(BuildContext context) =>
+      context.tr('district_${key}_perk');
 }
 
 const List<DistrictInfo> kDistricts = [
@@ -242,7 +249,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  district.name,
+                                  district.getLocalizedName(context),
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w900,
@@ -256,7 +263,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  district.segment,
+                                  district.getLocalizedSegment(context),
                                   style: TextStyle(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w700,
@@ -331,7 +338,7 @@ class DistrictMarketScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            district.perk,
+                            district.getLocalizedPerk(context),
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w800,

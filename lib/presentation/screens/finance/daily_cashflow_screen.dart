@@ -721,7 +721,7 @@ class DailyCashflowScreen extends ConsumerWidget {
       NotificationService.showInfo(
         context,
         context.tr('cashflow_locked_feature_toast',
-            {'branch': DealershipModel.getRequiredBranchName(route)}),
+            {'branch': DealershipModel.getRequiredBranchName(route, context)}),
       );
     }
   }

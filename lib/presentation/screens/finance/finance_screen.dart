@@ -574,7 +574,7 @@ class FinanceScreen extends ConsumerWidget {
                         context,
                         context.tr('cashflow_locked_feature_toast', {
                           'branch': DealershipModel.getRequiredBranchName(
-                              '/bank-investments')
+                              '/bank-investments', context)
                         }),
                       );
                     }
@@ -731,7 +731,7 @@ class FinanceScreen extends ConsumerWidget {
                       context,
                       context.tr('cashflow_locked_feature_toast', {
                         'branch': DealershipModel.getRequiredBranchName(
-                            '/bank-investments')
+                            '/bank-investments', context)
                       }),
                     );
                   }

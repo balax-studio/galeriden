@@ -525,7 +525,7 @@ class StaffScreen extends ConsumerWidget {
                         context,
                         context.tr('staff_academy_locked_toast', {
                           'branch': DealershipModel.getRequiredBranchName(
-                              '/staff-academy')
+                              '/staff-academy', context)
                         }),
                       );
                     }

@@ -1,7 +1,10 @@
+import 'package:flutter/widgets.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
 
 class LeaderboardEntry {
+  final String key;
   final String name;
   final double turnoverScore;
   final int reputation;
@@ -12,6 +15,7 @@ class LeaderboardEntry {
   final String tagline;
 
   LeaderboardEntry({
+    this.key = '',
     required this.name,
     required this.turnoverScore,
     required this.reputation,
@@ -22,7 +26,20 @@ class LeaderboardEntry {
     this.tagline = '',
   });
 
+  String getLocalizedName(BuildContext context) {
+    if (isPlayer) return name;
+    if (key.isNotEmpty) return context.tr('${key}_name');
+    return name;
+  }
+
+  String getLocalizedTagline(BuildContext context) {
+    if (isPlayer) return context.tr('rival_player_tagline');
+    if (key.isNotEmpty) return context.tr('${key}_tagline');
+    return tagline;
+  }
+
   LeaderboardEntry copyWith({
+    String? key,
     String? name,
     double? turnoverScore,
     int? reputation,
@@ -33,6 +50,7 @@ class LeaderboardEntry {
     String? tagline,
   }) {
     return LeaderboardEntry(
+      key: key ?? this.key,
       name: name ?? this.name,
       turnoverScore: turnoverScore ?? this.turnoverScore,
       reputation: reputation ?? this.reputation,
@@ -46,6 +64,7 @@ class LeaderboardEntry {
 
   LeaderboardEntry copyWithRank(int newRank, {int? newRankChange}) {
     return LeaderboardEntry(
+      key: key,
       name: name,
       turnoverScore: turnoverScore,
       reputation: reputation,
@@ -61,6 +80,7 @@ class LeaderboardEntry {
 class LeaderboardNearMissInfo {
   final int playerRank;
   final bool isLeader;
+  final String? targetRivalKey;
   final String? targetRivalName;
   final double scoreDifference;
   final String motivationMessage;
@@ -68,15 +88,43 @@ class LeaderboardNearMissInfo {
   LeaderboardNearMissInfo({
     required this.playerRank,
     required this.isLeader,
+    this.targetRivalKey,
     this.targetRivalName,
     this.scoreDifference = 0.0,
     required this.motivationMessage,
   });
+
+  String getLocalizedMotivation(BuildContext context) {
+    final rivalLocalizedName = (targetRivalKey != null && targetRivalKey!.isNotEmpty)
+        ? context.tr('${targetRivalKey}_name')
+        : (targetRivalName ?? '');
+
+    if (isLeader) {
+      if (rivalLocalizedName.isNotEmpty) {
+        return context.tr('rival_leader_motivation', {
+          'rival': rivalLocalizedName,
+          'diff': CurrencyFormatter.format(scoreDifference),
+        });
+      }
+      return context.tr('rival_leader_solo');
+    }
+
+    if (rivalLocalizedName.isNotEmpty) {
+      return context.tr('rival_chaser_motivation', {
+        'rank': '${playerRank - 1}',
+        'rival': rivalLocalizedName,
+        'diff': CurrencyFormatter.format(scoreDifference),
+      });
+    }
+
+    return context.tr('rival_empty_motivation');
+  }
 }
 
 class RivalLeaderboardEngine {
   static const List<Map<String, dynamic>> _npcArchetypes = [
     {
+      'key': 'rival_bogazici',
       'name': 'Boğaziçi Otomotiv',
       'tagline': 'Bölge Lideri & Zirve Galeri',
       'multiplier': 1.65,
@@ -86,6 +134,7 @@ class RivalLeaderboardEngine {
       'baseRep': 140,
     },
     {
+      'key': 'rival_anadolu',
       'name': 'Anadolu Plaza',
       'tagline': 'Premium Kurumsal Galeri',
       'multiplier': 1.30,
@@ -95,6 +144,7 @@ class RivalLeaderboardEngine {
       'baseRep': 110,
     },
     {
+      'key': 'rival_altinel',
       'name': 'Altınel Galeri',
       'tagline': 'Tecrübeli Esnaf Galerisi',
       'multiplier': 1.08,
@@ -104,6 +154,7 @@ class RivalLeaderboardEngine {
       'baseRep': 85,
     },
     {
+      'key': 'rival_star',
       'name': 'Star Motors',
       'tagline': 'Kafa Kafaya Çekişmeli Rakip',
       'multiplier': 0.90,
@@ -113,6 +164,7 @@ class RivalLeaderboardEngine {
       'baseRep': 65,
     },
     {
+      'key': 'rival_yildiz',
       'name': 'Yıldız Auto',
       'tagline': 'Gelişmekte Olan Mahalle Galerisi',
       'multiplier': 0.70,
@@ -162,6 +214,7 @@ class RivalLeaderboardEngine {
 
     // NPC Rival Entries
     for (final npc in _npcArchetypes) {
+      final key = npc['key'] as String;
       final name = npc['name'] as String;
       final tagline = npc['tagline'] as String;
       final multiplier = npc['multiplier'] as double;
@@ -180,6 +233,7 @@ class RivalLeaderboardEngine {
       final rep = (baseRep + (day * 0.5) + (playerDealership.reputationScore * 0.2 * multiplier)).round();
 
       entries.add(LeaderboardEntry(
+        key: key,
         name: name,
         turnoverScore: turnover > 5000.0 ? turnover : 5000.0,
         reputation: rep > 10 ? rep : 10,
@@ -254,6 +308,8 @@ class RivalLeaderboardEngine {
       return LeaderboardNearMissInfo(
         playerRank: 1,
         isLeader: true,
+        targetRivalKey: secondRival?.key,
+        targetRivalName: secondRival?.name,
         scoreDifference: diff,
         motivationMessage: secondRival != null
             ? 'ŞEHİR LİDERİSİN! En yakın rakibin ${secondRival.name} ${CurrencyFormatter.format(diff)} gerinde.'
@@ -267,6 +323,7 @@ class RivalLeaderboardEngine {
     return LeaderboardNearMissInfo(
       playerRank: playerRank,
       isLeader: false,
+      targetRivalKey: rivalAhead.key,
       targetRivalName: rivalAhead.name,
       scoreDifference: diff,
       motivationMessage:
