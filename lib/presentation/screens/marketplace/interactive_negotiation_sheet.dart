@@ -235,7 +235,7 @@ class _InteractiveNegotiationSheetState
                             ),
                             Text(
                               context.tr('deal_bargaining_with',
-                                  {'name': currentListing.sellerName}),
+                                  {'name': currentListing.getLocalizedSellerName(context)}),
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
@@ -444,7 +444,7 @@ class _InteractiveNegotiationSheetState
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    '${currentListing.sellerCity} • Plaka: ${car.plateNumber}',
+                                    '${currentListing.getLocalizedSellerCity(context)} • ${context.tr('listing_plate')}: ${car.plateNumber}',
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w600,

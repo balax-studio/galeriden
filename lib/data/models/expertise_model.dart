@@ -103,4 +103,11 @@ class ExpertiseReport {
       isChassisAligned: isChassisAligned ?? this.isChassisAligned,
     );
   }
+
+  bool get isCleanPristine =>
+      tramerAmount == 0 &&
+      !isMileageTampered &&
+      engineCondition >= 85.0 &&
+      transmissionCondition >= 85.0 &&
+      bodyParts.values.every((v) => v == PartStatus.original);
 }

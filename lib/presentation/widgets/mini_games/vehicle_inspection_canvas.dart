@@ -329,8 +329,8 @@ class _VehicleInspectionModalState extends State<VehicleInspectionModal>
                 },
                 child: NeoBrutalButton(
                   label: _isBraking
-                      ? 'FREN KİLİTLENİYOR • BASILI TUT (%${(_brakeProgress * 100).round()})'
-                      : 'FREN PEDALINA BASILI TUT',
+                      ? '${context.tr('inspection_brake_lock_hold')} • %${(_brakeProgress * 100).round()}'
+                      : context.tr('inspection_btn_brake_hold'),
                   icon: Icons.airline_stops_rounded,
                   backgroundColor: _isBraking
                       ? AppColors.brutalGreen

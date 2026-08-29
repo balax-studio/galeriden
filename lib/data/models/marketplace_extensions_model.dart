@@ -243,6 +243,36 @@ enum SellerPersona {
     }
   }
 
+  static SellerPersona fromListing(ListingModel listing) {
+    final key = listing.sellerProfileKey;
+    if (key != null) {
+      switch (key) {
+        case 'urgent_cash':
+        case 'debt':
+        case 'house_downpayment':
+        case 'flash_deal':
+        case 'barn_find':
+          return SellerPersona.urgentCash;
+        case 'officer':
+        case 'teacher':
+        case 'doctor':
+        case 'pristine':
+        case 'military':
+          return SellerPersona.meticulousOfficer;
+        case 'abroad':
+          return SellerPersona.expat;
+        case 'trade_in':
+        case 'contractor':
+          return SellerPersona.colleagueDealer;
+        case 'collector':
+        case 'rare':
+        case 'whim':
+          return SellerPersona.collector;
+      }
+    }
+    return fromString(listing.sellerTrait);
+  }
+
   static SellerPersona fromString(String trait) {
     if (trait.contains('Acil') || trait.contains('Fırsat')) return SellerPersona.urgentCash;
     if (trait.contains('Memur') || trait.contains('Doktor')) return SellerPersona.meticulousOfficer;

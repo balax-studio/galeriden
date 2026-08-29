@@ -567,7 +567,7 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Bu yarışa katılmak için ₺${entryFee.toInt()} giriş bahsi gereklidir!',
+                                  context.tr('toast_race_entry_fee_needed', {'fee': '₺${entryFee.toInt()}'}),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,

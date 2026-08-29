@@ -287,10 +287,10 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                     .buyScrapCar(car.id);
                                 if (ok) {
                                   NotificationService.showSuccess(
-                                      context, 'Hurda araç satın alındı!');
+                                      context, context.tr('scrapyard_toast_car_bought'));
                                 } else {
                                   NotificationService.showError(
-                                      context, 'Yetersiz bakiye!');
+                                      context, context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(car.scrapPrice)}));
                                 }
                               },
                             ),
@@ -915,7 +915,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                     }
                                   } else {
                                     NotificationService.showError(context,
-                                        'Günlük arama hakkın tükendi veya yetersiz bakiye!');
+                                        context.tr('toast_insufficient_daily_search'));
                                   }
                                 }
                               : null,
@@ -1131,12 +1131,12 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                                   NotificationService
                                                       .showSuccess(
                                                     context,
-                                                    'Hurdalıkta günlük çıraklık yaptın ve ₺5.000 yevmiye kazandın!',
+                                                    context.tr('scrapyard_toast_apprentice_done'),
                                                   );
                                                 } else {
                                                   NotificationService.showError(
                                                       context,
-                                                      'Hurdalık çıraklık işini günde sadece 1 kez yapabilirsin.');
+                                                      context.tr('scrapyard_toast_apprentice_limit'));
                                                 }
                                               }
                                             : null,
@@ -1444,7 +1444,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                       onPressed: () {
                                         if (game.balance < car.scrapPrice) {
                                           NotificationService.showError(context,
-                                              'Yetersiz bakiye • ${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
+                                              context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.formatShort(car.scrapPrice)}));
                                           return;
                                         }
                                         final ok = ref
@@ -1453,10 +1453,10 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                         if (ok) {
                                           NotificationService.showSuccess(
                                               context,
-                                              'Hurda araç satın alındı!');
+                                              context.tr('scrapyard_toast_car_bought'));
                                         } else {
                                           NotificationService.showError(context,
-                                              'Satın alma başarısız oldu.');
+                                              context.tr('forex_tx_failed_toast'));
                                         }
                                       },
                                     ),
@@ -1473,7 +1473,7 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                       onPressed: () {
                                         if (game.balance < car.scrapPrice) {
                                           NotificationService.showError(context,
-                                              'Yetersiz bakiye • ${CurrencyFormatter.formatShort(car.scrapPrice)} gerekli.');
+                                              context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.formatShort(car.scrapPrice)}));
                                           return;
                                         }
                                         final res = ref
@@ -1815,7 +1815,9 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                                     part.refurbishCost) {
                                                   NotificationService.showError(
                                                     context,
-                                                    'Yetersiz bakiye! Revizyon için ${CurrencyFormatter.formatShort(part.refurbishCost)} gerekli.',
+                                                    context.tr(
+                                                        'toast_insufficient_balance_needed',
+                                                        {'cost': CurrencyFormatter.formatShort(part.refurbishCost)}),
                                                   );
                                                   return;
                                                 }
@@ -1827,7 +1829,8 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
                                                   NotificationService
                                                       .showSuccess(
                                                     context,
-                                                    '${part.name} atölyede başarıyla revize edildi ve kondisyonu yükseltildi!',
+                                                    context.tr(
+                                                        'scrapyard_toast_refurbish_done'),
                                                   );
                                                 }
                                               },

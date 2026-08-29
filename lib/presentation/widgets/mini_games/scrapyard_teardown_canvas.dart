@@ -124,7 +124,7 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
     } else {
       // Under-torque: Pas sökülmedi
       HapticFeedback.selectionClick();
-      _statusMessage = 'Yetersiz kuvvet • Pas kırılamadı, tekrar dene.';
+      _statusMessage = context.tr('teardown_undertorque_warning');
     }
 
     setState(() {});
@@ -294,7 +294,9 @@ class _ScrapyardTeardownModalState extends State<ScrapyardTeardownModal>
               ),
             ] else ...[
               NeoBrutalButton(
-                label: _isSuccess ? 'PARÇAYI DEPOYA AL' : 'HURDAYI TAMAMLA',
+                label: _isSuccess
+                    ? context.tr('teardown_btn_store_part')
+                    : context.tr('teardown_btn_finish_scrap'),
                 icon: Icons.check_circle_rounded,
                 backgroundColor:
                     _isSuccess ? AppColors.brutalGreen : AppColors.errorRed,

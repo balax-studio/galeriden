@@ -69,9 +69,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
 
   static final List<InGameSponsorSnippet> _marketplaceSnippets = [
     const InGameSponsorSnippet(
-      title: 'MEGUIARS OTO DETAY VE PASTA CİLA',
-      description:
-          'Sanayinin 1 numaralı boya koruma atölyesi! Güneş yanığını bile gizleriz garantisiyle hizmetinizde.',
+      title: 'ad_native_detail_title',
+      description: 'ad_native_detail_desc',
       badgeText: 'ad_native_sponsor_tag',
       actionText: 'ad_native_cta',
       icon: Icons.auto_fix_high_rounded,
@@ -79,42 +78,37 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
       benefitToast: 'ad_native_card_toast',
     ),
     const InGameSponsorSnippet(
-      title: 'TÜRKİYE GENELİ ÇEKİCİ VE OTO KURTARICI',
-      description:
-          '7 gün 24 saat şehirlerarası filo transferi. Galeriden oyuncularına özel ilk çekici yarı fiyatına.',
-      badgeText: 'ÖZEL HİZMET',
-      actionText: 'NUMARAYI KAYDET',
+      title: 'ad_native_towing_title',
+      description: 'ad_native_towing_desc',
+      badgeText: 'ad_native_towing_tag',
+      actionText: 'ad_native_towing_cta',
       icon: Icons.local_shipping_rounded,
       accentColor: AppColors.brutalBlue,
-      benefitToast: 'Çekici filosu acil durum hattı rehberine eklendi!',
+      benefitToast: 'ad_native_towing_toast',
     ),
   ];
 
   static final List<InGameSponsorSnippet> _gossipSnippets = [
     const InGameSponsorSnippet(
-      title: 'GÜMRÜK VE TASFİYE DERNEĞİ DUYURUSU',
-      description:
-          'Almanya ve Hollandadan gelen hacizli tırlarda nadir parçalar bulundu. Gelecek hafta müzayedede izdiham bekleniyor!',
-      badgeText: 'SEKTÖR BÜLTENİ',
-      actionText: 'DETAYI İNCELE',
+      title: 'ad_native_customs_title',
+      description: 'ad_native_customs_desc',
+      badgeText: 'ad_native_customs_tag',
+      actionText: 'ad_native_customs_cta',
       icon: Icons.newspaper_rounded,
       accentColor: Color(0xFFA855F7),
-      benefitToast:
-          'Gümrük istihbaratı not edildi - Müzayede takip listen güncellendi!',
+      benefitToast: 'ad_native_customs_toast',
     ),
   ];
 
   static final List<InGameSponsorSnippet> _stockSnippets = [
     const InGameSponsorSnippet(
-      title: 'BORSACI CEMAL BEYDEN SEKTÖR ANALİZİ',
-      description:
-          'Otomotiv yedek parça ve lojistik hisselerinde kurumsal alım sinyali var. Portföyünü çeşitlendirmeyi unutma!',
-      badgeText: 'ANALİST RAPORU',
-      actionText: 'RAPORU OKU',
+      title: 'ad_native_stock_title',
+      description: 'ad_native_stock_desc',
+      badgeText: 'ad_native_stock_tag',
+      actionText: 'ad_native_stock_cta',
       icon: Icons.trending_up_rounded,
       accentColor: AppColors.successGreen,
-      benefitToast:
-          'Cemal Beyin analist bültenini okudun - Borsa bilgin arttı!',
+      benefitToast: 'ad_native_stock_toast',
     ),
   ];
 
@@ -281,7 +275,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
                 ),
                 const SizedBox(width: 8),
                 NeoBrutalBadge(
-                  text: 'YEREL DUYURU',
+                  text: context.tr('ad_native_local_bulletin'),
                   backgroundColor: isDark
                       ? const Color(0xFF1F2432)
                       : const Color(0xFFE2E8F0),
@@ -294,7 +288,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
             ),
             const SizedBox(height: 10),
             Text(
-              _fallbackSnippet.title,
+              _resolveLocalized(context, _fallbackSnippet.title),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w900,
@@ -304,7 +298,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
             ),
             const SizedBox(height: 6),
             Text(
-              _fallbackSnippet.description,
+              _resolveLocalized(context, _fallbackSnippet.description),
               style: TextStyle(
                 fontSize: 11.5,
                 height: 1.4,

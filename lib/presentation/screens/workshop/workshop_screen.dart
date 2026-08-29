@@ -159,7 +159,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             final game = ref.read(gameProvider);
                             if (game.balance < paint.cost) {
                               NotificationService.showError(context,
-                                  'Yetersiz bakiye! ${CurrencyFormatter.format(paint.cost)} gerekli.');
+                                  context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(paint.cost)}));
                               return;
                             }
                             final success = ref
@@ -194,19 +194,19 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final diagnoses = [
       (
-        'Subap ve Piston Vuruntusu',
+        context.tr('workshop_steth_tap_title'),
         'subap',
-        'Metalik şıkırtı ve rölantide ritmik tıklama sesi.'
+        context.tr('workshop_steth_tap_desc'),
       ),
       (
-        'Turbo Şarj Kaçağı ve Islığı',
+        context.tr('workshop_steth_turbo_title'),
         'turbo',
-        'Hızlanırken gelen yüksek frekanslı hava üfleme sesi.'
+        context.tr('workshop_steth_turbo_desc'),
       ),
       (
-        'Şanzıman Prizdirek Bilyası Uğultusu',
+        context.tr('workshop_steth_bearing_title'),
         'sanziman',
-        'Debriyaja basınca kesilen kalın dönme uğultusu.'
+        context.tr('workshop_steth_bearing_desc'),
       ),
     ];
 
@@ -240,7 +240,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '${car.brand} ${car.modelName} motor bloğuna stetoskop bağlandı. Arıza sesini dinleyip doğru teşhisi koy:',
+                  context.tr('workshop_steth_banner_desc', {
+                    'brand': car.brand,
+                    'modelName': car.modelName,
+                  }),
                   style: const TextStyle(
                       fontSize: 11.5,
                       color: Color(0xFF64748B),
@@ -255,7 +258,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         Navigator.pop(ctx);
                         NotificationService.showSuccess(
                           context,
-                          'Doğru teşhis: ${d.$1}! Bir sonraki tamirde %25 işçilik indirimi tanımlandı.',
+                          context.tr('workshop_steth_success', {'diagnosis': d.$1}),
                         );
                       },
                       borderRadius: BorderRadius.circular(8),
@@ -553,7 +556,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                             CustomerRepairJob.generateRandomJobs(count: 4);
                       });
                       NotificationService.showSuccess(
-                          context, 'Yeni müşteri tamir talepleri listelendi!');
+                          context, context.tr('workshop_toast_new_requests'));
                     },
                   ),
                 ],
@@ -688,7 +691,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                   if (success) {
                                     NotificationService.showSuccess(
                                       context,
-                                      '${job.customerName} aracını teslim aldı! +${CurrencyFormatter.format(netProfit)} net kâr & +${job.masteryXpReward} XP kazanıldı.',
+                                      context.tr('toast_job_completed_profit', {
+                                        'customer': job.customerName,
+                                        'profit': CurrencyFormatter.format(netProfit),
+                                        'xp': '${job.masteryXpReward}',
+                                      }),
                                     );
                                     setState(() {
                                       _customerJobs
@@ -1009,7 +1016,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                   : () {
                                       if (game.balance < 3500) {
                                         NotificationService.showError(context,
-                                            'Yetersiz bakiye! ₺3.500 gerekli.');
+                                            context.tr('toast_insufficient_balance_needed', {'cost': '₺3.500'}));
                                         return;
                                       }
                                       final success = ref
@@ -1018,7 +1025,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                               _selectedCar!.id);
                                       if (success) {
                                         NotificationService.showSuccess(context,
-                                            'Yağ, buji ve filtreler yenilendi • +%15 Kondisyon!');
+                                            context.tr('workshop_10k_maintenance_toast'));
                                         setState(() {
                                           _selectedCar = ref
                                               .read(gameProvider)
@@ -1087,7 +1094,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                               _selectedCar!.id);
                                       if (success) {
                                         NotificationService.showSuccess(context,
-                                            'Boyasız Göçük Düzeltme ile kaporta orijinalliği korundu • +%6 Değer!');
+                                            context.tr('workshop_pdr_dent_toast'));
                                         setState(() {
                                           _selectedCar = ref
                                               .read(gameProvider)
@@ -1099,7 +1106,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                         });
                                       } else {
                                         NotificationService.showError(context,
-                                            'Yetersiz bakiye! ₺3.200 gerekli.');
+                                            context.tr('toast_insufficient_balance_needed', {'cost': '₺3.200'}));
                                       }
                                     },
                             ),
@@ -1142,7 +1149,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                         });
                                       } else {
                                         NotificationService.showError(context,
-                                            'Yetersiz bakiye! ₺1.500 gerekli.');
+                                            context.tr('toast_insufficient_balance_needed', {'cost': '₺1.500'}));
                                       }
                                     },
                             ),
@@ -1185,7 +1192,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               (partName, type, cost, durationSeconds) {
                             if (game.balance < cost) {
                               NotificationService.showError(context,
-                                  'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekli.');
+                                  context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(cost)}));
                               return;
                             }
                             final success =
@@ -1256,11 +1263,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       WorkshopRepairTile(
-                        title: '1. Motor Rektifiye & Subap Ayarı',
+                        title: '1. ${context.tr('workshop_station_engine')}',
                         description:
-                            'Piston, segman ve subapları yenileyerek motor kondisyonunu %100 yapar.',
+                            context.tr('workshop_station_engine_desc'),
                         cost: dynamicEngineCost,
-                        bonusText: 'Motor %100 & +%10 Değer',
+                        bonusText: context.tr('workshop_bonus_engine'),
                         netRoiText: _selectedCar != null
                             ? PsychologyEngine.getNetRoiRepairText(
                                 dynamicEngineCost,
@@ -1269,7 +1276,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         badgeColor: const Color(0xFF00E575),
                         isDark: isDark,
                         isRepaired: isEngineRepaired,
-                        disabledLabel: 'GEREKLİ DEĞİL • MOTOR KUSURSUZ',
+                        disabledLabel: '${context.tr('workshop_no_repair_needed')} • ${context.tr('sticker_mechanical_flaw')}',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
@@ -1281,7 +1288,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         onAdRepair: () {
                           AdService.instance.showRewardedAdWithFallback(
                             context: context,
-                            customRewardTitle: 'Ücretsiz Motor Rektifiye',
+                            customRewardTitle: context.tr('workshop_station_engine'),
                             onRewardEarned: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
@@ -1289,7 +1296,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 cost: 0.0,
                               );
                               if (success) {
-                                NotificationService.showSuccess(context, 'Motor ücretsiz rektifiye edildi! Kondisyon %100.');
+                                NotificationService.showSuccess(context, context.tr('workshop_10k_maintenance_toast'));
                                 setState(() {
                                   _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                 });
@@ -1300,11 +1307,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
-                        title: '2. Şanzıman & Baskı Balata Yenileme',
+                        title: '2. ${context.tr('workshop_station_transmission')}',
                         description:
-                            'Vites geçişlerini pürüzsüzleştirir, debriyaj setini sıfırlar.',
+                            context.tr('workshop_station_transmission_desc'),
                         cost: dynamicTransCost,
-                        bonusText: 'Şanzıman %100 & +%8 Değer',
+                        bonusText: context.tr('workshop_bonus_gearbox'),
                         netRoiText: _selectedCar != null
                             ? PsychologyEngine.getNetRoiRepairText(
                                 dynamicTransCost,
@@ -1313,7 +1320,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         badgeColor: const Color(0xFF38BDF8),
                         isDark: isDark,
                         isRepaired: isTransmissionRepaired,
-                        disabledLabel: 'GEREKLİ DEĞİL • ŞANZIMAN KUSURSUZ',
+                        disabledLabel: '${context.tr('workshop_no_repair_needed')} • ${context.tr('scrapyard_tab_transmission')}',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
@@ -1325,7 +1332,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         onAdRepair: () {
                           AdService.instance.showRewardedAdWithFallback(
                             context: context,
-                            customRewardTitle: 'Ücretsiz Şanzıman Yenileme',
+                            customRewardTitle: context.tr('workshop_station_transmission'),
                             onRewardEarned: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
@@ -1333,7 +1340,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 cost: 0.0,
                               );
                               if (success) {
-                                NotificationService.showSuccess(context, 'Şanzıman ücretsiz yenilendi! Kondisyon %100.');
+                                NotificationService.showSuccess(context, context.tr('toast_gearbox_free_done'));
                                 setState(() {
                                   _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                 });
@@ -1344,11 +1351,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
-                        title: '3. Bilgisayarlı OBD-II Beyin Arıza Tespiti',
+                        title: '3. ${context.tr('workshop_station_ecu')}',
                         description:
-                            'Tüm sensör, enjektör ve gizli elektriksel arıza kodlarını siler.',
+                            context.tr('workshop_station_ecu_desc'),
                         cost: dynamicEcuCost,
-                        bonusText: 'Gizli Kusurlar Silinir',
+                        bonusText: context.tr('workshop_bonus_ecu'),
                         netRoiText: _selectedCar != null
                             ? PsychologyEngine.getNetRoiRepairText(
                                 dynamicEcuCost,
@@ -1357,7 +1364,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         badgeColor: const Color(0xFFA855F7),
                         isDark: isDark,
                         isRepaired: isEcuRepaired,
-                        disabledLabel: 'GEREKLİ DEĞİL • ARIZA YOK',
+                        disabledLabel: '${context.tr('workshop_no_repair_needed')} • OBD-II',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
@@ -1369,7 +1376,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         onAdRepair: () {
                           AdService.instance.showRewardedAdWithFallback(
                             context: context,
-                            customRewardTitle: 'Ücretsiz Beyin Arıza Tespiti',
+                            customRewardTitle: context.tr('workshop_station_ecu'),
                             onRewardEarned: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
@@ -1377,7 +1384,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 cost: 0.0,
                               );
                               if (success) {
-                                NotificationService.showSuccess(context, 'Gizli arızalar ücretsiz silindi!');
+                                NotificationService.showSuccess(context, context.tr('workshop_toast_ecu_done'));
                                 setState(() {
                                   _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                 });
@@ -1388,13 +1395,13 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
-                        title: '4. Kaporta Çekiçleme & Fırın Boya',
+                        title: '4. ${context.tr('workshop_station_bodywork')}',
                         description:
-                            'Değişen veya boyalı kaporta parçalarını fabrika kondisyonuna getirir.',
+                            context.tr('workshop_station_bodywork_desc'),
                         cost: dynamicBodyCost,
                         bonusText: hasPaintBooth
-                            ? '+%15 Değer • Boya Fırını İndirimi'
-                            : '+%15 Değer Artışı',
+                            ? context.tr('workshop_bonus_paint_booth')
+                            : context.tr('workshop_bonus_paint'),
                         netRoiText: _selectedCar != null
                             ? PsychologyEngine.getNetRoiRepairText(
                                 dynamicBodyCost,
@@ -1403,7 +1410,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         badgeColor: const Color(0xFFFFDE59),
                         isDark: isDark,
                         isRepaired: isBodyworkRepaired,
-                        disabledLabel: 'GEREKLİ DEĞİL • KAPORTA KUSURSUZ',
+                        disabledLabel: '${context.tr('workshop_no_repair_needed')} • ${context.tr('scrapyard_tab_body_rims')}',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
@@ -1415,7 +1422,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         onAdRepair: () {
                           AdService.instance.showRewardedAdWithFallback(
                             context: context,
-                            customRewardTitle: 'Ücretsiz Kaporta & Boya',
+                            customRewardTitle: context.tr('workshop_station_bodywork'),
                             onRewardEarned: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
@@ -1423,7 +1430,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 cost: 0.0,
                               );
                               if (success) {
-                                NotificationService.showSuccess(context, 'Kaporta kusurları ücretsiz onarıldı!');
+                                NotificationService.showSuccess(context, context.tr('workshop_toast_body_all_done'));
                                 setState(() {
                                   _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                 });
@@ -1434,13 +1441,13 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       ),
                       const SizedBox(height: 8),
                       WorkshopRepairTile(
-                        title: '5. Lazerli Şasi Düzeltme & Rot-Balans',
+                        title: '5. ${context.tr('workshop_station_chassis')}',
                         description:
-                            'Ağır kazalı, podye veya direk hasarlı araçların şasisini sıfır toleransla doğrultur.',
+                            context.tr('workshop_station_chassis_desc'),
                         cost: dynamicChassisCost,
                         bonusText: hasChassisBench
-                            ? '+%20 Süper Değer • Şasi Tezgahı Bonusu'
-                            : '+%20 Değer',
+                            ? context.tr('workshop_bonus_chassis_bench')
+                            : context.tr('workshop_bonus_chassis'),
                         netRoiText: _selectedCar != null
                             ? PsychologyEngine.getNetRoiRepairText(
                                 dynamicChassisCost,
@@ -1449,7 +1456,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         badgeColor: const Color(0xFFEF4444),
                         isDark: isDark,
                         isRepaired: isChassisRepaired,
-                        disabledLabel: 'GEREKLİ DEĞİL • ŞASİ SAĞLAM',
+                        disabledLabel: '${context.tr('workshop_no_repair_needed')} • ${context.tr('chassis_laser_scanning')}',
                         onRepair: () => RepairTierSelectionSheet.show(
                           context: context,
                           car: _selectedCar!,
@@ -1461,7 +1468,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         onAdRepair: () {
                           AdService.instance.showRewardedAdWithFallback(
                             context: context,
-                            customRewardTitle: 'Ücretsiz Şasi Düzeltme',
+                            customRewardTitle: context.tr('workshop_station_chassis'),
                             onRewardEarned: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
@@ -1469,7 +1476,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                 cost: 0.0,
                               );
                               if (success) {
-                                NotificationService.showSuccess(context, 'Şasi sıfır toleransla ücretsiz doğrultuldu!');
+                                NotificationService.showSuccess(context, context.tr('workshop_toast_chassis_done'));
                                 setState(() {
                                   _selectedCar = ref.read(gameProvider).ownedCars.firstWhere((c) => c.id == _selectedCar!.id, orElse: () => _selectedCar!);
                                 });
@@ -1507,14 +1514,17 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           .installDeliveredPart(order.id);
                       if (success) {
                         NotificationService.showSuccess(
-                            context, '${order.partName} montajı tamamlandı!');
+                            context,
+                            context.tr('toast_part_install_completed',
+                                {'part': order.partName}));
                         setState(() {});
                       }
                     },
                     onFastDeliverWithAd: () {
                       AdService.instance.showRewardedAdWithFallback(
                         context: context,
-                        customRewardTitle: 'Hızlı Kargo Teslimatı',
+                        customRewardTitle:
+                            context.tr('workshop_fast_shipping_title'),
                         onRewardEarned: () {
                           ref
                               .read(gameProvider.notifier)
@@ -1581,7 +1591,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                                         fontSize: 12,
                                         fontWeight: FontWeight.w900)),
                                 Text(
-                                  'Kondisyon: %${part.conditionPercent} • Tahmini Değer: ${CurrencyFormatter.format(part.estimatedValue)}',
+                                  context.tr('workshop_part_cond_val', {
+                                    'cond': part.conditionPercent.toString(),
+                                    'val': CurrencyFormatter.format(
+                                        part.estimatedValue),
+                                  }),
                                   style: const TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w600,
@@ -1635,46 +1649,43 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
               WorkshopEquipmentTile(
                 id: 'workshop_eq_lift',
-                title: '4 Tonluk Hidrolik Araç Lifti',
-                description:
-                    'Aynı anda birden fazla aracın alt takımlarını hızlıca onarabilme imkanı sağlar.',
+                title: context.tr('workshop_eq_lift_title'),
+                description: context.tr('workshop_eq_lift_desc'),
                 cost: 85000.0,
                 isOwned: hasLift,
                 icon: Icons.elevator_rounded,
                 color: const Color(0xFFFF7A00),
                 isDark: isDark,
-                onBuy: () => _buyEquipment('workshop_eq_lift', 85000.0,
-                    '4 Tonluk Hidrolik Araç Lifti'),
+                onBuy: () => _buyEquipment(
+                    'workshop_eq_lift', 85000.0, context.tr('workshop_eq_lift_title')),
               ),
               const SizedBox(height: 8),
 
               WorkshopEquipmentTile(
                 id: 'workshop_eq_chassis_bench',
-                title: 'Lazerli Şasi Doğrultma Tezgahı',
-                description:
-                    'Ağır kazalı pert araçların şasilerini milimetrik hassasiyetle fabrikasyon standardına çevirir.',
+                title: context.tr('workshop_eq_chassis_title'),
+                description: context.tr('workshop_eq_chassis_desc'),
                 cost: 220000.0,
                 isOwned: hasChassisBench,
                 icon: Icons.straighten_rounded,
                 color: const Color(0xFFEF4444),
                 isDark: isDark,
                 onBuy: () => _buyEquipment('workshop_eq_chassis_bench',
-                    220000.0, 'Lazerli Şasi Doğrultma Tezgahı'),
+                    220000.0, context.tr('workshop_eq_chassis_title')),
               ),
               const SizedBox(height: 8),
 
               WorkshopEquipmentTile(
                 id: 'workshop_eq_paint_booth',
-                title: 'Filtreli Endüstriyel Fırın Boya Kabini',
-                description:
-                    'Kaporta ve boya işlemlerinde sarfiyatı azaltarak tüm boya maliyetlerini kalıcı olarak %50 düşürür.',
+                title: context.tr('workshop_eq_paint_title'),
+                description: context.tr('workshop_eq_paint_desc'),
                 cost: 450000.0,
                 isOwned: hasPaintBooth,
                 icon: Icons.format_paint_rounded,
                 color: const Color(0xFFFFDE59),
                 isDark: isDark,
                 onBuy: () => _buyEquipment('workshop_eq_paint_booth', 450000.0,
-                    'Filtreli Endüstriyel Fırın Boya Kabini'),
+                    context.tr('workshop_eq_paint_title')),
               ),
             ],
           ],
@@ -1746,7 +1757,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
       NotificationService.showError(context,
-          'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
+          context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(cost)}));
       return;
     }
 
@@ -1764,13 +1775,14 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
       NotificationService.showError(context,
-          'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
+          context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(cost)}));
       return;
     }
 
     if (repairType == 'engine') {
       if (car.expertise.engineCondition >= 99.5) {
-        NotificationService.showInfo(context, 'Motor zaten kusursuz durumda!');
+        NotificationService.showInfo(
+            context, context.tr('workshop_engine_perfect_toast'));
         return;
       }
       if (tier == RepairTier.master &&
@@ -1795,7 +1807,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     } else if (repairType == 'transmission') {
       if (car.expertise.transmissionCondition >= 99.5) {
         NotificationService.showInfo(
-            context, 'Şanzıman ve baskı balata zaten kusursuz durumda!');
+            context, context.tr('toast_gearbox_already_perfect'));
         return;
       }
       if (tier == RepairTier.master &&
@@ -1825,7 +1837,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
 
       if (nonOriginalParts.isEmpty) {
         NotificationService.showInfo(
-            context, 'Kaportada hasarlı veya boyanacak parça yok!');
+            context, context.tr('toast_body_no_damaged_parts'));
         return;
       }
 
@@ -1836,8 +1848,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(context,
-            'Boya fırınında renk dalgalanması oldu! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        NotificationService.showError(
+            context,
+            context.tr('workshop_paint_failed_toast',
+                {'waste': CurrencyFormatter.formatShort(cost * 0.4)}));
         return;
       }
 
@@ -1860,8 +1874,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       }
     } else if (repairType == 'ecu') {
       if (car.expertise.isEcuCleaned) {
-        NotificationService.showInfo(context,
-            'OBD-II Beyin arıza tespiti zaten yapılmış, sistem kusursuz!');
+        NotificationService.showInfo(
+            context, context.tr('workshop_ecu_perfect_toast'));
         return;
       }
       final hasMechanic =
@@ -1871,8 +1885,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(context,
-            'ECU haberleşme protokolü kurulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        NotificationService.showError(
+            context,
+            context.tr('workshop_ecu_failed_toast',
+                {'waste': CurrencyFormatter.formatShort(cost * 0.4)}));
         return;
       }
       final success =
@@ -1894,7 +1910,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     } else if (repairType == 'chassis') {
       if (car.expertise.isChassisAligned) {
         NotificationService.showInfo(
-            context, 'Lazerli şasi doğrultma zaten yapılmış, şasi kusursuz!');
+            context, context.tr('workshop_chassis_perfect_toast'));
         return;
       }
       final hasMechanic =
@@ -1904,8 +1920,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(context,
-            'Lazerli şasi tezgahında sıfır tolerans tutturulamadı! ₺${CurrencyFormatter.formatShort(cost * 0.4)} sarfiyat yandı.');
+        NotificationService.showError(
+            context,
+            context.tr('workshop_chassis_failed_toast',
+                {'waste': CurrencyFormatter.formatShort(cost * 0.4)}));
         return;
       }
       final success =

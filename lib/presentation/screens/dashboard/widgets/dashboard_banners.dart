@@ -662,14 +662,14 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
                           if (success) {
                             FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
                                 5000,
-                                label: 'Çıraklık Yevmiyesi!');
+                                label: context.tr('scrapyard_gig_done_label'));
                             NotificationService.showSuccess(
                               context,
-                              'Hurdalıkta akşama kadar çıraklık yaptın. ₺5.000 yevmiye kasana girdi!',
+                              context.tr('scrapyard_toast_apprentice_done'),
                             );
                           } else {
                             NotificationService.showWarning(context,
-                                'Bugün zaten çıraklık yaptın! Yarın tekrar gel.');
+                                context.tr('scrapyard_toast_apprentice_limit'));
                           }
                         }
                       : null,
@@ -693,14 +693,14 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
                           .claimEmergencyBailout();
                       if (success) {
                         FloatingMoneyOverlay.of(context)
-                            ?.showMoneyPopUp(50000, label: 'Can Suyu Mirası!');
+                            ?.showMoneyPopUp(50000, label: context.tr('emergency_bailout_done_label'));
                         NotificationService.showSuccess(
                           context,
-                          'Aile büyüklerinden gelen ₺50.000 can suyu desteği kasana eklendi!',
+                          context.tr('emergency_bailout_success_toast'),
                         );
                       } else {
                         NotificationService.showWarning(context,
-                            'Mevcut varlıkların ₺15.000 üzerinde olduğu için can suyu onaylanmadı.');
+                            context.tr('toast_safety_net_rejected'));
                       }
                     },
                   ),

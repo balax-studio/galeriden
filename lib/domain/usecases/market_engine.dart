@@ -190,10 +190,12 @@ class MarketEngine {
       bodyParts: bodyParts,
     );
 
-    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Adana', 'Konya'];
-    final sellerCity = cities[_random.nextInt(cities.length)];
+    final cityData = GameConstants.cities[_random.nextInt(min(6, GameConstants.cities.length))];
+    final sellerCity = cityData.trName;
+    final sellerCityKey = cityData.key;
     final paint = _getRandomPaintColor();
     final plate = generateLicensePlate(city: sellerCity);
+    final sellerData = _getRandomSellerData();
 
     final carTemp = CarModel(
       id: id,
@@ -217,10 +219,12 @@ class MarketEngine {
     final targetPrice = (carTemp.estimatedRealValue * (0.80 + _random.nextDouble() * 0.20)).clamp(35000.0, budgetLimit).roundToDouble();
     final car = carTemp.copyWith(currentPurchasePrice: targetPrice);
 
+    final descKey = tramerAmount > 0 ? 'desc_honest_with_tramer' : 'desc_honest_clean_no_tramer';
+
     return ListingModel(
       id: 'listing_$id',
       car: car,
-      sellerName: 'İlk Sahibinden Borçtan • ${_getRandomSellerName()}',
+      sellerName: 'İlk Sahibinden Borçtan • ${sellerData.trName}',
       sellerTrait: 'Fiyat esnek, tamire ihtiyacı var',
       sellerCity: sellerCity,
       title: '$year ${brandData.name} $modelName',
@@ -228,6 +232,11 @@ class MarketEngine {
       askingPrice: targetPrice,
       isExpertiseCompleted: false,
       createdAt: DateTime.now(),
+      sellerProfileKey: 'debt',
+      sellerNameKey: sellerData.key,
+      sellerCityKey: sellerCityKey,
+      titlePrefixKey: 'normal_1',
+      descriptionKey: descKey,
     );
   }
 
@@ -302,7 +311,7 @@ class MarketEngine {
   static final AntiRepetitionQueue<String> _titlePrefixQueue = AntiRepetitionQueue<String>(capacity: 10);
   static final AntiRepetitionQueue<String> _descriptionQueue = AntiRepetitionQueue<String>(capacity: 25);
 
-  static String _generateTitle(int year, String brand, String modelName, bool isBarnFind, bool isRare, {bool isPristine = false}) {
+  static ({String title, String? prefixKey}) _generateTitle(int year, String brand, String modelName, bool isBarnFind, bool isRare, {bool isPristine = false}) {
     final baseTitle = '$year $brand $modelName';
     if (isBarnFind) {
       final prefixes = [
@@ -312,7 +321,7 @@ class MarketEngine {
         'ÖZEL PROJE ARACI',
       ];
       final prefix = _titlePrefixQueue.selectNext(prefixes, randomInstance: _random);
-      return '$prefix • $baseTitle';
+      return (title: '$prefix • $baseTitle', prefixKey: 'barn');
     }
     if (isPristine) {
       final prefixes = [
@@ -322,7 +331,7 @@ class MarketEngine {
         'SERVİS BAKIMLI KUSURSUZ',
       ];
       final prefix = _titlePrefixQueue.selectNext(prefixes, randomInstance: _random);
-      return '$prefix • $baseTitle';
+      return (title: '$prefix • $baseTitle', prefixKey: 'pristine');
     }
     if (isRare) {
       final prefixes = [
@@ -332,25 +341,24 @@ class MarketEngine {
         'GARAJDA SAKLANMIŞ NADİDE',
       ];
       final prefix = _titlePrefixQueue.selectNext(prefixes, randomInstance: _random);
-      return '$prefix • $baseTitle';
+      return (title: '$prefix • $baseTitle', prefixKey: 'rare');
     }
 
     final normalPrefixes = [
-      'İLK SAHİBİNDEN TİTİZLİKLE',
-      'MASRAFSIZ DOSTA GİDER',
-      'MEMURDAN TEMİZ KULLANILMIŞ',
-      'BAKIMLARI YENİ MASRAFSIZ',
-      'KORDONU DÜZGÜN DİRİ KASA',
-      'AİLE ARACI EKSPERTİZE AÇIK',
+      ('İLK SAHİBİNDEN TİTİZLİKLE', 'normal_1'),
+      ('MASRAFSIZ DOSTA GİDER', 'normal_2'),
+      ('MEMURDAN TEMİZ KULLANILMIŞ', 'normal_3'),
+      ('BAKIMLARI YENİ MASRAFSIZ', 'normal_4'),
+      ('AİLE ARACI EKSPERTİZE AÇIK', 'normal_5'),
     ];
     if (_random.nextDouble() < 0.65) {
-      final prefix = _titlePrefixQueue.selectNext(normalPrefixes, randomInstance: _random);
-      return '$prefix • $baseTitle';
+      final pick = normalPrefixes[_random.nextInt(normalPrefixes.length)];
+      return (title: '${pick.$1} • $baseTitle', prefixKey: pick.$2);
     }
-    return baseTitle;
+    return (title: baseTitle, prefixKey: null);
   }
 
-  static String _generateDescription({
+  static ({String description, String descriptionKey}) _generateDescription({
     bool isBarnFind = false,
     bool isFlashDeal = false,
     bool isRare = false,
@@ -378,7 +386,7 @@ class MarketEngine {
       ];
       final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
       _descriptionQueue.push(res);
-      return res;
+      return (description: res, descriptionKey: 'desc_barn_find_1');
     }
 
     if (isPristine) {
@@ -401,7 +409,7 @@ class MarketEngine {
       ];
       final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
       _descriptionQueue.push(res);
-      return res;
+      return (description: res, descriptionKey: 'desc_pristine_1');
     }
 
     if (declarationType == ListingDeclarationType.flawlessClaim) {
@@ -421,16 +429,20 @@ class MarketEngine {
       ];
       final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
       _descriptionQueue.push(res);
-      return res;
+      return (description: res, descriptionKey: 'desc_flawless_claim_1');
     }
 
     if (isFlashDeal) {
-      final slot1 = [
-        'ACİL NAKİT İHTİYACINDAN DOLAYI KELEPİR FİYAT!',
-        'Yurtdışına taşınma sebebiyle çok acil satılıktır!',
-        'Ödemelerim sebebiyle birkaç günlüğüne piyasa değerinin altında bırakıyorum!',
-        'Fırsat aracı! Nakit ihtiyacından ötürü rakamı dibe çektim.',
-      ];
+      final isUrgentRelocation = _random.nextBool();
+      final slot1 = isUrgentRelocation
+          ? [
+              'Yurtdışına taşınma sebebiyle çok acil satılıktır!',
+              'ACİL NAKİT İHTİYACINDAN DOLAYI KELEPİR FİYAT!',
+            ]
+          : [
+              'Ev alımı için peşinat ihtiyacından dolayı satılık!',
+              'Ödemelerim sebebiyle birkaç günlüğüne piyasa değerinin altında bırakıyorum!',
+            ];
       final slot2 = [
         'Aracın yürüyeninde motorunda hiçbir sıkıntı yoktur, bakımları tazedir.',
         'İlk gelen alır, araç başında ufak bir ikramım olur.',
@@ -442,7 +454,10 @@ class MarketEngine {
       ];
       final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
       _descriptionQueue.push(res);
-      return res;
+      return (
+        description: res,
+        descriptionKey: isUrgentRelocation ? 'desc_flash_urgent_1' : 'desc_flash_house_1',
+      );
     }
 
     if (isRare) {
@@ -462,7 +477,7 @@ class MarketEngine {
       ];
       final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
       _descriptionQueue.push(res);
-      return res;
+      return (description: res, descriptionKey: 'desc_rare_collector_1');
     }
 
     if (declarationType == ListingDeclarationType.honest) {
@@ -495,7 +510,10 @@ class MarketEngine {
       ];
       final res = SlotTextComposer.compose4(slot1: slot1, slot2: slot2, slot3: slot3, slot4: slot4, randomInstance: _random);
       _descriptionQueue.push(res);
-      return res;
+      return (
+        description: res,
+        descriptionKey: tramerAmount > 0 ? 'desc_honest_with_tramer' : 'desc_honest_clean_no_tramer',
+      );
     }
 
     final standardSlot1 = [
@@ -516,7 +534,7 @@ class MarketEngine {
     ];
     final res = SlotTextComposer.compose3(slot1: standardSlot1, slot2: standardSlot2, slot3: standardSlot3, randomInstance: _random);
     _descriptionQueue.push(res);
-    return res;
+    return (description: res, descriptionKey: 'desc_honest_clean_no_tramer');
   }
 
   static ListingModel _generateSingleListing(
@@ -643,10 +661,20 @@ class MarketEngine {
     final barnBaseChance = hasHighNecatiTrust ? 0.10 : 0.04;
     final isBarnFind = !isPristine && (isClassicModel || _random.nextDouble() < barnBaseChance) && _random.nextDouble() < 0.40;
 
-    final cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Trabzon'];
-    final sellerCity = cities[_random.nextInt(cities.length)];
+    final cityData = GameConstants.cities[_random.nextInt(GameConstants.cities.length)];
+    final sellerCity = cityData.trName;
+    final sellerCityKey = cityData.key;
     final paint = _getRandomPaintColor();
     final plate = generateLicensePlate(city: sellerCity);
+
+    final sellerData = _getRandomSellerData();
+    final sellerProfileKey = isPristine
+        ? 'pristine'
+        : (isBarnFind
+            ? 'barn_find'
+            : (isRare
+                ? 'rare'
+                : (isFlashDeal ? 'flash_deal' : (sellerProfile['key'] ?? 'urgent_cash'))));
 
     final carTemp = CarModel(
       id: id,
@@ -700,30 +728,38 @@ class MarketEngine {
 
     final car = carTemp.copyWith(currentPurchasePrice: askingPrice);
 
+    final titleData = _generateTitle(year, brandData.name, modelName, isBarnFind, isRare, isPristine: isPristine);
+    final descData = _generateDescription(
+      isBarnFind: isBarnFind,
+      isFlashDeal: isFlashDeal,
+      isRare: isRare,
+      isPristine: isPristine,
+      declarationType: declarationType,
+      tramerAmount: tramerAmount,
+    );
+
     return ListingModel(
       id: 'listing_$id',
       car: car,
       sellerName: isPristine
-          ? 'Titiz Sahibinden • ${_getRandomSellerName()}'
-          : '${sellerProfile['name']} • ${_getRandomSellerName()}',
+          ? 'Titiz Sahibinden • ${sellerData.trName}'
+          : '${sellerProfile['name']} • ${sellerData.trName}',
       sellerTrait: isPristine
           ? 'Hatasız & Orijinal Garaj Arabası'
           : (isBarnFind
               ? 'Terk Edilmiş Kelepir Araç'
               : (isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!))),
       sellerCity: sellerCity,
-      title: _generateTitle(year, brandData.name, modelName, isBarnFind, isRare, isPristine: isPristine),
-      description: _generateDescription(
-        isBarnFind: isBarnFind,
-        isFlashDeal: isFlashDeal,
-        isRare: isRare,
-        isPristine: isPristine,
-        declarationType: declarationType,
-        tramerAmount: tramerAmount,
-      ),
+      title: titleData.title,
+      description: descData.description,
       askingPrice: askingPrice,
       isExpertiseCompleted: false,
       createdAt: DateTime.now(),
+      sellerProfileKey: sellerProfileKey,
+      sellerNameKey: sellerData.key,
+      sellerCityKey: sellerCityKey,
+      titlePrefixKey: titleData.prefixKey,
+      descriptionKey: descData.descriptionKey,
     );
   }
 
@@ -947,8 +983,8 @@ class MarketEngine {
     return (hex: '#0D0D0F', name: 'Gece Siyahı', rarity: 'standard');
   }
 
-  static String _getRandomSellerName() {
-    final names = ['Ahmet Y.', 'Mehmet K.', 'Caner S.', 'Mustafa B.', 'Emre T.', 'Burak M.'];
+  static ({String key, String trName}) _getRandomSellerData() {
+    final names = GameConstants.sellerNames;
     return names[_random.nextInt(names.length)];
   }
 }

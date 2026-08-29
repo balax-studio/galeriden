@@ -418,12 +418,13 @@ class DashboardRetentionModals {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('SEVİYE ATLADIN!',
-                            style: TextStyle(
+                        Text(context.tr('level_up_badge'),
+                            style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFFF59E0B))),
-                        Text('SEVİYE $newLevel',
+                        Text(
+                            context.tr('level_up_title', {'level': '$newLevel'}),
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w900)),
                       ],
@@ -433,7 +434,7 @@ class DashboardRetentionModals {
               ),
               const SizedBox(height: 12),
               Text(
-                'Tebrikler! Galericilik kariyerinde Seviye $newLevel kademesine ulaştın. Yeni iş kolları, yetenek puanı ve prestijli araç fırsatları açıldı!',
+                context.tr('level_up_modal_desc', {'level': '$newLevel'}),
                 style: TextStyle(
                     fontSize: 12,
                     color: isDark
@@ -451,15 +452,15 @@ class DashboardRetentionModals {
                   border:
                       Border.all(color: const Color(0xFF00E575), width: 2.0),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.star_rounded,
+                    const Icon(Icons.star_rounded,
                         color: Color(0xFF00E575), size: 18),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        '+1 Yetenek Puanı & Yeni Binalar Kullanıma Hazır!',
-                        style: TextStyle(
+                        context.tr('level_up_modal_perk'),
+                        style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF00E575)),
@@ -1062,28 +1063,29 @@ class DashboardRetentionModals {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.workspace_premium_rounded,
+                        const Icon(Icons.workspace_premium_rounded,
                             size: 14, color: Color(0xFFD97706)),
-                        SizedBox(width: 4),
-                        Text('Kalıcı Sezon Kazanımları:',
-                            style: TextStyle(
+                        const SizedBox(width: 4),
+                        Text(context.tr('prestige_season_benefits_title'),
+                            style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 11.5)),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                        '• +%15 Kalıcı Satış Kâr Çarpanı • Mevcut: Sezon ${game.prestigeLevel}',
+                        context.tr('prestige_season_benefit_margin',
+                            {'level': '${game.prestigeLevel}'}),
                         style: const TextStyle(fontSize: 11)),
-                    const Text('• ₺150.000 Başlangıç Can Suyu Kasası',
-                        style: TextStyle(fontSize: 11)),
-                    const Text('• Tüm Yetenekler & Başarımlar Korunur',
-                        style: TextStyle(fontSize: 11)),
-                    const Text(
-                        '• Araç ve bakiye sıfırlanır, yeni efsane başlar',
+                    Text(context.tr('prestige_season_benefit_cash'),
+                        style: const TextStyle(fontSize: 11)),
+                    Text(context.tr('prestige_season_benefit_skills'),
+                        style: const TextStyle(fontSize: 11)),
+                    Text(
+                        context.tr('prestige_season_benefit_reset'),
                         style:
-                            TextStyle(fontSize: 11, color: AppColors.errorRed)),
+                            const TextStyle(fontSize: 11, color: AppColors.errorRed)),
                   ],
                 ),
               ),

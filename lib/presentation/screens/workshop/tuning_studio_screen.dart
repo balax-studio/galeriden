@@ -80,7 +80,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     final game = ref.read(gameProvider);
     if (game.balance < opt.cost) {
       NotificationService.showError(context,
-          'Yetersiz bakiye! ${CurrencyFormatter.formatShort(opt.cost)} gerekli.');
+          context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.formatShort(opt.cost)}));
       return;
     }
 
@@ -203,7 +203,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     final game = ref.read(gameProvider);
     if (game.balance < certCost) {
       NotificationService.showError(context,
-          'Yetersiz bakiye! ${CurrencyFormatter.format(certCost)} gerekli.');
+          context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(certCost)}));
       return;
     }
 

@@ -58,8 +58,10 @@ class _HiddenStashModalState extends State<HiddenStashModal>
   bool _isFinished = false;
 
   double _rewardCash = 0.0;
-  String _foundItemDescription = '';
   String? _statusMessage;
+
+  String get _foundItemDescription =>
+      context.tr('stash_found_desc', {'model': widget.car.modelName});
 
   @override
   void initState() {
@@ -70,8 +72,6 @@ class _HiddenStashModalState extends State<HiddenStashModal>
     )..repeat(reverse: true);
 
     _rewardCash = (widget.car.realMarketValue * 0.08).clamp(15000.0, 60000.0);
-    _foundItemDescription =
-        'Bagaj döşemesi altında gizli ${widget.car.modelName} yarış beyni ve nakit para bulundu!';
   }
 
   @override
@@ -100,7 +100,7 @@ class _HiddenStashModalState extends State<HiddenStashModal>
         _statusMessage = context.tr('stash_found_toast');
       } else {
         _statusMessage =
-            'Sinyal güçleniyor! Zula noktasını taramaya devam et (%${(_stashDiscoveryProgress * 100).round()})...';
+            '${context.tr('stash_scanning_msg')} • %${(_stashDiscoveryProgress * 100).round()}';
       }
     } else {
       _statusMessage = context.tr('stash_idle_msg');

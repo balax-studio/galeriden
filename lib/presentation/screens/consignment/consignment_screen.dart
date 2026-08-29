@@ -152,7 +152,7 @@ class ConsignmentScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'SIFIR SERMAYE İLE ÇİFTE KAZANÇ',
+                            context.tr('consignment_banner_title'),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
@@ -163,7 +163,7 @@ class ConsignmentScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Müşteriler araçlarını galerinize emanet bıraksın. Sıfır sermaye ile hem satış komisyonu hem de günlük sergileme ücreti kazanın!',
+                            context.tr('consignment_banner_desc'),
                             style: TextStyle(
                               fontSize: 11,
                               color: isDark
@@ -340,9 +340,9 @@ class ConsignmentScreen extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Text(
-                  'KAZANÇ',
-                  style: TextStyle(
+                Text(
+                  context.tr('consignment_earnings_label'),
+                  style: const TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textSecondaryLight,

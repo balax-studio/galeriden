@@ -71,8 +71,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
         subtitle: context.tr('stocks_slug'),
         titleBadgeColor: AppColors.brutalGreen,
         headerAnimation: NeoBrutalHeaderAnimation.stockCandle,
-        statusBadge: const NeoBrutalBadge(
-          text: 'BIST CANLI',
+        statusBadge: NeoBrutalBadge(
+          text: context.tr('stocks_live_badge'),
           backgroundColor: AppColors.brutalGreen,
           textColor: Colors.black,
           fontSize: 9.5,

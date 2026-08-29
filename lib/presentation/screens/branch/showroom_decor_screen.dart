@@ -457,7 +457,8 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                               : () {
                                   if (!canAfford) {
                                     NotificationService.showError(
-                                        context, 'Yetersiz Bakiye!');
+                                        context,
+                                        context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(item.cost)}));
                                     return;
                                   }
 

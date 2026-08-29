@@ -78,7 +78,7 @@ class ListingDetailScreen extends ConsumerWidget {
                         car.isWashed || car.isPolished || car.isDetailedCleaned,
                   ),
                   const SizedBox(height: 16),
-                  Text(listing.title,
+                  Text(listing.getLocalizedTitle(context),
                       style: AppTypography.titleLarge(p.isDark)
                           .copyWith(fontSize: 20),
                       textAlign: TextAlign.center),
@@ -98,7 +98,7 @@ class ListingDetailScreen extends ConsumerWidget {
                           size: 16, color: p.textSecondaryColor),
                       const SizedBox(width: 6),
                       Text(
-                        'Şu an $viewerCount kişi bu ilanı inceliyor',
+                        context.tr('market_viewing_count', {'count': '$viewerCount'}),
                         style: AppTypography.labelSmall(p.isDark).copyWith(
                             color: p.textSecondaryColor, fontSize: 12),
                       ),
@@ -149,7 +149,7 @@ class ListingDetailScreen extends ConsumerWidget {
                   _buildSpecRow(context.tr('listing_date'),
                       context.tr('listing_today_live'), p),
                   _buildSpecRow(
-                      context.tr('listing_location'), listing.sellerCity, p),
+                      context.tr('listing_location'), listing.getLocalizedSellerCity(context), p),
                   _buildSpecRow(context.tr('listing_brand_model'),
                       '${car.brand} ${car.modelName}', p),
                   _buildSpecRow(
@@ -185,7 +185,7 @@ class ListingDetailScreen extends ConsumerWidget {
                       p,
                       valueColor: StatColors.getTramerColor(exp.tramerAmount)),
                   _buildSpecRow(context.tr('listing_seller_profile'),
-                      listing.sellerName, p),
+                      listing.getLocalizedSellerName(context), p),
                 ],
               ),
             ),
@@ -238,7 +238,7 @@ class ListingDetailScreen extends ConsumerWidget {
                 border: Border.all(color: p.surfaceBorderColor, width: 2.0),
               ),
               child: Text(
-                '"${listing.description}"',
+                '"${listing.getLocalizedDescription(context)}"',
                 style: AppTypography.bodyMedium(p.isDark)
                     .copyWith(fontStyle: FontStyle.italic, height: 1.4),
               ),

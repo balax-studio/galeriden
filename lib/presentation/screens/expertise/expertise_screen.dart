@@ -146,7 +146,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${car.modelYear} • ${car.bodyType} • ${widget.listing.sellerCity}',
+                            '${car.modelYear} • ${car.bodyType} • ${widget.listing.getLocalizedSellerCity(context)}',
                             style: const TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,

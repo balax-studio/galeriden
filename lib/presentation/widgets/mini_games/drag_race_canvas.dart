@@ -470,18 +470,18 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
         );
 
         if (isWon) {
-          _playerSpeech = 'Oley be şampiyonuz!';
+          _playerSpeech = context.tr('race_player_speech_win');
           _addComicPopup(
-            text: 'FİNİŞ! KAZANDIN!',
+            text: context.tr('race_finish_win'),
             color: AppColors.brutalGreen,
             textColor: Colors.black,
             x: 140,
             y: 35,
           );
         } else {
-          _playerSpeech = 'Hadi be rövanşta görüşeceğiz!';
+          _playerSpeech = context.tr('race_player_speech_loss');
           _addComicPopup(
-            text: 'ELENDİ!',
+            text: context.tr('race_finish_loss'),
             color: AppColors.errorRed,
             textColor: Colors.white,
             x: 140,

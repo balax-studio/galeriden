@@ -403,7 +403,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${currentListing.sellerCity} • Plaka: ${car.plateNumber}',
+                                '${currentListing.getLocalizedSellerCity(context)} • ${context.tr('listing_plate')}: ${car.plateNumber}',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -1615,7 +1615,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                       car: currentListing.car,
                                       buyerName:
                                           '${game.dealershipName} • ${game.playerName}',
-                                      sellerName: currentListing.sellerName,
+                                      sellerName: currentListing.getLocalizedSellerName(context),
                                       salePrice: finalPayPrice,
                                       isBuying: true,
                                       eventResult: NotaryEventResult(

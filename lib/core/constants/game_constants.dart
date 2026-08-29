@@ -302,19 +302,42 @@ class GameConstants {
     'Klasik',
   ];
 
+  // Marketplace Regional Cities
+  static const List<({String key, String trName})> cities = [
+    (key: 'istanbul', trName: 'İstanbul'),
+    (key: 'ankara', trName: 'Ankara'),
+    (key: 'izmir', trName: 'İzmir'),
+    (key: 'bursa', trName: 'Bursa'),
+    (key: 'antalya', trName: 'Antalya'),
+    (key: 'adana', trName: 'Adana'),
+    (key: 'konya', trName: 'Konya'),
+    (key: 'gaziantep', trName: 'Gaziantep'),
+    (key: 'trabzon', trName: 'Trabzon'),
+  ];
+
+  // Marketplace Regional Seller Names
+  static const List<({String key, String trName})> sellerNames = [
+    (key: '1', trName: 'Ahmet Y.'),
+    (key: '2', trName: 'Mehmet K.'),
+    (key: '3', trName: 'Caner S.'),
+    (key: '4', trName: 'Mustafa B.'),
+    (key: '5', trName: 'Emre T.'),
+    (key: '6', trName: 'Burak M.'),
+  ];
+
   // Seller Profiles for Offline Market
   static const List<Map<String, String>> sellerProfiles = [
-    {'name': 'Doktordan Temiz', 'trait': 'Titiz, az pazarlık yapar', 'urgency': 'low'},
-    {'name': 'Acil Satılık Sahibinden', 'trait': 'Aceleci, kelepir fiyata verebilir', 'urgency': 'high'},
-    {'name': 'Galeriden Takaslı', 'trait': 'Pazarlığa açık, kar marjı makul', 'urgency': 'medium'},
-    {'name': 'İlk Sahibinden Borçtan', 'trait': 'Fiyat esnek, tamire ihtiyacı var', 'urgency': 'high'},
-    {'name': 'Koleksiyoner', 'trait': 'Fiyatı yüksek tutar, araç temizdir', 'urgency': 'low'},
-    {'name': 'Memurdan Sigara İçilmemiş', 'trait': 'Bakımları tam, fiyatta inatçı', 'urgency': 'medium'},
-    {'name': 'Yurt Dışına Çıkacağı İçin', 'trait': 'Zamanı dar, nakit arıyor', 'urgency': 'high'},
-    {'name': 'Keyfe Keder Satılık', 'trait': 'Satmaya niyeti yok, piyasa yokluyor', 'urgency': 'low'},
-    {'name': 'Öğretmenden Servis Bakımlı', 'trait': 'Dürüst, masrafı az', 'urgency': 'medium'},
-    {'name': 'Askerden Dönüş Aciliyetli', 'trait': 'Nakit paraya sıkışmış, hızlı satış', 'urgency': 'high'},
-    {'name': 'Müteahhitten Takaslı', 'trait': 'Üste para alacağı araç arıyor', 'urgency': 'medium'},
-    {'name': 'Ev Alacağı İçin Satılık', 'trait': 'Acil peşinat lazım, fiyatta kırar', 'urgency': 'high'},
+    {'key': 'doctor', 'name': 'Doktordan Temiz', 'trait': 'Titiz, az pazarlık yapar', 'urgency': 'low'},
+    {'key': 'urgent_cash', 'name': 'Acil Satılık Sahibinden', 'trait': 'Aceleci, kelepir fiyata verebilir', 'urgency': 'high'},
+    {'key': 'trade_in', 'name': 'Galeriden Takaslı', 'trait': 'Pazarlığa açık, kar marjı makul', 'urgency': 'medium'},
+    {'key': 'debt', 'name': 'İlk Sahibinden Borçtan', 'trait': 'Fiyat esnek, tamire ihtiyacı var', 'urgency': 'high'},
+    {'key': 'collector', 'name': 'Koleksiyoner', 'trait': 'Fiyatı yüksek tutar, araç temizdir', 'urgency': 'low'},
+    {'key': 'officer', 'name': 'Memurdan Sigara İçilmemiş', 'trait': 'Bakımları tam, fiyatta inatçı', 'urgency': 'medium'},
+    {'key': 'abroad', 'name': 'Yurt Dışına Çıkacağı İçin', 'trait': 'Zamanı dar, nakit arıyor', 'urgency': 'high'},
+    {'key': 'whim', 'name': 'Keyfe Keder Satılık', 'trait': 'Satmaya niyeti yok, piyasa yokluyor', 'urgency': 'low'},
+    {'key': 'teacher', 'name': 'Öğretmenden Servis Bakımlı', 'trait': 'Dürüst, masrafı az', 'urgency': 'medium'},
+    {'key': 'military', 'name': 'Askerden Dönüş Aciliyetli', 'trait': 'Nakit paraya sıkışmış, hızlı satış', 'urgency': 'high'},
+    {'key': 'contractor', 'name': 'Müteahhitten Takaslı', 'trait': 'Üste para alacağı araç arıyor', 'urgency': 'medium'},
+    {'key': 'house_downpayment', 'name': 'Ev Alacağı İçin Satılık', 'trait': 'Acil peşinat lazım, fiyatta kırar', 'urgency': 'high'},
   ];
 }

@@ -160,7 +160,7 @@ class WorkshopRepairTile extends StatelessWidget {
               if (!isRepaired && onAdRepair != null) ...[
                 const SizedBox(height: 6),
                 NeoBrutalButton(
-                  label: 'ÜCRETSİZ', // Free
+                  label: context.tr('general_btn_free'),
                   icon: Icons.play_circle_filled_rounded,
                   backgroundColor: const Color(0xFFA855F7),
                   textColor: Colors.white,

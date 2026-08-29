@@ -95,7 +95,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       }
 
       if (_selectedFilter == 'bargain') {
-        return item.sellerTrait.contains('Fırsat') ||
+        return item.sellerProfileKey == 'flash_deal' ||
+            item.sellerProfileKey == 'barn_find' ||
+            item.sellerProfileKey == 'debt' ||
+            item.sellerTrait.contains('Fırsat') ||
             item.askingPrice < item.car.estimatedRealValue * 0.88;
       } else if (_selectedFilter == 'clean') {
         return item.car.expertise.bodyParts.values
@@ -383,14 +386,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             final car = item.car;
                             final exp = car.expertise;
                             final isFlash =
-                                item.sellerTrait.contains('Fırsat') ||
+                                item.sellerProfileKey == 'flash_deal' ||
+                                    item.sellerProfileKey == 'barn_find' ||
+                                    item.sellerProfileKey == 'debt' ||
+                                    item.sellerTrait.contains('Fırsat') ||
                                     item.askingPrice <
                                         car.estimatedRealValue * 0.88;
                             final viewerCount = (item.id.hashCode % 12) + 3;
                             final carColor = Color(int.parse(
                                 car.colorHex.replaceFirst('#', '0xFF')));
                             final persona =
-                                SellerPersona.fromString(item.sellerTrait);
+                                SellerPersona.fromListing(item);
 
                             final showAdBefore =
                                 AdService.shouldShowNativeAdForDay(
@@ -574,7 +580,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                                 ),
                                                 const SizedBox(height: 2),
                                                 Text(
-                                                  '${item.sellerCity} • ${car.modelYear} Model • ${item.sellerName}',
+                                                  '${item.getLocalizedSellerCity(context)} • ${car.modelYear} Model • ${item.getLocalizedSellerName(context)}',
                                                   style: TextStyle(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w600,

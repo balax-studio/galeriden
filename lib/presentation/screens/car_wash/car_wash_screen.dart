@@ -67,146 +67,164 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                      child: Text(context.tr('wash_scent_title'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          context.tr('wash_scent_title'),
                           style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w900))),
-                  NeoBrutalBadge(
-                      text: context.tr('wash_scent_sub'),
-                      backgroundColor: AppColors.brutalYellow,
-                      textColor: Colors.black,
-                      fontSize: 10),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.tr('wash_scent_hint'),
-                style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF64748B),
-                    fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 14),
-              ...CarScent.availableScents.map((scent) {
-                final isCurrent = car.appliedScentId == scent.id;
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: NeoBrutalCard(
-                    padding: const EdgeInsets.all(10),
-                    backgroundColor: isDark
-                        ? const Color(0xFF1E2330)
-                        : const Color(0xFFF8FAFC),
-                    borderColor: isDark
-                        ? const Color(0xFF333B4F)
-                        : const Color(0xFF0F172A),
-                    borderRadius: 10,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: scent.badgeColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: Colors.black, width: 1.5),
-                                ),
-                                child: Icon(scent.icon,
-                                    color: Colors.black, size: 20),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            scent.getLocalizedName(lang),
-                                            style: const TextStyle(
-                                                fontSize: 12.5,
-                                                fontWeight: FontWeight.w900),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        NeoBrutalBadge(
-                                            text: scent.buyerAppealBuff,
-                                            backgroundColor: scent.badgeColor,
-                                            textColor: Colors.black,
-                                            fontSize: 8.5),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      '${scent.getLocalizedDescription(lang)} • ${CurrencyFormatter.format(scent.cost)}',
-                                      style: const TextStyle(
-                                          fontSize: 10.5,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF64748B)),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                              fontSize: 15, fontWeight: FontWeight.w900),
                         ),
-                        const SizedBox(width: 8),
-                        NeoBrutalButton(
-                          label: isCurrent
-                              ? context.tr('btn_scent_hung')
-                              : context.tr('btn_hang_scent'),
-                          backgroundColor: isCurrent
-                              ? const Color(0xFF00E575)
-                              : AppColors.brutalYellow,
-                          textColor: Colors.black,
-                          fontSize: 10.5,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 6),
-                          onPressed: isCurrent
-                              ? null
-                              : () {
-                                  Navigator.pop(ctx);
-                                  final game = ref.read(gameProvider);
-                                  if (game.balance < scent.cost) {
-                                    NotificationService.showError(context,
-                                        'Yetersiz bakiye! ${CurrencyFormatter.format(scent.cost)} gerekli.');
-                                    return;
-                                  }
-                                  final success = ref
-                                      .read(gameProvider.notifier)
-                                      .applyCarScent(car.id, scent);
-                                  if (success) {
-                                    NotificationService.showSuccess(context,
-                                        context.tr('wash_toast_scent'));
-                                    setState(() {});
-                                  }
-                                },
-                        ),
-                      ],
+                      ),
+                      NeoBrutalBadge(
+                        text: context.tr('wash_scent_sub'),
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 10,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    context.tr('wash_scent_hint'),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                );
-              }),
-            ],
+                  const SizedBox(height: 14),
+                  ...CarScent.availableScents.map((scent) {
+                    final isCurrent = car.appliedScentId == scent.id;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: NeoBrutalCard(
+                        padding: const EdgeInsets.all(10),
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFF8FAFC),
+                        borderColor: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
+                        borderRadius: 10,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: scent.badgeColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Colors.black, width: 1.5),
+                                    ),
+                                    child: Icon(scent.icon,
+                                        color: Colors.black, size: 20),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                scent.getLocalizedName(lang),
+                                                style: const TextStyle(
+                                                    fontSize: 12.5,
+                                                    fontWeight:
+                                                        FontWeight.w900),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            NeoBrutalBadge(
+                                              text: scent.buyerAppealBuff,
+                                              backgroundColor:
+                                                  scent.badgeColor,
+                                              textColor: Colors.black,
+                                              fontSize: 8.5,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '${scent.getLocalizedDescription(lang)} • ${CurrencyFormatter.format(scent.cost)}',
+                                          style: const TextStyle(
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF64748B)),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            NeoBrutalButton(
+                              label: isCurrent
+                                  ? context.tr('btn_scent_hung')
+                                  : context.tr('btn_hang_scent'),
+                              backgroundColor: isCurrent
+                                  ? const Color(0xFF00E575)
+                                  : AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 10.5,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 6),
+                              onPressed: isCurrent
+                                  ? null
+                                  : () {
+                                      Navigator.pop(ctx);
+                                      final game = ref.read(gameProvider);
+                                      if (game.balance < scent.cost) {
+                                        NotificationService.showError(
+                                          context,
+                                          context.tr(
+                                            'toast_insufficient_balance_needed',
+                                            {
+                                              'cost': CurrencyFormatter.format(
+                                                  scent.cost)
+                                            },
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .applyCarScent(car.id, scent);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                            context,
+                                            context.tr('wash_toast_scent'));
+                                        setState(() {});
+                                      }
+                                    },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
-  },
-);
-}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -250,9 +268,9 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
         title: context.tr('car_wash_title'),
         subtitle: context.tr('car_wash_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.waterBubbles,
-        statusBadge: const NeoBrutalBadge(
-          text: 'KÖPÜK: DOLU',
-          backgroundColor: Color(0xFF38BDF8),
+        statusBadge: NeoBrutalBadge(
+          text: context.tr('car_wash_foam_full'),
+          backgroundColor: const Color(0xFF38BDF8),
           textColor: Colors.black,
           fontSize: 9.5,
         ),
@@ -932,8 +950,11 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                               .tr('wash_toast_headlight_done'));
                                       setState(() {});
                                     } else {
-                                      NotificationService.showError(context,
-                                          'Yetersiz bakiye! ₺850 gerekli.');
+                                      NotificationService.showError(
+                                          context,
+                                          context.tr(
+                                              'toast_insufficient_balance_needed',
+                                              {'cost': '₺850'}));
                                     }
                                   },
                           ),
@@ -966,8 +987,11 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                                               'wash_toast_iron_decon_done'));
                                       setState(() {});
                                     } else {
-                                      NotificationService.showError(context,
-                                          'Yetersiz bakiye! ₺450 gerekli.');
+                                      NotificationService.showError(
+                                          context,
+                                          context.tr(
+                                              'toast_insufficient_balance_needed',
+                                              {'cost': '₺450'}));
                                     }
                                   },
                           ),
@@ -1028,6 +1052,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               ),
               const SizedBox(height: 8),
 
+              // Service 1: Köpüklü Yıkama
               _buildServicePackageTile(
                 title: context.tr('car_wash_pkg_1_title'),
                 subtitle: context.tr('car_wash_pkg_1_desc'),
@@ -1052,6 +1077,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               ),
               const SizedBox(height: 8),
 
+              // Service 2: İç Detaylı Temizlik
               _buildServicePackageTile(
                 title: context.tr('car_wash_pkg_2_title'),
                 subtitle: context.tr('car_wash_pkg_2_desc'),
@@ -1076,6 +1102,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               ),
               const SizedBox(height: 8),
 
+              // Service 3: Pasta Cila & Boya Koruma
               _buildServicePackageTile(
                 title: context.tr('car_wash_pkg_3_title'),
                 subtitle: context.tr('car_wash_pkg_3_desc'),
@@ -1102,6 +1129,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               ),
               const SizedBox(height: 8),
 
+              // Service 4: Seramik Kaplama & VIP Detailing
               _buildServicePackageTile(
                 title: context.tr('car_wash_pkg_4_title'),
                 subtitle: context.tr('car_wash_pkg_4_desc'),
@@ -1140,46 +1168,43 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
               _buildEquipmentTile(
                 id: 'wash_eq_hot_water',
-                title: 'Basınçlı Sıcak Su Tabancası',
-                description:
-                    'Zift ve inatçı kirleri saniyeler içinde çözer, yıkama hızını artırır.',
+                title: context.tr('car_wash_eq_gun_title'),
+                description: context.tr('car_wash_eq_gun_desc'),
                 cost: 25000.0,
                 isOwned: hasHotWaterGun,
                 icon: Icons.electric_bolt_rounded,
                 color: const Color(0xFFFF7A00),
                 isDark: isDark,
                 onBuy: () => _buyEquipment('wash_eq_hot_water', 25000.0,
-                    'Basınçlı Sıcak Su Tabancası'),
+                    context.tr('car_wash_eq_gun_title')),
               ),
               const SizedBox(height: 8),
 
               _buildEquipmentTile(
                 id: 'wash_eq_foam_pump',
-                title: 'Otomatik Köpük Dozajlayıcı Pompa',
-                description:
-                    'Şampuan ve kimyasal sarfiyatını %30 düşürerek tüm yıkama maliyetlerini kalıcı olarak indirir.',
+                title: context.tr('car_wash_eq_pump_title'),
+                description: context.tr('car_wash_eq_pump_desc'),
                 cost: 60000.0,
                 isOwned: hasFoamPump,
                 icon: Icons.science_rounded,
                 color: const Color(0xFF00E575),
                 isDark: isDark,
                 onBuy: () => _buyEquipment('wash_eq_foam_pump', 60000.0,
-                    'Otomatik Köpük Dozajlayıcı Pompa'),
+                    context.tr('car_wash_eq_pump_title')),
               ),
               const SizedBox(height: 8),
 
               _buildEquipmentTile(
                 id: 'wash_eq_dual_polisher',
-                title: 'Endüstriyel Çift Kafalı Polisaj Makinesi',
-                description:
-                    'Pasta cila işlemlerinde araç değer artış kâr çarpanını %6\'dan %8\'e çıkarır.',
+                title: context.tr('car_wash_eq_polisher_title'),
+                description: context.tr('car_wash_eq_polisher_desc'),
                 cost: 140000.0,
                 isOwned: hasPolisher,
                 icon: Icons.build_circle_rounded,
                 color: const Color(0xFFA855F7),
                 isDark: isDark,
                 onBuy: () => _buyEquipment('wash_eq_dual_polisher', 140000.0,
-                    'Endüstriyel Çift Kafalı Polisaj Makinesi'),
+                    context.tr('car_wash_eq_polisher_title')),
               ),
             ],
           ],
@@ -1304,7 +1329,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
             isApplied: isCompleted,
             isLoading: isLoading,
             loadingIcon: loadingIcon,
-            loadingLabel: 'İŞLENİYOR...',
+            loadingLabel: context.tr('general_processing'),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             onPressed: isCompleted || isLoading ? null : onApply,
           ),
@@ -1408,16 +1433,21 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
   }) async {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context,
-          'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(
+        context,
+        context.tr(
+          'toast_insufficient_balance_needed',
+          {'cost': CurrencyFormatter.format(cost)},
+        ),
+      );
       return;
     }
 
     setState(() => _loadingServiceId = serviceId);
 
     // Dopamine wait for snappiness & anticipation
-    await Future.delayed(const Duration(milliseconds: 1400));
-    
+    await Future.delayed(const Duration(milliseconds: 600));
+
     if (!mounted) return;
 
     final success = ref.read(gameProvider.notifier).performWashService(
@@ -1441,8 +1471,13 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
   void _buyEquipment(String eqId, double cost, String name) {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
-      NotificationService.showError(context,
-          'Yetersiz Bakiye! ${CurrencyFormatter.format(cost)} gerekiyor.');
+      NotificationService.showError(
+        context,
+        context.tr(
+          'toast_insufficient_balance_needed',
+          {'cost': CurrencyFormatter.format(cost)},
+        ),
+      );
       return;
     }
 
