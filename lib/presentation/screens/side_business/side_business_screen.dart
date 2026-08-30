@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
-import '../../../core/services/ad_service.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/side_business_model.dart';
@@ -12,6 +11,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/dialogs/generic_rush_job_dialog.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'widgets/side_business_detail_sheet.dart';
 
@@ -481,16 +481,23 @@ class SideBusinessScreen extends ConsumerWidget {
                             children: [
                               NeoBrutalButton(
                                 label: context.tr('side_biz_btn_rush'),
-                                icon: Icons.play_circle_fill_rounded,
+                                icon: Icons.bolt_rounded,
                                 backgroundColor: AppColors.brutalYellow,
                                 textColor: Colors.black,
                                 fontSize: 10.5,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 8),
                                 onPressed: () {
-                                  AdService.instance.showRewardedAdWithFallback(
-                                    context: context,
-                                    onRewardEarned: () {
+                                  GenericRushJobDialog.show(
+                                    context,
+                                    titleBadge: context.tr('rush_lore_construction_title'),
+                                    targetTitle: '${business.type.getLocalizedName(Localizations.localeOf(context).languageCode)} • ${context.tr('side_biz_status_building')}',
+                                    targetSubtitle: '${business.constructionDaysRemaining} ${context.tr('rush_lore_days_remaining', {'days': business.constructionDaysRemaining.toString()})}',
+                                    loreDescription: context.tr('rush_lore_construction_desc'),
+                                    icon: Icons.apartment_rounded,
+                                    badgeColor: AppColors.brutalYellow,
+                                    actionButtonLabel: context.tr('rush_lore_construction_btn'),
+                                    onRushSuccess: () {
                                       final success = ref
                                           .read(gameProvider.notifier)
                                           .completeSideBusinessConstruction(

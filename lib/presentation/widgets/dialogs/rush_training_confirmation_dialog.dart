@@ -169,7 +169,7 @@ class RushTrainingConfirmationDialog extends ConsumerWidget {
                     flex: 2,
                     child: NeoBrutalButton(
                       label: context.tr('rush_training_btn_watch'),
-                      icon: Icons.play_circle_fill_rounded,
+                      icon: Icons.card_membership_rounded,
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
                       fontSize: 11,

@@ -23,6 +23,7 @@ import '../../../data/models/mission_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
 import '../../../data/models/customer_crm_event_model.dart';
+import '../../../data/models/active_service_job_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/dramatic_card_engine.dart';
 import '../../../domain/usecases/random_event_engine.dart';
@@ -238,6 +239,16 @@ mixin GameTimeMixin on GameBaseNotifier {
       }
     }
 
+    // Process Multi-Day Active Service Jobs (§SPEC-2026-RUSH-LORE-MASTER)
+    final serviceJobsResult = _processActiveServiceJobs(
+        nextDay,
+        List<ActiveServiceJobModel>.from(state.activeServiceJobs),
+        currentCars,
+        newEvents);
+    final updatedServiceJobs = serviceJobsResult.$1;
+    currentCars = serviceJobsResult.$2;
+    newEvents = serviceJobsResult.$3;
+
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
@@ -258,6 +269,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       scrapyardCars: currentScrapCars,
       blackMarketCars: currentBlackCars,
       b2bPartOrders: updatedB2BOrders,
+      activeServiceJobs: updatedServiceJobs,
       daysSinceLastStoryAd: storyAd.$1,
       nextStoryAdTargetDays: storyAd.$2,
       pendingStoryCard: storyAd.$3,
@@ -1537,5 +1549,60 @@ mixin GameTimeMixin on GameBaseNotifier {
       count: 4,
       playerLevel: state.level,
     );
+  }
+
+  (List<ActiveServiceJobModel>, List<CarModel>, List<GameEventModel>)
+      _processActiveServiceJobs(
+    int nextDay,
+    List<ActiveServiceJobModel> jobs,
+    List<CarModel> currentCars,
+    List<GameEventModel> events,
+  ) {
+    final remainingJobs = <ActiveServiceJobModel>[];
+    var updatedCars = List<CarModel>.from(currentCars);
+
+    for (final job in jobs) {
+      final updatedRemaining = job.remainingDays - 1;
+      if (updatedRemaining <= 0) {
+        // Job is completed!
+        events.insert(
+          0,
+          GameEventModel(
+            id: 'job_done_${job.id}_$nextDay',
+            title: '${job.targetTitle} Tamamlandı!',
+            description:
+                'Gün $nextDay: ${job.targetTitle} operasyonu başarıyla tamamlanarak teslim edildi.',
+            amount: 0.0,
+            type: GameEventType.goodEvent,
+            date: DateTime.now(),
+          ),
+        );
+        // Handle specific type side effects on car if entity exists
+        if (job.targetEntityId.isNotEmpty) {
+          final carIndex =
+              updatedCars.indexWhere((c) => c.id == job.targetEntityId);
+          if (carIndex != -1) {
+            var car = updatedCars[carIndex];
+            if (job.type == ServiceJobType.workshopEngineOverhaul) {
+              car = car.copyWith(
+                expertise: car.expertise.copyWith(engineCondition: 100.0),
+              );
+            } else if (job.type == ServiceJobType.carWashCeramicCure ||
+                job.type == ServiceJobType.carWashPpfArmor) {
+              car = car.copyWith(
+                isDetailedCleaned: true,
+                isWashed: true,
+                isPolished: true,
+              );
+            }
+            updatedCars[carIndex] = car;
+          }
+        }
+      } else {
+        remainingJobs.add(job.copyWith(remainingDays: updatedRemaining));
+      }
+    }
+
+    return (remainingJobs, updatedCars, events);
   }
 }

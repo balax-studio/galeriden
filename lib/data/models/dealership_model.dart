@@ -32,6 +32,7 @@ import 'pr_campaign_model.dart';
 import 'branch_model.dart';
 import 'customer_crm_event_model.dart';
 import 'casino_game_model.dart';
+import 'active_service_job_model.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -198,6 +199,7 @@ class DealershipModel {
   final List<ScrapyardCar> scrapyardCars;
   final List<BlackMarketCarModel> blackMarketCars;
   final List<B2BPartOrder> b2bPartOrders;
+  final List<ActiveServiceJobModel> activeServiceJobs;
 
   final Set<String> unlockedBuildings;
 
@@ -975,6 +977,7 @@ class DealershipModel {
     this.scrapyardCars = const [],
     this.blackMarketCars = const [],
     this.b2bPartOrders = const [],
+    this.activeServiceJobs = const [],
     this.unlockedBuildings = const {},
     this.seenStoryCardIds = const [],
     this.daysSinceLastStoryAd = 0,
@@ -1417,6 +1420,7 @@ class DealershipModel {
       'scrapyardCars': scrapyardCars.map((c) => c.toJson()).toList(),
       'blackMarketCars': blackMarketCars.map((c) => c.toJson()).toList(),
       'b2bPartOrders': b2bPartOrders.map((o) => o.toJson()).toList(),
+      'activeServiceJobs': activeServiceJobs.map((j) => j.toJson()).toList(),
       'unlockedBuildings': unlockedBuildings.toList(),
       'seenStoryCardIds': seenStoryCardIds,
       'daysSinceLastStoryAd': daysSinceLastStoryAd,
@@ -1574,6 +1578,7 @@ class DealershipModel {
       scrapyardCars: parseList(json['scrapyardCars'] as List<dynamic>?, ScrapyardCar.fromJson),
       blackMarketCars: parseList(json['blackMarketCars'] as List<dynamic>?, BlackMarketCarModel.fromJson),
       b2bPartOrders: parseList(json['b2bPartOrders'] as List<dynamic>?, B2BPartOrder.fromJson),
+      activeServiceJobs: parseList(json['activeServiceJobs'] as List<dynamic>?, ActiveServiceJobModel.fromJson),
       unlockedBuildings: (json['unlockedBuildings'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {
         '/marketplace',
         '/showroom',
@@ -1773,6 +1778,7 @@ class DealershipModel {
     List<ScrapyardCar>? scrapyardCars,
     List<BlackMarketCarModel>? blackMarketCars,
     List<B2BPartOrder>? b2bPartOrders,
+    List<ActiveServiceJobModel>? activeServiceJobs,
     Set<String>? unlockedBuildings,
     List<String>? seenStoryCardIds,
     int? daysSinceLastStoryAd,
@@ -1907,6 +1913,7 @@ class DealershipModel {
       scrapyardCars: scrapyardCars ?? this.scrapyardCars,
       blackMarketCars: blackMarketCars ?? this.blackMarketCars,
       b2bPartOrders: b2bPartOrders ?? this.b2bPartOrders,
+      activeServiceJobs: activeServiceJobs ?? this.activeServiceJobs,
       unlockedBuildings: unlockedBuildings ?? this.unlockedBuildings,
       seenStoryCardIds: seenStoryCardIds ?? this.seenStoryCardIds,
       daysSinceLastStoryAd: daysSinceLastStoryAd ?? this.daysSinceLastStoryAd,
@@ -2007,6 +2014,7 @@ class DealershipModel {
       incomingOffers: [],
       activeLoans: [],
       pendingOrders: [],
+      activeServiceJobs: [],
       activeCheques: [],
       activeInstallments: [],
       activeRentals: [],

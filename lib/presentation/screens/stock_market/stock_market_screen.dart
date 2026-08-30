@@ -118,8 +118,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
             // Live Stock Market Marquee Ticker
             MarqueeTickerWidget(
               newsItems: game.marketStocks.isNotEmpty
-                  ? (game.marketStocks as List)
-                      .map((s) => '${s.code}: ₺${CurrencyFormatter.formatShort(s.currentPrice)} ${s.dayChangePercent >= 0 ? '+' : ''}${s.dayChangePercent.toStringAsFixed(1)}%')
+                  ? (game.marketStocks as List<StockModel>)
+                      .map((s) => '${s.symbol}: ₺${CurrencyFormatter.formatShort(s.currentPrice)} ${s.changePercentage >= 0 ? '+' : ''}${s.changePercentage.toStringAsFixed(1)}%')
                       .toList()
                   : const [
                       'BİST OTO-100 ENDEKSİ HAREKETLİ',

@@ -106,12 +106,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert Dialog Header & Content
-      expect(find.text('HIZLANDIRILMIŞ DİPLOMA'), findsWidgets);
+      expect(find.text('ÖZEL SANAYİ SEMİNERİ'), findsWidgets);
       expect(find.text('Usta Ahmet'), findsOneWidget);
       expect(find.textContaining('2 gün kaldı'), findsOneWidget);
-      expect(find.textContaining('video reklam izleyerek'), findsOneWidget);
+      expect(find.textContaining('Otomotiv Sanayi Odası'), findsOneWidget);
       expect(find.text('İPTAL'), findsOneWidget);
-      expect(find.text('REKLAM İZLE & MEZUN ET'), findsOneWidget);
+      expect(find.text('SPONSOR DESTEĞİ AL & MEZUN ET'), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 500));
@@ -231,8 +231,8 @@ void main() {
       await tester.tap(find.text('OPEN DIALOG'));
       await tester.pumpAndSettle();
 
-      // Tap "REKLAM İZLE & MEZUN ET"
-      await tester.tap(find.text('REKLAM İZLE & MEZUN ET'));
+      // Tap "SPONSOR DESTEĞİ AL & MEZUN ET"
+      await tester.tap(find.text('SPONSOR DESTEĞİ AL & MEZUN ET'));
       await tester.pumpAndSettle();
 
       // In test environment, fallback ad dialog opens; claim reward

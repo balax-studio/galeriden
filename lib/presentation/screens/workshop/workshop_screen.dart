@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -23,6 +22,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/dialogs/generic_rush_job_dialog.dart';
 import 'widgets/animated_order_card.dart';
 import 'widgets/barn_find_restoration_sheet.dart';
 import 'widgets/order_parts_sheet.dart';
@@ -1292,10 +1292,16 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               _selectedCar!, 'engine', tier, cost),
                         ),
                         onAdRepair: () {
-                          AdService.instance.showRewardedAdWithFallback(
-                            context: context,
-                            customRewardTitle: context.tr('workshop_station_engine'),
-                            onRewardEarned: () {
+                          GenericRushJobDialog.show(
+                            context,
+                            titleBadge: context.tr('rush_lore_night_shift_title'),
+                            targetTitle: '${_selectedCar!.brand} ${_selectedCar!.modelName} • ${context.tr('workshop_station_engine')}',
+                            targetSubtitle: context.tr('workshop_station_engine_desc'),
+                            loreDescription: context.tr('rush_lore_night_shift_desc'),
+                            icon: Icons.precision_manufacturing_rounded,
+                            badgeColor: const Color(0xFF10B981),
+                            actionButtonLabel: context.tr('rush_lore_night_shift_btn'),
+                            onRushSuccess: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
                                 repairType: 'engine',
@@ -1336,10 +1342,16 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               _selectedCar!, 'transmission', tier, cost),
                         ),
                         onAdRepair: () {
-                          AdService.instance.showRewardedAdWithFallback(
-                            context: context,
-                            customRewardTitle: context.tr('workshop_station_transmission'),
-                            onRewardEarned: () {
+                          GenericRushJobDialog.show(
+                            context,
+                            titleBadge: context.tr('rush_lore_night_shift_title'),
+                            targetTitle: '${_selectedCar!.brand} ${_selectedCar!.modelName} • ${context.tr('workshop_station_transmission')}',
+                            targetSubtitle: context.tr('workshop_station_transmission_desc'),
+                            loreDescription: context.tr('rush_lore_night_shift_desc'),
+                            icon: Icons.settings_input_component_rounded,
+                            badgeColor: const Color(0xFF38BDF8),
+                            actionButtonLabel: context.tr('rush_lore_night_shift_btn'),
+                            onRushSuccess: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
                                 repairType: 'transmission',
@@ -1380,10 +1392,16 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               _selectedCar!, 'ecu', tier, cost),
                         ),
                         onAdRepair: () {
-                          AdService.instance.showRewardedAdWithFallback(
-                            context: context,
-                            customRewardTitle: context.tr('workshop_station_ecu'),
-                            onRewardEarned: () {
+                          GenericRushJobDialog.show(
+                            context,
+                            titleBadge: context.tr('rush_lore_ecu_flash_title'),
+                            targetTitle: '${_selectedCar!.brand} ${_selectedCar!.modelName} • ${context.tr('workshop_station_ecu')}',
+                            targetSubtitle: context.tr('workshop_station_ecu_desc'),
+                            loreDescription: context.tr('rush_lore_ecu_flash_desc'),
+                            icon: Icons.memory_rounded,
+                            badgeColor: const Color(0xFFA855F7),
+                            actionButtonLabel: context.tr('rush_lore_ecu_flash_btn'),
+                            onRushSuccess: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
                                 repairType: 'ecu',
@@ -1426,10 +1444,16 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               _selectedCar!, 'bodywork', tier, cost),
                         ),
                         onAdRepair: () {
-                          AdService.instance.showRewardedAdWithFallback(
-                            context: context,
-                            customRewardTitle: context.tr('workshop_station_bodywork'),
-                            onRewardEarned: () {
+                          GenericRushJobDialog.show(
+                            context,
+                            titleBadge: context.tr('rush_lore_paint_booth_title'),
+                            targetTitle: '${_selectedCar!.brand} ${_selectedCar!.modelName} • ${context.tr('workshop_station_bodywork')}',
+                            targetSubtitle: context.tr('workshop_station_bodywork_desc'),
+                            loreDescription: context.tr('rush_lore_paint_booth_desc'),
+                            icon: Icons.format_paint_rounded,
+                            badgeColor: const Color(0xFFFFDE59),
+                            actionButtonLabel: context.tr('rush_lore_paint_booth_btn'),
+                            onRushSuccess: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
                                 repairType: 'bodywork',
@@ -1472,10 +1496,16 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                               _selectedCar!, 'chassis', tier, cost),
                         ),
                         onAdRepair: () {
-                          AdService.instance.showRewardedAdWithFallback(
-                            context: context,
-                            customRewardTitle: context.tr('workshop_station_chassis'),
-                            onRewardEarned: () {
+                          GenericRushJobDialog.show(
+                            context,
+                            titleBadge: context.tr('rush_lore_chassis_laser_title'),
+                            targetTitle: '${_selectedCar!.brand} ${_selectedCar!.modelName} • ${context.tr('workshop_station_chassis')}',
+                            targetSubtitle: context.tr('workshop_station_chassis_desc'),
+                            loreDescription: context.tr('rush_lore_chassis_laser_desc'),
+                            icon: Icons.straighten_rounded,
+                            badgeColor: const Color(0xFFEF4444),
+                            actionButtonLabel: context.tr('rush_lore_chassis_laser_btn'),
+                            onRushSuccess: () {
                               final success = ref.read(gameProvider.notifier).performWorkshopStationRepair(
                                 _selectedCar!.id,
                                 repairType: 'chassis',
@@ -1491,6 +1521,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                           );
                         },
                       ),
+
                     ],
                   );
                 },
@@ -1527,11 +1558,20 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                       }
                     },
                     onFastDeliverWithAd: () {
-                      AdService.instance.showRewardedAdWithFallback(
-                        context: context,
-                        customRewardTitle:
-                            context.tr('workshop_fast_shipping_title'),
-                        onRewardEarned: () {
+                      GenericRushJobDialog.show(
+                        context,
+                        titleBadge: context.tr('rush_lore_air_cargo_title'),
+                        targetTitle: order.partName,
+                        targetSubtitle: context.tr(
+                            'order_card_in_cargo', {'sec': order.remainingSeconds}),
+                        loreDescription:
+                            context.tr('rush_lore_air_cargo_desc'),
+                        icon: Icons.airplanemode_active_rounded,
+                        badgeColor: AppColors.brutalYellow,
+                        actionButtonLabel:
+                            context.tr('rush_lore_air_cargo_btn'),
+                        actionButtonIcon: Icons.flight_takeoff_rounded,
+                        onRushSuccess: () {
                           ref
                               .read(gameProvider.notifier)
                               .instantDeliverPartOrder(order.id);

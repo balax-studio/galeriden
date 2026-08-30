@@ -340,7 +340,7 @@ void main() {
 
       // Staff starts multi-day training
       expect(container.read(gameProvider).hiredStaff.first.isUnderTraining, true);
-      expect(find.text('HIZLANDIRILMIŞ DİPLOMA'), findsOneWidget);
+      expect(find.text('SPONSORLU BURS • MEZUN ET'), findsOneWidget);
       expect(find.text('EĞİTİMDE'), findsWidgets);
       expect(container.read(gameProvider).balance < balanceBeforeCourse, true);
 
