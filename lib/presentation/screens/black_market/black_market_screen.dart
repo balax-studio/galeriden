@@ -154,7 +154,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
     final bmCars = game.blackMarketCars;
 
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.fromLTRB(
+          14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
       physics: const BouncingScrollPhysics(),
       children: [
         // Banner Warning & Shadow Contact Info
@@ -357,7 +358,10 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Piyasa: ${CurrencyFormatter.formatShort(car.realMarketValue)}',
+                                  context.tr('bm_market_val', {
+                                    'price': CurrencyFormatter.formatShort(
+                                        car.realMarketValue)
+                                  }),
                                   style: const TextStyle(
                                     decoration: TextDecoration.lineThrough,
                                     fontSize: 11,
@@ -533,7 +537,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
     final hasEnoughBalance = game.balance >= containerCost;
 
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.fromLTRB(
+          14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
       physics: const BouncingScrollPhysics(),
       children: [
         // Hero Container Bento Card

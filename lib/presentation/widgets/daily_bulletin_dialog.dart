@@ -51,12 +51,13 @@ class DailyBulletinDialog extends ConsumerWidget {
         borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
         borderWidth: 2.5,
         borderRadius: 16,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Newspaper Masthead (§1.2 / Q4)
-            Container(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Newspaper Masthead (§1.2 / Q4)
+              Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 border: Border(
@@ -261,6 +262,7 @@ class DailyBulletinDialog extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }

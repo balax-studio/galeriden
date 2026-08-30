@@ -66,7 +66,8 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
       body: NeoBrutalPageBackground(
         watermark: ThematicWatermarkType.nightMarket,
         child: ListView(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.fromLTRB(
+              14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
           physics: const BouncingScrollPhysics(),
           children: [
           // Animated Caution Hazard Stripe

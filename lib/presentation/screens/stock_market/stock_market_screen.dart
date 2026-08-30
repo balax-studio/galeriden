@@ -176,7 +176,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
             .toList();
 
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.fromLTRB(
+          14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
       physics:
           const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: [
@@ -545,7 +546,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
     }
 
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.fromLTRB(
+          14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
       physics:
           const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: [
@@ -767,7 +769,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
         : ForexGoldModel.defaultForex;
 
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.fromLTRB(
+          14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
       physics:
           const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: [
@@ -971,7 +974,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
         !game.isCompanyListedOnBist && game.level >= 4 && game.carsSold >= 10;
 
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.fromLTRB(
+          14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
       physics:
           const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: [

@@ -48,10 +48,11 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                   isDark ? const Color(0xFF161922) : const Color(0xFFFFFBEB),
               borderColor: AppColors.brutalYellow,
               borderRadius: 20,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Header Badge
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header Badge
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -281,8 +282,9 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildStatBox({
     required String title,

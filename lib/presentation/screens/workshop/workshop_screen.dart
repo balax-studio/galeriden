@@ -225,12 +225,13 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
             borderRadius: 12,
             borderWidth: 2.5,
             shadowOffset: const Offset(4, 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
                     const Icon(Icons.hearing_rounded,
                         color: AppColors.brutalOrange, size: 24),
                     const SizedBox(width: 8),
@@ -309,9 +310,10 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               ],
             ),
           ),
-        );
-      },
-    );
+        ),
+      );
+    },
+  );
   }
 
   @override
@@ -366,7 +368,8 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
       body: NeoBrutalPageBackground(
         watermark: ThematicWatermarkType.workshop,
         child: ListView(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.fromLTRB(
+              14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
           physics: const BouncingScrollPhysics(),
           children: [
           // 1. Top Segmented Tab Controller

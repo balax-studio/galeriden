@@ -40,7 +40,8 @@ class SettingsScreen extends ConsumerWidget {
       body: NeoBrutalPageBackground(
         watermark: ThematicWatermarkType.none,
         child: ListView(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.fromLTRB(
+              14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
           physics: const BouncingScrollPhysics(),
           children: [
           // 1. Dealership Identity

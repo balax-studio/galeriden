@@ -13,6 +13,8 @@ import 'package:galeriden/presentation/screens/dashboard/widgets/dashboard_banne
 import 'package:galeriden/presentation/screens/dashboard/widgets/dashboard_office_view.dart';
 import 'package:galeriden/presentation/screens/marketplace/marketplace_screen.dart';
 import 'package:galeriden/presentation/screens/showroom/showroom_screen.dart';
+import 'package:galeriden/presentation/widgets/daily_bulletin_dialog.dart';
+import 'package:galeriden/presentation/widgets/shareable_dealership_card_dialog.dart';
 import 'package:galeriden/presentation/widgets/app_floating_dock.dart';
 import 'package:galeriden/presentation/widgets/car_damage_schema_widget.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_app_bar.dart';
@@ -207,6 +209,44 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
+
+      container.dispose();
+    });
+
+    testWidgets('7. DailyBulletinDialog renders cleanly with SingleChildScrollView on compact height',
+        (tester) async {
+      final container = ProviderContainer();
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          const DailyBulletinDialog(),
+          container: container,
+          screenSize: const Size(320, 568),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SingleChildScrollView), findsWidgets);
+
+      container.dispose();
+    });
+
+    testWidgets('8. ShareableDealershipCardDialog renders cleanly with SingleChildScrollView on compact height',
+        (tester) async {
+      final container = ProviderContainer();
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          const ShareableDealershipCardDialog(),
+          container: container,
+          screenSize: const Size(320, 568),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SingleChildScrollView), findsWidgets);
 
       container.dispose();
     });

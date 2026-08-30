@@ -76,7 +76,9 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: EdgeInsets.fromLTRB(
+            16, 16, 16, 24 + MediaQuery.paddingOf(context).bottom),
+        physics: const BouncingScrollPhysics(),
         children: [
           // VIP Casino Club Stats Card
           _buildStatsCard(context, stats, isDark),

@@ -52,14 +52,15 @@ class RentACarScreen extends ConsumerWidget {
         subtitle: context.tr('rent_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.radarPulse,
         statusBadge: NeoBrutalBadge(
-          text: '${game.activeRentals.length} KİRADA',
+          text: '${game.activeRentals.length} • ${context.tr('badge_rented')}',
           backgroundColor: const Color(0xFF38BDF8),
           textColor: Colors.black,
           fontSize: 9.5,
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.fromLTRB(
+            14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
         physics: const BouncingScrollPhysics(),
         children: [
           // 1. Income Summary Card

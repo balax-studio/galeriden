@@ -67,7 +67,9 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
         subtitle: context.tr('expertise_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.laserScan,
         statusBadge: NeoBrutalBadge(
-          text: _isInspected ? 'KALİBRASYON: TAM' : 'HAZIR',
+          text: _isInspected
+              ? context.tr('exp_status_calibrated')
+              : context.tr('exp_status_ready'),
           backgroundColor:
               _isInspected ? AppColors.brutalGreen : AppColors.brutalYellow,
           textColor: Colors.black,
@@ -77,7 +79,8 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
       body: NeoBrutalPageBackground(
         watermark: ThematicWatermarkType.workshop,
         child: ListView(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.fromLTRB(
+              14, 14, 14, 24 + MediaQuery.paddingOf(context).bottom),
           physics: const BouncingScrollPhysics(),
           children: [
             // 1. Vehicle Title Header Card (Official Noter / Inspection Style)

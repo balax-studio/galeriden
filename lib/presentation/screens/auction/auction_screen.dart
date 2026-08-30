@@ -441,84 +441,86 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
               borderWidth: 2.5,
               borderRadius: 12,
               shadowOffset: const Offset(4, 4),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.brutalGreen,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF333B4F)
-                            : const Color(0xFF0F172A),
-                        width: 2.0,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.brutalGreen,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
+                      ),
+                      child: const Icon(Icons.emoji_events_rounded,
+                          color: Colors.black, size: 40),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      context.tr('auction_won_title'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.0,
                       ),
                     ),
-                    child: const Icon(Icons.emoji_events_rounded,
-                        color: Colors.black, size: 40),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    context.tr('auction_won_title'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.0,
+                    const SizedBox(height: 10),
+                    Text(
+                      context.tr('auction_win_success_desc', {
+                        'year': _auction.car.modelYear,
+                        'brand': _auction.car.brand,
+                        'model': _auction.car.modelName,
+                        'bid': CurrencyFormatter.formatShort(_auction.currentBid),
+                      }),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600, height: 1.4),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    context.tr('auction_win_success_desc', {
-                      'year': _auction.car.modelYear,
-                      'brand': _auction.car.brand,
-                      'model': _auction.car.modelName,
-                      'bid': CurrencyFormatter.formatShort(_auction.currentBid),
-                    }),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600, height: 1.4),
-                  ),
-                  const SizedBox(height: 8),
-                  NeoBrutalBadge(
-                    text: context.tr('auction_market_value_label', {
-                      'val': CurrencyFormatter.formatShort(
-                          _auction.estimatedMarketValue)
-                    }),
-                    backgroundColor: AppColors.brutalYellow,
-                    textColor: Colors.black,
-                  ),
-                  const SizedBox(height: 18),
-                  NeoBrutalButton(
-                    label: context.tr('auction_trunk_btn'),
-                    icon: Icons.card_giftcard_rounded,
-                    backgroundColor: AppColors.brutalOrange,
-                    textColor: Colors.black,
-                    fullWidth: true,
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      if (mounted) {
-                        _showTrunkLootDialog(_auction.customsNote.trunkLoot);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  NeoBrutalButton(
-                    label: context.tr('auction_to_showroom_btn'),
-                    backgroundColor: isDark
-                        ? const Color(0xFF1E2330)
-                        : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white : Colors.black,
-                    fullWidth: true,
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      if (mounted) {
-                        _resetAuctionSilently();
-                      }
-                    },
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    NeoBrutalBadge(
+                      text: context.tr('auction_market_value_label', {
+                        'val': CurrencyFormatter.formatShort(
+                            _auction.estimatedMarketValue)
+                      }),
+                      backgroundColor: AppColors.brutalYellow,
+                      textColor: Colors.black,
+                    ),
+                    const SizedBox(height: 18),
+                    NeoBrutalButton(
+                      label: context.tr('auction_trunk_btn'),
+                      icon: Icons.card_giftcard_rounded,
+                      backgroundColor: AppColors.brutalOrange,
+                      textColor: Colors.black,
+                      fullWidth: true,
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        if (mounted) {
+                          _showTrunkLootDialog(_auction.customsNote.trunkLoot);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    NeoBrutalButton(
+                      label: context.tr('auction_to_showroom_btn'),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white : Colors.black,
+                      fullWidth: true,
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        if (mounted) {
+                          _resetAuctionSilently();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -538,90 +540,92 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
               borderColor: AppColors.errorRed,
               borderWidth: 2.5,
               borderRadius: 16,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.errorRed,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF333B4F)
-                            : const Color(0xFF0F172A),
-                        width: 2.0,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorRed,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
                       ),
+                      child: const Icon(Icons.gavel_rounded,
+                          color: Colors.white, size: 36),
                     ),
-                    child: const Icon(Icons.gavel_rounded,
-                        color: Colors.white, size: 36),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    context.tr('auction_lost_title'),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.tr('auction_lost_desc', {
-                      'winner': _auction.highestBidderName,
-                      'bid': CurrencyFormatter.formatShort(_auction.currentBid),
-                    }),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 18),
-                  if (!_hasExtendedAuction) ...[
+                    const SizedBox(height: 14),
+                    Text(
+                      context.tr('auction_lost_title'),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      context.tr('auction_lost_desc', {
+                        'winner': _auction.highestBidderName,
+                        'bid': CurrencyFormatter.formatShort(_auction.currentBid),
+                      }),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 18),
+                    if (!_hasExtendedAuction) ...[
+                      NeoBrutalButton(
+                        label: context.tr('auction_extend_btn'),
+                        icon: Icons.access_time_filled_rounded,
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 11,
+                        fullWidth: true,
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle:
+                                context.tr('auction_custom_reward_title'),
+                            onRewardEarned: () {
+                              setState(() {
+                                _isHandlingAuctionEnd = false;
+                                _hasExtendedAuction = true;
+                                _auction = _auction.copyWith(
+                                  secondsRemaining: 15,
+                                  status: AuctionStatus.active,
+                                );
+                                _startAuctionTimer();
+                              });
+                              NotificationService.showSuccess(
+                                context,
+                                context.tr('auction_time_extended_toast'),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                     NeoBrutalButton(
-                      label: context.tr('auction_extend_btn'),
-                      icon: Icons.access_time_filled_rounded,
-                      backgroundColor: AppColors.brutalYellow,
-                      textColor: Colors.black,
-                      fontSize: 11,
+                      label: context.tr('auction_next_btn'),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white : Colors.black,
                       fullWidth: true,
                       onPressed: () {
                         Navigator.of(ctx).pop();
-                        AdService.instance.showRewardedAdWithFallback(
-                          context: context,
-                          customRewardTitle:
-                              context.tr('auction_custom_reward_title'),
-                          onRewardEarned: () {
-                            setState(() {
-                              _isHandlingAuctionEnd = false;
-                              _hasExtendedAuction = true;
-                              _auction = _auction.copyWith(
-                                secondsRemaining: 15,
-                                status: AuctionStatus.active,
-                              );
-                              _startAuctionTimer();
-                            });
-                            NotificationService.showSuccess(
-                              context,
-                              context.tr('auction_time_extended_toast'),
-                            );
-                          },
-                        );
+                        if (mounted) {
+                          _resetAuctionSilently();
+                        }
                       },
                     ),
-                    const SizedBox(height: 8),
                   ],
-                  NeoBrutalButton(
-                    label: context.tr('auction_next_btn'),
-                    backgroundColor: isDark
-                        ? const Color(0xFF1E2330)
-                        : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white : Colors.black,
-                    fullWidth: true,
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      if (mounted) {
-                        _resetAuctionSilently();
-                      }
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
           );
