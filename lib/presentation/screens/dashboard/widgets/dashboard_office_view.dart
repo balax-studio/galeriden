@@ -24,11 +24,13 @@ import 'dashboard_quick_finance_card.dart';
 class DashboardOfficeView extends ConsumerWidget {
   final DealershipModel game;
   final ThemePaletteModel palette;
+  final EdgeInsetsGeometry? padding;
 
   const DashboardOfficeView({
     super.key,
     required this.game,
     required this.palette,
+    this.padding,
   });
 
   @override
@@ -36,16 +38,10 @@ class DashboardOfficeView extends ConsumerWidget {
     final isDark = palette.isDark;
     final smartHook = SmartOfficeHookEngine.evaluate(game);
 
-    return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: NeoBrutalAppBar(
-        title: context.tr('office_title'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
-        physics: const BouncingScrollPhysics(),
-        children: [
+    return ListView(
+      padding: padding ?? const EdgeInsets.all(14),
+      physics: const BouncingScrollPhysics(),
+      children: [
           // 1. Reputation Block
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
@@ -782,8 +778,7 @@ class DashboardOfficeView extends ConsumerWidget {
             isDark: isDark,
           ),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildOfficeItem({

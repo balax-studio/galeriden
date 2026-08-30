@@ -20,22 +20,28 @@ class CarDamageSchemaWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 6,
           children: [
-            Text(context.tr('damage_schema_title'),
-                style: TextStyle(
-                    color: p.textPrimaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14)),
-            Row(
+            Text(
+              context.tr('damage_schema_title'),
+              style: TextStyle(
+                color: p.textPrimaryColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
               children: [
                 _buildLegendItem(
                     context.tr('damage_status_original'), p.successColor, p),
-                const SizedBox(width: 8),
                 _buildLegendItem(
                     context.tr('damage_status_painted'), p.warningColor, p),
-                const SizedBox(width: 8),
                 _buildLegendItem(
                     context.tr('damage_status_changed'), p.errorColor, p),
               ],

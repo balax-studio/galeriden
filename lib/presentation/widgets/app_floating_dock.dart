@@ -112,13 +112,17 @@ class AppFloatingDock extends StatelessWidget {
                       ),
                       if (isSelected) ...[
                         const SizedBox(width: 6),
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            color: activeText,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.2,
+                        Flexible(
+                          child: Text(
+                            item.label,
+                            style: TextStyle(
+                              color: activeText,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

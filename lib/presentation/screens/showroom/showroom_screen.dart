@@ -19,10 +19,12 @@ import 'widgets/showroom_offers_tab.dart';
 
 class ShowroomScreen extends ConsumerStatefulWidget {
   final bool showLeading;
+  final bool embeddedInDashboard;
 
   const ShowroomScreen({
     super.key,
     this.showLeading = true,
+    this.embeddedInDashboard = false,
   });
 
   @override
@@ -93,25 +95,21 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
       return score(b).compareTo(score(a));
     });
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor:
-            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: NeoBrutalAppBar(
-          title: context.tr('showroom_title'),
-          showLeading: widget.showLeading,
-          bottom: NeoBrutalTabBar(
-            tabs: [
-              context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
-              context.tr(
-                  'showroom_tab_offers', {'count': game.incomingOffers.length}),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // Tab 1: Owned Cars & Publish Listing (Fully virtualized for 60/120 FPS)
+    final bottomPadding = widget.embeddedInDashboard
+        ? (MediaQuery.paddingOf(context).bottom + 84.0)
+        : 24.0;
+
+    final tabWidget = NeoBrutalTabBar(
+      tabs: [
+        context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
+        context.tr(
+            'showroom_tab_offers', {'count': game.incomingOffers.length}),
+      ],
+    );
+
+    final tabContent = TabBarView(
+      children: [
+        // Tab 1: Owned Cars & Publish Listing (Fully virtualized for 60/120 FPS)
             game.ownedCars.isEmpty
                 ? ListView(
                     physics: const AlwaysScrollableScrollPhysics(
@@ -462,7 +460,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                           )
                         else
                           SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+                            padding: EdgeInsets.fromLTRB(14, 0, 14, bottomPadding),
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) => ShowroomCarCard(
@@ -480,9 +478,40 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
                   ),
 
             // Tab 2: Incoming Negotiation Offers
-            ShowroomOffersTab(game: game, palette: p),
+            ShowroomOffersTab(
+              game: game,
+              palette: p,
+              bottomPadding: bottomPadding,
+            ),
+          ],
+        );
+
+    if (widget.embeddedInDashboard) {
+      return DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2, bottom: 4),
+              child: tabWidget,
+            ),
+            Expanded(child: tabContent),
           ],
         ),
+      );
+    }
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor:
+            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+        appBar: NeoBrutalAppBar(
+          title: context.tr('showroom_title'),
+          showLeading: widget.showLeading,
+          bottom: tabWidget,
+        ),
+        body: tabContent,
       ),
     );
   }

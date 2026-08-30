@@ -742,7 +742,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
           child: NeoBrutalCard(
             onTap: () => DashboardRetentionModals.showRivalLeaderboardModal(
                 context, game),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor:
                 isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
@@ -750,36 +750,41 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFDE59),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Icon(Icons.leaderboard_rounded,
-                      color: Colors.black, size: 18),
+                      color: Colors.black, size: 16),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         context.tr('city_league'),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w900,
                           color:
                               isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         context.tr('rivals_count', {'count': 5}),
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9.5,
                           color: isDark
                               ? const Color(0xFF94A3B8)
                               : const Color(0xFF64748B),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -788,13 +793,13 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
 
         // 2. Collection Album
         Expanded(
           child: NeoBrutalCard(
             onTap: () => context.push('/album'),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor:
                 isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
@@ -802,35 +807,40 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     color: const Color(0xFFA855F7),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Icon(Icons.auto_stories_rounded,
-                      color: Colors.white, size: 18),
+                      color: Colors.white, size: 16),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         context.tr('album_title'),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w900,
                           color:
                               isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         context.tr('album_count', {'count': discoveredCount}),
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFFA855F7),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -842,44 +852,49 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
 
         // 3. Prestige (If unlocked)
         if (canPrestige) ...[
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Expanded(
             child: NeoBrutalCard(
               onTap: () => DashboardRetentionModals.showPrestigeModal(
                   context, game, ref),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               backgroundColor: const Color(0xFFFFDE59),
               borderColor: Colors.black,
               borderRadius: 10,
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Icon(Icons.stars_rounded,
-                        color: Color(0xFFFFDE59), size: 18),
+                        color: Color(0xFFFFDE59), size: 16),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           context.tr('prestige_transfer'),
                           style: const TextStyle(
-                              fontSize: 11,
+                              fontSize: 10.5,
                               fontWeight: FontWeight.w900,
                               color: Colors.black),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           context.tr('prestige_new_season'),
                           style: const TextStyle(
-                              fontSize: 10,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),

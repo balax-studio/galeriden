@@ -33,10 +33,12 @@ import '../../widgets/cracked_glass_badge.dart';
 
 class MarketplaceScreen extends ConsumerStatefulWidget {
   final bool showLeading;
+  final bool embeddedInDashboard;
 
   const MarketplaceScreen({
     super.key,
     this.showLeading = true,
+    this.embeddedInDashboard = false,
   });
 
   @override
@@ -113,31 +115,14 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
     final listings = _selectedSort.sortListings(filtered);
 
-    return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-      appBar: NeoBrutalAppBar(
-        title: context.tr('marketplace_title'),
-        showLeading: widget.showLeading,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            tooltip: context.tr('market_refresh_tooltip'),
-            onPressed: () async {
-              HapticFeedback.lightImpact();
-              setState(() => _isRefreshing = true);
-              ref.read(gameProvider.notifier).refreshMarketTrends();
-              ref.read(marketProvider.notifier).refreshMarket();
-              await Future.delayed(const Duration(milliseconds: 400));
-              if (mounted) setState(() => _isRefreshing = false);
-            },
-          ),
-        ],
-      ),
-      body: NeoBrutalPageBackground(
-        watermark: ThematicWatermarkType.dealership,
-        child: Column(
-          children: [
+    final bottomPadding = widget.embeddedInDashboard
+        ? (MediaQuery.paddingOf(context).bottom + 84.0)
+        : 24.0;
+
+    final bodyContent = NeoBrutalPageBackground(
+      watermark: ThematicWatermarkType.dealership,
+      child: Column(
+        children: [
           // Search Input Bar with Real-Time Debounce and Clear Button
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
@@ -181,19 +166,39 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     size: 20,
                     color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                   ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_searchController.text.isNotEmpty)
+                        IconButton(
                           icon: const Icon(Icons.clear_rounded, size: 18),
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(8),
                           constraints:
-                              const BoxConstraints(minWidth: 44, minHeight: 44),
+                              const BoxConstraints(minWidth: 36, minHeight: 36),
                           onPressed: () {
                             HapticFeedback.selectionClick();
                             _searchController.clear();
                             _onSearchChanged('');
                           },
-                        )
-                      : null,
+                        ),
+                      if (widget.embeddedInDashboard)
+                        IconButton(
+                          icon: const Icon(Icons.refresh_rounded, size: 18),
+                          padding: const EdgeInsets.all(8),
+                          constraints:
+                              const BoxConstraints(minWidth: 36, minHeight: 36),
+                          tooltip: context.tr('market_refresh_tooltip'),
+                          onPressed: () async {
+                            HapticFeedback.lightImpact();
+                            setState(() => _isRefreshing = true);
+                            ref.read(gameProvider.notifier).refreshMarketTrends();
+                            ref.read(marketProvider.notifier).refreshMarket();
+                            await Future.delayed(const Duration(milliseconds: 400));
+                            if (mounted) setState(() => _isRefreshing = false);
+                          },
+                        ),
+                    ],
+                  ),
                   border: InputBorder.none,
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -357,16 +362,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 if (mounted) setState(() => _isRefreshing = false);
               },
               child: _isRefreshing
-                  ? const SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(
+                  ? SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics()),
-                      padding: EdgeInsets.fromLTRB(14, 8, 14, 24),
-                      child: NeoBrutalSkeletonList(itemCount: 4),
+                      padding: EdgeInsets.fromLTRB(14, 8, 14, bottomPadding),
+                      child: const NeoBrutalSkeletonList(itemCount: 4),
                     )
                   : listings.isEmpty
                       ? ListView(
                           physics: const AlwaysScrollableScrollPhysics(
                               parent: BouncingScrollPhysics()),
+                          padding: EdgeInsets.fromLTRB(14, 8, 14, bottomPadding),
                           children: [
                             const SizedBox(height: 80),
                             Center(
@@ -378,7 +384,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           ],
                         )
                       : ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
+                          padding: EdgeInsets.fromLTRB(14, 8, 14, bottomPadding),
                           physics: const AlwaysScrollableScrollPhysics(
                               parent: BouncingScrollPhysics()),
                           itemCount: listings.length,
@@ -890,8 +896,35 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           ),
         ],
       ),
-    ),
-  );
+    );
+
+    if (widget.embeddedInDashboard) {
+      return bodyContent;
+    }
+
+    return Scaffold(
+      backgroundColor:
+          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+      appBar: NeoBrutalAppBar(
+        title: context.tr('marketplace_title'),
+        showLeading: widget.showLeading,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: context.tr('market_refresh_tooltip'),
+            onPressed: () async {
+              HapticFeedback.lightImpact();
+              setState(() => _isRefreshing = true);
+              ref.read(gameProvider.notifier).refreshMarketTrends();
+              ref.read(marketProvider.notifier).refreshMarket();
+              await Future.delayed(const Duration(milliseconds: 400));
+              if (mounted) setState(() => _isRefreshing = false);
+            },
+          ),
+        ],
+      ),
+      body: bodyContent,
+    );
   }
 
   Widget _buildSortMenuButton(ThemePaletteModel p, bool isDark) {

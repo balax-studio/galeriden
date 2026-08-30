@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,6 +90,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final selectedIndex = ref.watch(dashboardTabProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
+    final isDark = p.isDark;
 
     // Listen for level-ups, story ad encounters, dramatic decision cards & random events
     ref.listen<DealershipModel>(gameProvider, (previous, next) async {
@@ -150,6 +152,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     });
 
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final bottomPadding = bottomInset + 84.0;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -161,95 +166,112 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         }
         DashboardRetentionModals.showExitHookDialog(context, game);
       },
-      child: Scaffold(
-        backgroundColor: p.backgroundColor,
-        body: NeoBrutalPageBackground(
-          watermark: ThematicWatermarkType.dealership,
-          child: FloatingMoneyOverlay(
-            child: Stack(
-              children: [
-              // Body Content based on selected tab
-              Positioned.fill(
-                child: Column(
-                  children: [
-                    // Top Fixed Neo-Brutal HUD Bar
-                    AppHeroHeader(
-                      game: game,
-                      onSettingsTap: () => context.push('/settings'),
-                      onProfileTap: () => context.push('/character-growth'),
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: isDark
+            ? SystemUiOverlayStyle.light.copyWith(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.light,
+                systemNavigationBarColor: const Color(0xFF0C0E14),
+                systemNavigationBarIconBrightness: Brightness.light,
+              )
+            : SystemUiOverlayStyle.dark.copyWith(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.dark,
+                systemNavigationBarColor: const Color(0xFFF4F4F0),
+                systemNavigationBarIconBrightness: Brightness.dark,
+              ),
+        child: Scaffold(
+          backgroundColor:
+              isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+          body: NeoBrutalPageBackground(
+            watermark: ThematicWatermarkType.dealership,
+            child: FloatingMoneyOverlay(
+              child: Stack(
+                children: [
+                  // Body Content based on selected tab
+                  Positioned.fill(
+                    child: Column(
+                      children: [
+                        // Top Fixed Neo-Brutal HUD Bar
+                        AppHeroHeader(
+                          game: game,
+                          onSettingsTap: () => context.push('/settings'),
+                          onProfileTap: () => context.push('/character-growth'),
+                        ),
+
+                        // Main Tab View
+                        Expanded(
+                          child: IndexedStack(
+                            index: selectedIndex,
+                            children: [
+                              // Tab 0: Sahibinden Style Neo-Brutal Monolithic Dashboard
+                              _buildHomeDashboard(context, game, p, bottomPadding),
+
+                              // Tab 1: Showroom & Galerim
+                              const ShowroomScreen(
+                                showLeading: false,
+                                embeddedInDashboard: true,
+                              ),
+
+                              // Tab 2: Pazar Yeri & İlanlar
+                              const MarketplaceScreen(
+                                showLeading: false,
+                                embeddedInDashboard: true,
+                              ),
+
+                              // Tab 3: Ofis & İstatistikler
+                              DashboardOfficeView(
+                                game: game,
+                                palette: p,
+                                padding: EdgeInsets.fromLTRB(14, 10, 14, bottomPadding),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
 
-                    // Main Tab View
-                    Expanded(
-                      child: IndexedStack(
-                        index: selectedIndex,
-                        children: [
-                          // Tab 0: Sahibinden Style Neo-Brutal Monolithic Dashboard
-                          _buildHomeDashboard(context, game, p),
-
-                          // Tab 1: Showroom & Galerim
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 78),
-                            child: ShowroomScreen(showLeading: false),
-                          ),
-
-                          // Tab 2: Pazar Yeri & İlanlar
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 78),
-                            child: MarketplaceScreen(showLeading: false),
-                          ),
-
-                          // Tab 3: Ofis & İstatistikler
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 78),
-                            child: DashboardOfficeView(game: game, palette: p),
-                          ),
+                  // Bottom Fixed Neo-Brutalist Monolithic Navigation Dock
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: SafeArea(
+                      top: false,
+                      child: AppFloatingDock(
+                        currentIndex: selectedIndex,
+                        onTap: (index) =>
+                            ref.read(dashboardTabProvider.notifier).state = index,
+                        items: [
+                          FloatingDockItem(
+                              icon: Icons.dashboard_rounded,
+                              label: context.tr('nav_home')),
+                          FloatingDockItem(
+                              icon: Icons.directions_car_rounded,
+                              label: context.tr('nav_showroom')),
+                          FloatingDockItem(
+                              icon: Icons.storefront_rounded,
+                              label: context.tr('nav_marketplace')),
+                          FloatingDockItem(
+                              icon: Icons.business_center_rounded,
+                              label: context.tr('nav_office')),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-
-              // Bottom Fixed Neo-Brutalist Monolithic Navigation Dock
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: SafeArea(
-                  top: false,
-                  child: AppFloatingDock(
-                    currentIndex: selectedIndex,
-                    onTap: (index) =>
-                        ref.read(dashboardTabProvider.notifier).state = index,
-                    items: [
-                      FloatingDockItem(
-                          icon: Icons.dashboard_rounded,
-                          label: context.tr('nav_home')),
-                      FloatingDockItem(
-                          icon: Icons.directions_car_rounded,
-                          label: context.tr('nav_showroom')),
-                      FloatingDockItem(
-                          icon: Icons.storefront_rounded,
-                          label: context.tr('nav_marketplace')),
-                      FloatingDockItem(
-                          icon: Icons.business_center_rounded,
-                          label: context.tr('nav_office')),
-                    ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 
   /// Sahibinden.com Inspired Neo-Brutalist & Monolithic Dashboard
   Widget _buildHomeDashboard(
-      BuildContext context, DealershipModel game, ThemePaletteModel p) {
+      BuildContext context, DealershipModel game, ThemePaletteModel p, double bottomPadding) {
     final isDark = p.isDark;
     final completedMissions =
         game.activeMissions.where((m) => m.isCompleted == true).length;
@@ -257,7 +279,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         .any((m) => m.isCompleted == true && m.isClaimed != true);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 78),
+      padding: EdgeInsets.fromLTRB(14, 10, 14, bottomPadding),
       physics: const BouncingScrollPhysics(),
       children: [
         // 1. Monolithic Dealership Profile Banner

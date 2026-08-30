@@ -29,11 +29,13 @@ import 'showroom_listing_modal.dart';
 class ShowroomOffersTab extends ConsumerWidget {
   final DealershipModel game;
   final ThemePaletteModel palette;
+  final double? bottomPadding;
 
   const ShowroomOffersTab({
     super.key,
     required this.game,
     required this.palette,
+    this.bottomPadding,
   });
 
   @override
@@ -101,7 +103,7 @@ class ShowroomOffersTab extends ConsumerWidget {
         }
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
+        padding: EdgeInsets.fromLTRB(14, 12, 14, bottomPadding ?? 24),
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
         children: [
