@@ -17,6 +17,7 @@ import '../../../data/models/dealership_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../data/models/notary_event_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
+import '../../../domain/usecases/negotiation_suspense_engine.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
@@ -1711,11 +1712,15 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     });
 
     final random = Random();
+    final stages = NegotiationSuspenseEngine.getBuyingSuspenseStages(
+      archetype: _customer.archetype,
+      rng: random,
+    );
 
     // Stage 1: Initial reaction (600ms - 900ms)
     final stage1Duration = 600 + random.nextInt(300);
     setState(() {
-      _thinkingText = _getSuspenseStage1Text(_customer.archetype);
+      _thinkingText = stages[0];
     });
     HapticFeedback.selectionClick();
     await Future.delayed(Duration(milliseconds: stage1Duration));
@@ -1724,7 +1729,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     // Stage 2: Consultation & Calculation (700ms - 1100ms)
     final stage2Duration = 700 + random.nextInt(400);
     setState(() {
-      _thinkingText = _getSuspenseStage2Text(_customer.archetype);
+      _thinkingText = stages[1];
     });
     HapticFeedback.selectionClick();
     await Future.delayed(Duration(milliseconds: stage2Duration));
@@ -1733,7 +1738,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     // Stage 3: Final decision moment (500ms - 800ms)
     final stage3Duration = 500 + random.nextInt(300);
     setState(() {
-      _thinkingText = _getSuspenseStage3Text(_customer.archetype);
+      _thinkingText = stages[2];
     });
     HapticFeedback.selectionClick();
     await Future.delayed(Duration(milliseconds: stage3Duration));
@@ -1795,45 +1800,6 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
           }
         }
       });
-    }
-  }
-
-  String _getSuspenseStage1Text(CustomerArchetype archetype) {
-    switch (archetype) {
-      case CustomerArchetype.skepticalOfficial:
-        return 'Satıcı teklif rakamına bakıyor • Hesap makinesine sarıldı...';
-      case CustomerArchetype.impatientYouth:
-        return 'Satıcı telefondaki bildirimine baktı • Fiyatı tartıyor...';
-      case CustomerArchetype.greedyFlipper:
-        return 'Satıcı kâr marjını hesaplıyor • Çayından bir yudum aldı...';
-      case CustomerArchetype.familyMan:
-        return 'Satıcı bütçesini gözden geçiriyor • Derin bir nefes aldı...';
-    }
-  }
-
-  String _getSuspenseStage2Text(CustomerArchetype archetype) {
-    switch (archetype) {
-      case CustomerArchetype.skepticalOfficial:
-        return 'Emsal ilanları kontrol ediyor • Noter harcını düşüyor...';
-      case CustomerArchetype.impatientYouth:
-        return 'Arkadaşına mesaj attı • Aceleyle düşünüyor...';
-      case CustomerArchetype.greedyFlipper:
-        return 'Piyasa rayicini tartıyor • Net eline kalacak parayı hesaplıyor...';
-      case CustomerArchetype.familyMan:
-        return 'Eşiyle telefonda fısıldaşıyor • Onay bekliyor...';
-    }
-  }
-
-  String _getSuspenseStage3Text(CustomerArchetype archetype) {
-    switch (archetype) {
-      case CustomerArchetype.skepticalOfficial:
-        return 'Kaşlarını çattı • Son kararını vermek üzere...';
-      case CustomerArchetype.impatientYouth:
-        return 'Kafasını salladı • Kararını açıklıyor...';
-      case CustomerArchetype.greedyFlipper:
-        return 'Gözlerini kıstı • Elini masaya koydu...';
-      case CustomerArchetype.familyMan:
-        return 'Tereddütle masaya eğildi • Son sözünü söylüyor...';
     }
   }
 

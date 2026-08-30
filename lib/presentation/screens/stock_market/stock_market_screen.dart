@@ -9,6 +9,7 @@ import '../../../core/utils/iterable_extensions.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/stock_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/marquee_ticker_widget.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -112,28 +113,48 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
       ),
       body: NeoBrutalPageBackground(
         watermark: ThematicWatermarkType.stockMarket,
-        child: RefreshIndicator(
-          color: Colors.black,
-          backgroundColor: AppColors.brutalYellow,
-          strokeWidth: 2.5,
-          onRefresh: () async {
-            HapticFeedback.mediumImpact();
-            await Future.delayed(const Duration(milliseconds: 300));
-            ref.read(gameProvider.notifier).refreshStockMarket();
-            if (context.mounted) {
-              NotificationService.showInfo(
-                  context, context.tr('stock_refresh_toast'));
-            }
-          },
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildStocksTab(game, isDark),
-              _buildPortfolioTab(game, isDark),
-              _buildForexTab(game, isDark),
-              _buildIpoTab(game, isDark),
-            ],
-          ),
+        child: Column(
+          children: [
+            // Live Stock Market Marquee Ticker
+            MarqueeTickerWidget(
+              newsItems: game.marketStocks.isNotEmpty
+                  ? (game.marketStocks as List)
+                      .map((s) => '${s.code}: ₺${CurrencyFormatter.formatShort(s.currentPrice)} ${s.dayChangePercent >= 0 ? '+' : ''}${s.dayChangePercent.toStringAsFixed(1)}%')
+                      .toList()
+                  : const [
+                      'BİST OTO-100 ENDEKSİ HAREKETLİ',
+                      'OTOMOTİV HİSSELERİNDE İŞLEM HACMİ YÜKSEK',
+                      'MERKEZ BANKASI FAİZ KARARI BEKLENİYOR',
+                    ],
+              height: 28.0,
+              velocity: 32.0,
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                color: Colors.black,
+                backgroundColor: AppColors.brutalYellow,
+                strokeWidth: 2.5,
+                onRefresh: () async {
+                  HapticFeedback.mediumImpact();
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  ref.read(gameProvider.notifier).refreshStockMarket();
+                  if (context.mounted) {
+                    NotificationService.showInfo(
+                        context, context.tr('stock_refresh_toast'));
+                  }
+                },
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildStocksTab(game, isDark),
+                    _buildPortfolioTab(game, isDark),
+                    _buildForexTab(game, isDark),
+                    _buildIpoTab(game, isDark),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

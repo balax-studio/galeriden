@@ -13,15 +13,18 @@ import '../../../data/models/car_model.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
+import '../../../domain/usecases/negotiation_suspense_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/dialogs/notary_transfer_dialog.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
+import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_segmented_gauge.dart';
 import '../../widgets/neo_brutal_slider.dart';
+import '../../widgets/pulsing_dot.dart';
 
 class OfferEvaluationArgs {
   final CarModel car;
@@ -50,6 +53,9 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
   late List<EsnafTactic> _dynamicTactics;
   late String _selectedStrategyId;
   bool _isProcessing = false;
+  bool _isThinking = false;
+  String _thinkingText = '';
+  int _thinkingStage = 1;
 
   @override
   void initState() {
@@ -128,6 +134,12 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
                     isDark: isDark,
                   ),
                   const SizedBox(height: 16),
+
+                  // Live Suspense Thinking Radar Card (Visible while evaluating counter offer)
+                  if (_isThinking) ...[
+                    _buildThinkingRadarCard(isDark: isDark),
+                    const SizedBox(height: 16),
+                  ],
 
                   // 3. Counter Offer & Live Tension Desk
                   _buildCounterOfferDesk(
@@ -562,6 +574,74 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
     );
   }
 
+  Widget _buildThinkingRadarCard({required bool isDark}) {
+    String stageLabel = 'AŞAMA $_thinkingStage/3 • ';
+    if (_thinkingStage == 1) {
+      stageLabel += 'İLK TEPKİ & İNCELEME';
+    } else if (_thinkingStage == 2) {
+      stageLabel += 'BÜTÇE & İSTİŞARE';
+    } else {
+      stageLabel += 'SON KARAR';
+    }
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFFEFCE8),
+      borderColor: const Color(0xFFFFDE59),
+      borderWidth: 2.2,
+      borderRadius: 12,
+      shadowOffset: const Offset(3.5, 3.5),
+      child: Row(
+        children: [
+          const PulsingDot(color: Color(0xFFFFDE59), size: 12),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const NeoBrutalBadge(
+                      text: 'ALICI RADARI',
+                      backgroundColor: Color(0xFFFFDE59),
+                      textColor: Colors.black,
+                      borderWidth: 1.5,
+                      fontSize: 8.5,
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        stageLabel,
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _thinkingText,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCounterOfferDesk({
     required CarModel car,
     required OfferModel offer,
@@ -592,6 +672,8 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
       tensionText = 'Tavizsiz Duruş • Masadan Kalkma Riski Yüksek';
       activeTensionBlocks = 6;
     }
+
+    final isDeskLocked = _isThinking || _isProcessing;
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(16),
@@ -726,12 +808,14 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
               value: _counterTargetPrice,
               min: minOfferPrice,
               max: maxOfferPrice,
-              onChanged: (val) {
-                HapticFeedback.selectionClick();
-                setState(() {
-                  _counterTargetPrice = (val / 1000).round() * 1000.0;
-                });
-              },
+              onChanged: isDeskLocked
+                  ? null
+                  : (val) {
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        _counterTargetPrice = (val / 1000).round() * 1000.0;
+                      });
+                    },
             ),
           ),
 
@@ -824,10 +908,12 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: GestureDetector(
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    setState(() => _selectedStrategyId = tactic.id);
-                  },
+                  onTap: isDeskLocked
+                      ? null
+                      : () {
+                          HapticFeedback.selectionClick();
+                          setState(() => _selectedStrategyId = tactic.id);
+                        },
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -907,14 +993,17 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
     required bool isDark,
   }) {
     final isSelected = (_counterTargetPrice - target).abs() < 500;
+    final isDeskLocked = _isThinking || _isProcessing;
 
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        setState(() {
-          _counterTargetPrice = (target / 1000).round() * 1000.0;
-        });
-      },
+      onTap: isDeskLocked
+          ? null
+          : () {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _counterTargetPrice = (target / 1000).round() * 1000.0;
+              });
+            },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
@@ -1095,6 +1184,8 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
     required int remainingCounters,
     required bool isDark,
   }) {
+    final isActionDisabled = _isProcessing || _isThinking;
+
     return Container(
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + MediaQuery.paddingOf(context).bottom),
       decoration: BoxDecoration(
@@ -1123,12 +1214,14 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
               borderWidth: 2.0,
               shadowOffset: const Offset(2.5, 2.5),
               padding: const EdgeInsets.symmetric(vertical: 12),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                ref.read(gameProvider.notifier).rejectOffer(offer.id);
-                NotificationService.showWarning(context, '${offer.buyerName} teklifi reddedildi.');
-                context.pop();
-              },
+              onPressed: isActionDisabled
+                  ? null
+                  : () {
+                      HapticFeedback.lightImpact();
+                      ref.read(gameProvider.notifier).rejectOffer(offer.id);
+                      NotificationService.showWarning(context, '${offer.buyerName} teklifi reddedildi.');
+                      context.pop();
+                    },
             ),
           ),
           const SizedBox(width: 8),
@@ -1138,8 +1231,8 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
             Expanded(
               flex: 2,
               child: NeoBrutalButton(
-                label: 'Karşı Teklif Gönder',
-                icon: Icons.send_rounded,
+                label: _isThinking ? 'DEĞERLENDİRİLİYOR...' : 'Karşı Teklif Gönder',
+                icon: _isThinking ? Icons.hourglass_top_rounded : Icons.send_rounded,
                 backgroundColor: const Color(0xFFFFDE59),
                 textColor: Colors.black,
                 fontSize: 12,
@@ -1147,7 +1240,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
                 borderWidth: 2.0,
                 shadowOffset: const Offset(2.5, 2.5),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                onPressed: _isProcessing
+                onPressed: isActionDisabled
                     ? null
                     : () {
                         _handleSendCounterOffer(car, offer, customer);
@@ -1170,7 +1263,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
               borderWidth: 2.0,
               shadowOffset: const Offset(2.5, 2.5),
               padding: const EdgeInsets.symmetric(vertical: 12),
-              onPressed: _isProcessing
+              onPressed: isActionDisabled
                   ? null
                   : () {
                       _handleAcceptOffer(car, offer, customer);
@@ -1182,9 +1275,50 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
     );
   }
 
-  void _handleSendCounterOffer(CarModel car, OfferModel offer, CustomerModel customer) {
-    HapticFeedback.mediumImpact();
-    setState(() => _isProcessing = true);
+  Future<void> _handleSendCounterOffer(CarModel car, OfferModel offer, CustomerModel customer) async {
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _isProcessing = true;
+      _isThinking = true;
+      _thinkingStage = 1;
+    });
+
+    final random = Random();
+    final stages = NegotiationSuspenseEngine.getSellingSuspenseStages(
+      archetype: customer.archetype,
+      offerType: offer.offerType,
+      rng: random,
+    );
+
+    // Stage 1: Initial reaction & check (600ms - 900ms)
+    final stage1Duration = 600 + random.nextInt(300);
+    setState(() {
+      _thinkingText = stages[0];
+      _thinkingStage = 1;
+    });
+    HapticFeedback.selectionClick();
+    await Future.delayed(Duration(milliseconds: stage1Duration));
+    if (!mounted) return;
+
+    // Stage 2: Calculation & consultation (700ms - 1100ms)
+    final stage2Duration = 700 + random.nextInt(400);
+    setState(() {
+      _thinkingText = stages[1];
+      _thinkingStage = 2;
+    });
+    HapticFeedback.selectionClick();
+    await Future.delayed(Duration(milliseconds: stage2Duration));
+    if (!mounted) return;
+
+    // Stage 3: Decision posture (500ms - 800ms)
+    final stage3Duration = 500 + random.nextInt(300);
+    setState(() {
+      _thinkingText = stages[2];
+      _thinkingStage = 3;
+    });
+    HapticFeedback.selectionClick();
+    await Future.delayed(Duration(milliseconds: stage3Duration));
+    if (!mounted) return;
 
     final outcome = ref.read(gameProvider.notifier).counterOffer(
           offer.id,
@@ -1192,19 +1326,29 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
           strategy: _selectedStrategyId,
         );
 
-    setState(() => _isProcessing = false);
+    if (!mounted) return;
+    setState(() {
+      _isProcessing = false;
+      _isThinking = false;
+    });
 
     if (outcome.isAccepted) {
       GameSoundHapticService.playCashSuccess();
       NotificationService.showSuccess(context, outcome.responseMessage);
-      context.pop();
+      if (mounted && Navigator.of(context).canPop()) {
+        context.pop();
+      }
     } else if (outcome.isWalkaway) {
       GameSoundHapticService.playWarningVibration();
       NotificationService.showError(context, outcome.responseMessage);
-      context.pop();
+      if (mounted && Navigator.of(context).canPop()) {
+        context.pop();
+      }
     } else {
       NotificationService.showInfo(context, outcome.responseMessage);
-      context.pop();
+      if (mounted && Navigator.of(context).canPop()) {
+        context.pop();
+      }
     }
   }
 

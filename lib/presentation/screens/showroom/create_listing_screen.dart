@@ -9,6 +9,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/industrial_rocker_switch.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -841,21 +842,82 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           ),
           const SizedBox(height: 10),
 
-          // Hero Showcase Package
-          _buildPackageTile(
-            title: 'Vitrin Yıldızı • Hero Slot',
-            subtitle: 'Ana vitrinde dev afiş • VIP müşterileri çeker',
-            isActive: activeCar.isHeroShowcase,
-            actionLabel: activeCar.isHeroShowcase ? 'Vitrinde' : 'Aç / Kapa',
-            badgeColor: const Color(0xFFA855F7),
-            isDark: isDark,
-            onTap: () {
-              HapticFeedback.selectionClick();
-              final ok = ref.read(gameProvider.notifier).toggleHeroShowcase(activeCar.id);
-              if (!ok) {
-                NotificationService.showWarning(context, 'Vitrin slotu değiştirilemedi.');
-              }
-            },
+          // Hero Showcase Package with Industrial Rocker Switch
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: activeCar.isHeroShowcase
+                  ? const Color(0xFFA855F7).withValues(alpha: isDark ? 0.20 : 0.15)
+                  : (isDark ? const Color(0xFF1B202D) : const Color(0xFFF8FAFC)),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: activeCar.isHeroShowcase ? Colors.black : (isDark ? const Color(0xFF333B4F) : Colors.black.withValues(alpha: 0.5)),
+                width: 2.0,
+              ),
+              boxShadow: activeCar.isHeroShowcase
+                  ? const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(2.5, 2.5),
+                        blurRadius: 0,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.star_rounded, size: 16, color: Color(0xFFA855F7)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Vitrin Yıldızı • Hero Slot',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Ana vitrinde dev afiş • VIP müşterileri çeker',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IndustrialRockerSwitch(
+                  value: activeCar.isHeroShowcase,
+                  onLabel: 'VİTRİN',
+                  offLabel: 'STANDART',
+                  activeColor: const Color(0xFFA855F7),
+                  inactiveColor: isDark ? const Color(0xFF334155) : const Color(0xFF94A3B8),
+                  width: 95,
+                  height: 32,
+                  onChanged: (val) {
+                    final ok = ref.read(gameProvider.notifier).toggleHeroShowcase(activeCar.id);
+                    if (!ok) {
+                      NotificationService.showWarning(context, 'Vitrin slotu değiştirilemedi.');
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),

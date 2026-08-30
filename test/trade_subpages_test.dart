@@ -250,5 +250,55 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('5. OfferEvaluationScreen counter-offer triggers live thinking radar and suspense loop',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(360 * 2, 780 * 2);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final container = ProviderContainer(
+        overrides: [
+          gameProvider.overrideWith((ref) => GameNotifier()),
+        ],
+      );
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.dispose();
+      });
+
+      final dummyCar = _createDummyCar();
+      final dummyOffer = _createDummyOffer(dummyCar.id);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: OfferEvaluationScreen(
+              args: OfferEvaluationArgs(car: dummyCar, offer: dummyOffer),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Send Counter Offer
+      final counterBtn = find.text('Karşı Teklif Gönder');
+      expect(counterBtn, findsOneWidget);
+      await tester.tap(counterBtn);
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Verify thinking radar is active
+      expect(find.text('ALICI RADARI'), findsOneWidget);
+      expect(find.text('DEĞERLENDİRİLİYOR...'), findsOneWidget);
+
+      // Advance through all suspense stages
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+
+      // Ensure test finishes cleanly without crash
+      expect(tester.takeException(), isNull);
+    });
   });
 }

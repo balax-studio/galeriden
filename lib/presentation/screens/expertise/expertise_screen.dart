@@ -21,6 +21,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
+import '../../widgets/thermal_receipt_card.dart';
 import '../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/slam_stamp_widget.dart';
@@ -727,6 +728,30 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ThermalReceiptCard(
+                          title: 'TÜV-ONAYLI EKSPERTİZ SERTİFİKASI',
+                          subtitle: '${car.brand} ${car.modelName} • ${car.modelYear}',
+                          receiptNumber: 'EXP-${car.id.substring(0, car.id.length > 6 ? 6 : car.id.length).toUpperCase()}',
+                          dateText: DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now()),
+                          items: [
+                            ReceiptLineItem(label: 'Motor Kondisyonu', value: '%${exp.engineCondition.round()}'),
+                            ReceiptLineItem(label: 'Şanzıman Sağlığı', value: '%${exp.transmissionCondition.round()}'),
+                            ReceiptLineItem(label: 'Tramer Kaydı', value: exp.tramerAmount == 0 ? '₺0 • HASARSIZ' : CurrencyFormatter.format(exp.tramerAmount.toDouble())),
+                            ReceiptLineItem(label: 'Kilometre Durumu', value: exp.isMileageTampered ? 'ŞAİBELİ' : 'ORİJİNAL • ${exp.mileage} KM'),
+                            ReceiptLineItem(label: 'Boyalı / Değişen', value: '${exp.bodyParts.values.where((s) => s != PartStatus.original).length} Parça'),
+                          ],
+                          totalLabel: 'Ekspertiz Değeri',
+                          totalAmount: CurrencyFormatter.format(fairValue),
+                          stampOverlay: NeoBrutalStamp(
+                            text: exp.tramerAmount == 0 && exp.bodyParts.values.every((s) => s == PartStatus.original)
+                                ? 'KUSURSUZ'
+                                : (exp.tramerAmount > 40000 ? 'AĞIR HASAR' : 'EKSPERTİZ ONAYLI'),
+                            color: exp.tramerAmount == 0 && exp.bodyParts.values.every((s) => s == PartStatus.original)
+                                ? const Color(0xFF00E575)
+                                : (exp.tramerAmount > 40000 ? const Color(0xFFEF4444) : const Color(0xFF0EA5E9)),
                           ),
                         ),
                       ],

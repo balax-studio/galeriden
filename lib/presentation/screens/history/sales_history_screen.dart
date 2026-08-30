@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +11,12 @@ import '../../../data/models/sale_record_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
+import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/neo_brutal_stamp.dart';
+import '../../widgets/thermal_receipt_card.dart';
 
 class SalesHistoryScreen extends ConsumerStatefulWidget {
   const SalesHistoryScreen({super.key});
@@ -281,6 +285,63 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                   borderColor:
                       isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
                   borderRadius: 14,
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => Dialog(
+                        backgroundColor: Colors.transparent,
+                        insetPadding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 24),
+                        child: ThermalReceiptCard(
+                          title: 'NOTER SATIŞ SENEDİ ARŞİVİ',
+                          subtitle: sale.carTitle,
+                          receiptNumber:
+                              'SLS-${sale.id.substring(0, math.min(6, sale.id.length)).toUpperCase()}',
+                          dateText: formattedDate,
+                          items: [
+                            ReceiptLineItem(
+                                label: 'Alış Bedeli',
+                                value: CurrencyFormatter.format(
+                                    sale.purchasePrice)),
+                            ReceiptLineItem(
+                                label: 'Satış Bedeli',
+                                value:
+                                    CurrencyFormatter.format(sale.salePrice),
+                                isBold: true),
+                            ReceiptLineItem(
+                              label: 'Net Kâr / Zarar',
+                              value:
+                                  '${isProfitable ? '+' : ''}${CurrencyFormatter.format(sale.netProfit)} • %${profitPercentage.toStringAsFixed(1)}',
+                              textColor: isProfitable
+                                  ? const Color(0xFF00E575)
+                                  : const Color(0xFFEF4444),
+                              isBold: true,
+                            ),
+                            if (sale.isConsignment)
+                              const ReceiptLineItem(
+                                  label: 'İşlem Tipi', value: 'KONSİNYE SATIŞ'),
+                          ],
+                          totalLabel: 'Tahsil Edilen Tutar',
+                          totalAmount: CurrencyFormatter.format(sale.salePrice),
+                          stampOverlay: NeoBrutalStamp(
+                            text: isProfitable ? 'KÂRLI SATIŞ' : 'ZARARINA SATIŞ',
+                            color: isProfitable
+                                ? const Color(0xFF00E575)
+                                : const Color(0xFFEF4444),
+                          ),
+                          bottomAction: NeoBrutalButton(
+                            label: 'KAPAT',
+                            icon: Icons.close_rounded,
+                            backgroundColor: const Color(0xFFFFDE59),
+                            textColor: Colors.black,
+                            fullWidth: true,
+                            onPressed: () => Navigator.of(ctx).pop(),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

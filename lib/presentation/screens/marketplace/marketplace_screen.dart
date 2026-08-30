@@ -18,6 +18,8 @@ import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/animated_rolling_counter.dart';
 import '../../widgets/car_icons.dart';
+import '../../widgets/duct_tape_corner.dart';
+import '../../widgets/marquee_ticker_widget.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -123,6 +125,18 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       watermark: ThematicWatermarkType.dealership,
       child: Column(
         children: [
+          // 0. Neo-Brutalist Marketplace Live Marquee Ticker
+          const MarqueeTickerWidget(
+            newsItems: [
+              'OTOPAZARINDA PAZARLIK HAREKETLİLİĞİ',
+              'EKSPERTİZ RAPORSUZ ARAÇ ALMAYIN',
+              'TRAMER 5664 HASAR KAYITLARI ANLIK SORGULANABİLİR',
+              'KELEPİR FIRSAT ARAÇLARI LİSTELENDİ',
+            ],
+            height: 28.0,
+            velocity: 30.0,
+          ),
+
           // Search Input Bar with Real-Time Debounce and Clear Button
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
@@ -413,35 +427,39 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                         NativeAdContextType.marketplace) &&
                                     index > 0 &&
                                     index % 4 == 0;
+                            final isBargain = car.currentPurchasePrice < car.baseMarketValue * 0.88;
                             final listingWidget = StaggeredItemEntry(
                               index: index,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
-                                child: NeoBrutalCard(
-                                  padding: const EdgeInsets.all(12),
-                                  backgroundColor: isDark
-                                      ? const Color(0xFF141721)
-                                      : Colors.white,
-                                  borderColor: car.isBarnFind
-                                      ? const Color(0xFFD97706)
-                                      : (car.isRare
-                                          ? const Color(0xFFA855F7)
-                                          : (isFlash
-                                              ? const Color(0xFFFF7A00)
-                                              : (isDark
-                                                  ? const Color(0xFF2A3142)
-                                                  : const Color(0xFF0F172A)))),
-                                  borderRadius: 10,
-                                  borderWidth: 2.5,
-                                  shadowOffset: const Offset(4.0, 4.0),
-                                  showDotGrid: true,
-                                  showHazardHeader: isFlash || car.isBarnFind,
-                                  onTap: () => context.push('/listing-detail',
-                                      extra: item),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    NeoBrutalCard(
+                                      padding: const EdgeInsets.all(12),
+                                      backgroundColor: isDark
+                                          ? const Color(0xFF141721)
+                                          : Colors.white,
+                                      borderColor: car.isBarnFind
+                                          ? const Color(0xFFD97706)
+                                          : (car.isRare
+                                              ? const Color(0xFFA855F7)
+                                              : (isFlash
+                                                  ? const Color(0xFFFF7A00)
+                                                  : (isDark
+                                                      ? const Color(0xFF2A3142)
+                                                      : const Color(0xFF0F172A)))),
+                                      borderRadius: 10,
+                                      borderWidth: 2.5,
+                                      shadowOffset: const Offset(4.0, 4.0),
+                                      showDotGrid: true,
+                                      showHazardHeader: isFlash || car.isBarnFind,
+                                      onTap: () => context.push('/listing-detail',
+                                          extra: item),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
                                       // Top Tag & Live Viewer FOMO with PulsingDot
                                       Row(
                                         mainAxisAlignment:
@@ -874,8 +892,30 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                     ],
                                   ),
                                 ),
-                              ),
-                            );
+                                if (car.isBarnFind)
+                                  const Positioned(
+                                    top: -3,
+                                    right: 12,
+                                    child: DuctTapeCorner(
+                                      text: 'GARAJ BULUNTUSU',
+                                      tapeColor: Color(0xFFD97706),
+                                      textColor: Colors.white,
+                                    ),
+                                  )
+                                else if (isBargain)
+                                  const Positioned(
+                                    top: -3,
+                                    right: 12,
+                                    child: DuctTapeCorner(
+                                      text: 'KELEPİR FIRSAT',
+                                      tapeColor: Color(0xFFFFDE59),
+                                      textColor: Colors.black,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
 
                             if (showAdBefore) {
                               return Column(

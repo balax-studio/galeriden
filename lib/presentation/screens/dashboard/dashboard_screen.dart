@@ -13,6 +13,7 @@ import '../../providers/game_provider.dart';
 import '../../widgets/app_floating_dock.dart';
 import '../../widgets/app_hero_header.dart';
 import '../../widgets/floating_money_overlay.dart';
+import '../../widgets/marquee_ticker_widget.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
@@ -282,6 +283,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       padding: EdgeInsets.fromLTRB(14, 10, 14, bottomPadding),
       physics: const BouncingScrollPhysics(),
       children: [
+        // 0. Neo-Brutalist Live Market Marquee Ticker
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: const MarqueeTickerWidget(
+            newsItems: [
+              'MASLAK OTO PAZARINDA TALEP YÜKSEK',
+              'NOTER DEVİR VE HARÇLARI GÜNCELLENDİ',
+              'SIFIR ARAÇ KOTALARINDA DARALMA • İKİNCİ EL DEĞER KAZANIYOR',
+              'MERKEZ BANKASI MEVDUAT FAİZ ORANLARI GÜNCELLENDİ',
+              'MÜZAYEDE SALONUNDA KELEPİR LÜKS ARAÇLAR LİSTELENDİ',
+            ],
+            height: 30.0,
+            velocity: 32.0,
+          ),
+        ),
+        const SizedBox(height: 10),
+
         // 1. Monolithic Dealership Profile Banner
         DashboardProfileBanner(game: game, palette: p),
         const SizedBox(height: 10),
