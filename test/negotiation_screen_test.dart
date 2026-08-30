@@ -117,8 +117,8 @@ void main() {
     expect(find.text('CANLI DÜŞÜNCE RADARI'), findsOneWidget);
     expect(find.text('TEKLİF DEĞERLENDİRİLİYOR...'), findsOneWidget);
 
-    // Advance through all suspense stages (up to 3.5s)
-    await tester.pump(const Duration(seconds: 4));
+    // Advance through all suspense stages (up to 4.5s)
+    await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
 
     // Verify either accepted or rejected dialog appeared

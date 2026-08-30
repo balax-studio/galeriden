@@ -118,7 +118,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
             // Live Stock Market Marquee Ticker
             MarqueeTickerWidget(
               newsItems: game.marketStocks.isNotEmpty
-                  ? (game.marketStocks as List<StockModel>)
+                  ? game.marketStocks
                       .map((s) => '${s.symbol}: ₺${CurrencyFormatter.formatShort(s.currentPrice)} ${s.changePercentage >= 0 ? '+' : ''}${s.changePercentage.toStringAsFixed(1)}%')
                       .toList()
                   : const [

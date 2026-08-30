@@ -1290,34 +1290,35 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
       rng: random,
     );
 
-    // Stage 1: Initial reaction & check (600ms - 900ms)
-    final stage1Duration = 600 + random.nextInt(300);
+    final durations =
+        NegotiationSuspenseEngine.generateRandomStageDurations(rng: random);
+
+    // Stage 1: Initial reaction & appraisal (800ms - 1300ms)
     setState(() {
       _thinkingText = stages[0];
       _thinkingStage = 1;
     });
     HapticFeedback.selectionClick();
-    await Future.delayed(Duration(milliseconds: stage1Duration));
+    await Future.delayed(Duration(milliseconds: durations[0]));
     if (!mounted) return;
 
-    // Stage 2: Calculation & consultation (700ms - 1100ms)
-    final stage2Duration = 700 + random.nextInt(400);
+    // Stage 2: Deep calculation & consultation (1000ms - 1700ms)
     setState(() {
       _thinkingText = stages[1];
       _thinkingStage = 2;
     });
-    HapticFeedback.selectionClick();
-    await Future.delayed(Duration(milliseconds: stage2Duration));
+    HapticFeedback.mediumImpact();
+    GameSoundHapticService.playTapImpact();
+    await Future.delayed(Duration(milliseconds: durations[1]));
     if (!mounted) return;
 
-    // Stage 3: Decision posture (500ms - 800ms)
-    final stage3Duration = 500 + random.nextInt(300);
+    // Stage 3: Final posture & verdict (800ms - 1400ms)
     setState(() {
       _thinkingText = stages[2];
       _thinkingStage = 3;
     });
-    HapticFeedback.selectionClick();
-    await Future.delayed(Duration(milliseconds: stage3Duration));
+    HapticFeedback.heavyImpact();
+    await Future.delayed(Duration(milliseconds: durations[2]));
     if (!mounted) return;
 
     final outcome = ref.read(gameProvider.notifier).counterOffer(
