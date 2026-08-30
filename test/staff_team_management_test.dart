@@ -70,6 +70,16 @@ void main() {
       expect(mealSuccess, isTrue);
       expect(notifier.state.balance, equals(8000.0));
       expect(notifier.state.hiredStaff.first.morale, equals(100)); // Capped at 100
+
+      // When morale is 100%, subsequent treat and bonus actions are rejected and balance is preserved
+      final fullTeaSuccess = notifier.treatStaffTea('st_sales');
+      expect(fullTeaSuccess, isFalse);
+      final fullMealSuccess = notifier.treatStaffMeal('st_sales');
+      expect(fullMealSuccess, isFalse);
+      final fullBonusSuccess = notifier.giveStaffBonus('st_sales', 2000.0);
+      expect(fullBonusSuccess, isFalse);
+      expect(notifier.state.balance, equals(8000.0));
+      expect(notifier.state.hiredStaff.first.morale, equals(100));
     });
 
     test('4. Team synergies calculate accurately when required roles are present', () {

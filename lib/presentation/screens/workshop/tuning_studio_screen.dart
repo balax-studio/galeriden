@@ -17,6 +17,8 @@ import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/mini_games/dyno_run_canvas.dart';
 import '../../widgets/mini_games/engine_timing_canvas.dart';
+import '../../../domain/usecases/operation_suspense_engine.dart';
+import '../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 import 'dart:math' as math;
 
 class TuningStudioScreen extends ConsumerStatefulWidget {
@@ -77,38 +79,49 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     );
   }
 
-  void _applyTuningOption(TuningOptionModel opt) {
+  Future<void> _applyTuningOption(TuningOptionModel opt) async {
     final game = ref.read(gameProvider);
     if (game.balance < opt.cost) {
-      NotificationService.showError(context,
-          context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.formatShort(opt.cost)}));
+      NotificationService.showError(
+          context,
+          context.tr('toast_insufficient_balance_needed',
+              {'cost': CurrencyFormatter.formatShort(opt.cost)}));
       return;
     }
 
-    final wasOverTuned = _selectedCar!.isOverTuned;
-    final updatedCar = _selectedCar!.copyWith(
-      appliedDetailingOptionIds: [
-        ..._selectedCar!.appliedDetailingOptionIds,
-        opt.id
-      ],
-    );
-    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
-
-    setState(() {
-      _selectedCar = updatedCar;
-    });
-
-    NotificationService.showSuccess(
+    final opType = OperationSuspenseType.fromTuningCategory(opt.category);
+    await NeoBrutalOperationDialog.show(
       context,
-      context.tr('tuning_toast_option_applied'),
-    );
+      operationType: opType,
+      carName: '${_selectedCar!.brand} ${_selectedCar!.modelName}',
+      customTitle: opt.title,
+      onComplete: () {
+        final wasOverTuned = _selectedCar!.isOverTuned;
+        final updatedCar = _selectedCar!.copyWith(
+          appliedDetailingOptionIds: [
+            ..._selectedCar!.appliedDetailingOptionIds,
+            opt.id
+          ],
+        );
+        ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, opt.cost);
 
-    if (!wasOverTuned && updatedCar.isOverTuned) {
-      _showOverTunedWarningDialog();
-    }
+        setState(() {
+          _selectedCar = updatedCar;
+        });
+
+        NotificationService.showSuccess(
+          context,
+          context.tr('tuning_toast_option_applied'),
+        );
+
+        if (!wasOverTuned && updatedCar.isOverTuned && mounted) {
+          _showOverTunedWarningDialog();
+        }
+      },
+    );
   }
 
-  void _applyPresetBuild(TuningPresetBuild preset) {
+  Future<void> _applyPresetBuild(TuningPresetBuild preset) async {
     final game = ref.read(gameProvider);
     final discountedCost = preset.getDiscountedCost();
 
@@ -118,29 +131,39 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       return;
     }
 
-    final wasOverTuned = _selectedCar!.isOverTuned;
-    // Apply all unapplied options
-    final newOptionIds =
-        Set<String>.from(_selectedCar!.appliedDetailingOptionIds)
-          ..addAll(preset.optionIds);
-    final updatedCar = _selectedCar!.copyWith(
-      appliedDetailingOptionIds: newOptionIds.toList(),
-    );
-
-    ref.read(gameProvider.notifier).updateOwnedCar(updatedCar, discountedCost);
-
-    setState(() {
-      _selectedCar = updatedCar;
-    });
-
-    NotificationService.showSuccess(
+    await NeoBrutalOperationDialog.show(
       context,
-      context.tr('tuning_toast_preset_applied'),
-    );
+      operationType: OperationSuspenseType.tuningPreset,
+      carName: '${_selectedCar!.brand} ${_selectedCar!.modelName}',
+      customTitle: preset.title,
+      onComplete: () {
+        final wasOverTuned = _selectedCar!.isOverTuned;
+        // Apply all unapplied options
+        final newOptionIds =
+            Set<String>.from(_selectedCar!.appliedDetailingOptionIds)
+              ..addAll(preset.optionIds);
+        final updatedCar = _selectedCar!.copyWith(
+          appliedDetailingOptionIds: newOptionIds.toList(),
+        );
 
-    if (!wasOverTuned && updatedCar.isOverTuned) {
-      _showOverTunedWarningDialog();
-    }
+        ref
+            .read(gameProvider.notifier)
+            .updateOwnedCar(updatedCar, discountedCost);
+
+        setState(() {
+          _selectedCar = updatedCar;
+        });
+
+        NotificationService.showSuccess(
+          context,
+          context.tr('tuning_toast_preset_applied'),
+        );
+
+        if (!wasOverTuned && updatedCar.isOverTuned && mounted) {
+          _showOverTunedWarningDialog();
+        }
+      },
+    );
   }
 
   void _showOverTunedWarningDialog() {
@@ -230,9 +253,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
-    final isDark = p.isDark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final isDark = themeExt?.palette.isDark ??
+        (Theme.of(context).brightness == Brightness.dark);
 
     if (!game.isFeatureUnlocked('/tuning-studio')) {
       return Scaffold(
@@ -249,9 +272,11 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     final ownedCars = game.ownedCars;
 
-    if (_selectedCar != null &&
+    if (_selectedCar == null && ownedCars.isNotEmpty) {
+      _selectedCar = ownedCars.first;
+    } else if (_selectedCar != null &&
         !ownedCars.any((c) => c.id == _selectedCar!.id)) {
-      _selectedCar = null;
+      _selectedCar = ownedCars.isNotEmpty ? ownedCars.first : null;
     } else if (_selectedCar != null) {
       _selectedCar = ownedCars.firstWhere((c) => c.id == _selectedCar!.id);
     }

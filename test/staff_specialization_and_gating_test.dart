@@ -9,6 +9,7 @@ import 'package:galeriden/data/models/staff_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/screens/staff/staff_screen.dart';
 import 'package:galeriden/presentation/screens/staff/staff_academy_screen.dart';
+import 'package:galeriden/presentation/widgets/neo_brutal_button.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -246,6 +247,58 @@ void main() {
       expect(find.text('ROL BAZLI UZMANLIK AKADEMİSİ'), findsOneWidget);
       expect(find.text('Tüm Roller'), findsOneWidget);
       expect(find.text('MÜFREDAT DERSLERİ • 14 Kurs'), findsOneWidget);
+    });
+
+    testWidgets('8. StaffScreen disables tea, meal, and bonus buttons when morale is 100% and enables when below 100%', (tester) async {
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final fullMoraleStaff = StaffModel(
+        id: 'st_full',
+        name: 'Murat Usta',
+        role: StaffRole.washer,
+        hiredAt: DateTime.now(),
+        morale: 100,
+      );
+
+      final initialDealership = DealershipModel.initial().copyWith(
+        balance: 100000.0,
+        unlockedBuildings: {'/staff', '/car-wash'},
+        hiredStaff: [fullMoraleStaff],
+      );
+
+      SharedPreferences.setMockInitialValues({
+        'dealership_state_v2': jsonEncode(initialDealership.toJson()),
+      });
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            gameProvider.overrideWith((ref) => GameNotifier()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('tr'),
+            supportedLocales: [Locale('tr'), Locale('en')],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: StaffScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final teaBtn = tester.widget<NeoBrutalButton>(find.widgetWithText(NeoBrutalButton, 'Çay • ₺500'));
+      final mealBtn = tester.widget<NeoBrutalButton>(find.widgetWithText(NeoBrutalButton, 'Kebap • ₺1.5k'));
+      final bonusBtn = tester.widget<NeoBrutalButton>(find.widgetWithText(NeoBrutalButton, 'Prim Ver'));
+
+      expect(teaBtn.onPressed, isNull);
+      expect(mealBtn.onPressed, isNull);
+      expect(bonusBtn.onPressed, isNull);
     });
   });
 }

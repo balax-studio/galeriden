@@ -609,6 +609,7 @@ class StaffScreen extends ConsumerWidget {
             final isHired = hired != null;
             final isFacilityUnlocked =
                 game.isFeatureUnlocked(role.requiredFeatureRoute);
+            final isMoraleFull = hired != null && hired.morale >= 100;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -920,25 +921,22 @@ class StaffScreen extends ConsumerWidget {
                               textColor: isDark ? Colors.white : Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: () {
-                                if (hired.morale >= 100) {
-                                  NotificationService.showInfo(context,
-                                      context.tr('staff_morale_already_full'));
-                                  return;
-                                }
-                                final success = ref
-                                    .read(gameProvider.notifier)
-                                    .treatStaffTea(hired.id);
-                                if (success) {
-                                  NotificationService.showSuccess(
-                                      context,
-                                      context.tr('staff_tea_success',
-                                          {'name': hired.name}));
-                                } else {
-                                  NotificationService.showError(context,
-                                      context.tr('insufficient_balance'));
-                                }
-                              },
+                              onPressed: isMoraleFull
+                                  ? null
+                                  : () {
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .treatStaffTea(hired.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                            context,
+                                            context.tr('staff_tea_success',
+                                                {'name': hired.name}));
+                                      } else {
+                                        NotificationService.showError(context,
+                                            context.tr('insufficient_balance'));
+                                      }
+                                    },
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -950,25 +948,22 @@ class StaffScreen extends ConsumerWidget {
                               textColor: Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: () {
-                                if (hired.morale >= 100) {
-                                  NotificationService.showInfo(context,
-                                      context.tr('staff_morale_already_full'));
-                                  return;
-                                }
-                                final success = ref
-                                    .read(gameProvider.notifier)
-                                    .treatStaffMeal(hired.id);
-                                if (success) {
-                                  NotificationService.showSuccess(
-                                      context,
-                                      context.tr('staff_meal_success',
-                                          {'name': hired.name}));
-                                } else {
-                                  NotificationService.showError(context,
-                                      context.tr('insufficient_balance'));
-                                }
-                              },
+                              onPressed: isMoraleFull
+                                  ? null
+                                  : () {
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .treatStaffMeal(hired.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                            context,
+                                            context.tr('staff_meal_success',
+                                                {'name': hired.name}));
+                                      } else {
+                                        NotificationService.showError(context,
+                                            context.tr('insufficient_balance'));
+                                      }
+                                    },
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -980,8 +975,10 @@ class StaffScreen extends ConsumerWidget {
                               textColor: Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: () =>
-                                  _showBonusSheet(context, ref, hired),
+                              onPressed: isMoraleFull
+                                  ? null
+                                  : () =>
+                                      _showBonusSheet(context, ref, hired),
                             ),
                           ),
                         ],

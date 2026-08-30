@@ -19,6 +19,8 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/mini_games/car_wash_canvas.dart';
+import '../../../domain/usecases/operation_suspense_engine.dart';
+import '../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 
 class CarWashScreen extends ConsumerStatefulWidget {
   const CarWashScreen({super.key});
@@ -230,9 +232,9 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
-    final isDark = p.isDark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final isDark = themeExt?.palette.isDark ??
+        (Theme.of(context).brightness == Brightness.dark);
 
     if (!game.isFeatureUnlocked('/car-wash')) {
       return Scaffold(
@@ -1449,26 +1451,30 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
     setState(() => _loadingServiceId = serviceId);
 
-    // Dopamine wait for snappiness & anticipation
-    await Future.delayed(const Duration(milliseconds: 600));
+    final opType = OperationSuspenseType.fromWashServiceId(serviceId);
+    await NeoBrutalOperationDialog.show(
+      context,
+      operationType: opType,
+      carName: '${car.brand} ${car.modelName}',
+      onComplete: () {
+        final success = ref.read(gameProvider.notifier).performWashService(
+              car.id,
+              cost: cost,
+              valueBoostPercent: valueBoost,
+              setWashed: setWashed,
+              setInterior: setInterior,
+              setPolished: setPolished,
+              setDetailed: setDetailed,
+            );
 
-    if (!mounted) return;
+        if (success && mounted) {
+          NotificationService.showSuccess(context, successMsg);
+        }
+      },
+    );
 
-    final success = ref.read(gameProvider.notifier).performWashService(
-          car.id,
-          cost: cost,
-          valueBoostPercent: valueBoost,
-          setWashed: setWashed,
-          setInterior: setInterior,
-          setPolished: setPolished,
-          setDetailed: setDetailed,
-        );
-
-    setState(() => _loadingServiceId = null);
-
-    if (success) {
-      NotificationService.showSuccess(context, successMsg);
-      setState(() {});
+    if (mounted) {
+      setState(() => _loadingServiceId = null);
     }
   }
 
