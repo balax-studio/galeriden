@@ -322,6 +322,13 @@ class AuctionEngine {
       return null;
     }
 
+    for (final rival in auction.rivals) {
+      if (!rival.isFolded && rival.maxBudget <= auction.currentBid) {
+        rival.isFolded = true;
+        rival.lastSpeech = rival.dialogues.isNotEmpty ? rival.dialogues.last : 'Ben çekiliyorum!';
+      }
+    }
+
     final activeRivals = auction.rivals.where((r) => !r.isFolded && r.maxBudget > auction.currentBid).toList();
     if (activeRivals.isEmpty) return null;
 
@@ -330,7 +337,7 @@ class AuctionEngine {
       double increment = 5000.0;
 
       if (rival.name == 'Hızlı Ahmet') {
-        if (auction.secondsRemaining > 10 && _random.nextDouble() < 0.45) {
+        if (auction.secondsRemaining > 8 ? _random.nextDouble() < 0.55 : _random.nextDouble() < 0.30) {
           shouldBid = true;
           increment = 7500.0 + _random.nextInt(7500);
         }
@@ -349,6 +356,16 @@ class AuctionEngine {
           shouldBid = true;
           increment = 5000.0 + _random.nextInt(10000);
         }
+      } else if (rival.name == 'Galerici Vedat') {
+        if (_random.nextDouble() < 0.35) {
+          shouldBid = true;
+          increment = 6000.0 + _random.nextInt(8000);
+        }
+      } else if (rival.name == 'Koleksiyoner Selçuk') {
+        if (_random.nextDouble() < 0.40) {
+          shouldBid = true;
+          increment = 10000.0 + _random.nextInt(15000);
+        }
       } else if (rival.name == 'Baron Selim') {
         if (_random.nextDouble() < 0.40) {
           shouldBid = true;
@@ -364,6 +381,12 @@ class AuctionEngine {
           shouldBid = true;
           increment = 200000.0 + _random.nextInt(300000);
         }
+      } else {
+        // Fallback for any unlisted or custom rivals
+        if (_random.nextDouble() < 0.35) {
+          shouldBid = true;
+          increment = 5000.0 + _random.nextInt(10000);
+        }
       }
 
       if (shouldBid) {
@@ -374,7 +397,8 @@ class AuctionEngine {
           continue;
         }
 
-        final speechIdx = rival.dialogues.isNotEmpty ? _random.nextInt(rival.dialogues.length - 1) : 0;
+        final speechLimit = rival.dialogues.length > 1 ? rival.dialogues.length - 1 : rival.dialogues.length;
+        final speechIdx = speechLimit > 0 ? _random.nextInt(speechLimit) : 0;
         final speech = rival.dialogues.isNotEmpty ? rival.dialogues[speechIdx] : 'Teklifim hazır!';
         rival.lastSpeech = speech;
 

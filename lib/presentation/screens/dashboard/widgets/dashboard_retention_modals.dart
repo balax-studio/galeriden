@@ -1,13 +1,17 @@
+import 'package:flutter/services.dart';
 import '../../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
+import '../../../../core/services/game_sound_haptic_service.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../domain/usecases/collection_album_engine.dart';
+import '../../../../domain/usecases/offline_multiplier_engine.dart';
 import '../../../../domain/usecases/psychology_engine.dart';
 import '../../../../domain/usecases/rival_leaderboard_engine.dart';
 import '../../../providers/game_provider.dart';
@@ -21,132 +25,243 @@ import '../../../widgets/confetti_celebration_overlay.dart';
 class DashboardRetentionModals {
   DashboardRetentionModals._();
 
-  /// Offline Progression Recap Dialog
+  /// Offline Progression Recap Dialog with Dynamic Rewarded Ad Multiplier (1.5x - 3.0x)
   static void showOfflineRecapModal(
       BuildContext context, Map<String, dynamic> recap,
       {WidgetRef? ref}) {
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final isDark = themeExt.palette.isDark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final isDark = themeExt?.palette.isDark ??
+        (Theme.of(context).brightness == Brightness.dark);
 
     final earnedIncome = (recap['earnedIncome'] as num?)?.toDouble() ?? 0.0;
-    final bulletPoints = (recap['bulletPoints'] as List<String>?) ?? [];
+    final rawBulletPoints = recap['bulletPoints'];
+    final bulletPoints = (rawBulletPoints is List)
+        ? rawBulletPoints.map((e) => e.toString()).toList()
+        : <String>[];
+    final multiplier = earnedIncome > 0
+        ? OfflineMultiplierEngine.getRandomMultiplier()
+        : 1.0;
+    final bonusIncome =
+        OfflineMultiplierEngine.calculateBonusAmount(earnedIncome, multiplier);
+    final totalMultipliedIncome =
+        OfflineMultiplierEngine.calculateTotalAmount(earnedIncome, multiplier);
+    final multiplierFormatted =
+        OfflineMultiplierEngine.formatMultiplier(multiplier);
+
+    bool isAdLoading = false;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 18),
-        child: NeoBrutalCard(
-          padding: const EdgeInsets.all(18),
-          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: const Color(0xFF00E575),
-          borderRadius: 12,
-          borderWidth: 2.5,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF00E575),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF333B4F)
-                            : const Color(0xFF0F172A),
-                        width: 2.0,
+      builder: (ctx) => StatefulBuilder(
+        builder: (dialogContext, setState) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(18),
+              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+              borderColor: const Color(0xFF00E575),
+              borderRadius: 12,
+              borderWidth: 2.5,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00E575),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
+                          ),
+                          child: const Icon(Icons.wb_sunny_rounded,
+                              color: Colors.black, size: 22),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            recap['title'] as String? ??
+                                context.tr('retention_offline_title'),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w900, fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (earnedIncome > 0) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                              color: const Color(0xFF00E575), width: 1.5),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    context.tr('retention_passive_income'),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Text(
+                                  '+${CurrencyFormatter.format(earnedIncome)}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF00E575),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFDE59),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                    color: Colors.black, width: 1.5),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.bolt_rounded,
+                                      size: 14, color: Colors.black),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    context.tr(
+                                        'retention_offline_chance_badge',
+                                        {'multiplier': multiplierFormatted}),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    ...bulletPoints.map(
+                      (bp) => Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Text(
+                          bp,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? const Color(0xFFCBD5E1)
+                                : const Color(0xFF334155),
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Icon(Icons.wb_sunny_rounded,
-                        color: Colors.black, size: 22),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      recap['title'] as String? ??
-                          context.tr('retention_offline_title'),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w900, fontSize: 15),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (earnedIncome > 0) ...[
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E2330)
-                        : const Color(0xFFF0FDF4),
-                    borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: const Color(0xFF00E575), width: 1.5),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                          child: Text(context.tr('retention_passive_income'),
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold))),
-                      Expanded(
-                          child: Text(
-                        '+${CurrencyFormatter.format(earnedIncome)}',
-                        style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF00E575)),
-                      )),
+                    const SizedBox(height: 16),
+                    if (earnedIncome > 0) ...[
+                      NeoBrutalButton(
+                        label: context.tr('retention_offline_multiplier_btn',
+                            {'multiplier': multiplierFormatted}),
+                        icon: Icons.movie_filter_rounded,
+                        backgroundColor: const Color(0xFFFFDE59),
+                        textColor: Colors.black,
+                        fullWidth: true,
+                        onPressed: isAdLoading
+                            ? null
+                            : () {
+                                setState(() => isAdLoading = true);
+                                HapticFeedback.selectionClick();
+                                GameSoundHapticService.playClick();
+
+                                AdService.instance.showRewardedAdWithFallback(
+                                  context: context,
+                                  customRewardTitle: context.tr(
+                                      'retention_offline_chance_badge',
+                                      {'multiplier': multiplierFormatted}),
+                                  onRewardEarned: () {
+                                    if (dialogContext.mounted) {
+                                      Navigator.pop(dialogContext);
+                                    }
+
+                                    // Add bonus income to balance
+                                    if (ref != null && bonusIncome > 0) {
+                                      ref.read(gameProvider.notifier).addMoney(bonusIncome);
+                                    }
+
+                                    if (context.mounted) {
+                                      FloatingMoneyOverlay.of(context)
+                                          ?.showMoneyPopUp(
+                                        totalMultipliedIncome,
+                                        label:
+                                            '$multiplierFormatted Katlanan Pasif Gelir!',
+                                      );
+                                      GameSoundHapticService.playCashSuccess();
+                                      HapticFeedback.heavyImpact();
+                                    }
+                                  },
+                                );
+                              },
+                      ),
+                      const SizedBox(height: 8),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-              ...bulletPoints.map(
-                (bp) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Text(
-                    bp,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: isDark
-                          ? const Color(0xFFCBD5E1)
-                          : const Color(0xFF334155),
+                    NeoBrutalButton(
+                      label: context.tr('retention_claim_rewards'),
+                      icon: Icons.check_circle_rounded,
+                      backgroundColor: earnedIncome > 0
+                          ? (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0))
+                          : const Color(0xFF00E575),
+                      textColor: earnedIncome > 0
+                          ? (isDark ? Colors.white : Colors.black87)
+                          : Colors.black,
+                      fullWidth: true,
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        if (earnedIncome > 0) {
+                          FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                            earnedIncome,
+                            label: 'Kazanılan Pasif Gelir!',
+                          );
+                          GameSoundHapticService.playCashSuccess();
+                          HapticFeedback.mediumImpact();
+                        }
+                      },
                     ),
-                  ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              NeoBrutalButton(
-                label: context.tr('retention_claim_rewards'),
-                icon: Icons.check_circle_rounded,
-                backgroundColor: const Color(0xFF00E575),
-                textColor: Colors.black,
-                fullWidth: true,
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  if (earnedIncome > 0) {
-                    FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
-                        earnedIncome,
-                        label: 'Kazanılan Pasif Gelir!');
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
-    ),
-  );
-}
+    );
+  }
 
   /// Exit Hook Dialog with Peak-End Rule & Open Loops (§1.5 & §2.1)
   static void showExitHookDialog(BuildContext context, DealershipModel game) {

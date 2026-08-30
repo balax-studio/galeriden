@@ -845,6 +845,10 @@ class StaffModel {
   final int totalTrainingDays;
   final String? currentTrainingCourseId;
 
+  final int energy; // 0 to 100
+  final bool isOnLeave;
+  final int leaveDaysRemaining;
+
   StaffModel({
     required this.id,
     required this.name,
@@ -863,10 +867,16 @@ class StaffModel {
     this.trainingDaysRemaining = 0,
     this.totalTrainingDays = 0,
     this.currentTrainingCourseId,
+    this.energy = 100,
+    this.isOnLeave = false,
+    this.leaveDaysRemaining = 0,
   });
 
-  /// Staff is active for dealership automation tasks when not in training
-  bool get isAvailableForWork => !isUnderTraining;
+  /// Staff is active for dealership automation tasks when not in training, not on leave, and not severely exhausted
+  bool get isAvailableForWork => !isUnderTraining && !isOnLeave && energy > 10;
+
+  /// Staff is exhausted when energy is 20 or below
+  bool get isExhausted => energy <= 20;
 
   /// Training completion progress ratio (0.0 to 1.0)
   double get trainingProgress {
@@ -884,12 +894,13 @@ class StaffModel {
     return base;
   }
 
-  /// Speed bonus multiplier gained from experience & perks
+  /// Speed bonus multiplier gained from experience & perks (penalized if exhausted)
   double get speedMultiplier {
     double bonus = 1.0 + (masteryLevel * 0.15);
     if (perk == StaffPerk.hardWorker) bonus += 0.20;
     if (morale > 80) bonus += 0.10;
     if (completedCourseIds.isNotEmpty) bonus += completedCourseIds.length * 0.10;
+    if (isExhausted) bonus *= 0.70;
     return bonus;
   }
 
@@ -921,6 +932,9 @@ class StaffModel {
     int? trainingDaysRemaining,
     int? totalTrainingDays,
     String? currentTrainingCourseId,
+    int? energy,
+    bool? isOnLeave,
+    int? leaveDaysRemaining,
   }) {
     return StaffModel(
       id: id ?? this.id,
@@ -940,6 +954,9 @@ class StaffModel {
       trainingDaysRemaining: trainingDaysRemaining ?? this.trainingDaysRemaining,
       totalTrainingDays: totalTrainingDays ?? this.totalTrainingDays,
       currentTrainingCourseId: currentTrainingCourseId ?? this.currentTrainingCourseId,
+      energy: energy ?? this.energy,
+      isOnLeave: isOnLeave ?? this.isOnLeave,
+      leaveDaysRemaining: leaveDaysRemaining ?? this.leaveDaysRemaining,
     );
   }
 
@@ -962,6 +979,9 @@ class StaffModel {
       'trainingDaysRemaining': trainingDaysRemaining,
       'totalTrainingDays': totalTrainingDays,
       'currentTrainingCourseId': currentTrainingCourseId,
+      'energy': energy,
+      'isOnLeave': isOnLeave,
+      'leaveDaysRemaining': leaveDaysRemaining,
     };
   }
 
@@ -984,6 +1004,9 @@ class StaffModel {
       trainingDaysRemaining: json['trainingDaysRemaining'] as int? ?? 0,
       totalTrainingDays: json['totalTrainingDays'] as int? ?? 0,
       currentTrainingCourseId: json['currentTrainingCourseId'] as String?,
+      energy: json['energy'] as int? ?? 100,
+      isOnLeave: json['isOnLeave'] as bool? ?? false,
+      leaveDaysRemaining: json['leaveDaysRemaining'] as int? ?? 0,
     );
   }
 }

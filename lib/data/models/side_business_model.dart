@@ -160,6 +160,9 @@ class SideBusinessUpgradeModel {
   final double bonusDailyIncome;
   final bool isPurchased;
   final String iconName;
+  final bool isUpgrading;
+  final int upgradeDaysRemaining;
+  final int totalUpgradeDays;
 
   SideBusinessUpgradeModel({
     required this.id,
@@ -169,7 +172,12 @@ class SideBusinessUpgradeModel {
     required this.bonusDailyIncome,
     this.isPurchased = false,
     this.iconName = 'store',
+    this.isUpgrading = false,
+    this.upgradeDaysRemaining = 0,
+    this.totalUpgradeDays = 0,
   });
+
+  bool get isOperational => isPurchased && !isUpgrading;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -179,6 +187,9 @@ class SideBusinessUpgradeModel {
     'bonusDailyIncome': bonusDailyIncome,
     'isPurchased': isPurchased,
     'iconName': iconName,
+    'isUpgrading': isUpgrading,
+    'upgradeDaysRemaining': upgradeDaysRemaining,
+    'totalUpgradeDays': totalUpgradeDays,
   };
 
   factory SideBusinessUpgradeModel.fromJson(Map<String, dynamic> json) => SideBusinessUpgradeModel(
@@ -189,6 +200,9 @@ class SideBusinessUpgradeModel {
     bonusDailyIncome: (json['bonusDailyIncome'] as num).toDouble(),
     isPurchased: json['isPurchased'] as bool? ?? false,
     iconName: json['iconName'] as String? ?? 'store',
+    isUpgrading: json['isUpgrading'] as bool? ?? false,
+    upgradeDaysRemaining: json['upgradeDaysRemaining'] as int? ?? 0,
+    totalUpgradeDays: json['totalUpgradeDays'] as int? ?? 0,
   );
 
   SideBusinessUpgradeModel copyWith({
@@ -199,6 +213,9 @@ class SideBusinessUpgradeModel {
     double? bonusDailyIncome,
     bool? isPurchased,
     String? iconName,
+    bool? isUpgrading,
+    int? upgradeDaysRemaining,
+    int? totalUpgradeDays,
   }) {
     return SideBusinessUpgradeModel(
       id: id ?? this.id,
@@ -208,6 +225,9 @@ class SideBusinessUpgradeModel {
       bonusDailyIncome: bonusDailyIncome ?? this.bonusDailyIncome,
       isPurchased: isPurchased ?? this.isPurchased,
       iconName: iconName ?? this.iconName,
+      isUpgrading: isUpgrading ?? this.isUpgrading,
+      upgradeDaysRemaining: upgradeDaysRemaining ?? this.upgradeDaysRemaining,
+      totalUpgradeDays: totalUpgradeDays ?? this.totalUpgradeDays,
     );
   }
 }
@@ -236,6 +256,12 @@ class SideBusinessModel {
   final int constructionDaysRemaining;
   final int totalConstructionDays;
 
+  // Level upgrade construction fields
+  final bool isUpgradingLevel;
+  final int levelUpgradeDaysRemaining;
+  final int totalLevelUpgradeDays;
+  final int pendingTargetLevel;
+
   SideBusinessModel({
     required this.id,
     required this.name,
@@ -255,6 +281,10 @@ class SideBusinessModel {
     this.isUnderConstruction = false,
     this.constructionDaysRemaining = 0,
     this.totalConstructionDays = 0,
+    this.isUpgradingLevel = false,
+    this.levelUpgradeDaysRemaining = 0,
+    this.totalLevelUpgradeDays = 0,
+    this.pendingTargetLevel = 1,
   });
 
   bool get isOperational => isOwned && !isUnderConstruction;
@@ -264,10 +294,17 @@ class SideBusinessModel {
     return (1.0 - (constructionDaysRemaining / totalConstructionDays)).clamp(0.0, 1.0);
   }
 
+  double get levelUpgradeProgress {
+    if (totalLevelUpgradeDays <= 0) return 1.0;
+    return (1.0 - (levelUpgradeDaysRemaining / totalLevelUpgradeDays)).clamp(0.0, 1.0);
+  }
+
   double get grossDailyIncome {
     if (!isOperational) return 0.0;
     final base = dailyIncome * (1 + (level - 1) * 0.35);
-    final upgradeBonuses = upgrades.where((u) => u.isPurchased).fold(0.0, (sum, u) => sum + u.bonusDailyIncome);
+    final upgradeBonuses = upgrades
+        .where((u) => u.isPurchased && !u.isUpgrading)
+        .fold(0.0, (sum, u) => sum + u.bonusDailyIncome);
     double total = base + upgradeBonuses;
     if (hasManager) {
       total = total * (1 + managerBonusPercent);
@@ -389,7 +426,7 @@ class SideBusinessModel {
     return (totalInvested / daily).ceil();
   }
 
-  int get purchasedUpgradeCount => upgrades.where((u) => u.isPurchased).length;
+  int get purchasedUpgradeCount => upgrades.where((u) => u.isPurchased && !u.isUpgrading).length;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -410,6 +447,10 @@ class SideBusinessModel {
     'isUnderConstruction': isUnderConstruction,
     'constructionDaysRemaining': constructionDaysRemaining,
     'totalConstructionDays': totalConstructionDays,
+    'isUpgradingLevel': isUpgradingLevel,
+    'levelUpgradeDaysRemaining': levelUpgradeDaysRemaining,
+    'totalLevelUpgradeDays': totalLevelUpgradeDays,
+    'pendingTargetLevel': pendingTargetLevel,
   };
 
   factory SideBusinessModel.fromJson(Map<String, dynamic> json) => SideBusinessModel(
@@ -436,6 +477,10 @@ class SideBusinessModel {
     isUnderConstruction: json['isUnderConstruction'] as bool? ?? false,
     constructionDaysRemaining: json['constructionDaysRemaining'] as int? ?? 0,
     totalConstructionDays: json['totalConstructionDays'] as int? ?? 0,
+    isUpgradingLevel: json['isUpgradingLevel'] as bool? ?? false,
+    levelUpgradeDaysRemaining: json['levelUpgradeDaysRemaining'] as int? ?? 0,
+    totalLevelUpgradeDays: json['totalLevelUpgradeDays'] as int? ?? 0,
+    pendingTargetLevel: json['pendingTargetLevel'] as int? ?? (json['level'] as int? ?? 1),
   );
 
   SideBusinessModel copyWith({
@@ -457,6 +502,10 @@ class SideBusinessModel {
     bool? isUnderConstruction,
     int? constructionDaysRemaining,
     int? totalConstructionDays,
+    bool? isUpgradingLevel,
+    int? levelUpgradeDaysRemaining,
+    int? totalLevelUpgradeDays,
+    int? pendingTargetLevel,
   }) {
     return SideBusinessModel(
       id: id ?? this.id,
@@ -477,6 +526,10 @@ class SideBusinessModel {
       isUnderConstruction: isUnderConstruction ?? this.isUnderConstruction,
       constructionDaysRemaining: constructionDaysRemaining ?? this.constructionDaysRemaining,
       totalConstructionDays: totalConstructionDays ?? this.totalConstructionDays,
+      isUpgradingLevel: isUpgradingLevel ?? this.isUpgradingLevel,
+      levelUpgradeDaysRemaining: levelUpgradeDaysRemaining ?? this.levelUpgradeDaysRemaining,
+      totalLevelUpgradeDays: totalLevelUpgradeDays ?? this.totalLevelUpgradeDays,
+      pendingTargetLevel: pendingTargetLevel ?? this.pendingTargetLevel,
     );
   }
 }

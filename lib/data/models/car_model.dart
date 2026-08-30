@@ -60,6 +60,10 @@ class CarModel {
   final bool isPeriodicMaintained; // 10.000 KM periodic maintenance performed
   final int washDurationRemaining; // Decreases daily, removes isWashed when 0
   final bool hasMuddyPenalty; // True if affected by Muddy Rain event
+  final int paintReadyDay; // Target day when custom paint curing completes (0 = ready/not painting)
+  final String? pendingPaintHex;
+  final String? pendingPaintName;
+  final String? pendingPaintRarity;
 
   CarModel({
     required this.id,
@@ -113,7 +117,14 @@ class CarModel {
     this.isPeriodicMaintained = false,
     this.washDurationRemaining = 0,
     this.hasMuddyPenalty = false,
+    this.paintReadyDay = 0,
+    this.pendingPaintHex,
+    this.pendingPaintName,
+    this.pendingPaintRarity,
   }) : modelName = sanitizeModelName(brand, modelName);
+
+  /// True if vehicle is currently in the paint oven curing
+  bool get isPainting => paintReadyDay > 0;
 
   /// Strips redundant brand name prefixes if present (e.g. 'Merso G-63' with brand 'Merso' -> 'G-63')
   static String sanitizeModelName(String brand, String rawModelName) {
@@ -450,6 +461,10 @@ class CarModel {
       'isPeriodicMaintained': isPeriodicMaintained,
       'washDurationRemaining': washDurationRemaining,
       'hasMuddyPenalty': hasMuddyPenalty,
+      'paintReadyDay': paintReadyDay,
+      'pendingPaintHex': pendingPaintHex,
+      'pendingPaintName': pendingPaintName,
+      'pendingPaintRarity': pendingPaintRarity,
     };
   }
 
@@ -513,6 +528,10 @@ class CarModel {
       isPeriodicMaintained: json['isPeriodicMaintained'] as bool? ?? false,
       washDurationRemaining: json['washDurationRemaining'] as int? ?? 0,
       hasMuddyPenalty: json['hasMuddyPenalty'] as bool? ?? false,
+      paintReadyDay: json['paintReadyDay'] as int? ?? 0,
+      pendingPaintHex: json['pendingPaintHex'] as String?,
+      pendingPaintName: json['pendingPaintName'] as String?,
+      pendingPaintRarity: json['pendingPaintRarity'] as String?,
     );
   }
 
@@ -569,6 +588,11 @@ class CarModel {
     bool? isPeriodicMaintained,
     int? washDurationRemaining,
     bool? hasMuddyPenalty,
+    int? paintReadyDay,
+    String? pendingPaintHex,
+    String? pendingPaintName,
+    String? pendingPaintRarity,
+    bool clearPendingPaint = false,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -622,6 +646,10 @@ class CarModel {
       isPeriodicMaintained: isPeriodicMaintained ?? this.isPeriodicMaintained,
       washDurationRemaining: washDurationRemaining ?? this.washDurationRemaining,
       hasMuddyPenalty: hasMuddyPenalty ?? this.hasMuddyPenalty,
+      paintReadyDay: paintReadyDay ?? this.paintReadyDay,
+      pendingPaintHex: clearPendingPaint ? null : (pendingPaintHex ?? this.pendingPaintHex),
+      pendingPaintName: clearPendingPaint ? null : (pendingPaintName ?? this.pendingPaintName),
+      pendingPaintRarity: clearPendingPaint ? null : (pendingPaintRarity ?? this.pendingPaintRarity),
     );
   }
 }

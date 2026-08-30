@@ -501,88 +501,228 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                 padding: const EdgeInsets.all(12),
                 backgroundColor:
                     isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor:
-                    isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderColor: business.isUpgradingLevel
+                    ? AppColors.brutalYellow
+                    : (isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFF0F172A)),
                 borderRadius: 12,
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.brutalYellow,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF333B4F)
-                              : const Color(0xFF0F172A),
-                          width: 2.0,
-                        ),
-                      ),
-                      child: const Icon(Icons.bolt_rounded,
-                          color: Colors.black, size: 22),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
+                child: business.isUpgradingLevel
+                    ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            isMaxLevel
-                                ? context.tr('side_biz_max_lvl_title')
-                                : context.tr('side_biz_next_lvl_title',
-                                    {'lvl': '${business.level + 1}'}),
-                            style: const TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.w900),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.brutalYellow,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? const Color(0xFF333B4F)
+                                        : const Color(0xFF0F172A),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                child: const Icon(Icons.upgrade_rounded,
+                                    color: Colors.black, size: 22),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      context.tr('side_biz_next_lvl_title', {
+                                        'lvl': '${business.pendingTargetLevel}'
+                                      }),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      context.tr(
+                                          'side_biz_level_upgrading_badge', {
+                                        'days':
+                                            '${business.levelUpgradeDaysRemaining}'
+                                      }),
+                                      style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.brutalYellow),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '%${(business.levelUpgradeProgress * 100).round()}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.brutalYellow,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            isMaxLevel
-                                ? context.tr('side_biz_max_capacity_desc')
-                                : context.tr('side_biz_capacity_boost_desc'),
-                            style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF64748B)),
+                          const SizedBox(height: 10),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: Container(
+                              height: 8,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? const Color(0xFF2A2A20)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              child: FractionallySizedBox(
+                                alignment: Alignment.centerLeft,
+                                widthFactor: business.levelUpgradeProgress
+                                    .clamp(0.05, 1.0),
+                                child: Container(color: AppColors.brutalYellow),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: NeoBrutalButton(
+                              label:
+                                  context.tr('rush_lore_level_upgrade_btn'),
+                              icon: Icons.bolt_rounded,
+                              backgroundColor: AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 11.5,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              onPressed: () {
+                                GenericRushJobDialog.show(
+                                  context,
+                                  titleBadge: context
+                                      .tr('rush_lore_level_upgrade_title'),
+                                  targetTitle:
+                                      '${business.type.getLocalizedName(lang)} • ${context.tr('side_biz_next_lvl_title', {
+                                            'lvl':
+                                                '${business.pendingTargetLevel}'
+                                          })}',
+                                  targetSubtitle:
+                                      '${business.levelUpgradeDaysRemaining} ${context.tr('rush_lore_days_remaining', {
+                                            'days': business
+                                                .levelUpgradeDaysRemaining
+                                                .toString()
+                                          })}',
+                                  loreDescription: context
+                                      .tr('rush_lore_level_upgrade_desc'),
+                                  icon: Icons.upgrade_rounded,
+                                  badgeColor: AppColors.brutalYellow,
+                                  actionButtonLabel: context
+                                      .tr('rush_lore_level_upgrade_btn'),
+                                  onRushSuccess: () {
+                                    final success = ref
+                                        .read(gameProvider.notifier)
+                                        .completeSideBusinessLevelUpgrade(
+                                            business.id);
+                                    if (success) {
+                                      NotificationService.showSuccess(
+                                        context,
+                                        context.tr(
+                                            'side_biz_level_upgrade_success'),
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                            ),
                           ),
                         ],
-                      ),
-                    ),
-                    if (isMaxLevel)
-                      NeoBrutalBadge(
-                        text: context.tr('max_badge'),
-                        backgroundColor: AppColors.brutalYellow,
-                        textColor: Colors.black,
-                        fontSize: 10,
                       )
-                    else
-                      NeoBrutalButton(
-                        label: context.tr('side_biz_btn_upgrade_level', {
-                          'cost': CurrencyFormatter.formatShort(nextLevelCost)
-                        }),
-                        backgroundColor: AppColors.brutalYellow,
-                        textColor: Colors.black,
-                        fontSize: 10.5,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        onPressed: () {
-                          final success = ref
-                              .read(gameProvider.notifier)
-                              .upgradeSideBusiness(business.id);
-                          if (success) {
-                            NotificationService.showSuccess(
-                                context,
-                                context.tr('side_biz_upgraded_toast', {
-                                  'name': business.type.getLocalizedName(lang),
-                                  'lvl': '${business.level + 1}'
-                                }));
-                          } else {
-                            NotificationService.showError(
-                                context, context.tr('insufficient_balance'));
-                          }
-                        },
+                    : Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.brutalYellow,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
+                            ),
+                            child: const Icon(Icons.bolt_rounded,
+                                color: Colors.black, size: 22),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isMaxLevel
+                                      ? context.tr('side_biz_max_lvl_title')
+                                      : context.tr('side_biz_next_lvl_title',
+                                          {'lvl': '${business.level + 1}'}),
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w900),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  isMaxLevel
+                                      ? context
+                                          .tr('side_biz_max_capacity_desc')
+                                      : context
+                                          .tr('side_biz_capacity_boost_desc'),
+                                  style: const TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isMaxLevel)
+                            NeoBrutalBadge(
+                              text: context.tr('max_badge'),
+                              backgroundColor: AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 10,
+                            )
+                          else
+                            NeoBrutalButton(
+                              label: context.tr('side_biz_btn_upgrade_level', {
+                                'cost':
+                                    CurrencyFormatter.formatShort(nextLevelCost)
+                              }),
+                              backgroundColor: AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 10.5,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              onPressed: () {
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .upgradeSideBusiness(business.id);
+                                if (success) {
+                                  NotificationService.showSuccess(
+                                      context,
+                                      context.tr('side_biz_upgraded_toast', {
+                                        'name': business.type
+                                            .getLocalizedName(lang),
+                                        'lvl': '${business.level + 1}'
+                                      }));
+                                } else {
+                                  NotificationService.showError(
+                                      context,
+                                      context.tr('insufficient_balance'));
+                                }
+                              },
+                            ),
+                        ],
                       ),
-                  ],
-                ),
               ),
               const SizedBox(height: 16),
 
@@ -603,6 +743,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
 
               ...business.upgrades.map((upgrade) {
                 final isPurchased = upgrade.isPurchased;
+                final isUpgrading = upgrade.isUpgrading;
                 final iconData = _getUpgradeIconData(upgrade.iconName);
 
                 return Padding(
@@ -611,22 +752,26 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                     padding: const EdgeInsets.all(10),
                     backgroundColor:
                         isDark ? const Color(0xFF141721) : Colors.white,
-                    borderColor: isPurchased
-                        ? AppColors.brutalGreen
-                        : (isDark
-                            ? const Color(0xFF2A3142)
-                            : const Color(0xFF0F172A)),
+                    borderColor: isUpgrading
+                        ? AppColors.brutalYellow
+                        : (isPurchased
+                            ? AppColors.brutalGreen
+                            : (isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFF0F172A))),
                     borderRadius: 10,
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: isPurchased
-                                ? AppColors.brutalGreen
-                                : (isDark
-                                    ? const Color(0xFF1E2330)
-                                    : const Color(0xFFE2E8F0)),
+                            color: isUpgrading
+                                ? AppColors.brutalYellow
+                                : (isPurchased
+                                    ? AppColors.brutalGreen
+                                    : (isDark
+                                        ? const Color(0xFF1E2330)
+                                        : const Color(0xFFE2E8F0))),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: isDark
@@ -636,7 +781,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                             ),
                           ),
                           child: Icon(iconData,
-                              color: isPurchased
+                              color: (isPurchased || isUpgrading)
                                   ? Colors.black
                                   : const Color(0xFF64748B),
                               size: 18),
@@ -661,10 +806,12 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                                       'amount': CurrencyFormatter.formatShort(
                                           upgrade.bonusDailyIncome)
                                     }),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w900,
-                                        color: AppColors.brutalGreen),
+                                        color: isUpgrading
+                                            ? AppColors.brutalYellow
+                                            : AppColors.brutalGreen),
                                   ),
                                 ],
                               ),
@@ -680,7 +827,52 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (isPurchased)
+                        if (isUpgrading)
+                          NeoBrutalButton(
+                            label: context.tr(
+                                'side_biz_upgrade_installing_badge',
+                                {'days': '${upgrade.upgradeDaysRemaining}'}),
+                            icon: Icons.bolt_rounded,
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 6),
+                            onPressed: () {
+                              GenericRushJobDialog.show(
+                                context,
+                                titleBadge: context
+                                    .tr('rush_lore_sub_upgrade_title'),
+                                targetTitle:
+                                    '${business.type.getLocalizedName(lang)} • ${upgrade.title}',
+                                targetSubtitle:
+                                    '${upgrade.upgradeDaysRemaining} ${context.tr('rush_lore_days_remaining', {
+                                          'days': upgrade.upgradeDaysRemaining
+                                              .toString()
+                                        })}',
+                                loreDescription: context
+                                    .tr('rush_lore_sub_upgrade_desc'),
+                                icon: iconData,
+                                badgeColor: AppColors.brutalYellow,
+                                actionButtonLabel:
+                                    context.tr('rush_lore_sub_upgrade_btn'),
+                                onRushSuccess: () {
+                                  final success = ref
+                                      .read(gameProvider.notifier)
+                                      .completeSideBusinessSubUpgrade(
+                                          business.id, upgrade.id);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      context.tr(
+                                          'side_biz_sub_upgrade_success'),
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                          )
+                        else if (isPurchased)
                           NeoBrutalBadge(
                             text: context.tr('active_badge'),
                             backgroundColor: AppColors.brutalGreen,

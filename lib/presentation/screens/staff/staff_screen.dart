@@ -257,9 +257,9 @@ class StaffScreen extends ConsumerWidget {
   }
 
   void _showBonusSheet(BuildContext context, WidgetRef ref, StaffModel staff) {
-    if (staff.morale >= 100) {
+    if (staff.morale >= 100 && staff.energy >= 100) {
       NotificationService.showInfo(
-          context, context.tr('staff_morale_already_full'));
+          context, context.tr('staff_toast_energy_full'));
       return;
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -609,7 +609,7 @@ class StaffScreen extends ConsumerWidget {
             final isHired = hired != null;
             final isFacilityUnlocked =
                 game.isFeatureUnlocked(role.requiredFeatureRoute);
-            final isMoraleFull = hired != null && hired.morale >= 100;
+            final isTreatFull = hired != null && hired.morale >= 100 && hired.energy >= 100;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -806,6 +806,7 @@ class StaffScreen extends ConsumerWidget {
                                   style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700)),
+                              const SizedBox(width: 4),
                               Text(
                                 '%${hired.morale}',
                                 style: TextStyle(
@@ -822,6 +823,25 @@ class StaffScreen extends ConsumerWidget {
                           ),
                           Row(
                             children: [
+                              if (hired.isOnLeave) ...[
+                                NeoBrutalBadge(
+                                  text: context.tr('staff_status_on_leave',
+                                      {'days': '${hired.leaveDaysRemaining}'}),
+                                  backgroundColor: const Color(0xFF0EA5E9),
+                                  textColor: Colors.white,
+                                  fontSize: 9.5,
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                              if (hired.isExhausted) ...[
+                                NeoBrutalBadge(
+                                  text: context.tr('staff_status_exhausted'),
+                                  backgroundColor: AppColors.errorRed,
+                                  textColor: Colors.white,
+                                  fontSize: 9.5,
+                                ),
+                                const SizedBox(width: 4),
+                              ],
                               if (hired.completedCourseIds.isNotEmpty) ...[
                                 NeoBrutalBadge(
                                   text: context.tr(
@@ -852,7 +872,7 @@ class StaffScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        height: 6,
+                        height: 5,
                         decoration: BoxDecoration(
                           color: isDark
                               ? const Color(0xFF0F1118)
@@ -867,6 +887,59 @@ class StaffScreen extends ConsumerWidget {
                               color: hired.morale > 75
                                   ? AppColors.brutalGreen
                                   : (hired.morale > 40
+                                      ? AppColors.brutalYellow
+                                      : AppColors.errorRed),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Energy Bar
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Text(context.tr('staff_energy_label'),
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700)),
+                              const SizedBox(width: 4),
+                              Text(
+                                '%${hired.energy}',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: hired.energy > 60
+                                      ? const Color(0xFF0EA5E9)
+                                      : (hired.energy > 20
+                                          ? AppColors.brutalYellow
+                                          : AppColors.errorRed),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF0F1118)
+                              : const Color(0xFFE2E8F0),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: (hired.energy / 100).clamp(0.0, 1.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: hired.energy > 60
+                                  ? const Color(0xFF0EA5E9)
+                                  : (hired.energy > 20
                                       ? AppColors.brutalYellow
                                       : AppColors.errorRed),
                               borderRadius: BorderRadius.circular(3),
@@ -921,7 +994,7 @@ class StaffScreen extends ConsumerWidget {
                               textColor: isDark ? Colors.white : Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: isMoraleFull
+                              onPressed: isTreatFull
                                   ? null
                                   : () {
                                       final success = ref
@@ -948,7 +1021,7 @@ class StaffScreen extends ConsumerWidget {
                               textColor: Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: isMoraleFull
+                              onPressed: isTreatFull
                                   ? null
                                   : () {
                                       final success = ref
@@ -975,7 +1048,7 @@ class StaffScreen extends ConsumerWidget {
                               textColor: Colors.black,
                               fontSize: 10,
                               padding: const EdgeInsets.symmetric(vertical: 6),
-                              onPressed: isMoraleFull
+                              onPressed: isTreatFull
                                   ? null
                                   : () =>
                                       _showBonusSheet(context, ref, hired),
@@ -985,32 +1058,83 @@ class StaffScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 6),
 
-                      // Role-based training or rush action
-                      SizedBox(
-                        width: double.infinity,
-                        child: hired.isUnderTraining
-                            ? NeoBrutalButton(
-                                icon: Icons.bolt_rounded,
-                                label: context.tr('staff_btn_rush_training'),
-                                backgroundColor: AppColors.brutalYellow,
-                                textColor: Colors.black,
-                                fontSize: 11,
-                                padding: const EdgeInsets.symmetric(vertical: 7),
-                                onPressed: () {
-                                  RushTrainingConfirmationDialog.show(context,
-                                      staff: hired);
-                                },
-                              )
-                            : NeoBrutalButton(
-                                icon: Icons.school_rounded,
-                                label: context.tr('btn_train_staff'),
-                                backgroundColor: const Color(0xFFA855F7),
-                                textColor: Colors.white,
-                                fontSize: 11,
-                                padding: const EdgeInsets.symmetric(vertical: 7),
-                                onPressed: () =>
-                                    _showRoleTrainingSheet(context, ref, hired),
-                              ),
+                      // Rest / Leave or Training Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: hired.isOnLeave
+                                ? NeoBrutalButton(
+                                    icon: Icons.work_history_rounded,
+                                    label: context.tr('staff_btn_recall_leave'),
+                                    backgroundColor: const Color(0xFF0EA5E9),
+                                    textColor: Colors.white,
+                                    fontSize: 10.5,
+                                    padding: const EdgeInsets.symmetric(vertical: 7),
+                                    onPressed: () {
+                                      ref
+                                          .read(gameProvider.notifier)
+                                          .recallStaffFromLeave(hired.id);
+                                      NotificationService.showInfo(
+                                          context,
+                                          context.tr('staff_recall_success_toast',
+                                              {'name': hired.name}));
+                                    },
+                                  )
+                                : NeoBrutalButton(
+                                    icon: Icons.beach_access_rounded,
+                                    label: context.tr('staff_btn_send_leave'),
+                                    backgroundColor: isDark
+                                        ? const Color(0xFF1E2330)
+                                        : const Color(0xFFE2E8F0),
+                                    textColor:
+                                        isDark ? Colors.white : Colors.black,
+                                    fontSize: 10.5,
+                                    padding: const EdgeInsets.symmetric(vertical: 7),
+                                    onPressed: hired.isUnderTraining
+                                        ? null
+                                        : () {
+                                            final success = ref
+                                                .read(gameProvider.notifier)
+                                                .sendStaffOnLeave(hired.id, 1);
+                                            if (success) {
+                                              NotificationService.showSuccess(
+                                                  context,
+                                                  context.tr(
+                                                      'staff_leave_success_toast',
+                                                      {'name': hired.name}));
+                                            }
+                                          },
+                                  ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: hired.isUnderTraining
+                                ? NeoBrutalButton(
+                                    icon: Icons.bolt_rounded,
+                                    label: context.tr('staff_btn_rush_training'),
+                                    backgroundColor: AppColors.brutalYellow,
+                                    textColor: Colors.black,
+                                    fontSize: 10.5,
+                                    padding: const EdgeInsets.symmetric(vertical: 7),
+                                    onPressed: () {
+                                      RushTrainingConfirmationDialog.show(context,
+                                          staff: hired);
+                                    },
+                                  )
+                                : NeoBrutalButton(
+                                    icon: Icons.school_rounded,
+                                    label: context.tr('btn_train_staff'),
+                                    backgroundColor: const Color(0xFFA855F7),
+                                    textColor: Colors.white,
+                                    fontSize: 10.5,
+                                    padding: const EdgeInsets.symmetric(vertical: 7),
+                                    onPressed: hired.isOnLeave
+                                        ? null
+                                        : () => _showRoleTrainingSheet(
+                                            context, ref, hired),
+                                  ),
+                          ),
+                        ],
                       ),
                     ] else ...[
                       if (!isFacilityUnlocked) ...[

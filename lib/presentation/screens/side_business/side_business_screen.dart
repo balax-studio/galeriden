@@ -315,13 +315,22 @@ class SideBusinessScreen extends ConsumerWidget {
                                       fontSize: 10,
                                     ),
                                   ),
-                                NeoBrutalBadge(
-                                  text: context.tr('side_biz_level_badge',
-                                      {'lvl': '${business.level}'}),
-                                  backgroundColor: AppColors.brutalGreen,
-                                  textColor: Colors.black,
-                                  fontSize: 10.5,
-                                ),
+                                if (business.isUpgradingLevel)
+                                  NeoBrutalBadge(
+                                    text: context.tr('side_biz_level_upgrading_badge',
+                                        {'days': '${business.levelUpgradeDaysRemaining}'}),
+                                    backgroundColor: AppColors.brutalYellow,
+                                    textColor: Colors.black,
+                                    fontSize: 10,
+                                  )
+                                else
+                                  NeoBrutalBadge(
+                                    text: context.tr('side_biz_level_badge',
+                                        {'lvl': '${business.level}'}),
+                                    backgroundColor: AppColors.brutalGreen,
+                                    textColor: Colors.black,
+                                    fontSize: 10.5,
+                                  ),
                               ],
                             ],
                           ),
@@ -395,6 +404,73 @@ class SideBusinessScreen extends ConsumerWidget {
                                 child: FractionallySizedBox(
                                   alignment: Alignment.centerLeft,
                                   widthFactor: business.constructionProgress.clamp(0.05, 1.0),
+                                  child: Container(color: AppColors.brutalYellow),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else if (business.isUpgradingLevel) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E1E14)
+                              : const Color(0xFFFEFCE8),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.brutalYellow,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.upgrade_rounded,
+                                        size: 16, color: AppColors.brutalYellow),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      context.tr('side_biz_level_upgrading_badge', {
+                                        'days': '${business.levelUpgradeDaysRemaining}'
+                                      }),
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '%${(business.levelUpgradeProgress * 100).round()}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.brutalYellow,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Container(
+                                height: 8,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF2A2A20)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                                child: FractionallySizedBox(
+                                  alignment: Alignment.centerLeft,
+                                  widthFactor: business.levelUpgradeProgress.clamp(0.05, 1.0),
                                   child: Container(color: AppColors.brutalYellow),
                                 ),
                               ),

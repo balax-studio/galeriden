@@ -323,7 +323,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
             if (mounted) {
               NotificationService.showSuccess(
                 context,
-                '${CurrencyFormatter.format(loot.value)} kasaya eklendi!',
+                context.tr('auction_loot_added_to_vault', {
+                  'amount': CurrencyFormatter.format(loot.value),
+                }),
               );
               _resetAuctionSilently();
             }
@@ -514,7 +516,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
             child: Center(
               child: NeoBrutalBadge(
                 text: _isVipSession
-                    ? 'VIP PROTOKOL'
+                    ? context.tr('auction_badge_vip')
                     : (_isWindowOpen
                         ? context.tr('auction_live_badge')
                         : context.tr('auction_closed_badge')),

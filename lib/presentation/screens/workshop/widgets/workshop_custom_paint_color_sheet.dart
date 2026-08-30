@@ -49,8 +49,12 @@ class WorkshopCustomPaintColorSheet {
                     ),
                   ),
                   NeoBrutalBadge(
-                    text: context.tr('custom_paint_sub'),
-                    backgroundColor: AppColors.brutalYellow,
+                    text: car.isPainting
+                        ? context.tr('workshop_paint_in_oven')
+                        : context.tr('custom_paint_sub'),
+                    backgroundColor: car.isPainting
+                        ? AppColors.brutalOrange
+                        : AppColors.brutalYellow,
                     textColor: Colors.black,
                     fontSize: 10,
                   ),
@@ -58,14 +62,19 @@ class WorkshopCustomPaintColorSheet {
               ),
               const SizedBox(height: 6),
               Text(
-                context.tr('custom_paint_hint'),
-                style: const TextStyle(
+                car.isPainting
+                    ? context.tr('toast_car_already_painting')
+                    : context.tr('custom_paint_hint'),
+                style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF64748B),
+                    color: car.isPainting
+                        ? AppColors.brutalOrange
+                        : const Color(0xFF64748B),
                     fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 14),
               ...CustomPaintColor.palette.map((paint) {
+                final isCurrentPending = car.pendingPaintName == paint.name;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: NeoBrutalCard(
@@ -73,9 +82,11 @@ class WorkshopCustomPaintColorSheet {
                     backgroundColor: isDark
                         ? const Color(0xFF1E2330)
                         : const Color(0xFFF8FAFC),
-                    borderColor: isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFCBD5E1),
+                    borderColor: isCurrentPending
+                        ? AppColors.brutalOrange
+                        : (isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFFCBD5E1)),
                     borderRadius: 10,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -120,34 +131,47 @@ class WorkshopCustomPaintColorSheet {
                         ),
                         const SizedBox(width: 8),
                         NeoBrutalButton(
-                          label: context.tr('paint_action_btn'),
-                          backgroundColor: AppColors.brutalYellow,
-                          textColor: Colors.black,
+                          label: car.isPainting
+                              ? context.tr('workshop_paint_in_oven')
+                              : context.tr('paint_action_btn'),
+                          backgroundColor: car.isPainting
+                              ? (isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFFE2E8F0))
+                              : AppColors.brutalYellow,
+                          textColor:
+                              car.isPainting ? Colors.grey : Colors.black,
                           fontSize: 10.5,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 6),
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            final game = ref.read(gameProvider);
-                            if (game.balance < paint.cost) {
-                              NotificationService.showError(
-                                context,
-                                context.tr('toast_insufficient_balance_needed',
-                                    {'cost': CurrencyFormatter.format(paint.cost)}),
-                              );
-                              return;
-                            }
-                            final success = ref
-                                .read(gameProvider.notifier)
-                                .applyCustomPaintRespray(car.id, paint);
-                            if (success) {
-                              NotificationService.showSuccess(
-                                context,
-                                context.tr('workshop_toast_paint_done'),
-                              );
-                              onColorApplied?.call();
-                            }
-                          },
+                          onPressed: car.isPainting
+                              ? null
+                              : () {
+                                  Navigator.pop(ctx);
+                                  final game = ref.read(gameProvider);
+                                  if (game.balance < paint.cost) {
+                                    NotificationService.showError(
+                                      context,
+                                      context.tr(
+                                          'toast_insufficient_balance_needed', {
+                                        'cost': CurrencyFormatter.format(
+                                            paint.cost)
+                                      }),
+                                    );
+                                    return;
+                                  }
+                                  final success = ref
+                                      .read(gameProvider.notifier)
+                                      .applyCustomPaintRespray(car.id, paint);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      context.tr(
+                                          'workshop_toast_paint_started'),
+                                    );
+                                    onColorApplied?.call();
+                                  }
+                                },
                         ),
                       ],
                     ),

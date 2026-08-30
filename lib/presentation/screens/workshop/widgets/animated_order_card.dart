@@ -12,6 +12,7 @@ class AnimatedOrderCard extends StatefulWidget {
   final ThemePaletteModel p;
   final VoidCallback onInstall;
   final VoidCallback? onFastDeliverWithAd;
+  final VoidCallback? onCancel;
 
   const AnimatedOrderCard({
     super.key,
@@ -19,6 +20,7 @@ class AnimatedOrderCard extends StatefulWidget {
     required this.p,
     required this.onInstall,
     this.onFastDeliverWithAd,
+    this.onCancel,
   });
 
   @override
@@ -109,7 +111,9 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard>
         ? context.tr('order_card_temp')
         : order.orderType == OrderType.masterRepair
             ? context.tr('order_card_master')
-            : context.tr('order_card_new');
+            : (order.orderType == OrderType.salvagedScrap
+                ? context.tr('order_parts_salvaged')
+                : context.tr('order_card_new'));
 
     return SizeTransition(
       sizeFactor: _sizeAnimation,
@@ -136,7 +140,9 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard>
                 VectorIconWidget(
                   type: order.orderType == OrderType.masterRepair
                       ? 'craftsman'
-                      : 'workshop',
+                      : (order.orderType == OrderType.salvagedScrap
+                          ? 'scrapyard'
+                          : 'workshop'),
                   size: 24,
                   color: isReady ? p.successColor : p.primaryColor,
                 ),
@@ -179,6 +185,32 @@ class _AnimatedOrderCardState extends State<AnimatedOrderCard>
                   ),
                 ),
                 const SizedBox(width: 8),
+                if (!isReady && widget.onCancel != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: InkWell(
+                      onTap: widget.onCancel,
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: p.isDark
+                              ? const Color(0xFF2A1B1B)
+                              : const Color(0xFFFEE2E2),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: const Color(0xFFEF4444),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: Color(0xFFEF4444),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (!isReady && widget.onFastDeliverWithAd != null)
                   Padding(
                     padding: const EdgeInsets.only(right: 6),

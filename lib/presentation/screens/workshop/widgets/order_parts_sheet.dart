@@ -140,205 +140,239 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
 
     final hasScrapParts = widget.game.salvagedParts.isNotEmpty;
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 18,
-          right: 18,
-          top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                  child: Text(
-                context.tr('order_parts_sheet_title'),
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-              )),
-              IconButton(
-                icon: const Icon(Icons.close_rounded),
-                onPressed: () => Navigator.pop(context),
+          final isPending = widget.game.pendingOrders.any((o) =>
+              o.carId == widget.car.id &&
+              o.partName.toLowerCase().trim() ==
+                  _selectedPart.toLowerCase().trim());
+          final canAfford = _selectedType == OrderType.salvagedScrap
+              ? widget.game.salvagedParts.isNotEmpty
+              : (widget.game.balance >= cost);
+
+          return SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 18,
+                right: 18,
+                top: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               ),
-            ],
-          ),
-          if (isFiltered) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.brutalYellow.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppColors.brutalYellow, width: 1.5),
-              ),
-              child: Text(
-                context.tr('order_parts_filter_badge'),
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w800,
-                  color:
-                      isDark ? AppColors.brutalYellow : const Color(0xFF92400E),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-          Text(context.tr('order_parts_select_part'),
-              style:
-                  const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color:
-                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                width: 2.0,
-              ),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _selectedPart,
-                isExpanded: true,
-                dropdownColor: isDark ? const Color(0xFF1E2330) : Colors.white,
-                items: _partsList.map((p) {
-                  return DropdownMenuItem(
-                    value: p,
-                    child: Text(p,
-                        style: const TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w800)),
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedPart = val);
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(context.tr('order_parts_select_quality'),
-              style:
-                  const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              if (hasScrapParts) ...[
-                _buildOrderTypeTile(
-                  title: context.tr('order_parts_salvaged'),
-                  time: '$durationSeconds s',
-                  type: OrderType.salvagedScrap,
-                  selected: _selectedType,
-                  isDark: isDark,
-                  onTap: () =>
-                      setState(() => _selectedType = OrderType.salvagedScrap),
-                ),
-                const SizedBox(width: 6),
-              ],
-              _buildOrderTypeTile(
-                title: context.tr('order_parts_quick'),
-                time: '30 s',
-                type: OrderType.quickPatch,
-                selected: _selectedType,
-                isDark: isDark,
-                onTap: () =>
-                    setState(() => _selectedType = OrderType.quickPatch),
-              ),
-              const SizedBox(width: 6),
-              _buildOrderTypeTile(
-                title: context.tr('order_parts_master'),
-                time: '60 s',
-                type: OrderType.masterRepair,
-                selected: _selectedType,
-                isDark: isDark,
-                onTap: () =>
-                    setState(() => _selectedType = OrderType.masterRepair),
-              ),
-              const SizedBox(width: 6),
-              _buildOrderTypeTile(
-                title: context.tr('order_parts_oem'),
-                time: '120 s',
-                type: OrderType.newOemPart,
-                selected: _selectedType,
-                isDark: isDark,
-                onTap: () =>
-                    setState(() => _selectedType = OrderType.newOemPart),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color:
-                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-                width: 2.0,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('order_parts_cost_label'),
-                        style: const TextStyle(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                            child: Text(
+                          context.tr('order_parts_sheet_title'),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w900),
+                        )),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    if (isFiltered) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.brutalYellow.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                              color: AppColors.brutalYellow, width: 1.5),
+                        ),
+                        child: Text(
+                          context.tr('order_parts_filter_badge'),
+                          style: TextStyle(
                             fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF64748B))),
-                    Text(
-                      _selectedType == OrderType.salvagedScrap
-                          ? '0 • Stock'
-                          : CurrencyFormatter.format(cost),
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.brutalGreen),
+                            fontWeight: FontWeight.w800,
+                            color: isDark
+                                ? AppColors.brutalYellow
+                                : const Color(0xFF92400E),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    Text(context.tr('order_parts_select_part'),
+                        style: const TextStyle(
+                            fontSize: 11.5, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedPart,
+                          isExpanded: true,
+                          dropdownColor: isDark
+                              ? const Color(0xFF1E2330)
+                              : Colors.white,
+                          items: _partsList.map((p) {
+                            return DropdownMenuItem(
+                              value: p,
+                              child: Text(p,
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800)),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() => _selectedPart = val);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(context.tr('order_parts_select_quality'),
+                        style: const TextStyle(
+                            fontSize: 11.5, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        if (hasScrapParts) ...[
+                          _buildOrderTypeTile(
+                            title: context.tr('order_parts_salvaged'),
+                            time: '$durationSeconds s',
+                            type: OrderType.salvagedScrap,
+                            selected: _selectedType,
+                            isDark: isDark,
+                            onTap: () => setState(
+                                () => _selectedType = OrderType.salvagedScrap),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        _buildOrderTypeTile(
+                          title: context.tr('order_parts_quick'),
+                          time: '30 s',
+                          type: OrderType.quickPatch,
+                          selected: _selectedType,
+                          isDark: isDark,
+                          onTap: () => setState(
+                              () => _selectedType = OrderType.quickPatch),
+                        ),
+                        const SizedBox(width: 6),
+                        _buildOrderTypeTile(
+                          title: context.tr('order_parts_master'),
+                          time: '60 s',
+                          type: OrderType.masterRepair,
+                          selected: _selectedType,
+                          isDark: isDark,
+                          onTap: () => setState(
+                              () => _selectedType = OrderType.masterRepair),
+                        ),
+                        const SizedBox(width: 6),
+                        _buildOrderTypeTile(
+                          title: context.tr('order_parts_oem'),
+                          time: '120 s',
+                          type: OrderType.newOemPart,
+                          selected: _selectedType,
+                          isDark: isDark,
+                          onTap: () => setState(
+                              () => _selectedType = OrderType.newOemPart),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 2.0,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(context.tr('order_parts_cost_label'),
+                                  style: const TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF64748B))),
+                              Text(
+                                _selectedType == OrderType.salvagedScrap
+                                    ? '0 • Stock'
+                                    : CurrencyFormatter.format(cost),
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.brutalGreen),
+                              ),
+                            ],
+                          ),
+                          Expanded(
+                            child: Text(
+                              context.tr('order_parts_delivery_time',
+                                  {'sec': durationSeconds}),
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.brutalOrange),
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    NeoBrutalButton(
+                      label: isPending
+                          ? context.tr('order_card_already_pending')
+                          : (_selectedType == OrderType.salvagedScrap
+                              ? context.tr('order_parts_btn_salvage')
+                              : context.tr('order_parts_btn_confirm')),
+                      icon: isPending
+                          ? Icons.hourglass_top_rounded
+                          : Icons.shopping_cart_checkout_rounded,
+                      backgroundColor: isPending
+                          ? (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFCBD5E1))
+                          : AppColors.brutalGreen,
+                      textColor: isPending
+                          ? (isDark ? Colors.white60 : Colors.black54)
+                          : Colors.black,
+                      fullWidth: true,
+                      onPressed: (!isPending && canAfford)
+                          ? () => widget.onOrderConfirmed(_selectedPart,
+                              _selectedType, cost, durationSeconds)
+                          : null,
                     ),
                   ],
                 ),
-                Expanded(
-                  child: Text(
-                    context.tr(
-                        'order_parts_delivery_time', {'sec': durationSeconds}),
-                    style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.brutalOrange),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          NeoBrutalButton(
-            label: _selectedType == OrderType.salvagedScrap
-                ? context.tr('order_parts_btn_salvage')
-                : context.tr('order_parts_btn_confirm'),
-            icon: Icons.shopping_cart_checkout_rounded,
-            backgroundColor: AppColors.brutalGreen,
-            textColor: Colors.black,
-            fullWidth: true,
-            onPressed: () => widget.onOrderConfirmed(
-                _selectedPart, _selectedType, cost, durationSeconds),
-          ),
-        ],
-      ),
-    ),
-  ),
-);
+          );
 }
 
   Widget _buildOrderTypeTile({

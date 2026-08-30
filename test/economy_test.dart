@@ -192,6 +192,9 @@ void main() {
       final upgradeSuccess = gameNotifier.upgradeSideBusiness('sb_9');
       expect(upgradeSuccess, isTrue);
 
+      // Complete level upgrade duration
+      gameNotifier.completeSideBusinessLevelUpgrade('sb_9');
+
       updated = gameNotifier.state.sideBusinesses.firstWhere((b) => b.id == 'sb_9');
       expect(updated.level, 2);
       expect(updated.grossDailyIncome, closeTo(30375.0, 0.01)); // 22500 * (1 + 0.35)

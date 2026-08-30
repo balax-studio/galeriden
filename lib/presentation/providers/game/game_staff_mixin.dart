@@ -28,7 +28,7 @@ mixin GameStaffMixin on GameBaseNotifier {
     saveState();
   }
 
-  /// Treat a staff member to tea & coffee (₺500, +15 Morale)
+  /// Treat a staff member to tea & coffee (₺500, +15 Morale, +15 Energy)
   bool treatStaffTea(String staffId) {
     const cost = 500.0;
     if (state.balance < cost) return false;
@@ -37,11 +37,12 @@ mixin GameStaffMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final staff = state.hiredStaff[index];
-    if (staff.morale >= 100) return false;
+    if (staff.morale >= 100 && staff.energy >= 100) return false;
     final newMorale = (staff.morale + 15).clamp(0, 100);
+    final newEnergy = (staff.energy + 15).clamp(0, 100);
 
     List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
-    updated[index] = staff.copyWith(morale: newMorale);
+    updated[index] = staff.copyWith(morale: newMorale, energy: newEnergy);
 
     state = state.copyWith(
       balance: state.balance - cost,
@@ -52,7 +53,7 @@ mixin GameStaffMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Treat a staff member to a rich meal & kebab (₺1.500, +35 Morale)
+  /// Treat a staff member to a rich meal & kebab (₺1.500, +35 Morale, +30 Energy)
   bool treatStaffMeal(String staffId) {
     const cost = 1500.0;
     if (state.balance < cost) return false;
@@ -61,11 +62,12 @@ mixin GameStaffMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final staff = state.hiredStaff[index];
-    if (staff.morale >= 100) return false;
+    if (staff.morale >= 100 && staff.energy >= 100) return false;
     final newMorale = (staff.morale + 35).clamp(0, 100);
+    final newEnergy = (staff.energy + 30).clamp(0, 100);
 
     List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
-    updated[index] = staff.copyWith(morale: newMorale);
+    updated[index] = staff.copyWith(morale: newMorale, energy: newEnergy);
 
     state = state.copyWith(
       balance: state.balance - cost,
@@ -76,7 +78,7 @@ mixin GameStaffMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Give performance bonus / festival payout to staff (+50 Morale, grants dealer XP)
+  /// Give performance bonus / festival payout to staff (+50 Morale, +40 Energy, grants dealer XP)
   bool giveStaffBonus(String staffId, double amount) {
     if (amount <= 0 || state.balance < amount) return false;
 
@@ -84,12 +86,14 @@ mixin GameStaffMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final staff = state.hiredStaff[index];
-    if (staff.morale >= 100) return false;
+    if (staff.morale >= 100 && staff.energy >= 100) return false;
     final newMorale = (staff.morale + 50).clamp(0, 100);
+    final newEnergy = (staff.energy + 40).clamp(0, 100);
 
     List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
     updated[index] = staff.copyWith(
       morale: newMorale,
+      energy: newEnergy,
       salaryMultiplier: staff.salaryMultiplier * 1.05,
     );
 
@@ -98,6 +102,65 @@ mixin GameStaffMixin on GameBaseNotifier {
       hiredStaff: updated,
     );
     addXP(30);
+    saveState();
+    return true;
+  }
+
+  /// Send a staff member on a paid resting leave (recovers +50 Energy per day)
+  bool sendStaffOnLeave(String staffId, int days) {
+    if (days <= 0) return false;
+
+    final index = state.hiredStaff.indexWhere((s) => s.id == staffId);
+    if (index == -1) return false;
+
+    final staff = state.hiredStaff[index];
+    if (staff.isOnLeave || staff.isUnderTraining) return false;
+
+    List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
+    updated[index] = staff.copyWith(
+      isOnLeave: true,
+      leaveDaysRemaining: days,
+    );
+
+    state = state.copyWith(hiredStaff: updated);
+    addXP(15);
+    saveState();
+    return true;
+  }
+
+  /// Recall staff member early from leave
+  bool recallStaffFromLeave(String staffId) {
+    final index = state.hiredStaff.indexWhere((s) => s.id == staffId);
+    if (index == -1) return false;
+
+    final staff = state.hiredStaff[index];
+    if (!staff.isOnLeave) return false;
+
+    List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
+    updated[index] = staff.copyWith(
+      isOnLeave: false,
+      leaveDaysRemaining: 0,
+    );
+
+    state = state.copyWith(hiredStaff: updated);
+    saveState();
+    return true;
+  }
+
+  /// Drain staff energy when completing intensive workshop or dealership tasks
+  bool drainStaffEnergy(String staffId, int amount) {
+    if (amount <= 0) return false;
+
+    final index = state.hiredStaff.indexWhere((s) => s.id == staffId);
+    if (index == -1) return false;
+
+    final staff = state.hiredStaff[index];
+    final newEnergy = (staff.energy - amount).clamp(0, 100);
+
+    List<StaffModel> updated = List<StaffModel>.from(state.hiredStaff);
+    updated[index] = staff.copyWith(energy: newEnergy);
+
+    state = state.copyWith(hiredStaff: updated);
     saveState();
     return true;
   }

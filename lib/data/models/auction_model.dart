@@ -125,6 +125,19 @@ class AuctionModel {
     return AuctionGavelStage.ongoing;
   }
 
+  String get gavelCallLocalizationKey {
+    switch (gavelStage) {
+      case AuctionGavelStage.finalHammer:
+        return 'auction_gavel_final';
+      case AuctionGavelStage.secondCall:
+        return 'auction_gavel_call_2';
+      case AuctionGavelStage.firstCall:
+        return 'auction_gavel_call_1';
+      case AuctionGavelStage.ongoing:
+        return 'auction_gavel_ongoing';
+    }
+  }
+
   String get gavelCallText {
     switch (gavelStage) {
       case AuctionGavelStage.finalHammer:

@@ -97,7 +97,7 @@ void main() {
       expect(updatedCar.expertise.transmissionCondition, equals(75)); // 60 + 15
     });
 
-    test('4. Custom Color Respray updates colorHex, colorDisplayName and increases market value', () {
+    test('4. Custom Color Respray puts car in oven and updates colorHex after advancing game day', () {
       final initialBalance = container.read(gameProvider).balance;
       final nardoGrey = CustomPaintColor.palette.firstWhere((c) => c.name.contains('Nardo'));
 
@@ -106,7 +106,15 @@ void main() {
       expect(success, isTrue);
       expect(container.read(gameProvider).balance, equals(initialBalance - nardoGrey.cost));
 
+      final ovenCar = container.read(gameProvider).ownedCars.firstWhere((c) => c.id == testCar.id);
+      expect(ovenCar.isPainting, isTrue);
+      expect(ovenCar.pendingPaintHex, equals(nardoGrey.hex));
+
+      // Advance game day to cure and apply paint
+      container.read(gameProvider.notifier).advanceGameDay();
+
       final repaintedCar = container.read(gameProvider).ownedCars.firstWhere((c) => c.id == testCar.id);
+      expect(repaintedCar.isPainting, isFalse);
       expect(repaintedCar.colorHex, equals(nardoGrey.hex));
       expect(repaintedCar.colorDisplayName, equals(nardoGrey.name));
       expect(repaintedCar.baseMarketValue, equals(testCar.baseMarketValue));

@@ -212,48 +212,125 @@ class RepairEngine {
     return car.copyWith(isDetailedCleaned: true);
   }
 
+  /// Resolves matching key in bodyParts map handling various naming conventions (e.g. 'Ön Kaput' -> 'Kaput')
+  static String? _resolveBodyPartKey(Map<String, PartStatus> bodyParts, String partName) {
+    if (bodyParts.containsKey(partName)) return partName;
+
+    final targetLower = partName.toLowerCase().trim();
+
+    // 1. Direct case-insensitive match
+    for (final key in bodyParts.keys) {
+      if (key.toLowerCase().trim() == targetLower) return key;
+    }
+
+    // 2. Canonical mapping for common Turkish workshop naming variants
+    const aliases = <String, List<String>>{
+      'kaput': ['kaput', 'ön kaput'],
+      'bagaj': ['bagaj', 'bagaj kapağı', 'arka bagaj'],
+      'tavan': ['tavan'],
+      'sol ön kapı': ['sol ön kapı', 'sol kapı'],
+      'sağ ön kapı': ['sağ ön kapı', 'sağ kapı'],
+      'sol arka kapı': ['sol arka kapı'],
+      'sağ arka kapı': ['sağ arka kapı'],
+      'sol ön çamurluk': ['sol ön çamurluk', 'sol çamurluk'],
+      'sağ ön çamurluk': ['sağ ön çamurluk', 'sağ çamurluk'],
+      'sol arka çamurluk': ['sol arka çamurluk'],
+      'sağ arka çamurluk': ['sağ arka çamurluk'],
+      'ön tampon': ['ön tampon', 'tampon'],
+      'arka tampon': ['arka tampon'],
+      'şasi/podye': ['şasi', 'podye', 'şasi/podye'],
+    };
+
+    for (final entry in aliases.entries) {
+      if (entry.value.any((alias) => targetLower == alias || targetLower.contains(alias))) {
+        for (final key in bodyParts.keys) {
+          final keyLower = key.toLowerCase();
+          if (keyLower == entry.key || entry.value.contains(keyLower)) {
+            return key;
+          }
+        }
+      }
+    }
+
+    // 3. Fallback partial containment
+    for (final key in bodyParts.keys) {
+      final keyLower = key.toLowerCase();
+      if (targetLower.contains(keyLower) || keyLower.contains(targetLower)) {
+        return key;
+      }
+    }
+
+    return null;
+  }
+
   /// Applies an installed part order to restore vehicle part condition
   static CarModel applyInstalledPart(CarModel car, String partName, OrderType type) {
     final updatedParts = Map<String, PartStatus>.from(car.expertise.bodyParts);
     final updatedConditions = Map<String, double>.from(car.expertise.partConditions);
 
-    if (updatedParts.containsKey(partName)) {
+    final resolvedKey = _resolveBodyPartKey(updatedParts, partName);
+    if (resolvedKey != null) {
       switch (type) {
         case OrderType.quickPatch:
-          updatedParts[partName] = PartStatus.painted;
-          updatedConditions[partName] = 75.0;
+          updatedParts[resolvedKey] = PartStatus.painted;
+          updatedConditions[resolvedKey] = 75.0;
           break;
         case OrderType.masterRepair:
           // Usta işçiliğiyle kusursuz boyandı ve onarıldı (%95 kondisyon, boyalı statüsü)
-          updatedParts[partName] = PartStatus.painted;
-          updatedConditions[partName] = 95.0;
+          updatedParts[resolvedKey] = PartStatus.painted;
+          updatedConditions[resolvedKey] = 95.0;
           break;
         case OrderType.newOemPart:
           // Sıfır orijinal fabrika parçası montajı ile %100 orijinal kondisyona döner
-          updatedParts[partName] = PartStatus.original;
-          updatedConditions[partName] = 100.0;
+          updatedParts[resolvedKey] = PartStatus.original;
+          updatedConditions[resolvedKey] = 100.0;
           break;
         case OrderType.salvagedScrap:
           // Çıkma sağlam parça montajı (%90 orijinal kondisyon)
-          updatedParts[partName] = PartStatus.original;
-          updatedConditions[partName] = 90.0;
+          updatedParts[resolvedKey] = PartStatus.original;
+          updatedConditions[resolvedKey] = 90.0;
           break;
       }
     }
 
-    // Engine & transmission restoration if requested for Motor / Şanzıman
+    // Independent engine and transmission restoration
     double engineCond = car.expertise.engineCondition;
     double transCond = car.expertise.transmissionCondition;
-    if (partName.contains('Motor') || partName.contains('Şanzıman')) {
+    final lowerPart = partName.toLowerCase();
+
+    if (lowerPart.contains('motor') || lowerPart.contains('piston') || lowerPart.contains('blok')) {
       if (type == OrderType.quickPatch) {
         engineCond = max(engineCond, 65.0);
-        transCond = max(transCond, 65.0);
       } else if (type == OrderType.masterRepair) {
         engineCond = max(engineCond, 90.0);
-        transCond = max(transCond, 90.0);
+      } else if (type == OrderType.salvagedScrap) {
+        engineCond = max(engineCond, 85.0);
       } else {
         engineCond = 100.0;
+      }
+    }
+
+    if (lowerPart.contains('şanzıman') ||
+        lowerPart.contains('debriyaj') ||
+        lowerPart.contains('gearbox') ||
+        lowerPart.contains('transm')) {
+      if (type == OrderType.quickPatch) {
+        transCond = max(transCond, 65.0);
+      } else if (type == OrderType.masterRepair) {
+        transCond = max(transCond, 90.0);
+      } else if (type == OrderType.salvagedScrap) {
+        transCond = max(transCond, 85.0);
+      } else {
         transCond = 100.0;
+      }
+    }
+
+    bool hasNonOriginal = car.hasNonOriginalParts;
+    if (type == OrderType.quickPatch || type == OrderType.salvagedScrap) {
+      hasNonOriginal = true;
+    } else if (type == OrderType.newOemPart) {
+      if (updatedParts.values.every((s) => s == PartStatus.original)) {
+        hasNonOriginal = false;
       }
     }
 
@@ -267,7 +344,10 @@ class RepairEngine {
       partConditions: updatedConditions,
     );
 
-    return car.copyWith(expertise: updatedExpertise);
+    return car.copyWith(
+      expertise: updatedExpertise,
+      hasNonOriginalParts: hasNonOriginal,
+    );
   }
 
   /// Calculates total cost to fully restore vehicle at Journeyman tier

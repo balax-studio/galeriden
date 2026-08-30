@@ -10,6 +10,7 @@ import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/expertise_model.dart';
+import '../../../../data/models/part_order_model.dart';
 import '../../../../data/models/staff_model.dart';
 import '../../../../domain/usecases/psychology_engine.dart';
 import '../../../../domain/usecases/repair_engine.dart';
@@ -659,26 +660,36 @@ class _WorkshopGarageRepairsTabState
                     Expanded(
                       child: NeoBrutalButton(
                         icon: Icons.palette_rounded,
-                        label: context.tr('workshop_btn_paint_oven'),
-                        backgroundColor: const Color(0xFFA855F7),
-                        textColor: Colors.white,
+                        label: _selectedCar!.isPainting
+                            ? context.tr('workshop_paint_in_oven')
+                            : context.tr('workshop_btn_paint_oven'),
+                        backgroundColor: _selectedCar!.isPainting
+                            ? (isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFCBD5E1))
+                            : const Color(0xFFA855F7),
+                        textColor: _selectedCar!.isPainting
+                            ? (isDark ? Colors.white60 : Colors.black54)
+                            : Colors.white,
                         fontSize: 10,
                         padding: const EdgeInsets.symmetric(vertical: 6),
-                        onPressed: () => WorkshopCustomPaintColorSheet.show(
-                          context,
-                          ref,
-                          _selectedCar!,
-                          onColorApplied: () {
-                            setState(() {
-                              _selectedCar = ref
-                                  .read(gameProvider)
-                                  .ownedCars
-                                  .firstWhere(
-                                      (c) => c.id == _selectedCar!.id,
-                                      orElse: () => _selectedCar!);
-                            });
-                          },
-                        ),
+                        onPressed: _selectedCar!.isPainting
+                            ? null
+                            : () => WorkshopCustomPaintColorSheet.show(
+                                  context,
+                                  ref,
+                                  _selectedCar!,
+                                  onColorApplied: () {
+                                    setState(() {
+                                      _selectedCar = ref
+                                          .read(gameProvider)
+                                          .ownedCars
+                                          .firstWhere(
+                                              (c) => c.id == _selectedCar!.id,
+                                              orElse: () => _selectedCar!);
+                                    });
+                                  },
+                                ),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -825,7 +836,18 @@ class _WorkshopGarageRepairsTabState
                     game: game,
                     onOrderConfirmed:
                         (partName, type, cost, durationSeconds) {
-                      if (game.balance < cost) {
+                      if (game.pendingOrders.any((o) =>
+                          o.carId == _selectedCar!.id &&
+                          o.partName.toLowerCase().trim() ==
+                              partName.toLowerCase().trim())) {
+                        NotificationService.showWarning(
+                          context,
+                          context.tr('toast_part_order_duplicate'),
+                        );
+                        return;
+                      }
+                      if (game.balance < cost &&
+                          type != OrderType.salvagedScrap) {
                         NotificationService.showError(
                           context,
                           context.tr('toast_insufficient_balance_needed',
@@ -1227,6 +1249,18 @@ class _WorkshopGarageRepairsTabState
             return AnimatedOrderCard(
               order: order,
               p: p,
+              onCancel: () {
+                final success = ref
+                    .read(gameProvider.notifier)
+                    .cancelPartOrder(order.id);
+                if (success) {
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('order_card_cancelled_toast'),
+                  );
+                  setState(() {});
+                }
+              },
               onInstall: () {
                 final success = ref
                     .read(gameProvider.notifier)

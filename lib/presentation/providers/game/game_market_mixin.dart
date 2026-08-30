@@ -101,26 +101,64 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Upgrade a side business level (Level 1 to 5)
+  /// Upgrade a side business level (Level 1 to 5) with realistic 1-2 day upgrade duration
   bool upgradeSideBusiness(String businessId) {
     final businessIndex =
         state.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return false;
 
     final business = state.sideBusinesses[businessIndex];
-    if (!business.isOwned || business.level >= 5) return false;
+    if (!business.isOwned ||
+        business.level >= 5 ||
+        business.isUnderConstruction ||
+        business.isUpgradingLevel) {
+      return false;
+    }
 
     double upgradeCost = business.nextLevelUpgradeCost;
     if (state.balance < upgradeCost) return false;
 
+    final upgradeDays = business.level >= 2 ? 2 : 1;
     final updatedBusinesses =
         List<SideBusinessModel>.from(state.sideBusinesses);
     updatedBusinesses[businessIndex] = business.copyWith(
-      level: business.level + 1,
+      isUpgradingLevel: true,
+      levelUpgradeDaysRemaining: upgradeDays,
+      totalLevelUpgradeDays: upgradeDays,
+      pendingTargetLevel: business.level + 1,
     );
 
     state = state.copyWith(
       balance: state.balance - upgradeCost,
+      sideBusinesses: updatedBusinesses,
+    );
+
+    saveState();
+    return true;
+  }
+
+  /// Instant completion of level upgrade (via Rush Ad or Cash)
+  bool completeSideBusinessLevelUpgrade(String businessId) {
+    final businessIndex =
+        state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    if (businessIndex == -1) return false;
+
+    final business = state.sideBusinesses[businessIndex];
+    if (!business.isOwned || !business.isUpgradingLevel) return false;
+
+    final newLevel = business.pendingTargetLevel > business.level
+        ? business.pendingTargetLevel
+        : business.level + 1;
+
+    final updatedBusinesses =
+        List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] = business.copyWith(
+      level: newLevel,
+      isUpgradingLevel: false,
+      levelUpgradeDaysRemaining: 0,
+    );
+
+    state = state.copyWith(
       sideBusinesses: updatedBusinesses,
     );
 
@@ -130,8 +168,47 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Buy a specific sub-upgrade for a side business
+  /// Buy a specific sub-upgrade for a side business with 1-day installation duration
   bool buySideBusinessUpgrade(String businessId, String upgradeId) {
+    final businessIndex =
+        state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    if (businessIndex == -1) return false;
+
+    final business = state.sideBusinesses[businessIndex];
+    if (!business.isOwned || business.isUnderConstruction) return false;
+
+    final upgradeIndex = business.upgrades.indexWhere((u) => u.id == upgradeId);
+    if (upgradeIndex == -1) return false;
+
+    final upgrade = business.upgrades[upgradeIndex];
+    if (upgrade.isPurchased) return false;
+    if (state.balance < upgrade.cost) return false;
+
+    final updatedUpgrades =
+        List<SideBusinessUpgradeModel>.from(business.upgrades);
+    updatedUpgrades[upgradeIndex] = upgrade.copyWith(
+      isPurchased: true,
+      isUpgrading: true,
+      upgradeDaysRemaining: 1,
+      totalUpgradeDays: 1,
+    );
+
+    final updatedBusinesses =
+        List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] =
+        business.copyWith(upgrades: updatedUpgrades);
+
+    state = state.copyWith(
+      balance: state.balance - upgrade.cost,
+      sideBusinesses: updatedBusinesses,
+    );
+
+    saveState();
+    return true;
+  }
+
+  /// Instant completion of sub-upgrade installation (via Rush Ad or Cash)
+  bool completeSideBusinessSubUpgrade(String businessId, String upgradeId) {
     final businessIndex =
         state.sideBusinesses.indexWhere((b) => b.id == businessId);
     if (businessIndex == -1) return false;
@@ -143,12 +220,15 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (upgradeIndex == -1) return false;
 
     final upgrade = business.upgrades[upgradeIndex];
-    if (upgrade.isPurchased) return false;
-    if (state.balance < upgrade.cost) return false;
+    if (!upgrade.isPurchased || !upgrade.isUpgrading) return false;
 
     final updatedUpgrades =
         List<SideBusinessUpgradeModel>.from(business.upgrades);
-    updatedUpgrades[upgradeIndex] = upgrade.copyWith(isPurchased: true);
+    updatedUpgrades[upgradeIndex] = upgrade.copyWith(
+      isPurchased: true,
+      isUpgrading: false,
+      upgradeDaysRemaining: 0,
+    );
 
     final updatedBusinesses =
         List<SideBusinessModel>.from(state.sideBusinesses);
@@ -156,7 +236,6 @@ mixin GameMarketMixin on GameBaseNotifier {
         business.copyWith(upgrades: updatedUpgrades);
 
     state = state.copyWith(
-      balance: state.balance - upgrade.cost,
       sideBusinesses: updatedBusinesses,
     );
 
@@ -1028,7 +1107,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     return outcome;
   }
 
-  /// Place a part order
+  /// Place a part order with validation and duplicate prevention
   bool orderPart({
     required String carId,
     required String partName,
@@ -1036,6 +1115,16 @@ mixin GameMarketMixin on GameBaseNotifier {
     required double cost,
     required int deliveryDurationSeconds,
   }) {
+    // Validate target car exists and is owned
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    // Prevent duplicate in-transit orders for the same car & part
+    final isAlreadyPending = state.pendingOrders.any((o) =>
+        o.carId == carId &&
+        o.partName.toLowerCase().trim() == partName.toLowerCase().trim());
+    if (isAlreadyPending) return false;
+
     final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);
     final isPartsDay = weeklyEvent.id == 'wednesday_parts_supply';
     final effectiveCost = orderType == OrderType.salvagedScrap
@@ -1048,11 +1137,13 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     if (state.balance < effectiveCost) return false;
 
-    // Deduct one scrap part from inventory if using salvaged scrap
+    // Deduct matching or first available scrap part from inventory if using salvaged scrap
     List<SalvagedPart> updatedScrap = List.from(state.salvagedParts);
     if (orderType == OrderType.salvagedScrap && updatedScrap.isNotEmpty) {
-      final scrapIndex = updatedScrap
-          .indexWhere((p) => p.name.toLowerCase() == partName.toLowerCase());
+      final scrapIndex = updatedScrap.indexWhere((p) =>
+          p.name.toLowerCase() == partName.toLowerCase() ||
+          partName.toLowerCase().contains(p.name.toLowerCase()) ||
+          p.name.toLowerCase().contains(partName.toLowerCase()));
       if (scrapIndex != -1) {
         updatedScrap.removeAt(scrapIndex);
       } else {
@@ -1082,6 +1173,40 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Cancel a pending part order and refund balance or return salvaged part
+  bool cancelPartOrder(String orderId) {
+    final orderIndex = state.pendingOrders.indexWhere((o) => o.id == orderId);
+    if (orderIndex == -1) return false;
+
+    final order = state.pendingOrders[orderIndex];
+    final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)
+      ..removeAt(orderIndex);
+
+    final refundAmount = order.cost;
+    List<SalvagedPart> updatedScrap = List.from(state.salvagedParts);
+
+    if (order.orderType == OrderType.salvagedScrap) {
+      final restoredPart = SalvagedPart(
+        id: 'scrap_${DateTime.now().millisecondsSinceEpoch}',
+        name: order.partName,
+        category: 'body',
+        conditionPercent: 85,
+        estimatedValue: 5000.0,
+        carModelName: 'Genel',
+        tier: PartQualityTier.usable,
+      );
+      updatedScrap.add(restoredPart);
+    }
+
+    state = state.copyWith(
+      balance: state.balance + refundAmount,
+      pendingOrders: updatedOrders,
+      salvagedParts: updatedScrap,
+    );
+    saveState();
+    return true;
+  }
+
   /// Instant repair
   bool instantRepair({
     required String carId,
@@ -1100,8 +1225,10 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     List<SalvagedPart> updatedScrap = List.from(state.salvagedParts);
     if (orderType == OrderType.salvagedScrap && updatedScrap.isNotEmpty) {
-      final scrapIndex = updatedScrap
-          .indexWhere((p) => p.name.toLowerCase() == partName.toLowerCase());
+      final scrapIndex = updatedScrap.indexWhere((p) =>
+          p.name.toLowerCase() == partName.toLowerCase() ||
+          partName.toLowerCase().contains(p.name.toLowerCase()) ||
+          p.name.toLowerCase().contains(partName.toLowerCase()));
       if (scrapIndex != -1) {
         updatedScrap.removeAt(scrapIndex);
       } else {
@@ -1120,12 +1247,19 @@ mixin GameMarketMixin on GameBaseNotifier {
       balance: state.balance - cost,
       ownedCars: updatedCars,
       salvagedParts: updatedScrap,
+      partsRepairedLast7Days: state.partsRepairedLast7Days + 1,
     );
+    addXP(35);
+    updateMissionProgress(MissionType.repairParts, 1);
+    if (restoredCar.expertise.engineCondition >= 100.0 &&
+        restoredCar.isDetailedCleaned) {
+      checkAchievement('restoration_king');
+    }
     saveState();
     return true;
   }
 
-  /// Install delivered part
+  /// Install delivered part with XP, mission tracking, and stranded order recovery
   bool installDeliveredPart(String orderId) {
     final orderIndex = state.pendingOrders.indexWhere((o) => o.id == orderId);
     if (orderIndex == -1) return false;
@@ -1134,7 +1268,35 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (!order.isDelivered) return false;
 
     final carIndex = state.ownedCars.indexWhere((c) => c.id == order.carId);
-    if (carIndex == -1) return false;
+
+    // If car is missing / was sold while order was in cargo, cleanly remove and refund
+    if (carIndex == -1) {
+      final updatedOrders = List<PartOrderModel>.from(state.pendingOrders)
+        ..removeAt(orderIndex);
+      final refundAmount = order.cost;
+      List<SalvagedPart> updatedScrap = List.from(state.salvagedParts);
+
+      if (order.orderType == OrderType.salvagedScrap) {
+        final restoredPart = SalvagedPart(
+          id: 'scrap_${DateTime.now().millisecondsSinceEpoch}',
+          name: order.partName,
+          category: 'body',
+          conditionPercent: 85,
+          estimatedValue: 5000.0,
+          carModelName: 'Genel',
+          tier: PartQualityTier.usable,
+        );
+        updatedScrap.add(restoredPart);
+      }
+
+      state = state.copyWith(
+        balance: state.balance + refundAmount,
+        pendingOrders: updatedOrders,
+        salvagedParts: updatedScrap,
+      );
+      saveState();
+      return false;
+    }
 
     final car = state.ownedCars[carIndex];
     final restoredCar =
@@ -1149,12 +1311,23 @@ mixin GameMarketMixin on GameBaseNotifier {
     state = state.copyWith(
       ownedCars: updatedCars,
       pendingOrders: updatedOrders,
+      partsRepairedLast7Days: state.partsRepairedLast7Days + 1,
     );
+
+    addXP(35);
+    updateMissionProgress(MissionType.repairParts, 1);
+    if (restoredCar.expertise.engineCondition >= 100.0 &&
+        restoredCar.isDetailedCleaned) {
+      checkAchievement('restoration_king');
+    }
+    if (restoredCar.isBarnFindRestored) {
+      checkAchievement('collector_king');
+    }
     saveState();
     return true;
   }
 
-  /// Instant deliver part order (e.g. after watching a rewarded ad)
+  /// Instant deliver part order (e.g. after watching a rewarded ad or rush cash)
   bool instantDeliverPartOrder(String orderId) {
     final orderIndex = state.pendingOrders.indexWhere((o) => o.id == orderId);
     if (orderIndex == -1) return false;

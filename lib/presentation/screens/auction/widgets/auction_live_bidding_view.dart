@@ -78,7 +78,7 @@ class AuctionLiveBiddingView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            auction.gavelCallText,
+                            context.tr(auction.gavelCallLocalizationKey),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
@@ -346,7 +346,7 @@ class AuctionLiveBiddingView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '${auction.activeSpeakerName ?? "Salondan Biri"}: "${auction.activeSpeech}"',
+                    '${auction.activeSpeakerName ?? context.tr('auction_unknown_speaker')}: "${auction.activeSpeech}"',
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,

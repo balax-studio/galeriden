@@ -249,6 +249,53 @@ mixin GameTimeMixin on GameBaseNotifier {
     currentCars = serviceJobsResult.$2;
     newEvents = serviceJobsResult.$3;
 
+    // Process pending part orders delivery progression on new day
+    final updatedPendingOrders = state.pendingOrders.map((order) {
+      if (!order.isDelivered) {
+        return order.copyWith(
+          orderedAt: DateTime.now().subtract(
+            Duration(seconds: order.deliveryDurationSeconds + 1),
+          ),
+        );
+      }
+      return order;
+    }).toList();
+
+    // Process custom paint oven curing completions
+    int paintCompletedCount = 0;
+    currentCars = currentCars.map((c) {
+      if (c.isPainting && nextDay >= c.paintReadyDay) {
+        paintCompletedCount++;
+        final newColorName = c.pendingPaintName ?? c.colorDisplayName;
+        final newColorHex = c.pendingPaintHex ?? c.colorHex;
+        final newColorRarity = c.pendingPaintRarity ?? c.colorRarity;
+        newEvents.insert(
+          0,
+          GameEventModel(
+            id: 'evt_paint_done_${c.id}_$nextDay',
+            title: '${c.brand} ${c.modelName} • Fırın Boyası Tamamlandı',
+            description:
+                '${c.brand} ${c.modelName} boya fırınından çıktı ve yeni rengiyle • $newColorName • teslim edildi.',
+            amount: 0.0,
+            type: GameEventType.goodEvent,
+            date: DateTime.now(),
+          ),
+        );
+        return c.copyWith(
+          colorHex: newColorHex,
+          colorDisplayName: newColorName,
+          colorRarity: newColorRarity,
+          paintReadyDay: 0,
+          clearPendingPaint: true,
+        );
+      }
+      return c;
+    }).toList();
+
+    if (paintCompletedCount > 0) {
+      addXP(40 * paintCompletedCount);
+    }
+
     state = state.copyWith(
       currentDay: nextDay,
       balance: newBalance,
@@ -270,6 +317,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       blackMarketCars: currentBlackCars,
       b2bPartOrders: updatedB2BOrders,
       activeServiceJobs: updatedServiceJobs,
+      pendingOrders: updatedPendingOrders,
       daysSinceLastStoryAd: storyAd.$1,
       nextStoryAdTargetDays: storyAd.$2,
       pendingStoryCard: storyAd.$3,
@@ -399,10 +447,47 @@ mixin GameTimeMixin on GameBaseNotifier {
             ),
           );
         } else {
-          updatedStaff.add(s.copyWith(trainingDaysRemaining: remaining));
+          final newEnergy = max(0, s.energy - 10);
+          updatedStaff.add(s.copyWith(
+            trainingDaysRemaining: remaining,
+            energy: newEnergy,
+          ));
+        }
+      } else if (s.isOnLeave) {
+        final remainingLeave = s.leaveDaysRemaining - 1;
+        final recoveredEnergy = min(100, s.energy + 50);
+        final refreshedMorale = min(100, s.morale + 5);
+        if (remainingLeave <= 0) {
+          updatedStaff.add(s.copyWith(
+            isOnLeave: false,
+            leaveDaysRemaining: 0,
+            energy: recoveredEnergy,
+            morale: refreshedMorale,
+          ));
+          events.insert(
+            0,
+            GameEventModel(
+              id: 'staff_leave_end_${DateTime.now().millisecondsSinceEpoch}_${s.id}',
+              title: 'PERSONEL İZİNDEN DÖNDÜ!',
+              description:
+                  '${s.name} dinlenme iznini tamamladı, enerjisini toplayarak (%$recoveredEnergy) göreve geri döndü!',
+              type: GameEventType.goodEvent,
+              amount: 0.0,
+              date: DateTime.now(),
+            ),
+          );
+        } else {
+          updatedStaff.add(s.copyWith(
+            leaveDaysRemaining: remainingLeave,
+            energy: recoveredEnergy,
+            morale: refreshedMorale,
+          ));
         }
       } else {
-        updatedStaff.add(s);
+        // Working staff daily fatigue
+        final decay = s.perk == StaffPerk.hardWorker ? 8 : 12;
+        final newEnergy = max(0, s.energy - decay);
+        updatedStaff.add(s.copyWith(energy: newEnergy));
       }
     }
 
@@ -574,21 +659,69 @@ mixin GameTimeMixin on GameBaseNotifier {
       double balance, List<CarModel> cars, List<SideBusinessModel> businesses) {
     final updatedList = <SideBusinessModel>[];
     for (final b in businesses) {
-      if (b.isOwned && b.isUnderConstruction) {
-        final remaining = b.constructionDaysRemaining - 1;
+      if (!b.isOwned) {
+        updatedList.add(b);
+        continue;
+      }
+
+      SideBusinessModel current = b;
+
+      // 1. Process initial construction
+      if (current.isUnderConstruction) {
+        final remaining = current.constructionDaysRemaining - 1;
         if (remaining <= 0) {
-          updatedList.add(b.copyWith(
+          current = current.copyWith(
             isUnderConstruction: false,
             constructionDaysRemaining: 0,
-          ));
+          );
         } else {
-          updatedList.add(b.copyWith(
+          current = current.copyWith(
             constructionDaysRemaining: remaining,
-          ));
+          );
         }
-      } else {
-        updatedList.add(b);
       }
+
+      // 2. Process Level Upgrade
+      if (current.isUpgradingLevel) {
+        final remaining = current.levelUpgradeDaysRemaining - 1;
+        if (remaining <= 0) {
+          final newLevel = current.pendingTargetLevel > current.level
+              ? current.pendingTargetLevel
+              : current.level + 1;
+          current = current.copyWith(
+            level: newLevel,
+            isUpgradingLevel: false,
+            levelUpgradeDaysRemaining: 0,
+          );
+        } else {
+          current = current.copyWith(
+            levelUpgradeDaysRemaining: remaining,
+          );
+        }
+      }
+
+      // 3. Process Sub-Upgrades
+      if (current.upgrades.any((u) => u.isPurchased && u.isUpgrading)) {
+        final updatedUpgrades = current.upgrades.map((u) {
+          if (u.isPurchased && u.isUpgrading) {
+            final remaining = u.upgradeDaysRemaining - 1;
+            if (remaining <= 0) {
+              return u.copyWith(
+                isUpgrading: false,
+                upgradeDaysRemaining: 0,
+              );
+            } else {
+              return u.copyWith(
+                upgradeDaysRemaining: remaining,
+              );
+            }
+          }
+          return u;
+        }).toList();
+        current = current.copyWith(upgrades: updatedUpgrades);
+      }
+
+      updatedList.add(current);
     }
 
     return SideBusinessEngine.processDailyEarnings(

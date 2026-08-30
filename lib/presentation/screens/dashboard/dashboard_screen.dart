@@ -67,7 +67,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final recap =
           ref.read(gameProvider.notifier).consumePendingOfflineRecap();
       if (recap != null && mounted) {
-        DashboardRetentionModals.showOfflineRecapModal(context, recap);
+        DashboardRetentionModals.showOfflineRecapModal(context, recap,
+            ref: ref);
       }
 
       // Check 28-Day Monthly Daily Streak

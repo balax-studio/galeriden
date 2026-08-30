@@ -319,7 +319,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Apply custom color paint respray
+  /// Apply custom color paint respray with 1-day oven curing duration
   bool applyCustomPaintRespray(String carId, CustomPaintColor paint) {
     if (state.balance < paint.cost) return false;
 
@@ -327,12 +327,14 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     if (carIndex == -1) return false;
 
     final car = state.ownedCars[carIndex];
-    if (car.isRented) return false;
+    if (car.isRented || car.isPainting) return false;
 
+    final targetReadyDay = state.currentDay + 1;
     final updatedCar = car.copyWith(
-      colorHex: paint.hex,
-      colorDisplayName: paint.name,
-      colorRarity: paint.buyerAppealMultiplier >= 1.20 ? 'rare' : 'common',
+      paintReadyDay: targetReadyDay,
+      pendingPaintHex: paint.hex,
+      pendingPaintName: paint.name,
+      pendingPaintRarity: paint.buyerAppealMultiplier >= 1.20 ? 'rare' : 'common',
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -343,7 +345,6 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       ownedCars: updatedCars,
     );
 
-    addXP(40);
     saveState();
     return true;
   }
