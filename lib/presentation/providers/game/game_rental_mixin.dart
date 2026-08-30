@@ -127,9 +127,14 @@ mixin GameRentalMixin on GameBaseNotifier {
   }
 
   /// Self-healing state sync: Ensures all ownedCars.isRented flags match activeRentals
+  /// and removes orphaned rental agreements for non-existent cars.
   void syncRentalState() {
-    final rentedCarIds = state.activeRentals.map((r) => r.carId).toSet();
-    bool needsUpdate = false;
+    final ownedCarIds = state.ownedCars.map((c) => c.id).toSet();
+    final validRentals = state.activeRentals
+        .where((r) => ownedCarIds.contains(r.carId))
+        .toList();
+    final rentedCarIds = validRentals.map((r) => r.carId).toSet();
+    bool needsUpdate = validRentals.length != state.activeRentals.length;
 
     final syncedCars = state.ownedCars.map((car) {
       final shouldBeRented = rentedCarIds.contains(car.id);
@@ -141,7 +146,10 @@ mixin GameRentalMixin on GameBaseNotifier {
     }).toList();
 
     if (needsUpdate) {
-      state = state.copyWith(ownedCars: syncedCars);
+      state = state.copyWith(
+        ownedCars: syncedCars,
+        activeRentals: validRentals,
+      );
       saveState();
     }
   }

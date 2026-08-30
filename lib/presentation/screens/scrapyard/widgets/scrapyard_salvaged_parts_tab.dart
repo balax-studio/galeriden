@@ -24,13 +24,14 @@ class _ScrapyardSalvagedPartsTabState
   String _selectedCategory = 'all';
   String _searchQuery = '';
 
-  final List<(String id, String label, IconData icon)> _partCategories = const [
-    ('all', 'Tümü', Icons.apps_rounded),
-    ('engine', 'Motor & Turbo', Icons.speed_rounded),
-    ('transmission', 'Şanzıman', Icons.settings_input_component_rounded),
-    ('ecu', 'Elektronik & ECU', Icons.memory_rounded),
-    ('brakes', 'Yürüyen & Fren', Icons.disc_full_rounded),
-    ('bodywork', 'Gövde & Jant', Icons.directions_car_rounded),
+  final List<(String id, String trKey, IconData icon)> _partCategories =
+      const [
+    ('all', 'scrap_cat_all', Icons.apps_rounded),
+    ('engine', 'scrap_cat_engine', Icons.speed_rounded),
+    ('transmission', 'scrap_cat_transmission', Icons.settings_input_component_rounded),
+    ('ecu', 'scrap_cat_ecu', Icons.memory_rounded),
+    ('brakes', 'scrap_cat_brakes', Icons.disc_full_rounded),
+    ('bodywork', 'scrap_cat_bodywork', Icons.directions_car_rounded),
   ];
 
   Color _getTierColor(PartQualityTier tier) {
@@ -154,7 +155,7 @@ class _ScrapyardSalvagedPartsTabState
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                cat.$2,
+                                context.tr(cat.$2),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,

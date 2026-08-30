@@ -28,7 +28,7 @@ class ScrapyardFulfillOrderDialog {
     if (matchingParts.isEmpty) {
       NotificationService.showError(
         context,
-        'Deponda ${order.mechanicName} ustasının istediği kriterlere uygun parça bulunmuyor!',
+        context.tr('scrap_b2b_missing_part_error', {'mechanic': order.mechanicName}),
       );
       return;
     }
@@ -82,7 +82,13 @@ class ScrapyardFulfillOrderDialog {
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '${part.name}, ${order.mechanicName} ustaya ${CurrencyFormatter.formatShort(order.offeredPrice)} karşılığı teslim edildi! • +${order.reputationReward} İtibar',
+                                context.tr('scrap_b2b_fulfilled_toast', {
+                                  'part': part.name,
+                                  'mechanic': order.mechanicName,
+                                  'price': CurrencyFormatter.formatShort(
+                                      order.offeredPrice),
+                                  'rep': '${order.reputationReward}',
+                                }),
                               );
                             }
                           },

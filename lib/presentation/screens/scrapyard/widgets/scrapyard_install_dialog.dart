@@ -11,9 +11,12 @@ class ScrapyardInstallDialog {
     final game = ref.read(gameProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (game.ownedCars.isEmpty) {
+    final eligibleCars =
+        game.ownedCars.where((c) => !c.isRented && !c.isConsignment).toList();
+
+    if (eligibleCars.isEmpty) {
       NotificationService.showError(
-          context, 'Garajında parça takabileceğin hiç araç yok!');
+          context, context.tr('scrap_no_installable_cars'));
       return;
     }
 
@@ -45,7 +48,7 @@ class ScrapyardInstallDialog {
                   context.tr('scrap_dialog_install_desc',
                       {'part': part.name, 'cond': '${part.conditionPercent}'}),
                   style: const TextStyle(
-                      fontSize: 12,
+                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF64748B)),
                 ),
@@ -54,9 +57,9 @@ class ScrapyardInstallDialog {
                   constraints: const BoxConstraints(maxHeight: 250),
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: game.ownedCars.length,
+                    itemCount: eligibleCars.length,
                     itemBuilder: (cCtx, i) {
-                      final car = game.ownedCars[i];
+                      final car = eligibleCars[i];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: InkWell(
@@ -68,7 +71,10 @@ class ScrapyardInstallDialog {
                             if (success) {
                               NotificationService.showSuccess(
                                 context,
-                                '${part.name}, ${car.brand} ${car.modelName} aracına başarıyla takıldı!',
+                                context.tr('scrap_install_success_toast', {
+                                  'part': part.name,
+                                  'car': '${car.brand} ${car.modelName}',
+                                }),
                               );
                             }
                           },

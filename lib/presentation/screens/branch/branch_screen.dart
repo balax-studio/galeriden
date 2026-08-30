@@ -14,6 +14,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
+import '../../widgets/dialogs/showroom_construction_modal.dart';
 
 class BranchScreen extends ConsumerWidget {
   const BranchScreen({super.key});
@@ -488,84 +489,103 @@ class BranchScreen extends ConsumerWidget {
                         fullWidth: true,
                         onPressed: (isLevelUnlocked && canAfford)
                             ? () {
-                                final success = ref
-                                    .read(gameProvider.notifier)
-                                    .upgradeBranch(b);
-                                if (success) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (ctx) => Dialog(
-                                      backgroundColor: Colors.transparent,
-                                      insetPadding: const EdgeInsets.symmetric(
-                                          horizontal: 20),
-                                      child: NeoBrutalCard(
-                                        padding: const EdgeInsets.all(20),
-                                        backgroundColor: isDark
-                                            ? const Color(0xFF141721)
-                                            : Colors.white,
-                                        borderColor: isDark
-                                            ? const Color(0xFF333B4F)
-                                            : const Color(0xFF0F172A),
-                                        borderRadius: 12,
-                                        borderWidth: 2.5,
-                                        shadowOffset: const Offset(4, 4),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.brutalYellow,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: isDark
-                                                      ? const Color(0xFF333B4F)
-                                                      : const Color(0xFF0F172A),
-                                                  width: 2.0,
+                                final durationSec = b.targetLevel <= 3
+                                    ? 3
+                                    : (b.targetLevel <= 5 ? 5 : 10);
+                                ShowroomConstructionModal.show(
+                                  context,
+                                  title: context.tr('construction_branch_title'),
+                                  subtitle: b.getLocalizedName(context),
+                                  customDurationSeconds: durationSec,
+                                  icon: Icons.domain_rounded,
+                                  accentColor: AppColors.brutalYellow,
+                                  onComplete: () {
+                                    final success = ref
+                                        .read(gameProvider.notifier)
+                                        .upgradeBranch(b);
+                                    if (success) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          insetPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 20),
+                                          child: NeoBrutalCard(
+                                            padding: const EdgeInsets.all(20),
+                                            backgroundColor: isDark
+                                                ? const Color(0xFF141721)
+                                                : Colors.white,
+                                            borderColor: isDark
+                                                ? const Color(0xFF333B4F)
+                                                : const Color(0xFF0F172A),
+                                            borderRadius: 12,
+                                            borderWidth: 2.5,
+                                            shadowOffset: const Offset(4, 4),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(16),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        AppColors.brutalYellow,
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: isDark
+                                                          ? const Color(
+                                                              0xFF333B4F)
+                                                          : const Color(
+                                                              0xFF0F172A),
+                                                      width: 2.0,
+                                                    ),
+                                                  ),
+                                                  child: const Icon(
+                                                      Icons.stars_rounded,
+                                                      size: 40,
+                                                      color: Colors.black),
                                                 ),
-                                              ),
-                                              child: const Icon(
-                                                  Icons.stars_rounded,
-                                                  size: 40,
-                                                  color: Colors.black),
+                                                const SizedBox(height: 14),
+                                                Text(
+                                                    context.tr(
+                                                        'branch_congrats_title'),
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w900)),
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  context.tr(
+                                                      'branch_congrats_desc', {
+                                                    'name': b.name,
+                                                    'cap': '${b.maxGarageSlots}'
+                                                  }),
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                NeoBrutalButton(
+                                                  label: context
+                                                      .tr('branch_btn_awesome'),
+                                                  fullWidth: true,
+                                                  backgroundColor:
+                                                      AppColors.brutalYellow,
+                                                  textColor: Colors.black,
+                                                  onPressed: () =>
+                                                      Navigator.pop(ctx),
+                                                ),
+                                              ],
                                             ),
-                                            const SizedBox(height: 14),
-                                            Text(
-                                                context.tr(
-                                                    'branch_congrats_title'),
-                                                style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w900)),
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              context.tr(
-                                                  'branch_congrats_desc', {
-                                                'name': b.name,
-                                                'cap': '${b.maxGarageSlots}'
-                                              }),
-                                              textAlign: TextAlign.center,
-                                              style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                            const SizedBox(height: 16),
-                                            NeoBrutalButton(
-                                              label: context
-                                                  .tr('branch_btn_awesome'),
-                                              fullWidth: true,
-                                              backgroundColor:
-                                                  AppColors.brutalYellow,
-                                              textColor: Colors.black,
-                                              onPressed: () =>
-                                                  Navigator.pop(ctx),
-                                            ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                }
+                                      );
+                                    }
+                                  },
+                                );
                               }
                             : null,
                       ),

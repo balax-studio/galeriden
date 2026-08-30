@@ -88,7 +88,9 @@ class ScrapyardSearchZoneDialog {
                         Expanded(
                           child: Text(
                             ScrapyardZoneExtension.getDailySanayiRumor(
-                                game.currentDay),
+                                game.currentDay,
+                                langCode:
+                                    Localizations.localeOf(ctx).languageCode),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,

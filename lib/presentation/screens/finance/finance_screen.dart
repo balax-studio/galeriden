@@ -64,7 +64,7 @@ class FinanceScreen extends ConsumerWidget {
                               fontSize: 16, fontWeight: FontWeight.w900))),
                   const SizedBox(width: 8),
                   NeoBrutalBadge(
-                      text: '%8 Komisyon',
+                      text: context.tr('finance_factoring_badge_rate'),
                       backgroundColor: AppColors.brutalYellow,
                       textColor: Colors.black,
                       fontSize: 10),
@@ -72,7 +72,11 @@ class FinanceScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                '${cheque.customerName} adına kayıtlı ${cheque.daysUntilDue} gün vadeli ${CurrencyFormatter.format(cheque.amount)} tutarındaki çeki beklemeden anında nakde çevirebilirsin.',
+                context.tr('finance_factoring_cheque_desc', {
+                  'name': cheque.customerName,
+                  'days': cheque.daysUntilDue,
+                  'amount': CurrencyFormatter.format(cheque.amount),
+                }),
                 style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF64748B),
@@ -239,7 +243,10 @@ class FinanceScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                '${contract.customerName} adına kalan ${contract.totalInstallments - contract.paidInstallments} taksidi tek seferde peşin tahsil etmek için müşteriye %5 erken kapama indirimi sunulur.',
+                context.tr('finance_promissory_early_close_desc', {
+                  'name': contract.customerName,
+                  'count': contract.totalInstallments - contract.paidInstallments,
+                }),
                 style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF64748B),

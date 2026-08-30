@@ -67,8 +67,8 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
         title: context.tr('scrapyard'),
         subtitle: context.tr('scrapyard_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.pressSlam,
-        statusBadge: const NeoBrutalBadge(
-          text: 'TAZE ENKAZ',
+        statusBadge: NeoBrutalBadge(
+          text: context.tr('scrap_badge_fresh_wreck'),
           backgroundColor: AppColors.brutalOrange,
           textColor: Colors.black,
           fontSize: 9.5,

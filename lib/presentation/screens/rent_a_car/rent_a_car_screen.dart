@@ -317,7 +317,11 @@ class RentACarScreen extends ConsumerWidget {
   ) {
     final rentedCarIds = game.activeRentals.map((r) => r.carId).toSet();
     final availableCars = game.ownedCars
-        .where((c) => !c.isRented && !rentedCarIds.contains(c.id))
+        .where((c) =>
+            !c.isRented &&
+            !c.isConsignment &&
+            !c.isLockedInShowcase &&
+            !rentedCarIds.contains(c.id))
         .toList();
 
     if (availableCars.isEmpty) {
@@ -342,7 +346,10 @@ class RentACarScreen extends ConsumerWidget {
     }
 
     return availableCars.map((car) {
-      final double suggestedDailyRate = car.currentPurchasePrice * 0.005;
+      final double baseCarValue = car.currentPurchasePrice > 0
+          ? car.currentPurchasePrice
+          : car.estimatedRealValue;
+      final double suggestedDailyRate = baseCarValue * 0.005;
 
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -380,8 +387,7 @@ class RentACarScreen extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       context.tr('rent_car_value', {
-                        'val': CurrencyFormatter.formatShort(
-                            car.currentPurchasePrice)
+                        'val': CurrencyFormatter.formatShort(baseCarValue)
                       }),
                       style: const TextStyle(
                           fontSize: 11,
@@ -415,13 +421,16 @@ class RentACarScreen extends ConsumerWidget {
     double suggestedRate,
     bool isDark,
   ) {
+    final double baseCarValue = car.currentPurchasePrice > 0
+        ? car.currentPurchasePrice
+        : car.estimatedRealValue;
     double currentRate = suggestedRate.clamp(100.0, 50000.0);
     final double maxAllowedRate =
-        (car.currentPurchasePrice * 0.016).clamp(100.0, 60000.0);
+        (baseCarValue * 0.016).clamp(100.0, 60000.0);
     String selectedRenterType = 'individual';
     bool hasInsurance = false;
     final insuranceDailyFee =
-        (car.currentPurchasePrice * 0.001).clamp(150.0, 1500.0);
+        (baseCarValue * 0.001).clamp(150.0, 1500.0);
 
     showModalBottomSheet(
       context: context,

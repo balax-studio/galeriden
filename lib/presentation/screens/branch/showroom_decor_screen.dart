@@ -14,6 +14,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/dialogs/showroom_construction_modal.dart';
 
 class ShowroomDecorScreen extends ConsumerStatefulWidget {
   const ShowroomDecorScreen({super.key});
@@ -461,30 +462,49 @@ class _ShowroomDecorScreenState extends ConsumerState<ShowroomDecorScreen> {
                                   if (!canAfford) {
                                     NotificationService.showError(
                                         context,
-                                        context.tr('toast_insufficient_balance_needed', {'cost': CurrencyFormatter.format(item.cost)}));
+                                        context.tr(
+                                            'toast_insufficient_balance_needed',
+                                            {
+                                              'cost': CurrencyFormatter.format(
+                                                  item.cost)
+                                            }));
                                     return;
                                   }
 
-                                  final success = ref
-                                      .read(gameProvider.notifier)
-                                      .purchaseShowroomDecor(
-                                        decorId: item.id,
-                                        cost: item.cost,
-                                        reputationBonus: item.reputationBonus,
-                                      );
+                                  final durationSec = item.cost < 20000
+                                      ? 3
+                                      : (item.cost < 100000 ? 5 : 10);
+                                  ShowroomConstructionModal.show(
+                                    context,
+                                    title:
+                                        context.tr('construction_decor_title'),
+                                    subtitle: item.title,
+                                    customDurationSeconds: durationSec,
+                                    icon: item.icon,
+                                    accentColor: item.color,
+                                    onComplete: () {
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .purchaseShowroomDecor(
+                                            decorId: item.id,
+                                            cost: item.cost,
+                                            reputationBonus:
+                                                item.reputationBonus,
+                                          );
 
-                                  if (success) {
-                                    HapticFeedback.heavyImpact();
-                                    NotificationService.showSuccess(
-                                      context,
-                                      context.tr('decor_toast_built'),
-                                    );
-                                  } else {
-                                    NotificationService.showError(
-                                        context,
-                                        context
-                                            .tr('decor_toast_already_built'));
-                                  }
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                          context,
+                                          context.tr('decor_toast_built'),
+                                        );
+                                      } else {
+                                        NotificationService.showError(
+                                            context,
+                                            context.tr(
+                                                'decor_toast_already_built'));
+                                      }
+                                    },
+                                  );
                                 },
                         ),
                       ],
