@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -16,6 +15,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/dialogs/rush_training_confirmation_dialog.dart';
 
 class StaffScreen extends ConsumerWidget {
   const StaffScreen({super.key});
@@ -238,21 +238,8 @@ class StaffScreen extends ConsumerWidget {
                                     horizontal: 10, vertical: 6),
                                 onPressed: () {
                                   Navigator.of(ctx).pop();
-                                  AdService.instance.showRewardedAdWithFallback(
-                                    context: context,
-                                    onRewardEarned: () {
-                                      final success = ref
-                                          .read(gameProvider.notifier)
-                                          .rushStaffTraining(staff.id);
-                                      if (success) {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          context.tr('staff_rush_training_success',
-                                              {'name': staff.name}),
-                                        );
-                                      }
-                                    },
-                                  );
+                                  RushTrainingConfirmationDialog.show(context,
+                                      staff: staff);
                                 },
                               ),
                           ],
@@ -1013,22 +1000,8 @@ class StaffScreen extends ConsumerWidget {
                                 fontSize: 11,
                                 padding: const EdgeInsets.symmetric(vertical: 7),
                                 onPressed: () {
-                                  AdService.instance.showRewardedAdWithFallback(
-                                    context: context,
-                                    onRewardEarned: () {
-                                      final success = ref
-                                          .read(gameProvider.notifier)
-                                          .rushStaffTraining(hired.id);
-                                      if (success) {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          context.tr(
-                                              'staff_rush_training_success',
-                                              {'name': hired.name}),
-                                        );
-                                      }
-                                    },
-                                  );
+                                  RushTrainingConfirmationDialog.show(context,
+                                      staff: hired);
                                 },
                               )
                             : NeoBrutalButton(

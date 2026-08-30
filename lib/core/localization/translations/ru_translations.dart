@@ -3161,5 +3161,9 @@ const Map<String, String> ruTranslations = {
     'academy_training_started_toast': '{name} начал обучение {course} • {days} дн.',
     'staff_graduation_event_title': 'ВЫПУСК МАСТЕРА!',
     'staff_graduation_event_desc': '{name} завершил обучение {course} и получил диплом мастера. Мораль и навыки на максимуме!',
+    'rush_training_dialog_title': 'УСКОРЕННЫЙ ДИПЛОМ',
+    'rush_training_dialog_desc': 'Вы можете мгновенно завершить обучение или курс повышения квалификации, посмотрев короткую видеорекламу.',
+    'rush_training_btn_watch': 'СМОТРЕТЬ И ВЫПУСТИТЬ',
+    'rush_training_target_staff': 'Стажёр • {name}',
 };
 

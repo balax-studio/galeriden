@@ -3161,5 +3161,9 @@ const Map<String, String> trTranslations = {
     'academy_training_started_toast': '{name}, {course} eğitimine başladı • {days} gün',
     'staff_graduation_event_title': 'USTALIK MEZUNİYETİ!',
     'staff_graduation_event_desc': '{name}, {course} eğitimini tamamlayarak ustalık diplomasını aldı. Moral ve yetenek tavan yaptı!',
+    'rush_training_dialog_title': 'HIZLANDIRILMIŞ DİPLOMA',
+    'rush_training_dialog_desc': 'Kısa bir sponsorlu video reklam izleyerek çıraklık veya uzmanlık eğitimini beklemeden anında tamamlayabilirsiniz.',
+    'rush_training_btn_watch': 'REKLAM İZLE & MEZUN ET',
+    'rush_training_target_staff': 'Kursiyer • {name}',
 };
 

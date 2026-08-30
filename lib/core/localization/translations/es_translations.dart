@@ -3161,5 +3161,9 @@ const Map<String, String> esTranslations = {
     'academy_training_started_toast': '{name} comenzó la formación en {course} • {days} días',
     'staff_graduation_event_title': 'GRADUACIÓN DE MAESTRÍA!',
     'staff_graduation_event_desc': '¡{name} completó la formación en {course} y obtuvo su diploma de maestría. Moral y habilidades al máximo!',
+    'rush_training_dialog_title': 'DIPLOMA ACELERADO',
+    'rush_training_dialog_desc': 'Puedes completar el curso de aprendizaje o especialización al instante viendo un breve anuncio de video.',
+    'rush_training_btn_watch': 'VER ANUNCIO Y GRADUAR',
+    'rush_training_target_staff': 'Pasante • {name}',
 };
 

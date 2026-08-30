@@ -3161,5 +3161,9 @@ const Map<String, String> arTranslations = {
     'academy_training_started_toast': 'بدأ {name} تدريب {course} • {days} أيام',
     'staff_graduation_event_title': 'تخرج الماستري!',
     'staff_graduation_event_desc': 'أكمل {name} تدريب {course} وحصل على دبلوم الماستري. المعنويات والمهارات في القمة!',
+    'rush_training_dialog_title': 'دبلوم مسرع',
+    'rush_training_dialog_desc': 'يمكنك إتمام التدريب المهني أو الدورة التخصصية فورا دون انتظار من خلال مشاهدة إعلان فيديو قصير.',
+    'rush_training_btn_watch': 'مشاهدة الإعلان والتخرج',
+    'rush_training_target_staff': 'المتدرب • {name}',
 };
 

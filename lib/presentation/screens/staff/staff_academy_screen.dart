@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -13,6 +12,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/dialogs/rush_training_confirmation_dialog.dart';
 
 class StaffCourseOption {
   final String id;
@@ -462,21 +462,8 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                             onPressed: () {
-                              AdService.instance.showRewardedAdWithFallback(
-                                context: context,
-                                onRewardEarned: () {
-                                  final success = ref
-                                      .read(gameProvider.notifier)
-                                      .rushStaffTraining(activeTrainee.id);
-                                  if (success) {
-                                    NotificationService.showSuccess(
-                                      context,
-                                      context.tr('staff_rush_training_success',
-                                          {'name': activeTrainee.name}),
-                                    );
-                                  }
-                                },
-                              );
+                              RushTrainingConfirmationDialog.show(context,
+                                  staff: activeTrainee);
                             },
                           )
                         else if (!isFacilityUnlocked)

@@ -3161,5 +3161,9 @@ const Map<String, String> enTranslations = {
     'academy_training_started_toast': '{name} started {course} training • {days} days',
     'staff_graduation_event_title': 'MASTERY GRADUATION!',
     'staff_graduation_event_desc': '{name} completed {course} training and earned a mastery diploma. Morale and skills are at peak!',
+    'rush_training_dialog_title': 'RUSH DIPLOMA',
+    'rush_training_dialog_desc': 'You can instantly finish the apprenticeship or specialization course without waiting by watching a short video ad.',
+    'rush_training_btn_watch': 'WATCH AD & GRADUATE',
+    'rush_training_target_staff': 'Trainee • {name}',
 };
 

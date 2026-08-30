@@ -3161,5 +3161,9 @@ const Map<String, String> deTranslations = {
     'academy_training_started_toast': '{name} hat {course}-Ausbildung begonnen • {days} Tage',
     'staff_graduation_event_title': 'MEISTER-ABSCHLUSS!',
     'staff_graduation_event_desc': '{name} hat die Ausbildung {course} abgeschlossen und das Meisterdiplom erhalten. Moral und Fähigkeiten auf Höchststand!',
+    'rush_training_dialog_title': 'BLITZ-DIPLOM',
+    'rush_training_dialog_desc': 'Sie können die Ausbildung oder Spezialisierung sofort abschließen, indem Sie eine kurze Videoanzeige ansehen.',
+    'rush_training_btn_watch': 'WERBUNG SEHEN & ABSCHLIESSEN',
+    'rush_training_target_staff': 'Auszubildender • {name}',
 };
 
