@@ -175,8 +175,12 @@ void main() {
       final buySuccess = gameNotifier.buySideBusiness('sb_9');
       expect(buySuccess, isTrue);
 
+      // Complete construction
+      gameNotifier.completeSideBusinessConstruction('sb_9');
+
       var updated = gameNotifier.state.sideBusinesses.firstWhere((b) => b.id == 'sb_9');
       expect(updated.isOwned, isTrue);
+      expect(updated.isUnderConstruction, isFalse);
       expect(updated.level, 1);
 
       // Verify Net Income (Gross minus 15% maintenance)

@@ -330,6 +330,7 @@ void main() {
       expect(find.text('EĞİTİME GÖNDER'), findsWidgets);
       expect(find.text('SERTİFİKA AKTİF'), findsNothing);
 
+      // SPAM CLICK "EĞİTİME GÖNDER"
       final balanceBeforeCourse = container.read(gameProvider).balance;
       final enrollBtn = find.text('EĞİTİME GÖNDER').first;
       for (int i = 0; i < 8; i++) {
@@ -337,11 +338,19 @@ void main() {
       }
       await drainTimers(tester);
 
-      // Course completed once for hired staff, button transitions to "SERTİFİKA AKTİF"
+      // Staff starts multi-day training
+      expect(container.read(gameProvider).hiredStaff.first.isUnderTraining, true);
+      expect(find.text('HIZLANDIRILMIŞ DİPLOMA'), findsOneWidget);
+      expect(find.text('EĞİTİMDE'), findsWidgets);
+      expect(container.read(gameProvider).balance < balanceBeforeCourse, true);
+
+      // Complete training via rush speedup
+      notifier.rushStaffTraining(container.read(gameProvider).hiredStaff.first.id);
+      await tester.pumpAndSettle();
+
       expect(container.read(gameProvider).hiredStaff.first.completedCourseIds.length, 1);
       expect(find.text('SERTİFİKA AKTİF'), findsOneWidget);
       expect(find.text('MEZUN VERİLDİ'), findsWidgets);
-      expect(container.read(gameProvider).balance < balanceBeforeCourse, true);
 
       // Return to StaffScreen and SPAM CLICK "İŞTEN ÇIKAR"
       await tester.pumpWidget(
@@ -432,7 +441,14 @@ void main() {
       }
       await drainTimers(tester);
 
-      // Business is now owned and button switches to YÖNET & GELİŞTİR
+      // Business is now owned and in construction
+      expect(find.text('MÜTEAHHİT HIZLANDIRMASI'), findsWidgets);
+
+      // Finish construction
+      notifier.completeSideBusinessConstruction('test_biz_1');
+      await tester.pumpAndSettle();
+
+      // Business is now operational and button switches to YÖNET & GELİŞTİR
       expect(find.text('YÖNET & GELİŞTİR'), findsWidgets);
 
       await tester.pumpWidget(const SizedBox());

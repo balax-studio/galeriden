@@ -488,6 +488,19 @@ class StaffTrainingCourse {
   final double cost;
   final IconData icon;
   final Color color;
+  final int durationDays;
+
+  const StaffTrainingCourse({
+    required this.id,
+    required this.role,
+    required this.title,
+    required this.description,
+    required this.bonusSummary,
+    required this.cost,
+    required this.icon,
+    required this.color,
+    this.durationDays = 2,
+  });
 
   String getLocalizedTitle([String? langCode]) {
     final lang = langCode ?? 'tr';
@@ -635,17 +648,6 @@ class StaffTrainingCourse {
         }
     }
   }
-
-  const StaffTrainingCourse({
-    required this.id,
-    required this.role,
-    required this.title,
-    required this.description,
-    required this.bonusSummary,
-    required this.cost,
-    required this.icon,
-    required this.color,
-  });
 }
 
 class StaffRoleSpecializations {
@@ -660,6 +662,7 @@ class StaffRoleSpecializations {
       cost: 6000,
       icon: Icons.auto_fix_high_rounded,
       color: Color(0xFF06B6D4),
+      durationDays: 3,
     ),
     StaffTrainingCourse(
       id: 'train_washer_interior_ozone',
@@ -670,6 +673,7 @@ class StaffRoleSpecializations {
       cost: 14000,
       icon: Icons.sanitizer_rounded,
       color: Color(0xFF3B82F6),
+      durationDays: 2,
     ),
 
     // 2. Apprentice Courses
@@ -682,6 +686,7 @@ class StaffRoleSpecializations {
       cost: 5000,
       icon: Icons.handyman_rounded,
       color: Color(0xFFF59E0B),
+      durationDays: 1,
     ),
     StaffTrainingCourse(
       id: 'train_appr_pdr_sheet',
@@ -692,6 +697,7 @@ class StaffRoleSpecializations {
       cost: 12000,
       icon: Icons.hardware_rounded,
       color: Color(0xFFF97316),
+      durationDays: 2,
     ),
 
     // 3. Salesman Courses
@@ -704,6 +710,7 @@ class StaffRoleSpecializations {
       cost: 10000,
       icon: Icons.record_voice_over_rounded,
       color: Color(0xFFEAB308),
+      durationDays: 1,
     ),
     StaffTrainingCourse(
       id: 'train_sales_vip_portfolio',
@@ -714,6 +721,7 @@ class StaffRoleSpecializations {
       cost: 24000,
       icon: Icons.workspace_premium_rounded,
       color: Color(0xFFA855F7),
+      durationDays: 2,
     ),
 
     // 4. Master Mechanic Courses
@@ -726,6 +734,7 @@ class StaffRoleSpecializations {
       cost: 18000,
       icon: Icons.build_circle_rounded,
       color: Color(0xFFEF4444),
+      durationDays: 2,
     ),
     StaffTrainingCourse(
       id: 'train_mech_dyno_ecu',
@@ -736,6 +745,7 @@ class StaffRoleSpecializations {
       cost: 35000,
       icon: Icons.speed_rounded,
       color: Color(0xFFDC2626),
+      durationDays: 3,
     ),
 
     // 5. Appraiser Courses
@@ -748,6 +758,7 @@ class StaffRoleSpecializations {
       cost: 15000,
       icon: Icons.fact_check_rounded,
       color: Color(0xFF10B981),
+      durationDays: 1,
     ),
     StaffTrainingCourse(
       id: 'train_appr_market_arbitrage',
@@ -758,6 +769,7 @@ class StaffRoleSpecializations {
       cost: 28000,
       icon: Icons.query_stats_rounded,
       color: Color(0xFF059669),
+      durationDays: 2,
     ),
 
     // 6. Marketer Courses
@@ -770,6 +782,7 @@ class StaffRoleSpecializations {
       cost: 8000,
       icon: Icons.campaign_rounded,
       color: Color(0xFFEC4899),
+      durationDays: 1,
     ),
     StaffTrainingCourse(
       id: 'train_mkt_target_ads',
@@ -780,6 +793,7 @@ class StaffRoleSpecializations {
       cost: 20000,
       icon: Icons.trending_up_rounded,
       color: Color(0xFFDB2777),
+      durationDays: 2,
     ),
 
     // 7. Legal Advisor Courses
@@ -792,6 +806,7 @@ class StaffRoleSpecializations {
       cost: 16000,
       icon: Icons.shield_rounded,
       color: Color(0xFF6366F1),
+      durationDays: 2,
     ),
     StaffTrainingCourse(
       id: 'train_legal_fast_factoring',
@@ -802,6 +817,7 @@ class StaffRoleSpecializations {
       cost: 32000,
       icon: Icons.gavel_rounded,
       color: Color(0xFF4F46E5),
+      durationDays: 3,
     ),
   ];
 
@@ -824,6 +840,10 @@ class StaffModel {
   final StaffPerk? perk;
   final double profitContributed;
   final List<String> completedCourseIds;
+  final bool isUnderTraining;
+  final int trainingDaysRemaining;
+  final int totalTrainingDays;
+  final String? currentTrainingCourseId;
 
   StaffModel({
     required this.id,
@@ -839,7 +859,21 @@ class StaffModel {
     this.perk,
     this.profitContributed = 0.0,
     this.completedCourseIds = const [],
+    this.isUnderTraining = false,
+    this.trainingDaysRemaining = 0,
+    this.totalTrainingDays = 0,
+    this.currentTrainingCourseId,
   });
+
+  /// Staff is active for dealership automation tasks when not in training
+  bool get isAvailableForWork => !isUnderTraining;
+
+  /// Training completion progress ratio (0.0 to 1.0)
+  double get trainingProgress {
+    if (!isUnderTraining || totalTrainingDays <= 0) return 1.0;
+    final done = totalTrainingDays - trainingDaysRemaining;
+    return (done / totalTrainingDays).clamp(0.0, 1.0);
+  }
 
   /// Effective daily salary considering raises, perks, and multipliers
   double get dailySalary {
@@ -883,6 +917,10 @@ class StaffModel {
     StaffPerk? perk,
     double? profitContributed,
     List<String>? completedCourseIds,
+    bool? isUnderTraining,
+    int? trainingDaysRemaining,
+    int? totalTrainingDays,
+    String? currentTrainingCourseId,
   }) {
     return StaffModel(
       id: id ?? this.id,
@@ -898,6 +936,10 @@ class StaffModel {
       perk: perk ?? this.perk,
       profitContributed: profitContributed ?? this.profitContributed,
       completedCourseIds: completedCourseIds ?? this.completedCourseIds,
+      isUnderTraining: isUnderTraining ?? this.isUnderTraining,
+      trainingDaysRemaining: trainingDaysRemaining ?? this.trainingDaysRemaining,
+      totalTrainingDays: totalTrainingDays ?? this.totalTrainingDays,
+      currentTrainingCourseId: currentTrainingCourseId ?? this.currentTrainingCourseId,
     );
   }
 
@@ -916,6 +958,10 @@ class StaffModel {
       'perk': perk?.name,
       'profitContributed': profitContributed,
       'completedCourseIds': completedCourseIds,
+      'isUnderTraining': isUnderTraining,
+      'trainingDaysRemaining': trainingDaysRemaining,
+      'totalTrainingDays': totalTrainingDays,
+      'currentTrainingCourseId': currentTrainingCourseId,
     };
   }
 
@@ -934,6 +980,10 @@ class StaffModel {
       perk: json['perk'] != null ? StaffPerk.values.firstWhere((p) => p.name == json['perk'], orElse: () => StaffPerk.hardWorker) : null,
       profitContributed: (json['profitContributed'] as num?)?.toDouble() ?? 0.0,
       completedCourseIds: (json['completedCourseIds'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
+      isUnderTraining: json['isUnderTraining'] as bool? ?? false,
+      trainingDaysRemaining: json['trainingDaysRemaining'] as int? ?? 0,
+      totalTrainingDays: json['totalTrainingDays'] as int? ?? 0,
+      currentTrainingCourseId: json['currentTrainingCourseId'] as String?,
     );
   }
 }

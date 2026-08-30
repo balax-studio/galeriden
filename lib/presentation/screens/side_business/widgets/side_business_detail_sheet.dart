@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -168,6 +169,117 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 14),
+
+              // Construction State Banner
+              if (business.isUnderConstruction) ...[
+                NeoBrutalCard(
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E1E14)
+                      : const Color(0xFFFEFCE8),
+                  borderColor: AppColors.brutalYellow,
+                  borderRadius: 14,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.brutalYellow,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.black, width: 1.5),
+                                ),
+                                child: const Icon(Icons.construction_rounded,
+                                    size: 18, color: Colors.black),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                context.tr('side_biz_badge_construction'),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.brutalYellow,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '%${(business.constructionProgress * 100).round()}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.brutalYellow,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          height: 8,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF2A2A20)
+                                : const Color(0xFFE2E8F0),
+                          ),
+                          child: FractionallySizedBox(
+                            alignment: Alignment.centerLeft,
+                            widthFactor: business.constructionProgress.clamp(0.05, 1.0),
+                            child: Container(color: AppColors.brutalYellow),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        context.tr('side_biz_rush_desc'),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: NeoBrutalButton(
+                          label: context.tr('side_biz_btn_rush'),
+                          icon: Icons.play_circle_fill_rounded,
+                          backgroundColor: AppColors.brutalYellow,
+                          textColor: Colors.black,
+                          fontSize: 12,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          onPressed: () {
+                            AdService.instance.showRewardedAdWithFallback(
+                              context: context,
+                              onRewardEarned: () {
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .completeSideBusinessConstruction(
+                                        business.id);
+                                if (success) {
+                                  NotificationService.showSuccess(
+                                    context,
+                                    context.tr('side_biz_rush_success'),
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
 
               // ROI Analytics Card
               NeoBrutalCard(

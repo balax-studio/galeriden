@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/services/game_sound_haptic_service.dart';
 
 /// Mechanical animated rolling counter with tabular figures and delta color flash
 class AnimatedRollingCounter extends StatefulWidget {
@@ -55,6 +56,7 @@ class _AnimatedRollingCounterState extends State<AnimatedRollingCounter>
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value) {
       _previousValue = oldWidget.value;
+      GameSoundHapticService.playCounterTick();
       if (widget.enableDeltaFlash) {
         if (widget.value > oldWidget.value) {
           _flashColor = const Color(0xFF00E575); // Brutal green

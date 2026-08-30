@@ -134,14 +134,22 @@ void main() {
       expect(success, isTrue);
       expect(notifier.state.balance, equals(50000.0 - course.cost));
 
-      final updatedStaff = notifier.state.hiredStaff.first;
-      expect(updatedStaff.morale, equals(80)); // +20
-      expect(updatedStaff.masteryLevel, equals(2)); // +1
-      expect(updatedStaff.completedCourseIds.contains(course.id), isTrue);
+      final trainingStaff = notifier.state.hiredStaff.first;
+      expect(trainingStaff.isUnderTraining, isTrue);
+      expect(trainingStaff.trainingDaysRemaining, equals(course.durationDays));
+      expect(trainingStaff.isAvailableForWork, isFalse);
 
-      // Training same course again should be prevented
+      // Training same course or another course while in training should be prevented
       final repeat = notifier.trainStaffMember(staff.id, course);
       expect(repeat, isFalse);
+
+      // Complete training via rush speedup
+      notifier.rushStaffTraining(staff.id);
+      final graduatedStaff = notifier.state.hiredStaff.first;
+      expect(graduatedStaff.isUnderTraining, isFalse);
+      expect(graduatedStaff.morale, equals(85)); // 60 + 25
+      expect(graduatedStaff.masteryLevel, equals(2)); // +1
+      expect(graduatedStaff.completedCourseIds.contains(course.id), isTrue);
     });
 
     testWidgets('6. StaffScreen renders facility locked badge and role training action', (tester) async {

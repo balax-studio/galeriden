@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/side_business_model.dart';
@@ -202,6 +203,8 @@ class SideBusinessScreen extends ConsumerWidget {
           // 2. Business Catalog List
           ...game.sideBusinesses.map((business) {
             final isOwned = business.isOwned;
+            final isUnderConstruction = business.isUnderConstruction;
+            final isOperational = business.isOperational;
             final iconData = _getBusinessIcon(business.type);
 
             return Padding(
@@ -210,11 +213,13 @@ class SideBusinessScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(14),
                 backgroundColor:
                     isDark ? const Color(0xFF141721) : Colors.white,
-                borderColor: isOwned
+                borderColor: isOperational
                     ? AppColors.brutalGreen
-                    : (isDark
-                        ? const Color(0xFF2A3142)
-                        : const Color(0xFF0F172A)),
+                    : (isUnderConstruction
+                        ? AppColors.brutalYellow
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A))),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,11 +233,13 @@ class SideBusinessScreen extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: isOwned
+                                  color: isOperational
                                       ? AppColors.brutalGreen
-                                      : (isDark
-                                          ? const Color(0xFF1E2330)
-                                          : const Color(0xFFE2E8F0)),
+                                      : (isUnderConstruction
+                                          ? AppColors.brutalYellow
+                                          : (isDark
+                                              ? const Color(0xFF1E2330)
+                                              : const Color(0xFFE2E8F0))),
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: isDark
@@ -242,7 +249,7 @@ class SideBusinessScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 child: Icon(iconData,
-                                    color: isOwned
+                                    color: (isOperational || isUnderConstruction)
                                         ? Colors.black
                                         : const Color(0xFF64748B),
                                     size: 22),
@@ -258,7 +265,7 @@ class SideBusinessScreen extends ConsumerWidget {
                                           fontSize: 14.5,
                                           fontWeight: FontWeight.w900),
                                     ),
-                                    if (isOwned && business.upgrades.isNotEmpty)
+                                    if (isOperational && business.upgrades.isNotEmpty)
                                       Text(
                                         context.tr('side_biz_modules_active', {
                                           'count':
@@ -270,6 +277,16 @@ class SideBusinessScreen extends ConsumerWidget {
                                             fontWeight: FontWeight.w700,
                                             color: AppColors.brutalYellow),
                                       ),
+                                    if (!isOwned && business.type.baseConstructionDays > 0)
+                                      Text(
+                                        context.tr('side_biz_construction_remaining', {
+                                          'days': '${business.type.baseConstructionDays}'
+                                        }),
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF64748B)),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -280,23 +297,32 @@ class SideBusinessScreen extends ConsumerWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (business.hasManager)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 6),
-                                  child: NeoBrutalBadge(
-                                    text: context.tr('side_biz_badge_managed'),
-                                    backgroundColor: const Color(0xFF06B6D4),
-                                    textColor: Colors.black,
-                                    fontSize: 10,
+                              if (isUnderConstruction)
+                                NeoBrutalBadge(
+                                  text: context.tr('side_biz_badge_construction'),
+                                  backgroundColor: AppColors.brutalYellow,
+                                  textColor: Colors.black,
+                                  fontSize: 10,
+                                )
+                              else ...[
+                                if (business.hasManager)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: NeoBrutalBadge(
+                                      text: context.tr('side_biz_badge_managed'),
+                                      backgroundColor: const Color(0xFF06B6D4),
+                                      textColor: Colors.black,
+                                      fontSize: 10,
+                                    ),
                                   ),
+                                NeoBrutalBadge(
+                                  text: context.tr('side_biz_level_badge',
+                                      {'lvl': '${business.level}'}),
+                                  backgroundColor: AppColors.brutalGreen,
+                                  textColor: Colors.black,
+                                  fontSize: 10.5,
                                 ),
-                              NeoBrutalBadge(
-                                text: context.tr('side_biz_level_badge',
-                                    {'lvl': '${business.level}'}),
-                                backgroundColor: AppColors.brutalGreen,
-                                textColor: Colors.black,
-                                fontSize: 10.5,
-                              ),
+                              ],
                             ],
                           ),
                       ],
@@ -309,38 +335,117 @@ class SideBusinessScreen extends ConsumerWidget {
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF64748B)),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
+                    if (isUnderConstruction) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E1E14)
+                              : const Color(0xFFFEFCE8),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.brutalYellow,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              context.tr('side_biz_daily_income_header'),
-                              style: const TextStyle(
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF64748B)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.engineering_rounded,
+                                        size: 16, color: AppColors.brutalYellow),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      context.tr('side_biz_construction_remaining', {
+                                        'days': '${business.constructionDaysRemaining}'
+                                      }),
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '%${(business.constructionProgress * 100).round()}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.brutalYellow,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              context.tr('side_biz_income_rate', {
-                                'amount': CurrencyFormatter.formatShort(isOwned
-                                    ? business.effectiveDailyIncome
-                                    : business.dailyIncome)
-                              }),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w900,
-                                color: isOwned
-                                    ? AppColors.brutalGreen
-                                    : (isDark
-                                        ? Colors.white70
-                                        : Colors.black87),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Container(
+                                height: 8,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF2A2A20)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                                child: FractionallySizedBox(
+                                  alignment: Alignment.centerLeft,
+                                  widthFactor: business.constructionProgress.clamp(0.05, 1.0),
+                                  child: Container(color: AppColors.brutalYellow),
+                                ),
                               ),
                             ),
                           ],
                         ),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isUnderConstruction
+                                    ? context.tr('side_biz_status_building')
+                                    : context.tr('side_biz_daily_income_header'),
+                                style: const TextStyle(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF64748B)),
+                              ),
+                              Text(
+                                isUnderConstruction
+                                    ? context.tr('side_biz_construction_remaining', {
+                                        'days': '${business.constructionDaysRemaining}'
+                                      })
+                                    : context.tr('side_biz_income_rate', {
+                                        'amount': CurrencyFormatter.formatShort(isOperational
+                                            ? business.effectiveDailyIncome
+                                            : business.dailyIncome)
+                                      }),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  color: isOperational
+                                      ? AppColors.brutalGreen
+                                      : (isUnderConstruction
+                                          ? AppColors.brutalYellow
+                                          : (isDark
+                                              ? Colors.white70
+                                              : Colors.black87)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         if (!isOwned)
                           NeoBrutalButton(
                             label: context.tr('side_biz_btn_buy', {
@@ -369,6 +474,52 @@ class SideBusinessScreen extends ConsumerWidget {
                                     context.tr('insufficient_balance'));
                               }
                             },
+                          )
+                        else if (isUnderConstruction)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              NeoBrutalButton(
+                                label: context.tr('side_biz_btn_rush'),
+                                icon: Icons.play_circle_fill_rounded,
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 10.5,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 8),
+                                onPressed: () {
+                                  AdService.instance.showRewardedAdWithFallback(
+                                    context: context,
+                                    onRewardEarned: () {
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .completeSideBusinessConstruction(
+                                              business.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                          context,
+                                          context.tr('side_biz_rush_success'),
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 6),
+                              NeoBrutalButton(
+                                label: context.tr('detail'),
+                                icon: Icons.info_outline_rounded,
+                                backgroundColor: isDark
+                                    ? const Color(0xFF1E2330)
+                                    : const Color(0xFFE2E8F0),
+                                textColor: isDark ? Colors.white : Colors.black,
+                                fontSize: 10.5,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 8),
+                                onPressed: () =>
+                                    _openDetailSheet(context, business.id),
+                              ),
+                            ],
                           )
                         else
                           NeoBrutalButton(

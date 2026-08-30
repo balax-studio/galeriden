@@ -328,7 +328,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                 final hasWasherStaff =
                     game.hiredStaff.any((s) => s.role == StaffRole.washer);
                 final hasWashBusiness = game.sideBusinesses.any(
-                    (b) => b.type == SideBusinessType.carWash && b.isOwned);
+                    (b) => b.type == SideBusinessType.carWash && b.isOperational);
 
                 if (!hasWasherStaff && !hasWashBusiness) {
                   return NeoBrutalCard(
@@ -485,7 +485,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               )
             else if (game.hiredStaff.any((s) => s.role == StaffRole.washer) ||
                 game.sideBusinesses.any(
-                    (b) => b.type == SideBusinessType.carWash && b.isOwned))
+                    (b) => b.type == SideBusinessType.carWash && b.isOperational))
               ..._customerWashJobs.map((job) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),

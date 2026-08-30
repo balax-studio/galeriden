@@ -18,7 +18,7 @@ class SideBusinessEngine {
     required int activeRentalsCount,
   }) {
     final double businessMultiplier = specializationPath == SpecializationPath.boss ? 1.30 : 1.0;
-    final bool hasBillboard = businesses.any((b) => b.isOwned && b.type == SideBusinessType.billboard);
+    final bool hasBillboard = businesses.any((b) => b.isOperational && b.type == SideBusinessType.billboard);
     final updatedBusinesses = List<SideBusinessModel>.from(businesses);
     double currentBalance = balance;
 
@@ -26,7 +26,7 @@ class SideBusinessEngine {
 
     for (int i = 0; i < updatedBusinesses.length; i++) {
       final b = updatedBusinesses[i];
-      if (b.isOwned) {
+      if (b.isOperational) {
         // Billboard cross-business synergy: +15% boost on rental fleet income
         double synergyFactor = 1.0;
         if (hasBillboard && b.type == SideBusinessType.carRental) {

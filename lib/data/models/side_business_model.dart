@@ -128,6 +128,28 @@ extension SideBusinessTypeExtension on SideBusinessType {
         }
     }
   }
+
+  int get baseConstructionDays {
+    switch (this) {
+      case SideBusinessType.vendingMachine:
+        return 0;
+      case SideBusinessType.billboard:
+        return 1;
+      case SideBusinessType.autoShop:
+      case SideBusinessType.carWash:
+        return 2;
+      case SideBusinessType.towTruck:
+      case SideBusinessType.sparePartsStore:
+      case SideBusinessType.wrapStudio:
+        return 3;
+      case SideBusinessType.evCharging:
+      case SideBusinessType.inspectionStation:
+        return 4;
+      case SideBusinessType.corporateExpertise:
+      case SideBusinessType.carRental:
+        return 5;
+    }
+  }
 }
 
 class SideBusinessUpgradeModel {
@@ -209,6 +231,11 @@ class SideBusinessModel {
   final double managerSalary;
   final double managerBonusPercent;
 
+  // Construction & permit fields
+  final bool isUnderConstruction;
+  final int constructionDaysRemaining;
+  final int totalConstructionDays;
+
   SideBusinessModel({
     required this.id,
     required this.name,
@@ -225,10 +252,20 @@ class SideBusinessModel {
     this.managerCost = 15000.0,
     this.managerSalary = 200.0,
     this.managerBonusPercent = 0.30,
+    this.isUnderConstruction = false,
+    this.constructionDaysRemaining = 0,
+    this.totalConstructionDays = 0,
   });
 
+  bool get isOperational => isOwned && !isUnderConstruction;
+
+  double get constructionProgress {
+    if (totalConstructionDays <= 0) return 1.0;
+    return (1.0 - (constructionDaysRemaining / totalConstructionDays)).clamp(0.0, 1.0);
+  }
+
   double get grossDailyIncome {
-    if (!isOwned) return 0.0;
+    if (!isOperational) return 0.0;
     final base = dailyIncome * (1 + (level - 1) * 0.35);
     final upgradeBonuses = upgrades.where((u) => u.isPurchased).fold(0.0, (sum, u) => sum + u.bonusDailyIncome);
     double total = base + upgradeBonuses;
@@ -239,7 +276,7 @@ class SideBusinessModel {
   }
 
   double get dailyMaintenanceExpense {
-    if (!isOwned) return 0.0;
+    if (!isOperational) return 0.0;
     double expense = grossDailyIncome * 0.15;
     if (hasManager) {
       expense += managerSalary;
@@ -248,7 +285,7 @@ class SideBusinessModel {
   }
 
   double get effectiveDailyIncome {
-    if (!isOwned) return 0.0;
+    if (!isOperational) return 0.0;
     final net = grossDailyIncome - dailyMaintenanceExpense;
     return net;
   }
@@ -262,6 +299,8 @@ class SideBusinessModel {
     int towedCarsLast7Days = 0,
     int activeRentalsCount = 0,
   }) {
+    if (!isOperational) return 0.0;
+
     // Inactivity Decay: If the dealership has 0 inventory and 0 operational activity in the last 7 days,
     // side business customer footfall drops dramatically to prevent day-skip infinite wealth generation.
     final bool isGalleryDormant = listedCarsCount == 0 &&
@@ -314,7 +353,7 @@ class SideBusinessModel {
     int towedCarsLast7Days = 0,
     int activeRentalsCount = 0,
   }) {
-    if (!isOwned) return 0.0;
+    if (!isOperational) return 0.0;
     final multiplier = calculateUtilizationMultiplier(
       washedLast7Days: washedLast7Days,
       expertisesLast7Days: expertisesLast7Days,
@@ -368,6 +407,9 @@ class SideBusinessModel {
     'managerCost': managerCost,
     'managerSalary': managerSalary,
     'managerBonusPercent': managerBonusPercent,
+    'isUnderConstruction': isUnderConstruction,
+    'constructionDaysRemaining': constructionDaysRemaining,
+    'totalConstructionDays': totalConstructionDays,
   };
 
   factory SideBusinessModel.fromJson(Map<String, dynamic> json) => SideBusinessModel(
@@ -391,6 +433,9 @@ class SideBusinessModel {
     managerCost: (json['managerCost'] as num?)?.toDouble() ?? 15000.0,
     managerSalary: (json['managerSalary'] as num?)?.toDouble() ?? 200.0,
     managerBonusPercent: (json['managerBonusPercent'] as num?)?.toDouble() ?? 0.30,
+    isUnderConstruction: json['isUnderConstruction'] as bool? ?? false,
+    constructionDaysRemaining: json['constructionDaysRemaining'] as int? ?? 0,
+    totalConstructionDays: json['totalConstructionDays'] as int? ?? 0,
   );
 
   SideBusinessModel copyWith({
@@ -409,6 +454,9 @@ class SideBusinessModel {
     double? managerCost,
     double? managerSalary,
     double? managerBonusPercent,
+    bool? isUnderConstruction,
+    int? constructionDaysRemaining,
+    int? totalConstructionDays,
   }) {
     return SideBusinessModel(
       id: id ?? this.id,
@@ -426,6 +474,9 @@ class SideBusinessModel {
       managerCost: managerCost ?? this.managerCost,
       managerSalary: managerSalary ?? this.managerSalary,
       managerBonusPercent: managerBonusPercent ?? this.managerBonusPercent,
+      isUnderConstruction: isUnderConstruction ?? this.isUnderConstruction,
+      constructionDaysRemaining: constructionDaysRemaining ?? this.constructionDaysRemaining,
+      totalConstructionDays: totalConstructionDays ?? this.totalConstructionDays,
     );
   }
 }

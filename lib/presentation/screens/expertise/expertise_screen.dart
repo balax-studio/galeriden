@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -538,6 +539,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                                   setState(() {
                                     _inspectionStampText = reportBadge;
                                   });
+                                  GameSoundHapticService.playStampSlam();
                                   NotificationService.showSuccess(
                                     context,
                                     '$reportBadge • OK',

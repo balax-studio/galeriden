@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -194,6 +195,15 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
             final isFacilityUnlocked =
                 game.isFeatureUnlocked(course.role.requiredFeatureRoute);
 
+            // Check if any matching staff is currently under training for this course
+            final staffInThisTraining = matchingStaff
+                .where((s) =>
+                    s.isUnderTraining && s.currentTrainingCourseId == course.id)
+                .toList();
+            final isTrainingActive = staffInThisTraining.isNotEmpty;
+            final activeTrainee =
+                isTrainingActive ? staffInThisTraining.first : null;
+
             // Check if any matching staff completed this course
             final trainedStaff = matchingStaff
                 .where((s) => s.completedCourseIds.contains(course.id))
@@ -209,11 +219,13 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                     isDark ? const Color(0xFF141721) : Colors.white,
                 borderColor: isCompletedByAllHired
                     ? AppColors.brutalGreen
-                    : (!isFacilityUnlocked
-                        ? AppColors.brutalOrange
-                        : (isDark
-                            ? const Color(0xFF2A3142)
-                            : const Color(0xFF0F172A))),
+                    : (isTrainingActive
+                        ? AppColors.brutalYellow
+                        : (!isFacilityUnlocked
+                            ? AppColors.brutalOrange
+                            : (isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFF0F172A)))),
                 borderRadius: 14,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,6 +285,13 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             textColor: Colors.black,
                             fontSize: 10,
                           )
+                        else if (isTrainingActive)
+                          NeoBrutalBadge(
+                            text: context.tr('staff_status_training'),
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 10,
+                          )
                         else if (!isFacilityUnlocked)
                           NeoBrutalBadge(
                             text: context.tr('staff_badge_facility_locked'),
@@ -291,23 +310,118 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                           color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: course.color.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        context.tr('academy_bonus_label',
-                            {'bonus': course.bonusSummary}),
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : Colors.black87,
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: course.color.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            context.tr('academy_bonus_label',
+                                {'bonus': course.bonusSummary}),
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFFCBD5E1),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.timer_outlined,
+                                  size: 12, color: Color(0xFF64748B)),
+                              const SizedBox(width: 4),
+                              Text(
+                                context.tr('staff_training_duration_badge',
+                                    {'days': '${course.durationDays}'}),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (isTrainingActive && activeTrainee != null) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.brutalYellow,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${activeTrainee.name} • ${context.tr('staff_training_remaining', {
+                                        'days':
+                                            '${activeTrainee.trainingDaysRemaining}'
+                                      })}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                Text(
+                                  '%${(activeTrainee.trainingProgress * 100).toInt()}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFFD97706),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: activeTrainee.trainingProgress,
+                                minHeight: 6,
+                                backgroundColor: isDark
+                                    ? const Color(0xFF0F172A)
+                                    : const Color(0xFFE2E8F0),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                    Color(0xFFD97706)),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
+                    ],
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -337,6 +451,33 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 8),
                             onPressed: null,
+                          )
+                        else if (isTrainingActive && activeTrainee != null)
+                          NeoBrutalButton(
+                            label: context.tr('staff_btn_rush_training'),
+                            icon: Icons.bolt_rounded,
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 11,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            onPressed: () {
+                              AdService.instance.showRewardedAdWithFallback(
+                                context: context,
+                                onRewardEarned: () {
+                                  final success = ref
+                                      .read(gameProvider.notifier)
+                                      .rushStaffTraining(activeTrainee.id);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      context.tr('staff_rush_training_success',
+                                          {'name': activeTrainee.name}),
+                                    );
+                                  }
+                                },
+                              );
+                            },
                           )
                         else if (!isFacilityUnlocked)
                           NeoBrutalButton(
@@ -388,12 +529,21 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 8),
                             onPressed: () {
-                              // Find staff who hasn't finished this course
+                              // Find staff who hasn't finished this course and isn't currently under training
                               final candidateStaff = matchingStaff.firstWhere(
                                 (s) =>
-                                    !s.completedCourseIds.contains(course.id),
+                                    !s.completedCourseIds.contains(course.id) &&
+                                    !s.isUnderTraining,
                                 orElse: () => matchingStaff.first,
                               );
+
+                              if (candidateStaff.isUnderTraining) {
+                                NotificationService.showInfo(
+                                  context,
+                                  context.tr('staff_under_training_warning'),
+                                );
+                                return;
+                              }
 
                               if (game.balance < course.cost) {
                                 NotificationService.showError(context,
@@ -408,9 +558,10 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
                                 NotificationService.showSuccess(
                                   context,
                                   context.tr(
-                                      'academy_training_complete_toast', {
+                                      'academy_training_started_toast', {
                                     'name': candidateStaff.name,
-                                    'course': course.getLocalizedTitle(lang)
+                                    'course': course.getLocalizedTitle(lang),
+                                    'days': '${course.durationDays}'
                                   }),
                                 );
                               }

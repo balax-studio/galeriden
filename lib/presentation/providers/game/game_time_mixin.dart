@@ -79,7 +79,7 @@ mixin GameTimeMixin on GameBaseNotifier {
     newEvents = salaryResult.$3;
 
     currentCars = _processStaffAutomation(currentStaff, currentCars);
-    if (currentStaff.any((s) => s.role == StaffRole.salesman) &&
+    if (currentStaff.any((s) => s.isAvailableForWork && s.role == StaffRole.salesman) &&
         currentCars.any((c) => c.isListed && !c.isRented)) {
       triggerOrganicOffers();
     }
@@ -320,20 +320,96 @@ mixin GameTimeMixin on GameBaseNotifier {
       double balance, List<StaffModel> staff, List<GameEventModel> events) {
     if (staff.isEmpty) return (balance, staff, events);
 
-    double totalSalaries = staff.fold(0.0, (s, st) => s + st.dailySalary);
+    // 1. Process staff training progression & graduations
+    List<StaffModel> updatedStaff = [];
+    for (final s in staff) {
+      if (s.isUnderTraining) {
+        final remaining = s.trainingDaysRemaining - 1;
+        if (remaining <= 0) {
+          final courseId = s.currentTrainingCourseId;
+          final course = courseId != null
+              ? StaffRoleSpecializations.allCourses.firstWhere(
+                  (c) => c.id == courseId,
+                  orElse: () => StaffRoleSpecializations.allCourses.first,
+                )
+              : null;
+          final updatedCourses = courseId != null &&
+                  !s.completedCourseIds.contains(courseId)
+              ? [...s.completedCourseIds, courseId]
+              : s.completedCourseIds;
+          StaffPerk? assignedPerk = s.perk;
+          if (assignedPerk == null) {
+            switch (s.role) {
+              case StaffRole.washer:
+                assignedPerk = StaffPerk.meticulous;
+                break;
+              case StaffRole.apprentice:
+                assignedPerk = StaffPerk.hardWorker;
+                break;
+              case StaffRole.salesman:
+                assignedPerk = StaffPerk.silverTongue;
+                break;
+              case StaffRole.masterMechanic:
+              case StaffRole.appraiser:
+                assignedPerk = StaffPerk.meticulous;
+                break;
+              case StaffRole.marketer:
+                assignedPerk = StaffPerk.silverTongue;
+                break;
+              case StaffRole.legalAdvisor:
+                assignedPerk = StaffPerk.thrifty;
+                break;
+            }
+          }
+          final newMorale = min(100, s.morale + 25);
+          final newMastery = min(5, s.masteryLevel + 1);
+          updatedStaff.add(s.copyWith(
+            completedCourseIds: updatedCourses,
+            morale: newMorale,
+            masteryLevel: newMastery,
+            perk: assignedPerk,
+            specialization: course?.title ?? s.specialization,
+            isUnderTraining: false,
+            trainingDaysRemaining: 0,
+            totalTrainingDays: 0,
+            currentTrainingCourseId: null,
+          ));
+          events.insert(
+            0,
+            GameEventModel(
+              id: 'staff_grad_${DateTime.now().millisecondsSinceEpoch}_${s.id}',
+              title: 'USTALIK MEZUNİYETİ!',
+              description:
+                  '${s.name}, ${course?.title ?? "kurs"} eğitimini üstün başarıyla tamamladı ve diplomasını alarak görevine döndü!',
+              type: GameEventType.goodEvent,
+              amount: 0.0,
+              date: DateTime.now(),
+            ),
+          );
+        } else {
+          updatedStaff.add(s.copyWith(trainingDaysRemaining: remaining));
+        }
+      } else {
+        updatedStaff.add(s);
+      }
+    }
+
+    // 2. Process daily salaries and morale
+    double totalSalaries = updatedStaff.fold(0.0, (sum, st) => sum + st.dailySalary);
     if (state.specializationPath == SpecializationPath.boss) {
       totalSalaries *= 0.80;
     }
 
     if (balance >= totalSalaries) {
-      final updated =
-          staff.map((s) => s.copyWith(morale: min(100, s.morale + 1))).toList();
-      return (balance - totalSalaries, updated, events);
+      final finalStaff = updatedStaff
+          .map((s) => s.copyWith(morale: min(100, s.morale + 1)))
+          .toList();
+      return (balance - totalSalaries, finalStaff, events);
     } else {
       final remainingStaff = <StaffModel>[];
       final resignedStaff = <StaffModel>[];
 
-      for (final s in staff) {
+      for (final s in updatedStaff) {
         final newMorale = s.morale - 35;
         if (newMorale <= 10) {
           resignedStaff.add(s);
@@ -377,10 +453,10 @@ mixin GameTimeMixin on GameBaseNotifier {
   List<CarModel> _processStaffAutomation(
       List<StaffModel> staff, List<CarModel> cars) {
     final hasCarWashBusiness = state.sideBusinesses
-        .any((b) => b.isOwned && b.type == SideBusinessType.carWash);
+        .any((b) => b.isOperational && b.type == SideBusinessType.carWash);
     final hasWasher =
-        staff.any((s) => s.role == StaffRole.washer) || hasCarWashBusiness;
-    final hasMechanic = staff.any((s) => s.role == StaffRole.masterMechanic);
+        staff.any((s) => s.isAvailableForWork && s.role == StaffRole.washer) || hasCarWashBusiness;
+    final hasMechanic = staff.any((s) => s.isAvailableForWork && s.role == StaffRole.masterMechanic);
 
     if (hasWasher && cars.isNotEmpty) {
       int washedCount = 0;
@@ -484,10 +560,29 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   (double, List<SideBusinessModel>) _processSideBusinesses(
       double balance, List<CarModel> cars, List<SideBusinessModel> businesses) {
+    final updatedList = <SideBusinessModel>[];
+    for (final b in businesses) {
+      if (b.isOwned && b.isUnderConstruction) {
+        final remaining = b.constructionDaysRemaining - 1;
+        if (remaining <= 0) {
+          updatedList.add(b.copyWith(
+            isUnderConstruction: false,
+            constructionDaysRemaining: 0,
+          ));
+        } else {
+          updatedList.add(b.copyWith(
+            constructionDaysRemaining: remaining,
+          ));
+        }
+      } else {
+        updatedList.add(b);
+      }
+    }
+
     return SideBusinessEngine.processDailyEarnings(
       balance: balance,
       cars: cars,
-      businesses: businesses,
+      businesses: updatedList,
       specializationPath: state.specializationPath,
       carsWashedLast7Days: state.carsWashedLast7Days,
       expertisesPerformedLast7Days: state.expertisesPerformedLast7Days,

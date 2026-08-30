@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../../core/services/game_sound_haptic_service.dart';
 import 'neo_brutal_stamp.dart';
 
 /// Animated Stamp widget that slams down with tactile haptics and spring physics
@@ -61,7 +61,7 @@ class _SlamStampWidgetState extends State<SlamStampWidget>
     _controller.addListener(() {
       if (_controller.value >= 0.85 && !_hapticFired) {
         _hapticFired = true;
-        HapticFeedback.heavyImpact();
+        GameSoundHapticService.playStampSlam();
       }
     });
 

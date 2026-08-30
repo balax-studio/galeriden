@@ -116,7 +116,7 @@ mixin GameStaffMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Train a specific staff member with a role-specialized course
+  /// Enroll a specific staff member into a role-specialized training course (1-3 days)
   bool trainStaffMember(String staffId, StaffTrainingCourse course) {
     if (state.balance < course.cost) return false;
 
@@ -125,33 +125,100 @@ mixin GameStaffMixin on GameBaseNotifier {
 
     final staff = state.hiredStaff[index];
     if (staff.completedCourseIds.contains(course.id)) return false;
+    if (staff.isUnderTraining) return false;
 
-    final updatedCourses = [...staff.completedCourseIds, course.id];
-    final newMorale = (staff.morale + 20).clamp(0, 100);
+    final updatedStaff = staff.copyWith(
+      isUnderTraining: true,
+      trainingDaysRemaining: course.durationDays,
+      totalTrainingDays: course.durationDays,
+      currentTrainingCourseId: course.id,
+    );
+
+    List<StaffModel> updatedList = List<StaffModel>.from(state.hiredStaff);
+    updatedList[index] = updatedStaff;
+
+    state = state.copyWith(
+      balance: state.balance - course.cost,
+      hiredStaff: updatedList,
+    );
+
+    addXP(20);
+    saveState();
+    return true;
+  }
+
+  /// Instantly rush and complete staff training with Rewarded Video Ad
+  bool rushStaffTraining(String staffId) {
+    final index = state.hiredStaff.indexWhere((s) => s.id == staffId);
+    if (index == -1) return false;
+
+    final staff = state.hiredStaff[index];
+    if (!staff.isUnderTraining || staff.currentTrainingCourseId == null) {
+      return false;
+    }
+
+    final courseId = staff.currentTrainingCourseId!;
+    final course = StaffRoleSpecializations.allCourses.firstWhere(
+      (c) => c.id == courseId,
+      orElse: () => StaffRoleSpecializations.allCourses.first,
+    );
+
+    final updatedCourses = staff.completedCourseIds.contains(courseId)
+        ? staff.completedCourseIds
+        : [...staff.completedCourseIds, courseId];
+    final newMorale = (staff.morale + 25).clamp(0, 100);
     final newMasteryLevel = (staff.masteryLevel + 1).clamp(1, 5);
+    StaffPerk? assignedPerk = staff.perk;
+    if (assignedPerk == null) {
+      switch (staff.role) {
+        case StaffRole.washer:
+          assignedPerk = StaffPerk.meticulous;
+          break;
+        case StaffRole.apprentice:
+          assignedPerk = StaffPerk.hardWorker;
+          break;
+        case StaffRole.salesman:
+          assignedPerk = StaffPerk.silverTongue;
+          break;
+        case StaffRole.masterMechanic:
+        case StaffRole.appraiser:
+          assignedPerk = StaffPerk.meticulous;
+          break;
+        case StaffRole.marketer:
+          assignedPerk = StaffPerk.silverTongue;
+          break;
+        case StaffRole.legalAdvisor:
+          assignedPerk = StaffPerk.thrifty;
+          break;
+      }
+    }
 
     final updatedStaff = staff.copyWith(
       completedCourseIds: updatedCourses,
       morale: newMorale,
       masteryLevel: newMasteryLevel,
+      perk: assignedPerk,
       specialization: course.title,
+      isUnderTraining: false,
+      trainingDaysRemaining: 0,
+      totalTrainingDays: 0,
+      currentTrainingCourseId: null,
     );
 
     List<StaffModel> updatedList = List<StaffModel>.from(state.hiredStaff);
     updatedList[index] = updatedStaff;
 
     final updatedAcademyPurchases =
-        state.purchasedAcademyCourses.contains(course.id)
+        state.purchasedAcademyCourses.contains(courseId)
             ? state.purchasedAcademyCourses
-            : [...state.purchasedAcademyCourses, course.id];
+            : [...state.purchasedAcademyCourses, courseId];
 
     state = state.copyWith(
-      balance: state.balance - course.cost,
       hiredStaff: updatedList,
       purchasedAcademyCourses: updatedAcademyPurchases,
     );
 
-    addXP(40);
+    addXP(50);
     saveState();
     return true;
   }

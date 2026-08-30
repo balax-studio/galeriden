@@ -139,6 +139,47 @@ class GameSoundHapticService {
     }
   }
 
+  /// 13. Heavy Industrial Rocker Switch / Toggle Snapping
+  static Future<void> playSwitchToggle([bool state = true]) async {
+    if (isSoundEnabled) {
+      try {
+        await SystemSound.play(SystemSoundType.click);
+      } catch (_) {}
+    }
+    if (isHapticEnabled) {
+      try {
+        if (state) {
+          await HapticFeedback.mediumImpact();
+        } else {
+          await HapticFeedback.lightImpact();
+        }
+      } catch (_) {}
+    }
+  }
+
+  /// 14. Mechanical Rolling Counter & Odometer Gear Tick
+  static Future<void> playCounterTick() async {
+    if (isHapticEnabled) {
+      try {
+        await HapticFeedback.selectionClick();
+      } catch (_) {}
+    }
+  }
+
+  /// 15. Heavy Rubber Stamp / Official Notary & Expertise Seal Slam
+  static Future<void> playStampSlam() async {
+    if (isSoundEnabled) {
+      try {
+        await SystemSound.play(SystemSoundType.click);
+      } catch (_) {}
+    }
+    if (isHapticEnabled) {
+      try {
+        await HapticFeedback.heavyImpact();
+      } catch (_) {}
+    }
+  }
+
   /// Legacy aliases
   static Future<void> playTapImpact() async {
     if (isHapticEnabled) {

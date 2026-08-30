@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../../core/services/game_sound_haptic_service.dart';
 
 /// Neo-Brutalist Industrial Rocker Switch
 /// A heavy-duty mechanical two-position toggle with 3D shadow displacement,
@@ -71,7 +71,7 @@ class _IndustrialRockerSwitchState extends State<IndustrialRockerSwitch>
   }
 
   void _toggle() {
-    HapticFeedback.selectionClick();
+    GameSoundHapticService.playSwitchToggle(!widget.value);
     widget.onChanged(!widget.value);
   }
 

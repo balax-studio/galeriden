@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -78,6 +79,8 @@ class StaffScreen extends ConsumerWidget {
               ...courses.map((course) {
                 final isCompleted =
                     staff.completedCourseIds.contains(course.id);
+                final isCurrentTraining =
+                    staff.isUnderTraining && staff.currentTrainingCourseId == course.id;
                 final canAfford = game.balance >= course.cost;
 
                 return Padding(
@@ -89,9 +92,11 @@ class StaffScreen extends ConsumerWidget {
                         : const Color(0xFFF8FAFC),
                     borderColor: isCompleted
                         ? AppColors.brutalGreen
-                        : (isDark
-                            ? const Color(0xFF2A3142)
-                            : const Color(0xFFCBD5E1)),
+                        : (isCurrentTraining
+                            ? AppColors.brutalYellow
+                            : (isDark
+                                ? const Color(0xFF2A3142)
+                                : const Color(0xFFCBD5E1))),
                     borderRadius: 12,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,6 +124,13 @@ class StaffScreen extends ConsumerWidget {
                                 textColor: Colors.black,
                                 fontSize: 9.5,
                               )
+                            else if (isCurrentTraining)
+                              NeoBrutalBadge(
+                                text: context.tr('staff_status_training'),
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 9.5,
+                              )
                             else
                               Text(
                                 CurrencyFormatter.format(course.cost),
@@ -141,30 +153,54 @@ class StaffScreen extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: course.color.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                course.bonusSummary,
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: course.color),
-                              ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: course.color.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    course.bonusSummary,
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        color: course.color),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? const Color(0xFF1E2330)
+                                        : const Color(0xFFE2E8F0),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    context.tr('staff_training_duration_badge',
+                                        {'days': '${course.durationDays}'}),
+                                    style: const TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            if (!isCompleted)
+                            if (!isCompleted && !isCurrentTraining)
                               NeoBrutalButton(
                                 label: context.tr('btn_train_staff'),
-                                backgroundColor: canAfford
+                                backgroundColor: canAfford && !staff.isUnderTraining
                                     ? AppColors.brutalGreen
                                     : (isDark
                                         ? const Color(0xFF1E2330)
                                         : const Color(0xFFE2E8F0)),
-                                textColor: canAfford
+                                textColor: canAfford && !staff.isUnderTraining
                                     ? Colors.black
                                     : (isDark
                                         ? Colors.white38
@@ -172,7 +208,7 @@ class StaffScreen extends ConsumerWidget {
                                 fontSize: 10,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
-                                onPressed: canAfford
+                                onPressed: canAfford && !staff.isUnderTraining
                                     ? () {
                                         final success = ref
                                             .read(gameProvider.notifier)
@@ -181,11 +217,43 @@ class StaffScreen extends ConsumerWidget {
                                         if (success) {
                                           NotificationService.showSuccess(
                                             context,
-                                            '${staff.name} • ${course.getLocalizedTitle(lang)}',
+                                            context.tr('academy_training_started_toast', {
+                                              'name': staff.name,
+                                              'course': course.getLocalizedTitle(lang),
+                                              'days': '${course.durationDays}'
+                                            }),
                                           );
                                         }
                                       }
                                     : null,
+                              )
+                            else if (isCurrentTraining)
+                              NeoBrutalButton(
+                                label: context.tr('staff_btn_rush_training'),
+                                icon: Icons.bolt_rounded,
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 10,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                  AdService.instance.showRewardedAdWithFallback(
+                                    context: context,
+                                    onRewardEarned: () {
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .rushStaffTraining(staff.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                          context,
+                                          context.tr('staff_rush_training_success',
+                                              {'name': staff.name}),
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
                               ),
                           ],
                         ),
@@ -654,12 +722,16 @@ class StaffScreen extends ConsumerWidget {
                         ),
                         NeoBrutalBadge(
                           text: isHired
-                              ? context.tr('staff_badge_on_duty')
+                              ? (hired.isUnderTraining
+                                  ? context.tr('staff_status_training')
+                                  : context.tr('staff_badge_on_duty'))
                               : (!isFacilityUnlocked
                                   ? context.tr('staff_badge_facility_locked')
                                   : context.tr('staff_badge_open')),
                           backgroundColor: isHired
-                              ? AppColors.brutalGreen
+                              ? (hired.isUnderTraining
+                                  ? AppColors.brutalYellow
+                                  : AppColors.brutalGreen)
                               : (!isFacilityUnlocked
                                   ? AppColors.brutalOrange
                                   : (isDark
@@ -684,6 +756,58 @@ class StaffScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 10),
                     if (isHired) ...[
+                      if (hired.isUnderTraining) ...[
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                                color: AppColors.brutalYellow, width: 1.5),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    context.tr('staff_training_remaining',
+                                        {'days': '${hired.trainingDaysRemaining}'}),
+                                    style: const TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w900),
+                                  ),
+                                  Text(
+                                    '%${(hired.trainingProgress * 100).toInt()}',
+                                    style: const TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFFD97706)),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(3),
+                                child: LinearProgressIndicator(
+                                  value: hired.trainingProgress,
+                                  minHeight: 5,
+                                  backgroundColor: isDark
+                                      ? const Color(0xFF0F172A)
+                                      : const Color(0xFFE2E8F0),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(
+                                      Color(0xFFD97706)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       // Morale Bar & Perk Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -877,19 +1001,46 @@ class StaffScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 6),
 
-                      // Role-based training action
+                      // Role-based training or rush action
                       SizedBox(
                         width: double.infinity,
-                        child: NeoBrutalButton(
-                          icon: Icons.school_rounded,
-                          label: context.tr('btn_train_staff'),
-                          backgroundColor: const Color(0xFFA855F7),
-                          textColor: Colors.white,
-                          fontSize: 11,
-                          padding: const EdgeInsets.symmetric(vertical: 7),
-                          onPressed: () =>
-                              _showRoleTrainingSheet(context, ref, hired),
-                        ),
+                        child: hired.isUnderTraining
+                            ? NeoBrutalButton(
+                                icon: Icons.bolt_rounded,
+                                label: context.tr('staff_btn_rush_training'),
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(vertical: 7),
+                                onPressed: () {
+                                  AdService.instance.showRewardedAdWithFallback(
+                                    context: context,
+                                    onRewardEarned: () {
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .rushStaffTraining(hired.id);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                          context,
+                                          context.tr(
+                                              'staff_rush_training_success',
+                                              {'name': hired.name}),
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              )
+                            : NeoBrutalButton(
+                                icon: Icons.school_rounded,
+                                label: context.tr('btn_train_staff'),
+                                backgroundColor: const Color(0xFFA855F7),
+                                textColor: Colors.white,
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(vertical: 7),
+                                onPressed: () =>
+                                    _showRoleTrainingSheet(context, ref, hired),
+                              ),
                       ),
                     ] else ...[
                       if (!isFacilityUnlocked) ...[

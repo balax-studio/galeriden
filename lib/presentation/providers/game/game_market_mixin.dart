@@ -53,9 +53,17 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (business.isOwned) return false;
     if (state.balance < business.cost) return false;
 
+    final constructionDays = business.type.baseConstructionDays;
+    final isUnderConstruction = constructionDays > 0;
+
     final updatedBusinesses =
         List<SideBusinessModel>.from(state.sideBusinesses);
-    updatedBusinesses[businessIndex] = business.copyWith(isOwned: true);
+    updatedBusinesses[businessIndex] = business.copyWith(
+      isOwned: true,
+      isUnderConstruction: isUnderConstruction,
+      constructionDaysRemaining: constructionDays,
+      totalConstructionDays: constructionDays,
+    );
 
     state = state.copyWith(
       balance: state.balance - business.cost,
@@ -64,6 +72,31 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     addXP(150);
     updateMissionProgress(MissionType.sideBusinessCollect, 1);
+    saveState();
+    return true;
+  }
+
+  /// Instantly completes side business construction (via rewarded ad rush or cash)
+  bool completeSideBusinessConstruction(String businessId) {
+    final businessIndex =
+        state.sideBusinesses.indexWhere((b) => b.id == businessId);
+    if (businessIndex == -1) return false;
+
+    final business = state.sideBusinesses[businessIndex];
+    if (!business.isOwned || !business.isUnderConstruction) return false;
+
+    final updatedBusinesses =
+        List<SideBusinessModel>.from(state.sideBusinesses);
+    updatedBusinesses[businessIndex] = business.copyWith(
+      isUnderConstruction: false,
+      constructionDaysRemaining: 0,
+    );
+
+    state = state.copyWith(
+      sideBusinesses: updatedBusinesses,
+    );
+
+    addXP(100);
     saveState();
     return true;
   }
