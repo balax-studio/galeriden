@@ -407,7 +407,11 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
           baseBgColor;
     }
 
+    final screenWidth = MediaQuery.maybeOf(context)?.size.width ?? 360.0;
+    final maxPlateWidth = (screenWidth - (widget.showLeading ? 116.0 : 64.0)).clamp(80.0, 500.0);
+
     return Container(
+      constraints: BoxConstraints(maxWidth: maxPlateWidth),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
       decoration: BoxDecoration(
         color: baseBgColor,

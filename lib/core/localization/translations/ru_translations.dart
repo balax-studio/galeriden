@@ -3133,5 +3133,18 @@ const Map<String, String> ruTranslations = {
     'stamp_urgent_sale': 'СРОЧНАЯ ПРОДАЖА',
     'stamp_rare_collector': 'КОЛЛЕКЦИОННЫЙ',
     'trend_7d_profit': 'Динамика прибыли за 7 дней',
+    'title_create_listing': 'СОЗДАТЬ И УПРАВЛЯТЬ ОБЪЯВЛЕНИЕМ',
+    'title_offer_evaluation': 'СТОЛ ОЦЕНКИ ПРЕДЛОЖЕНИЙ',
+    'btn_reset_price': 'Сбросить цену',
+    'toast_price_reset_market': 'Цена сброшена до рыночной стоимости.',
+    'label_purchase_cost': 'Закупочная стоимость',
+    'label_market_est_val': 'Рыночная стоимость',
+    'listing_asking_price_title': 'Цена в объявлении',
+    'label_market_val': 'Рынок',
+    'label_est_profit': 'Ожидаемая чистая прибыль',
+    'label_est_loss': 'Ожидаемый убыток',
+    'label_market_demand': 'Скорость спроса на рынке',
+    'btn_save_listing_details': 'Обновить и опубликовать',
+    'toast_listing_updated_success': 'Детали объявления успешно обновлены!',
 };
 

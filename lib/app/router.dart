@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import '../data/models/car_model.dart';
 import '../data/models/listing_model.dart';
 import '../presentation/screens/dashboard/dashboard_screen.dart';
 import '../presentation/screens/expertise/expertise_screen.dart';
@@ -8,6 +9,8 @@ import '../presentation/screens/marketplace/marketplace_screen.dart';
 import '../presentation/screens/marketplace/negotiation_screen.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/settings/settings_screen.dart';
+import '../presentation/screens/showroom/create_listing_screen.dart';
+import '../presentation/screens/showroom/offer_evaluation_screen.dart';
 import '../presentation/screens/showroom/showroom_screen.dart';
 import '../presentation/screens/workshop/workshop_screen.dart';
 
@@ -227,6 +230,26 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/album',
       pageBuilder: (context, state) => _buildCupertinoPage(const CollectionAlbumScreen(), state),
+    ),
+    GoRoute(
+      path: '/create-listing',
+      pageBuilder: (context, state) {
+        final car = state.extra as CarModel?;
+        if (car == null) {
+          return _buildCupertinoPage(const ShowroomScreen(), state);
+        }
+        return _buildCupertinoPage(CreateListingScreen(car: car), state);
+      },
+    ),
+    GoRoute(
+      path: '/offer-evaluation',
+      pageBuilder: (context, state) {
+        final args = state.extra as OfferEvaluationArgs?;
+        if (args == null) {
+          return _buildCupertinoPage(const ShowroomScreen(), state);
+        }
+        return _buildCupertinoPage(OfferEvaluationScreen(args: args), state);
+      },
     ),
   ],
 );

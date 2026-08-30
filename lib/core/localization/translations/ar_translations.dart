@@ -3133,5 +3133,18 @@ const Map<String, String> arTranslations = {
     'stamp_urgent_sale': 'بيع عاجل',
     'stamp_rare_collector': 'قطعة نادرة',
     'trend_7d_profit': 'زخم الربح 7 أيام',
+    'title_create_listing': 'إنشاء وإدارة الإعلان',
+    'title_offer_evaluation': 'طاولة تقييم العروض',
+    'btn_reset_price': 'إعادة ضبط السعر',
+    'toast_price_reset_market': 'تمت إعادة ضبط السعر إلى القيمة السوقية المقدرة.',
+    'label_purchase_cost': 'تكلفة الشراء',
+    'label_market_est_val': 'القيمة السوقية المقدرة',
+    'listing_asking_price_title': 'سعر الطلب في الإعلان',
+    'label_market_val': 'السوق',
+    'label_est_profit': 'صافي الربح التقديري',
+    'label_est_loss': 'الخسارة التقديرية',
+    'label_market_demand': 'سرعة الطلب في السوق',
+    'btn_save_listing_details': 'تحديث ونشر الإعلان',
+    'toast_listing_updated_success': 'تم تحديث تفاصيل إعلان المركبة بنجاح!',
 };
 

@@ -3133,5 +3133,18 @@ const Map<String, String> ptTranslations = {
     'stamp_urgent_sale': 'VENDA URGENTE',
     'stamp_rare_collector': 'COLECIONADOR',
     'trend_7d_profit': 'Tendência 7D de Lucro',
+    'title_create_listing': 'CRIAR E GERENCIAR ANÚNCIO',
+    'title_offer_evaluation': 'MESA DE AVALIAÇÃO DE OFERTAS',
+    'btn_reset_price': 'Redefinir Preço',
+    'toast_price_reset_market': 'Preço redefinido para o valor estimado de mercado.',
+    'label_purchase_cost': 'Custo de Compra',
+    'label_market_est_val': 'Valor Estimado de Mercado',
+    'listing_asking_price_title': 'Preço de Venda do Anúncio',
+    'label_market_val': 'Mercado',
+    'label_est_profit': 'Lucro Líquido Estimado',
+    'label_est_loss': 'Prejuízo Estimado',
+    'label_market_demand': 'Velocidade de Demanda',
+    'btn_save_listing_details': 'Atualizar e Publicar Anúncio',
+    'toast_listing_updated_success': 'Detalhes do anúncio do veículo atualizados com sucesso!',
 };
 

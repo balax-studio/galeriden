@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/game_constants.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -21,7 +22,6 @@ import '../../../widgets/pulsing_dot.dart';
 import '../../../widgets/foil_shimmer_widget.dart';
 import '../../../widgets/leather_keychain_swing_widget.dart';
 import 'car_cost_breakdown_sheet.dart';
-import 'showroom_listing_modal.dart';
 
 class ShowroomCarCard extends ConsumerWidget {
   final CarModel car;
@@ -862,8 +862,7 @@ class ShowroomCarCard extends ConsumerWidget {
                         fontSize: 11,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         onPressed: () =>
-                            ShowroomListingModal.showListingEditSheet(
-                                context, ref, car),
+                            context.push('/create-listing', extra: car),
                       ),
                     ),
                     const SizedBox(width: 8),

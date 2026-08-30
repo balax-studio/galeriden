@@ -14,7 +14,6 @@ import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/smart_office_hook_engine.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/app_vector_icons.dart';
-import '../../../widgets/neo_brutal_app_bar.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';

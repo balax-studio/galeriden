@@ -3133,5 +3133,18 @@ const Map<String, String> enTranslations = {
     'stamp_urgent_sale': 'URGENT SALE',
     'stamp_rare_collector': 'COLLECTOR ITEM',
     'trend_7d_profit': '7-Day Profit Momentum',
+    'title_create_listing': 'CREATE & MANAGE LISTING',
+    'title_offer_evaluation': 'OFFER EVALUATION DESK',
+    'btn_reset_price': 'Reset Price',
+    'toast_price_reset_market': 'Price reset to estimated market value.',
+    'label_purchase_cost': 'Purchase Cost',
+    'label_market_est_val': 'Estimated Market Value',
+    'listing_asking_price_title': 'Listing Asking Price',
+    'label_market_val': 'Market',
+    'label_est_profit': 'Estimated Net Profit',
+    'label_est_loss': 'Estimated Loss',
+    'label_market_demand': 'Market Demand Speed',
+    'btn_save_listing_details': 'Update & Publish Listing',
+    'toast_listing_updated_success': 'Vehicle listing details updated successfully!',
 };
 

@@ -66,15 +66,8 @@ class NeoBrutalBadge extends StatelessWidget {
               ]
             : null,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: fontSize + 2, color: effectiveText),
-            const SizedBox(width: 4),
-          ],
-          Flexible(
-            child: Text(
+      child: icon == null
+          ? Text(
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -84,10 +77,27 @@ class NeoBrutalBadge extends StatelessWidget {
                 fontWeight: fontWeight,
                 letterSpacing: 0.3,
               ),
+            )
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: fontSize + 2, color: effectiveText),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    text,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: effectiveText,
+                      fontSize: fontSize,
+                      fontWeight: fontWeight,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
 
     if (angle != 0.0) {

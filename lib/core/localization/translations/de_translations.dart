@@ -3133,5 +3133,18 @@ const Map<String, String> deTranslations = {
     'stamp_urgent_sale': 'DRINGENDER VERKAUF',
     'stamp_rare_collector': 'SAMMLERSTÜCK',
     'trend_7d_profit': '7-Tage Gewinn-Dynamik',
+    'title_create_listing': 'INSERAT ERSTELLEN & VERWALTEN',
+    'title_offer_evaluation': 'ANGEBOTSBEWERTUNGSTISCH',
+    'btn_reset_price': 'Preis zurücksetzen',
+    'toast_price_reset_market': 'Preis auf geschätzten Marktwert zurückgesetzt.',
+    'label_purchase_cost': 'Einkaufskosten',
+    'label_market_est_val': 'Geschätzter Marktwert',
+    'listing_asking_price_title': 'Angebotspreis',
+    'label_market_val': 'Markt',
+    'label_est_profit': 'Geschätzter Nettogewinn',
+    'label_est_loss': 'Geschätzter Verlust',
+    'label_market_demand': 'Marktnachfrage-Tempo',
+    'btn_save_listing_details': 'Inserat aktualisieren & veröffentlichen',
+    'toast_listing_updated_success': 'Fahrzeuginserat-Details erfolgreich aktualisiert!',
 };
 

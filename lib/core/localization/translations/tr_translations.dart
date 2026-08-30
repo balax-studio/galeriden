@@ -3133,5 +3133,18 @@ const Map<String, String> trTranslations = {
     'stamp_urgent_sale': 'ACİL SATILIK',
     'stamp_rare_collector': 'KOLEKSİYONLUK',
     'trend_7d_profit': '7 Günlük Kâr İvmesi',
+    'title_create_listing': 'İLAN OLUŞTUR & YÖNET',
+    'title_offer_evaluation': 'TEKLİF DEĞERLENDİRME MASASI',
+    'btn_reset_price': 'Fiyatı Sıfırla',
+    'toast_price_reset_market': 'Fiyat piyasa emsal değerine sıfırlandı.',
+    'label_purchase_cost': 'Alış Maliyeti',
+    'label_market_est_val': 'Piyasa Emsal Değeri',
+    'listing_asking_price_title': 'İlan Satış Fiyatı',
+    'label_market_val': 'Piyasa',
+    'label_est_profit': 'Tahmini Net Kâr',
+    'label_est_loss': 'Tahmini Zarar',
+    'label_market_demand': 'Piyasa Talep Hızı',
+    'btn_save_listing_details': 'İlanı Güncelle & Yayınla',
+    'toast_listing_updated_success': 'Araç ilan detayları başarıyla güncellendi!',
 };
 

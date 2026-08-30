@@ -25,6 +25,8 @@ import '../../widgets/dialogs/notary_transfer_dialog.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_segmented_gauge.dart';
+import '../../widgets/neo_brutal_slider.dart';
 import '../../widgets/pulsing_dot.dart';
 
 /// Full-Page Dedicated "Pazarlık Masası" (Live Deal Room Screen)
@@ -251,7 +253,8 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+          padding: EdgeInsets.fromLTRB(
+              16, 14, 16, 24 + MediaQuery.paddingOf(context).bottom),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -663,9 +666,43 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
 
-                    // Neo-Brutalist Styled Slider
+                    // Arcade Segmented Persuasion & Conviction Meter
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'İKNA VE KABUL OLASILIĞI',
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          ),
+                        ),
+                        Text(
+                          '%$chancePercent İkna Gücü',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900,
+                            color: chanceColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    SegmentedArcadeGauge(
+                      totalSegments: 6,
+                      activeSegments:
+                          ((chancePercent / 100) * 6).round().clamp(1, 6),
+                      activeColor: chanceColor,
+                      height: 10,
+                      gap: 4,
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Neo-Brutalist Potentiometer Slider
                     SliderTheme(
                       data: SliderTheme.of(context).copyWith(
                         activeTrackColor: const Color(0xFFFFDE59),
@@ -675,9 +712,23 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                         thumbColor: const Color(0xFFFFDE59),
                         overlayColor:
                             const Color(0xFFFFDE59).withValues(alpha: 0.2),
-                        trackHeight: 6.0,
-                        thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 11.0),
+                        trackHeight: 10.0,
+                        trackShape: NeoBrutalSliderTrackShape(
+                          trackBorderColor: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          trackBorderWidth: 2.0,
+                        ),
+                        thumbShape: NeoBrutalRectangularThumbShape(
+                          thumbWidth: 20,
+                          thumbHeight: 26,
+                          fillColor: const Color(0xFFFFDE59),
+                          borderColor: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          borderWidth: 2.2,
+                          shadowOffsetDistance: 2.5,
+                        ),
                       ),
                       child: Slider(
                         value: _offeredPrice,
@@ -843,31 +894,63 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                 const SizedBox(height: 12),
               ],
 
-              // 5. Thinking & Suspense Ticker
+              // 5. Thinking & Suspense Ticker Card
               if (_isThinking) ...[
                 NeoBrutalCard(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   backgroundColor: isDark
                       ? const Color(0xFF1E2330)
                       : const Color(0xFFFEFCE8),
                   borderColor: const Color(0xFFFFDE59),
-                  borderWidth: 2,
+                  borderWidth: 2.2,
                   borderRadius: 10,
-                  shadowOffset: const Offset(2, 2),
+                  shadowOffset: const Offset(3, 3),
                   child: Row(
                     children: [
-                      const PulsingDot(color: Color(0xFFFFDE59), size: 10),
-                      const SizedBox(width: 10),
+                      const PulsingDot(color: Color(0xFFFFDE59), size: 12),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          _thinkingText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                const NeoBrutalBadge(
+                                  text: 'CANLI DÜŞÜNCE RADARI',
+                                  backgroundColor: Color(0xFFFFDE59),
+                                  textColor: Colors.black,
+                                  borderWidth: 1.2,
+                                  fontSize: 8.5,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 1),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Değerlendiriliyor...',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? const Color(0xFF94A3B8)
+                                        : const Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _thinkingText,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -1390,10 +1473,14 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                   if (_sellerResponse == null)
                     Expanded(
                       child: NeoBrutalButton(
-                        label: context.tr('deal_make_offer_btn', {
-                          'price': CurrencyFormatter.formatShort(_offeredPrice)
-                        }),
-                        icon: Icons.handshake_rounded,
+                        label: _isThinking
+                            ? 'TEKLİF DEĞERLENDİRİLİYOR...'
+                            : context.tr('deal_make_offer_btn', {
+                                'price': CurrencyFormatter.formatShort(_offeredPrice)
+                              }),
+                        icon: _isThinking
+                            ? Icons.hourglass_top_rounded
+                            : Icons.handshake_rounded,
                         backgroundColor: const Color(0xFFFFDE59),
                         textColor: Colors.black,
                         fontSize: 14,
@@ -1404,88 +1491,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                                 _isThinking ||
                                 _isLockedOut)
                             ? null
-                            : () async {
-                                HapticFeedback.heavyImpact();
-                                setState(() {
-                                  _isProcessing = true;
-                                  _isThinking = true;
-                                  _thinkingText = PsychologyEngine
-                                      .getSuspenseNegotiationText();
-                                  _counterOfferCount++;
-                                });
-
-                                await Future.delayed(
-                                    const Duration(milliseconds: 850));
-                                if (!mounted) return;
-
-                                final roll = Random().nextInt(100) + 1;
-                                if (roll <= chancePercent) {
-                                  ref
-                                      .read(gameProvider.notifier)
-                                      .checkAndAwardFirstTimeAction(
-                                          FirstTimeActionKeys
-                                              .firstNegotiationWin);
-                                  setState(() {
-                                    _isThinking = false;
-                                    _isProcessing = false;
-                                    _isAccepted = true;
-                                    _agreedFinalPrice = _offeredPrice;
-                                    _isNearMiss = false;
-                                    switch (_customer.archetype) {
-                                      case CustomerArchetype.skepticalOfficial:
-                                        _sellerResponse =
-                                            context.tr('deal_skeptical_accept');
-                                        break;
-                                      case CustomerArchetype.impatientYouth:
-                                        _sellerResponse =
-                                            context.tr('deal_impatient_accept');
-                                        break;
-                                      case CustomerArchetype.greedyFlipper:
-                                        _sellerResponse =
-                                            context.tr('deal_greedy_accept');
-                                        break;
-                                      case CustomerArchetype.familyMan:
-                                        _sellerResponse =
-                                            context.tr('deal_family_accept');
-                                        break;
-                                    }
-                                  });
-                                } else {
-                                  final isNear = roll <= chancePercent + 15;
-                                  final isLocked = _counterOfferCount >= 3;
-                                  setState(() {
-                                    _isThinking = false;
-                                    _isProcessing = false;
-                                    _isAccepted = false;
-                                    _isNearMiss = isNear;
-                                    _isLockedOut = isLocked;
-                                    if (isLocked) {
-                                      _sellerResponse =
-                                          context.tr('deal_seller_locked_resp');
-                                    } else {
-                                      switch (_customer.archetype) {
-                                        case CustomerArchetype
-                                              .skepticalOfficial:
-                                          _sellerResponse = context
-                                              .tr('deal_skeptical_reject');
-                                          break;
-                                        case CustomerArchetype.impatientYouth:
-                                          _sellerResponse = context
-                                              .tr('deal_impatient_reject');
-                                          break;
-                                        case CustomerArchetype.greedyFlipper:
-                                          _sellerResponse =
-                                              context.tr('deal_greedy_reject');
-                                          break;
-                                        case CustomerArchetype.familyMan:
-                                          _sellerResponse =
-                                              context.tr('deal_family_reject');
-                                          break;
-                                      }
-                                    }
-                                  });
-                                }
-                              },
+                            : () => _handleSendOffer(chancePercent),
                       ),
                     )
                   else if (_isAccepted)
@@ -1696,6 +1702,141 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     );
   }
 
+  Future<void> _handleSendOffer(int chancePercent) async {
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _isProcessing = true;
+      _isThinking = true;
+      _counterOfferCount++;
+    });
+
+    final random = Random();
+
+    // Stage 1: Initial reaction (600ms - 900ms)
+    final stage1Duration = 600 + random.nextInt(300);
+    setState(() {
+      _thinkingText = _getSuspenseStage1Text(_customer.archetype);
+    });
+    HapticFeedback.selectionClick();
+    await Future.delayed(Duration(milliseconds: stage1Duration));
+    if (!mounted) return;
+
+    // Stage 2: Consultation & Calculation (700ms - 1100ms)
+    final stage2Duration = 700 + random.nextInt(400);
+    setState(() {
+      _thinkingText = _getSuspenseStage2Text(_customer.archetype);
+    });
+    HapticFeedback.selectionClick();
+    await Future.delayed(Duration(milliseconds: stage2Duration));
+    if (!mounted) return;
+
+    // Stage 3: Final decision moment (500ms - 800ms)
+    final stage3Duration = 500 + random.nextInt(300);
+    setState(() {
+      _thinkingText = _getSuspenseStage3Text(_customer.archetype);
+    });
+    HapticFeedback.selectionClick();
+    await Future.delayed(Duration(milliseconds: stage3Duration));
+    if (!mounted) return;
+
+    // Verdict Outcome
+    final roll = random.nextInt(100) + 1;
+    if (roll <= chancePercent) {
+      ref.read(gameProvider.notifier).checkAndAwardFirstTimeAction(
+          FirstTimeActionKeys.firstNegotiationWin);
+      GameSoundHapticService.playCashSuccess();
+      setState(() {
+        _isThinking = false;
+        _isProcessing = false;
+        _isAccepted = true;
+        _agreedFinalPrice = _offeredPrice;
+        _isNearMiss = false;
+        switch (_customer.archetype) {
+          case CustomerArchetype.skepticalOfficial:
+            _sellerResponse = context.tr('deal_skeptical_accept');
+            break;
+          case CustomerArchetype.impatientYouth:
+            _sellerResponse = context.tr('deal_impatient_accept');
+            break;
+          case CustomerArchetype.greedyFlipper:
+            _sellerResponse = context.tr('deal_greedy_accept');
+            break;
+          case CustomerArchetype.familyMan:
+            _sellerResponse = context.tr('deal_family_accept');
+            break;
+        }
+      });
+    } else {
+      final isNear = roll <= chancePercent + 15;
+      final isLocked = _counterOfferCount >= 3;
+      GameSoundHapticService.playWarningVibration();
+      setState(() {
+        _isThinking = false;
+        _isProcessing = false;
+        _isAccepted = false;
+        _isNearMiss = isNear;
+        _isLockedOut = isLocked;
+        if (isLocked) {
+          _sellerResponse = context.tr('deal_seller_locked_resp');
+        } else {
+          switch (_customer.archetype) {
+            case CustomerArchetype.skepticalOfficial:
+              _sellerResponse = context.tr('deal_skeptical_reject');
+              break;
+            case CustomerArchetype.impatientYouth:
+              _sellerResponse = context.tr('deal_impatient_reject');
+              break;
+            case CustomerArchetype.greedyFlipper:
+              _sellerResponse = context.tr('deal_greedy_reject');
+              break;
+            case CustomerArchetype.familyMan:
+              _sellerResponse = context.tr('deal_family_reject');
+              break;
+          }
+        }
+      });
+    }
+  }
+
+  String _getSuspenseStage1Text(CustomerArchetype archetype) {
+    switch (archetype) {
+      case CustomerArchetype.skepticalOfficial:
+        return 'Satıcı teklif rakamına bakıyor • Hesap makinesine sarıldı...';
+      case CustomerArchetype.impatientYouth:
+        return 'Satıcı telefondaki bildirimine baktı • Fiyatı tartıyor...';
+      case CustomerArchetype.greedyFlipper:
+        return 'Satıcı kâr marjını hesaplıyor • Çayından bir yudum aldı...';
+      case CustomerArchetype.familyMan:
+        return 'Satıcı bütçesini gözden geçiriyor • Derin bir nefes aldı...';
+    }
+  }
+
+  String _getSuspenseStage2Text(CustomerArchetype archetype) {
+    switch (archetype) {
+      case CustomerArchetype.skepticalOfficial:
+        return 'Emsal ilanları kontrol ediyor • Noter harcını düşüyor...';
+      case CustomerArchetype.impatientYouth:
+        return 'Arkadaşına mesaj attı • Aceleyle düşünüyor...';
+      case CustomerArchetype.greedyFlipper:
+        return 'Piyasa rayicini tartıyor • Net eline kalacak parayı hesaplıyor...';
+      case CustomerArchetype.familyMan:
+        return 'Eşiyle telefonda fısıldaşıyor • Onay bekliyor...';
+    }
+  }
+
+  String _getSuspenseStage3Text(CustomerArchetype archetype) {
+    switch (archetype) {
+      case CustomerArchetype.skepticalOfficial:
+        return 'Kaşlarını çattı • Son kararını vermek üzere...';
+      case CustomerArchetype.impatientYouth:
+        return 'Kafasını salladı • Kararını açıklıyor...';
+      case CustomerArchetype.greedyFlipper:
+        return 'Gözlerini kıstı • Elini masaya koydu...';
+      case CustomerArchetype.familyMan:
+        return 'Tereddütle masaya eğildi • Son sözünü söylüyor...';
+    }
+  }
+
   Widget _buildQuickSnapChip(
       String label, double discountPercent, double asking, bool isDark) {
     final targetPrice = (asking * (1.0 - discountPercent)).roundToDouble();
@@ -1711,21 +1852,29 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
       borderRadius: BorderRadius.circular(6),
       child: Opacity(
         opacity: isLocked ? 0.45 : 1.0,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: isSelected
                 ? const Color(0xFFFFDE59)
                 : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9)),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: isSelected
-                  ? (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A))
-                  : (isDark
-                      ? const Color(0xFF333B4F)
-                      : const Color(0xFFCBD5E1)),
-              width: 1.5,
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 1.8,
             ),
+            boxShadow: isLocked
+                ? null
+                : [
+                    BoxShadow(
+                      color: isDark ? Colors.black : const Color(0xFF0F172A),
+                      offset: isSelected
+                          ? const Offset(1, 1)
+                          : const Offset(2.5, 2.5),
+                      blurRadius: 0,
+                    ),
+                  ],
           ),
           child: Text(
             label,
@@ -1734,7 +1883,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
               fontWeight: FontWeight.w900,
               color: isSelected
                   ? Colors.black
-                  : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                  : (isDark ? Colors.white : const Color(0xFF0F172A)),
             ),
           ),
         ),
@@ -1871,26 +2020,24 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
       onTap: isCardDisabled ? null : onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         decoration: BoxDecoration(
           color: isUsed
               ? (isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0))
-              : (isDark
-                  ? activeBgColor.withValues(alpha: 0.15)
-                  : activeBgColor.withValues(alpha: 0.25)),
+              : (isDark ? const Color(0xFF1E2330) : Colors.white),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isUsed
                 ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1))
-                : (isDark ? activeBgColor : const Color(0xFF0F172A)),
-            width: 1.8,
+                : (isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A)),
+            width: 2.0,
           ),
           boxShadow: (isUsed || isCardDisabled)
               ? null
               : [
                   BoxShadow(
                     color: isDark ? Colors.black : const Color(0xFF0F172A),
-                    offset: const Offset(2, 2),
+                    offset: const Offset(2.5, 2.5),
                     blurRadius: 0,
                   ),
                 ],
@@ -1898,15 +2045,36 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
         child: Opacity(
           opacity: (isCardDisabled && !isUsed) ? 0.45 : 1.0,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isUsed
-                    ? (isDark ? Colors.white30 : Colors.black26)
-                    : (isDark ? activeBgColor : const Color(0xFF0F172A)),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: isUsed
+                      ? (isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFCBD5E1))
+                      : activeBgColor,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
+                    width: 1.5,
+                  ),
+                ),
+                child: Center(
+                  child: Icon(
+                    icon,
+                    size: 18,
+                    color: isUsed
+                        ? (isDark ? Colors.white30 : Colors.black26)
+                        : Colors.black,
+                  ),
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
                 title,
                 style: TextStyle(
@@ -1920,20 +2088,24 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                 decoration: BoxDecoration(
                   color: isUsed
                       ? Colors.transparent
-                      : (isDark ? const Color(0xFF1E2330) : Colors.white),
+                      : (isDark
+                          ? const Color(0xFF141721)
+                          : const Color(0xFFFEFCE8)),
                   borderRadius: BorderRadius.circular(4),
                   border: isUsed
                       ? null
                       : Border.all(
-                          color:
-                              isDark ? activeBgColor : const Color(0xFF0F172A),
-                          width: 1),
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 1.2),
                 ),
                 child: Text(
                   badgeText,
@@ -1942,7 +2114,9 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                     fontWeight: FontWeight.w900,
                     color: isUsed
                         ? (isDark ? Colors.white24 : Colors.black26)
-                        : const Color(0xFF0F172A),
+                        : (isDark
+                            ? const Color(0xFFFFDE59)
+                            : const Color(0xFF0F172A)),
                   ),
                 ),
               ),
@@ -1953,3 +2127,4 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     );
   }
 }
+

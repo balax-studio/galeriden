@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../offer_evaluation_screen.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/game_sound_haptic_service.dart';
@@ -24,7 +26,6 @@ import '../../../widgets/neo_brutal_empty_state.dart';
 import '../../../../domain/usecases/negotiation_engine.dart';
 import '../../../widgets/dialogs/lucky_opportunity_dialog.dart';
 import '../../../widgets/dialogs/notary_transfer_dialog.dart';
-import 'showroom_listing_modal.dart';
 
 class ShowroomOffersTab extends ConsumerWidget {
   final DealershipModel game;
@@ -900,8 +901,10 @@ class ShowroomOffersTab extends ConsumerWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               onPressed: () {
-                                ShowroomListingModal.showCounterOfferSheet(
-                                    context, ref, offer, car);
+                                context.push(
+                                  '/offer-evaluation',
+                                  extra: OfferEvaluationArgs(car: car, offer: offer),
+                                );
                               },
                             ),
                             const SizedBox(width: 8),
