@@ -1,146 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-  <base href="/galeriden/">
-
-  <script>
-    // Self-healing base href calculation for GitHub Pages, root domain, or subfolders
-    (function () {
-      var baseTag = document.querySelector('base');
-      var path = window.location.pathname;
-      if (!path.endsWith('/')) {
-        var lastSlash = path.lastIndexOf('/');
-        path = lastSlash >= 0 ? path.substring(0, lastSlash + 1) : '/';
-      }
-      if (baseTag && (baseTag.getAttribute('href') === '/' || baseTag.getAttribute('href') === '/galeriden/')) {
-        baseTag.setAttribute('href', path);
-      }
-    })();
-  </script>
-
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Galeriden - Otomobil Alım Satım, Ekspertiz ve Galericilik Simülasyonu">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Galeriden">
-  <meta name="theme-color" content="#FFDE59">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>Galeriden - Otomobil Galericilik Simülasyonu</title>
-  <link rel="manifest" href="manifest.json">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeriden Tycoon • Balax Studio Resmi İletişim ve Destek</title>
+  <meta name="description" content="Galeriden Tycoon resmi geliştirici sayfası, destek talepleri, iletişim ve gizlilik politikası.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #0B0C10;
+      --card-bg: #141722;
+      --card-alt: #1C2130;
+      --yellow: #FFDE59;
+      --cyan: #00E5FF;
+      --green: #00E575;
+      --purple: #A855F7;
+      --text: #FFFFFF;
+      --text-muted: #94A3B8;
+      --border-dark: #000000;
+      --border-light: #2A324B;
+      --shadow: 4px 4px 0px #000000;
+      --shadow-lg: 6px 6px 0px #000000;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    html, body {
-      background-color: #0F1015;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      padding: 0 16px 60px 16px;
+      overflow-x: hidden;
     }
 
-    #neo-brutal-loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: #0F1015;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 999999;
-      transition: opacity 0.3s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.3s ease;
-      padding: 20px;
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
     }
 
-    .brutal-card {
-      background-color: #1A1C24;
-      border: 4px solid #000000;
-      box-shadow: 8px 8px 0px #FFDE59;
-      padding: 28px 32px;
-      max-width: 380px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .brutal-tag-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      width: 100%;
-      justify-content: space-between;
-    }
-
-    .brutal-badge {
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 4px 8px;
-      border: 2px solid #000000;
-      color: #000000;
-    }
-    .badge-yellow {
-      background-color: #FFDE59;
-      box-shadow: 2px 2px 0px #000000;
-    }
-    .badge-cyan {
-      background-color: #00E5FF;
-      box-shadow: 2px 2px 0px #000000;
-    }
-
-    .brutal-title {
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: #FFFFFF;
-      text-transform: uppercase;
-      text-shadow: 3px 3px 0px #000000;
-      margin-bottom: 6px;
-    }
-
-    .brutal-subtitle {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      color: #FFDE59;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .brutal-progress-frame {
-      width: 100%;
-      height: 22px;
-      background: #000000;
-      border: 3px solid #000000;
-      box-shadow: 4px 4px 0px #000000;
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 14px;
-    }
-
-    .brutal-progress-stripes {
-      height: 100%;
-      width: 120%;
+    /* Top Hazard Ribbon */
+    .hazard-strip {
       background: repeating-linear-gradient(
         -45deg,
         #FFDE59,
@@ -148,94 +54,433 @@
         #000000 14px,
         #000000 28px
       );
-      animation: brutal-stripes 0.8s linear infinite;
+      height: 8px;
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      margin-bottom: 32px;
+      border-bottom: 2px solid #000000;
     }
 
-    @keyframes brutal-stripes {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-28px); }
+    /* Header Nav */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0 32px 0;
+      border-bottom: 2px solid var(--border-light);
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
-    .brutal-status-text {
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      color: #A0A5B8;
-      text-transform: uppercase;
+    .brand-group {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 12px;
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #00E5FF;
-      border: 1px solid #000000;
-      box-shadow: 1px 1px 0px #000000;
-      animation: pulse-dot 1s infinite alternate;
+    .brand-badge {
+      background: var(--yellow);
+      color: #000000;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 6px 12px;
+      border: 2px solid #000000;
+      box-shadow: 3px 3px 0px #000000;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
-    @keyframes pulse-dot {
-      0% { opacity: 0.4; }
-      100% { opacity: 1; }
+    .brand-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    nav a:hover {
+      color: var(--yellow);
+      border: 2px solid var(--yellow);
+      background: var(--card-bg);
+      box-shadow: 3px 3px 0px #000000;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: var(--card-bg);
+      border: 3px solid #000000;
+      box-shadow: var(--shadow-lg);
+      padding: 40px 32px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .hero-tag {
+      background: var(--cyan);
+      color: #000000;
+      font-weight: 900;
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 2px solid #000000;
+      display: inline-block;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      box-shadow: 2px 2px 0px #000000;
+    }
+
+    .hero h1 {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span {
+      color: var(--yellow);
+      text-shadow: 2px 2px 0px #000000;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 17px;
+      max-width: 680px;
+      margin-bottom: 28px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-brutal {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--yellow);
+      color: #000000;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 900;
+      font-size: 15px;
+      padding: 12px 24px;
+      border: 2.5px solid #000000;
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .btn-brutal:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px #000000;
+    }
+
+    .btn-brutal:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #000000;
+    }
+
+    .btn-secondary {
+      background: var(--card-alt);
+      color: var(--text);
+      border-color: var(--border-light);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text);
+    }
+
+    /* Grid Features */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 2.5px solid #000000;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .feature-icon {
+      font-size: 26px;
+      margin-bottom: 12px;
+      display: inline-block;
+      background: #000000;
+      padding: 8px 12px;
+      border: 2px solid var(--border-light);
+      border-radius: 4px;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: var(--yellow);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Contact & Support Box */
+    .section-box {
+      background: var(--card-bg);
+      border: 3px solid #000000;
+      box-shadow: var(--shadow-lg);
+      padding: 36px;
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 28px;
+    }
+
+    .contact-card-inner {
+      background: var(--card-alt);
+      border: 2px solid #000000;
+      box-shadow: 3px 3px 0px #000000;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .contact-row:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .contact-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .contact-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--yellow);
+    }
+
+    /* Privacy Policy Accordion */
+    .policy-box {
+      background: var(--card-alt);
+      border: 2px solid #000000;
+      padding: 24px;
+      max-height: 380px;
+      overflow-y: auto;
+      font-size: 14px;
+      color: #CBD5E1;
+      line-height: 1.7;
+    }
+
+    .policy-box h4 {
+      color: var(--yellow);
+      font-size: 16px;
+      margin: 18px 0 6px 0;
+    }
+
+    .policy-box h4:first-child {
+      margin-top: 0;
+    }
+
+    .policy-box ul {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 2px solid var(--border-light);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .footer-links a {
+      color: var(--yellow);
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 16px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 28px;
+      }
+      .section-box {
+        padding: 24px 16px;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="neo-brutal-loader">
-    <div class="brutal-card">
-      <div class="brutal-tag-row">
-        <span class="brutal-badge badge-cyan">SİMÜLASYON</span>
+
+  <div class="hazard-strip"></div>
+
+  <div class="container">
+
+    <header>
+      <div class="brand-group">
+        <div class="brand-badge">BALAX STUDIO</div>
+        <div class="brand-title">Galeriden Tycoon</div>
       </div>
-      <div class="brutal-title">GALERİDEN</div>
-      <div class="brutal-subtitle">OTO GALERİ & TİCARET</div>
-      <div class="brutal-progress-frame">
-        <div class="brutal-progress-stripes"></div>
+      <nav>
+        <a href="#destek">İletişim & Destek</a>
+        <a href="#gizlilik">Gizlilik Politikası</a>
+        <a href="app-ads.txt" target="_blank">app-ads.txt</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-tag">Resmi Geliştirici & Destek Merkezi</div>
+      <h1>Galeriden Tycoon <span>Oto Galeri & Ticaret Simülasyonu</span></h1>
+      <p>Maslak oto pazarından kelepir araç toplayın, TÜV ekspertizinden geçirin, çetin pazarlıklarla satın ve oto galeri imparatorluğunuzu kurun.</p>
+      <div class="hero-actions">
+        <a href="mailto:hib0796@gmail.com?subject=Galeriden%20Tycoon%20Destek%20Talebi" class="btn-brutal">
+          Destek & İletişim Gönder
+        </a>
+        <a href="#gizlilik" class="btn-brutal btn-secondary">
+          Gizlilik Politikası
+        </a>
       </div>
-      <div class="brutal-status-text">
-        <div class="status-dot"></div>
-        <span>PİYASA VERİLERİ YÜKLENİYOR...</span>
+    </section>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🚗</div>
+        <h3>Alım & Satım Ticareti</h3>
+        <p>Dinamik oto pazarı ilanlarını takip edin, kelepir fırsatları yakalayın ve kâr marjınızı yönetin.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>TÜV Ekspertiz</h3>
+        <p>Motor, şanzıman ve tramer kayıtlarını inceleyin, sürpriz masraflardan kaçının.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Borsa & Yan Tesisler</h3>
+        <p>Oto yıkama ve çekici filosu kurarak pasif gelir elde edin, otomotiv borsasında hisse yatırımı yapın.</p>
       </div>
     </div>
+
+    <!-- Contact & Support Section -->
+    <section id="destek" class="section-box">
+      <h2 class="section-title">İletişim ve Oyuncu Desteği</h2>
+      <p class="section-subtitle">Oyunla ilgili sorularınız, hata bildirimleriniz veya geri bildirimleriniz için bize doğrudan ulaşabilirsiniz.</p>
+
+      <div class="contact-card-inner">
+        <div class="contact-row">
+          <span class="contact-label">Doğrudan Destek E-Postası:</span>
+          <span class="contact-value">hib0796@gmail.com</span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-label">Geliştirici Stüdyo:</span>
+          <span class="contact-value">Balax Studio</span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-label">Ortalama Yanıt Süresi:</span>
+          <span class="contact-value">24 Saat İçinde</span>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="mailto:hib0796@gmail.com?subject=Galeriden%20Tycoon%20Geri%20Bildirim&body=Merhaba%20Balax%20Studio,%0A%0ACihaz%20Modeli:%0AGeri%20Bildiriminiz%20veya%20Destek%20Talebiniz:" class="btn-brutal" style="width: 100%; justify-content: center;">
+          Doğrudan E-Posta Yaz
+        </a>
+      </div>
+    </section>
+
+    <!-- Privacy Policy Section -->
+    <section id="gizlilik" class="section-box">
+      <h2 class="section-title">Gizlilik Politikası • Privacy Policy</h2>
+      <p class="section-subtitle">Apple App Store ve Google Play standartlarına tam uyumlu resmi gizlilik beyanı.</p>
+
+      <div class="policy-box">
+        <h4>1. Genel Bakış ve Veri Toplama</h4>
+        <p>Balax Studio olarak oyuncularımızın gizliliğine saygı duyuyoruz. <strong>Galeriden Tycoon</strong>, tamamen çevrimdışı çalışabilen bir simülasyon oyunudur. Sunucularımıza kullanıcı adı, e-posta adresi, telefon numarası veya konum gibi kişisel veriler asla iletilmez.</p>
+
+        <h4>2. Yerel Veri Depolama</h4>
+        <p>Oyun içi ilerleme, bakiye, sahip olunan araçlar ve ayarlar yalnızca kullanıcının kendi cihazında yerel depolama alanında şifreli olarak tutulur. Oyuncu dilediği an Ayarlar menüsünden oyun kaydını silebilir.</p>
+
+        <h4>3. Reklam Servisleri (Google AdMob)</h4>
+        <p>Oyunumuzda zorunlu veya araya giren banner reklamlar bulunmaz. Oyuncunun kendi isteğiyle izlediği ödüllü video ve yerel reklamlar için <strong>Google AdMob (Google LLC)</strong> servisi kullanılır. Google AdMob, sahtekarlık önleme ve teknik sunum amacıyla anonim cihaz tanımlayıcılarını işleyebilir.</p>
+
+        <h4>4. Çocukların Gizliliği (COPPA & GDPR)</h4>
+        <p>Uygulamamız 13 yaş altındaki çocuklardan bilerek herhangi bir kişisel veri toplamaz.</p>
+
+        <h4>5. İletişim</h4>
+        <p>Gizlilik politikamız veya veri haklarınız ile ilgili her türlü soru için: <strong>hib0796@gmail.com</strong></p>
+      </div>
+    </section>
+
+    <footer>
+      <div>&copy; 2026 Balax Studio. Tüm hakları saklıdır.</div>
+      <div class="footer-links">
+        <a href="app-ads.txt">app-ads.txt</a>
+        <a href="#destek">Destek</a>
+        <a href="#gizlilik">Gizlilik</a>
+      </div>
+    </footer>
+
   </div>
 
-  <script>
-    // Robust Loader Dismissal Handler
-    function dismissNeoBrutalLoader() {
-      var loader = document.getElementById('neo-brutal-loader');
-      if (loader && loader.style.display !== 'none') {
-        loader.style.opacity = '0';
-        loader.style.transform = 'scale(0.96)';
-        loader.style.pointerEvents = 'none';
-        setTimeout(function() {
-          if (loader && loader.parentNode) {
-            loader.parentNode.removeChild(loader);
-          }
-        }, 320);
-      }
-    }
-
-    // 1. Flutter standard first frame event
-    window.addEventListener('flutter-first-frame', function() {
-      dismissNeoBrutalLoader();
-    });
-
-    // 2. DOM Mutation Observer checking when Flutter view attaches
-    var observer = new MutationObserver(function(mutations, obs) {
-      if (document.querySelector('flt-glass-pane') || document.querySelector('flutter-view')) {
-        setTimeout(dismissNeoBrutalLoader, 150);
-        obs.disconnect();
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    // 3. Fallback safety timer: never block the user under any circumstance
-    setTimeout(function() {
-      dismissNeoBrutalLoader();
-    }, 20000);
-  </script>
-
-  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
