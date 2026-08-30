@@ -57,7 +57,9 @@ class CashflowEngine {
       (sum, r) => sum + r.dailyRate,
     );
 
-    final double depositDailyInterest = (game.bankDepositBalance * 0.24) / 365.0;
+    final double depositDailyInterest = game.bankDepositBalance >= 100.0
+        ? (game.bankDepositBalance * 0.0012).roundToDouble()
+        : 0.0;
 
     final double stockPortfolioValue = game.ownedStocks.fold<double>(
       0.0,

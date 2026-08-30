@@ -31,10 +31,10 @@ class ConsignmentScreen extends ConsumerWidget {
       return Scaffold(
         backgroundColor:
             isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'KONSİNYE & EMANET ARAÇLAR'),
-        body: const NeoBrutalLockedFeatureView(
+        appBar: NeoBrutalAppBar(title: context.tr('consignment_screen_title')),
+        body: NeoBrutalLockedFeatureView(
           route: '/consignment-market',
-          featureTitle: 'KONSİNYE PAZARI',
+          featureTitle: context.tr('consignment_screen_title'),
           icon: Icons.handshake_rounded,
         ),
       );
@@ -44,7 +44,7 @@ class ConsignmentScreen extends ConsumerWidget {
       return Scaffold(
         backgroundColor:
             isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
-        appBar: const NeoBrutalAppBar(title: 'KONSİNYE & EMANET ARAÇLAR'),
+        appBar: NeoBrutalAppBar(title: context.tr('consignment_screen_title')),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -68,13 +68,16 @@ class ConsignmentScreen extends ConsumerWidget {
                         size: 42, color: AppColors.brutalOrange),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'KONSİNYE PAZARI KİLİTLİ',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                  Text(
+                    context.tr('consignment_locked_title'),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Araç sahiplerinin arabalarını size güvenip emanet bırakması için minimum 40 Esnaf İtibarı gereklidir.\n\nŞu anki İtibarınız: ${game.reputationScore} / 40',
+                    context.tr('consignment_locked_desc', {
+                      'required': '40',
+                      'current': '${game.reputationScore}',
+                    }),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         fontSize: 12,
@@ -107,11 +110,13 @@ class ConsignmentScreen extends ConsumerWidget {
       backgroundColor:
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: 'KONSİNYE & EMANET ARAÇLAR',
+        title: context.tr('consignment_screen_title'),
         subtitle: context.tr('consignment_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.gavelBounce,
         statusBadge: NeoBrutalBadge(
-          text: '${activeConsignmentCars.length} AKTİF',
+          text: context.tr('consignment_active_badge', {
+            'count': '${activeConsignmentCars.length}',
+          }),
           backgroundColor: AppColors.brutalGreen,
           textColor: Colors.black,
           fontSize: 9.5,
@@ -222,7 +227,11 @@ class ConsignmentScreen extends ConsumerWidget {
                               color: AppColors.brutalGreen, width: 1),
                         ),
                         child: Text(
-                          '+₺${(game.currentBranchTier == 1 ? 300 : (game.currentBranchTier == 2 ? 600 : (game.currentBranchTier == 3 ? 1200 : (game.currentBranchTier == 4 ? 2500 : (game.currentBranchTier == 5 ? 5000 : (game.currentBranchTier == 6 ? 10000 : (game.currentBranchTier == 7 ? 22000 : 45000)))))))}/gün otopark',
+                          context.tr('consignment_daily_parking_badge', {
+                            'amount': CurrencyFormatter.formatShort(
+                                ConsignmentEngine.calculateDailyParkingFee(
+                                    game.currentBranchTier)),
+                          }),
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
@@ -241,7 +250,9 @@ class ConsignmentScreen extends ConsumerWidget {
           // 2. Active in-showroom consignment vehicles
           if (activeConsignmentCars.isNotEmpty) ...[
             Text(
-              'VİTRİNDEKİ EMANET ARAÇLARINIZ • ${activeConsignmentCars.length}',
+              context.tr('consignment_active_section_title', {
+                'count': '${activeConsignmentCars.length}',
+              }),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -259,7 +270,9 @@ class ConsignmentScreen extends ConsumerWidget {
 
           // 3. New incoming consignment offers
           Text(
-            'YENİ KONSİNYE TALEPLERİ • ${availableOffers.length}',
+            context.tr('consignment_new_offers_title', {
+              'count': '${availableOffers.length}',
+            }),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -272,11 +285,10 @@ class ConsignmentScreen extends ConsumerWidget {
           const SizedBox(height: 10),
 
           if (availableOffers.isEmpty)
-            const NeoBrutalEmptyState(
+            NeoBrutalEmptyState(
               icon: Icons.directions_car_filled_outlined,
-              title: 'BEKLEYEN EMANET YOK',
-              description:
-                  'Şu an emanet bırakılmak istenen araç bulunmuyor. Yeni güne geçildiğinde yeni teklifler gelecektir.',
+              title: context.tr('consignment_empty_title'),
+              description: context.tr('consignment_empty_desc'),
             )
           else
             ...availableOffers
@@ -329,7 +341,12 @@ class ConsignmentScreen extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    'Sahibi: ${(car.consignmentOwnerName?.isNotEmpty ?? false) ? car.consignmentOwnerName! : "Müşteri"} • Kalan: ${car.consignmentDaysRemaining} Gün',
+                    context.tr('consignment_owner_short', {
+                      'owner': (car.consignmentOwnerName?.isNotEmpty ?? false)
+                          ? car.consignmentOwnerName!
+                          : 'Müşteri',
+                      'days': '${car.consignmentDaysRemaining}',
+                    }),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -404,7 +421,14 @@ class ConsignmentScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Araç Sahibi: ${(car.consignmentOwnerName?.isNotEmpty ?? false) ? car.consignmentOwnerName! : "Esnaf Müşterisi"} • ${car.modelYear} Model • ${car.expertise.mileage} km',
+                        context.tr('consignment_owner_info', {
+                          'owner':
+                              (car.consignmentOwnerName?.isNotEmpty ?? false)
+                                  ? car.consignmentOwnerName!
+                                  : 'Esnaf Müşterisi',
+                          'year': '${car.modelYear}',
+                          'mileage': '${car.expertise.mileage}',
+                        }),
                         style: TextStyle(
                           fontSize: 10,
                           color: isDark
@@ -417,7 +441,9 @@ class ConsignmentScreen extends ConsumerWidget {
                   ),
                 ),
                 NeoBrutalBadge(
-                  text: '%$commissionPercent KOMİSYON',
+                  text: context.tr('consignment_commission_badge', {
+                    'rate': '$commissionPercent',
+                  }),
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
                   fontSize: 10,
@@ -445,17 +471,17 @@ class ConsignmentScreen extends ConsumerWidget {
                 children: [
                   Column(
                     children: [
-                      const Text(
-                        'ÖDENECEK SERMAYE',
-                        style: TextStyle(
+                      Text(
+                        context.tr('consignment_capital_needed'),
+                        style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textSecondaryLight),
                       ),
                       const SizedBox(height: 2),
-                      const Text(
-                        '₺0 • Ücretsiz',
-                        style: TextStyle(
+                      Text(
+                        context.tr('consignment_capital_free'),
+                        style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             color: AppColors.brutalGreen),
@@ -470,9 +496,9 @@ class ConsignmentScreen extends ConsumerWidget {
                           : const Color(0xFFCBD5E1)),
                   Column(
                     children: [
-                      const Text(
-                        'TAHMİNİ KOMİSYON',
-                        style: TextStyle(
+                      Text(
+                        context.tr('consignment_est_commission'),
+                        style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textSecondaryLight),
@@ -495,16 +521,20 @@ class ConsignmentScreen extends ConsumerWidget {
                           : const Color(0xFFCBD5E1)),
                   Column(
                     children: [
-                      const Text(
-                        'GÜNLÜK SERGİLEME',
-                        style: TextStyle(
+                      Text(
+                        context.tr('consignment_daily_parking'),
+                        style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textSecondaryLight),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '+₺${ConsignmentEngine.calculateDailyParkingFee(game.currentBranchTier).round()}/gün',
+                        context.tr('consignment_daily_parking_fee', {
+                          'amount': CurrencyFormatter.formatShort(
+                              ConsignmentEngine.calculateDailyParkingFee(
+                                  game.currentBranchTier)),
+                        }),
                         style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -521,7 +551,9 @@ class ConsignmentScreen extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  'Süre: ${car.consignmentDaysRemaining} Gün',
+                  context.tr('consignment_duration_days', {
+                    'days': '${car.consignmentDaysRemaining}',
+                  }),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -532,7 +564,9 @@ class ConsignmentScreen extends ConsumerWidget {
                 ),
                 const Spacer(),
                 NeoBrutalButton(
-                  label: hasGarageSpace ? 'EMANET AL' : 'GARAJ DOLU',
+                  label: hasGarageSpace
+                      ? context.tr('consignment_accept_btn')
+                      : context.tr('consignment_garage_full_btn'),
                   backgroundColor: hasGarageSpace
                       ? AppColors.brutalGreen
                       : const Color(0xFF64748B),
@@ -545,13 +579,17 @@ class ConsignmentScreen extends ConsumerWidget {
                           if (success) {
                             NotificationService.showSuccess(
                               context,
-                              '${car.modelName} emanet olarak vitrine eklendi!',
+                              context.tr('consignment_accept_success', {
+                                'car': car.modelName,
+                              }),
                             );
                           }
                         }
                       : () {
                           NotificationService.showWarning(
-                              context, 'Garajınızda boş yer yok!');
+                            context,
+                            context.tr('consignment_garage_full_warning'),
+                          );
                         },
                 ),
               ],
