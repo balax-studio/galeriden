@@ -3,23 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Galeriden Tycoon • Balax Studio Geliştirici & Destek Portalı</title>
-  <meta name="description" content="Galeriden Tycoon resmi geliştirici operasyon merkezi, oyuncu teknik destek hattı, yasal gizlilik beyanı ve AdMob yetkilendirme noktası.">
+  <title>Galeriden Tycoon • Balax Studio Resmi İletişim ve Destek</title>
+  <meta name="description" content="Galeriden Tycoon resmi geliştirici sayfası, oyuncu destek hattı, gizlilik politikası ve AdMob yayıncı doğrulama noktası.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;0,800;1,800&family=Space+Grotesk:wght@600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@600;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0A0B0E;
-      --bg-grid: #12151E;
       --card-bg: #141724;
       --card-alt: #1A1F30;
       --yellow: #FFE600;
       --orange: #FF5500;
       --cyan: #00F0FF;
       --green: #00FF66;
-      --magenta: #FF007A;
-      --purple: #A855F7;
       --text: #FFFFFF;
       --text-dim: #94A3B8;
       --text-dark: #000000;
@@ -49,7 +46,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Industrial Hazard Stripe */
     .hazard-stripe {
       background: repeating-linear-gradient(
         -45deg,
@@ -70,7 +66,6 @@
       margin: 0 auto;
     }
 
-    /* System Telemetry Marquee */
     .ticker-bar {
       background: #000000;
       border: 2.5px solid var(--yellow);
@@ -79,7 +74,6 @@
       align-items: center;
       overflow: hidden;
       margin-bottom: 36px;
-      position: relative;
     }
 
     .ticker-label {
@@ -101,15 +95,9 @@
     .ticker-pulse {
       width: 8px;
       height: 8px;
-      background: #FF0000;
+      background: #00FF66;
       border-radius: 50%;
-      box-shadow: 0 0 8px #FF0000;
-      animation: pulse 1.2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(0.8); }
+      box-shadow: 0 0 8px #00FF66;
     }
 
     .ticker-content {
@@ -128,7 +116,6 @@
       100% { transform: translateX(-50%); }
     }
 
-    /* Header Nav */
     header {
       display: flex;
       justify-content: space-between;
@@ -195,9 +182,6 @@
       border: 2.5px solid #000000;
       box-shadow: 3px 3px 0px #000000;
       transition: all 0.1s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     .nav-btn:hover {
@@ -212,7 +196,6 @@
       box-shadow: 1px 1px 0px #000000;
     }
 
-    /* Hero Section with Duct Tape */
     .hero-container {
       position: relative;
       background: var(--card-bg);
@@ -222,25 +205,20 @@
       margin-bottom: 48px;
     }
 
-    /* Jagged Duct Tape Corner */
     .duct-tape-corner {
       position: absolute;
       top: -14px;
       right: 32px;
-      background: rgba(255, 230, 0, 0.95);
+      background: var(--yellow);
       color: #000000;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 900;
       font-size: 12px;
       letter-spacing: 1px;
-      padding: 6px 24px;
+      padding: 6px 20px;
       border: 2px solid #000000;
       box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
-      transform: rotate(3deg);
-      clip-path: polygon(
-        0% 8%, 4% 0%, 96% 0%, 100% 12%,
-        98% 88%, 94% 100%, 6% 100%, 0% 92%
-      );
+      transform: rotate(2deg);
       z-index: 10;
     }
 
@@ -261,9 +239,9 @@
     }
 
     .hero-title {
-      font-size: 46px;
+      font-size: 44px;
       font-weight: 900;
-      line-height: 1.1;
+      line-height: 1.15;
       letter-spacing: -1px;
       margin-bottom: 20px;
     }
@@ -275,7 +253,7 @@
     }
 
     .hero-desc {
-      font-size: 18px;
+      font-size: 17.5px;
       color: var(--text-dim);
       line-height: 1.6;
       max-width: 780px;
@@ -300,7 +278,6 @@
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
       cursor: pointer;
       transition: all 0.1s ease;
     }
@@ -328,7 +305,6 @@
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
       cursor: pointer;
       transition: all 0.1s ease;
     }
@@ -345,7 +321,6 @@
       box-shadow: 1px 1px 0px #000000;
     }
 
-    /* Asymmetric Bento Architecture Grid */
     .bento-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
@@ -358,18 +333,15 @@
       border: 3px solid #000000;
       box-shadow: var(--shadow);
       padding: 28px;
-      position: relative;
     }
 
     .bento-card:hover {
-      border-color: #000000;
       box-shadow: var(--shadow-lg);
     }
 
     .bento-8 { grid-column: span 8; }
     .bento-4 { grid-column: span 4; }
     .bento-6 { grid-column: span 6; }
-    .bento-12 { grid-column: span 12; }
 
     .card-meta-head {
       display: flex;
@@ -397,7 +369,7 @@
     }
 
     .bento-card h3 {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 900;
       margin-bottom: 10px;
       color: var(--text);
@@ -409,7 +381,6 @@
       line-height: 1.6;
     }
 
-    /* Thermal Receipt Card for app-ads.txt & Verification */
     .receipt-container {
       background: #FAF8F5;
       color: #000000;
@@ -421,7 +392,6 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Sawtooth edge simulation */
     .receipt-container::before {
       content: "";
       position: absolute;
@@ -453,9 +423,9 @@
     }
 
     .receipt-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 900;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     .receipt-sub {
@@ -516,15 +486,8 @@
     .copy-btn:hover {
       background: #FFFFFF;
       transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0px #000000;
     }
 
-    .copy-btn:active {
-      transform: translate(1px, 1px);
-      box-shadow: 1px 1px 0px #000000;
-    }
-
-    /* Rubber Stamp Overlay */
     .rubber-stamp {
       position: absolute;
       top: 40px;
@@ -532,23 +495,21 @@
       border: 3.5px dashed #00A859;
       color: #00A859;
       padding: 8px 18px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      transform: rotate(-8deg);
+      transform: rotate(-6deg);
       border-radius: 4px;
       pointer-events: none;
     }
 
-    /* Support Terminal Form */
     .terminal-box {
       background: #0D0E14;
       border: 3.5px solid #000000;
       box-shadow: var(--shadow-xl);
       padding: 36px;
       margin-bottom: 48px;
-      position: relative;
     }
 
     .terminal-header {
@@ -625,7 +586,6 @@
       resize: vertical;
     }
 
-    /* Privacy Policy Accordion */
     .policy-terminal {
       background: var(--card-bg);
       border: 3px solid #000000;
@@ -638,16 +598,13 @@
       font-size: 24px;
       font-weight: 900;
       margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
 
     .policy-content-scroll {
       background: #0D0E14;
       border: 2.5px solid #000000;
       padding: 24px;
-      max-height: 420px;
+      max-height: 400px;
       overflow-y: auto;
       font-size: 14px;
       color: #94A3B8;
@@ -665,7 +622,6 @@
       margin-top: 0;
     }
 
-    /* Footer Bar */
     footer {
       border-top: 3px solid #000000;
       padding-top: 32px;
@@ -691,17 +647,8 @@
       border-bottom-color: var(--yellow);
     }
 
-    /* Vector SVG Icons */
-    .icon-svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
     @media (max-width: 768px) {
-      .hero-title { font-size: 32px; }
+      .hero-title { font-size: 30px; }
       .bento-8, .bento-4, .bento-6 { grid-column: span 12; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full-width { grid-column: span 1; }
@@ -717,119 +664,110 @@
 
   <div class="container">
 
-    <!-- Live Telemetry Ticker -->
     <div class="ticker-bar">
       <div class="ticker-label">
         <span class="ticker-pulse"></span>
-        CANLI SİSTEM
+        SİSTEM DURUMU
       </div>
       <div class="ticker-content">
-        <span>OTO GALERİ SUNUCULARI AKTİF • 100% ÇEVRİMDIŞI ÇALIŞMA MİMARİSİ</span>
-        <span>•</span>
-        <span>MASLAK OTO PAZARI İLANLARI DİNAMİK GÜNCELLENİYOR</span>
+        <span>MASLAK VE KADIKÖY OTO PAZARI İLANLARI AKTİF</span>
         <span>•</span>
         <span>TÜV EKSPERTİZ VE NOTER PROTOKOLÜ HAZIR</span>
         <span>•</span>
-        <span>ADMOB APP-ADS.TXT ENTEGRASYONU DOĞRULANDI</span>
+        <span>100% ÇEVRİMDIŞI YEREL KAYIT MİMARİSİ</span>
         <span>•</span>
-        <span>BALAX STUDIO OYUNCU DESTEK HATTI 7/24 AÇIK</span>
+        <span>GOOGLE ADMOB APP-ADS.TXT ENTEGRASYONU AKTİF</span>
+        <span>•</span>
+        <span>BALAX STUDIO OYUNCU DESTEK HATTI AÇIK</span>
       </div>
     </div>
 
-    <!-- Header Navigation -->
     <header>
       <div class="brand-cluster">
         <div class="brand-stamp">BALAX STUDIO</div>
         <div class="brand-meta">
           <span class="brand-meta-title">Galeriden Tycoon</span>
-          <span class="brand-meta-sub">Geliştirici & Destek Operasyonları</span>
+          <span class="brand-meta-sub">Geliştirici & Destek Merkezi</span>
         </div>
       </div>
       <nav>
-        <a href="#ozellikler" class="nav-btn">Sistem Özellikleri</a>
+        <a href="#ozellikler" class="nav-btn">Oyun Mekanikleri</a>
         <a href="#destek" class="nav-btn">Destek Masası</a>
         <a href="#dogrulama" class="nav-btn">app-ads.txt</a>
-        <a href="#gizlilik" class="nav-btn">Gizlilik Beyanı</a>
+        <a href="#gizlilik" class="nav-btn">Gizlilik Politikası</a>
       </nav>
     </header>
 
-    <!-- Main Hero -->
     <section class="hero-container">
-      <div class="duct-tape-corner">[ KELEPİR FIRSAT • GARAJ BULUNTUSU ]</div>
-      <div class="hero-tag">Resmi Operasyon & Oyuncu Portalı</div>
-      <h1 class="hero-title">Oto Galeri İmparatorluğunuzu <span>Taktil Neo-Brutalizm</span> ile Yönetin</h1>
+      <div class="duct-tape-corner">[ RESMİ OYUN PORTALI ]</div>
+      <div class="hero-tag">Balax Studio Resmi Geliştirici Sayfası</div>
+      <h1 class="hero-title">Oto Galeri Ticaretini <span>Baştan Sona</span> Yönetin</h1>
       <p class="hero-desc">
-        Maslak oto pazarından kelepir araç toplayın, TÜV ekspertiz raporlarıyla motor ve kaportayı denetleyin, çetin esnaf pazarlıklarına girin ve otomotiv borsasında zirveye tırmanın.
+        Maslak oto pazarından kelepir araçlar bulun, motor ve kaportayı ekspertizde denetleyin, çetin müşteri pazarlıklarını yönetin ve sermayenizi büyüterek kendi galeri zincirinizi kurun.
       </p>
       <div class="hero-cta-grid">
         <a href="#destek" class="btn-main">
-          Destek & İletişim Formu
+          Destek ve İletişim Formu
         </a>
         <a href="#dogrulama" class="btn-dark">
-          AdMob app-ads.txt Dosyası
+          app-ads.txt Doğrulama Dosyası
         </a>
       </div>
     </section>
 
-    <!-- Asymmetric Bento Grid Features -->
     <section id="ozellikler" class="bento-grid">
 
-      <!-- Bento 1: Market & Trading -->
       <div class="bento-card bento-8">
         <div class="card-meta-head">
-          <span class="card-code">MODÜL: OTO_PAZARI_V3</span>
+          <span class="card-code">MODÜL 01 • PAZAR YERİ</span>
           <span class="card-badge-small" style="background: var(--yellow); color: #000;">TİCARET</span>
         </div>
-        <h3>Dinamik Piyasa & Müzakere Motoru</h3>
+        <h3>Dinamik İlanlar ve Müşteri Pazarlıkları</h3>
         <p>
-          Her in-game gününde baştan şekillenen Maslak ve Kadıköy oto pazarı ilanları. Alıcı psikolojisi, şüpheci memur, galerici esnafı ve zengin koleksiyoncu gibi onlarca farklı müşteri arketipiyle çok kademeli teklif savaşları.
+          Her oyun gününde güncellenen pazar yeri ilanları. Şüpheci memur, galerici esnafı ve koleksiyoncu gibi farklı müşteri arketipiyle çok turlu teklif değerlendirmeleri yapın.
         </p>
       </div>
 
-      <!-- Bento 2: TÜV Inspection -->
       <div class="bento-card bento-4">
         <div class="card-meta-head">
-          <span class="card-code">MODÜL: TÜV_EKSPERTİZ</span>
+          <span class="card-code">MODÜL 02 • EKSPERTİZ</span>
           <span class="card-badge-small" style="background: var(--cyan); color: #000;">MUAYENE</span>
         </div>
-        <h3>Ekspertiz İstasyonu</h3>
+        <h3>Detaylı Araç Denetimi</h3>
         <p>
-          Motor kondisyonu, şanzıman sağlığı, tramer hasar kaydı ve şüpheli kilometre analizi. Sürpriz masrafları önleyin.
+          Motor kondisyonu, şanzıman sağlığı, tramer hasar kaydı ve kilometre orijinalliğini analiz ederek sürpriz masrafları önleyin.
         </p>
       </div>
 
-      <!-- Bento 3: Financial Assets -->
       <div class="bento-card bento-6">
         <div class="card-meta-head">
-          <span class="card-code">MODÜL: OTOMOTİV_BORSA</span>
+          <span class="card-code">MODÜL 03 • YATIRIM</span>
           <span class="card-badge-small" style="background: var(--green); color: #000;">FİNANS</span>
         </div>
-        <h3>Borsa & Yan İşletmeler</h3>
+        <h3>Tesisler ve Borsa Gelirleri</h3>
         <p>
-          Oto yıkama tesisi, çekici filosu ve kaporta fırını kurarak pasif gelir sağlayın. Günlük hisse senedi alım satımıyla kasanızı katlayın.
+          Oto yıkama, çekici filosu ve boya atölyesi işleterek pasif gelir elde edin. Otomotiv hisselerine yatırım yaparak sermayenizi katlayın.
         </p>
       </div>
 
-      <!-- Bento 4: Privacy & Offline Architecture -->
       <div class="bento-card bento-6">
         <div class="card-meta-head">
-          <span class="card-code">MİMARİ: HIVE_OFFLINE</span>
-          <span class="card-badge-small" style="background: var(--purple); color: #FFF;">GÜVENLİK</span>
+          <span class="card-code">MODÜL 04 • GÜVENLİK</span>
+          <span class="card-badge-small" style="background: var(--yellow); color: #000;">VERİ GÜVENLİĞİ</span>
         </div>
-        <h3>100% Yerel & Güvenli Mimari</h3>
+        <h3>Çevrimdışı ve Güvenli Kayıt</h3>
         <p>
-          Kişisel verileriniz harici sunuculara aktarılmaz. Tüm garaj envanteri, başarımlar ve muhasebe defterleri cihazınızda şifreli yerel veritabanında saklanır.
+          Tüm garaj envanteri, başarımlar ve muhasebe kayıtları yalnızca kendi cihazınızda şifreli yerel veritabanında saklanır.
         </p>
       </div>
 
     </section>
 
-    <!-- Perforated Thermal Receipt: app-ads.txt Verification -->
     <section id="dogrulama" class="receipt-container">
       <div class="rubber-stamp">[ ONAYLANDI • VERIFIED ]</div>
       <div class="receipt-header">
-        <div class="receipt-title">GOOGLE ADMOB RESMİ YETKİLENDİRME BELGESİ</div>
-        <div class="receipt-sub">İLK DÜZEY ETKİ ALANI DOĞRULAMA FİŞİ • APP-ADS.TXT PROTOKOLÜ</div>
+        <div class="receipt-title">GOOGLE ADMOB RESMİ YAYINCI DOĞRULAMA BELGESİ</div>
+        <div class="receipt-sub">APP-ADS.TXT ETKİ ALANI DOĞRULAMA PROTOKOLÜ</div>
       </div>
 
       <table class="receipt-table">
@@ -862,12 +800,11 @@
 
       <div style="text-align: center;">
         <a href="app-ads.txt" target="_blank" class="nav-btn" style="display: inline-flex; justify-content: center; background: #000; color: #FFF;">
-          Doğrulama Dosyasını Doğrudan Görüntüle (app-ads.txt)
+          app-ads.txt Dosyasını Aç
         </a>
       </div>
     </section>
 
-    <!-- Support Desk & Direct Interactive Dispatcher -->
     <section id="destek" class="terminal-box">
       <div class="terminal-header">
         <div class="terminal-dots">
@@ -875,89 +812,87 @@
           <div class="terminal-dot" style="background: #FFE600;"></div>
           <div class="terminal-dot" style="background: #00FF66;"></div>
         </div>
-        <div class="terminal-title">BALAX_STUDIO // DESTEK_HATTI_TERMINALI</div>
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green);">DURUM: AKTİF</div>
+        <div class="terminal-title">BALAX STUDIO DESTEK MASASI</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green);">DURUM: AÇIK</div>
       </div>
 
       <p style="color: var(--text-dim); margin-bottom: 24px; font-size: 15px;">
-        Oyun içi mekanikler, cihaz uyumluluğu, geri bildirimler veya teknik hata raporları için doğrudan stüdyomuza iletiniz.
+        Oyun içi mekanikler, cihaz uyumluluğu, öneriler veya hata bildirimleri için doğrudan stüdyomuzla iletişime geçebilirsiniz.
       </p>
 
       <form id="supportForm" onsubmit="handleSupportSubmit(event)">
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">Adınız / Oyuncu Rumuzunuz</label>
-            <input type="text" id="senderName" class="form-input" placeholder="Örn: Maslak Galericisi" required>
+            <label class="form-label">Adınız veya Oyuncu Rumuzunuz</label>
+            <input type="text" id="senderName" class="form-input" placeholder="Örn: Ahmet Yılmaz" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Cihaz Modeli & İşletim Sistemi</label>
+            <label class="form-label">Cihaz Modeli ve İşletim Sistemi</label>
             <input type="text" id="deviceModel" class="form-input" placeholder="Örn: iPhone 14 iOS 17 / Samsung S23" required>
           </div>
 
           <div class="form-group full-width">
             <label class="form-label">Konu Başlığı</label>
-            <input type="text" id="ticketSubject" class="form-input" placeholder="Örn: Müzakere Ekranı Geri Bildirimi / Hata Bildirimi" required>
+            <input type="text" id="ticketSubject" class="form-input" placeholder="Örn: Müzakere Ekranı Geri Bildirimi" required>
           </div>
 
           <div class="form-group full-width">
-            <label class="form-label">Mesajınız / Talebiniz</label>
-            <textarea id="ticketBody" class="form-textarea" placeholder="Lütfen karşılaştığınız durumu veya önerinizi detaylıca açıklayınız..." required></textarea>
+            <label class="form-label">Mesajınız</label>
+            <textarea id="ticketBody" class="form-textarea" placeholder="Lütfen görüşünüzü veya karşılaştığınız durumu detaylıca yazınız..." required></textarea>
           </div>
         </div>
 
         <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
           <button type="submit" class="btn-main">
-            E-Posta İstemcisiyle Gönder
+            E-Posta ile Gönder
           </button>
           <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);">
-            Doğrudan E-Posta: <strong style="color: var(--yellow);">hib0796@gmail.com</strong>
+            Doğrudan İletişim: <strong style="color: var(--yellow);">hib0796@gmail.com</strong>
           </span>
         </div>
       </form>
     </section>
 
-    <!-- Privacy Policy Accordion & Compliance -->
     <section id="gizlilik" class="policy-terminal">
       <h2 class="policy-title">
-        Resmi Gizlilik Politikası & Yasal Beyan
+        Resmi Gizlilik Politikası
       </h2>
       <p style="color: var(--text-dim); margin-bottom: 20px; font-size: 14px;">
-        Son Güncelleme: 30 Ağustos 2026 • Apple App Store & Google Play Tam Uyumluluk Beyanı
+        Son Güncelleme: 30 Ağustos 2026 • Apple App Store ve Google Play Uyumlu
       </p>
 
       <div class="policy-content-scroll">
-        <h4>1. GİRİŞ VE VERİ SORUMLUSU</h4>
+        <h4>1. GİRİŞ VE SORUMLULUK</h4>
         <p>
           Balax Studio olarak kullanıcılarımızın gizlilik haklarını korumayı temel ilke kabul ediyoruz. Bu metin, <strong>Galeriden Tycoon</strong> mobil oyununu kullandığınızda geçerli olan veri işleme prensiplerini açıklamaktadır.
         </p>
 
         <h4>2. İŞLENEN VE İŞLENMEYEN VERİLER</h4>
         <p>
-          Galeriden Tycoon, yerel öncelikli bir simülasyon oyunudur. Oyuncuların adı, e-posta adresi, telefon numarası, kişisel rehberi veya konum bilgisi sunucularımıza aktarılmaz veya toplanmaz.
+          Galeriden Tycoon, yerel öncelikli bir simülasyon oyunudur. Oyuncuların adı, e-posta adresi, telefon numarası, rehberi veya konum bilgisi sunucularımıza aktarılmaz ve toplanmaz.
         </p>
         <p>
-          Oyun içi sermaye, araç koleksiyonu, modifiye geçmişi ve ekspertiz kayıtları yalnızca kullanıcının kendi cihazında yerel depolama alanında şifreli olarak tutulur.
+          Oyun içi sermaye, araç koleksiyonu ve ekspertiz kayıtları yalnızca kullanıcının kendi cihazında yerel depolama alanında şifreli olarak tutulur.
         </p>
 
-        <h4>3. REKLAM VE ENTEGRASYONLAR (GOOGLE ADMOB)</h4>
+        <h4>3. REKLAM ENTEGRASYONU</h4>
         <p>
-          Oyunumuzda zorunlu banner reklamlar bulunmaz. Oyuncunun kendi rızasıyla ödül kazanmak için başlattığı ödüllü reklamlar için Google AdMob kullanılmaktadır. Google, sahtekarlık önleme ve reklam sıklığı optimizasyonu amacıyla anonim donanım tanımlayıcılarını işleyebilir.
+          Oyunumuzda zorunlu banner reklamlar bulunmaz. Oyuncunun kendi isteğiyle ekstra ödül kazanmak için izlediği ödüllü reklamlar için Google AdMob servisi kullanılır. Google, sahtekarlık önleme ve teknik sunum amacıyla anonim donanım tanımlayıcılarını işleyebilir.
         </p>
 
         <h4>4. VERİLERİ SİLME HAKKI</h4>
         <p>
-          Oyuncular, oyun içerisindeki Ayarlar menüsünden tüm yerel kayıtlarını diledikleri an tek tıkla sıfırlayabilirler. Uygulama cihazdan kaldırıldığında tüm yerel veriler kalıcı olarak silinir.
+          Oyuncular, oyun içerisindeki Ayarlar menüsünden tüm yerel kayıtlarını diledikleri an sıfırlayabilirler. Uygulama cihazdan kaldırıldığında yerel veriler kalıcı olarak silinir.
         </p>
 
-        <h4>5. İLETİŞİM KANALI</h4>
+        <h4>5. İLETİŞİM</h4>
         <p>
-          Gizlilik ve veri güvenliği ile ilgili tüm sorularınız için doğrudan <strong>hib0796@gmail.com</strong> adresinden stüdyomuza ulaşabilirsiniz.
+          Gizlilik ve veri güvenliği ile ilgili tüm sorularınız için doğrudan <strong>hib0796@gmail.com</strong> adresinden bize ulaşabilirsiniz.
         </p>
       </div>
     </section>
 
-    <!-- Footer -->
     <footer>
       <div>&copy; 2026 BALAX STUDIO • TÜM HAKLARI SAKLIDIR.</div>
       <div class="footer-links">
@@ -990,7 +925,7 @@
       const subject = document.getElementById('ticketSubject').value;
       const body = document.getElementById('ticketBody').value;
 
-      const formattedBody = `Merhaba Balax Studio,\n\nGönderen: ${name}\nCihaz & Sistem: ${device}\n\nMesaj & Talep:\n${body}\n\n[Galeriden Tycoon Destek Talebi]`;
+      const formattedBody = `Merhaba Balax Studio,\n\nGönderen: ${name}\nCihaz: ${device}\n\nMesaj:\n${body}\n\n[Galeriden Tycoon Destek]`;
       const mailtoUrl = `mailto:hib0796@gmail.com?subject=${encodeURIComponent('Galeriden Destek: ' + subject)}&body=${encodeURIComponent(formattedBody)}`;
 
       window.location.href = mailtoUrl;
