@@ -261,7 +261,7 @@ class SideBusinessDetailSheet extends ConsumerWidget {
                               context,
                               titleBadge: context.tr('rush_lore_construction_title'),
                               targetTitle: '${business.type.getLocalizedName(Localizations.localeOf(context).languageCode)} • ${context.tr('side_biz_status_building')}',
-                              targetSubtitle: '${business.constructionDaysRemaining} ${context.tr('rush_lore_days_remaining', {'days': business.constructionDaysRemaining.toString()})}',
+                              targetSubtitle: context.tr('rush_lore_days_remaining', {'days': business.constructionDaysRemaining.toString()}),
                               loreDescription: context.tr('rush_lore_construction_desc'),
                               icon: Icons.apartment_rounded,
                               badgeColor: AppColors.brutalYellow,

@@ -816,7 +816,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             actionLabel: 'Aktif',
             badgeColor: const Color(0xFF94A3B8),
             isDark: isDark,
-            onTap: () {},
+            onTap: null,
           ),
           const SizedBox(height: 10),
 

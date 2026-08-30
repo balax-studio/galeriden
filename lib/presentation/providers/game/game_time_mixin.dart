@@ -472,7 +472,7 @@ mixin GameTimeMixin on GameBaseNotifier {
               id: 'staff_leave_end_${DateTime.now().millisecondsSinceEpoch}_${s.id}',
               title: 'PERSONEL İZİNDEN DÖNDÜ!',
               description:
-                  '${s.name} dinlenme iznini tamamladı, enerjisini toplayarak (%$recoveredEnergy) göreve geri döndü!',
+                  '${s.name} dinlenme iznini tamamladı, enerjisini toplayarak - %$recoveredEnergy Enerji ile - göreve geri döndü!',
               type: GameEventType.goodEvent,
               amount: 0.0,
               date: DateTime.now(),
