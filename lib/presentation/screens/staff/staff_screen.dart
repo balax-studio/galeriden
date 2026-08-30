@@ -387,7 +387,8 @@ class StaffScreen extends ConsumerWidget {
         subtitle: context.tr('staff_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.punchCardDrop,
         statusBadge: NeoBrutalBadge(
-          text: '${game.hiredStaff.length} USTA',
+          text: context.tr('staff_badge_count',
+              {'count': '${game.hiredStaff.length}'}),
           backgroundColor: AppColors.brutalYellow,
           textColor: Colors.black,
           fontSize: 9.5,

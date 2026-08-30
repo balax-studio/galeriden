@@ -558,7 +558,9 @@ class BranchScreen extends ConsumerWidget {
                                                 Text(
                                                   context.tr(
                                                       'branch_congrats_desc', {
-                                                    'name': b.name,
+                                                    'name': b
+                                                        .getLocalizedName(
+                                                            context),
                                                     'cap': '${b.maxGarageSlots}'
                                                   }),
                                                   textAlign: TextAlign.center,

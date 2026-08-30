@@ -20,6 +20,7 @@ import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
 import '../../../domain/usecases/smart_office_hook_engine.dart';
+import '../../../domain/usecases/gossip_engine.dart';
 import 'game_base_notifier.dart';
 
 mixin GameInventoryMixin on GameBaseNotifier {
@@ -674,7 +675,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
         isDost ? (gossip.cost * 0.50).roundToDouble() : gossip.cost;
     if (state.balance < effectiveCost) return false;
 
-    final updatedGossips = state.activeGossips.map((g) {
+    final currentGossips = state.activeGossips.isNotEmpty
+        ? state.activeGossips
+        : GossipEngine.generateDailyGossips(state.currentDay);
+
+    final updatedGossips = currentGossips.map((g) {
       if (g.id == gossip.id) {
         return g.copyWith(isPurchased: true);
       }

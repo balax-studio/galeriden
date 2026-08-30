@@ -86,6 +86,40 @@ void main() {
       expect(purchased.blackMarketSellerAlias, equals('Liman Kaçakçısı Rıza'));
     });
 
+    test('buyBlackMarketCar with isCleansed=true sets clean attributes and 0 risk', () {
+      final notifier = GameNotifier();
+      final bmCar = BlackMarketCarModel(
+        id: 'bm_cleansed_test',
+        brand: 'Merso',
+        modelName: 'G-63 Tuğla V8',
+        modelYear: 2023,
+        askingPrice: 800000,
+        realMarketValue: 6000000,
+        riskType: 'change_vin',
+        riskLevelPercent: 50,
+        sellerAlias: 'Gölge Kadir',
+        riskDescription: 'Change şasi numaralı araç.',
+      );
+
+      notifier.state = notifier.state.copyWith(
+        balance: 2000000,
+        maxGarageSlots: 10,
+        blackMarketCars: [bmCar],
+        ownedCars: [],
+      );
+
+      final success = notifier.buyBlackMarketCar(bmCar.id, isCleansed: true);
+      expect(success, isTrue);
+      expect(notifier.state.ownedCars.length, equals(1));
+
+      final purchased = notifier.state.ownedCars.first;
+      expect(purchased.isBlackMarket, isFalse);
+      expect(purchased.blackMarketRiskPercent, equals(0));
+      expect(purchased.blackMarketRiskType, equals('cleansed'));
+      expect(purchased.expertise.isMileageTampered, isFalse);
+      expect(purchased.modelName.contains('Aklanmış'), isTrue);
+    });
+
     test('advanceGameDay processes black market risks and generates contextual negative events', () {
       final notifier = GameNotifier();
       final highRiskCar = CarModel(

@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/gossip_item_model.dart';
+import '../../../domain/usecases/gossip_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -38,7 +39,9 @@ class IndustryGossipScreen extends ConsumerWidget {
       );
     }
 
-    final gossips = game.activeGossips;
+    final gossips = game.activeGossips.isNotEmpty
+        ? game.activeGossips
+        : GossipEngine.generateDailyGossips(game.currentDay);
 
     return Scaffold(
       backgroundColor:

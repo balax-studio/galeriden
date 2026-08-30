@@ -407,7 +407,7 @@ class DashboardOfficeView extends ConsumerWidget {
                               const SizedBox(height: 3),
                               Text(
                                 isHookUsed
-                                    ? '"Bugünkü fırsatı değerlendirdin. Sanayide yeni bir haber çıktığında sana ilk ben haber vereceğim!"'
+                                    ? '"${context.tr('office_hook_used_dialogue')}"'
                                     : smartHook.storyDialogue,
                                 style: TextStyle(
                                   fontSize: 11,
@@ -419,7 +419,8 @@ class DashboardOfficeView extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Ödül: ${smartHook.rewardDescription}',
+                                context.tr('office_reward_prefix',
+                                    {'reward': smartHook.rewardDescription}),
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w700,

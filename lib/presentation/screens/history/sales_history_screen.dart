@@ -294,23 +294,23 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                         insetPadding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 24),
                         child: ThermalReceiptCard(
-                          title: 'NOTER SATIŞ SENEDİ ARŞİVİ',
+                          title: context.tr('history_receipt_title'),
                           subtitle: sale.carTitle,
                           receiptNumber:
                               'SLS-${sale.id.substring(0, math.min(6, sale.id.length)).toUpperCase()}',
                           dateText: formattedDate,
                           items: [
                             ReceiptLineItem(
-                                label: 'Alış Bedeli',
+                                label: context.tr('history_receipt_purchase_price'),
                                 value: CurrencyFormatter.format(
                                     sale.purchasePrice)),
                             ReceiptLineItem(
-                                label: 'Satış Bedeli',
+                                label: context.tr('history_receipt_sale_price'),
                                 value:
                                     CurrencyFormatter.format(sale.salePrice),
                                 isBold: true),
                             ReceiptLineItem(
-                              label: 'Net Kâr / Zarar',
+                              label: context.tr('history_receipt_net_profit'),
                               value:
                                   '${isProfitable ? '+' : ''}${CurrencyFormatter.format(sale.netProfit)} • %${profitPercentage.toStringAsFixed(1)}',
                               textColor: isProfitable
@@ -319,19 +319,22 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                               isBold: true,
                             ),
                             if (sale.isConsignment)
-                              const ReceiptLineItem(
-                                  label: 'İşlem Tipi', value: 'KONSİNYE SATIŞ'),
+                              ReceiptLineItem(
+                                  label: context.tr('history_receipt_tx_type'),
+                                  value: context.tr('history_receipt_tx_consignment')),
                           ],
-                          totalLabel: 'Tahsil Edilen Tutar',
+                          totalLabel: context.tr('history_receipt_collected_amount'),
                           totalAmount: CurrencyFormatter.format(sale.salePrice),
                           stampOverlay: NeoBrutalStamp(
-                            text: isProfitable ? 'KÂRLI SATIŞ' : 'ZARARINA SATIŞ',
+                            text: isProfitable
+                                ? context.tr('history_receipt_stamp_profit')
+                                : context.tr('history_receipt_stamp_loss'),
                             color: isProfitable
                                 ? const Color(0xFF00E575)
                                 : const Color(0xFFEF4444),
                           ),
                           bottomAction: NeoBrutalButton(
-                            label: 'KAPAT',
+                            label: context.tr('btn_close'),
                             icon: Icons.close_rounded,
                             backgroundColor: const Color(0xFFFFDE59),
                             textColor: Colors.black,

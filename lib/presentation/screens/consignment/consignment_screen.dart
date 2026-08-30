@@ -344,7 +344,7 @@ class ConsignmentScreen extends ConsumerWidget {
                     context.tr('consignment_owner_short', {
                       'owner': (car.consignmentOwnerName?.isNotEmpty ?? false)
                           ? car.consignmentOwnerName!
-                          : 'Müşteri',
+                          : context.tr('consignment_default_customer'),
                       'days': '${car.consignmentDaysRemaining}',
                     }),
                     style: TextStyle(
@@ -425,7 +425,7 @@ class ConsignmentScreen extends ConsumerWidget {
                           'owner':
                               (car.consignmentOwnerName?.isNotEmpty ?? false)
                                   ? car.consignmentOwnerName!
-                                  : 'Esnaf Müşterisi',
+                                  : context.tr('consignment_default_esnaf'),
                           'year': '${car.modelYear}',
                           'mileage': '${car.expertise.mileage}',
                         }),

@@ -38,6 +38,8 @@ import '../../../domain/usecases/loan_settlement_engine.dart';
 import '../../../domain/usecases/stock_market_engine.dart';
 import '../../../domain/usecases/rental_progression_engine.dart';
 import '../../../domain/usecases/side_business_engine.dart';
+import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/gossip_item_model.dart';
 
 import 'game_base_notifier.dart';
 
@@ -775,7 +777,7 @@ mixin GameTimeMixin on GameBaseNotifier {
             id: 'consignment_parking_${DateTime.now().millisecondsSinceEpoch}',
             title: 'Emanet Otopark & Sergileme Geliri',
             description:
-                'Vitrindeki emanet araçlardan günlük toplam +₺${dailyParkingEarnings.round()} sergileme ücreti kazanıldı.',
+                'Vitrindeki emanet araçlardan günlük toplam ${CurrencyFormatter.format(dailyParkingEarnings)} sergileme ücreti kazanıldı.',
             amount: dailyParkingEarnings,
             type: GameEventType.income,
             date: DateTime.now(),
@@ -790,8 +792,11 @@ mixin GameTimeMixin on GameBaseNotifier {
       List<CarModel> cars,
       int reputation,
       List<GameEventModel> events) {
-    final hasGossipWarning = state.activeGossips
-        .any((g) => g.id == 'gossip_police_raid' && g.isPurchased);
+    final hasGossipWarning = state.activeGossips.any((g) =>
+        (g.type == GossipType.rivalIntel ||
+            g.id.contains('police_raid') ||
+            g.id.contains('tasfiye')) &&
+        g.isPurchased);
     final hasLegalAdvisor =
         state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
 

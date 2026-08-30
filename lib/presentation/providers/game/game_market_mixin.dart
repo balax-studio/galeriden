@@ -1516,7 +1516,7 @@ mixin GameMarketMixin on GameBaseNotifier {
   }
 
   /// Karaborsadan riskli (change/soruşturmalı) araç satın alma
-  bool buyBlackMarketCar(String carId) {
+  bool buyBlackMarketCar(String carId, {bool isCleansed = false}) {
     if (state.ownedCars.length >= state.maxGarageSlots) return false;
 
     final index = state.blackMarketCars.indexWhere((c) => c.id == carId);
@@ -1532,11 +1532,13 @@ mixin GameMarketMixin on GameBaseNotifier {
         : bmCar.askingPrice;
     if (state.balance < finalCost) return false;
 
-    // Convert to CarModel in garage with active black market risk tags
+    // Convert to CarModel in garage with active black market risk tags or cleansed state
     final newCar = CarModel(
       id: 'bm_owned_${DateTime.now().millisecondsSinceEpoch}',
       brand: bmCar.brand,
-      modelName: '${bmCar.modelName} • Karaborsa',
+      modelName: isCleansed
+          ? '${bmCar.modelName} • Aklanmış'
+          : '${bmCar.modelName} • Karaborsa',
       modelYear: bmCar.modelYear,
       bodyType: 'Spor',
       colorHex: '0xFF111111',
@@ -1547,16 +1549,16 @@ mixin GameMarketMixin on GameBaseNotifier {
       baseMarketValue: bmCar.realMarketValue,
       currentPurchasePrice: finalCost,
       isRare: true,
-      isBlackMarket: true,
-      blackMarketRiskType: bmCar.riskType,
-      blackMarketRiskPercent: bmCar.riskLevelPercent,
+      isBlackMarket: !isCleansed,
+      blackMarketRiskType: isCleansed ? 'cleansed' : bmCar.riskType,
+      blackMarketRiskPercent: isCleansed ? 0 : bmCar.riskLevelPercent,
       blackMarketSellerAlias: bmCar.sellerAlias,
       expertise: ExpertiseReport(
         engineCondition: 85.0,
         transmissionCondition: 85.0,
         tramerAmount: 0,
         mileage: 45000,
-        isMileageTampered: true,
+        isMileageTampered: !isCleansed,
         bodyParts: const {},
         partConditions: const {},
       ),

@@ -289,11 +289,11 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                 child: Stack(
                   children: [
                     if (isCleansed)
-                      const Positioned(
+                      Positioned(
                         right: 4,
                         top: 4,
                         child: FakeDocInkSpreadWidget(
-                            stampText: 'AKLANDI', size: 55),
+                            stampText: context.tr('bm_stamp_cleansed'), size: 55),
                       ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,8 +454,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                                       AdService.instance
                                           .showRewardedAdWithFallback(
                                         context: context,
-                                        customRewardTitle:
-                                            'Gölge Muhbir & Sahte Plaka Evrakı',
+                                        customRewardTitle: context
+                                            .tr('bm_ad_reward_fake_plate_title'),
                                         onRewardEarned: () {
                                           setState(() {
                                             _cleansedRiskCarIds.add(car.id);
@@ -503,7 +503,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
 
                                     final success = ref
                                         .read(gameProvider.notifier)
-                                        .buyBlackMarketCar(car.id);
+                                        .buyBlackMarketCar(car.id,
+                                            isCleansed: isCleansed);
                                     if (success) {
                                       NotificationService.showSuccess(
                                         context,
@@ -756,7 +757,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
           context,
           title: context.tr('bm_container_tier_standard_title'),
           badge: '%15',
-          priceRange: '₺2.000.000 • ₺4.200.000',
+          priceRange:
+              '${CurrencyFormatter.formatShort(2000000)} • ${CurrencyFormatter.formatShort(4200000)}',
           desc: context.tr('bm_container_tier_standard_desc'),
           accentColor: const Color(0xFF38BDF8),
           isDark: isDark,
@@ -767,7 +769,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
           context,
           title: context.tr('bm_container_tier_rare_title'),
           badge: '%40',
-          priceRange: '₺4.200.000 • ₺6.500.000',
+          priceRange:
+              '${CurrencyFormatter.formatShort(4200000)} • ${CurrencyFormatter.formatShort(6500000)}',
           desc: context.tr('bm_container_tier_rare_desc'),
           accentColor: const Color(0xFFF59E0B),
           isDark: isDark,
@@ -778,7 +781,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
           context,
           title: context.tr('bm_container_tier_exotic_title'),
           badge: '%30',
-          priceRange: '₺7.000.000 • ₺10.500.000',
+          priceRange:
+              '${CurrencyFormatter.formatShort(7000000)} • ${CurrencyFormatter.formatShort(10500000)}',
           desc: context.tr('bm_container_tier_exotic_desc'),
           accentColor: const Color(0xFF10B981),
           isDark: isDark,
@@ -789,7 +793,8 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
           context,
           title: context.tr('bm_container_tier_hyper_title'),
           badge: '%15',
-          priceRange: '₺13.500.000 • ₺22.000.000',
+          priceRange:
+              '${CurrencyFormatter.formatShort(13500000)} • ${CurrencyFormatter.formatShort(22000000)}',
           desc: context.tr('bm_container_tier_hyper_desc'),
           accentColor: const Color(0xFFA855F7),
           isDark: isDark,

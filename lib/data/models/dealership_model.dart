@@ -1020,6 +1020,7 @@ class DealershipModel {
       'İkitelli Sanayi': 0.05,
       'Maslak Plaza': 0.05,
       'Bağcılar Oto Pazarı': 0.05,
+      'Etiler Galericiler Sitesi': 0.05,
       'Nişantaşı Vitrin': 0.02,
       'Kadıköy Klasik Sokağı': 0.02,
       'Ankara Kızılay Hattı': 0.05,

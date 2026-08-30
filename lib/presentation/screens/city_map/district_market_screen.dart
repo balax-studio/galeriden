@@ -447,23 +447,36 @@ class DistrictMarketScreen extends ConsumerWidget {
                                     );
                                 if (success) {
                                   final updated =
-                                      ((districtShares[district.name] ?? 0.05) +
+                                      ((districtShares[district.name] ??
+                                                      districtShares[
+                                                          district.key] ??
+                                                      0.05) +
                                                   0.05)
                                               .clamp(0.0, 1.0) *
                                           100;
                                   NotificationService.showSuccess(
                                     context,
-                                    '${district.name} semtinde yerel kampanya başlatıldı! Pazar payı: %${updated.round()}',
+                                    context.tr('district_toast_boost_success', {
+                                      'district':
+                                          district.getLocalizedName(context),
+                                      'share': '${updated.round()}',
+                                    }),
                                   );
                                 } else {
                                   if (game.balance < boostCost) {
                                     NotificationService.showError(
                                       context,
-                                      'Reklam kampanyası için ${CurrencyFormatter.formatShort(boostCost)} bakiye gereklidir.',
+                                      context.tr(
+                                          'district_toast_boost_insufficient', {
+                                        'cost': CurrencyFormatter.formatShort(
+                                            boostCost),
+                                      }),
                                     );
                                   } else {
-                                    NotificationService.showInfo(context,
-                                        'Bu semtte %100 maksimum hakimiyete ulaşıldı!');
+                                    NotificationService.showInfo(
+                                      context,
+                                      context.tr('district_toast_boost_maxed'),
+                                    );
                                   }
                                 }
                               },
