@@ -23,6 +23,7 @@ abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
   void refreshMarketTrends();
   void triggerOrganicOffers();
   void completeTutorial();
+  void skipTutorial();
 
   void adjustNpcRelationship(String npcId, int delta) {
     final current = state.npcRelationships[npcId] ?? 50;

@@ -17,6 +17,8 @@ import '../../../data/models/daily_login_reward_model.dart';
 import '../../../data/models/stock_model.dart';
 import '../../../data/models/game_event_model.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../data/models/offer_model.dart';
+import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/risk_engine.dart';
@@ -982,6 +984,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       if (listingPhotoLocation == 'scenic') photoCost += 800.0;
     }
 
+    final wasListedBefore = existing.isListed;
     final updatedCar = existing.copyWith(
       customListingPrice: customPrice,
       declarationType: declaration ?? existing.declarationType,
@@ -995,9 +998,21 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
 
+    var newIncomingOffers = List<OfferModel>.from(state.incomingOffers);
+    // If during tutorial the player lists their car, generate an instant buyer offer!
+    if (!state.tutorialCompleted && !wasListedBefore && updatedCar.isListed) {
+      final instantOffer = NegotiationEngine.generateBuyerOffer(
+        updatedCar,
+        updatedCar.listingPrice,
+        isFinanceUnlocked: false,
+      );
+      newIncomingOffers.add(instantOffer);
+    }
+
     state = state.copyWith(
       balance: (state.balance - photoCost).clamp(0.0, double.infinity),
       ownedCars: updatedCars,
+      incomingOffers: newIncomingOffers,
     );
     saveState();
   }

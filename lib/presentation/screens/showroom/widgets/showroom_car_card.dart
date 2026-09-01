@@ -14,6 +14,7 @@ import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/visitor_queue_engine.dart';
 import '../../../providers/game_provider.dart';
+import '../../../providers/tutorial_provider.dart';
 import '../../../widgets/animated_rolling_counter.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -62,29 +63,101 @@ class ShowroomCarCard extends ConsumerWidget {
       marketSenseBonus: game.skills.marketSense * 0.05,
     );
 
+    final isTutorialFocusCar =
+        !game.tutorialCompleted && car.id == 'car_heritage_dede';
+
     return RepaintBoundary(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: FoilShimmerWidget(
-          isEnabled: car.isRare,
+          isEnabled: car.isRare || isTutorialFocusCar,
           child: NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor: hasOffer
-                ? const Color(0xFF00E575)
-                : (car.isDoped
-                    ? const Color(0xFFFFDE59)
-                    : (isDark
-                        ? const Color(0xFF2A3142)
-                        : const Color(0xFF0F172A))),
+            borderColor: isTutorialFocusCar
+                ? const Color(0xFFFFDE59)
+                : (hasOffer
+                    ? const Color(0xFF00E575)
+                    : (car.isDoped
+                        ? const Color(0xFFFFDE59)
+                        : (isDark
+                            ? const Color(0xFF2A3142)
+                            : const Color(0xFF0F172A)))),
             borderRadius: 10,
-            borderWidth: 2.5,
+            borderWidth: isTutorialFocusCar ? 3.0 : 2.5,
             shadowOffset: const Offset(4.5, 4.5),
             showDotGrid: true,
             showHazardHeader: car.isStaleListing || car.isBarnFind,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (isTutorialFocusCar) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          NeoBrutalBadge(
+                            text: context.tr('tut_action_badge'),
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 9.5,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                          ),
+                          const SizedBox(width: 6),
+                          const PulsingDot(color: Color(0xFFFFDE59), size: 6),
+                          const SizedBox(width: 4),
+                          Text(
+                            !car.isListed
+                                ? context.tr('tut_step_list_title')
+                                : (hasOffer
+                                    ? context.tr('tut_step_sell_title')
+                                    : context.tr('badge_has_offer')),
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: () {
+                          ref.read(gameProvider.notifier).skipTutorial();
+                          ref.read(tutorialProvider.notifier).skipTutorial();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF1E2330)
+                                : const Color(0xFFE2E8F0),
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Text(
+                            context.tr('onboarding_skip_btn'),
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              color: isDark
+                                  ? Colors.white70
+                                  : const Color(0xFF0F172A),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -868,23 +941,31 @@ class ShowroomCarCard extends ConsumerWidget {
                             ? context.tr('badge_showcase_locked')
                             : (car.isRented
                                 ? context.tr('badge_rented')
-                                : context.tr('edit_listing_btn')),
+                                : (isTutorialFocusCar && !car.isListed
+                                    ? context.tr('tut_step_list_title')
+                                    : context.tr('edit_listing_btn'))),
                         icon: car.isLockedInShowcase
                             ? Icons.lock_rounded
                             : (car.isRented
                                 ? Icons.key_rounded
-                                : Icons.edit_note_rounded),
+                                : (isTutorialFocusCar && !car.isListed
+                                    ? Icons.publish_rounded
+                                    : Icons.edit_note_rounded)),
                         backgroundColor:
                             (car.isLockedInShowcase || car.isRented)
                                 ? (isDark
                                     ? const Color(0xFF141721)
                                     : const Color(0xFFF1F5F9))
-                                : (isDark
-                                    ? const Color(0xFF1E2330)
-                                    : const Color(0xFFE2E8F0)),
+                                : (isTutorialFocusCar && !car.isListed
+                                    ? AppColors.brutalYellow
+                                    : (isDark
+                                        ? const Color(0xFF1E2330)
+                                        : const Color(0xFFE2E8F0))),
                         textColor: (car.isLockedInShowcase || car.isRented)
                             ? const Color(0xFF64748B)
-                            : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                            : (isTutorialFocusCar && !car.isListed
+                                ? Colors.black
+                                : (isDark ? Colors.white : const Color(0xFF0F172A))),
                         fontSize: 11,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         onPressed: () =>

@@ -1,28 +1,33 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum TutorialStep {
-  inspectCar, // 0: Dede mirası arabayı incele
-  openDamageList, // 1: Hasar ve arıza listesini aç
-  checkPart, // 2: Parça durumunu ve tamir maliyetini öğren
-  tryRepair, // 3: Tamir/sipariş kararını ver (Geçici / Usta / Yeni)
-  orderPart, // 4: Parça siparişini ver
-  waitDelivery, // 5: Sipariş teslimatını bekle
-  installPart, // 6: Teslim alınan parçayı araca monte et
-  startEngine, // 7: Motor ve araç durumunu kontrol et
-  seeValueIncrease, // 8: Değer artışını gör
-  listForSale, // 9: Arabayı ilana koy ve fiyat ayarla
-  completeSale, // 10: İlk müşteri teklifini kabul edip satışı tamamla
-  finished, // 11: Rehber tamamlandı!
+  inspectHeritageCar, // 0: Dede mirası arabayı incele
+  repairEnginePart, // 1: Hasarlı parçayı onar
+  listCarForSale, // 2: Arabayı ilana koy
+  acceptFirstOffer, // 3: İlk müşteri teklifini kabul et
+  completed, // 4: Rehber tamamlandı
 }
 
 class TutorialState {
   final TutorialStep step;
   final bool isActive;
 
-  TutorialState({
+  const TutorialState({
     required this.step,
     required this.isActive,
   });
+
+  bool get isCompleted => step == TutorialStep.completed;
+
+  TutorialState copyWith({
+    TutorialStep? step,
+    bool? isActive,
+  }) {
+    return TutorialState(
+      step: step ?? this.step,
+      isActive: isActive ?? this.isActive,
+    );
+  }
 }
 
 final tutorialProvider =
@@ -32,8 +37,8 @@ final tutorialProvider =
 
 class TutorialNotifier extends StateNotifier<TutorialState> {
   TutorialNotifier()
-      : super(TutorialState(
-          step: TutorialStep.inspectCar,
+      : super(const TutorialState(
+          step: TutorialStep.inspectHeritageCar,
           isActive: true,
         ));
 
@@ -42,7 +47,7 @@ class TutorialNotifier extends StateNotifier<TutorialState> {
     if (nextIndex < TutorialStep.values.length) {
       state = TutorialState(
         step: TutorialStep.values[nextIndex],
-        isActive: nextIndex < TutorialStep.finished.index,
+        isActive: nextIndex < TutorialStep.completed.index,
       );
     }
   }
@@ -50,13 +55,20 @@ class TutorialNotifier extends StateNotifier<TutorialState> {
   void setStep(TutorialStep newStep) {
     state = TutorialState(
       step: newStep,
-      isActive: newStep != TutorialStep.finished,
+      isActive: newStep != TutorialStep.completed,
+    );
+  }
+
+  void completeTutorial() {
+    state = const TutorialState(
+      step: TutorialStep.completed,
+      isActive: false,
     );
   }
 
   void skipTutorial() {
-    state = TutorialState(
-      step: TutorialStep.finished,
+    state = const TutorialState(
+      step: TutorialStep.completed,
       isActive: false,
     );
   }

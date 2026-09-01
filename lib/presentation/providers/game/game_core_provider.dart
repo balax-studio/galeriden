@@ -422,10 +422,29 @@ class GameCoreNotifier extends GameBaseNotifier
   @override
   void completeTutorial() {
     if (state.tutorialCompleted) return; // Prevent duplicate rewards
+    final updatedSkills = state.skills.copyWith(
+      xp: (state.skills.xp + 3000).clamp(3000, 1000000000),
+    );
+    final updatedMissions = MissionFactory.generateDailyMissions(
+      2,
+      unlockedBuildings: state.unlockedBuildings,
+    );
     state = state.copyWith(
       tutorialCompleted: true,
+      level: 2,
       balance: state.balance +
           50000.0, // Bonus capital reward for completing tutorial!
+      skills: updatedSkills,
+      activeMissions: updatedMissions,
+    );
+    saveState();
+  }
+
+  @override
+  void skipTutorial() {
+    if (state.tutorialCompleted) return;
+    state = state.copyWith(
+      tutorialCompleted: true,
     );
     saveState();
   }

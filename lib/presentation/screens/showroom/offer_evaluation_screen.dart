@@ -1424,6 +1424,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
       return;
     }
 
+    final wasTutorial = !ref.read(gameProvider).tutorialCompleted;
     final notaryResult = ref.read(gameProvider.notifier).processNotarySale(offer, customer);
 
     if (mounted) {
@@ -1436,9 +1437,85 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
         isBuying: false,
         eventResult: notaryResult,
         onComplete: () {
-          context.pop();
+          if (wasTutorial && mounted) {
+            _showTutorialCelebrationDialog(context);
+          } else {
+            context.pop();
+          }
         },
       );
     }
+  }
+
+  void _showTutorialCelebrationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(20),
+          backgroundColor: const Color(0xFF141721),
+          borderColor: const Color(0xFFFFDE59),
+          borderRadius: 14,
+          borderWidth: 3.0,
+          shadowOffset: const Offset(5, 5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFDE59),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2),
+                ),
+                child: const Icon(
+                  Icons.military_tech_rounded,
+                  size: 36,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                context.tr('tut_celebration_title'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                context.tr('tut_celebration_desc'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF94A3B8),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 20),
+              NeoBrutalButton(
+                label: context.tr('tut_celebration_btn'),
+                icon: Icons.arrow_forward_rounded,
+                fullWidth: true,
+                backgroundColor: const Color(0xFFFFDE59),
+                textColor: Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.pop();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

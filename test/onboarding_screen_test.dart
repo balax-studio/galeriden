@@ -60,8 +60,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  group('Onboarding Screen & Localization Tests', () {
-    testWidgets('1. OnboardingScreen renders Page 1 with localized Turkish strings and no raw keys with underscores',
+  group('Onboarding Screen & Single-Card FTUE Tests', () {
+    testWidgets('1. OnboardingScreen renders single punchy welcome card with Turkish localized strings',
         (WidgetTester tester) async {
       final container = ProviderContainer();
       container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
@@ -72,51 +72,15 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
 
-      // Check that all Turkish strings exist and are displayed
-      expect(find.text('TİCARET VE YÜKSELİŞ'), findsOneWidget);
-      expect(find.text('Kendi Oto Galeri İmparatorluğunu Kur'), findsOneWidget);
-      expect(find.text('İleri'), findsOneWidget);
-      expect(find.text('Atla'), findsOneWidget);
+      // Check single card strings
+      expect(find.text('DEDE MİRASI GARAJ'), findsOneWidget);
+      expect(find.text('Hasan Usta Yadigarı Garaj Seni Bekliyor'), findsOneWidget);
+      expect(find.text('Garajın Başına Geç'), findsOneWidget);
 
-      // Verify no raw keys with underscores are displayed as text on screen
-      expect(find.text('onboarding_tag_story'), findsNothing);
-      expect(find.text('onboarding_title_story'), findsNothing);
-      expect(find.text('onboarding_desc_story'), findsNothing);
-
-      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(milliseconds: 500));
-      container.dispose();
-    });
-
-    testWidgets('2. OnboardingScreen navigation sweeps through all 3 pages cleanly',
-        (WidgetTester tester) async {
-      final container = ProviderContainer();
-      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
-
-      await tester.pumpWidget(
-        buildOnboardingApp(locale: const Locale('tr'), container: container),
-      );
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.pumpAndSettle();
-
-      // Page 1
-      expect(find.text('TİCARET VE YÜKSELİŞ'), findsOneWidget);
-
-      // Advance to Page 2
-      await tester.tap(find.text('İleri'));
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
-      expect(find.text('SANAYİ VE USTA REKABETİ'), findsOneWidget);
-      expect(find.text('Araçları Onar, Modifiye Et ve Değerini Katla'), findsOneWidget);
-
-      // Advance to Page 3
-      await tester.tap(find.text('İleri'));
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
-      expect(find.text('FİNANS VE YATIRIM'), findsOneWidget);
-      expect(find.text('Borsa, Banka ve Gayrimenkul ile Büyü'), findsOneWidget);
-      expect(find.text('Galeriye Başla'), findsOneWidget);
+      // Verify no raw keys with underscores are displayed
+      expect(find.text('onboarding_single_tag'), findsNothing);
+      expect(find.text('onboarding_single_title'), findsNothing);
+      expect(find.text('onboarding_single_start_btn'), findsNothing);
 
       container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
       await tester.pumpWidget(const SizedBox());
@@ -124,7 +88,7 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('3. All 7 languages have complete onboarding translations without parentheses',
+    testWidgets('2. All 7 languages have complete FTUE & onboarding translations without parentheses',
         (WidgetTester tester) async {
       final maps = [
         trTranslations,
@@ -137,19 +101,22 @@ void main() {
       ];
 
       final expectedKeys = [
-        'onboarding_tycoon_subtitle',
-        'onboarding_skip_btn',
-        'onboarding_start_btn',
-        'onboarding_next_btn',
-        'onboarding_tag_story',
-        'onboarding_title_story',
-        'onboarding_desc_story',
-        'onboarding_tag_workshop',
-        'onboarding_title_workshop',
-        'onboarding_desc_workshop',
-        'onboarding_tag_market',
-        'onboarding_title_market',
-        'onboarding_desc_market',
+        'onboarding_single_tag',
+        'onboarding_single_title',
+        'onboarding_single_bullet_1',
+        'onboarding_single_bullet_2',
+        'onboarding_single_bullet_3',
+        'onboarding_single_start_btn',
+        'tut_step_inspect_title',
+        'tut_step_repair_title',
+        'tut_step_list_title',
+        'tut_step_sell_title',
+        'tut_celebration_title',
+        'tut_celebration_desc',
+        'tut_celebration_btn',
+        'tut_dashboard_guide_title',
+        'tut_dashboard_guide_desc',
+        'tut_dashboard_guide_btn',
       ];
 
       for (final map in maps) {
@@ -163,7 +130,7 @@ void main() {
       }
     });
 
-    testWidgets('4. OnboardingScreen does not overflow in compact height viewport',
+    testWidgets('3. OnboardingScreen does not overflow in compact height viewport',
         (WidgetTester tester) async {
       final container = ProviderContainer();
       container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
@@ -179,7 +146,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(find.text('HANDEL UND AUFSTIEG'), findsOneWidget);
+      expect(find.text('GROSSVATER ERBE GARAGE'), findsOneWidget);
 
       container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
       await tester.pumpWidget(const SizedBox());

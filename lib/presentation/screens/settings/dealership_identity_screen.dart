@@ -172,6 +172,28 @@ class _DealershipIdentityScreenState
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
         title: context.tr('identity_screen_title'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: NeoBrutalButton(
+              label: context.tr('identity_skip_to_dashboard_btn'),
+              backgroundColor: isDark
+                  ? const Color(0xFF1E2330)
+                  : const Color(0xFFE2E8F0),
+              textColor: isDark ? Colors.white70 : const Color(0xFF0F172A),
+              borderColor: isDark
+                  ? const Color(0xFF333B4F)
+                  : const Color(0xFF0F172A),
+              fontSize: 10.5,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              onPressed: () {
+                ref.read(gameProvider.notifier).skipTutorial();
+                ref.read(tutorialProvider.notifier).skipTutorial();
+                context.go('/dashboard');
+              },
+            ),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),

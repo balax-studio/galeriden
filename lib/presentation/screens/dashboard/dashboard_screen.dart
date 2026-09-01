@@ -24,6 +24,11 @@ import '../../widgets/dialogs/daily_login_sheet.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
 import '../marketplace/marketplace_screen.dart';
 import '../showroom/showroom_screen.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../providers/tutorial_provider.dart';
+import '../../widgets/pulsing_dot.dart';
+import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/neo_brutal_card.dart';
 import 'widgets/dashboard_banners.dart';
 import 'widgets/dashboard_missions_section.dart';
 import 'widgets/dashboard_office_view.dart';
@@ -52,36 +57,39 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         return;
       }
 
-      // Check Reciprocity Starter Gift (§4.3)
-      final hasSeenReciprocity =
-          prefs.getBool('has_seen_reciprocity_gift') ?? false;
-      if (!hasSeenReciprocity && game.currentDay <= 1) {
-        await prefs.setBool('has_seen_reciprocity_gift', true);
-        if (mounted) {
-          DashboardRetentionModals.showReciprocityStarterGiftModal(
-              context, ref);
+      // Secondary modals gated until first core loop is completed to prevent cognitive overload
+      if (game.tutorialCompleted) {
+        // Check Reciprocity Starter Gift (§4.3)
+        final hasSeenReciprocity =
+            prefs.getBool('has_seen_reciprocity_gift') ?? false;
+        if (!hasSeenReciprocity && game.currentDay <= 1) {
+          await prefs.setBool('has_seen_reciprocity_gift', true);
+          if (mounted) {
+            DashboardRetentionModals.showReciprocityStarterGiftModal(
+                context, ref);
+          }
         }
-      }
 
-      // Check Offline Progression Recap
-      final recap =
-          ref.read(gameProvider.notifier).consumePendingOfflineRecap();
-      if (recap != null && mounted) {
-        DashboardRetentionModals.showOfflineRecapModal(context, recap,
-            ref: ref);
-      }
+        // Check Offline Progression Recap
+        final recap =
+            ref.read(gameProvider.notifier).consumePendingOfflineRecap();
+        if (recap != null && mounted) {
+          DashboardRetentionModals.showOfflineRecapModal(context, recap,
+              ref: ref);
+        }
 
-      // Check 28-Day Monthly Daily Streak
-      final now = DateTime.now();
-      final todayStr =
-          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-      if (game.canClaimTodayStreak(todayStr) && mounted) {
-        DailyLoginSheet.show(context);
-      }
+        // Check 28-Day Monthly Daily Streak
+        final now = DateTime.now();
+        final todayStr =
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+        if (game.canClaimTodayStreak(todayStr) && mounted) {
+          DailyLoginSheet.show(context);
+        }
 
-      // Check Post-Update What's New Dialog
-      if (mounted) {
-        WhatsNewDialog.checkAndShow(context, ref);
+        // Check Post-Update What's New Dialog
+        if (mounted) {
+          WhatsNewDialog.checkAndShow(context, ref);
+        }
       }
     });
   }
@@ -275,6 +283,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildHomeDashboard(
       BuildContext context, DealershipModel game, ThemePaletteModel p, double bottomPadding) {
     final isDark = p.isDark;
+
+    // Distraction-free, action-focused view for the first core loop
+    if (!game.tutorialCompleted) {
+      return ListView(
+        padding: EdgeInsets.fromLTRB(14, 10, 14, bottomPadding),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          DashboardProfileBanner(game: game, palette: p),
+          const SizedBox(height: 12),
+          _buildTutorialHeroCard(context, game, p),
+          const SizedBox(height: 14),
+          _buildSectionHeader(
+            title: context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
+            subtitle: context.tr('tut_dashboard_guide_desc'),
+            isDark: isDark,
+            p: p,
+          ),
+          const SizedBox(height: 8),
+          DashboardMarketplaceVitrinList(game: game, palette: p),
+        ],
+      );
+    }
+
     final completedMissions =
         game.activeMissions.where((m) => m.isCompleted == true).length;
     final claimableExists = game.activeMissions
@@ -480,7 +511,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(
+                      Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 10,
                     color: isDark ? p.primaryColor : const Color(0xFF0F172A),
@@ -490,6 +521,137 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildTutorialHeroCard(
+      BuildContext context, DealershipModel game, ThemePaletteModel p) {
+    final tutorial = ref.watch(tutorialProvider);
+    final isDark = p.isDark;
+
+    String currentStepText;
+    switch (tutorial.step) {
+      case TutorialStep.inspectHeritageCar:
+        currentStepText = context.tr('tut_step_inspect_title');
+        break;
+      case TutorialStep.repairEnginePart:
+        currentStepText = context.tr('tut_step_repair_title');
+        break;
+      case TutorialStep.listCarForSale:
+        currentStepText = context.tr('tut_step_list_title');
+        break;
+      case TutorialStep.acceptFirstOffer:
+        currentStepText = context.tr('tut_step_sell_title');
+        break;
+      case TutorialStep.completed:
+        currentStepText = context.tr('tut_celebration_title');
+        break;
+    }
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(16),
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      borderColor: const Color(0xFFFFDE59),
+      borderRadius: 14,
+      borderWidth: 2.5,
+      shadowOffset: const Offset(4, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  NeoBrutalBadge(
+                    text: context.tr('tut_action_badge'),
+                    backgroundColor: AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    fontSize: 10,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  ),
+                  const SizedBox(width: 8),
+                  const PulsingDot(color: Color(0xFFFFDE59), size: 7),
+                  const SizedBox(width: 6),
+                  Text(
+                    currentStepText,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () {
+                  ref.read(gameProvider.notifier).skipTutorial();
+                  ref.read(tutorialProvider.notifier).skipTutorial();
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF1E2330)
+                        : const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFF0F172A),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Text(
+                    context.tr('onboarding_skip_btn'),
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            context.tr('tut_dashboard_guide_title'),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            context.tr('tut_dashboard_guide_desc'),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+            ),
+          ),
+          const SizedBox(height: 14),
+          NeoBrutalButton(
+            label: currentStepText,
+            icon: Icons.touch_app_rounded,
+            fullWidth: true,
+            backgroundColor: AppColors.brutalYellow,
+            textColor: Colors.black,
+            borderColor: const Color(0xFF0F172A),
+            borderWidth: 2.5,
+            shadowOffset: const Offset(3.5, 3.5),
+            fontSize: 13,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            onPressed: () {
+              ref.read(dashboardTabProvider.notifier).state = 1;
+            },
+          ),
+        ],
+      ),
     );
   }
 }
