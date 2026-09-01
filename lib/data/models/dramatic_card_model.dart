@@ -7,6 +7,8 @@ enum DramaticCategory {
   conscience, // Kategori C: Vicdan & İtibar
   legacy, // Kategori D: Miras & Bağlılık
   gamble, // Kategori E: Kumar & Adrenalin
+  comedy, // Kategori F: Trajikomik & Esnaf Mizahı
+  opportunity, // Kategori G: Ticari Fırsat & Spekülasyon
 }
 
 enum DramaticSeverity {
@@ -127,6 +129,7 @@ class DramaticCardModel {
   final bool requiresBlackMarketHistory;
   final bool requiresHeirloomCar;
   final bool isNarrativeOnly;
+  final int? dayNumber;
   final List<DramaticChoiceModel> choices;
 
   const DramaticCardModel({
@@ -145,8 +148,49 @@ class DramaticCardModel {
     this.requiresBlackMarketHistory = false,
     this.requiresHeirloomCar = false,
     this.isNarrativeOnly = false,
+    this.dayNumber,
     required this.choices,
   });
+
+  DramaticCardModel copyWith({
+    String? id,
+    DramaticCategory? category,
+    DramaticSeverity? severity,
+    String? title,
+    String? characterName,
+    String? characterRole,
+    String? characterAvatar,
+    IconData? icon,
+    String? dialogue,
+    String? foreshadowHint,
+    int? minPlayerLevel,
+    bool? requiresCarInGarage,
+    bool? requiresBlackMarketHistory,
+    bool? requiresHeirloomCar,
+    bool? isNarrativeOnly,
+    int? dayNumber,
+    List<DramaticChoiceModel>? choices,
+  }) {
+    return DramaticCardModel(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      severity: severity ?? this.severity,
+      title: title ?? this.title,
+      characterName: characterName ?? this.characterName,
+      characterRole: characterRole ?? this.characterRole,
+      characterAvatar: characterAvatar ?? this.characterAvatar,
+      icon: icon ?? this.icon,
+      dialogue: dialogue ?? this.dialogue,
+      foreshadowHint: foreshadowHint ?? this.foreshadowHint,
+      minPlayerLevel: minPlayerLevel ?? this.minPlayerLevel,
+      requiresCarInGarage: requiresCarInGarage ?? this.requiresCarInGarage,
+      requiresBlackMarketHistory: requiresBlackMarketHistory ?? this.requiresBlackMarketHistory,
+      requiresHeirloomCar: requiresHeirloomCar ?? this.requiresHeirloomCar,
+      isNarrativeOnly: isNarrativeOnly ?? this.isNarrativeOnly,
+      dayNumber: dayNumber ?? this.dayNumber,
+      choices: choices ?? this.choices,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -163,13 +207,17 @@ class DramaticCardModel {
         'requiresBlackMarketHistory': requiresBlackMarketHistory,
         'requiresHeirloomCar': requiresHeirloomCar,
         'isNarrativeOnly': isNarrativeOnly,
+        'dayNumber': dayNumber,
         'choices': choices.map((c) => c.toJson()).toList(),
       };
 
   factory DramaticCardModel.fromJson(Map<String, dynamic> json) {
     final cardId = json['id'] as String? ?? '';
     final defaultMatch = findFirstWhere(defaultCards, (c) => c.id == cardId);
-    if (defaultMatch != null) return defaultMatch;
+    final day = json['dayNumber'] as int?;
+    if (defaultMatch != null) {
+      return day != null ? defaultMatch.copyWith(dayNumber: day) : defaultMatch;
+    }
 
     return DramaticCardModel(
       id: cardId,
@@ -193,6 +241,7 @@ class DramaticCardModel {
       requiresBlackMarketHistory: json['requiresBlackMarketHistory'] as bool? ?? false,
       requiresHeirloomCar: json['requiresHeirloomCar'] as bool? ?? false,
       isNarrativeOnly: json['isNarrativeOnly'] as bool? ?? false,
+      dayNumber: day,
       choices: (json['choices'] as List<dynamic>?)
               ?.map((e) => DramaticChoiceModel.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??

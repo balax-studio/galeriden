@@ -2,6 +2,7 @@ import 'dart:math';
 import '../../core/utils/anti_repetition_queue.dart';
 import '../../core/utils/slot_text_composer.dart';
 import '../../data/models/car_model.dart';
+import '../../data/models/expertise_model.dart';
 import '../../data/models/customer_review_model.dart';
 
 /// Result data structure holding generated review and reputation impact
@@ -93,7 +94,19 @@ class ReviewEngine {
     String reviewComment = '';
     int reputationChange = 3;
 
-    if (car.declarationType == ListingDeclarationType.honest) {
+    final exp = car.expertise;
+    final hasBodyFlaws = exp.bodyParts.values.any((status) =>
+        status == PartStatus.painted ||
+        status == PartStatus.changed ||
+        status == PartStatus.damaged);
+    final hasTramer = exp.tramerAmount > 0;
+    final isTampered = exp.isMileageTampered;
+    final bool isActuallyFlawless = !hasBodyFlaws && !hasTramer && !isTampered;
+
+    final isHonestOrTruthful = car.declarationType == ListingDeclarationType.honest ||
+        (car.declarationType == ListingDeclarationType.flawlessClaim && isActuallyFlawless);
+
+    if (isHonestOrTruthful) {
       if (isClean && isGoodEngine && isLowTramer) {
         reviewRating = 5.0;
         if ((hasVipConcierge || hasVipLounge) && rng.nextBool()) {

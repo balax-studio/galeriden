@@ -156,7 +156,7 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     final storyAd = _processStoryAd(state.daysSinceLastStoryAd,
         state.nextStoryAdTargetDays, state.pendingStoryCard);
-    final dramatic = _processDramaticDecision(state.daysSinceLastDramaticCard,
+    final dramatic = _processDramaticDecision(nextDay, state.daysSinceLastDramaticCard,
         state.nextDramaticCardTargetDays, state.pendingDramaticCard);
     final randomEvent = _processRandomEvents(
         state.daysSinceLastRandomEvent,
@@ -1027,13 +1027,13 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   (int, int, DramaticCardModel?) _processDramaticDecision(
-      int daysSince, int targetDays, DramaticCardModel? pendingCard) {
+      int nextDay, int daysSince, int targetDays, DramaticCardModel? pendingCard) {
     int updatedDays = daysSince + 1;
-    if (updatedDays >= targetDays && pendingCard == null) {
-      pendingCard =
-          DramaticCardEngine.selectNextCard(state, randomInstance: random);
+    if (pendingCard == null) {
+      pendingCard = DramaticCardEngine.generateDailyDilemma(nextDay, state,
+          randomInstance: random);
       updatedDays = 0;
-      targetDays = 15 + random.nextInt(16);
+      targetDays = 1;
     }
     return (updatedDays, targetDays, pendingCard);
   }

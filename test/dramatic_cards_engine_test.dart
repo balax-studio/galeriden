@@ -205,19 +205,20 @@ void main() {
       expect(reconstructed.pendingDramaticCard!.id, 'E1');
     });
 
-    test('advanceGameDay increments dramatic card days and schedules next card between 15 and 30 days', () {
+    test('advanceGameDay generates daily dramatic dilemma card on each day', () {
       final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
-        daysSinceLastDramaticCard: 14,
-        nextDramaticCardTargetDays: 15,
+        currentDay: 1,
+        daysSinceLastDramaticCard: 0,
+        nextDramaticCardTargetDays: 1,
         pendingDramaticCard: null,
       );
 
       notifier.advanceGameDay();
 
       expect(notifier.state.pendingDramaticCard, isNotNull);
+      expect(notifier.state.pendingDramaticCard!.dayNumber, equals(2));
       expect(notifier.state.daysSinceLastDramaticCard, 0);
-      expect(notifier.state.nextDramaticCardTargetDays, inInclusiveRange(15, 30));
     });
 
     test('D1 Aile Yadigarı choice locks Murat 124 in showcase and clears listing', () {

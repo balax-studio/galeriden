@@ -820,7 +820,10 @@ class ShowroomCarCard extends ConsumerWidget {
                               ? context.tr('flawless_claim_badge')
                               : context.tr('mileage_tamper_badge')),
                       backgroundColor:
-                          car.declarationType == ListingDeclarationType.honest
+                          car.declarationType == ListingDeclarationType.honest ||
+                                  (car.declarationType ==
+                                          ListingDeclarationType.flawlessClaim &&
+                                      car.isPristineOriginal)
                               ? const Color(0xFF00E575)
                               : (car.declarationType ==
                                       ListingDeclarationType.flawlessClaim

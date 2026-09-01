@@ -395,5 +395,82 @@ void main() {
       expect(oemCar.expertise.bodyParts['Kaput'], equals(PartStatus.original));
       expect(oemCar.expertise.partConditions['Kaput'], equals(100.0));
     });
+
+    test('NegotiationEngine evaluates flawless declaration accurately without false fraud penalty', () {
+      final pristineCar = CarModel(
+        id: 'test_pristine',
+        brand: 'BMW',
+        modelName: '320i',
+        modelYear: 2022,
+        bodyType: 'sedan',
+        colorHex: '#000000',
+        baseMarketValue: 500000,
+        currentPurchasePrice: 550000,
+        expertise: ExpertiseReport(
+          engineCondition: 100,
+          transmissionCondition: 100,
+          tramerAmount: 0,
+          mileage: 15000,
+          isMileageTampered: false,
+          bodyParts: {
+            'Kaput': PartStatus.original,
+            'Tavan': PartStatus.original,
+            'Bagaj': PartStatus.original,
+          },
+        ),
+        declarationType: ListingDeclarationType.flawlessClaim,
+      );
+
+      final customer = CustomerModel(
+        id: 'cust_1',
+        name: 'Ahmet',
+        archetype: CustomerArchetype.skepticalOfficial,
+        archetypeTitle: 'Şüpheci Memur',
+        avatarType: 'man_1',
+        personalityDescription: 'Titiz',
+        preferredDialogueTrait: 'formal',
+      );
+
+      final pristineResult = NegotiationEngine.evaluatePlayerFraudInspection(
+        car: pristineCar,
+        customer: customer,
+      );
+      expect(pristineResult.caughtFraud, isFalse);
+      expect(pristineResult.fineAmount, equals(0.0));
+
+      final damagedCar = pristineCar.copyWith(
+        id: 'test_damaged',
+        expertise: ExpertiseReport(
+          engineCondition: 100,
+          transmissionCondition: 100,
+          tramerAmount: 5000,
+          mileage: 15000,
+          isMileageTampered: false,
+          bodyParts: {
+            'Kaput': PartStatus.painted,
+            'Tavan': PartStatus.original,
+            'Bagaj': PartStatus.original,
+          },
+        ),
+        declarationType: ListingDeclarationType.flawlessClaim,
+      );
+
+      final damagedResult = NegotiationEngine.evaluatePlayerFraudInspection(
+        car: damagedCar,
+        customer: customer,
+      );
+      expect(damagedResult.caughtFraud, isTrue);
+      expect(damagedResult.fineAmount, equals(10000.0));
+
+      final honestDamagedCar = damagedCar.copyWith(
+        declarationType: ListingDeclarationType.honest,
+      );
+      final honestResult = NegotiationEngine.evaluatePlayerFraudInspection(
+        car: honestDamagedCar,
+        customer: customer,
+      );
+      expect(honestResult.caughtFraud, isFalse);
+      expect(honestResult.fineAmount, equals(0.0));
+    });
   });
 }

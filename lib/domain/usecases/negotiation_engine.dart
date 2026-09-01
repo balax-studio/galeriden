@@ -152,7 +152,19 @@ class NegotiationEngine {
     required CarModel car,
     required CustomerModel customer,
   }) {
-    if (car.declarationType == ListingDeclarationType.honest) {
+    final exp = car.expertise;
+    final hasBodyFlaws = exp.bodyParts.values.any((status) =>
+        status == PartStatus.painted ||
+        status == PartStatus.changed ||
+        status == PartStatus.damaged);
+    final hasTramer = exp.tramerAmount > 0;
+    final isTampered = exp.isMileageTampered;
+    final hasSevereMechanical = exp.engineCondition < 60.0 || exp.transmissionCondition < 60.0;
+    final bool isActuallyFlawless = !hasBodyFlaws && !hasTramer && !isTampered && !hasSevereMechanical;
+
+    if (car.declarationType == ListingDeclarationType.honest ||
+        (car.declarationType == ListingDeclarationType.flawlessClaim && isActuallyFlawless) ||
+        (car.declarationType == ListingDeclarationType.minorFlawHidden && isActuallyFlawless)) {
       return FraudInspectionResult(
         didInspect: false,
         caughtFraud: false,
@@ -178,8 +190,10 @@ class NegotiationEngine {
 
     String title = 'YAKALANDINIZ!';
     String description = car.declarationType == ListingDeclarationType.flawlessClaim
-        ? '${customer.name} aracı ekspertize soktu! İlanda "Hatasız" yazılan araçta ağır kusur tespit edildi!'
-        : '${customer.name} beyin taraması yaptırdı! Kilometrenin düşürüldüğü tespit edildi!';
+        ? '${customer.name} aracı ekspertize soktu! İlanda "Hatasız" yazılan araçta kusur tespit edildi!'
+        : (isTampered
+            ? '${customer.name} beyin taraması yaptırdı! Kilometrenin düşürüldüğü tespit edildi!'
+            : '${customer.name} ekspertiz yaptırdı! İlanda gizlenen kusurlar tespit edildi!');
 
     return FraudInspectionResult(
       didInspect: true,
@@ -1074,8 +1088,12 @@ class NegotiationEngine {
       strategyBonus += 0.12;
     }
 
+    final bool isHonestOrTruthful = car.declarationType == ListingDeclarationType.honest ||
+        (car.declarationType == ListingDeclarationType.flawlessClaim && car.isPristineOriginal) ||
+        (car.declarationType == ListingDeclarationType.minorFlawHidden && car.isPristineOriginal);
+
     if (strategy == 'ikna_et') {
-      if (car.declarationType == ListingDeclarationType.honest) {
+      if (isHonestOrTruthful) {
         strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.16 : 0.10;
       } else {
         strategyBonus -= 0.12;
@@ -1111,7 +1129,7 @@ class NegotiationEngine {
         walkawayModifier += 0.16;
       }
     } else if (strategy == 'expertiz_guvencesi') {
-      if (car.declarationType == ListingDeclarationType.honest) {
+      if (isHonestOrTruthful) {
         strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.20 : 0.12;
       } else {
         strategyBonus -= 0.12;
