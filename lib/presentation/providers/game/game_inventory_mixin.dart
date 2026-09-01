@@ -7,6 +7,7 @@ import '../../../data/models/contract_model.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/gossip_item_model.dart';
+import '../../../data/models/player_spread_gossip_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
 import '../../../data/models/customer_review_model.dart';
@@ -694,6 +695,48 @@ mixin GameInventoryMixin on GameBaseNotifier {
     adjustNpcRelationship(npcKey, 3);
     addXP(15);
     updateMissionProgress(MissionType.gossipListen, 1);
+    saveState();
+    return true;
+  }
+
+  /// Spreads a market rumor / gossip through the tea house apprentice (§4.6.3 / Market Whisperer)
+  bool spreadMarketRumor(String segment, [double cost = 2500.0]) {
+    if (state.lastGossipSpreadDay >= state.currentDay) return false;
+    if (state.balance < cost) return false;
+
+    final newRumor = PlayerSpreadGossipModel(
+      id: 'rumor_${state.currentDay}_${DateTime.now().millisecondsSinceEpoch}',
+      targetSegment: segment,
+      createdDay: state.currentDay,
+      expiresDay: state.currentDay + 3,
+      priceMultiplier: 1.15,
+    );
+
+    final updatedRumors = List<PlayerSpreadGossipModel>.from(state.playerSpreadGossips)
+      ..removeWhere((r) => r.isExpired(state.currentDay))
+      ..add(newRumor);
+
+    final updatedEvents = List<GameEventModel>.from(state.recentEvents);
+    updatedEvents.insert(
+      0,
+      GameEventModel(
+        id: 'rumor_spread_${newRumor.id}',
+        title: '$segment • Sanayide Fısıltı Başlatıldı',
+        description: 'Çırağa ₺${cost.toStringAsFixed(0)} bahşiş verildi. Sanayide $segment araçlara yoğun talep olduğu fısıltısı 3 gün boyunca etkili olacak.',
+        type: GameEventType.goodEvent,
+        amount: -cost,
+        date: DateTime.now(),
+      ),
+    );
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      playerSpreadGossips: updatedRumors,
+      lastGossipSpreadDay: state.currentDay,
+      recentEvents: updatedEvents,
+    );
+
+    addXP(25);
     saveState();
     return true;
   }

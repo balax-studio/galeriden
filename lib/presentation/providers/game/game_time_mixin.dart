@@ -210,6 +210,8 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     final nextWeather = WeatherEngine.getWeatherForDay(nextDay);
     final dailyGossips = GossipEngine.generateDailyGossips(nextDay);
+    final updatedPlayerGossips =
+        state.playerSpreadGossips.where((r) => !r.isExpired(nextDay)).toList();
     final updatedTradeOffers = _processTradeInOffers(
         nextDay, currentCars, List.from(state.incomingTradeInOffers));
     final updatedConsignmentOffers =
@@ -338,6 +340,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       pendingDisputeNotice: currentDisputeNotice,
       currentWeather: nextWeather,
       activeGossips: dailyGossips,
+      playerSpreadGossips: updatedPlayerGossips,
       incomingTradeInOffers: updatedTradeOffers,
       consignmentOffers: updatedConsignmentOffers,
       districtMarketShare: updatedDistrictShares,

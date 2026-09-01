@@ -557,10 +557,13 @@ mixin GameMarketMixin on GameBaseNotifier {
           .where((o) => o.carId == car.id && !o.isExpired)
           .length;
       if (currentOffers >= 3) return;
+      final multipliers = _calculateOfferMultipliersForCar(car);
       final newOffer1 = NegotiationEngine.generateBuyerOffer(
         car,
         car.listingPrice,
         isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+        districtMultiplier: multipliers.$1,
+        gossipMultiplier: multipliers.$2,
       );
       state =
           state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
@@ -573,10 +576,13 @@ mixin GameMarketMixin on GameBaseNotifier {
           .where((o) => o.carId == car.id && !o.isExpired)
           .length;
       if (currentOffers >= 3) return;
+      final multipliers = _calculateOfferMultipliersForCar(car);
       final newOffer2 = NegotiationEngine.generateBuyerOffer(
         car,
         car.listingPrice,
         isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+        districtMultiplier: multipliers.$1,
+        gossipMultiplier: multipliers.$2,
       );
       state =
           state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
@@ -584,6 +590,43 @@ mixin GameMarketMixin on GameBaseNotifier {
     });
 
     return true;
+  }
+
+  /// Calculates district perks and active player gossip multipliers for incoming offers
+  (double, double) _calculateOfferMultipliersForCar(CarModel car) {
+    double districtMult = 1.0;
+
+    // 1. Kadıköy Klasik Sokağı (%50+ pay): Klasik, yadigâr ve 2000 model altı araçlara +%15 taban fiyat primi
+    final kadikoyShare =
+        state.districtMarketShare['Kadıköy Klasik Sokağı'] ?? 0.0;
+    if (kadikoyShare >= 0.50 &&
+        (car.bodyType.toLowerCase() == 'klasik' || car.isRare || car.modelYear <= 2000)) {
+      districtMult += 0.15;
+    }
+
+    // 2. Maslak Plaza (%50+ pay): SUV, lüks ve premium marka araçlara +%8 teklif primi
+    final maslakShare = state.districtMarketShare['Maslak Plaza'] ?? 0.0;
+    final isExecutiveOrSuv = car.bodyType.toLowerCase() == 'suv' ||
+        car.brand.toLowerCase() == 'mercedes' ||
+        car.brand.toLowerCase() == 'bmw' ||
+        car.brand.toLowerCase() == 'audi' ||
+        car.brand.toLowerCase() == 'porsche' ||
+        car.isRare;
+    if (maslakShare >= 0.50 && isExecutiveOrSuv) {
+      districtMult += 0.08;
+    }
+
+    // 3. Piyasaya Yayılmış Dedikodu / Fısıltı Hattı (Market Whisperer):
+    double gossipMult = 1.0;
+    final hasActiveRumor = state.playerSpreadGossips.any((r) =>
+        !r.isExpired(state.currentDay) &&
+        (r.targetSegment.toLowerCase() == car.bodyType.toLowerCase() ||
+            r.targetSegment.toLowerCase() == car.brand.toLowerCase()));
+    if (hasActiveRumor) {
+      gossipMult += 0.15;
+    }
+
+    return (districtMult, gossipMult);
   }
 
   /// Organic buyer offers trigger over time ONLY for listed, non-rented cars with < 3 active offers
@@ -613,10 +656,13 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (eligibleCars.isEmpty) return;
 
     final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
+    final multipliers = _calculateOfferMultipliersForCar(randomCar);
     final offer = NegotiationEngine.generateBuyerOffer(
       randomCar,
       randomCar.listingPrice,
       isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+      districtMultiplier: multipliers.$1,
+      gossipMultiplier: multipliers.$2,
     );
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     saveState();
@@ -833,7 +879,23 @@ mixin GameMarketMixin on GameBaseNotifier {
       }
     }
 
+    completeSale(offer);
+  }
+
+  /// Complete a car sale transaction
+  bool completeSale(OfferModel offer) {
+    if (state.ownedCars.isEmpty) return false;
+
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.isLockedInShowcase) return false;
+
     final isConsignment = car.isConsignment;
+    final isBuyout = car.isRented;
+
+    // 1. Process profit and cash received
     final double profit;
     final double cashReceived;
     final List<Cheque> updatedCheques;
@@ -853,10 +915,20 @@ mixin GameMarketMixin on GameBaseNotifier {
       final baseProfit = offer.offeredAmount - car.currentPurchasePrice;
       final multiplier =
           state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
-      profit = (baseProfit * multiplier).roundToDouble();
+      final calculatedProfit = (baseProfit * multiplier).roundToDouble();
       final paymentResult = _processPayment(offer);
-      cashReceived = (paymentResult.$1 * state.cashSaleProfitBonusMultiplier)
+
+      // Etiler Galericiler Sitesi (%50+ pay): Satış anında net kar marjı primi +%10
+      final etilerShare =
+          state.districtMarketShare['Etiler Galericiler Sitesi'] ?? 0.0;
+      final double etilerBonus = (calculatedProfit > 0 && etilerShare >= 0.50)
+          ? (calculatedProfit * 0.10).roundToDouble()
+          : 0.0;
+
+      cashReceived = ((paymentResult.$1 * state.cashSaleProfitBonusMultiplier) +
+              etilerBonus)
           .roundToDouble();
+      profit = calculatedProfit + etilerBonus;
       updatedCheques = paymentResult.$2;
       updatedInstallments = paymentResult.$3;
     }
@@ -898,9 +970,16 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     // Nişantaşı Vitrin Semt Hakimiyeti (%50+ ise +%20 itibar bonusu)
     final nisantasiShare = state.districtMarketShare['Nişantaşı Vitrin'] ?? 0.0;
-    final reputationChange = (rawReputationChange > 0 && nisantasiShare >= 0.50)
+    int reputationChange = (rawReputationChange > 0 && nisantasiShare >= 0.50)
         ? (rawReputationChange * 1.2).round()
         : rawReputationChange;
+
+    // Ankara Kızılay Hattı (%50+ pay): İhtilafsız temiz satış güvencesi (+2 itibar koruma bonusu)
+    final ankaraShare =
+        state.districtMarketShare['Ankara Kızılay Hattı'] ?? 0.0;
+    if (ankaraShare >= 0.50 && reputationChange >= 0) {
+      reputationChange += 2;
+    }
 
     final updatedReviews = [review, ...state.customerReviews];
     final newReputation =
@@ -955,6 +1034,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     }
 
     saveState();
+    return true;
   }
 
   (double, List<Cheque>, List<InstallmentContract>) _processPayment(

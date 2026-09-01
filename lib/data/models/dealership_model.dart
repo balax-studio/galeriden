@@ -26,6 +26,7 @@ import 'dramatic_card_model.dart';
 import 'contract_model.dart';
 import 'trade_in_offer_model.dart';
 import 'gossip_item_model.dart';
+import 'player_spread_gossip_model.dart';
 import 'weather_model.dart';
 import 'lifestyle_item_model.dart';
 import 'pr_campaign_model.dart';
@@ -259,6 +260,8 @@ class DealershipModel {
   // Yeni Ekstra Mekanikler (§4.6)
   final List<TradeInOfferModel> incomingTradeInOffers; // Araba Takas Sistemi (§4.6.2)
   final List<GossipItemModel> activeGossips;           // Sanayi Dedikodu Hattı (§4.6.3)
+  final List<PlayerSpreadGossipModel> playerSpreadGossips; // Piyasaya Dedikodu Salma (§4.6.3 / Market Whisperer)
+  final int lastGossipSpreadDay;                      // Günlük tek dedikodu salma takibi
   final WeatherType currentWeather;                   // Dinamik Hava Durumu (§4.6.5)
   final List<CarModel> consignmentOffers;             // Konsinye & Emanet Araçlar (§4.6.1)
   final int dailyRacesRemaining;                      // Gece Yarışı Günlük Kalan Hak (Exploit Koruması)
@@ -1035,6 +1038,8 @@ class DealershipModel {
     this.pendingDisputeNotice,
     this.incomingTradeInOffers = const [],
     this.activeGossips = const [],
+    this.playerSpreadGossips = const [],
+    this.lastGossipSpreadDay = 0,
     this.currentWeather = WeatherType.sunny,
     this.consignmentOffers = const [],
     this.dailyRacesRemaining = 3,
@@ -1465,6 +1470,8 @@ class DealershipModel {
       'pendingDisputeNotice': pendingDisputeNotice,
       'incomingTradeInOffers': incomingTradeInOffers.map((t) => t.toJson()).toList(),
       'activeGossips': activeGossips.map((g) => g.toJson()).toList(),
+      'playerSpreadGossips': playerSpreadGossips.map((p) => p.toJson()).toList(),
+      'lastGossipSpreadDay': lastGossipSpreadDay,
       'currentWeather': currentWeather.name,
       'consignmentOffers': consignmentOffers.map((c) => c.toJson()).toList(),
       'dailyRacesRemaining': dailyRacesRemaining,
@@ -1658,6 +1665,8 @@ class DealershipModel {
       pendingDisputeNotice: json['pendingDisputeNotice'] as String?,
       incomingTradeInOffers: parseList(json['incomingTradeInOffers'] as List<dynamic>?, TradeInOfferModel.fromJson),
       activeGossips: parseList(json['activeGossips'] as List<dynamic>?, GossipItemModel.fromJson),
+      playerSpreadGossips: parseList(json['playerSpreadGossips'] as List<dynamic>?, PlayerSpreadGossipModel.fromJson),
+      lastGossipSpreadDay: json['lastGossipSpreadDay'] as int? ?? 0,
       currentWeather: WeatherType.values.firstWhere(
         (e) => e.name == json['currentWeather'],
         orElse: () => WeatherType.sunny,
@@ -1827,6 +1836,8 @@ class DealershipModel {
     bool clearPendingDisputeNotice = false,
     List<TradeInOfferModel>? incomingTradeInOffers,
     List<GossipItemModel>? activeGossips,
+    List<PlayerSpreadGossipModel>? playerSpreadGossips,
+    int? lastGossipSpreadDay,
     WeatherType? currentWeather,
     List<CarModel>? consignmentOffers,
     int? dailyRacesRemaining,
@@ -1958,6 +1969,8 @@ class DealershipModel {
       pendingDisputeNotice: clearPendingDisputeNotice ? null : (pendingDisputeNotice ?? this.pendingDisputeNotice),
       incomingTradeInOffers: incomingTradeInOffers ?? this.incomingTradeInOffers,
       activeGossips: activeGossips ?? this.activeGossips,
+      playerSpreadGossips: playerSpreadGossips ?? this.playerSpreadGossips,
+      lastGossipSpreadDay: lastGossipSpreadDay ?? this.lastGossipSpreadDay,
       currentWeather: currentWeather ?? this.currentWeather,
       consignmentOffers: consignmentOffers ?? this.consignmentOffers,
       dailyRacesRemaining: dailyRacesRemaining ?? this.dailyRacesRemaining,

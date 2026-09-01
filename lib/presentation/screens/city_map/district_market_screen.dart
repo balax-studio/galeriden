@@ -380,41 +380,78 @@ class DistrictMarketScreen extends ConsumerWidget {
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 8),
+                              horizontal: 12, vertical: 10),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? const Color(0xFF26220E)
-                                : const Color(0xFFFEF08A),
-                            borderRadius: BorderRadius.circular(8),
+                                ? const Color(0xFF2E2405)
+                                : const Color(0xFFFEF9C3),
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isDark
-                                  ? AppColors.brutalYellow
-                                  : const Color(0xFF0F172A),
-                              width: 2.0,
+                              color: AppColors.brutalYellow,
+                              width: 2.5,
                             ),
-                            boxShadow: const [
+                            boxShadow: [
                               BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(2, 2),
+                                color: isDark
+                                    ? Colors.black
+                                    : const Color(0xFF0F172A),
+                                offset: const Offset(3, 3),
                               ),
                             ],
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.verified_rounded,
-                                  size: 16, color: Color(0xFFCA8A04)),
-                              const SizedBox(width: 6),
-                              Text(
-                                context.tr('district_dominance_unlocked'),
-                                style: TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.3,
-                                  color: isDark
-                                      ? AppColors.brutalYellow
-                                      : const Color(0xFF713F12),
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.brutalYellow,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1.5,
+                                  ),
                                 ),
+                                child: const Icon(
+                                  Icons.workspace_premium_rounded,
+                                  size: 16,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      context.tr('district_monopoly_stamp_title'),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 0.5,
+                                        color: isDark
+                                            ? AppColors.brutalYellow
+                                            : const Color(0xFF854D0E),
+                                      ),
+                                    ),
+                                    Text(
+                                      context.tr('district_monopoly_stamp_desc'),
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark
+                                            ? const Color(0xFFFDE047)
+                                            : const Color(0xFFA16207),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              NeoBrutalBadge(
+                                text: context.tr('badge_max'),
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 9,
                               ),
                             ],
                           ),

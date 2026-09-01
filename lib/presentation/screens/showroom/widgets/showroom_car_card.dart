@@ -42,6 +42,19 @@ class ShowroomCarCard extends ConsumerWidget {
     final isDark = palette.isDark;
     final hasOffer =
         game.incomingOffers.any((o) => o.carId == car.id && !o.isExpired);
+    final hasActiveGossipIntel = game.activeGossips.any((g) =>
+            g.isPurchased &&
+            (game.currentDay - g.inGameDay <= 2) &&
+            ((g.targetSegment != null &&
+                    g.targetSegment!.toLowerCase() ==
+                        car.bodyType.toLowerCase()) ||
+                (g.targetCarId != null && g.targetCarId == car.id) ||
+                (g.targetSegment != null &&
+                    g.targetSegment!.toLowerCase() ==
+                        car.brand.toLowerCase()))) ||
+        game.playerSpreadGossips.any((r) =>
+            !r.isExpired(game.currentDay) &&
+            r.targetSegment.toLowerCase() == car.bodyType.toLowerCase());
     final nextSec = VisitorQueueEngine.calculateNextVisitorSeconds(
       car: car,
       reputation: game.reputationScore,
@@ -253,6 +266,16 @@ class ShowroomCarCard extends ConsumerWidget {
                           icon: Icons.diamond_rounded,
                           backgroundColor: const Color(0xFFA855F7),
                           textColor: Colors.white,
+                          fontSize: 9.5,
+                        ),
+                      ],
+                      if (hasActiveGossipIntel) ...[
+                        const SizedBox(width: 6),
+                        NeoBrutalBadge(
+                          text: context.tr('badge_intel_active'),
+                          icon: Icons.campaign_rounded,
+                          backgroundColor: AppColors.brutalCyan,
+                          textColor: Colors.black,
                           fontSize: 9.5,
                         ),
                       ],

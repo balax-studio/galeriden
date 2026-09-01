@@ -476,8 +476,11 @@ class NegotiationEngine {
     double listingPrice, {
     double seasonMultiplier = 1.0,
     bool isFinanceUnlocked = true,
+    double districtMultiplier = 1.0,
+    double gossipMultiplier = 1.0,
   }) {
-    final realVal = car.estimatedRealValue * seasonMultiplier;
+    final totalMultiplier = seasonMultiplier * districtMultiplier * gossipMultiplier;
+    final realVal = car.estimatedRealValue * totalMultiplier;
     final askingPrice = car.isListed ? car.listingPrice : (listingPrice > 0 ? listingPrice : realVal);
     final distRoll = _random.nextDouble();
 
