@@ -153,7 +153,7 @@ class _DayProgressHudPillState extends State<DayProgressHudPill>
               ),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(8),
@@ -169,13 +169,13 @@ class _DayProgressHudPillState extends State<DayProgressHudPill>
                     final phase = _getPhase(progress);
                     final (icon, accentColor) = _getPhaseVisuals(phase);
 
-                    return IntrinsicWidth(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Top Row: Square Icon Box + Label + Animated Day
-                          Row(
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        // Centered Content Row (Matches height of all other HUD pills)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2.0),
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
@@ -217,28 +217,34 @@ class _DayProgressHudPillState extends State<DayProgressHudPill>
                               ),
                             ],
                           ),
-                          const SizedBox(height: 3.5),
+                        ),
 
-                          // Bottom Full-Width 3.0px Gauge Progress Bar
-                          Container(
-                            height: 3.0,
+                        // Full-Width Bottom Progress Gauge Bar
+                        Positioned(
+                          left: -4,
+                          right: -4,
+                          bottom: -4,
+                          child: Container(
+                            height: 2.5,
                             decoration: BoxDecoration(
                               color: trackColor,
-                              borderRadius: BorderRadius.circular(1.5),
+                              borderRadius: BorderRadius.circular(1.25),
                             ),
-                            child: FractionallySizedBox(
+                            child: Align(
                               alignment: Alignment.centerLeft,
-                              widthFactor: progress.clamp(0.02, 1.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: accentColor,
-                                  borderRadius: BorderRadius.circular(1.5),
+                              child: FractionallySizedBox(
+                                widthFactor: progress.clamp(0.02, 1.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: accentColor,
+                                    borderRadius: BorderRadius.circular(1.25),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     );
                   },
                 ),
