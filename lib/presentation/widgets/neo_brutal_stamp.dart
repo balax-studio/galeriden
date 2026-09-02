@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_typography.dart';
 
 /// Neo-Brutalist Rubber Ink Stamp Widget
 /// Simulates official automotive inspection & trade stamps ("BOYASIZ", "DEĞİŞENSİZ", "KELEPİR", "NOTER ONAYLI", "KOLEKSİYONDA", etc.)
@@ -42,12 +43,10 @@ class NeoBrutalStamp extends StatelessWidget {
           ),
           child: Text(
             text.toUpperCase(),
-            style: TextStyle(
+            style: AppTypography.stampText(
               color: color,
-              fontWeight: FontWeight.w900,
               fontSize: fontSize,
               letterSpacing: 1.4,
-              fontFamily: 'monospace',
             ),
           ),
         ),

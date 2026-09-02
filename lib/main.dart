@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app/app.dart';
 import 'core/services/ad_service.dart';
@@ -37,7 +38,11 @@ void main() async {
                     child: Text(
                       details.exceptionAsString(),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+                      style: GoogleFonts.jetBrainsMono(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),

@@ -104,10 +104,11 @@ void main() {
       final offlineResult = OfflineProgression.processOfflineTime(dealership);
       final DealershipModel updatedDealership = offlineResult['updatedDealership'];
 
-      // Günler ilerlemiş olsa bile bekleyen kart korunmalı
+      // Günler ilerlemiş olsa bile bekleyen kart korunmalı ve güncel günle senkronize edilmeli
       expect(updatedDealership.currentDay, greaterThan(5));
       expect(updatedDealership.pendingDramaticCard, isNotNull);
       expect(updatedDealership.pendingDramaticCard!.id, equals(initialCard.id));
+      expect(updatedDealership.pendingDramaticCard!.dayNumber, equals(updatedDealership.currentDay));
     });
 
     // -------------------------------------------------------------------------
@@ -202,6 +203,49 @@ void main() {
       // Upfront cost ve moneyDelta güvenle bakiyeyi eksiye düşürmeli, NaN/null olmamalı
       expect(result.updatedState.balance, equals(-70000.0));
       expect(result.updatedState.reputationScore, equals(40));
+    });
+
+    test('OfflineProgression 30dk=1gün ve tavan 3 gün kuralı ile kart senkronizasyonu', () {
+      final base = DealershipModel.initial().copyWith(
+        currentDay: 8,
+        pendingDramaticCard: DramaticCardEngine.generateDailyDilemma(8, DealershipModel.initial()),
+      );
+
+      // 1. 20 dakika çevrimdışı -> 0 gün ilerler
+      final res20m = OfflineProgression.processOfflineTime(
+        base.copyWith(lastActiveTime: DateTime.now().subtract(const Duration(minutes: 20))),
+      );
+      expect(res20m['daysElapsed'], equals(0));
+      final DealershipModel state20m = res20m['updatedDealership'];
+      expect(state20m.currentDay, equals(8));
+      expect(state20m.pendingDramaticCard!.dayNumber, equals(8));
+
+      // 2. 35 dakika çevrimdışı -> 1 gün ilerler (8 -> 9)
+      final res35m = OfflineProgression.processOfflineTime(
+        base.copyWith(lastActiveTime: DateTime.now().subtract(const Duration(minutes: 35))),
+      );
+      expect(res35m['daysElapsed'], equals(1));
+      final DealershipModel state35m = res35m['updatedDealership'];
+      expect(state35m.currentDay, equals(9));
+      expect(state35m.pendingDramaticCard!.dayNumber, equals(9));
+
+      // 3. 70 dakika çevrimdışı -> 2 gün ilerler (8 -> 10)
+      final res70m = OfflineProgression.processOfflineTime(
+        base.copyWith(lastActiveTime: DateTime.now().subtract(const Duration(minutes: 70))),
+      );
+      expect(res70m['daysElapsed'], equals(2));
+      final DealershipModel state70m = res70m['updatedDealership'];
+      expect(state70m.currentDay, equals(10));
+      expect(state70m.pendingDramaticCard!.dayNumber, equals(10));
+
+      // 4. 12 saat çevrimdışı -> Tavan 3 gün ilerler (8 -> 11)
+      final res12h = OfflineProgression.processOfflineTime(
+        base.copyWith(lastActiveTime: DateTime.now().subtract(const Duration(hours: 12))),
+      );
+      expect(res12h['daysElapsed'], equals(3));
+      final DealershipModel state12h = res12h['updatedDealership'];
+      expect(state12h.currentDay, equals(11));
+      expect(state12h.pendingDramaticCard!.dayNumber, equals(11));
     });
   });
 }

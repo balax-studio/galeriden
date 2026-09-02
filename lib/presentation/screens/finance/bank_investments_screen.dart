@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -235,8 +236,11 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       child: TextField(
                         controller: _depositController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 14),
+                        style: GoogleFonts.jetBrainsMono(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                         decoration: InputDecoration(
                           hintText: context.tr('bank_deposit_hint'),
                           filled: true,
@@ -367,8 +371,11 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                       child: TextField(
                         controller: _withdrawController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 14),
+                        style: GoogleFonts.jetBrainsMono(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                         decoration: InputDecoration(
                           hintText: context.tr('bank_withdraw_hint'),
                           filled: true,

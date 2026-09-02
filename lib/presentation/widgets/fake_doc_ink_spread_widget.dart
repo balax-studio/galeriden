@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Sahte evrak / ruhsat onayında mührün vurulması ve mürekkep yayılması mikro widgetı.
 class FakeDocInkSpreadWidget extends StatefulWidget {
@@ -80,12 +81,12 @@ class _FakeDocInkSpreadWidgetState extends State<FakeDocInkSpreadWidget>
         ),
         child: Text(
           widget.stampText,
-          style: const TextStyle(
-            color: Color(0xFFDC2626),
+          style: GoogleFonts.jetBrainsMono(
+            color: const Color(0xFFDC2626),
             fontSize: 16,
             fontWeight: FontWeight.w900,
             letterSpacing: 2.0,
-            fontFamily: 'monospace',
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
       ),

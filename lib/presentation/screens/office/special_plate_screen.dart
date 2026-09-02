@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -1292,12 +1293,12 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
           // Plate Text
           Text(
             plateText.toUpperCase(),
-            style: TextStyle(
+            style: GoogleFonts.jetBrainsMono(
               fontSize: isLarge ? 17 : 14,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.5,
               color: const Color(0xFF0F172A),
-              fontFamily: 'monospace',
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
           const SizedBox(width: 6),

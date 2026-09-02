@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Neo-Brutalist Thermal Receipt Card with jagged sawtooth perforated edges,
 /// barcode simulation, monospaced tabular accounting lines, and optional stamp overlay.
@@ -78,12 +79,12 @@ class ThermalReceiptCard extends StatelessWidget {
                           Text(
                             title.toUpperCase(),
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: GoogleFonts.jetBrainsMono(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 1.2,
                               color: paperText,
-                              fontFamily: 'monospace',
+                              fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                           ),
                           if (subtitle != null) ...[
@@ -91,11 +92,11 @@ class ThermalReceiptCard extends StatelessWidget {
                             Text(
                               subtitle!,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: GoogleFonts.jetBrainsMono(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w700,
                                 color: paperMuted,
-                                fontFamily: 'monospace',
+                                fontFeatures: const [FontFeature.tabularFigures()],
                               ),
                             ),
                           ],
@@ -112,21 +113,21 @@ class ThermalReceiptCard extends StatelessWidget {
                           if (receiptNumber != null)
                             Text(
                               'NO: $receiptNumber',
-                              style: TextStyle(
+                              style: GoogleFonts.jetBrainsMono(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w800,
                                 color: paperMuted,
-                                fontFamily: 'monospace',
+                                fontFeatures: const [FontFeature.tabularFigures()],
                               ),
                             ),
                           if (dateText != null)
                             Text(
                               dateText!,
-                              style: TextStyle(
+                              style: GoogleFonts.jetBrainsMono(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w800,
                                 color: paperMuted,
-                                fontFamily: 'monospace',
+                                fontFeatures: const [FontFeature.tabularFigures()],
                               ),
                             ),
                         ],
@@ -148,22 +149,22 @@ class ThermalReceiptCard extends StatelessWidget {
                               flex: 3,
                               child: Text(
                                 item.label,
-                                style: TextStyle(
+                                style: GoogleFonts.jetBrainsMono(
                                   fontSize: 11,
                                   fontWeight: item.isBold ? FontWeight.w900 : FontWeight.w700,
                                   color: item.textColor ?? paperText,
-                                  fontFamily: 'monospace',
+                                  fontFeatures: const [FontFeature.tabularFigures()],
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               item.value,
-                              style: TextStyle(
+                              style: GoogleFonts.jetBrainsMono(
                                 fontSize: 11,
                                 fontWeight: item.isBold ? FontWeight.w900 : FontWeight.w800,
                                 color: item.textColor ?? paperText,
-                                fontFamily: 'monospace',
+                                fontFeatures: const [FontFeature.tabularFigures()],
                               ),
                             ),
                           ],
@@ -182,22 +183,22 @@ class ThermalReceiptCard extends StatelessWidget {
                         children: [
                           Text(
                             (totalLabel ?? 'NET TOPLAM').toUpperCase(),
-                            style: TextStyle(
+                            style: GoogleFonts.jetBrainsMono(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 1.0,
                               color: paperText,
-                              fontFamily: 'monospace',
+                              fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                           ),
                           Text(
                             totalAmount!,
-                            style: TextStyle(
+                            style: GoogleFonts.jetBrainsMono(
                               fontSize: 15,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.5,
                               color: isDark ? const Color(0xFF00E575) : const Color(0xFF047857),
-                              fontFamily: 'monospace',
+                              fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                           ),
                         ],

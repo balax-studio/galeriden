@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Neo-Brutalist Marquee Ticker Widget
 /// Continuously scrolls live market news, trade ticker items, and automotive bulletins
@@ -136,12 +137,12 @@ class _MarqueeTickerWidgetState extends State<MarqueeTickerWidget>
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     repeatedText,
-                    style: TextStyle(
+                    style: GoogleFonts.jetBrainsMono(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: widget.textColor,
                       letterSpacing: 0.5,
-                      fontFamily: 'monospace',
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                 ),

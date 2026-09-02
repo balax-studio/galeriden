@@ -1,6 +1,7 @@
 import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/stat_colors.dart';
@@ -181,11 +182,11 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
                     children: [
                       Text(
                         '$_selectedMicrons µm',
-                        style: const TextStyle(
+                        style: GoogleFonts.jetBrainsMono(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: AppColors.brutalYellow,
-                          fontFamily: 'monospace',
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
                       const SizedBox(width: 8),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Neo-Brutalist Mechanical Tumbler Counter
 /// Simulates physical split-flap odometer / mechanical tally drums with horizontal
@@ -34,11 +35,11 @@ class MechanicalTumblerCounter extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!.toUpperCase(),
-            style: const TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 9.5,
               fontWeight: FontWeight.w900,
               letterSpacing: 0.8,
-              color: Color(0xFF94A3B8),
+              color: const Color(0xFF94A3B8),
             ),
           ),
           const SizedBox(height: 3),
@@ -70,11 +71,11 @@ class MechanicalTumblerCounter extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 2),
         child: Text(
           char,
-          style: TextStyle(
+          style: GoogleFonts.jetBrainsMono(
             fontSize: digitFontSize * 0.9,
             fontWeight: FontWeight.w900,
             color: digitColor,
-            fontFamily: 'monospace',
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
       );
@@ -111,12 +112,12 @@ class MechanicalTumblerCounter extends StatelessWidget {
           // Digit Character
           Text(
             char,
-            style: TextStyle(
+            style: GoogleFonts.jetBrainsMono(
               fontSize: digitFontSize,
               fontWeight: FontWeight.w900,
               color: digitColor,
               letterSpacing: 0.5,
-              fontFamily: 'monospace',
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -123,17 +124,18 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
+                                Expanded(
                                   child: Text(
-                                '[RAPOR #EXP-${car.id.hashCode.abs().toString().padLeft(6, '0').substring(0, 5)}]',
-                                style: const TextStyle(
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'monospace',
-                                  color: Color(0xFF64748B),
-                                  letterSpacing: 0.8,
+                                    '[RAPOR #EXP-${car.id.hashCode.abs().toString().padLeft(6, '0').substring(0, 5)}]',
+                                    style: GoogleFonts.jetBrainsMono(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w900,
+                                      color: const Color(0xFF64748B),
+                                      letterSpacing: 0.8,
+                                      fontFeatures: const [FontFeature.tabularFigures()],
+                                    ),
+                                  ),
                                 ),
-                              )),
                               if (_isInspected) ...[
                                 NeoBrutalStamp(
                                   text: stampInfo.text,

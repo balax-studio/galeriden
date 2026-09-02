@@ -144,6 +144,12 @@ class GameCoreNotifier extends GameBaseNotifier
           final initialCard = DramaticCardEngine.generateDailyDilemma(
               updated.currentDay, updated);
           updated = updated.copyWith(pendingDramaticCard: initialCard);
+        } else {
+          updated = updated.copyWith(
+            pendingDramaticCard: updated.pendingDramaticCard!.copyWith(
+              dayNumber: updated.currentDay,
+            ),
+          );
         }
 
         if (!mounted) return;
@@ -170,6 +176,12 @@ class GameCoreNotifier extends GameBaseNotifier
     if (state.pendingDramaticCard == null) {
       final initialCard = DramaticCardEngine.generateDailyDilemma(state.currentDay, state);
       state = state.copyWith(pendingDramaticCard: initialCard);
+    } else {
+      state = state.copyWith(
+        pendingDramaticCard: state.pendingDramaticCard!.copyWith(
+          dayNumber: state.currentDay,
+        ),
+      );
     }
     startPeriodicOrganicOfferTimer();
     saveState();

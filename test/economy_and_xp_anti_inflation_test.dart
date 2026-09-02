@@ -107,7 +107,7 @@ void main() {
       expect(result.$4.isNotEmpty, isTrue);
     });
 
-    test('OfflineProgressionEngine caps simulated days to max 7 days', () {
+    test('OfflineProgressionEngine caps simulated days to max 3 days', () {
       final dealership = DealershipModel.initial().copyWith(
         lastActiveTime: DateTime.now().subtract(const Duration(hours: 48)), // 2 days = 2880 mins
       );
@@ -117,7 +117,7 @@ void main() {
         currentTime: DateTime.now(),
       );
 
-      expect(outcome['daysElapsed'], lessThanOrEqualTo(7));
+      expect(outcome['daysElapsed'], lessThanOrEqualTo(3));
       expect(outcome['daysElapsed'], greaterThanOrEqualTo(1));
     });
 

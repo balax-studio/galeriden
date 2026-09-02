@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../providers/dashboard_provider.dart';
@@ -488,7 +489,7 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
             Flexible(
               child: Text(
                 widget.title.toUpperCase(),
-                style: TextStyle(
+                style: GoogleFonts.outfit(
                   fontSize: widget.subtitle != null ? 11.5 : 13.0,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.6,
@@ -512,9 +513,9 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
     if (widget.headerAnimation == NeoBrutalHeaderAnimation.none) {
       return Text(
         text,
-        style: TextStyle(
+        style: GoogleFonts.inter(
           fontSize: 7.8,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w800,
           letterSpacing: 0.8,
           color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
         ),
@@ -530,9 +531,9 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
 
     return Text(
       displayedText,
-      style: TextStyle(
+      style: GoogleFonts.inter(
         fontSize: 7.8,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w800,
         letterSpacing: 0.8,
         color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
       ),

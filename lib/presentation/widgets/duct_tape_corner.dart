@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Neo-Brutalist Duct Tape Corner Overlay
 /// Simulates rugged industrial packing/electrical tape stuck onto cards or car photos
@@ -42,12 +43,12 @@ class DuctTapeCorner extends StatelessWidget {
             color: tapeColor.withValues(alpha: 0.95),
             child: Text(
               text.toUpperCase(),
-              style: TextStyle(
+              style: GoogleFonts.jetBrainsMono(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w900,
                 color: textColor,
                 letterSpacing: 1.0,
-                fontFamily: 'monospace',
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ),

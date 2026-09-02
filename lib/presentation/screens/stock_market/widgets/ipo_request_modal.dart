@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/notification_service.dart';
@@ -62,8 +63,11 @@ class IpoRequestModal {
                       controller: lotCtrl,
                       keyboardType: TextInputType.number,
                       autofocus: true,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w900, fontSize: 18),
+                      style: GoogleFonts.jetBrainsMono(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                       decoration: InputDecoration(
                         hintText: context.tr('stock_lot_hint'),
                         filled: true,

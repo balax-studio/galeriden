@@ -3,6 +3,7 @@ import '../../data/models/dealership_model.dart';
 import '../../data/models/offer_model.dart';
 import '../../data/models/staff_model.dart';
 import '../../data/models/car_model.dart';
+import '../../data/models/dramatic_card_model.dart';
 import 'negotiation_engine.dart';
 
 class OfflineProgression {
@@ -58,8 +59,8 @@ class OfflineProgression {
     double totalPassiveEarned = 0.0;
     double totalExpenses = 0.0;
 
-    // 1. Calculate simulated days (4 offline minutes = 1 in-game day, capped at max 7 days / §3.6)
-    final simulatedDays = (elapsedMinutes / 4).floor().clamp(1, 7);
+    // 1. Calculate simulated days (30 offline minutes = 1 in-game day, capped at max 3 days / §3.6)
+    final simulatedDays = (elapsedMinutes / 30).floor().clamp(0, 3);
 
     // 2. Property Daily Burn calculation
     double propertyDailyBurn = 300.0;
@@ -183,11 +184,17 @@ class OfflineProgression {
       missedOpportunities.add('Vitrinde bekleyen ilanına bir takas müşterisi uğradı fakat temas kurulamadı.');
     }
 
+    DramaticCardModel? updatedCard = dealership.pendingDramaticCard;
+    if (updatedCard != null) {
+      updatedCard = updatedCard.copyWith(dayNumber: nextDay);
+    }
+
     final updatedDealership = dealership.copyWith(
       balance: newBalance,
       currentDay: nextDay,
       ownedCars: updatedCars,
       incomingOffers: updatedOffers,
+      pendingDramaticCard: updatedCard,
       lastActiveTime: now,
     );
 

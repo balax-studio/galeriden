@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Boya mikron ölçüm cihazı temas ettiğinde çıkan minik kıvılcım ve mikron sayacı efekti.
 class PaintSparkWidget extends StatefulWidget {
@@ -90,11 +91,11 @@ class _PaintSparkWidgetState extends State<PaintSparkWidget>
               ),
               child: Text(
                 '${_numberRoll.value.toInt()} µm',
-                style: const TextStyle(
+                style: GoogleFonts.jetBrainsMono(
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   color: Colors.black,
-                  fontFamily: 'monospace',
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ),

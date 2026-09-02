@@ -321,7 +321,7 @@ void main() {
     });
 
     // 13. Offline Progression Clamp Invariants
-    test('13. Offline Progression: Minutes clamped to 960 and simulated days to 7', () {
+    test('13. Offline Progression: Minutes clamped to 960 and simulated days to 3', () {
       final dealership = DealershipModel.initial().copyWith(
         dealershipName: 'Yıldız Galeri',
         balance: 500000.0,
@@ -330,7 +330,7 @@ void main() {
 
       final result = OfflineProgression.processOfflineTime(dealership);
       expect(result['elapsedMinutes'], equals(960)); // Max 16 hours
-      expect(result['daysElapsed'], inInclusiveRange(1, 7)); // Max 7 simulated days
+      expect(result['daysElapsed'], inInclusiveRange(1, 3)); // Max 3 simulated days
       expect(result['updatedDealership'].balance, greaterThanOrEqualTo(0.0));
     });
 
