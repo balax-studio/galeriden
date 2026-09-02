@@ -8,11 +8,13 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/tutorial_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/dealership_logo_badge.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
+import '../../widgets/tutorial_pulse_target.dart';
 import '../../widgets/neo_brutal_card.dart';
 
 class DealershipIdentityScreen extends ConsumerStatefulWidget {
@@ -741,14 +743,18 @@ class _DealershipIdentityScreenState
           const SizedBox(height: 24),
 
           // 8. Save Button
-          NeoBrutalButton(
-            label: context.tr('identity_save_btn'),
-            icon: Icons.check_circle_rounded,
-            backgroundColor: AppColors.brutalGreen,
-            textColor: Colors.black,
-            fontSize: 13,
-            fullWidth: true,
-            onPressed: _saveIdentity,
+          TutorialPulseTarget(
+            isEnabled: !ref.watch(gameProvider).tutorialCompleted,
+            pulseColor: AppColors.brutalGreen,
+            child: NeoBrutalButton(
+              label: context.tr('identity_save_btn'),
+              icon: Icons.check_circle_rounded,
+              backgroundColor: AppColors.brutalGreen,
+              textColor: Colors.black,
+              fontSize: 13,
+              fullWidth: true,
+              onPressed: _saveIdentity,
+            ),
           ),
           const SizedBox(height: 16),
         ],

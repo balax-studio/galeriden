@@ -14,7 +14,7 @@ void main() {
   });
 
   group('Side Business & Fast Service Events Comprehensive Tests', () {
-    test('All negative crises and positive opportunity events are registered in allEventTemplates', () {
+    test('All negative crises, positive opportunities, and new diversified events are registered in allEventTemplates', () {
       final templates = RandomEventEngine.allEventTemplates;
       final expectedIds = [
         // Negatif Krizler
@@ -85,6 +85,19 @@ void main() {
         'event_apprentice_vocational_school_deal',
         'event_bank_manager_vip_credit_line',
         'event_auto_festival_sponsorship',
+        // Yeni Çeşitlendirilmiş Yan İşletme Olayları
+        'event_wash_water_cut',
+        'event_tow_winter_chain_rush',
+        'event_autoshop_counterfeit_filter',
+        'event_dyno_calibration_drift',
+        'event_wrap_ppf_heat_peel',
+        'event_ev_grid_surge_breaker',
+        'event_spare_parts_customs_seizure',
+        'event_rental_gps_signal_loss',
+        'event_scrap_crane_hydraulic_burst',
+        'event_vending_payment_gateway_down',
+        'event_billboard_storm_torn_canvas',
+        'event_inspection_caliper_gauge_crack',
       ];
 
       for (final id in expectedIds) {
@@ -100,7 +113,7 @@ void main() {
         sideBusinesses: [
           SideBusinessModel(
             id: 'car_wash',
-            name: 'Oto Yikama',
+            name: 'Oto Yıkama',
             type: SideBusinessType.carWash,
             dailyIncome: 100,
             cost: 1000,
@@ -124,33 +137,41 @@ void main() {
         'event_wash_wedding_convoy_rush',
         'event_wash_ceramic_bulk_contract',
         'event_wash_foam_cannon_upgrade',
+        'event_wash_water_cut',
         'event_vending_coin_jam',
         'event_vending_spoiled_milk',
         'event_vending_artisan_roastery_deal',
         'event_vending_energy_drink_exclusive',
+        'event_vending_payment_gateway_down',
         'event_tow_truck_cable_snap',
         'event_tow_hydraulic_fail',
         'event_tow_sports_club_bus_rescue',
         'event_tow_insurance_annual_tender',
+        'event_tow_winter_chain_rush',
         'event_billboard_panel_short',
         'event_billboard_wind_damage',
         'event_billboard_politician_election_campaign',
         'event_billboard_viral_3d_anamorphic',
+        'event_billboard_storm_torn_canvas',
         'event_ev_transformer_trip',
         'event_ev_cable_ripoff',
         'event_ev_solar_canopy_installation',
         'event_ev_fleet_overnight_depot',
+        'event_ev_grid_surge_breaker',
         'event_wrap_blade_scratch',
         'event_wrap_bubble_peel',
         'event_wrap_supercar_matte_chameleon',
         'event_wrap_commercial_fleet_branding',
+        'event_wrap_ppf_heat_peel',
         'event_rental_speeding_fines',
         'event_rental_clutch_burn',
         'event_rental_cinema_movie_production',
         'event_rental_airport_vip_transfer_franchise',
+        'event_rental_gps_signal_loss',
         'event_scrap_press_breakdown',
         'event_salvage_corrosion',
         'event_scrap_classic_chassis_treasure',
+        'event_scrap_crane_hydraulic_burst',
       ];
 
       for (int i = 0; i < 100; i++) {
@@ -188,9 +209,124 @@ void main() {
           e.id == 'event_wash_chemical_burn' ||
           e.id == 'event_wash_wedding_convoy_rush' ||
           e.id == 'event_wash_ceramic_bulk_contract' ||
-          e.id == 'event_wash_foam_cannon_upgrade');
-      expect(washEvents.length, 5);
+          e.id == 'event_wash_foam_cannon_upgrade' ||
+          e.id == 'event_wash_water_cut');
+      expect(washEvents.length, 6);
       expect(washState.sideBusinesses.any((b) => b.isOwned && b.type == SideBusinessType.carWash), isTrue);
+    });
+
+    test('Dynamic Scaling: Level scaling increases penalty dynamically', () {
+      final baseChoice = GameEventChoice(
+        label: 'Tamir Masrafını Karşıla • -10.000 ₺',
+        resultText: 'Tamir yapıldı.',
+        balanceChange: -10000.0,
+        reputationChange: 0,
+        xpGain: 50,
+      );
+
+      final scaledLevel1 = RandomEventEngine.scaleChoice(
+        choice: baseChoice,
+        level: 1,
+        currentBalance: 500000.0,
+        hasMasterMechanic: false,
+        hasAccountant: false,
+        isBossSpecialization: false,
+      );
+
+      final scaledLevel8 = RandomEventEngine.scaleChoice(
+        choice: baseChoice,
+        level: 8,
+        currentBalance: 500000.0,
+        hasMasterMechanic: false,
+        hasAccountant: false,
+        isBossSpecialization: false,
+      );
+
+      // Level 1: base 10000
+      expect(scaledLevel1.balanceChange, -10000.0);
+      // Level 8: base * (1 + 7 * 0.25) = 2.75x = -27500
+      expect(scaledLevel8.balanceChange, -27500.0);
+      expect(scaledLevel8.label, contains('27.500'));
+    });
+
+    test('Dynamic Scaling: Bankruptcy cushion prevents wiping out low-cash players', () {
+      final heavyChoice = GameEventChoice(
+        label: 'Ağır Cezayı Öde • -60.000 ₺',
+        resultText: 'Ceza ödendi.',
+        balanceChange: -60000.0,
+        reputationChange: 0,
+        xpGain: 50,
+      );
+
+      final lowCashScaled = RandomEventEngine.scaleChoice(
+        choice: heavyChoice,
+        level: 1,
+        currentBalance: 30000.0, // Low balance
+        hasMasterMechanic: false,
+        hasAccountant: false,
+        isBossSpecialization: false,
+      );
+
+      // 30,000 * 0.30 = 9,000 max penalty capped
+      expect(lowCashScaled.balanceChange, -9000.0);
+      expect(lowCashScaled.balanceChange.abs(), lessThan(30000.0));
+      expect(lowCashScaled.label, contains('9.000'));
+    });
+
+    test('Dynamic Scaling: Master Mechanic discount mitigates repair penalty', () {
+      final mechanicChoice = GameEventChoice(
+        label: 'Parçayı Değiştir • -20.000 ₺',
+        resultText: 'Değiştirildi.',
+        balanceChange: -20000.0,
+        reputationChange: 0,
+        xpGain: 50,
+      );
+
+      final withoutStaff = RandomEventEngine.scaleChoice(
+        choice: mechanicChoice,
+        level: 1,
+        currentBalance: 500000.0,
+        hasMasterMechanic: false,
+        hasAccountant: false,
+        isBossSpecialization: false,
+      );
+
+      final withStaff = RandomEventEngine.scaleChoice(
+        choice: mechanicChoice,
+        level: 1,
+        currentBalance: 500000.0,
+        hasMasterMechanic: true,
+        hasAccountant: false,
+        isBossSpecialization: false,
+      );
+
+      // 20000 * 0.75 = 15000
+      expect(withoutStaff.balanceChange, -20000.0);
+      expect(withStaff.balanceChange, -15000.0);
+    });
+
+    test('Level Tier Gating: Levels 1-2 players are protected from high-tier conglomerate scandals', () {
+      final level1State = DealershipModel.initial().copyWith(
+        level: 1,
+        balance: 100000.0,
+      );
+
+      final highTierScandalIds = [
+        'event_black_market_raid',
+        'event_airbag_bypass_scandal',
+        'event_macro_import_customs_quota',
+      ];
+
+      for (int i = 0; i < 50; i++) {
+        final event = RandomEventEngine.getFilteredRandomEvent(level1State);
+        if (event != null) {
+          expect(
+            event.id,
+            isNot(isIn(highTierScandalIds)),
+            reason: 'Level 1 player should not receive high-tier scandal ${event.id}',
+          );
+        }
+      }
     });
 
     test('Choice resolution updates state balance, reputation and XP correctly', () {
@@ -250,4 +386,3 @@ void main() {
     });
   });
 }
-

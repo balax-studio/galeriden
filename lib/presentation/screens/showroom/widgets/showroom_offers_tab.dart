@@ -20,6 +20,7 @@ import '../../../../data/models/theme_palette_model.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_button.dart';
+import '../../../widgets/tutorial_pulse_target.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/neo_brutal_empty_state.dart';
@@ -908,18 +909,23 @@ class ShowroomOffersTab extends ConsumerWidget {
                               },
                             ),
                             const SizedBox(width: 8),
-                            NeoBrutalButton(
-                              label: context.tr('btn_accept_and_sell'),
-                              icon: Icons.check_circle_rounded,
-                              backgroundColor: const Color(0xFF00E575),
-                              textColor: Colors.black,
-                              fontSize: 11,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              onPressed: () {
-                                _processOfferAcceptWithNotary(
-                                    context, ref, offer, car);
-                              },
+                            TutorialPulseTarget(
+                              isEnabled: !game.tutorialCompleted &&
+                                  offer.carId == 'car_heritage_dede',
+                              pulseColor: const Color(0xFF00E575),
+                              child: NeoBrutalButton(
+                                label: context.tr('btn_accept_and_sell'),
+                                icon: Icons.check_circle_rounded,
+                                backgroundColor: const Color(0xFF00E575),
+                                textColor: Colors.black,
+                                fontSize: 11,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                onPressed: () {
+                                  _processOfferAcceptWithNotary(
+                                      context, ref, offer, car);
+                                },
+                              ),
                             ),
                           ],
                         ),

@@ -20,6 +20,7 @@ import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/pulsing_dot.dart';
+import '../../../widgets/tutorial_pulse_target.dart';
 import '../../../widgets/foil_shimmer_widget.dart';
 import '../../../widgets/leather_keychain_swing_widget.dart';
 import 'car_cost_breakdown_sheet.dart';
@@ -936,40 +937,63 @@ class ShowroomCarCard extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: NeoBrutalButton(
-                        label: car.isLockedInShowcase
-                            ? context.tr('badge_showcase_locked')
-                            : (car.isRented
-                                ? context.tr('badge_rented')
-                                : (isTutorialFocusCar && !car.isListed
-                                    ? context.tr('tut_step_list_title')
-                                    : context.tr('edit_listing_btn'))),
-                        icon: car.isLockedInShowcase
-                            ? Icons.lock_rounded
-                            : (car.isRented
-                                ? Icons.key_rounded
-                                : (isTutorialFocusCar && !car.isListed
-                                    ? Icons.publish_rounded
-                                    : Icons.edit_note_rounded)),
-                        backgroundColor:
-                            (car.isLockedInShowcase || car.isRented)
-                                ? (isDark
-                                    ? const Color(0xFF141721)
-                                    : const Color(0xFFF1F5F9))
-                                : (isTutorialFocusCar && !car.isListed
-                                    ? AppColors.brutalYellow
-                                    : (isDark
-                                        ? const Color(0xFF1E2330)
-                                        : const Color(0xFFE2E8F0))),
-                        textColor: (car.isLockedInShowcase || car.isRented)
-                            ? const Color(0xFF64748B)
-                            : (isTutorialFocusCar && !car.isListed
-                                ? Colors.black
-                                : (isDark ? Colors.white : const Color(0xFF0F172A))),
-                        fontSize: 11,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        onPressed: () =>
-                            context.push('/create-listing', extra: car),
+                      child: TutorialPulseTarget(
+                        isEnabled: isTutorialFocusCar && (!car.isListed || hasOffer),
+                        pulseColor: !car.isListed
+                            ? AppColors.brutalYellow
+                            : const Color(0xFF00E575),
+                        child: NeoBrutalButton(
+                          label: car.isLockedInShowcase
+                              ? context.tr('badge_showcase_locked')
+                              : (car.isRented
+                                  ? context.tr('badge_rented')
+                                  : (isTutorialFocusCar && !car.isListed
+                                      ? context.tr('tut_step_list_title')
+                                      : (isTutorialFocusCar && hasOffer
+                                          ? context.tr('tut_step_sell_title')
+                                          : context.tr('edit_listing_btn')))),
+                          icon: car.isLockedInShowcase
+                              ? Icons.lock_rounded
+                              : (car.isRented
+                                  ? Icons.key_rounded
+                                  : (isTutorialFocusCar && !car.isListed
+                                      ? Icons.publish_rounded
+                                      : (isTutorialFocusCar && hasOffer
+                                          ? Icons.local_fire_department_rounded
+                                          : Icons.edit_note_rounded))),
+                          backgroundColor:
+                              (car.isLockedInShowcase || car.isRented)
+                                  ? (isDark
+                                      ? const Color(0xFF141721)
+                                      : const Color(0xFFF1F5F9))
+                                  : (isTutorialFocusCar && !car.isListed
+                                      ? AppColors.brutalYellow
+                                      : (isTutorialFocusCar && hasOffer
+                                          ? const Color(0xFF00E575)
+                                          : (isDark
+                                              ? const Color(0xFF1E2330)
+                                              : const Color(0xFFE2E8F0)))),
+                          textColor: (car.isLockedInShowcase || car.isRented)
+                              ? const Color(0xFF64748B)
+                              : (isTutorialFocusCar
+                                  ? Colors.black
+                                  : (isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A))),
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          onPressed: () {
+                            if (isTutorialFocusCar && hasOffer) {
+                              try {
+                                DefaultTabController.of(context).animateTo(1);
+                              } catch (_) {
+                                context.push('/create-listing', extra: car);
+                              }
+                            } else {
+                              context.push('/create-listing', extra: car);
+                            }
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),

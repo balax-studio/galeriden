@@ -6,6 +6,14 @@ import 'core/services/ad_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Clear persistent state if requested via --dart-define=RESET_SAVE=true
+  const bool shouldReset = bool.fromEnvironment('RESET_SAVE', defaultValue: false);
+  if (shouldReset) {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
   await AdService.instance.initialize();
   
   ErrorWidget.builder = (FlutterErrorDetails details) {

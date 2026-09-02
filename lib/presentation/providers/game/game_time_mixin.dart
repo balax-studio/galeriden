@@ -1048,7 +1048,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       pendingCard = RandomEventEngine.getFilteredRandomEvent(state);
       if (pendingCard != null) {
         seenIds.add(pendingCard.id);
-        if (seenIds.length > 6) seenIds.removeAt(0);
+        if (seenIds.length > 12) seenIds.removeAt(0);
         updatedDays = 0;
         targetDays = 5 + random.nextInt(6);
       }

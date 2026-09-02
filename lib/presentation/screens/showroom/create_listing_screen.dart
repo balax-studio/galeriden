@@ -16,6 +16,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_segmented_gauge.dart';
 import '../../widgets/neo_brutal_slider.dart';
+import '../../widgets/tutorial_pulse_target.dart';
 
 class CreateListingScreen extends ConsumerStatefulWidget {
   final CarModel car;
@@ -1328,34 +1329,39 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           ),
         ],
       ),
-      child: NeoBrutalButton(
-        label: context.tr('btn_save_listing_details'),
-        icon: Icons.publish_rounded,
-        backgroundColor: const Color(0xFFFFDE59),
-        textColor: Colors.black,
-        fontSize: 14,
-        fontWeight: FontWeight.w900,
-        fullWidth: true,
-        borderWidth: 2.5,
-        shadowOffset: const Offset(3.5, 3.5),
-        onPressed: () {
-          HapticFeedback.mediumImpact();
-          ref.read(gameProvider.notifier).updateCarListingDetails(
-                activeCar.id,
-                customPrice: clampedPrice,
-                declaration: _declaration,
-                listingPhotoLocation: _photoLocation,
-                listingPhotoCount: _photoCount,
-                listingTone: _listingTone,
-                hideDamagedPhotos: _hideDamagedPhotos,
-                allowsInstallments: _allowsInstallments,
-              );
-          NotificationService.showSuccess(
-            context,
-            context.tr('toast_listing_updated_success'),
-          );
-          context.pop();
-        },
+      child: TutorialPulseTarget(
+        isEnabled: !ref.watch(gameProvider).tutorialCompleted &&
+            activeCar.id == 'car_heritage_dede',
+        pulseColor: const Color(0xFFFFDE59),
+        child: NeoBrutalButton(
+          label: context.tr('btn_save_listing_details'),
+          icon: Icons.publish_rounded,
+          backgroundColor: const Color(0xFFFFDE59),
+          textColor: Colors.black,
+          fontSize: 14,
+          fontWeight: FontWeight.w900,
+          fullWidth: true,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(3.5, 3.5),
+          onPressed: () {
+            HapticFeedback.mediumImpact();
+            ref.read(gameProvider.notifier).updateCarListingDetails(
+                  activeCar.id,
+                  customPrice: clampedPrice,
+                  declaration: _declaration,
+                  listingPhotoLocation: _photoLocation,
+                  listingPhotoCount: _photoCount,
+                  listingTone: _listingTone,
+                  hideDamagedPhotos: _hideDamagedPhotos,
+                  allowsInstallments: _allowsInstallments,
+                );
+            NotificationService.showSuccess(
+              context,
+              context.tr('toast_listing_updated_success'),
+            );
+            context.pop();
+          },
+        ),
       ),
     );
   }

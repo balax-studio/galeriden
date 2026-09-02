@@ -27,6 +27,7 @@ import '../showroom/showroom_screen.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../providers/tutorial_provider.dart';
 import '../../widgets/pulsing_dot.dart';
+import '../../widgets/tutorial_pulse_target.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import 'widgets/dashboard_banners.dart';
@@ -635,20 +636,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          NeoBrutalButton(
-            label: currentStepText,
-            icon: Icons.touch_app_rounded,
-            fullWidth: true,
-            backgroundColor: AppColors.brutalYellow,
-            textColor: Colors.black,
-            borderColor: const Color(0xFF0F172A),
-            borderWidth: 2.5,
-            shadowOffset: const Offset(3.5, 3.5),
-            fontSize: 13,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            onPressed: () {
-              ref.read(dashboardTabProvider.notifier).state = 1;
-            },
+          TutorialPulseTarget(
+            isEnabled: true,
+            pulseColor: AppColors.brutalYellow,
+            child: NeoBrutalButton(
+              label: currentStepText,
+              icon: Icons.touch_app_rounded,
+              fullWidth: true,
+              backgroundColor: AppColors.brutalYellow,
+              textColor: Colors.black,
+              borderColor: const Color(0xFF0F172A),
+              borderWidth: 2.5,
+              shadowOffset: const Offset(3.5, 3.5),
+              fontSize: 13,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              onPressed: () {
+                ref.read(dashboardTabProvider.notifier).state = 1;
+              },
+            ),
           ),
         ],
       ),

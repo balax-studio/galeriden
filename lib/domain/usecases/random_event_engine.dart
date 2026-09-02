@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import '../../core/utils/currency_formatter.dart';
 import '../../data/models/game_event_model.dart';
 
 class RandomEventEngine {
@@ -1397,15 +1398,173 @@ class RandomEventEngine {
             GameEventChoice(label: 'Yarış Teklifini Reddet & Kurumsal Çizgini Koru', resultText: 'İllegal yarıştan uzak durdun, kurumsal itibarını korudun.', balanceChange: 0.0, reputationChange: 10, xpGain: 30),
           ],
         ),
+
+        // --- YENİ ÇEŞİTLENDİRİLMİŞ YAN İŞLETME & KRİZ OLAYLARI ---
+        GameEventModel(
+          id: 'event_wash_water_cut',
+          title: 'ŞEBEKE SUYU KESİNTİSİ • OTO YIKAMA DURMA NOKTASINDA',
+          description: 'Belediye ana su hattı patladı, oto yıkama istasyonunun suları kesildi ve sırada bekleyen 8 müşteri var!',
+          iconEmoji: 'wrench',
+          amount: -4000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Acil Su Tankeri Çağır & Hizmeti Sürdür • -4.000 ₺', resultText: 'Tanker suyuyla araçlar yıkandı, müşteriler memnun ayrıldı.', balanceChange: -4000.0, reputationChange: 10, xpGain: 40),
+            GameEventChoice(label: 'Müşterilere İndirim Kuponu Ver & Randevuları Ertele • -1.500 ₺', resultText: 'Müşteriler anlayışla karşıladı ancak günün kârı düştü.', balanceChange: -1500.0, reputationChange: 0, xpGain: 25),
+            GameEventChoice(label: 'Yıkamayı Bugünlük Kapat', resultText: 'Kapıyı kilitledin, kuyruktaki müşteriler sitem ederek ayrıldı.', balanceChange: 0.0, reputationChange: -10, xpGain: 10),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_tow_winter_chain_rush',
+          title: 'ZORLU KIŞ ŞARTLARI • ÇEKİCİ KURTARMA SEFERBERLİĞİ',
+          description: 'Şehirlerarası otoyolda yoğun kar ve buzlanma nedeniyle mahsur kalan araçlar için çekici filona acil çağrı geldi!',
+          iconEmoji: 'truck',
+          amount: 18000.0,
+          type: GameEventType.goodEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Gece Boyu Ekip Gönder & Kurtarma Operasyonu Başlat • +18.000 ₺', resultText: 'Ekipler otoyoldaki araçları başarıyla kurtardı, kâr ve itibar zirve yaptı.', balanceChange: 18000.0, reputationChange: 25, xpGain: 120),
+            GameEventChoice(label: 'Ekipman Aşınma Riskini Al & Takviye Çekici Kirala • -6.000 ₺', resultText: 'Kiralık çekicilerle ek gelir elde edildi ancak masraflar yüksek kaldı.', balanceChange: -6000.0, reputationChange: 15, xpGain: 60),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_autoshop_counterfeit_filter',
+          title: 'TEDARİKÇİ YAĞ FİLTRESİ ŞÜPHESİ • OTO SERVİS ALARMI',
+          description: 'Toptancıdan alınan son parti yağ filtrelerinin kusurlu olduğu ve motor basıncını düşürdüğü anlaşıldı!',
+          iconEmoji: 'alert',
+          amount: -14000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Tüm Filtreleri Orijinalleriyle Değiştir & Müşterileri Ara • -14.000 ₺', resultText: 'Müşterilere durumu dürüstçe anlattın, güven tazelendi ve itibarın yükseldi.', balanceChange: -14000.0, reputationChange: 20, xpGain: 90),
+            GameEventChoice(label: 'Şüpheli Partiyi İade Et & Mağduriyete Hediye Çeki Ver • -6.000 ₺', resultText: 'Hasarlı partiyi iade ettin, masrafı sınırladın.', balanceChange: -6000.0, reputationChange: 5, xpGain: 50),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_dyno_calibration_drift',
+          title: 'DYNO TEST CİHAZI KALİBRASYON KAYMASI • KURUMSAL EKSPERTİZ',
+          description: 'Hassas güç ölçüm tamburu 15 beygirlik sapma gösterdi, sertifikasyon denetçisi cihazı mühürlemekle uyardı!',
+          iconEmoji: 'gauge',
+          amount: -16000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Yetkili Alman Servisini Çağır & Lazer Kalibrasyonu Yaptır • -16.000 ₺', resultText: 'Dyno cihazı sıfır hata toleransıyla kalibre edildi ve TSE onay belgesi yenilendi.', balanceChange: -16000.0, reputationChange: 15, xpGain: 100),
+            GameEventChoice(label: 'İç Kalibrasyon Ağırlığıyla Ayarla & Testi Tekrarla • -5.000 ₺', resultText: 'Basit ayar yapıldı ancak uzun vadede hassasiyet şüphesi sürüyor.', balanceChange: -5000.0, reputationChange: 0, xpGain: 40),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_wrap_ppf_heat_peel',
+          title: 'YÜKSEK SICAKLIK ETKİSİ • PPF KAPLAMA KABARMASI',
+          description: 'Yaz sıcağında kaplanan lüks bir SUV aracın kaput kenarlarındaki koruma filmi hava kabarcığı yaptı!',
+          iconEmoji: 'paint',
+          amount: -12000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Müşteriye Sıfırdan Ücretsiz Premium Yenileme Yap • -12.000 ₺', resultText: 'Kusursuz işçilikle kaplama yenilendi, müşteri sosyal medyada teşekkür paylaştı.', balanceChange: -12000.0, reputationChange: 20, xpGain: 75),
+            GameEventChoice(label: 'Kenar Düzeltme & Isıl Rötuş Uygula • -3.500 ₺', resultText: 'Bölgesel müdahaleyle kabarma giderildi.', balanceChange: -3500.0, reputationChange: 5, xpGain: 35),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_ev_grid_surge_breaker',
+          title: 'ŞEBEKE YÜKSEK VOLTAJ DALGALANMASI • ELEKTRİKLİ ŞARJ İSTASYONU',
+          description: 'Şebekede oluşan voltaj sıçraması hızlı DC şarj istasyonunun ana invertör sigorta kartını attırdı!',
+          iconEmoji: 'bolt',
+          amount: -18000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Yüksek Akım Korumalı Yeni İnvertör Kartı Tak • -18.000 ₺', resultText: 'En üst segment akım koruma paneli kuruldu, şarj istasyonu kesintisiz çalışıyor.', balanceChange: -18000.0, reputationChange: 10, xpGain: 85),
+            GameEventChoice(label: 'Yedek Sigorta Modülünü Devreye Al • -6.500 ₺', resultText: 'Geçici tamirle şarj hızı normale döndü.', balanceChange: -6500.0, reputationChange: 0, xpGain: 40),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_spare_parts_customs_seizure',
+          title: 'GÜMRÜK MEVZUAT GÜNCELLEMESİ • İTHAL YEDEK PARÇA PARTİSİ',
+          description: 'Yurtdışından galerine gelen OEM fren ve debriyaj parçaları gümrük antreposunda yeni harç tarifesine takıldı!',
+          iconEmoji: 'box',
+          amount: -22000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Gümrük Harçlarını Öde & Parçaları Depoya Çek • -22.000 ₺', resultText: 'Harçlar ödendi, orijinal parçalar raflardaki yerini aldı.', balanceChange: -22000.0, reputationChange: 10, xpGain: 110),
+            GameEventChoice(label: 'Müşavir Aracılığıyla İtiraz Et & Depo Süresini Uzat • -8.000 ₺', resultText: 'Süreç uzadı ancak maliyet düşürüldü.', balanceChange: -8000.0, reputationChange: 0, xpGain: 45),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_rental_gps_signal_loss',
+          title: 'GPS TAKİP KESİNTİSİ • KİRALIK FİLO GÜVENLİK ALARMI',
+          description: 'Rent a car filosundaki iki lüks aracın uydu takip modülü sinyal vermeyi kesti, sınır iline doğru seyir şüphesi var!',
+          iconEmoji: 'satellite',
+          amount: -15000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Özel Güvenlik & Hukuk Ekibiyle Aracı Takibe Al • -15.000 ₺', resultText: 'Araçlar sınır kapısına ulaşmadan emniyetle iş birliği içinde sağ salim teslim alındı.', balanceChange: -15000.0, reputationChange: 15, xpGain: 95),
+            GameEventChoice(label: 'Emniyete İhbar Et & Kasko Dosyası Açtır • -5.000 ₺', resultText: 'Resmi dosya açıldı, araçlar güvence altına alındı.', balanceChange: -5000.0, reputationChange: 0, xpGain: 40),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_scrap_crane_hydraulic_burst',
+          title: 'HURDA YÜKLEME VİNCİ HİDROLİK HORTUM PATLAMASI',
+          description: 'Hurda araçları prese taşıyan hidrolik vincin ana basma hortumu patladı, hurdalık operasyonu durdu!',
+          iconEmoji: 'wrench',
+          amount: -11000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Çelik Örgülü Yeni Hortum & Ağır Sanayi Yağı Doldur • -11.000 ₺', resultText: 'Vinç sağlamlaştırıldı, hurda işleme kapasitesi tam randımana döndü.', balanceChange: -11000.0, reputationChange: 5, xpGain: 60),
+            GameEventChoice(label: 'Atölye Kaynağıyla Acil Tamir Yap • -4.000 ₺', resultText: 'Geçici tamir yapıldı ancak vincin kaldırma yükü sınırlandı.', balanceChange: -4000.0, reputationChange: -5, xpGain: 30),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_vending_payment_gateway_down',
+          title: 'TEMASSIZ POS BAĞLANTISI KOPTU • KAHVE VE OTOMAT İSTASYONU',
+          description: 'Otomatın banka modemi arızalandı, bekleme salonundaki müşteriler bozuk para olmadığı için alışveriş yapamıyor!',
+          iconEmoji: 'coffee',
+          amount: -4500.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Yeni Nesil 4G Akıllı POS Terminali Satın Al • -4.500 ₺', resultText: 'Hızlı temassız ödeme aktif edildi, sıcak kahve satışları katlandı.', balanceChange: -4500.0, reputationChange: 10, xpGain: 35),
+            GameEventChoice(label: 'Eski Bozuk Para Mekanizmasını Temizle & Devreye Sok • -1.000 ₺', resultText: 'Bozuk parayla sınırlı satış devam ediyor.', balanceChange: -1000.0, reputationChange: 0, xpGain: 20),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_billboard_storm_torn_canvas',
+          title: 'ŞİDDETLİ FIRTINA • DİJİTAL BİLLBOARD PANEL ARIZASI',
+          description: 'Gece çıkan fırtına ana caddeye bakan LED reklam panelinin güç ünitesini hasara uğrattı!',
+          iconEmoji: 'tv',
+          amount: -13500.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Vinçli Teknik Ekip Çağır & Güç Panelini Yenile • -13.500 ₺', resultText: 'LED ekran tam parlaklıkta yayına devam ediyor, reklamverenler memnun.', balanceChange: -13500.0, reputationChange: 10, xpGain: 70),
+            GameEventChoice(label: 'Paneli Güvenli Modda Yarım Güçle Çalıştır • -4.000 ₺', resultText: 'Düşük parlaklıkta çalışıyor, elektrik arızası riski azaldı.', balanceChange: -4000.0, reputationChange: -5, xpGain: 30),
+          ],
+        ),
+        GameEventModel(
+          id: 'event_inspection_caliper_gauge_crack',
+          title: 'ÖN MUAYENE TEST TAMBURU ÇATLAMA ŞÜPHESİ',
+          description: 'Ağır ticari araç fren testi sırasında muayene silindirinin yüzeyinde mikro çatlak tespit edildi!',
+          iconEmoji: 'gauge',
+          amount: -17000.0,
+          type: GameEventType.badEvent,
+          date: DateTime.now(),
+          choices: [
+            GameEventChoice(label: 'Döküm Silindiri Orijinaliyle Yenile • -17.000 ₺', resultText: 'Muayene tamburu sıfırlandı, resmi denetimden tam not alındı.', balanceChange: -17000.0, reputationChange: 15, xpGain: 80),
+            GameEventChoice(label: 'Yüzey Taşlama & Torna Düzeltmesi Uygula • -5.500 ₺', resultText: 'Yüzey düzeltildi ancak önümüzdeki ay tekrar kontrol gerekecek.', balanceChange: -5500.0, reputationChange: 0, xpGain: 40),
+          ],
+        ),
       ];
 
-  /// Randomly pick an event
   static GameEventModel getRandomEvent() {
     final templates = allEventTemplates;
     return templates[_random.nextInt(templates.length)];
   }
 
-  /// Context-aware event picker strictly gated by dealership ownership and features
+  /// Context-aware event picker strictly gated by dealership ownership, features, and level tier
   static GameEventModel? getFilteredRandomEvent(dynamic state) {
     var candidates = List<GameEventModel>.from(allEventTemplates);
 
@@ -1416,13 +1575,17 @@ class RandomEventEngine {
       final sideBusinesses = (state.sideBusinesses as List?) ?? [];
       final unlockedBuildings = (state.unlockedBuildings as Set?) ?? {};
       final balance = (state.balance as num?)?.toDouble() ?? 0.0;
+      final int level = (state.level as num?)?.toInt() ?? 1;
 
       bool hasBusiness(String typeName) {
         return sideBusinesses.any((b) {
           try {
-            final isOwned = b.isOwned == true;
-            final bType = b.type.toString();
-            return isOwned && (bType == typeName || bType.endsWith(typeName) || bType.endsWith('.$typeName'));
+            final t = b.type.toString();
+            final isType = t == typeName ||
+                t == 'SideBusinessType.$typeName' ||
+                t.endsWith(typeName) ||
+                t.endsWith('.$typeName');
+            return isType && (b.isOwned == true);
           } catch (_) {
             return false;
           }
@@ -1451,21 +1614,24 @@ class RandomEventEngine {
               unlockedBuildings.contains('property_tier_7') ||
               unlockedBuildings.contains('property_tier_8');
         }
-        return true;
+        return false;
       }
 
       bool hasStaffRole(String roleName) {
         return hiredStaff.any((s) {
           try {
             final r = s.role.toString();
-            return r == roleName || r.endsWith(roleName) || r.endsWith('.$roleName');
+            return r == roleName ||
+                r == 'StaffRole.$roleName' ||
+                r.endsWith(roleName) ||
+                r.endsWith('.$roleName');
           } catch (_) {
             return false;
           }
         });
       }
 
-      // 1. Garage Car Count Gating
+      // 1. Vehicle & Staff context gating
       if (ownedCars.isEmpty) {
         candidates.removeWhere((e) =>
             e.id == 'event_paint_scratched' ||
@@ -1474,11 +1640,19 @@ class RandomEventEngine {
             e.id == 'event_hail_storm' ||
             e.id == 'event_vip_special_plate_request' ||
             e.id == 'event_night_shady_buyer' ||
-            e.id == 'event_buyer_knowitall_uncle');
+            e.id == 'event_buyer_knowitall_uncle' ||
+            e.id == 'event_customer_test_drive_accident' ||
+            e.id == 'event_showroom_car_scratch' ||
+            e.id == 'event_luxury_showroom_theft_attempt' ||
+            e.id == 'event_rare_classic_car_finder');
       }
 
       if (hiredStaff.isEmpty) {
-        candidates.removeWhere((e) => e.id == 'event_cirak');
+        candidates.removeWhere((e) =>
+            e.id == 'event_cirak' ||
+            e.id == 'event_staff_wage_dispute' ||
+            e.id == 'event_mechanic_poached' ||
+            e.id == 'event_sales_rep_record_month');
       }
 
       // Staff specific gating
@@ -1500,7 +1674,8 @@ class RandomEventEngine {
             e.id == 'event_vending_coin_jam' ||
             e.id == 'event_vending_spoiled_milk' ||
             e.id == 'event_vending_artisan_roastery_deal' ||
-            e.id == 'event_vending_energy_drink_exclusive');
+            e.id == 'event_vending_energy_drink_exclusive' ||
+            e.id == 'event_vending_payment_gateway_down');
       }
 
       if (!hasBusiness('carWash')) {
@@ -1509,7 +1684,8 @@ class RandomEventEngine {
             e.id == 'event_wash_chemical_burn' ||
             e.id == 'event_wash_wedding_convoy_rush' ||
             e.id == 'event_wash_ceramic_bulk_contract' ||
-            e.id == 'event_wash_foam_cannon_upgrade');
+            e.id == 'event_wash_foam_cannon_upgrade' ||
+            e.id == 'event_wash_water_cut');
       }
 
       if (!hasBusiness('evCharging')) {
@@ -1518,7 +1694,8 @@ class RandomEventEngine {
             e.id == 'event_ev_cable_ripoff' ||
             e.id == 'event_ev_solar_canopy_installation' ||
             e.id == 'event_ev_fleet_overnight_depot' ||
-            e.id == 'event_ev_epdk_green_energy_rebate');
+            e.id == 'event_ev_epdk_green_energy_rebate' ||
+            e.id == 'event_ev_grid_surge_breaker');
       }
 
       if (!hasBusiness('billboard')) {
@@ -1526,7 +1703,8 @@ class RandomEventEngine {
             e.id == 'event_billboard_panel_short' ||
             e.id == 'event_billboard_wind_damage' ||
             e.id == 'event_billboard_politician_election_campaign' ||
-            e.id == 'event_billboard_viral_3d_anamorphic');
+            e.id == 'event_billboard_viral_3d_anamorphic' ||
+            e.id == 'event_billboard_storm_torn_canvas');
       }
 
       if (!hasBusiness('wrapStudio')) {
@@ -1534,7 +1712,8 @@ class RandomEventEngine {
             e.id == 'event_wrap_blade_scratch' ||
             e.id == 'event_wrap_bubble_peel' ||
             e.id == 'event_wrap_supercar_matte_chameleon' ||
-            e.id == 'event_wrap_commercial_fleet_branding');
+            e.id == 'event_wrap_commercial_fleet_branding' ||
+            e.id == 'event_wrap_ppf_heat_peel');
       }
 
       if (!hasBusiness('corporateExpertise') && !hasBusiness('inspectionStation')) {
@@ -1547,7 +1726,9 @@ class RandomEventEngine {
             e.id == 'event_expertise_court_expert_assignment' ||
             e.id == 'event_expertise_airbag_redemption_award' ||
             e.id == 'event_inspection_commercial_fleet_audit' ||
-            e.id == 'event_inspection_laser_alignment_upgrade');
+            e.id == 'event_inspection_laser_alignment_upgrade' ||
+            e.id == 'event_dyno_calibration_drift' ||
+            e.id == 'event_inspection_caliper_gauge_crack');
       }
 
       if (!hasBusiness('sparePartsStore')) {
@@ -1555,7 +1736,8 @@ class RandomEventEngine {
             e.id == 'event_spare_parts_tax_audit' ||
             e.id == 'event_spare_parts_water_damage' ||
             e.id == 'event_spare_parts_german_oem_distributorship' ||
-            e.id == 'event_spare_parts_performance_exhaust_trend');
+            e.id == 'event_spare_parts_performance_exhaust_trend' ||
+            e.id == 'event_spare_parts_customs_seizure');
       }
 
       if (!hasBusiness('towTruck')) {
@@ -1565,7 +1747,8 @@ class RandomEventEngine {
             e.id == 'event_tow_sports_club_bus_rescue' ||
             e.id == 'event_tow_insurance_annual_tender' ||
             e.id == 'event_winter_blizzard_demand' ||
-            e.id == 'event_winter_blizzard_crisis');
+            e.id == 'event_winter_blizzard_crisis' ||
+            e.id == 'event_tow_winter_chain_rush');
       }
 
       if (!hasBusiness('carRental')) {
@@ -1574,7 +1757,8 @@ class RandomEventEngine {
             e.id == 'event_rental_clutch_burn' ||
             e.id == 'event_rental_cinema_movie_production' ||
             e.id == 'event_rental_airport_vip_transfer_franchise' ||
-            e.id == 'event_rental_movie_gala_premiere');
+            e.id == 'event_rental_movie_gala_premiere' ||
+            e.id == 'event_rental_gps_signal_loss');
       }
 
       if (!hasBusiness('autoShop') && !isUnlocked('/workshop')) {
@@ -1584,7 +1768,8 @@ class RandomEventEngine {
             e.id == 'event_autoshop_supercar_oil_service' ||
             e.id == 'event_autoshop_bulk_drum_oil_deal' ||
             e.id == 'event_holiday_rush_maintenance' ||
-            e.id == 'event_night_drag_sponsorship');
+            e.id == 'event_night_drag_sponsorship' ||
+            e.id == 'event_autoshop_counterfeit_filter');
       }
 
       // 3. Strict Scrapyard & Workshop Feature Gating
@@ -1597,7 +1782,8 @@ class RandomEventEngine {
             e.id == 'event_salvage_corrosion' ||
             e.id == 'event_b2b_defective_return' ||
             e.id == 'event_scrap_classic_chassis_treasure' ||
-            e.id == 'event_scrap_classic_auction_climax');
+            e.id == 'event_scrap_classic_auction_climax' ||
+            e.id == 'event_scrap_crane_hydraulic_burst');
       }
 
       if (!hasScrapyard && !hasWorkshop && !hasBusiness('autoShop')) {
@@ -1606,18 +1792,177 @@ class RandomEventEngine {
             e.id == 'event_workshop_b2b_engine_rebuild_contract');
       }
 
-      // Filter out last 6 seen events to avoid immediate repeats
-      final recentSeen = seenIds.length > 6 ? seenIds.sublist(seenIds.length - 6) : seenIds;
+      // 4. Level Tier Gating
+      if (level <= 2) {
+        // Levels 1-2: filter out massive high-risk corporate and fiscal scandal events
+        candidates.removeWhere((e) =>
+            e.id == 'event_black_market_raid' ||
+            e.id == 'event_airbag_bypass_scandal' ||
+            e.id == 'event_spare_parts_tax_audit' ||
+            e.id == 'event_workshop_waste_fine' ||
+            e.id == 'event_salvage_corrosion' ||
+            e.id == 'event_office_fake_cheque' ||
+            e.id == 'event_ev_cable_ripoff' ||
+            e.id == 'event_spare_parts_customs_seizure' ||
+            e.id == 'event_macro_import_customs_quota');
+      } else if (level <= 4) {
+        // Levels 3-4: filter out ultra-high-end conglomerate crises
+        candidates.removeWhere((e) =>
+            e.id == 'event_black_market_raid' ||
+            e.id == 'event_airbag_bypass_scandal' ||
+            e.id == 'event_macro_import_customs_quota');
+      }
+
+      // 5. Anti-Repetition Buffer (Look back up to 12 events)
+      final recentSeen = seenIds.length > 12 ? seenIds.sublist(seenIds.length - 12) : seenIds;
       final unseen = candidates.where((e) => !recentSeen.contains(e.id)).toList();
 
+      GameEventModel? selected;
       if (unseen.isNotEmpty) {
-        return unseen[_random.nextInt(unseen.length)];
+        selected = unseen[_random.nextInt(unseen.length)];
+      } else if (candidates.isNotEmpty) {
+        selected = candidates[_random.nextInt(candidates.length)];
+      }
+
+      if (selected != null) {
+        return scaleEventForState(selected, state);
       }
     } catch (e) {
       debugPrint('RandomEventEngine error: $e');
     }
 
     if (candidates.isEmpty) return null;
-    return candidates[_random.nextInt(candidates.length)];
+    final fallback = candidates[_random.nextInt(candidates.length)];
+    return scaleEventForState(fallback, state);
+  }
+
+  /// Dynamically scales event choices based on player level, balance cushion, and staff perks
+  static GameEventModel scaleEventForState(GameEventModel event, dynamic state) {
+    final int level = (state.level as num?)?.toInt() ?? 1;
+    final double balance = (state.balance as num?)?.toDouble() ?? 0.0;
+    final hiredStaff = (state.hiredStaff as List?) ?? [];
+    final specStr = state.specializationPath?.toString() ?? '';
+    final bool isBoss = specStr.contains('boss') || specStr.contains('salesGuru');
+
+    bool hasRole(String roleName) {
+      return hiredStaff.any((s) {
+        try {
+          final r = s.role.toString();
+          return r == roleName ||
+              r == 'StaffRole.$roleName' ||
+              r.endsWith(roleName) ||
+              r.endsWith('.$roleName');
+        } catch (_) {
+          return false;
+        }
+      });
+    }
+
+    final bool hasMasterMechanic = hasRole('masterMechanic');
+    final bool hasAccountant = hasRole('accountant') || hasRole('manager');
+
+    final updatedChoices = event.choices.map((choice) {
+      return scaleChoice(
+        choice: choice,
+        level: level,
+        currentBalance: balance,
+        hasMasterMechanic: hasMasterMechanic,
+        hasAccountant: hasAccountant,
+        isBossSpecialization: isBoss,
+      );
+    }).toList();
+
+    return GameEventModel(
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      iconEmoji: event.iconEmoji,
+      amount: updatedChoices.isNotEmpty ? updatedChoices.first.balanceChange : event.amount,
+      type: event.type,
+      date: event.date,
+      choices: updatedChoices,
+    );
+  }
+
+  /// Calculates dynamically scaled penalty or reward for a choice
+  static GameEventChoice scaleChoice({
+    required GameEventChoice choice,
+    required int level,
+    required double currentBalance,
+    required bool hasMasterMechanic,
+    required bool hasAccountant,
+    required bool isBossSpecialization,
+  }) {
+    if (choice.balanceChange == 0) return choice;
+
+    if (choice.balanceChange < 0) {
+      final basePenalty = choice.balanceChange.abs();
+
+      // 1. Level scaling (+25% per level above Level 1, up to Level 8 = +175%)
+      double scaled = basePenalty * (1.0 + (level.clamp(1, 8) - 1) * 0.25);
+
+      // 2. Staff reduction
+      if (hasMasterMechanic) {
+        scaled *= 0.75; // 25% discount via master mechanic
+      }
+      if (hasAccountant) {
+        scaled *= 0.85; // 15% discount on accounting / fines
+      }
+      if (isBossSpecialization) {
+        scaled *= 0.85; // 15% discount for boss leadership
+      }
+
+      // 3. Bankruptcy Cushion (Safety Cap)
+      if (currentBalance <= 60000.0) {
+        // Prevent instant bankruptcy: cap penalty at max 30% of current cash, minimum 1200 TL
+        final safetyCap = max(1200.0, currentBalance * 0.30);
+        scaled = min(scaled, safetyCap);
+      } else if (currentBalance > 1500000.0) {
+        // High-net-worth tycoon scaling: ensure penalty feels impactful
+        final highCapFloor = currentBalance * 0.035;
+        scaled = max(scaled, min(highCapFloor, scaled * 2.2));
+      }
+
+      final roundedPenalty = -scaled.roundToDouble();
+      final newLabel = _formatChoiceLabel(choice.label, roundedPenalty);
+
+      return GameEventChoice(
+        label: newLabel,
+        resultText: choice.resultText,
+        balanceChange: roundedPenalty,
+        reputationChange: choice.reputationChange,
+        xpGain: choice.xpGain,
+      );
+    } else {
+      final baseReward = choice.balanceChange;
+      // Gentle reward scaling (+20% per level)
+      final scaledReward = (baseReward * (1.0 + (level.clamp(1, 8) - 1) * 0.20)).roundToDouble();
+      final newLabel = _formatChoiceLabel(choice.label, scaledReward);
+
+      return GameEventChoice(
+        label: newLabel,
+        resultText: choice.resultText,
+        balanceChange: scaledReward,
+        reputationChange: choice.reputationChange,
+        xpGain: choice.xpGain,
+      );
+    }
+  }
+
+  static String _formatChoiceLabel(String oldLabel, double amount) {
+    if (!oldLabel.contains('₺') && !oldLabel.contains('• -') && !oldLabel.contains('• +')) {
+      return oldLabel;
+    }
+    final formatted = CurrencyFormatter.format(amount.abs());
+    final sign = amount < 0 ? '-' : '+';
+
+    if (oldLabel.contains('• -') || oldLabel.contains('• +')) {
+      final parts = oldLabel.split(RegExp(r'•\s*[-+]'));
+      return '${parts[0].trim()} • $sign$formatted';
+    } else if (oldLabel.contains('•')) {
+      final parts = oldLabel.split('•');
+      return '${parts[0].trim()} • $sign$formatted';
+    }
+    return '$oldLabel • $sign$formatted';
   }
 }
