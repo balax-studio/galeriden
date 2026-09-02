@@ -44,8 +44,8 @@ import '../../../data/models/gossip_item_model.dart';
 import 'game_base_notifier.dart';
 
 mixin GameTimeMixin on GameBaseNotifier {
-  /// 1 in-game calendar day = 7 minutes (420 seconds) of active gameplay
-  static const int inGameDayDurationSeconds = 420;
+  /// 1 in-game calendar day = 2 minutes (120 seconds) of active gameplay
+  static const int inGameDayDurationSeconds = 120;
 
   Timer? _organicOfferTimer;
   DateTime _lastDayAdvanceTime = DateTime.now();
@@ -56,7 +56,7 @@ mixin GameTimeMixin on GameBaseNotifier {
     _lastDayAdvanceTime = DateTime.now();
     _organicOfferTimer = Timer.periodic(
         const Duration(seconds: inGameDayDurationSeconds), (timer) {
-      // ponytail: 1 in-game calendar day = 7 minutes (420 seconds) of active gameplay
+      // ponytail: 1 in-game calendar day = 2 minutes (120 seconds) of active gameplay
       advanceGameDay();
 
       // Günlük dalgalanma faktörü (0.8 ile 1.2 arası)

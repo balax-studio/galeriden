@@ -131,7 +131,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Verify all pills are rendered
       expect(find.textContaining('GÜN'), findsOneWidget);
@@ -143,7 +144,8 @@ void main() {
       // Tap Görev pill to open daily missions modal
       await tester.ensureVisible(find.textContaining('GÖREV'));
       await tester.tap(find.textContaining('GÖREV'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text('GÜNLÜK GÖREVLER'), findsOneWidget);
 

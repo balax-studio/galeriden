@@ -17,8 +17,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Day Duration & Bottom Gauge Progress Pill Tests', () {
-    test('In-game day duration constant is exactly 7 minutes (420 seconds)', () {
-      expect(GameTimeMixin.inGameDayDurationSeconds, equals(420));
+    test('In-game day duration constant is exactly 2 minutes (120 seconds)', () {
+      expect(GameTimeMixin.inGameDayDurationSeconds, equals(120));
     });
 
     test('7-Language localization includes all day phase keys', () {
@@ -68,20 +68,20 @@ void main() {
 
       expect(find.byType(DayProgressHudPill), findsOneWidget);
 
-      // Advance 1 minute (60s)
-      await tester.pump(const Duration(seconds: 60));
+      // Advance morning phase (15s)
+      await tester.pump(const Duration(seconds: 15));
       expect(find.byType(DayProgressHudPill), findsOneWidget);
 
-      // Advance to noon (150s)
-      await tester.pump(const Duration(seconds: 90));
+      // Advance to noon (45s)
+      await tester.pump(const Duration(seconds: 30));
       expect(find.byType(DayProgressHudPill), findsOneWidget);
 
-      // Advance to evening (300s)
-      await tester.pump(const Duration(seconds: 150));
+      // Advance to evening (85s)
+      await tester.pump(const Duration(seconds: 40));
       expect(find.byType(DayProgressHudPill), findsOneWidget);
 
-      // Advance to night (400s)
-      await tester.pump(const Duration(seconds: 100));
+      // Advance to night (110s)
+      await tester.pump(const Duration(seconds: 25));
       expect(find.byType(DayProgressHudPill), findsOneWidget);
     });
 

@@ -321,13 +321,15 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Find and tap the season pill
       final seasonFinder = find.text('İLKBAHAR ');
       expect(seasonFinder, findsOneWidget);
       await tester.tap(seasonFinder);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Verify Neo-Brutalist Season Dialog elements
       expect(find.text('28 GÜNLÜK MEVSİM DÖNGÜSÜ'), findsOneWidget);
@@ -344,7 +346,8 @@ void main() {
 
       // Close modal
       await tester.tap(find.text('PİYASA ETKİSİNİ ANLADIM'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       await tester.pumpWidget(const SizedBox());
       container.dispose();
@@ -373,13 +376,15 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Find and tap the weather pill
       final weatherFinder = find.text('HAVA ');
       expect(weatherFinder, findsOneWidget);
       await tester.tap(weatherFinder);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Verify Neo-Brutalist Weather Dialog elements
       expect(find.text('HAVA DURUMU & PİYASA'), findsOneWidget);
@@ -395,7 +400,8 @@ void main() {
 
       // Close modal
       await tester.tap(find.text('TAMAM'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       await tester.pumpWidget(const SizedBox());
       container.dispose();
