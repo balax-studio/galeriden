@@ -376,7 +376,9 @@ class _NeoBrutalDramaticDialogState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: catColor.withValues(alpha: isDark ? 0.18 : 0.12),
+              color: isDark
+                  ? const Color(0xFF1E293B)
+                  : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: catColor,
@@ -397,7 +399,7 @@ class _NeoBrutalDramaticDialogState
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white70 : const Color(0xFF334155),
+                      color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
                     ),
                   ),
                 ),
@@ -423,6 +425,26 @@ class _NeoBrutalDramaticDialogState
               choice.upfrontCost <= 0 || currentBalance >= choice.upfrontCost;
           final bool isPrimary = choice == widget.card.choices.first;
 
+          final Color optionBg = !canAfford
+              ? (isDark ? const Color(0xFF161B26) : const Color(0xFFF1F5F9))
+              : (isDark
+                  ? const Color(0xFF1E293B)
+                  : (isPrimary ? const Color(0xFFF8FAFC) : Colors.white));
+
+          final Color optionBorder = !canAfford
+              ? (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1))
+              : (isPrimary
+                  ? catColor
+                  : (isDark ? const Color(0xFF475569) : const Color(0xFF0F172A)));
+
+          final Color titleColor = !canAfford
+              ? (isDark ? Colors.white38 : const Color(0xFF94A3B8))
+              : (isDark ? Colors.white : const Color(0xFF0F172A));
+
+          final Color descColor = !canAfford
+              ? (isDark ? Colors.white24 : const Color(0xFFCBD5E1))
+              : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569));
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
@@ -433,24 +455,10 @@ class _NeoBrutalDramaticDialogState
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: !canAfford
-                      ? (isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF1F5F9))
-                      : (isPrimary
-                          ? catColor.withValues(alpha: isDark ? 0.25 : 0.16)
-                          : (isDark
-                              ? const Color(0xFF1E293B)
-                              : const Color(0xFFFFFFFF))),
+                  color: optionBg,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: !canAfford
-                        ? (isDark
-                            ? const Color(0xFF334155)
-                            : const Color(0xFFCBD5E1))
-                        : (isDark
-                            ? const Color(0xFF475569)
-                            : const Color(0xFF0F172A)),
+                    color: optionBorder,
                     width: 2.4,
                   ),
                   boxShadow: canAfford
@@ -476,13 +484,7 @@ class _NeoBrutalDramaticDialogState
                             style: TextStyle(
                               fontSize: 13.5,
                               fontWeight: FontWeight.w900,
-                              color: !canAfford
-                                  ? (isDark
-                                      ? Colors.white38
-                                      : const Color(0xFF94A3B8))
-                                  : (isDark
-                                      ? Colors.white
-                                      : const Color(0xFF0F172A)),
+                              color: titleColor,
                             ),
                           ),
                         ),
@@ -492,7 +494,7 @@ class _NeoBrutalDramaticDialogState
                                 horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               color: !canAfford
-                                  ? const Color(0xFFEF4444)
+                                  ? const Color(0xFF94A3B8)
                                   : const Color(0xFFDC2626),
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
@@ -519,11 +521,7 @@ class _NeoBrutalDramaticDialogState
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? (canAfford ? Colors.white70 : Colors.white30)
-                            : (canAfford
-                                ? const Color(0xFF475569)
-                                : const Color(0xFF94A3B8)),
+                        color: descColor,
                       ),
                     ),
                   ],

@@ -12,6 +12,7 @@ import '../../data/models/theme_palette_model.dart';
 import '../providers/game_provider.dart';
 import '../screens/dashboard/widgets/dashboard_missions_section.dart';
 import 'animated_rolling_counter.dart';
+import 'radial_day_progress_widget.dart';
 import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
@@ -59,13 +60,40 @@ class GameHudHeaderWidget extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
 
-            // 2. GÜN Pill (Interactive -> Sales & Day Ledger History)
+            // 2. GÜN Pill (Interactive -> Sales & Day Ledger History with 7-Minute Radial Progress)
             _buildPill(
               context,
-              icon: Icons.calendar_month_rounded,
-              accentColor: const Color(0xFFFFB703),
+              customIconWidget: RadialDayProgressWidget(
+                currentDay: game.currentDay,
+                isDark: isDark,
+                dayStartTime:
+                    ref.read(gameProvider.notifier).lastDayAdvanceTime,
+              ),
               title: context.tr('hud_day'),
-              value: '${game.currentDay}',
+              valueWidget: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 320),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 0.45),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutBack,
+                    )),
+                    child: FadeTransition(opacity: animation, child: child),
+                  );
+                },
+                child: Text(
+                  '${game.currentDay}',
+                  key: ValueKey('hud_day_${game.currentDay}'),
+                  style: AppTypography.monoSpec(isDark).copyWith(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ),
               onTap: () {
                 HapticFeedback.lightImpact();
                 context.push('/history');
@@ -267,8 +295,9 @@ class GameHudHeaderWidget extends ConsumerWidget {
 
   Widget _buildPill(
     BuildContext context, {
-    required IconData icon,
-    required Color accentColor,
+    IconData? icon,
+    Widget? customIconWidget,
+    Color? accentColor,
     required String title,
     String? value,
     Widget? valueWidget,
@@ -314,20 +343,24 @@ class GameHudHeaderWidget extends ConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    color: accentColor,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF333B4F)
-                          : const Color(0xFF0F172A),
-                      width: 1.5,
+                if (customIconWidget != null)
+                  customIconWidget
+                else
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: accentColor ?? const Color(0xFFFFB703),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
+                        width: 1.5,
+                      ),
                     ),
+                    child: Icon(icon ?? Icons.circle,
+                        size: 12, color: Colors.black),
                   ),
-                  child: Icon(icon, size: 12, color: Colors.black),
-                ),
                 const SizedBox(width: 6),
                 Text(
                   '$title ',

@@ -44,12 +44,19 @@ import '../../../data/models/gossip_item_model.dart';
 import 'game_base_notifier.dart';
 
 mixin GameTimeMixin on GameBaseNotifier {
+  /// 1 in-game calendar day = 7 minutes (420 seconds) of active gameplay
+  static const int inGameDayDurationSeconds = 420;
+
   Timer? _organicOfferTimer;
+  DateTime _lastDayAdvanceTime = DateTime.now();
+  DateTime get lastDayAdvanceTime => _lastDayAdvanceTime;
 
   void startPeriodicOrganicOfferTimer() {
     _organicOfferTimer?.cancel();
-    _organicOfferTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      // ponytail: 1 in-game calendar day = 60 seconds of active gameplay
+    _lastDayAdvanceTime = DateTime.now();
+    _organicOfferTimer = Timer.periodic(
+        const Duration(seconds: inGameDayDurationSeconds), (timer) {
+      // ponytail: 1 in-game calendar day = 7 minutes (420 seconds) of active gameplay
       advanceGameDay();
 
       // Günlük dalgalanma faktörü (0.8 ile 1.2 arası)
@@ -348,6 +355,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       activeCrmEvent: nextActiveCrm,
     );
 
+    _lastDayAdvanceTime = DateTime.now();
     refreshMarketTrends();
   }
 
