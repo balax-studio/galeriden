@@ -1,5 +1,7 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../core/theme/app_typography.dart';
 import '../providers/game/game_time_mixin.dart';
 
 /// Micro Time-of-Day Phase enum
@@ -10,27 +12,27 @@ enum DayTimePhase {
   night,
 }
 
-/// High-performance, Neo-Brutalist Hardware-Accelerated Radial Clock Progress Widget.
-/// Shows a live 7-minute circular sweep indicating elapsed day progress and time-of-day phases.
-class RadialDayProgressWidget extends StatefulWidget {
+/// Full-Width Bottom Gauge Neo-Brutalist Day Pill Widget.
+/// Combines a clean square micro-phase icon badge with a full-width 3px progress bar.
+class DayProgressHudPill extends StatefulWidget {
   final int currentDay;
   final bool isDark;
-  final double size;
   final DateTime? dayStartTime;
+  final VoidCallback onTap;
 
-  const RadialDayProgressWidget({
+  const DayProgressHudPill({
     super.key,
     required this.currentDay,
     required this.isDark,
-    this.size = 22.0,
     this.dayStartTime,
+    required this.onTap,
   });
 
   @override
-  State<RadialDayProgressWidget> createState() => _RadialDayProgressWidgetState();
+  State<DayProgressHudPill> createState() => _DayProgressHudPillState();
 }
 
-class _RadialDayProgressWidgetState extends State<RadialDayProgressWidget>
+class _DayProgressHudPillState extends State<DayProgressHudPill>
     with TickerProviderStateMixin {
   late AnimationController _progressController;
   late AnimationController _pulseController;
@@ -53,12 +55,12 @@ class _RadialDayProgressWidgetState extends State<RadialDayProgressWidget>
 
     _pulseAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.18)
+        tween: Tween<double>(begin: 1.0, end: 1.15)
             .chain(CurveTween(curve: Curves.easeOutBack)),
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.18, end: 1.0)
+        tween: Tween<double>(begin: 1.15, end: 1.0)
             .chain(CurveTween(curve: Curves.easeInOut)),
         weight: 50,
       ),
@@ -72,8 +74,7 @@ class _RadialDayProgressWidgetState extends State<RadialDayProgressWidget>
       final elapsedMs =
           DateTime.now().difference(widget.dayStartTime!).inMilliseconds;
       const totalMs = GameTimeMixin.inGameDayDurationSeconds * 1000;
-      final startValue =
-          ((elapsedMs % totalMs) / totalMs).clamp(0.0, 1.0);
+      final startValue = ((elapsedMs % totalMs) / totalMs).clamp(0.0, 1.0);
       _progressController.value = startValue;
     }
 
@@ -81,7 +82,7 @@ class _RadialDayProgressWidgetState extends State<RadialDayProgressWidget>
   }
 
   @override
-  void didUpdateWidget(covariant RadialDayProgressWidget oldWidget) {
+  void didUpdateWidget(covariant DayProgressHudPill oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.currentDay != oldWidget.currentDay) {
       _pulseController.forward(from: 0.0);
@@ -119,63 +120,147 @@ class _RadialDayProgressWidgetState extends State<RadialDayProgressWidget>
 
   @override
   Widget build(BuildContext context) {
-    final trackColor = widget.isDark
-        ? const Color(0xFF2A3142)
-        : const Color(0xFFE2E8F0);
-    final borderColor = widget.isDark
-        ? const Color(0xFF333B4F)
-        : const Color(0xFF0F172A);
+    final isDark = widget.isDark;
+    final bgColor = isDark ? const Color(0xFF141721) : Colors.white;
+    final borderColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final shadowColor =
+        isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
+    final trackColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0);
 
     return RepaintBoundary(
       child: ScaleTransition(
         scale: _pulseAnimation,
-        child: SizedBox(
-          width: widget.size,
-          height: widget.size,
-          child: AnimatedBuilder(
-            animation: _progressController,
-            builder: (context, _) {
-              final progress = _progressController.value;
-              final phase = _getPhase(progress);
-              final (icon, accentColor) = _getPhaseVisuals(phase);
-
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  // 1. Radial Sweep Arc & Background Track
-                  CustomPaint(
-                    size: Size(widget.size, widget.size),
-                    painter: _RadialClockPainter(
-                      progress: progress,
-                      trackColor: trackColor,
-                      progressColor: accentColor,
-                      strokeWidth: 2.2,
-                    ),
-                  ),
-
-                  // 2. Inner Icon Badge Box
-                  Container(
-                    width: widget.size - 6.0,
-                    height: widget.size - 6.0,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: BorderRadius.circular(3.5),
-                      border: Border.all(
-                        color: borderColor,
-                        width: 1.2,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        icon,
-                        size: 9.5,
-                        color: Colors.black,
-                      ),
-                    ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              widget.onTap();
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor,
+                    offset: const Offset(2.0, 2.0),
+                    blurRadius: 0,
                   ),
                 ],
-              );
-            },
+              ),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: borderColor,
+                    width: 2.0,
+                  ),
+                ),
+                child: AnimatedBuilder(
+                  animation: _progressController,
+                  builder: (context, _) {
+                    final progress = _progressController.value;
+                    final phase = _getPhase(progress);
+                    final (icon, accentColor) = _getPhaseVisuals(phase);
+
+                    return IntrinsicWidth(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Top Row: Square Icon Box + Label + Animated Day
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  color: accentColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? const Color(0xFF333B4F)
+                                        : const Color(0xFF0F172A),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Icon(
+                                  icon,
+                                  size: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${context.tr('hud_day')} ',
+                                style: AppTypography.labelSmall(isDark).copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 320),
+                                transitionBuilder: (child, animation) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(0.0, 0.45),
+                                      end: Offset.zero,
+                                    ).animate(CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeOutBack,
+                                    )),
+                                    child: FadeTransition(
+                                        opacity: animation, child: child),
+                                  );
+                                },
+                                child: Text(
+                                  '${widget.currentDay}',
+                                  key: ValueKey('hud_day_${widget.currentDay}'),
+                                  style: AppTypography.monoSpec(isDark).copyWith(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3.5),
+
+                          // Bottom Full-Width 3.0px Gauge Progress Bar
+                          Container(
+                            height: 3.0,
+                            decoration: BoxDecoration(
+                              color: trackColor,
+                              borderRadius: BorderRadius.circular(1.5),
+                            ),
+                            child: FractionallySizedBox(
+                              alignment: Alignment.centerLeft,
+                              widthFactor: progress.clamp(0.02, 1.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: accentColor,
+                                  borderRadius: BorderRadius.circular(1.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -183,56 +268,28 @@ class _RadialDayProgressWidgetState extends State<RadialDayProgressWidget>
   }
 }
 
-/// CustomPainter rendering high-contrast, crisp neo-brutalist circular sweep progress
-class _RadialClockPainter extends CustomPainter {
-  final double progress;
-  final Color trackColor;
-  final Color progressColor;
-  final double strokeWidth;
+/// Fallback / standalone Radial Clock Progress Widget
+class RadialDayProgressWidget extends StatelessWidget {
+  final int currentDay;
+  final bool isDark;
+  final double size;
+  final DateTime? dayStartTime;
 
-  const _RadialClockPainter({
-    required this.progress,
-    required this.trackColor,
-    required this.progressColor,
-    required this.strokeWidth,
+  const RadialDayProgressWidget({
+    super.key,
+    required this.currentDay,
+    required this.isDark,
+    this.size = 22.0,
+    this.dayStartTime,
   });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width - strokeWidth) / 2;
-
-    // Background track
-    final trackPaint = Paint()
-      ..color = trackColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-
-    canvas.drawCircle(center, radius, trackPaint);
-
-    // Active progress arc
-    if (progress > 0.0) {
-      final progressPaint = Paint()
-        ..color = progressColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round;
-
-      final sweepAngle = 2 * math.pi * progress.clamp(0.0, 1.0);
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -math.pi / 2, // Start at 12 o'clock
-        sweepAngle,
-        false,
-        progressPaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _RadialClockPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.progressColor != progressColor ||
-        oldDelegate.trackColor != trackColor;
+  Widget build(BuildContext context) {
+    return DayProgressHudPill(
+      currentDay: currentDay,
+      isDark: isDark,
+      dayStartTime: dayStartTime,
+      onTap: () {},
+    );
   }
 }

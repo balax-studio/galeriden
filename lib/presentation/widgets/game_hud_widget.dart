@@ -60,45 +60,16 @@ class GameHudHeaderWidget extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
 
-            // 2. GÜN Pill (Interactive -> Sales & Day Ledger History with 7-Minute Radial Progress)
-            _buildPill(
-              context,
-              customIconWidget: RadialDayProgressWidget(
-                currentDay: game.currentDay,
-                isDark: isDark,
-                dayStartTime:
-                    ref.read(gameProvider.notifier).lastDayAdvanceTime,
-              ),
-              title: context.tr('hud_day'),
-              valueWidget: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 320),
-                transitionBuilder: (child, animation) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.0, 0.45),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutBack,
-                    )),
-                    child: FadeTransition(opacity: animation, child: child),
-                  );
-                },
-                child: Text(
-                  '${game.currentDay}',
-                  key: ValueKey('hud_day_${game.currentDay}'),
-                  style: AppTypography.monoSpec(isDark).copyWith(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                ),
-              ),
+            // 2. GÜN Pill (Interactive -> Sales & Day Ledger History with 7-Minute Bottom Gauge Progress)
+            DayProgressHudPill(
+              currentDay: game.currentDay,
+              isDark: isDark,
+              dayStartTime:
+                  ref.read(gameProvider.notifier).lastDayAdvanceTime,
               onTap: () {
                 HapticFeedback.lightImpact();
                 context.push('/history');
               },
-              isDark: isDark,
             ),
             const SizedBox(width: 8),
 

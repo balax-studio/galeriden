@@ -16,7 +16,7 @@ import 'package:galeriden/core/localization/translations/ar_translations.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Day Duration & Radial Clock Ring Tests', () {
+  group('Day Duration & Bottom Gauge Progress Pill Tests', () {
     test('In-game day duration constant is exactly 7 minutes (420 seconds)', () {
       expect(GameTimeMixin.inGameDayDurationSeconds, equals(420));
     });
@@ -50,43 +50,42 @@ void main() {
       }
     });
 
-    testWidgets('RadialDayProgressWidget mounts cleanly and updates smoothly',
+    testWidgets('DayProgressHudPill mounts cleanly and updates smoothly',
         (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Center(
-              child: RadialDayProgressWidget(
+              child: DayProgressHudPill(
                 currentDay: 1,
                 isDark: true,
-                size: 24.0,
+                onTap: () {},
               ),
             ),
           ),
         ),
       );
 
-      expect(find.byType(RadialDayProgressWidget), findsOneWidget);
-      expect(find.byType(CustomPaint), findsWidgets);
+      expect(find.byType(DayProgressHudPill), findsOneWidget);
 
       // Advance 1 minute (60s)
       await tester.pump(const Duration(seconds: 60));
-      expect(find.byType(RadialDayProgressWidget), findsOneWidget);
+      expect(find.byType(DayProgressHudPill), findsOneWidget);
 
       // Advance to noon (150s)
       await tester.pump(const Duration(seconds: 90));
-      expect(find.byType(RadialDayProgressWidget), findsOneWidget);
+      expect(find.byType(DayProgressHudPill), findsOneWidget);
 
       // Advance to evening (300s)
       await tester.pump(const Duration(seconds: 150));
-      expect(find.byType(RadialDayProgressWidget), findsOneWidget);
+      expect(find.byType(DayProgressHudPill), findsOneWidget);
 
       // Advance to night (400s)
       await tester.pump(const Duration(seconds: 100));
-      expect(find.byType(RadialDayProgressWidget), findsOneWidget);
+      expect(find.byType(DayProgressHudPill), findsOneWidget);
     });
 
-    testWidgets('RadialDayProgressWidget responds to day rollover',
+    testWidgets('DayProgressHudPill responds to day rollover',
         (tester) async {
       int currentDay = 1;
 
@@ -97,9 +96,10 @@ void main() {
               home: Scaffold(
                 body: Column(
                   children: [
-                    RadialDayProgressWidget(
+                    DayProgressHudPill(
                       currentDay: currentDay,
                       isDark: false,
+                      onTap: () {},
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -117,7 +117,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(RadialDayProgressWidget), findsOneWidget);
+      expect(find.byType(DayProgressHudPill), findsOneWidget);
 
       // Trigger day change
       await tester.tap(find.text('Next Day'));
@@ -128,7 +128,7 @@ void main() {
       expect(currentDay, equals(2));
     });
 
-    testWidgets('GameHudHeaderWidget mounts with RadialDayProgressWidget',
+    testWidgets('GameHudHeaderWidget mounts with DayProgressHudPill',
         (tester) async {
       final container = ProviderContainer();
       addTearDown(() {
@@ -148,7 +148,7 @@ void main() {
       );
 
       expect(find.byType(GameHudHeaderWidget), findsOneWidget);
-      expect(find.byType(RadialDayProgressWidget), findsOneWidget);
+      expect(find.byType(DayProgressHudPill), findsOneWidget);
     });
   });
 }
