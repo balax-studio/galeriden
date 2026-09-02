@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/mission_model.dart';
+import '../../../domain/usecases/dramatic_card_engine.dart';
 import '../../../domain/usecases/market_engine.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/offline_progression.dart';
@@ -139,9 +140,15 @@ class GameCoreNotifier extends GameBaseNotifier
           );
         }
 
+        if (updated.pendingDramaticCard == null) {
+          final initialCard = DramaticCardEngine.generateDailyDilemma(
+              updated.currentDay, updated);
+          updated = updated.copyWith(pendingDramaticCard: initialCard);
+        }
+
         if (!mounted) return;
-        state = updated;
         _isLoaded = true;
+        state = updated;
         syncRentalState();
         startPeriodicOrganicOfferTimer();
         saveState();
@@ -159,8 +166,11 @@ class GameCoreNotifier extends GameBaseNotifier
       await prefs.setInt('last_celebrated_level', 1);
     }
     if (!mounted) return;
-    state = DealershipModel.initial();
     _isLoaded = true;
+    if (state.pendingDramaticCard == null) {
+      final initialCard = DramaticCardEngine.generateDailyDilemma(state.currentDay, state);
+      state = state.copyWith(pendingDramaticCard: initialCard);
+    }
     startPeriodicOrganicOfferTimer();
     saveState();
   }

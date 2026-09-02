@@ -46,6 +46,78 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  bool _isModalShowing = false;
+
+  void _checkAndShowPendingDialogs(DealershipModel game) {
+    if (!mounted || _isModalShowing) return;
+    final isLoaded = ref.read(gameProvider.notifier).isLoaded;
+    if (!isLoaded) return;
+
+    if (game.pendingStoryCard != null) {
+      _isModalShowing = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          _isModalShowing = false;
+          return;
+        }
+        await NeoBrutalStoryAdDialog.show(context, game.pendingStoryCard!);
+        _isModalShowing = false;
+        if (mounted) {
+          _checkAndShowPendingDialogs(ref.read(gameProvider));
+        }
+      });
+      return;
+    }
+
+    if (game.pendingDramaticCard != null) {
+      _isModalShowing = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          _isModalShowing = false;
+          return;
+        }
+        await NeoBrutalDramaticDialog.show(context, game.pendingDramaticCard!);
+        _isModalShowing = false;
+        if (mounted) {
+          _checkAndShowPendingDialogs(ref.read(gameProvider));
+        }
+      });
+      return;
+    }
+
+    if (game.pendingRandomEvent != null) {
+      _isModalShowing = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          _isModalShowing = false;
+          return;
+        }
+        await NeoBrutalRandomEventDialog.show(context, game.pendingRandomEvent!);
+        _isModalShowing = false;
+        if (mounted) {
+          _checkAndShowPendingDialogs(ref.read(gameProvider));
+        }
+      });
+      return;
+    }
+
+    if (game.activeCrmEvent != null) {
+      _isModalShowing = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          _isModalShowing = false;
+          return;
+        }
+        await CustomerFollowUpDialog.show(context, game.activeCrmEvent!);
+        _isModalShowing = false;
+        if (mounted) {
+          _checkAndShowPendingDialogs(ref.read(gameProvider));
+        }
+      });
+      return;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -91,6 +163,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (mounted) {
           WhatsNewDialog.checkAndShow(context, ref);
         }
+
+        // Check and trigger pending decision/event modals
+        if (mounted) {
+          _checkAndShowPendingDialogs(ref.read(gameProvider));
+        }
       }
     });
   }
@@ -102,6 +179,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
+
+    // Listen for tab changes back to home to surface queued cards
+    ref.listen<int>(dashboardTabProvider, (previous, next) {
+      if (next == 0) {
+        _checkAndShowPendingDialogs(ref.read(gameProvider));
+      }
+    });
 
     // Listen for level-ups, story ad encounters, dramatic decision cards & random events
     ref.listen<DealershipModel>(gameProvider, (previous, next) async {
@@ -126,41 +210,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         }
       }
 
-      if (next.pendingStoryCard != null &&
-          (previous?.pendingStoryCard?.id != next.pendingStoryCard?.id)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            NeoBrutalStoryAdDialog.show(context, next.pendingStoryCard!);
-          }
-        });
-      }
-
-      if (next.pendingDramaticCard != null &&
-          (previous?.pendingDramaticCard?.id != next.pendingDramaticCard?.id)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            NeoBrutalDramaticDialog.show(context, next.pendingDramaticCard!);
-          }
-        });
-      }
-
-      if (next.pendingRandomEvent != null &&
-          (previous?.pendingRandomEvent?.id != next.pendingRandomEvent?.id)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            NeoBrutalRandomEventDialog.show(context, next.pendingRandomEvent!);
-          }
-        });
-      }
-
-      if (next.activeCrmEvent != null &&
-          (previous?.activeCrmEvent?.id != next.activeCrmEvent?.id)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            CustomerFollowUpDialog.show(context, next.activeCrmEvent!);
-          }
-        });
-      }
+      _checkAndShowPendingDialogs(next);
     });
 
     final bottomInset = MediaQuery.paddingOf(context).bottom;
@@ -294,6 +344,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           DashboardProfileBanner(game: game, palette: p),
           const SizedBox(height: 12),
           _buildTutorialHeroCard(context, game, p),
+          if (game.pendingDramaticCard != null) ...[
+            const SizedBox(height: 12),
+            DashboardDramaticCardBanner(
+              card: game.pendingDramaticCard!,
+              palette: p,
+            ),
+          ],
           const SizedBox(height: 14),
           _buildSectionHeader(
             title: context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
@@ -336,6 +393,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         // 1. Monolithic Dealership Profile Banner
         DashboardProfileBanner(game: game, palette: p),
         const SizedBox(height: 10),
+
+        // 1.05 Daily Critical Dilemma Banner (if pending)
+        if (game.pendingDramaticCard != null) ...[
+          DashboardDramaticCardBanner(
+            card: game.pendingDramaticCard!,
+            palette: p,
+          ),
+          const SizedBox(height: 10),
+        ],
+
+        // 1.06 Daily Random Event Banner (if pending)
+        if (game.pendingRandomEvent != null) ...[
+          DashboardRandomEventBanner(
+            event: game.pendingRandomEvent!,
+            palette: p,
+          ),
+          const SizedBox(height: 10),
+        ],
 
         // 1.1 Weekly Dynamic Event Bulletin
         DashboardWeeklyEventBanner(game: game, palette: p),

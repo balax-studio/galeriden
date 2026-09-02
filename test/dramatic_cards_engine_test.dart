@@ -211,7 +211,7 @@ void main() {
         currentDay: 1,
         daysSinceLastDramaticCard: 0,
         nextDramaticCardTargetDays: 1,
-        pendingDramaticCard: null,
+        clearPendingDramaticCard: true,
       );
 
       notifier.advanceGameDay();

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import '../../core/localization/app_localizations.dart';
 import 'car_model.dart';
 import 'offer_model.dart';
@@ -1374,6 +1374,69 @@ class DealershipModel {
       discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 • Dede Mirası'],
       claimedAlbumMilestones: const [],
       pendingDopedOffers: const [],
+      pendingDramaticCard: const DramaticCardModel(
+        id: 'milestone_day_1',
+        dayNumber: 1,
+        category: DramaticCategory.legacy,
+        severity: DramaticSeverity.low,
+        title: 'İlk Ruhsat & Tabela Seçimi',
+        characterName: 'Muhtar Şerafettin',
+        characterRole: 'Sanayi Muhtarı',
+        characterAvatar: 'suit',
+        icon: Icons.storefront_rounded,
+        dialogue:
+            '"Hayırlı olsun evlat! Galerinin ilk günündesin. Sanayi adetidir; ya esnafa ziyafet verip dualarını alırsın ya da tüm bütçeyi devasa ışıklı tabelaya yatırırsın."',
+        foreshadowHint: 'İlk günün kararı galerinin esnaf arasındaki ilk izlenimini belirler.',
+        choices: [
+          DramaticChoiceModel(
+            id: 'm1_treat',
+            label: 'Esnafa Çay ve Simit İkramı • -₺500',
+            shortDescription: 'Sanayi esnafıyla sıcak bağlar kurulur • +5 İtibar, +30 Deneyim.',
+            upfrontCost: 500.0,
+            outcomes: [
+              DramaticOutcomeModel(
+                probability: 1.0,
+                title: 'Bereketli Başlangıç',
+                message: 'Sanayi esnafı dükkanına akın etti, hayır dualarını aldın. İtibarın yükseldi!',
+                isSuccess: true,
+                reputationDelta: 5,
+                xpReward: 30,
+              ),
+            ],
+          ),
+          DramaticChoiceModel(
+            id: 'm1_sign',
+            label: 'Görkemli Işıklı Tabela • -₺2.500',
+            shortDescription: 'Yoldan geçen müşterilerin dikkatini çeker • +3 İtibar, +80 Deneyim.',
+            upfrontCost: 2500.0,
+            outcomes: [
+              DramaticOutcomeModel(
+                probability: 1.0,
+                title: 'Göz Alıcı Showroom',
+                message: 'Tabela caddenin en parlak noktası oldu. Çevreden geçenler vitrine bakmadan geçmiyor.',
+                isSuccess: true,
+                reputationDelta: 3,
+                xpReward: 80,
+              ),
+            ],
+          ),
+          DramaticChoiceModel(
+            id: 'm1_frugal',
+            label: 'Sade ve Sessiz Başlangıç • Masrafsız',
+            shortDescription: 'Tasarruflu başla ve sermayeni koru • +15 Deneyim.',
+            upfrontCost: 0.0,
+            outcomes: [
+              DramaticOutcomeModel(
+                probability: 1.0,
+                title: 'Tasarruflu Adım',
+                message: 'Tek kuruş harcamadan kepengi açtın. Sermayen ilk araç alımın için güvende.',
+                isSuccess: true,
+                xpReward: 15,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

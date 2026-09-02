@@ -229,6 +229,7 @@ class DramaticCardEngine {
       case 1:
         return const DramaticCardModel(
           id: 'milestone_day_1',
+          dayNumber: 1,
           category: DramaticCategory.legacy,
           severity: DramaticSeverity.low,
           title: 'İlk Ruhsat & Tabela Seçimi',
@@ -293,6 +294,7 @@ class DramaticCardEngine {
       case 7:
         return const DramaticCardModel(
           id: 'milestone_day_7',
+          dayNumber: 7,
           category: DramaticCategory.comedy,
           severity: DramaticSeverity.medium,
           title: 'İlk Çırak İkilemi',
@@ -342,6 +344,7 @@ class DramaticCardEngine {
       case 14:
         return const DramaticCardModel(
           id: 'milestone_day_14',
+          dayNumber: 14,
           category: DramaticCategory.loss,
           severity: DramaticSeverity.medium,
           title: 'Maliye İlk Yoklaması',
@@ -400,6 +403,7 @@ class DramaticCardEngine {
       case 30:
         return const DramaticCardModel(
           id: 'milestone_day_30',
+          dayNumber: 30,
           category: DramaticCategory.opportunity,
           severity: DramaticSeverity.medium,
           title: 'İlk Ay Sonu Kasa Kapatma',
@@ -449,6 +453,7 @@ class DramaticCardEngine {
       case 50:
         return const DramaticCardModel(
           id: 'milestone_day_50',
+          dayNumber: 50,
           category: DramaticCategory.opportunity,
           severity: DramaticSeverity.medium,
           title: 'Oto Galericiler Sitesi Yönetimi',
@@ -498,6 +503,7 @@ class DramaticCardEngine {
       case 100:
         return const DramaticCardModel(
           id: 'milestone_day_100',
+          dayNumber: 100,
           category: DramaticCategory.legacy,
           severity: DramaticSeverity.high,
           title: 'Dalya Kutlaması & Sanayi Pilavı',
@@ -548,6 +554,7 @@ class DramaticCardEngine {
       case 365:
         return const DramaticCardModel(
           id: 'milestone_day_365',
+          dayNumber: 365,
           category: DramaticCategory.legacy,
           severity: DramaticSeverity.extreme,
           title: 'Yılın Galericisi Gala Gecesi',

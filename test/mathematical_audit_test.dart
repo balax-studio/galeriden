@@ -315,8 +315,8 @@ void main() {
         prevReq = req;
       }
 
-      final skills = PlayerSkills(xp: 50000);
-      expect(skills.currentLevel, equals(4)); // 3000 + 7500 + 15000 + 28000 = 53500 needed for L5
+      final skills = PlayerSkills(xp: 25000);
+      expect(skills.currentLevel, equals(4)); // 1500 + 3750 + 7500 + 14000 = 26750 needed for L5
       expect(skills.availableSkillPoints, equals(skills.totalSkillPointsEarned));
     });
 

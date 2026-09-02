@@ -47,18 +47,17 @@ mixin GameTimeMixin on GameBaseNotifier {
   Timer? _organicOfferTimer;
 
   void startPeriodicOrganicOfferTimer() {
+    _organicOfferTimer?.cancel();
     _organicOfferTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      // ponytail: Advance game calendar day every 7 ticks (420 seconds = 7 real minutes)
-      if (timer.tick % 7 == 0) {
-        advanceGameDay();
-      }
+      // ponytail: 1 in-game calendar day = 60 seconds of active gameplay
+      advanceGameDay();
 
       // Günlük dalgalanma faktörü (0.8 ile 1.2 arası)
       double dayFactor = 0.8 + (random.nextDouble() * 0.4);
 
-      // Daha düşük ihtimal ve daha uzun aralıklarla organik teklifler (Örn: %15 şans)
+      // Organik müşteri teklifleri
       if (state.ownedCars.isNotEmpty &&
-          random.nextDouble() < (0.15 * dayFactor)) {
+          random.nextDouble() < (0.25 * dayFactor)) {
         triggerOrganicOffers();
       }
     });

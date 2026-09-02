@@ -6,6 +6,8 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/dealership_model.dart';
+import '../../../../data/models/dramatic_card_model.dart';
+import '../../../../data/models/game_event_model.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/weekly_event_engine.dart';
@@ -16,6 +18,8 @@ import '../../../widgets/floating_money_overlay.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/neo_brutal_dramatic_dialog.dart';
+import '../../../widgets/neo_brutal_random_event_dialog.dart';
 import '../../../widgets/pulsing_dot.dart';
 import '../../../widgets/zeigarnik_progress_bar.dart';
 import 'dashboard_retention_modals.dart';
@@ -282,6 +286,282 @@ class DashboardWeeklyEventBanner extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Daily Critical Dilemma Card Banner
+class DashboardDramaticCardBanner extends StatelessWidget {
+  final DramaticCardModel card;
+  final ThemePaletteModel palette;
+
+  const DashboardDramaticCardBanner({
+    super.key,
+    required this.card,
+    required this.palette,
+  });
+
+  Color _getCategoryColor(DramaticCategory category) {
+    switch (category) {
+      case DramaticCategory.comedy:
+        return const Color(0xFFFFB703);
+      case DramaticCategory.opportunity:
+        return const Color(0xFF00E575);
+      case DramaticCategory.loss:
+        return const Color(0xFFEA580C);
+      case DramaticCategory.betrayal:
+        return const Color(0xFFDC2626);
+      case DramaticCategory.conscience:
+        return const Color(0xFF0284C7);
+      case DramaticCategory.legacy:
+        return const Color(0xFF9333EA);
+      case DramaticCategory.gamble:
+        return const Color(0xFFF43F5E);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = palette.isDark;
+    final catColor = _getCategoryColor(card.category);
+    final isDarkText = card.category == DramaticCategory.comedy ||
+        card.category == DramaticCategory.opportunity;
+
+    return NeoBrutalCard(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        NeoBrutalDramaticDialog.show(context, card);
+      },
+      padding: const EdgeInsets.all(12),
+      backgroundColor:
+          isDark ? const Color(0xFF1F1A2E) : const Color(0xFFFAF5FF),
+      borderColor: catColor,
+      borderRadius: 14,
+      borderWidth: 2.5,
+      shadowOffset: const Offset(4, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: catColor,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
+                    width: 1.8,
+                  ),
+                ),
+                child: Icon(
+                  card.icon,
+                  size: 22,
+                  color: isDarkText ? const Color(0xFF0F172A) : Colors.white,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        NeoBrutalBadge(
+                          text: context.tr('banner_dramatic_dilemma_badge',
+                              {'day': card.dayNumber}),
+                          backgroundColor: catColor,
+                          textColor: isDarkText
+                              ? const Color(0xFF0F172A)
+                              : Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        const Spacer(),
+                        const PulsingDot(color: Color(0xFFFF3366), size: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      card.title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            card.dialogue,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              fontStyle: FontStyle.italic,
+              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Text(
+                '${card.characterName} • ${card.characterRole}',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: catColor,
+                ),
+              ),
+              const Spacer(),
+              NeoBrutalButton(
+                label: context.tr('banner_dramatic_dilemma_action'),
+                icon: Icons.touch_app_rounded,
+                backgroundColor: catColor,
+                textColor:
+                    isDarkText ? const Color(0xFF0F172A) : Colors.white,
+                borderRadius: 8,
+                borderWidth: 1.8,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                fontSize: 11,
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  NeoBrutalDramaticDialog.show(context, card);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Daily Random Event Banner
+class DashboardRandomEventBanner extends StatelessWidget {
+  final GameEventModel event;
+  final ThemePaletteModel palette;
+
+  const DashboardRandomEventBanner({
+    super.key,
+    required this.event,
+    required this.palette,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = palette.isDark;
+
+    return NeoBrutalCard(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        NeoBrutalRandomEventDialog.show(context, event);
+      },
+      padding: const EdgeInsets.all(12),
+      backgroundColor:
+          isDark ? const Color(0xFF231C1A) : const Color(0xFFFFF7ED),
+      borderColor: const Color(0xFFF97316),
+      borderRadius: 14,
+      borderWidth: 2.5,
+      shadowOffset: const Offset(4, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF97316),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFF0F172A),
+                    width: 1.8,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.campaign_rounded,
+                  size: 22,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        NeoBrutalBadge(
+                          text: context.tr('banner_random_event_badge'),
+                          backgroundColor: const Color(0xFFF97316),
+                          textColor: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        const Spacer(),
+                        const PulsingDot(color: Color(0xFFF97316), size: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      event.title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            event.description,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: NeoBrutalButton(
+              label: context.tr('banner_random_event_action'),
+              icon: Icons.visibility_rounded,
+              backgroundColor: const Color(0xFFF97316),
+              textColor: Colors.white,
+              borderRadius: 8,
+              borderWidth: 1.8,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              fontSize: 11,
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                NeoBrutalRandomEventDialog.show(context, event);
+              },
             ),
           ),
         ],

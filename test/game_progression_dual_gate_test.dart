@@ -93,18 +93,18 @@ void main() {
     });
 
     test('Calibrated XP curve adheres to non-grindy, psychologically balanced thresholds', () {
-      expect(PlayerSkills.requiredXpForLevel(1), equals(3000));
-      expect(PlayerSkills.requiredXpForLevel(2), equals(7500));
-      expect(PlayerSkills.requiredXpForLevel(3), equals(15000));
-      expect(PlayerSkills.requiredXpForLevel(4), equals(28000));
+      expect(PlayerSkills.requiredXpForLevel(1), equals(1500));
+      expect(PlayerSkills.requiredXpForLevel(2), equals(3750));
+      expect(PlayerSkills.requiredXpForLevel(3), equals(7500));
+      expect(PlayerSkills.requiredXpForLevel(4), equals(14000));
 
-      final skills = PlayerSkills(xp: 3000);
+      final skills = PlayerSkills(xp: 1500);
       expect(skills.currentLevel, equals(2));
 
-      final skillsLv3 = PlayerSkills(xp: 3000 + 7500);
+      final skillsLv3 = PlayerSkills(xp: 1500 + 3750);
       expect(skillsLv3.currentLevel, equals(3));
 
-      final skillsLv4 = PlayerSkills(xp: 3000 + 7500 + 15000);
+      final skillsLv4 = PlayerSkills(xp: 1500 + 3750 + 7500);
       expect(skillsLv4.currentLevel, equals(4));
     });
   });

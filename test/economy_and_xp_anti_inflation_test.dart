@@ -21,16 +21,16 @@ void main() {
 
   group('Economy & XP Anti-Inflation Hardening Tests', () {
     test('PlayerSkills XP curve prevents instant early level skips', () {
-      expect(PlayerSkills.requiredXpForLevel(1), equals(3000));
-      expect(PlayerSkills.requiredXpForLevel(2), equals(7500));
-      expect(PlayerSkills.requiredXpForLevel(3), equals(15000));
-      expect(PlayerSkills.requiredXpForLevel(4), equals(28000));
-      expect(PlayerSkills.requiredXpForLevel(5), equals(48000));
+      expect(PlayerSkills.requiredXpForLevel(1), equals(1500));
+      expect(PlayerSkills.requiredXpForLevel(2), equals(3750));
+      expect(PlayerSkills.requiredXpForLevel(3), equals(7500));
+      expect(PlayerSkills.requiredXpForLevel(4), equals(14000));
+      expect(PlayerSkills.requiredXpForLevel(5), equals(24000));
 
-      final skills = PlayerSkills(xp: 2500);
+      final skills = PlayerSkills(xp: 1200);
       expect(skills.currentLevel, equals(1));
 
-      final skillsLvl2 = PlayerSkills(xp: 3100);
+      final skillsLvl2 = PlayerSkills(xp: 1600);
       expect(skillsLvl2.currentLevel, equals(2));
     });
 
