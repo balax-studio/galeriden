@@ -18,7 +18,7 @@ class GameConstants {
   GameConstants._();
 
   static const String appName = 'Galeriden';
-  static const String appVersion = '1.0.2';
+  static const String appVersion = '1.0.3';
   static const String privacyPolicyUrl =
       'https://docs.google.com/document/d/e/2PACX-1vSIja6S76xfAAy2wwWh12Mi0rEdjiMailne09VQj5gbPnhDTSpFVU5SKmwb2AdeuqO41L3EjjSI0kfd/pub';
 
