@@ -205,31 +205,14 @@ class _DayProgressHudPillState extends State<DayProgressHudPill>
                                   letterSpacing: 0.3,
                                 ),
                               ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 320),
-                                transitionBuilder: (child, animation) {
-                                  return SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(0.0, 0.45),
-                                      end: Offset.zero,
-                                    ).animate(CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeOutBack,
-                                    )),
-                                    child: FadeTransition(
-                                        opacity: animation, child: child),
-                                  );
-                                },
-                                child: Text(
-                                  '${widget.currentDay}',
-                                  key: ValueKey('hud_day_${widget.currentDay}'),
-                                  style: AppTypography.monoSpec(isDark).copyWith(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w900,
-                                    color: isDark
-                                        ? Colors.white
-                                        : const Color(0xFF0F172A),
-                                  ),
+                              Text(
+                                '${widget.currentDay}',
+                                style: AppTypography.monoSpec(isDark).copyWith(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
                                 ),
                               ),
                             ],
