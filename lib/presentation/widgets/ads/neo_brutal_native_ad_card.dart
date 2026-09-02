@@ -237,8 +237,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               minWidth: 320,
-              minHeight: 120,
-              maxHeight: 280,
+              minHeight: 320,
+              maxHeight: 360,
             ),
             child: AdWidget(ad: _nativeAd!),
           ),
