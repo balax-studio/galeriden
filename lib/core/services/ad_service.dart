@@ -95,6 +95,8 @@ class AdService {
 
       try {
         await _facebookAppEvents.setAutoLogAppEventsEnabled(true);
+        await _facebookAppEvents.logEvent(name: 'fb_mobile_activate_app');
+        await _facebookAppEvents.flush();
       } catch (fbError) {
         debugPrint('[AdService] Facebook App Events autoLog initialization error: $fbError');
       }
@@ -109,6 +111,7 @@ class AdService {
             }
             final isAuthorized = status == TrackingStatus.authorized;
             await _facebookAppEvents.setAdvertiserIdCollectionEnabled(isAuthorized);
+            await _facebookAppEvents.flush();
           } catch (attError) {
             debugPrint('[AdService] ATT request error: $attError');
           } finally {
@@ -118,6 +121,7 @@ class AdService {
       } else {
         try {
           await _facebookAppEvents.setAdvertiserIdCollectionEnabled(true);
+          await _facebookAppEvents.flush();
         } catch (e) {
           debugPrint('[AdService] Meta setAdvertiserIdCollectionEnabled error: $e');
         }
@@ -133,6 +137,7 @@ class AdService {
     if (kIsWeb) return;
     try {
       await _facebookAppEvents.logEvent(name: name, parameters: parameters);
+      await _facebookAppEvents.flush();
     } catch (e) {
       debugPrint('[AdService] Meta logEvent error: $e');
     }
