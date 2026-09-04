@@ -1,4 +1,5 @@
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -9,6 +10,9 @@ import 'ad_reward_calculator.dart';
 class AdService {
   static final AdService instance = AdService._internal();
   AdService._internal();
+
+  final FacebookAppEvents _facebookAppEvents = FacebookAppEvents();
+  FacebookAppEvents get facebookAppEvents => _facebookAppEvents;
 
   /// Production AdMob Rewarded Ad Unit IDs
   static const String _androidProductionRewardedAdUnitId = 'ca-app-pub-2626843024156194/9140182901';
@@ -80,7 +84,7 @@ class AdService {
     return dayScore < 55;
   }
 
-  /// Initialize Google Mobile Ads SDK safely with Apple ATT compliance
+  /// Initialize Google Mobile Ads SDK and Meta App Events safely with Apple ATT compliance
   Future<void> initialize() async {
     if (kIsWeb) return;
     if (_isInitialized) return;
@@ -89,14 +93,22 @@ class AdService {
       await MobileAds.instance.initialize();
       _isInitialized = true;
 
+      try {
+        await _facebookAppEvents.setAutoLogAppEventsEnabled(true);
+      } catch (fbError) {
+        debugPrint('[AdService] Facebook App Events autoLog initialization error: $fbError');
+      }
+
       // Safe iOS ATT request after UI frame is ready
       if (defaultTargetPlatform == TargetPlatform.iOS) {
         Future.delayed(const Duration(milliseconds: 800), () async {
           try {
-            final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+            var status = await AppTrackingTransparency.trackingAuthorizationStatus;
             if (status == TrackingStatus.notDetermined) {
-              await AppTrackingTransparency.requestTrackingAuthorization();
+              status = await AppTrackingTransparency.requestTrackingAuthorization();
             }
+            final isAuthorized = status == TrackingStatus.authorized;
+            await _facebookAppEvents.setAdvertiserIdCollectionEnabled(isAuthorized);
           } catch (attError) {
             debugPrint('[AdService] ATT request error: $attError');
           } finally {
@@ -104,10 +116,25 @@ class AdService {
           }
         });
       } else {
+        try {
+          await _facebookAppEvents.setAdvertiserIdCollectionEnabled(true);
+        } catch (e) {
+          debugPrint('[AdService] Meta setAdvertiserIdCollectionEnabled error: $e');
+        }
         loadRewardedAd();
       }
     } catch (e) {
       debugPrint('[AdService] MobileAds initialization failed or not supported on this platform: $e');
+    }
+  }
+
+  /// Log custom Meta analytics event safely
+  Future<void> logMetaEvent(String name, [Map<String, dynamic>? parameters]) async {
+    if (kIsWeb) return;
+    try {
+      await _facebookAppEvents.logEvent(name: name, parameters: parameters);
+    } catch (e) {
+      debugPrint('[AdService] Meta logEvent error: $e');
     }
   }
 
