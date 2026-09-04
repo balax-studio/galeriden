@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
+import '../../../../data/models/vehicle_category.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
@@ -188,6 +189,16 @@ class ShowroomCarCard extends ConsumerWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (car.vehicleCategory != VehicleCategory.car) ...[
+                          NeoBrutalBadge(
+                            text: context.tr(car.vehicleCategory.localizationKey),
+                            icon: car.vehicleCategory.icon,
+                            backgroundColor: car.vehicleCategory.badgeColor,
+                            textColor: Colors.black,
+                            fontSize: 9.0,
+                          ),
+                          const SizedBox(width: 6),
+                        ],
                         if (_buildContextualStampBadge(context) != null) ...[
                           _buildContextualStampBadge(context)!,
                           const SizedBox(width: 6),
@@ -1132,6 +1143,8 @@ class ShowroomCarCard extends ConsumerWidget {
                     },
                   ),
                 ],
+                if (_buildVasitaActionButton(context, ref, isDark) != null)
+                  _buildVasitaActionButton(context, ref, isDark)!,
                 // Koleksiyon Vitrinine Kilitleme (Her araç için mülkiyet & yadigâr hakkı)
                 const SizedBox(height: 8),
                 NeoBrutalButton(
@@ -1324,5 +1337,138 @@ class ShowroomCarCard extends ConsumerWidget {
       );
     }
     return null;
+  }
+
+  Widget? _buildVasitaActionButton(BuildContext context, WidgetRef ref, bool isDark) {
+    if (car.vehicleCategory == VehicleCategory.car) return null;
+
+    final IconData icon;
+    final String labelKey;
+    final double cost;
+
+    switch (car.vehicleCategory) {
+      case VehicleCategory.marine:
+        icon = Icons.sailing_rounded;
+        labelKey = 'vasita_btn_marine_action';
+        cost = 15000.0;
+        break;
+      case VehicleCategory.aircraft:
+        icon = Icons.flight_takeoff_rounded;
+        labelKey = 'vasita_btn_aircraft_action';
+        cost = 45000.0;
+        break;
+      case VehicleCategory.caravan:
+        icon = Icons.solar_power_rounded;
+        labelKey = 'vasita_btn_caravan_action';
+        cost = 12000.0;
+        break;
+      case VehicleCategory.motorcycle:
+        icon = Icons.two_wheeler_rounded;
+        labelKey = 'vasita_btn_motorcycle_action';
+        cost = 4000.0;
+        break;
+      case VehicleCategory.commercial:
+        icon = Icons.local_shipping_rounded;
+        labelKey = 'vasita_btn_commercial_action';
+        cost = 8000.0;
+        break;
+      case VehicleCategory.atv:
+      case VehicleCategory.utv:
+        icon = Icons.terrain_rounded;
+        labelKey = 'vasita_btn_terrain_action';
+        cost = 7500.0;
+        break;
+      case VehicleCategory.classic:
+        icon = Icons.auto_awesome_rounded;
+        labelKey = 'vasita_btn_classic_action';
+        cost = 6000.0;
+        break;
+      case VehicleCategory.damaged:
+        icon = Icons.healing_rounded;
+        labelKey = 'vasita_btn_damaged_action';
+        cost = 5000.0;
+        break;
+      case VehicleCategory.rentalFleet:
+        icon = Icons.business_center_rounded;
+        labelKey = 'vasita_btn_fleet_action';
+        cost = 3500.0;
+        break;
+      case VehicleCategory.minivan:
+        icon = Icons.directions_bus_rounded;
+        labelKey = 'vasita_btn_minivan_action';
+        cost = 4500.0;
+        break;
+      case VehicleCategory.car:
+        return null;
+    }
+
+    if (car.isVasitaUpgraded) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF10B981).withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: const Color(0xFF10B981), width: 1.5),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.verified_rounded, size: 14, color: Color(0xFF10B981)),
+              const SizedBox(width: 6),
+              Text(
+                context.tr('vasita_upgrade_completed_badge'),
+                style: const TextStyle(
+                  color: Color(0xFF10B981),
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final hasBalance = game.balance >= cost;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: NeoBrutalButton(
+        label: '${context.tr(labelKey)} • ${CurrencyFormatter.format(cost)}',
+        icon: icon,
+        backgroundColor: hasBalance
+            ? const Color(0xFF38BDF8)
+            : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+        textColor: hasBalance ? Colors.black : (isDark ? Colors.white38 : Colors.black38),
+        fontSize: 10.5,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        fullWidth: true,
+        onPressed: hasBalance
+            ? () {
+                final res = ref.read(gameProvider.notifier).upgradeVasitaVehicle(car.id);
+                if (res['success'] == true) {
+                  NotificationService.showSuccess(
+                    context,
+                    context.tr('vasita_upgrade_success_toast', {
+                      'car': '${car.brand} ${car.modelName}',
+                    }),
+                  );
+                } else {
+                  NotificationService.showError(
+                    context,
+                    context.tr(res['messageKey'] as String? ?? 'vasita_upgrade_err_insufficient_funds'),
+                  );
+                }
+              }
+            : () {
+                NotificationService.showError(
+                  context,
+                  context.tr('vasita_upgrade_err_insufficient_funds'),
+                );
+              },
+      ),
+    );
   }
 }

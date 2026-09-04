@@ -391,6 +391,12 @@ class ScrapyardCar {
       {'cat': 'seats', 'name': 'Deri Koltuk & Döşeme Takımı', 'baseMult': 0.10},
       {'cat': 'ac', 'name': 'Klima Kompresörü & Radyatörü', 'baseMult': 0.06},
       {'cat': 'wheels', 'name': '18 İnç Orijinal Alaşım Jant Seti', 'baseMult': 0.14},
+      {'cat': 'propeller', 'name': 'Bronz Pervane & Şaft Seti', 'baseMult': 0.15},
+      {'cat': 'avionics', 'name': 'Aviyonik Altimetre & Telsiz Kadranı', 'baseMult': 0.22},
+      {'cat': 'solar', 'name': 'Monokristal Güneş Paneli & İnvertör', 'baseMult': 0.11},
+      {'cat': 'moto_exhaust', 'name': 'Titanyum Performans Egzoz', 'baseMult': 0.13},
+      {'cat': 'retarder', 'name': 'Ağır Ticari Şaft Retarder', 'baseMult': 0.16},
+      {'cat': 'winch', 'name': 'Ağır Arazi Vinci & Çelik Halat', 'baseMult': 0.10},
     ];
 
     categories.shuffle(rand);

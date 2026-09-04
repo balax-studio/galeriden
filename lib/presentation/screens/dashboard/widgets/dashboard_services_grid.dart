@@ -160,6 +160,22 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         color: const Color(0xFF06B6D4),
         route: '/showroom-decor',
       ),
+      _ServiceItem(
+        icon: Icons.directions_boat_filled_rounded,
+        title: context.tr('service_vasita_market'),
+        subtitle: context.tr('service_vasita_market_sub'),
+        badge: 'LVL 3',
+        color: const Color(0xFF06B6D4),
+        route: '/vasita',
+      ),
+      _ServiceItem(
+        icon: Icons.domain_rounded,
+        title: context.tr('service_real_estate'),
+        subtitle: context.tr('service_real_estate_sub'),
+        badge: 'LVL 4',
+        color: const Color(0xFF10B981),
+        route: '/emlak',
+      ),
 
       // Level 4+: Empire Expansion (Etiler & Bodrum Lüks Motor World)
       _ServiceItem(
@@ -627,6 +643,9 @@ class _DynamicNextTargetBannerState extends State<_DynamicNextTargetBanner>
         return context.tr('benefit_workshop');
       case '/tuning-studio':
         return context.tr('benefit_tuning');
+      case '/emlak':
+      case '/emlak-market':
+        return context.tr('benefit_real_estate');
       case '/staff':
         return context.tr('benefit_staff');
       case '/history':

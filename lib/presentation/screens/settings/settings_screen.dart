@@ -1,13 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_reward_calculator.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
+import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
@@ -20,11 +23,18 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/whats_new_dialog.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _isAdProcessing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final game = ref.watch(gameProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
@@ -239,50 +249,97 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 14),
 
           // 4. Rewarded Support Banner
-          NeoBrutalCard(
-            padding: const EdgeInsets.all(14),
-            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-            borderColor:
-                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-            borderRadius: 14,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr('sponsor_fund_title'),
-                  style: const TextStyle(
-                      fontSize: 12.5, fontWeight: FontWeight.w900),
+          Builder(
+            builder: (context) {
+              final garageTotal = game.ownedCars
+                  .fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+              final outcome = AdRewardCalculator.calculateDynamicReward(
+                playerLevel: game.level,
+                totalGarageValue: garageTotal,
+              );
+
+              return NeoBrutalCard(
+                padding: const EdgeInsets.all(14),
+                backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                borderColor:
+                    isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                borderRadius: 14,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            context.tr('sponsor_fund_title'),
+                            style: const TextStyle(
+                                fontSize: 12.5, fontWeight: FontWeight.w900),
+                          ),
+                        ),
+                        NeoBrutalBadge(
+                          text: '+${CurrencyFormatter.formatShort(outcome.moneyAmount)}',
+                          backgroundColor: AppColors.brutalGreen,
+                          textColor: Colors.black,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.tr('sponsor_fund_desc'),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 12),
+                    NeoBrutalButton(
+                      label: _isAdProcessing
+                          ? '...'
+                          : context.tr('watch_video_earn_btn_dynamic', {
+                              'amount': CurrencyFormatter.formatShort(outcome.moneyAmount),
+                            }),
+                      icon: Icons.play_circle_fill_rounded,
+                      backgroundColor: _isAdProcessing
+                          ? const Color(0xFF64748B)
+                          : AppColors.brutalGreen,
+                      textColor: Colors.black,
+                      fontSize: 12,
+                      fullWidth: true,
+                      onPressed: _isAdProcessing
+                          ? null
+                          : () {
+                              setState(() => _isAdProcessing = true);
+                              AdService.instance.showRewardedAdWithFallback(
+                                context: context,
+                                customRewardTitle: outcome.title,
+                                outcome: outcome,
+                                onRewardEarned: () {
+                                  if (mounted) {
+                                    setState(() => _isAdProcessing = false);
+                                  }
+                                  ref.read(gameProvider.notifier).claimAdReward(outcome.moneyAmount);
+                                  NotificationService.showSuccess(
+                                    context,
+                                    context.tr('sponsor_reward_success_dynamic', {
+                                      'amount': CurrencyFormatter.format(outcome.moneyAmount),
+                                    }),
+                                  );
+                                },
+                              );
+                              Future.delayed(const Duration(milliseconds: 1500), () {
+                                if (mounted && _isAdProcessing) {
+                                  setState(() => _isAdProcessing = false);
+                                }
+                              });
+                            },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  context.tr('sponsor_fund_desc'),
-                  style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 12),
-                NeoBrutalButton(
-                  label: context.tr('watch_video_earn_btn'),
-                  icon: Icons.play_circle_fill_rounded,
-                  backgroundColor: AppColors.brutalGreen,
-                  textColor: Colors.black,
-                  fontSize: 12,
-                  fullWidth: true,
-                  onPressed: () {
-                    AdService.instance.showRewardedAdWithFallback(
-                      context: context,
-                      customRewardTitle: context.tr('sponsor_reward_title'),
-                      onRewardEarned: () {
-                        ref.read(gameProvider.notifier).claimAdReward(25000.0);
-                        NotificationService.showSuccess(
-                            context, context.tr('sponsor_reward_success'));
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
+              );
+            },
           ),
           const SizedBox(height: 14),
 
@@ -776,9 +833,88 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          // 7. Data Security & Cloud Backup
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(14),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor:
+                isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+            borderRadius: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        context.tr('backup_cloud_title'),
+                        style: const TextStyle(
+                            fontSize: 12.5, fontWeight: FontWeight.w900),
+                      ),
+                    ),
+                    const NeoBrutalBadge(
+                      text: 'GOOGLE DRIVE • CLOUD',
+                      backgroundColor: Color(0xFF38BDF8),
+                      textColor: Colors.black,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  context.tr('backup_cloud_desc'),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: context.tr('export_save_btn'),
+                        icon: Icons.copy_rounded,
+                        backgroundColor: const Color(0xFF38BDF8),
+                        textColor: Colors.black,
+                        fontSize: 11,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        onPressed: () {
+                          final code = ref
+                              .read(gameProvider.notifier)
+                              .exportSaveCode();
+                          Clipboard.setData(ClipboardData(text: code));
+                          HapticFeedback.mediumImpact();
+                          NotificationService.showSuccess(
+                              context, context.tr('export_save_success'));
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: NeoBrutalButton(
+                        label: context.tr('import_save_btn'),
+                        icon: Icons.file_download_rounded,
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
+                        textColor:
+                            isDark ? Colors.white : const Color(0xFF0F172A),
+                        fontSize: 11,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        onPressed: () => _showImportSaveDialog(context, isDark),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
 
-          // 7. Reset Game
+          // 8. Reset Game
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
@@ -1137,4 +1273,116 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
+
+  void _showImportSaveDialog(BuildContext context, bool isDark) {
+    final textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(18),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: const Color(0xFF38BDF8),
+          borderRadius: 12,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.cloud_download_rounded,
+                      color: Color(0xFF38BDF8), size: 24),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.tr('import_save_dialog_title'),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w900),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                context.tr('import_save_dialog_desc'),
+                style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B)),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: textController,
+                maxLines: 3,
+                style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                decoration: InputDecoration(
+                  hintText: context.tr('import_save_dialog_hint'),
+                  hintStyle: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                  filled: true,
+                  fillColor: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFCBD5E1), width: 1.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                        color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
+                        width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 2.0),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: context.tr('import_save_cancel_btn'),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white : Colors.black,
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: context.tr('import_save_confirm_btn'),
+                      backgroundColor: const Color(0xFF38BDF8),
+                      textColor: Colors.black,
+                      onPressed: () {
+                        final rawCode = textController.text.trim();
+                        if (rawCode.isEmpty) return;
+                        final success = ref
+                            .read(gameProvider.notifier)
+                            .importSaveCode(rawCode);
+                        Navigator.pop(ctx);
+                        if (success) {
+                          NotificationService.showSuccess(
+                              context, context.tr('import_save_success'));
+                        } else {
+                          NotificationService.showError(
+                              context, context.tr('import_save_error'));
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
+

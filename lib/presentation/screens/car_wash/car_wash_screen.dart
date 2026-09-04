@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/vehicle_category.dart';
 import '../../../data/models/car_wash_job_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/staff_model.dart';
@@ -842,11 +843,31 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                  '${selectedCar.brand} ${selectedCar.modelName}',
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w900)),
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                        '${selectedCar.brand} ${selectedCar.modelName}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w900),
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                  if (selectedCar.vehicleCategory !=
+                                      VehicleCategory.car) ...[
+                                    const SizedBox(width: 6),
+                                    NeoBrutalBadge(
+                                      text: context.tr(selectedCar
+                                          .vehicleCategory.localizationKey),
+                                      icon: selectedCar.vehicleCategory.icon,
+                                      backgroundColor: selectedCar
+                                          .vehicleCategory.badgeColor,
+                                      textColor: Colors.black,
+                                      fontSize: 8.5,
+                                    ),
+                                  ],
+                                ],
+                              ),
                               const SizedBox(height: 2),
                               Text(
                                 '${context.tr('car_card_market_value')}: ${CurrencyFormatter.formatShort(selectedCar.baseMarketValue)} • ${context.tr('car_spec_year')}: ${selectedCar.modelYear}',
@@ -1059,7 +1080,9 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
               // Service 1: Köpüklü Yıkama
               _buildServicePackageTile(
-                title: context.tr('car_wash_pkg_1_title'),
+                title: selectedCar.vehicleCategory != VehicleCategory.car
+                    ? context.tr(selectedCar.vehicleCategory.washTitleKey)
+                    : context.tr('car_wash_pkg_1_title'),
                 subtitle: context.tr('car_wash_pkg_1_desc'),
                 cost: 350.0 * discountMultiplier,
                 bonusText: context.tr('car_wash_pkg_1_bonus'),
@@ -1136,7 +1159,9 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
 
               // Service 4: Seramik Kaplama & VIP Detailing
               _buildServicePackageTile(
-                title: context.tr('car_wash_pkg_4_title'),
+                title: selectedCar.vehicleCategory != VehicleCategory.car
+                    ? context.tr(selectedCar.vehicleCategory.washDetailKey)
+                    : context.tr('car_wash_pkg_4_title'),
                 subtitle: context.tr('car_wash_pkg_4_desc'),
                 cost: 8500.0 * discountMultiplier,
                 bonusText: context.tr('car_wash_pkg_4_bonus'),

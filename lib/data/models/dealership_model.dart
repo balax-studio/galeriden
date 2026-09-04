@@ -34,6 +34,7 @@ import 'branch_model.dart';
 import 'customer_crm_event_model.dart';
 import 'casino_game_model.dart';
 import 'active_service_job_model.dart';
+import 'real_estate_model.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -201,6 +202,10 @@ class DealershipModel {
   final List<BlackMarketCarModel> blackMarketCars;
   final List<B2BPartOrder> b2bPartOrders;
   final List<ActiveServiceJobModel> activeServiceJobs;
+
+  // Real Estate Portfolio Fields (Seviye 4 • Emlak Pazarı)
+  final List<RealEstateModel> ownedRealEstates;
+  final int maxRealEstateSlots;
 
   final Set<String> unlockedBuildings;
 
@@ -795,9 +800,13 @@ class DealershipModel {
       case '/workshop':
       case '/staff':
       case '/staff-academy':
+      case '/vasita':
+      case '/vasita-market':
         return 3;
       case '/tuning-studio':
       case '/showroom-decor':
+      case '/emlak':
+      case '/emlak-market':
         return 4;
       case '/auction':
       case '/finance':
@@ -926,6 +935,16 @@ class DealershipModel {
           unlockedBuildings.contains('property_tier_8') ||
           currentBranchTier >= 5;
     }
+    if (route == '/vasita' || route == '/vasita-market') {
+      return level >= 3 ||
+          unlockedBuildings.contains('/vasita') ||
+          unlockedBuildings.contains('/vasita-market');
+    }
+    if (route == '/emlak' || route == '/emlak-market') {
+      return level >= 4 ||
+          unlockedBuildings.contains('/emlak') ||
+          unlockedBuildings.contains('/emlak-market');
+    }
     if (route == '/night-market') {
       return true;
     }
@@ -951,6 +970,8 @@ class DealershipModel {
     this.activeLoans = const [],
     this.pendingOrders = const [],
     this.hiredStaff = const [],
+    this.ownedRealEstates = const [],
+    this.maxRealEstateSlots = 5,
     this.customerReviews = const [],
     this.salesHistory = const [],
     this.activeCheques = const [],
@@ -1569,6 +1590,8 @@ class DealershipModel {
       'unlockedShowroomThemeIds': unlockedShowroomThemeIds,
       'unlockedCustomPaintIds': unlockedCustomPaintIds,
       'casinoStats': casinoStats.toJson(),
+      'ownedRealEstates': ownedRealEstates.map((e) => e.toJson()).toList(),
+      'maxRealEstateSlots': maxRealEstateSlots,
     };
   }
 
@@ -1771,6 +1794,8 @@ class DealershipModel {
       casinoStats: json['casinoStats'] != null && json['casinoStats'] is Map
           ? CasinoStatsModel.fromJson(Map<String, dynamic>.from(json['casinoStats'] as Map))
           : const CasinoStatsModel(),
+      ownedRealEstates: parseList(json['ownedRealEstates'] as List<dynamic>?, RealEstateModel.fromJson),
+      maxRealEstateSlots: json['maxRealEstateSlots'] as int? ?? 5,
     );
   }
 
@@ -1939,6 +1964,8 @@ class DealershipModel {
     List<String>? unlockedShowroomThemeIds,
     List<String>? unlockedCustomPaintIds,
     CasinoStatsModel? casinoStats,
+    List<RealEstateModel>? ownedRealEstates,
+    int? maxRealEstateSlots,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -2070,6 +2097,8 @@ class DealershipModel {
       unlockedShowroomThemeIds: unlockedShowroomThemeIds ?? this.unlockedShowroomThemeIds,
       unlockedCustomPaintIds: unlockedCustomPaintIds ?? this.unlockedCustomPaintIds,
       casinoStats: casinoStats ?? this.casinoStats,
+      ownedRealEstates: ownedRealEstates ?? this.ownedRealEstates,
+      maxRealEstateSlots: maxRealEstateSlots ?? this.maxRealEstateSlots,
     );
   }
 

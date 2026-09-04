@@ -3,6 +3,7 @@ import '../../../data/models/mega_systems_extensions_model.dart';
 import '../../../data/models/cheque_model.dart';
 import '../../../data/models/branch_model.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/vehicle_category.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/expertise_model.dart';
@@ -186,6 +187,92 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
     saveState();
     return true;
+  }
+
+  /// Category-specific upgrade for alternative vehicles (marine, aircraft, caravan, etc.)
+  Map<String, dynamic> upgradeVasitaVehicle(String carId) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) {
+      return {'success': false, 'messageKey': 'vasita_upgrade_err_not_found'};
+    }
+
+    final car = state.ownedCars[carIndex];
+    if (car.isVasitaUpgraded) {
+      return {'success': false, 'messageKey': 'vasita_upgrade_err_already_done'};
+    }
+
+    // Determine cost and log based on category
+    double cost;
+    String logEntry;
+    switch (car.vehicleCategory) {
+      case VehicleCategory.marine:
+        cost = 15000.0;
+        logEntry = 'Liman bakımı ve zehirli boya yenilendi • Sezona hazır';
+        break;
+      case VehicleCategory.aircraft:
+        cost = 45000.0;
+        logEntry = 'ARC uçuş elverişlilik sertifikası tescillendi • Tam lisanslı';
+        break;
+      case VehicleCategory.caravan:
+        cost = 12000.0;
+        logEntry = 'Off-grid kamp kiti ve güneş panelleri entegre edildi';
+        break;
+      case VehicleCategory.motorcycle:
+        cost = 4000.0;
+        logEntry = 'Titanyum koruma demirleri ve pad seti monte edildi';
+        break;
+      case VehicleCategory.commercial:
+        cost = 8000.0;
+        logEntry = 'Dijital takograf ve kantar kalibrasyonu tamamlandı';
+        break;
+      case VehicleCategory.atv:
+      case VehicleCategory.utv:
+        cost = 7500.0;
+        logEntry = 'Ağır arazi vinci ve şnorkel kiti takıldı';
+        break;
+      case VehicleCategory.classic:
+        cost = 6000.0;
+        logEntry = 'Krom detay parlatma ve özel branda muhafazası yapıldı';
+        break;
+      case VehicleCategory.damaged:
+        cost = 5000.0;
+        logEntry = 'Ekspertiz şase ve yürür doğrulaması yapıldı';
+        break;
+      case VehicleCategory.rentalFleet:
+        cost = 3500.0;
+        logEntry = 'Filo sözleşme ve kasko revizyonu tamamlandı';
+        break;
+      case VehicleCategory.minivan:
+        cost = 4500.0;
+        logEntry = 'VIP taban ve bagaj koruma kaplaması yapıldı';
+        break;
+      case VehicleCategory.car:
+        cost = 5000.0;
+        logEntry = 'Özel vasıta periyodik servis bakımı yapıldı';
+        break;
+    }
+
+    if (state.balance < cost) {
+      return {'success': false, 'messageKey': 'vasita_upgrade_err_insufficient_funds'};
+    }
+
+    final updatedCar = car.copyWith(
+      isVasitaUpgraded: true,
+      provenanceLog: [...car.provenanceLog, logEntry],
+    );
+
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+
+    state = state.copyWith(
+      balance: state.balance - cost,
+      ownedCars: updatedCars,
+      reputationScore: (state.reputationScore + 4).clamp(0, 1000),
+    );
+    addXP(40);
+    saveState();
+
+    return {'success': true, 'cost': cost};
   }
 
   /// Select permanent Specialization Path at level >= 4 (§2.2)

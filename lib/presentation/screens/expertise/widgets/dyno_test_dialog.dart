@@ -3,6 +3,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/car_model.dart';
+import '../../../../data/models/vehicle_category.dart';
 import '../../../../data/models/mega_systems_extensions_model.dart';
 import '../../../widgets/neo_brutal_card.dart';
 
@@ -19,6 +20,40 @@ class DynoTestDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynoPreview = DynoTestReport.generate(car);
+
+    final IconData categoryIcon;
+    final String titleKey;
+    switch (car.vehicleCategory) {
+      case VehicleCategory.marine:
+        categoryIcon = Icons.directions_boat_rounded;
+        titleKey = 'dyno_dialog_title_marine';
+        break;
+      case VehicleCategory.aircraft:
+        categoryIcon = Icons.flight_takeoff_rounded;
+        titleKey = 'dyno_dialog_title_aircraft';
+        break;
+      case VehicleCategory.motorcycle:
+        categoryIcon = Icons.two_wheeler_rounded;
+        titleKey = 'dyno_dialog_title_motorcycle';
+        break;
+      case VehicleCategory.commercial:
+        categoryIcon = Icons.local_shipping_rounded;
+        titleKey = 'dyno_dialog_title_commercial';
+        break;
+      case VehicleCategory.caravan:
+        categoryIcon = Icons.rv_hookup_rounded;
+        titleKey = 'dyno_dialog_title_caravan';
+        break;
+      case VehicleCategory.atv:
+      case VehicleCategory.utv:
+        categoryIcon = Icons.terrain_rounded;
+        titleKey = 'dyno_dialog_title_terrain';
+        break;
+      default:
+        categoryIcon = Icons.speed_rounded;
+        titleKey = 'dyno_dialog_title';
+        break;
+    }
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -44,13 +79,13 @@ class DynoTestDialog extends StatelessWidget {
                       border: Border.all(
                           color: const Color(0xFF333B4F), width: 2.0),
                     ),
-                    child: const Icon(Icons.speed_rounded,
+                    child: Icon(categoryIcon,
                         color: Colors.black, size: 22),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      context.tr('dyno_dialog_title'),
+                      context.tr(titleKey),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w900,

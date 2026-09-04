@@ -1,5 +1,6 @@
 import '../../core/constants/car_specifications.dart';
 import 'expertise_model.dart';
+import 'vehicle_category.dart';
 
 enum ListingDeclarationType {
   honest,
@@ -64,6 +65,8 @@ class CarModel {
   final String? pendingPaintHex;
   final String? pendingPaintName;
   final String? pendingPaintRarity;
+  final VehicleCategory vehicleCategory;
+  final bool isVasitaUpgraded;
 
   CarModel({
     required this.id,
@@ -121,6 +124,8 @@ class CarModel {
     this.pendingPaintHex,
     this.pendingPaintName,
     this.pendingPaintRarity,
+    this.vehicleCategory = VehicleCategory.car,
+    this.isVasitaUpgraded = false,
   }) : modelName = sanitizeModelName(brand, modelName);
 
   /// True if vehicle is currently in the paint oven curing
@@ -364,6 +369,10 @@ class CarModel {
       factor += 0.15;
     }
 
+    if (isVasitaUpgraded) {
+      factor += 0.05; // +5% value boost for category-specific upgrade
+    }
+
     if (hasNonOriginalParts) {
       factor -= 0.05;
     }
@@ -465,6 +474,8 @@ class CarModel {
       'pendingPaintHex': pendingPaintHex,
       'pendingPaintName': pendingPaintName,
       'pendingPaintRarity': pendingPaintRarity,
+      'vehicleCategory': vehicleCategory.name,
+      'isVasitaUpgraded': isVasitaUpgraded,
     };
   }
 
@@ -532,6 +543,8 @@ class CarModel {
       pendingPaintHex: json['pendingPaintHex'] as String?,
       pendingPaintName: json['pendingPaintName'] as String?,
       pendingPaintRarity: json['pendingPaintRarity'] as String?,
+      vehicleCategory: VehicleCategory.fromString(json['vehicleCategory'] as String?),
+      isVasitaUpgraded: json['isVasitaUpgraded'] as bool? ?? false,
     );
   }
 
@@ -593,6 +606,8 @@ class CarModel {
     String? pendingPaintName,
     String? pendingPaintRarity,
     bool clearPendingPaint = false,
+    VehicleCategory? vehicleCategory,
+    bool? isVasitaUpgraded,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -650,6 +665,8 @@ class CarModel {
       pendingPaintHex: clearPendingPaint ? null : (pendingPaintHex ?? this.pendingPaintHex),
       pendingPaintName: clearPendingPaint ? null : (pendingPaintName ?? this.pendingPaintName),
       pendingPaintRarity: clearPendingPaint ? null : (pendingPaintRarity ?? this.pendingPaintRarity),
+      vehicleCategory: vehicleCategory ?? this.vehicleCategory,
+      isVasitaUpgraded: isVasitaUpgraded ?? this.isVasitaUpgraded,
     );
   }
 }

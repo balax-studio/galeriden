@@ -8,6 +8,7 @@ import '../../../../core/theme/app_theme_extension.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
+import '../../../../data/models/vehicle_category.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/part_order_model.dart';
@@ -546,7 +547,10 @@ class _WorkshopGarageRepairsTabState
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF7A00),
+                        color: _selectedCar!.vehicleCategory !=
+                                VehicleCategory.car
+                            ? _selectedCar!.vehicleCategory.badgeColor
+                            : const Color(0xFFFF7A00),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isDark
@@ -555,18 +559,44 @@ class _WorkshopGarageRepairsTabState
                           width: 2.0,
                         ),
                       ),
-                      child: const Icon(Icons.car_repair_rounded,
-                          color: Colors.black, size: 24),
+                      child: Icon(
+                          _selectedCar!.vehicleCategory !=
+                                  VehicleCategory.car
+                              ? _selectedCar!.vehicleCategory.icon
+                              : Icons.car_repair_rounded,
+                          color: Colors.black,
+                          size: 24),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '${_selectedCar!.brand} ${_selectedCar!.modelName}',
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w900),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  '${_selectedCar!.brand} ${_selectedCar!.modelName}',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w900),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (_selectedCar!.vehicleCategory !=
+                                  VehicleCategory.car) ...[
+                                const SizedBox(width: 6),
+                                NeoBrutalBadge(
+                                  text: context.tr(_selectedCar!
+                                      .vehicleCategory.localizationKey),
+                                  icon: _selectedCar!.vehicleCategory.icon,
+                                  backgroundColor: _selectedCar!
+                                      .vehicleCategory.badgeColor,
+                                  textColor: Colors.black,
+                                  fontSize: 8.5,
+                                ),
+                              ],
+                            ],
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -923,7 +953,10 @@ class _WorkshopGarageRepairsTabState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 WorkshopRepairTile(
-                  title: '1. ${context.tr('workshop_station_engine')}',
+                  title: _selectedCar != null &&
+                          _selectedCar!.vehicleCategory != VehicleCategory.car
+                      ? '1. ${context.tr(_selectedCar!.vehicleCategory.engineRepairKey)}'
+                      : '1. ${context.tr('workshop_station_engine')}',
                   description: context.tr('workshop_station_engine_desc'),
                   cost: dynamicEngineCost,
                   bonusText: context.tr('workshop_bonus_engine'),
@@ -983,7 +1016,10 @@ class _WorkshopGarageRepairsTabState
                 ),
                 const SizedBox(height: 8),
                 WorkshopRepairTile(
-                  title: '2. ${context.tr('workshop_station_transmission')}',
+                  title: _selectedCar != null &&
+                          _selectedCar!.vehicleCategory != VehicleCategory.car
+                      ? '2. ${context.tr(_selectedCar!.vehicleCategory.transmissionRepairKey)}'
+                      : '2. ${context.tr('workshop_station_transmission')}',
                   description:
                       context.tr('workshop_station_transmission_desc'),
                   cost: dynamicTransCost,
@@ -1102,7 +1138,10 @@ class _WorkshopGarageRepairsTabState
                 ),
                 const SizedBox(height: 8),
                 WorkshopRepairTile(
-                  title: '4. ${context.tr('workshop_station_bodywork')}',
+                  title: _selectedCar != null &&
+                          _selectedCar!.vehicleCategory != VehicleCategory.car
+                      ? '4. ${context.tr(_selectedCar!.vehicleCategory.bodyworkRepairKey)}'
+                      : '4. ${context.tr('workshop_station_bodywork')}',
                   description: context.tr('workshop_station_bodywork_desc'),
                   cost: dynamicBodyCost,
                   bonusText: hasPaintBooth

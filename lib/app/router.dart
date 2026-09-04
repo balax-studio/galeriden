@@ -43,6 +43,8 @@ import '../presentation/screens/office/special_plate_screen.dart';
 import '../presentation/screens/office/media_agency_screen.dart';
 import '../presentation/screens/office/lifestyle_screen.dart';
 import '../presentation/screens/album/collection_album_screen.dart';
+import '../presentation/screens/vasita/vasita_market_screen.dart';
+import '../presentation/screens/real_estate/real_estate_market_screen.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
@@ -128,6 +130,22 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/car-wash',
       pageBuilder: (context, state) => _buildCupertinoPage(const CarWashScreen(), state),
+    ),
+    GoRoute(
+      path: '/vasita',
+      pageBuilder: (context, state) => _buildCupertinoPage(const VasitaMarketScreen(), state),
+    ),
+    GoRoute(
+      path: '/vasita-market',
+      pageBuilder: (context, state) => _buildCupertinoPage(const VasitaMarketScreen(), state),
+    ),
+    GoRoute(
+      path: '/emlak',
+      pageBuilder: (context, state) => _buildCupertinoPage(const RealEstateMarketScreen(), state),
+    ),
+    GoRoute(
+      path: '/emlak-market',
+      pageBuilder: (context, state) => _buildCupertinoPage(const RealEstateMarketScreen(), state),
     ),
     GoRoute(
       path: '/reviews',

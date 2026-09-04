@@ -19,6 +19,7 @@ import 'game_finance_mixin.dart';
 import 'game_inventory_mixin.dart';
 import 'game_market_mixin.dart';
 import 'game_monetization_mixin.dart';
+import 'game_real_estate_mixin.dart';
 import 'game_rental_mixin.dart';
 import 'game_scrapyard_mixin.dart';
 import 'game_staff_mixin.dart';
@@ -32,6 +33,7 @@ class GameCoreNotifier extends GameBaseNotifier
         GameInventoryMixin,
         GameMarketMixin,
         GameMonetizationMixin,
+        GameRealEstateMixin,
         GameRentalMixin,
         GameScrapyardMixin,
         GameStaffMixin,
@@ -233,6 +235,47 @@ class GameCoreNotifier extends GameBaseNotifier
     }
 
     await prefs.setString(_storageKey, jsonString);
+  }
+
+  /// Exports current game state as a Base64-encoded safe save string
+  String exportSaveCode() {
+    final jsonMap = state.toJson();
+    final jsonString = jsonEncode(jsonMap);
+    final bytes = utf8.encode(jsonString);
+    final base64String = base64Encode(bytes);
+    return 'GLRD_SAVE_V1:$base64String';
+  }
+
+  /// Imports and applies save from a Base64-encoded save string
+  bool importSaveCode(String rawCode) {
+    try {
+      final trimmed = rawCode.trim();
+      if (trimmed.isEmpty) return false;
+      String base64String = trimmed;
+      if (trimmed.startsWith('GLRD_SAVE_V1:')) {
+        base64String = trimmed.substring('GLRD_SAVE_V1:'.length);
+      }
+      final bytes = base64Decode(base64String);
+      final jsonString = utf8.decode(bytes);
+      final dynamic decodedRaw = jsonDecode(jsonString);
+      if (decodedRaw is! Map<String, dynamic>) {
+        return false;
+      }
+      final decoded = decodedRaw;
+      if (!decoded.containsKey('balance') ||
+          !decoded.containsKey('level') ||
+          !decoded.containsKey('dealershipName') ||
+          !decoded.containsKey('ownedCars')) {
+        return false;
+      }
+      final loaded = DealershipModel.fromJson(decoded);
+      state = loaded;
+      saveState();
+      return true;
+    } catch (e) {
+      debugPrint('Error importing save code: $e');
+      return false;
+    }
   }
 
   void _checkAchievementsInternal() {
