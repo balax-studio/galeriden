@@ -99,11 +99,19 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
         ? (MediaQuery.paddingOf(context).bottom + 84.0)
         : 24.0;
 
+    final totalRealEstateOffers = game.ownedRealEstates.fold<int>(
+      0,
+      (sum, p) => sum + p.activeOffers.length,
+    );
+    final totalOffers = game.incomingOffers.length +
+        game.incomingTradeInOffers.length +
+        totalRealEstateOffers;
+
     final tabWidget = NeoBrutalTabBar(
       tabs: [
         context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
         context.tr(
-            'showroom_tab_offers', {'count': game.incomingOffers.length}),
+            'showroom_tab_offers', {'count': totalOffers}),
       ],
     );
 

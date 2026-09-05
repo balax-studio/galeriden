@@ -20,7 +20,7 @@ extension SubcontractorTierExtension on SubcontractorTier {
 }
 
 class ConstructionStageDetails {
-  final int stageNumber; // 1 to 6
+  final int stageNumber; // 1 to 4
   final String titleKey;
   final String descriptionKey;
   final int baseDays;
@@ -58,21 +58,21 @@ class SubcontractorProfile {
 }
 
 class ConstructionTimelineEngine {
-  /// Asgari 120 günlük 6 ana şantiye evresi
+  /// 4 Ana İnşaat Etabı (Hafriyat, Kaba Yapı, Çatı & Cephe, İnce İşçilik & İskan)
   static const List<ConstructionStageDetails> stages = [
     ConstructionStageDetails(
       stageNumber: 1,
       titleKey: 'construction_stage_excavation_title',
       descriptionKey: 'construction_stage_excavation_desc',
-      baseDays: 20,
-      costPercentage: 0.10,
+      baseDays: 14,
+      costPercentage: 0.15,
     ),
     ConstructionStageDetails(
       stageNumber: 2,
       titleKey: 'construction_stage_rough_concrete_title',
       descriptionKey: 'construction_stage_rough_concrete_desc',
-      baseDays: 35,
-      costPercentage: 0.35,
+      baseDays: 28,
+      costPercentage: 0.25,
     ),
     ConstructionStageDetails(
       stageNumber: 3,
@@ -83,59 +83,49 @@ class ConstructionTimelineEngine {
     ),
     ConstructionStageDetails(
       stageNumber: 4,
-      titleKey: 'construction_stage_mep_installation_title',
-      descriptionKey: 'construction_stage_mep_installation_desc',
-      baseDays: 15,
-      costPercentage: 0.15,
-    ),
-    ConstructionStageDetails(
-      stageNumber: 5,
       titleKey: 'construction_stage_interior_finishing_title',
       descriptionKey: 'construction_stage_interior_finishing_desc',
-      baseDays: 15,
-      costPercentage: 0.10,
-    ),
-    ConstructionStageDetails(
-      stageNumber: 6,
-      titleKey: 'construction_stage_occupancy_handover_title',
-      descriptionKey: 'construction_stage_occupancy_handover_desc',
-      baseDays: 15,
-      costPercentage: 0.10,
+      baseDays: 18,
+      costPercentage: 0.15,
     ),
   ];
 
-  /// Toplam standart şantiye süresi (En az 120 gün)
+  /// Toplam standart şantiye süresi
   static int get totalBaseDays =>
       stages.fold(0, (acc, stage) => acc + stage.baseDays);
 
-  /// Arsa büyüklüğüne göre ölçeklenmiş etap süresi
+  static ConstructionStageDetails getStageDetails(int stageNumber) {
+    return stages.firstWhere(
+      (s) => s.stageNumber == stageNumber,
+      orElse: () => stages.first,
+    );
+  }
+
+  /// Arsa büyüklüğüne ve taşeron ekibine göre hesaplanan gün sayısı
   static int calculateStageDays({
     required int stageNumber,
     required double parcelSquareMeters,
     SubcontractorTier tier = SubcontractorTier.standard,
   }) {
-    final stage = stages.firstWhere(
-      (s) => s.stageNumber == stageNumber,
-      orElse: () => stages.first,
-    );
+    final stage = getStageDetails(stageNumber);
 
     double scale = 1.0;
     if (parcelSquareMeters >= 2000) {
-      scale = 1.40;
+      scale = 1.35;
     } else if (parcelSquareMeters >= 1200) {
-      scale = 1.20;
+      scale = 1.18;
     }
 
     double tierMultiplier = 1.0;
     switch (tier) {
       case SubcontractorTier.speed:
-        tierMultiplier = 0.80; // %20 daha hızlı
+        tierMultiplier = 0.75; // %25 daha hızlı
         break;
       case SubcontractorTier.standard:
         tierMultiplier = 1.0;
         break;
       case SubcontractorTier.budget:
-        tierMultiplier = 1.20; // %20 daha yavaş
+        tierMultiplier = 1.25; // %25 daha yavaş
         break;
     }
 
@@ -151,13 +141,13 @@ class ConstructionTimelineEngine {
         specialtyKey: 'subcontractor_tier_speed_badge',
         tier: SubcontractorTier.speed,
         costMultiplier: 1.25,
-        durationMultiplier: 0.80,
+        durationMultiplier: 0.75,
         reliabilityScore: 0.95,
         pitchKey: 'subcontractor_pitch_speed',
       ),
       SubcontractorProfile(
         id: 'sub_std_$stageNumber',
-        name: 'Usta Eller Kollektif',
+        name: 'Öz Usta Mimarlık & İnşaat',
         specialtyKey: 'subcontractor_tier_standard_badge',
         tier: SubcontractorTier.standard,
         costMultiplier: 1.00,
@@ -167,14 +157,48 @@ class ConstructionTimelineEngine {
       ),
       SubcontractorProfile(
         id: 'sub_budget_$stageNumber',
-        name: 'Ekonomik Taşeron Ekibi',
+        name: 'Hesaplı Taşeron Kollektifi',
         specialtyKey: 'subcontractor_tier_budget_badge',
         tier: SubcontractorTier.budget,
         costMultiplier: 0.80,
-        durationMultiplier: 1.20,
-        reliabilityScore: 0.78,
+        durationMultiplier: 1.25,
+        reliabilityScore: 0.76,
         pitchKey: 'subcontractor_pitch_budget',
       ),
     ];
+  }
+
+  /// Komik ve özgün Türk şantiye diyalog ve telsiz anonsları havuzu
+  static const List<String> humorousAnecdoteKeys = [
+    'construction_anecdote_concrete_power_cut',
+    'construction_anecdote_wedding_dozer',
+    'construction_anecdote_police_tea',
+    'construction_anecdote_inverted_blueprint',
+    'construction_anecdote_broken_laser_level',
+    'construction_anecdote_raw_meatball_rumor',
+    'construction_anecdote_c35_atomic_bomb',
+    'construction_anecdote_water_leak_plumber',
+    'construction_anecdote_crane_cat',
+  ];
+
+  static const Map<String, String> anecdoteTurkishTexts = {
+    'construction_anecdote_concrete_power_cut': 'Ustam hazır beton santralinde elektrikler gitmiş, mikserler yolda kaldı!',
+    'construction_anecdote_wedding_dozer': 'Hafriyatçı dozeri düğün konvoyuna götürmüş, yarın sabah çift vardiya gireriz.',
+    'construction_anecdote_police_tea': 'Zabıta geldi şikayet var diye, çay ocağında çay ısmarladık meseleyi tatlıya bağladık.',
+    'construction_anecdote_inverted_blueprint': 'Demirci ustası projeyi ters tutmuş, neyse ki kolonları doğru yere bağlamış.',
+    'construction_anecdote_broken_laser_level': 'Fayans ustası lazer terazi bozuktu göz kararı dizdim diyor, banyoya giren deniz tuttu sanıyor.',
+    'construction_anecdote_raw_meatball_rumor': 'Müteahhit kaçtı dedikodusu çıktı, ustalara çiğ köfte yoğurup işin başına döndürdük.',
+    'construction_anecdote_c35_atomic_bomb': 'Şantiye şefi C35 beton döktük, atom bombası gelse çizilmez diyerek teselli etti.',
+    'construction_anecdote_water_leak_plumber': 'Sıhhi tesisat ustası vanayı ters bağlamış, şantiyede havuz partisi başladı.',
+    'construction_anecdote_crane_cat': 'Kule vinçin tepesine kedi çıkmış, itfaiye gelene kadar kalıp işleri durdu.',
+  };
+
+  static String getRandomAnecdoteKey(Random random) {
+    return humorousAnecdoteKeys[random.nextInt(humorousAnecdoteKeys.length)];
+  }
+
+  static String getRandomAnecdoteText(Random random) {
+    final key = getRandomAnecdoteKey(random);
+    return anecdoteTurkishTexts[key] ?? key;
   }
 }

@@ -79,6 +79,36 @@ class RealEstateDiscrepancyInfo {
   );
 }
 
+enum RealEstateSellerPersonality {
+  stubborn, // Tok Satıcı
+  urgent, // Borçlu / Acilci
+  corporate, // Kurumsal Ofis Müdürü
+}
+
+extension RealEstateSellerPersonalityExtension on RealEstateSellerPersonality {
+  String get localizationKey {
+    switch (this) {
+      case RealEstateSellerPersonality.stubborn:
+        return 'real_estate_personality_stubborn';
+      case RealEstateSellerPersonality.urgent:
+        return 'real_estate_personality_urgent';
+      case RealEstateSellerPersonality.corporate:
+        return 'real_estate_personality_corporate';
+    }
+  }
+
+  String get descriptionKey {
+    switch (this) {
+      case RealEstateSellerPersonality.stubborn:
+        return 'real_estate_personality_stubborn_desc';
+      case RealEstateSellerPersonality.urgent:
+        return 'real_estate_personality_urgent_desc';
+      case RealEstateSellerPersonality.corporate:
+        return 'real_estate_personality_corporate_desc';
+    }
+  }
+}
+
 class RealEstateNegotiationOutcome {
   final double currentOfferedPrice;
   final String responseMessage;
@@ -86,6 +116,9 @@ class RealEstateNegotiationOutcome {
   final bool isWalkaway;
   final int updatedPatience;
   final RealEstateTacticRollOutcome? tacticOutcome;
+  final bool isCounterOffer;
+  final double? counterOfferPrice;
+  final String? rejectionReason;
 
   const RealEstateNegotiationOutcome({
     required this.currentOfferedPrice,
@@ -94,6 +127,9 @@ class RealEstateNegotiationOutcome {
     required this.isWalkaway,
     required this.updatedPatience,
     this.tacticOutcome,
+    this.isCounterOffer = false,
+    this.counterOfferPrice,
+    this.rejectionReason,
   });
 }
 
@@ -288,6 +324,31 @@ class RealEstateNegotiationEngine {
     return RealEstateDiscrepancyInfo.clean;
   }
 
+  /// Calculates seller personality archetype deterministically
+  static RealEstateSellerPersonality getSellerPersonality(RealEstateListingModel listing) {
+    if (listing.realEstate.sellerType == RealEstateSellerType.bankAuction) {
+      return RealEstateSellerPersonality.corporate;
+    }
+    if (listing.realEstate.sellerType == RealEstateSellerType.agency) {
+      return (listing.id.hashCode.abs() % 3 == 0)
+          ? RealEstateSellerPersonality.stubborn
+          : RealEstateSellerPersonality.corporate;
+    }
+    final mod = listing.id.hashCode.abs() % 3;
+    if (mod == 0) return RealEstateSellerPersonality.stubborn;
+    if (mod == 1) return RealEstateSellerPersonality.urgent;
+    return RealEstateSellerPersonality.corporate;
+  }
+
+  /// Dynamic thinking state steps for psychological suspense
+  static List<String> getThinkingSteps() {
+    return const [
+      'real_estate_thinking_step_owner',
+      'real_estate_thinking_step_tax',
+      'real_estate_thinking_step_market',
+    ];
+  }
+
   /// Calculates success probability of offered purchase price
   static int calculateBuyerSuccessChance({
     required double askingPrice,
@@ -295,6 +356,7 @@ class RealEstateNegotiationEngine {
     required int playerLevel,
     required RealEstateSellerType sellerType,
     double extraBonusPercent = 0.0,
+    RealEstateSellerPersonality? personality,
   }) {
     if (askingPrice <= 0 || offeredPrice >= askingPrice) return 100;
     final discountPercent = ((askingPrice - offeredPrice) / askingPrice) * 100;
@@ -311,6 +373,19 @@ class RealEstateNegotiationEngine {
       case RealEstateSellerType.bankAuction:
         baseChance -= 2.0; // Bureaucratic algorithm
         break;
+    }
+
+    if (personality != null) {
+      switch (personality) {
+        case RealEstateSellerPersonality.urgent:
+          baseChance += 8.0;
+          break;
+        case RealEstateSellerPersonality.stubborn:
+          baseChance -= 8.0;
+          break;
+        case RealEstateSellerPersonality.corporate:
+          break;
+      }
     }
 
     final levelBonus = playerLevel * 3.0;
@@ -375,13 +450,16 @@ class RealEstateNegotiationEngine {
     required int currentPatience,
     required int playerLevel,
     double extraBonusPercent = 0.0,
+    RealEstateSellerPersonality? personality,
   }) {
+    final activePersonality = personality ?? getSellerPersonality(listing);
     final chance = calculateBuyerSuccessChance(
       askingPrice: listing.askingPrice,
       offeredPrice: offeredPrice,
       playerLevel: playerLevel,
       sellerType: listing.realEstate.sellerType,
       extraBonusPercent: extraBonusPercent,
+      personality: activePersonality,
     );
 
     final roll = _random.nextInt(100) + 1;
@@ -402,17 +480,72 @@ class RealEstateNegotiationEngine {
 
     // Offer rejected
     final discountPercent = ((listing.askingPrice - offeredPrice) / listing.askingPrice) * 100;
-    final patienceDrop = (discountPercent > 20 ? 25 : 12) + _random.nextInt(8);
+    int baseDrop = discountPercent > 20 ? 24 : 12;
+    if (activePersonality == RealEstateSellerPersonality.stubborn) {
+      baseDrop += 8;
+    } else if (activePersonality == RealEstateSellerPersonality.urgent) {
+      baseDrop = (baseDrop * 0.75).round();
+    }
+    final patienceDrop = baseDrop + _random.nextInt(6);
     final newPatience = (currentPatience - patienceDrop).clamp(0, 100);
 
     final bool isWalkaway = newPatience <= 0;
 
-    String responseMsg;
     if (isWalkaway) {
-      responseMsg = SlotTextComposer.sanitizeText(
+      final walkawayMsg = SlotTextComposer.sanitizeText(
         '${listing.sellerName} • ₺${offeredPrice.round()} teklifin gayrimenkulümün değerini hiçe sayıyor. Pazarlık bitmiştir, tapu dairesine gitmiyoruz!',
       );
+      return RealEstateNegotiationOutcome(
+        currentOfferedPrice: offeredPrice,
+        responseMessage: walkawayMsg,
+        isAccepted: false,
+        isWalkaway: true,
+        updatedPatience: 0,
+        rejectionReason: 'Satıcının sabrı tükendi ve masayı terk etti.',
+      );
+    }
+
+    // Determine if seller makes a counter-offer
+    bool shouldMakeCounter = false;
+    double? counterPrice;
+    if (discountPercent >= 4.0 && discountPercent <= 25.0) {
+      final counterRoll = _random.nextInt(100);
+      final counterThreshold = activePersonality == RealEstateSellerPersonality.urgent
+          ? 20 // 80% chance
+          : (activePersonality == RealEstateSellerPersonality.stubborn ? 50 : 35); // 50% or 65%
+      if (counterRoll >= counterThreshold) {
+        shouldMakeCounter = true;
+        final ratio = activePersonality == RealEstateSellerPersonality.urgent
+            ? 0.35 // closer to player offer
+            : (activePersonality == RealEstateSellerPersonality.stubborn ? 0.75 : 0.50);
+        counterPrice = (offeredPrice + (listing.askingPrice - offeredPrice) * ratio);
+        counterPrice = (counterPrice / 10000).round() * 10000.0;
+        if (counterPrice <= offeredPrice || counterPrice >= listing.askingPrice) {
+          shouldMakeCounter = false;
+          counterPrice = null;
+        }
+      }
+    }
+
+    String responseMsg;
+    String? rejectionReason;
+    if (shouldMakeCounter && counterPrice != null) {
+      final counterFormatted = '₺${counterPrice.round()}';
+      final dialogues = [
+        '${listing.sellerName} • Liste fiyatımız ortada lakin masadan eli boş dönmeyelim. Son olarak $counterFormatted rakamına bırakırım, var mısın?',
+        '${listing.sellerName} • ₺${offeredPrice.round()} kurtarmaz ama mülk sahibini aradım, $counterFormatted seviyesine inerse onay verdi.',
+        '${listing.sellerName} • Teklifin çok kırıcı oldu usta. Aramızda kalacaksa $counterFormatted yapalım, hemen vekaleti çıkaralım.',
+      ];
+      responseMsg = SlotTextComposer.sanitizeText(dialogues[_random.nextInt(dialogues.length)]);
+      rejectionReason = 'Satıcı ₺${offeredPrice.round()} teklifini yetersiz buldu ve $counterFormatted karşı teklif sundu.';
     } else {
+      final esnafRejections = [
+        'Bu rakama bölgede kapıcı dairesi bile vermiyorlar!',
+        'Tapu harcı ve stopajı hesaba katınca cebime bir şey kalmıyor.',
+        'Mülkümüzün şerefiyesi ve konumu bu fiyatın çok üzerinde.',
+        'Böyle indirimle gelirseniz noter kapısından döneriz.',
+      ];
+      rejectionReason = esnafRejections[_random.nextInt(esnafRejections.length)];
       responseMsg = generateDynamicSellerDialogue(
         sellerName: listing.sellerName,
         sellerType: listing.realEstate.sellerType,
@@ -427,8 +560,11 @@ class RealEstateNegotiationEngine {
       currentOfferedPrice: offeredPrice,
       responseMessage: responseMsg,
       isAccepted: false,
-      isWalkaway: isWalkaway,
+      isWalkaway: false,
       updatedPatience: newPatience,
+      isCounterOffer: shouldMakeCounter,
+      counterOfferPrice: counterPrice,
+      rejectionReason: rejectionReason,
     );
   }
 

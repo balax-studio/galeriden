@@ -39,7 +39,45 @@ class _SubcontractorNegotiationChatScreenState
   final ScrollController _scrollController = ScrollController();
   final Random _random = Random();
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final list = ref.read(gameProvider).ownedRealEstates;
+      final idx = list.indexWhere((r) => r.id == widget.landId);
+      if (idx != -1 && mounted) {
+        setState(() {
+          _selectedStage = list[idx].constructionStage.clamp(1, 4);
+        });
+      }
+    });
+  }
+
   void _startChatWithSubcontractor(SubcontractorProfile sub, double stageCost) {
+    final land = ref.read(gameProvider).ownedRealEstates.firstWhere(
+          (r) => r.id == widget.landId,
+          orElse: () => RealEstateModel(
+            id: widget.landId,
+            title: 'Arsa Parseli',
+            category: RealEstateCategory.land,
+            city: 'İstanbul',
+            district: 'Ataşehir',
+            squareMeters: 1000,
+            roomCount: 'İmarlı Arsa',
+            buildingAge: 0,
+            deedType: DeedType.ownershipDeed,
+            sellerType: RealEstateSellerType.individual,
+            baseMarketValue: 8000000.0,
+            currentPurchasePrice: 8000000.0,
+          ),
+        );
+
+    final modeString = sub.tier == SubcontractorTier.speed
+        ? context.tr('subcontractor_mode_speed')
+        : sub.tier == SubcontractorTier.budget
+            ? context.tr('subcontractor_mode_budget')
+            : context.tr('subcontractor_mode_meticulous');
+
     setState(() {
       _activeSubcontractor = sub;
       _chatState = ChatNegotiationState(
@@ -55,13 +93,11 @@ class _SubcontractorNegotiationChatScreenState
             senderName: sub.name,
             role: ChatSenderRole.subcontractor,
             message: context.tr('subcontractor_msg_initial', {
-              'mode': sub.tier == SubcontractorTier.speed
-                  ? context.tr('subcontractor_mode_speed')
-                  : context.tr('subcontractor_mode_meticulous'),
+              'mode': modeString,
               'cost': CurrencyFormatter.format(stageCost * sub.costMultiplier),
               'days': ConstructionTimelineEngine.calculateStageDays(
                 stageNumber: _selectedStage,
-                parcelSquareMeters: 1000,
+                parcelSquareMeters: land.squareMeters.toDouble(),
                 tier: sub.tier,
               ),
             }),
@@ -117,8 +153,9 @@ class _SubcontractorNegotiationChatScreenState
           (r) => r.id == widget.landId,
         );
 
-    ref.read(gameProvider.notifier).advanceSelfBuildStage(
+    final success = ref.read(gameProvider.notifier).startSelfBuildStage(
           land.id,
+          subcontractor: _activeSubcontractor,
           customStageCost: _chatState?.currentPrice,
         );
 
@@ -126,6 +163,10 @@ class _SubcontractorNegotiationChatScreenState
       _activeSubcontractor = null;
       _chatState = null;
     });
+
+    if (success && mounted) {
+      context.pop();
+    }
   }
 
   @override
@@ -151,7 +192,7 @@ class _SubcontractorNegotiationChatScreenState
       ),
     );
 
-    final totalBudget = land.baseMarketValue * 0.45;
+    final totalBudget = (land.baseMarketValue * 0.75).roundToDouble();
 
     return Scaffold(
       backgroundColor:
@@ -237,11 +278,18 @@ class _SubcontractorNegotiationChatScreenState
           ),
           const SizedBox(height: 16),
 
-          // 6 Stages List
+          // 4 Stages List
           ...stages.map((stage) {
-            final stageCost = totalBudget * stage.costPercentage;
+            final stageCost = (land.baseMarketValue * stage.costPercentage).roundToDouble();
             final isCompleted = land.constructionStage > stage.stageNumber;
-            final isCurrent = land.constructionStage == stage.stageNumber - 1;
+            final isCurrent = land.constructionStage == stage.stageNumber;
+            final isWorking = isCurrent &&
+                land.isConstructionWorking &&
+                land.constructionDaysRemaining > 0;
+            final isReadyForHandover = isCurrent &&
+                land.isConstructionWorking &&
+                land.constructionDaysRemaining == 0;
+            final isUnstarted = isCurrent && !land.isConstructionWorking;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -291,7 +339,8 @@ class _SubcontractorNegotiationChatScreenState
                           ],
                         ),
                         NeoBrutalBadge(
-                          text: context.tr('subcontractor_badge_days', {'days': stage.baseDays}),
+                          text: context.tr('subcontractor_badge_days',
+                              {'days': stage.baseDays}),
                           backgroundColor: const Color(0xFFFEF3C7),
                           textColor: const Color(0xFF92400E),
                         ),
@@ -303,6 +352,25 @@ class _SubcontractorNegotiationChatScreenState
                       style: const TextStyle(
                           fontSize: 11, color: Color(0xFF64748B)),
                     ),
+                    if (isCurrent &&
+                        land.isConstructionWorking &&
+                        land.activeSubcontractorName != null) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.handyman_rounded,
+                              size: 14, color: Color(0xFF2563EB)),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${land.activeSubcontractorName} • ${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}',
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF2563EB)),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -322,7 +390,33 @@ class _SubcontractorNegotiationChatScreenState
                             backgroundColor: const Color(0xFFD1FAE5),
                             textColor: const Color(0xFF065F46),
                           )
-                        else if (isCurrent)
+                        else if (isWorking)
+                          NeoBrutalBadge(
+                            text:
+                                '${context.tr('subcontractor_badge_working')} • ${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}',
+                            backgroundColor: const Color(0xFFFEF3C7),
+                            textColor: const Color(0xFF92400E),
+                          )
+                        else if (isReadyForHandover)
+                          NeoBrutalButton(
+                            text: context.tr('real_estate_stage_btn_handover'),
+                            backgroundColor: const Color(0xFF10B981),
+                            textColor: Colors.white,
+                            onPressed: () {
+                              HapticFeedback.heavyImpact();
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .completeSelfBuildStage(land.id);
+                              if (success) {
+                                GameSoundHapticService.playCashSuccess();
+                                NotificationService.showSuccess(
+                                  context,
+                                  context.tr('real_estate_advance_success_toast'),
+                                );
+                              }
+                            },
+                          )
+                        else if (isUnstarted)
                           NeoBrutalButton(
                             text: context.tr('subcontractor_btn_select_and_negotiate'),
                             backgroundColor: const Color(0xFF2563EB),
@@ -349,6 +443,9 @@ class _SubcontractorNegotiationChatScreenState
 
   void _openSubcontractorSelector(int stageNumber, double stageCost) {
     _selectedStage = stageNumber;
+    final land = ref.read(gameProvider).ownedRealEstates.firstWhere(
+          (r) => r.id == widget.landId,
+        );
     final subs =
         ConstructionTimelineEngine.getSubcontractorsForStage(stageNumber);
 
@@ -375,37 +472,87 @@ class _SubcontractorNegotiationChatScreenState
               const SizedBox(height: 12),
               ...subs.map((sub) {
                 final cost = stageCost * sub.costMultiplier;
+                final duration = ConstructionTimelineEngine.calculateStageDays(
+                  stageNumber: stageNumber,
+                  parcelSquareMeters: land.squareMeters.toDouble(),
+                  tier: sub.tier,
+                );
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: NeoBrutalCard(
                     padding: const EdgeInsets.all(12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               sub.name,
                               style: const TextStyle(
                                   fontSize: 13, fontWeight: FontWeight.w900),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${CurrencyFormatter.format(cost)} • ${context.tr('subcontractor_speed_prefix', {'speed': (1.0 / sub.durationMultiplier).toStringAsFixed(1)})}',
-                              style: const TextStyle(
-                                  fontSize: 11, color: Color(0xFF64748B)),
+                            NeoBrutalBadge(
+                              text: '$duration ${context.tr('subcontractor_days_suffix')}',
+                              backgroundColor: const Color(0xFFFEF3C7),
+                              textColor: const Color(0xFF92400E),
                             ),
                           ],
                         ),
-                        NeoBrutalButton(
-                          text: context.tr('subcontractor_btn_negotiate'),
-                          backgroundColor: const Color(0xFF10B981),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            _startChatWithSubcontractor(sub, stageCost);
-                          },
+                        const SizedBox(height: 2),
+                        Text(
+                          '${CurrencyFormatter.format(cost)} • ${context.tr(sub.tier.badgeKey)}',
+                          style: const TextStyle(
+                              fontSize: 11, color: Color(0xFF64748B)),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: NeoBrutalButton(
+                                text: context.tr('subcontractor_btn_negotiate'),
+                                backgroundColor: const Color(0xFF2563EB),
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  _startChatWithSubcontractor(sub, stageCost);
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: NeoBrutalButton(
+                                text: context.tr('subcontractor_btn_direct_hire'),
+                                backgroundColor: const Color(0xFF10B981),
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  final success = ref
+                                      .read(gameProvider.notifier)
+                                      .startSelfBuildStage(
+                                        widget.landId,
+                                        subcontractor: sub,
+                                        customStageCost: cost,
+                                      );
+                                  if (success) {
+                                    GameSoundHapticService.playCashSuccess();
+                                    NotificationService.showSuccess(
+                                      context,
+                                      context.tr('subcontractor_toast_hired', {
+                                        'name': sub.name,
+                                      }),
+                                    );
+                                    context.pop();
+                                  } else {
+                                    NotificationService.showError(
+                                      context,
+                                      context.tr('real_estate_expand_slots_error_funds'),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -513,6 +660,27 @@ class _SubcontractorNegotiationChatScreenState
                     onTap: () => _applyTactic(
                       ChatTacticType.counterPrice,
                       context.tr('subcontractor_tactic_discount_msg'),
+                    ),
+                  ),
+                  _buildTacticChip(
+                    label: context.tr('subcontractor_tactic_double_shift_label'),
+                    onTap: () => _applyTactic(
+                      ChatTacticType.demandDoubleShift,
+                      context.tr('subcontractor_tactic_double_shift_msg'),
+                    ),
+                  ),
+                  _buildTacticChip(
+                    label: context.tr('subcontractor_tactic_cash_materials_label'),
+                    onTap: () => _applyTactic(
+                      ChatTacticType.demandCashMaterials,
+                      context.tr('subcontractor_tactic_cash_materials_msg'),
+                    ),
+                  ),
+                  _buildTacticChip(
+                    label: context.tr('subcontractor_tactic_penalty_clause_label'),
+                    onTap: () => _applyTactic(
+                      ChatTacticType.demandPenaltyClause,
+                      context.tr('subcontractor_tactic_penalty_clause_msg'),
                     ),
                   ),
                   _buildTacticChip(

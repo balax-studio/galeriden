@@ -1,3 +1,5 @@
+import 'tenant_model.dart';
+
 class RealEstateOfferModel {
   final String id;
   final String realEstateId;
@@ -6,6 +8,9 @@ class RealEstateOfferModel {
   final double offeredAmount;
   final int daysRemaining;
   final DateTime createdAt;
+  final bool isRentalOffer;
+  final TenantModel? tenant;
+  final double depositAmount;
 
   const RealEstateOfferModel({
     required this.id,
@@ -15,6 +20,9 @@ class RealEstateOfferModel {
     required this.offeredAmount,
     this.daysRemaining = 3,
     required this.createdAt,
+    this.isRentalOffer = false,
+    this.tenant,
+    this.depositAmount = 0.0,
   });
 
   Map<String, dynamic> toJson() {
@@ -26,6 +34,9 @@ class RealEstateOfferModel {
       'offeredAmount': offeredAmount,
       'daysRemaining': daysRemaining,
       'createdAt': createdAt.toIso8601String(),
+      'isRentalOffer': isRentalOffer,
+      'tenant': tenant?.toJson(),
+      'depositAmount': depositAmount,
     };
   }
 
@@ -40,6 +51,11 @@ class RealEstateOfferModel {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
+      isRentalOffer: json['isRentalOffer'] as bool? ?? false,
+      tenant: json['tenant'] != null
+          ? TenantModel.fromJson(json['tenant'] as Map<String, dynamic>)
+          : null,
+      depositAmount: (json['depositAmount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -51,6 +67,9 @@ class RealEstateOfferModel {
     double? offeredAmount,
     int? daysRemaining,
     DateTime? createdAt,
+    bool? isRentalOffer,
+    TenantModel? tenant,
+    double? depositAmount,
   }) {
     return RealEstateOfferModel(
       id: id ?? this.id,
@@ -60,6 +79,9 @@ class RealEstateOfferModel {
       offeredAmount: offeredAmount ?? this.offeredAmount,
       daysRemaining: daysRemaining ?? this.daysRemaining,
       createdAt: createdAt ?? this.createdAt,
+      isRentalOffer: isRentalOffer ?? this.isRentalOffer,
+      tenant: tenant ?? this.tenant,
+      depositAmount: depositAmount ?? this.depositAmount,
     );
   }
 }

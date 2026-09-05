@@ -150,7 +150,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                     context: context,
                     isSelected: activeFilter == null,
                     label: context.tr('vasita_filter_all'),
-                    countText: '485K',
                     icon: Icons.apps_rounded,
                     activeColor: AppColors.brutalYellow,
                     isDark: isDark,
@@ -167,7 +166,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                       context: context,
                       isSelected: isSelected,
                       label: context.tr(cat.localizationKey),
-                      countText: _formatCatalogCount(cat.catalogCount),
                       icon: cat.icon,
                       activeColor: cat.badgeColor,
                       isDark: isDark,
@@ -299,7 +297,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     required BuildContext context,
     required bool isSelected,
     required String label,
-    required String countText,
     required IconData icon,
     required Color activeColor,
     required bool isDark,
@@ -348,22 +345,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                   fontSize: 11.5,
                   fontWeight: FontWeight.w900,
                   color: isSelected ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.black26 : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  countText,
-                  style: TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? Colors.black : const Color(0xFF64748B),
-                  ),
                 ),
               ),
             ],
@@ -586,12 +567,5 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
         ],
       ),
     );
-  }
-
-  String _formatCatalogCount(int count) {
-    if (count >= 1000) {
-      return '${(count / 1000).toStringAsFixed(count >= 10000 ? 0 : 1)}K';
-    }
-    return count.toString();
   }
 }

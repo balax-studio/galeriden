@@ -6,6 +6,7 @@ enum ChatSenderRole {
   subcontractor,
   buyer,
   tenant,
+  seller,
 }
 
 class ChatMessageModel {
@@ -35,6 +36,9 @@ enum ChatTacticType {
   demandAdvanceDeposit, // Nakit Teminat / Kira Avansı İste
   counterPrice, // Karşı Fiyat Teklif Et (+%5 veya -%5)
   demandCashDiscount, // Peşin İndirimiyle Kabul Et
+  demandDoubleShift, // Çift Vardiya & Gece Betonu
+  demandCashMaterials, // Malzemeyi Peşin Alıyorum, İşçilikten Kır
+  demandPenaltyClause, // Gününde Bitmezse Cezai Şartı İşletirim
   transferDeedCosts, // Tapu Masrafını Alıcıya Devret
   acceptAgreement, // Sözleşmeyi İmzala / Onayla
   walkAway, // Masadan Kalk / Reddet
@@ -272,6 +276,48 @@ class RealEstateChatNegotiationEngine {
         } else {
           replyText =
               'Bu rakam bizim fizibilitenin çok üzerinde kalıyor, fiyatı esnetemeyiz.';
+        }
+        break;
+
+      case ChatTacticType.demandDoubleShift:
+        nextPatience -= 15;
+        if (random.nextDouble() < 0.65) {
+          nextSatisfaction += 15;
+          replyText =
+              'Anlaştık patron • Sahaya seyyar aydınlatma ve ekstra jeneratör kuruyoruz • Gece çift vardiyaya girip süreden gün kazanacağız.';
+          replyBadge = 'ÇİFT VARDİYA ONAYLANDI';
+        } else {
+          replyText =
+              'Aman patron, gece beton dökersek mahalleli zabıtayı yığar şantiyeye • Sabah 06:00 dedi mi mikserleri sıraya dizeceğiz.';
+        }
+        break;
+
+      case ChatTacticType.demandCashMaterials:
+        nextPatience -= 10;
+        if (random.nextDouble() < 0.70) {
+          final discount = (state.currentPrice * 0.08).roundToDouble();
+          nextPrice = state.currentPrice - discount;
+          nextSatisfaction += 20;
+          replyText =
+              'Madem demiri hazır betonu peşin bağlıyorsun patron, biz de işçilik birim fiyatından ₺${discount.round()} düşüyoruz • Helali hoş olsun.';
+          replyBadge = 'PEŞİN MALZEME İNDİRİMİ';
+        } else {
+          replyText =
+              'Patron malzeme desteğin makbule geçer ama usta yevmiyesi, kalıp çivisi ve bağ teli maliyetimiz belli • Fiyattan daha fazla kıramayız.';
+        }
+        break;
+
+      case ChatTacticType.demandPenaltyClause:
+        nextPatience -= 20;
+        if (random.nextDouble() < 0.60) {
+          nextSatisfaction += 10;
+          replyText =
+              'Sözümüz senettir patron • Sözleşmeye cezai şart maddesini ekle • Dededen kalma tecrübeyle gününden önce teslim etmezsek namerdiz!';
+          replyBadge = 'CEZAİ ŞART TAAHHÜDÜ';
+        } else {
+          nextPatience -= 10;
+          replyText =
+              'Aman patron, şantiyede hava muhalefeti var, beton santralinin elektrik arızası var • Mahkemeyle şantiyeyi germeyelim, tatlıya bağlayalım.';
         }
         break;
 

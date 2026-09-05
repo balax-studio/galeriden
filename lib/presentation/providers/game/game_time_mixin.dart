@@ -23,8 +23,10 @@ import '../../../data/models/offer_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
 import '../../../data/models/customer_crm_event_model.dart';
 import '../../../data/models/active_service_job_model.dart';
+import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
 import '../../../data/models/real_estate_offer_model.dart';
+import '../../../data/models/tenant_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/dramatic_card_engine.dart';
 import '../../../domain/usecases/random_event_engine.dart';
@@ -38,6 +40,7 @@ import '../../../domain/usecases/black_market_engine.dart';
 import '../../../domain/usecases/loan_settlement_engine.dart';
 import '../../../domain/usecases/stock_market_engine.dart';
 import '../../../domain/usecases/side_business_engine.dart';
+import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/gossip_item_model.dart';
 import '../../../domain/services/daily_loan_processor.dart';
@@ -583,17 +586,40 @@ mixin GameTimeMixin on GameBaseNotifier {
     final updatedProperties = properties.map((prop) {
       var currentProp = prop;
       if (currentProp.isRented) {
-        final dailyRent = currentProp.dailyRentIncome;
-        totalDailyRent += dailyRent;
-        rentedCount++;
-        final nextDays = currentProp.uncollectedRentDays + 1;
-        if (nextDays >= 5) {
-          atRiskCount++;
+        final tenant = currentProp.currentTenant;
+        final isDelinquent = tenant != null && random.nextInt(100) < tenant.evictionRiskScore;
+        if (isDelinquent) {
+          final nextUnpaid = tenant.unpaidRentDays + 1;
+          currentProp = currentProp.copyWith(
+            currentTenant: tenant.copyWith(unpaidRentDays: nextUnpaid),
+          );
+          if (nextUnpaid % 7 == 0) {
+            updatedEvents.insert(
+              0,
+              GameEventModel(
+                id: 'rent_delayed_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+                title: 'Kira Ödemesi Gecikti',
+                description:
+                    '${currentProp.title} mülkünüzdeki kiracı ${tenant.name} ödemeyi $nextUnpaid gündür geciktirdi.',
+                amount: 0.0,
+                type: GameEventType.badEvent,
+                date: DateTime.now(),
+              ),
+            );
+          }
+        } else {
+          final dailyRent = currentProp.dailyRentIncome;
+          totalDailyRent += dailyRent;
+          rentedCount++;
+          final nextDays = currentProp.uncollectedRentDays + 1;
+          if (nextDays >= 5) {
+            atRiskCount++;
+          }
+          currentProp = currentProp.copyWith(
+            pendingRentIncome: currentProp.pendingRentIncome + dailyRent,
+            uncollectedRentDays: nextDays,
+          );
         }
-        currentProp = currentProp.copyWith(
-          pendingRentIncome: currentProp.pendingRentIncome + dailyRent,
-          uncollectedRentDays: nextDays,
-        );
       }
 
       if (currentProp.renovationDaysRemaining > 0) {
@@ -623,9 +649,9 @@ mixin GameTimeMixin on GameBaseNotifier {
       }
 
       if (currentProp.isConstructionActive) {
-        final daysLeft = currentProp.constructionDaysRemaining - 1;
-        if (daysLeft <= 0) {
-          if (currentProp.constructionMode == 'contractor') {
+        if (currentProp.constructionMode == 'contractor') {
+          final daysLeft = currentProp.constructionDaysRemaining - 1;
+          if (daysLeft <= 0) {
             final nextStage = currentProp.constructionStage + 1;
             currentProp = currentProp.copyWith(
               constructionStage: nextStage,
@@ -638,7 +664,7 @@ mixin GameTimeMixin on GameBaseNotifier {
                   id: 'construction_ready_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
                   title: 'Şantiye Tamamlandı • Anahtar Teslim Hazır',
                   description:
-                      '${currentProp.district} arsanızdaki kat karşılığı inşaat tamamlandı ve iskan ruhsatı alındı. Daireleri portföyünüze aktarabilirsiniz.',
+                      '${currentProp.district} arsanızdaki kat karşılığı inşaat tamamlandı ve iskan ruhsatı alındı • Daireleri portföyünüze aktarabilirsiniz.',
                   amount: 0.0,
                   type: GameEventType.goodEvent,
                   date: DateTime.now(),
@@ -646,15 +672,40 @@ mixin GameTimeMixin on GameBaseNotifier {
               );
             }
           } else {
-            // selfBuild: milestone ready for next inspection & funding
+            currentProp = currentProp.copyWith(
+              constructionDaysRemaining: daysLeft,
+            );
+          }
+        } else if (currentProp.constructionMode == 'selfBuild' && currentProp.isConstructionWorking) {
+          final daysLeft = currentProp.constructionDaysRemaining - 1;
+          if (daysLeft <= 0) {
             currentProp = currentProp.copyWith(
               constructionDaysRemaining: 0,
             );
+            updatedEvents.insert(
+              0,
+              GameEventModel(
+                id: 'construction_stage_ready_${currentProp.id}_${currentProp.constructionStage}_${DateTime.now().millisecondsSinceEpoch}',
+                title: 'Şantiye Etabı Tamamlandı • Teslim Almaya Hazır',
+                description:
+                    '${currentProp.district} arsasındaki ${currentProp.constructionStage}. Etap çalışmaları başarıyla tamamlandı • Etabı denetleyip teslim alabilirsiniz.',
+                amount: 0.0,
+                type: GameEventType.goodEvent,
+                date: DateTime.now(),
+              ),
+            );
+          } else {
+            final updatedLogs = List<String>.from(currentProp.provenanceLog);
+            if (daysLeft % 3 == 0 && random.nextDouble() < 0.50) {
+              final nowStr = DateTime.now().toIso8601String().split('T').first;
+              final anecdote = ConstructionTimelineEngine.getRandomAnecdoteText(random);
+              updatedLogs.add('$nowStr • Şantiye Telsizi: $anecdote');
+            }
+            currentProp = currentProp.copyWith(
+              constructionDaysRemaining: daysLeft,
+              provenanceLog: updatedLogs,
+            );
           }
-        } else {
-          currentProp = currentProp.copyWith(
-            constructionDaysRemaining: daysLeft,
-          );
         }
       }
 
@@ -717,6 +768,63 @@ mixin GameTimeMixin on GameBaseNotifier {
 
         currentProp = currentProp.copyWith(
           daysListed: nextDaysListed,
+          activeOffers: updatedOffers,
+        );
+      }
+
+      if (currentProp.isRentalListed && !currentProp.isRented) {
+        // Age existing rental offers and purge expired ones
+        final updatedOffers = <RealEstateOfferModel>[];
+        for (final offer in currentProp.activeOffers) {
+          if (offer.isRentalOffer) {
+            if (offer.daysRemaining > 1) {
+              updatedOffers.add(offer.copyWith(daysRemaining: offer.daysRemaining - 1));
+            }
+          } else {
+            updatedOffers.add(offer);
+          }
+        }
+
+        final rentalOffersCount = updatedOffers.where((o) => o.isRentalOffer).length;
+        if (rentalOffersCount < 3 && random.nextDouble() < 0.40) {
+          final baseMonthly = (currentProp.estimatedRealValue * currentProp.category.dailyRentYieldRate * 30).roundToDouble();
+          final candidates = TenantModel.generateCandidates(
+            baseMonthlyRent: baseMonthly > 0 ? baseMonthly : 12000.0,
+            count: 1,
+            rng: random,
+          );
+          if (candidates.isNotEmpty) {
+            final candidate = candidates.first;
+            final newOffer = RealEstateOfferModel(
+              id: 'rental_offer_${DateTime.now().millisecondsSinceEpoch}_${random.nextInt(999)}',
+              realEstateId: currentProp.id,
+              buyerName: candidate.name,
+              buyerNote: '${candidate.profession} • Güvenilirlik Notu: ${candidate.reliabilityGrade} • Aylık Teklif: ₺${candidate.monthlyRent.round()}',
+              offeredAmount: candidate.monthlyRent,
+              depositAmount: candidate.depositAmount,
+              daysRemaining: 3,
+              createdAt: DateTime.now(),
+              isRentalOffer: true,
+              tenant: candidate,
+            );
+            updatedOffers.add(newOffer);
+
+            updatedEvents.insert(
+              0,
+              GameEventModel(
+                id: 're_rental_offer_event_${newOffer.id}',
+                title: 'Yeni Kira Teklifi Geldi',
+                description:
+                    '${currentProp.title} kiralık ilanınıza ${candidate.name} - ${candidate.profession} tarafından aylık ₺${candidate.monthlyRent.round()} kira teklifi sunuldu. Showroom üzerinden değerlendirebilirsiniz.',
+                amount: 0.0,
+                type: GameEventType.goodEvent,
+                date: DateTime.now(),
+              ),
+            );
+          }
+        }
+
+        currentProp = currentProp.copyWith(
           activeOffers: updatedOffers,
         );
       }

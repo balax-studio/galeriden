@@ -4,10 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
-import '../../../data/models/construction_stages_model.dart';
 import '../../../data/models/real_estate_model.dart';
+import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/zoning_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -50,7 +51,9 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     }
 
     final land = game.ownedRealEstates[landIndex];
-    final isFinished = land.constructionStage >= 4;
+    final isFinished = land.constructionMode == 'selfBuild'
+        ? land.constructionStage >= 5
+        : (land.constructionStage >= 4 && land.constructionDaysRemaining == 0);
     final isActive = land.isConstructionActive;
 
     String statusBadgeText;
@@ -100,6 +103,12 @@ class RealEstateConstructionScreen extends ConsumerWidget {
               _buildZeigarnikConstructionCard(context, theme, land, isDark),
               const SizedBox(height: 14),
 
+              // ŞANTİYE TELSİZİ & GÜNLÜK ANONS (SELF BUILD)
+              if (land.constructionMode == 'selfBuild') ...[
+                _buildSiteRadioDispatchCard(context, theme, land, isDark),
+                const SizedBox(height: 14),
+              ],
+
               // BENTO PROJECT STATS
               _buildProjectStatsBento(context, theme, land, isDark),
               const SizedBox(height: 14),
@@ -107,7 +116,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
               // TOPRAKTAN ÖN SATIŞ CARD (If selfBuild and under construction)
               if (land.constructionMode == 'selfBuild' &&
                   land.constructionStage >= 1 &&
-                  land.constructionStage < 4) ...[
+                  land.constructionStage <= 4 &&
+                  !isFinished) ...[
                 _buildPreSaleCard(context, theme, land, ref, isDark),
                 const SizedBox(height: 14),
               ],
@@ -464,7 +474,7 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8),
                   NeoBrutalButton(
-                    label: '120 Günlük Şantiye Ağı',
+                    label: context.tr('subcontractor_screen_title'),
                     icon: Icons.engineering_rounded,
                     onPressed: () {
                       HapticFeedback.selectionClick();
@@ -522,7 +532,9 @@ class RealEstateConstructionScreen extends ConsumerWidget {
         currentStageText = context.tr('real_estate_construction_stage0_status');
     }
 
-    final isFinished = land.constructionStage >= 4;
+    final isFinished = land.constructionMode == 'selfBuild'
+        ? land.constructionStage >= 5
+        : (land.constructionStage >= 4 && land.constructionDaysRemaining == 0);
 
     return NeoBrutalCard(
       backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -601,32 +613,32 @@ class RealEstateConstructionScreen extends ConsumerWidget {
 
           // 4 Milestone Indicators
           _buildMilestoneRow(
-              context, 1, context.tr('real_estate_stage_m1_title'), land.constructionStage >= 1),
+              context, 1, context.tr('real_estate_stage_m1_title'), land.constructionStage > 1, isDark),
           const SizedBox(height: 8),
           _buildMilestoneRow(
-              context, 2, context.tr('real_estate_stage_m2_title'), land.constructionStage >= 2),
+              context, 2, context.tr('real_estate_stage_m2_title'), land.constructionStage > 2, isDark),
           const SizedBox(height: 8),
           _buildMilestoneRow(
-              context, 3, context.tr('real_estate_stage_m3_title'), land.constructionStage >= 3),
+              context, 3, context.tr('real_estate_stage_m3_title'), land.constructionStage > 3, isDark),
           const SizedBox(height: 8),
           _buildMilestoneRow(
-              context, 4, context.tr('real_estate_stage_m4_title'), land.constructionStage >= 4),
+              context, 4, context.tr('real_estate_stage_m4_title'), isFinished, isDark),
           if (land.constructionMode == 'selfBuild') ...[
             const Divider(height: 24),
-            _buildNineStageMilestones(context, land, isDark),
+            _buildFourStageTimeline(context, land, isDark),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildNineStageMilestones(
+  Widget _buildFourStageTimeline(
       BuildContext context, RealEstateModel land, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          context.tr('real_estate_nine_stage_spec_title'),
+          context.tr('real_estate_construction_timeline_title'),
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
@@ -634,37 +646,52 @@ class RealEstateConstructionScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ...ConstructionStagesCatalog.stages.map((stage) {
-          final isStagePassed = (land.constructionStage == 1 && stage.stageNumber <= 2) ||
-              (land.constructionStage == 2 && stage.stageNumber <= 4) ||
-              (land.constructionStage == 3 && stage.stageNumber <= 7) ||
-              (land.constructionStage >= 4);
-          final isCurrentStage = !isStagePassed && (
-              (land.constructionStage == 1 && stage.stageNumber == 1) ||
-              (land.constructionStage == 2 && stage.stageNumber == 3) ||
-              (land.constructionStage == 3 && stage.stageNumber == 5) ||
-              (land.constructionStage == 4 && stage.stageNumber == 8)
-          );
+        ...ConstructionTimelineEngine.stages.map((stage) {
+          final isStagePassed = land.constructionStage > stage.stageNumber;
+          final isCurrentStage = land.constructionStage == stage.stageNumber;
+          final isWorking = isCurrentStage &&
+              land.isConstructionWorking &&
+              land.constructionDaysRemaining > 0;
+          final isReady = isCurrentStage &&
+              land.isConstructionWorking &&
+              land.constructionDaysRemaining == 0;
+
+          final IconData statusIcon;
+          final Color statusColor;
+          final String statusBadge;
+
+          if (isStagePassed) {
+            statusIcon = Icons.check_circle_rounded;
+            statusColor = const Color(0xFF10B981);
+            statusBadge = context.tr('subcontractor_badge_completed');
+          } else if (isWorking) {
+            statusIcon = Icons.play_circle_fill_rounded;
+            statusColor = const Color(0xFFF59E0B);
+            statusBadge =
+                '${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}';
+          } else if (isReady) {
+            statusIcon = Icons.task_alt_rounded;
+            statusColor = const Color(0xFF10B981);
+            statusBadge = context.tr('real_estate_stage_btn_handover');
+          } else if (isCurrentStage) {
+            statusIcon = Icons.pending_actions_rounded;
+            statusColor = const Color(0xFF2563EB);
+            statusBadge = context.tr('subcontractor_badge_unstarted');
+          } else {
+            statusIcon = Icons.radio_button_unchecked_rounded;
+            statusColor = Colors.grey;
+            statusBadge = context.tr('subcontractor_badge_locked');
+          }
 
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               children: [
-                Icon(
-                  isStagePassed
-                      ? Icons.check_circle_rounded
-                      : (isCurrentStage
-                          ? Icons.play_circle_fill_rounded
-                          : Icons.radio_button_unchecked_rounded),
-                  size: 16,
-                  color: isStagePassed
-                      ? const Color(0xFF10B981)
-                      : (isCurrentStage ? const Color(0xFFF59E0B) : Colors.grey),
-                ),
+                Icon(statusIcon, size: 16, color: statusColor),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    stage.title,
+                    context.tr(stage.titleKey),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: isStagePassed || isCurrentStage
@@ -673,17 +700,19 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                       color: isStagePassed
                           ? (isDark ? Colors.white : Colors.black)
                           : (isCurrentStage
-                              ? const Color(0xFFD97706)
+                              ? (isDark
+                                  ? const Color(0xFF93C5FD)
+                                  : const Color(0xFF1D4ED8))
                               : Colors.grey),
                     ),
                   ),
                 ),
                 Text(
-                  stage.milestoneName,
-                  style: const TextStyle(
+                  statusBadge,
+                  style: TextStyle(
                     fontSize: 9.5,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey,
+                    fontWeight: FontWeight.w700,
+                    color: statusColor,
                   ),
                 ),
               ],
@@ -830,7 +859,7 @@ class RealEstateConstructionScreen extends ConsumerWidget {
   }
 
   Widget _buildMilestoneRow(
-      BuildContext context, int step, String title, bool isDone) {
+      BuildContext context, int step, String title, bool isDone, bool isDark) {
     return Row(
       children: [
         Container(
@@ -839,14 +868,21 @@ class RealEstateConstructionScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: isDone ? const Color(0xFF10B981) : Colors.transparent,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.black, width: 1.5),
+            border: Border.all(
+              color: isDark ? const Color(0xFF475569) : Colors.black,
+              width: 1.5,
+            ),
           ),
           child: isDone
               ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
               : Center(
                   child: Text(
                     '$step',
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white70 : Colors.black,
+                    ),
                   ),
                 ),
         ),
@@ -857,7 +893,9 @@ class RealEstateConstructionScreen extends ConsumerWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: isDone ? FontWeight.w800 : FontWeight.w600,
-              color: isDone ? Colors.black : Colors.grey,
+              color: isDone
+                  ? (isDark ? Colors.white : Colors.black)
+                  : (isDark ? Colors.white54 : Colors.grey),
             ),
           ),
         ),
@@ -1067,22 +1105,17 @@ class RealEstateConstructionScreen extends ConsumerWidget {
   // --- 6. ADVANCE STAGE (SELF BUILD) ---
   Widget _buildSelfBuildAdvanceCard(BuildContext context, ThemeData theme,
       RealEstateModel land, double balance, WidgetRef ref, bool isDark) {
-    final double stageRate;
-    switch (land.constructionStage) {
-      case 1:
-        stageRate = 0.25;
-        break;
-      case 2:
-        stageRate = 0.20;
-        break;
-      case 3:
-        stageRate = 0.15;
-        break;
-      default:
-        stageRate = 0.15;
-    }
+    final currentStage = land.constructionStage.clamp(1, 4);
+    final stageDetails =
+        ConstructionTimelineEngine.getStageDetails(currentStage);
+    final stageRate = stageDetails.costPercentage;
     final nextCost = (land.baseMarketValue * stageRate).roundToDouble();
     final canAfford = balance >= nextCost;
+
+    final isWorking =
+        land.isConstructionWorking && land.constructionDaysRemaining > 0;
+    final isReadyForHandover =
+        land.isConstructionWorking && land.constructionDaysRemaining == 0;
 
     return NeoBrutalCard(
       backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -1090,13 +1123,38 @@ class RealEstateConstructionScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.tr('real_estate_advance_title'),
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.tr('real_estate_advance_title'),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+              ),
+              if (isWorking)
+                NeoBrutalBadge(
+                  text:
+                      '${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}',
+                  backgroundColor: const Color(0xFFFEF3C7),
+                  textColor: const Color(0xFF92400E),
+                )
+              else if (isReadyForHandover)
+                NeoBrutalBadge(
+                  text: context.tr('real_estate_construction_badge_ready'),
+                  backgroundColor: const Color(0xFFD1FAE5),
+                  textColor: const Color(0xFF065F46),
+                ),
+            ],
           ),
           const SizedBox(height: 6),
           Text(
-            context.tr('real_estate_advance_desc'),
+            isReadyForHandover
+                ? context.tr('real_estate_stage_desc_ready_handover')
+                : (isWorking
+                    ? context.tr('real_estate_stage_desc_in_progress', {
+                        'days': land.constructionDaysRemaining.toString(),
+                        'name': land.activeSubcontractorName ?? 'Taşeron Ekibi',
+                      })
+                    : context.tr('real_estate_advance_desc')),
             style: TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w600,
@@ -1104,39 +1162,163 @@ class RealEstateConstructionScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          NeoBrutalButton(
-            label: canAfford
-                ? '${context.tr('real_estate_advance_stage_btn')} • ${CurrencyFormatter.format(nextCost)}'
-                : context.tr('real_estate_expand_slots_error_funds'),
-            onPressed: canAfford
-                ? () {
-                    HapticFeedback.heavyImpact();
-                    final success = ref
-                        .read(gameProvider.notifier)
-                        .advanceSelfBuildStage(land.id);
-                    if (success) {
-                      NotificationService.showSuccess(
-                        context,
-                        context.tr('real_estate_advance_success_toast'),
-                      );
+          if (isReadyForHandover)
+            NeoBrutalButton(
+              label: context.tr('real_estate_stage_btn_handover'),
+              icon: Icons.check_circle_rounded,
+              onPressed: () {
+                HapticFeedback.heavyImpact();
+                final success = ref
+                    .read(gameProvider.notifier)
+                    .completeSelfBuildStage(land.id);
+                if (success) {
+                  GameSoundHapticService.playCashSuccess();
+                  NotificationService.showSuccess(
+                    context,
+                    context.tr('real_estate_advance_success_toast'),
+                  );
+                }
+              },
+              backgroundColor: const Color(0xFF10B981),
+              textColor: Colors.white,
+            )
+          else if (isWorking)
+            NeoBrutalButton(
+              label: context.tr('real_estate_stage_btn_working', {
+                'days': land.constructionDaysRemaining.toString(),
+              }),
+              icon: Icons.hourglass_top_rounded,
+              onPressed: null,
+              backgroundColor: const Color(0xFFE2E8F0),
+              textColor: const Color(0xFF64748B),
+            )
+          else
+            NeoBrutalButton(
+              label: canAfford
+                  ? '${context.tr('real_estate_stage_btn_select_subcontractor')} • ${CurrencyFormatter.format(nextCost)}'
+                  : context.tr('real_estate_expand_slots_error_funds'),
+              icon: Icons.play_arrow_rounded,
+              onPressed: canAfford
+                  ? () {
+                      HapticFeedback.mediumImpact();
+                      context.push('/emlak-insaat/${land.id}/taseron');
                     }
-                  }
-                : null,
-            backgroundColor: canAfford
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFF94A3B8),
-            textColor: Colors.black,
+                  : null,
+              backgroundColor: canAfford
+                  ? const Color(0xFF2563EB)
+                  : const Color(0xFF94A3B8),
+              textColor: Colors.white,
+            ),
+          if (isWorking) ...[
+            const SizedBox(height: 8),
+            NeoBrutalButton(
+              label: context.tr('subcontractor_btn_active_with_days', {
+                'name': land.activeSubcontractorName ?? 'Taşeron Ekibi',
+                'days': land.constructionDaysRemaining.toString(),
+              }),
+              icon: Icons.engineering_rounded,
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                context.push('/emlak-insaat/${land.id}/taseron');
+              },
+              backgroundColor: const Color(0xFFFEF3C7),
+              textColor: const Color(0xFF92400E),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSiteRadioDispatchCard(
+      BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
+    String latestDispatch = '';
+    for (final log in land.provenanceLog.reversed) {
+      if (log.contains('Şantiye Telsizi:') ||
+          log.contains('Şantiye Olayı:') ||
+          log.contains('Aşama') ||
+          log.contains('Taşeron:')) {
+        final parts = log.split('•');
+        if (parts.length >= 2) {
+          latestDispatch = parts.sublist(1).join('•').trim();
+        } else {
+          latestDispatch = log;
+        }
+        break;
+      }
+    }
+
+    if (latestDispatch.isEmpty) {
+      latestDispatch = context.tr('real_estate_radio_default_quote');
+    }
+
+    return NeoBrutalCard(
+      backgroundColor:
+          isDark ? const Color(0xFF1E293B) : const Color(0xFFFFFBEB),
+      borderColor: const Color(0xFFF59E0B),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.radio_rounded,
+                      color: Color(0xFFD97706), size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    context.tr('real_estate_radio_dispatch_title'),
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFFB45309),
+                    ),
+                  ),
+                ],
+              ),
+              NeoBrutalBadge(
+                text: land.isConstructionWorking
+                    ? context.tr('real_estate_radio_badge_channel')
+                    : context.tr('real_estate_radio_badge_standby'),
+                backgroundColor: const Color(0xFFFEF3C7),
+                textColor: const Color(0xFF92400E),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
-          NeoBrutalButton(
-            label: '120 Günlük Şantiye & Taşeron Ağı',
-            icon: Icons.engineering_rounded,
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              context.push('/emlak-insaat/${land.id}/taseron');
-            },
-            backgroundColor: const Color(0xFFEFF6FF),
-            textColor: const Color(0xFF1D4ED8),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isDark
+                    ? const Color(0xFF334155)
+                    : const Color(0xFFFDE68A),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.record_voice_over_rounded,
+                    size: 16, color: Color(0xFFD97706)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    latestDispatch,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : const Color(0xFF78350F),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

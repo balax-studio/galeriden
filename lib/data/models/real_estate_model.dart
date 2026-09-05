@@ -1,5 +1,6 @@
 import 'real_estate_category.dart';
 import 'real_estate_offer_model.dart';
+import 'tenant_model.dart';
 
 enum DeedType {
   ownershipDeed, // Kat Mülkiyetli (Sorunsuz, temiz tapu)
@@ -100,7 +101,12 @@ class RealEstateModel {
   final int _totalProjectUnits; // Toplam daire adedi
   final int soldPreSaleUnits; // Topraktan satılmış daire adedi
   final int constructionDaysRemaining; // Mevcut şantiye etabına kalan gün
+  final bool isConstructionWorking; // Şantiye etabı fiilen çalışıyor mu
+  final String? activeSubcontractorName; // Çalışan taşeron ekibinin adı
+  final int stageTotalDays; // Mevcut etabın toplam hedef günü
   final List<RealEstateOfferModel> activeOffers; // Vitrin teklif havuzu
+  final TenantModel? currentTenant; // Mülkte oturan aktif kiracı
+  final bool isRentalListed; // Kiralık vitrininde ilanda mı
 
   const RealEstateModel({
     required this.id,
@@ -136,7 +142,12 @@ class RealEstateModel {
     int totalProjectUnits = 0,
     this.soldPreSaleUnits = 0,
     this.constructionDaysRemaining = 0,
+    this.isConstructionWorking = false,
+    this.activeSubcontractorName,
+    this.stageTotalDays = 0,
     this.activeOffers = const [],
+    this.currentTenant,
+    this.isRentalListed = false,
   }) : _totalProjectUnits = totalProjectUnits;
 
   /// Dynamic fair market value accounting for deed status, renovations, and defects
@@ -153,6 +164,9 @@ class RealEstateModel {
 
   /// Daily rent passive yield if property is placed on rent
   double get dailyRentIncome {
+    if (isRented && currentTenant != null) {
+      return currentTenant!.dailyRent;
+    }
     return (estimatedRealValue * category.dailyRentYieldRate).roundToDouble();
   }
 
@@ -194,7 +208,7 @@ class RealEstateModel {
       isConstructionActive &&
       constructionMode == 'selfBuild' &&
       constructionStage >= 1 &&
-      constructionStage < 4 &&
+      constructionStage <= 4 &&
       playerShareUnits > 1;
 
   double get preSaleUnitPrice => totalProjectUnits > 0
@@ -206,10 +220,19 @@ class RealEstateModel {
       : 0.0;
 
   /// Whether property can be leased out to tenants
-  bool get canBeRented => !isPersonalResidence && !isUnderRenovation && !isConstructionActive;
+  bool get canBeRented => !isPersonalResidence && !isUnderRenovation && !isConstructionActive && !isListed;
 
   /// Whether property can be sold or listed on the market
-  bool get canBeSold => !isRented && !isPersonalResidence && !isUnderRenovation && !isConstructionActive;
+  bool get canBeSold => !isRented && !isPersonalResidence && !isUnderRenovation && !isConstructionActive && !isRentalListed;
+
+  /// Whether property can be set as personal residence (strictly housing category only)
+  bool get canBePersonalResidence =>
+      category == RealEstateCategory.housing &&
+      !isRented &&
+      !isUnderRenovation &&
+      !isConstructionActive &&
+      !isListed &&
+      !isRentalListed;
 
   /// Prestige bonus granted when used as personal residence
   int get personalResidencePrestigeBonus {
@@ -266,7 +289,12 @@ class RealEstateModel {
       'totalProjectUnits': totalProjectUnits,
       'soldPreSaleUnits': soldPreSaleUnits,
       'constructionDaysRemaining': constructionDaysRemaining,
+      'isConstructionWorking': isConstructionWorking,
+      'activeSubcontractorName': activeSubcontractorName,
+      'stageTotalDays': stageTotalDays,
       'activeOffers': activeOffers.map((e) => e.toJson()).toList(),
+      'currentTenant': currentTenant?.toJson(),
+      'isRentalListed': isRentalListed,
     };
   }
 
@@ -317,10 +345,17 @@ class RealEstateModel {
       totalProjectUnits: json['totalProjectUnits'] as int? ?? 0,
       soldPreSaleUnits: json['soldPreSaleUnits'] as int? ?? 0,
       constructionDaysRemaining: json['constructionDaysRemaining'] as int? ?? 0,
+      isConstructionWorking: json['isConstructionWorking'] as bool? ?? false,
+      activeSubcontractorName: json['activeSubcontractorName'] as String?,
+      stageTotalDays: json['stageTotalDays'] as int? ?? 0,
       activeOffers: (json['activeOffers'] as List<dynamic>?)
               ?.map((e) => RealEstateOfferModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      currentTenant: json['currentTenant'] != null
+          ? TenantModel.fromJson(json['currentTenant'] as Map<String, dynamic>)
+          : null,
+      isRentalListed: json['isRentalListed'] as bool? ?? false,
     );
   }
 
@@ -358,8 +393,15 @@ class RealEstateModel {
     int? totalProjectUnits,
     int? soldPreSaleUnits,
     int? constructionDaysRemaining,
+    bool? isConstructionWorking,
+    String? activeSubcontractorName,
+    int? stageTotalDays,
     List<RealEstateOfferModel>? activeOffers,
+    TenantModel? currentTenant,
+    bool? isRentalListed,
     bool clearCustomPrice = false,
+    bool clearCurrentTenant = false,
+    bool clearActiveSubcontractor = false,
   }) {
     final nextRenovationStage = renovationStage ?? this.renovationStage;
     final nextIsRenovated = isRenovated ?? (nextRenovationStage >= 3 || this.isRenovated);
@@ -398,7 +440,14 @@ class RealEstateModel {
       totalProjectUnits: totalProjectUnits ?? this.totalProjectUnits,
       soldPreSaleUnits: soldPreSaleUnits ?? this.soldPreSaleUnits,
       constructionDaysRemaining: constructionDaysRemaining ?? this.constructionDaysRemaining,
+      isConstructionWorking: isConstructionWorking ?? this.isConstructionWorking,
+      activeSubcontractorName: clearActiveSubcontractor
+          ? null
+          : (activeSubcontractorName ?? this.activeSubcontractorName),
+      stageTotalDays: stageTotalDays ?? this.stageTotalDays,
       activeOffers: activeOffers ?? this.activeOffers,
+      currentTenant: clearCurrentTenant ? null : (currentTenant ?? this.currentTenant),
+      isRentalListed: isRentalListed ?? this.isRentalListed,
     );
   }
 }

@@ -17,6 +17,8 @@ import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/offer_model.dart';
 import '../../../../data/models/trade_in_offer_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
+import '../../../../data/models/real_estate_model.dart';
+import '../../../../data/models/real_estate_offer_model.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -44,7 +46,16 @@ class ShowroomOffersTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = palette.isDark;
 
-    if (game.incomingOffers.isEmpty && game.incomingTradeInOffers.isEmpty) {
+    final realEstateOffers = <({RealEstateModel property, RealEstateOfferModel offer})>[];
+    for (final prop in game.ownedRealEstates) {
+      for (final offer in prop.activeOffers) {
+        realEstateOffers.add((property: prop, offer: offer));
+      }
+    }
+
+    if (game.incomingOffers.isEmpty &&
+        game.incomingTradeInOffers.isEmpty &&
+        realEstateOffers.isEmpty) {
       return RefreshIndicator(
         color: Colors.black,
         backgroundColor: const Color(0xFFFFDE59),
@@ -222,7 +233,429 @@ class ShowroomOffersTab extends ConsumerWidget {
               return _buildCashOfferCard(context, ref, offer, index, isDark);
             }),
           ],
+
+          // 3. Real Estate Offers Section (Sales & Rentals)
+          if (realEstateOffers.isNotEmpty) ...[
+            if (game.incomingTradeInOffers.isNotEmpty ||
+                game.incomingOffers.isNotEmpty)
+              const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.home_work_rounded,
+                        color: Color(0xFF3B82F6), size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      context.tr('title_real_estate_offers',
+                          {'count': '${realEstateOffers.length}'}),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ...realEstateOffers.map((item) =>
+                _buildRealEstateOfferCard(context, ref, item.property, item.offer, isDark)),
+          ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildRealEstateOfferCard(
+    BuildContext context,
+    WidgetRef ref,
+    RealEstateModel property,
+    RealEstateOfferModel offer,
+    bool isDark,
+  ) {
+    if (offer.isRentalOffer) {
+      return _buildRentalOfferCard(context, ref, property, offer, isDark);
+    }
+    return _buildSaleOfferCard(context, ref, property, offer, isDark);
+  }
+
+  Widget _buildRentalOfferCard(
+    BuildContext context,
+    WidgetRef ref,
+    RealEstateModel property,
+    RealEstateOfferModel offer,
+    bool isDark,
+  ) {
+    final tenant = offer.tenant;
+    final grade = tenant?.reliabilityGrade ?? 'A';
+    Color gradeColor;
+    switch (grade) {
+      case 'A+':
+        gradeColor = const Color(0xFF10B981);
+        break;
+      case 'A':
+        gradeColor = const Color(0xFF3B82F6);
+        break;
+      case 'B':
+        gradeColor = const Color(0xFFF59E0B);
+        break;
+      default:
+        gradeColor = const Color(0xFFEF4444);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF3B82F6), width: 1.5),
+                  ),
+                  child: const Icon(Icons.key_rounded, color: Color(0xFF3B82F6), size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        property.title,
+                        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '${property.city} - ${property.district} • ${context.tr('real_estate_offer_rent_subtitle')}',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                NeoBrutalBadge(
+                  text: '${offer.daysRemaining} ${context.tr('day')}',
+                  color: const Color(0xFFFEF3C7),
+                ),
+              ],
+            ),
+            const Divider(height: 18),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundColor: gradeColor.withValues(alpha: 0.2),
+                  child: Icon(Icons.person_rounded, color: gradeColor, size: 16),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        offer.buyerName,
+                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                      ),
+                      Text(
+                        tenant?.profession ?? context.tr('real_estate_tenant_candidate_default'),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: gradeColor,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.black, width: 1.2),
+                  ),
+                  child: Text(
+                    '${context.tr('real_estate_reliability_label')} • $grade',
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.tr('real_estate_monthly_offer_label'), style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54, fontWeight: FontWeight.w700)),
+                    Text(CurrencyFormatter.format(offer.offeredAmount), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.tr('real_estate_deposit_label'), style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54, fontWeight: FontWeight.w700)),
+                    Text(CurrencyFormatter.format(offer.depositAmount), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
+                  ],
+                ),
+                if (tenant != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(context.tr('real_estate_eviction_risk_label'), style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54, fontWeight: FontWeight.w700)),
+                      Text('%${tenant.evictionRiskScore}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: tenant.evictionRiskScore > 15 ? const Color(0xFFEF4444) : null)),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: NeoBrutalButton(
+                    text: context.tr('real_estate_btn_lease_accept'),
+                    backgroundColor: const Color(0xFF10B981),
+                    textColor: Colors.white,
+                    onPressed: () {
+                      HapticFeedback.heavyImpact();
+                      final ok = ref.read(gameProvider.notifier).acceptRealEstateRentalOffer(
+                            realEstateId: property.id,
+                            offerId: offer.id,
+                          );
+                      if (ok) {
+                        GameSoundHapticService.playCashSuccess();
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('real_estate_lease_contract_success', {'buyer': offer.buyerName}),
+                        );
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 2,
+                  child: NeoBrutalButton(
+                    text: context.tr('btn_reject'),
+                    backgroundColor: const Color(0xFFEF4444),
+                    textColor: Colors.white,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ref.read(gameProvider.notifier).rejectRealEstateOffer(
+                            realEstateId: property.id,
+                            offerId: offer.id,
+                          );
+                      NotificationService.showInfo(context, context.tr('real_estate_rent_offer_rejected'));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaleOfferCard(
+    BuildContext context,
+    WidgetRef ref,
+    RealEstateModel property,
+    RealEstateOfferModel offer,
+    bool isDark,
+  ) {
+    final totalCost = property.currentPurchasePrice + property.deedFeePaid + property.commissionPaid;
+    final netProfit = offer.offeredAmount - totalCost;
+    final profitPercent = totalCost > 0 ? ((netProfit / totalCost) * 100).round() : 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF10B981), width: 1.5),
+                  ),
+                  child: const Icon(Icons.storefront_rounded, color: Color(0xFF10B981), size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        property.title,
+                        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '${property.city} - ${property.district} • ${context.tr('real_estate_offer_sale_subtitle')}',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                NeoBrutalBadge(
+                  text: '${offer.daysRemaining} ${context.tr('day')}',
+                  color: const Color(0xFFFEF3C7),
+                ),
+              ],
+            ),
+            const Divider(height: 18),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.tr('real_estate_buyer_label'), style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54, fontWeight: FontWeight.w700)),
+                    Text(offer.buyerName, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900)),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(context.tr('real_estate_offered_price_label'), style: TextStyle(fontSize: 10, color: isDark ? Colors.white60 : Colors.black54, fontWeight: FontWeight.w700)),
+                    Text(CurrencyFormatter.format(offer.offeredAmount), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
+                  ],
+                ),
+              ],
+            ),
+            if (offer.buyerNote.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.black12, width: 1),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.chat_bubble_outline_rounded, size: 14, color: Color(0xFF64748B)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        offer.buyerNote,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                          color: isDark ? Colors.white70 : const Color(0xFF475569),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  context.tr('real_estate_net_profit_margin_label'),
+                  style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : Colors.black87, fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  '${netProfit >= 0 ? '+' : ''}${CurrencyFormatter.format(netProfit)} • %$profitPercent',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w900,
+                    color: netProfit >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: NeoBrutalButton(
+                    text: context.tr('real_estate_btn_accept_sell'),
+                    backgroundColor: const Color(0xFF10B981),
+                    textColor: Colors.white,
+                    onPressed: () {
+                      HapticFeedback.heavyImpact();
+                      final ok = ref.read(gameProvider.notifier).acceptRealEstateOffer(
+                            realEstateId: property.id,
+                            offerId: offer.id,
+                          );
+                      if (ok) {
+                        GameSoundHapticService.playCashSuccess();
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('real_estate_sale_success_short', {'title': property.title}),
+                        );
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  flex: 3,
+                  child: NeoBrutalButton(
+                    text: context.tr('real_estate_btn_negotiate'),
+                    backgroundColor: const Color(0xFFF59E0B),
+                    textColor: Colors.black,
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      context.push('/emlak-pazarlik/${property.id}/${offer.id}');
+                    },
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  flex: 2,
+                  child: NeoBrutalButton(
+                    text: context.tr('btn_reject'),
+                    backgroundColor: const Color(0xFFEF4444),
+                    textColor: Colors.white,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ref.read(gameProvider.notifier).rejectRealEstateOffer(
+                            realEstateId: property.id,
+                            offerId: offer.id,
+                          );
+                      NotificationService.showInfo(context, context.tr('real_estate_sale_offer_rejected'));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -19,6 +19,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'real_estate_negotiation_screen.dart';
 import 'widgets/real_estate_offers_sheet.dart';
+import 'widgets/real_estate_rental_sheet.dart';
 
 class RealEstateMarketScreen extends ConsumerStatefulWidget {
   const RealEstateMarketScreen({super.key});
@@ -487,7 +488,6 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
         children: [
           _buildFilterChip(
             label: context.tr('real_estate_filter_all'),
-            count: null,
             isSelected: activeFilter == null,
             onTap: () => ref
                 .read(realEstateMarketProvider.notifier)
@@ -496,7 +496,6 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
           ...RealEstateCategory.values.map((cat) {
             return _buildFilterChip(
               label: context.tr(cat.localizationKey),
-              count: cat.catalogCount,
               icon: cat.icon,
               accentColor: cat.accentColor,
               isSelected: activeFilter == cat,
@@ -512,7 +511,6 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
 
   Widget _buildFilterChip({
     required String label,
-    int? count,
     IconData? icon,
     Color? accentColor,
     required bool isSelected,
@@ -550,7 +548,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 const SizedBox(width: 5),
               ],
               Text(
-                count != null ? '$label • ${_formatCount(count)}' : label,
+                label,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -1004,15 +1002,33 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 text: context.tr(property.deedType.localizationKey),
                 backgroundColor: const Color(0xFFE2E8F0),
               ),
+              if (property.isPersonalResidence)
+                const NeoBrutalBadge(
+                  text: 'İkametgah',
+                  backgroundColor: Color(0xFFEEF2FF),
+                  textColor: Color(0xFF4F46E5),
+                ),
+              if (property.isRented)
+                NeoBrutalBadge(
+                  text: 'Kirada • ${property.currentTenant?.name ?? 'Kiracı'}',
+                  backgroundColor: const Color(0xFFD1FAE5),
+                  textColor: const Color(0xFF065F46),
+                )
+              else if (property.isRentalListed)
+                const NeoBrutalBadge(
+                  text: 'Kiralık İlanda',
+                  backgroundColor: Color(0xFFDBEAFE),
+                  textColor: Color(0xFF1D4ED8),
+                ),
               if (property.isListed) ...[
                 NeoBrutalBadge(
-                  text: 'VİTRİNDE • ${CurrencyFormatter.formatShort(property.customListingPrice ?? fairValue)}',
+                  text: 'Satılık • ${CurrencyFormatter.formatShort(property.customListingPrice ?? fairValue)}',
                   backgroundColor: const Color(0xFFFEF3C7),
                   textColor: const Color(0xFF92400E),
                 ),
                 if (property.activeOffers.isNotEmpty)
                   NeoBrutalBadge(
-                    text: 'GELEN TEKLİF • ${property.activeOffers.length}',
+                    text: 'Gelen Teklif • ${property.activeOffers.length}',
                     backgroundColor: const Color(0xFFD1FAE5),
                     textColor: const Color(0xFF065F46),
                   ),
@@ -1205,7 +1221,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                     const SizedBox(width: 4),
                   ],
 
-                  // Personal Residence Toggle Button
+                  // Personal Residence Toggle Button (strictly housing only)
                   if (property.isPersonalResidence)
                     IconButton(
                       icon: const Icon(
@@ -1220,14 +1236,11 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                             .vacatePersonalResidence(property.id);
                         NotificationService.showInfo(
                           context,
-                          'İkametgah kaydı taşındı.',
+                          context.tr('real_estate_residence_vacated_toast'),
                         );
                       },
                     )
-                  else if (!property.isRented &&
-                      !property.isUnderRenovation &&
-                      !property.isConstructionActive &&
-                      property.category != RealEstateCategory.land)
+                  else if (property.canBePersonalResidence)
                     IconButton(
                       icon: const Icon(
                         Icons.add_home_work_rounded,
@@ -1248,53 +1261,27 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       },
                     ),
 
-                  // Rent toggle button
+                  // Rental Portal Button
                   IconButton(
                     icon: Icon(
                       property.isRented
-                          ? Icons.money_off_csred_rounded
+                          ? Icons.key_rounded
                           : Icons.monetization_on_rounded,
                       color: property.isRented
-                          ? const Color(0xFFEF4444)
-                          : (property.canBeRented
-                              ? const Color(0xFF10B981)
-                              : Colors.grey),
+                          ? const Color(0xFF10B981)
+                          : (property.isRentalListed
+                              ? const Color(0xFF3B82F6)
+                              : (property.canBeRented
+                                  ? const Color(0xFF64748B)
+                                  : Colors.grey)),
                     ),
-                    tooltip: property.isRented
-                        ? context.tr('real_estate_tooltip_stop_rent')
-                        : (property.isPersonalResidence
-                            ? context.tr('real_estate_sale_blocked_residence')
-                            : (property.isUnderRenovation
-                                ? context.tr('real_estate_sale_blocked_renovation')
-                                : (property.isConstructionActive
-                                    ? context.tr('real_estate_sale_blocked_construction')
-                                    : context.tr('real_estate_tooltip_start_rent')))),
+                    tooltip: context.tr('rental_portal_title'),
                     onPressed: () {
-                      if (!property.isRented && property.isPersonalResidence) {
-                        NotificationService.showWarning(
-                          context,
-                          context.tr('real_estate_sale_blocked_residence'),
-                        );
-                        return;
-                      }
-                      if (!property.isRented && property.isUnderRenovation) {
-                        NotificationService.showWarning(
-                          context,
-                          context.tr('real_estate_sale_blocked_renovation'),
-                        );
-                        return;
-                      }
-                      if (!property.isRented && property.isConstructionActive) {
-                        NotificationService.showWarning(
-                          context,
-                          context.tr('real_estate_sale_blocked_construction'),
-                        );
-                        return;
-                      }
                       HapticFeedback.selectionClick();
-                      ref
-                          .read(gameProvider.notifier)
-                          .toggleRealEstateRent(property.id);
+                      RealEstateRentalSheet.show(
+                        context: context,
+                        property: property,
+                      );
                     },
                   ),
 
@@ -1373,16 +1360,5 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
         ],
       ),
     );
-  }
-
-  String _formatCount(int count) {
-    if (count >= 1000) {
-      final s = count.toString();
-      return s.replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]}.',
-      );
-    }
-    return count.toString();
   }
 }
