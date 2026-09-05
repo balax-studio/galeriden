@@ -55,6 +55,7 @@ import '../presentation/screens/real_estate/contractor_negotiation_chat_screen.d
 import '../presentation/screens/real_estate/subcontractor_negotiation_chat_screen.dart';
 import '../presentation/screens/real_estate/real_estate_listing_manage_screen.dart';
 import '../presentation/screens/real_estate/real_estate_buyer_negotiation_chat_screen.dart';
+import '../presentation/screens/real_estate/real_estate_rental_screen.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
@@ -232,6 +233,19 @@ final appRouter = GoRouter(
           RealEstateBuyerNegotiationChatScreen(propertyId: propertyId, offerId: offerId),
           state,
         );
+      },
+    ),
+    GoRoute(
+      path: '/emlak-kiralama',
+      pageBuilder: (context, state) {
+        return _buildCupertinoPage(const RealEstateRentalScreen(), state);
+      },
+    ),
+    GoRoute(
+      path: '/emlak-kiralama/:propertyId',
+      pageBuilder: (context, state) {
+        final propertyId = state.pathParameters['propertyId'];
+        return _buildCupertinoPage(RealEstateRentalScreen(propertyId: propertyId), state);
       },
     ),
     GoRoute(

@@ -95,7 +95,7 @@ class RealEstateModel {
   final double pendingRentIncome; // Biriken tahsil edilmemiş kira havuzu
   final int uncollectedRentDays; // Tahsil edilmeden geçen gün sayısı (loss-aversion)
   final bool isPersonalResidence; // Kişisel ikametgah olarak atanmış mülk
-  final int constructionStage; // 0: Başlanmadı, 1: Hafriyat %25, 2: Kaba İnşaat %50, 3: Çatı & Cephe %75, 4: Tamamlandı & İskanlı %100
+  final int constructionStage; // 0: Başlanmadı, 1: Ruhsat, 2: Hafriyat, 3: Kaba Yapı, 4: Cephe/Çatı, 5: Tesisat, 6: İnce İşler, 7: Peyzaj, 8: İskan
   final String? constructionMode; // null, 'contractor' (Müteahhit Kat Karşılığı), 'selfBuild' (Öz-İnşaat)
   final int contractorSharePercent; // Müteahhit anlaşmasında 50, öz-inşaatta 0
   final int _totalProjectUnits; // Toplam daire adedi
@@ -107,6 +107,11 @@ class RealEstateModel {
   final List<RealEstateOfferModel> activeOffers; // Vitrin teklif havuzu
   final TenantModel? currentTenant; // Mülkte oturan aktif kiracı
   final bool isRentalListed; // Kiralık vitrininde ilanda mı
+  final Map<String, dynamic>? customUnitMix; // Projede yapılandırılan dinamik daire tipolojisi
+  final String? listingHeadline; // Seçilen ilan başlığı
+  final String? listingDescription; // İlan detay metni
+  final List<String> listingFeatures; // Seçilen mülk özellikleri / etiketleri
+  final String listingPackage; // 'standard', 'featured', 'super'
 
   const RealEstateModel({
     required this.id,
@@ -148,6 +153,11 @@ class RealEstateModel {
     this.activeOffers = const [],
     this.currentTenant,
     this.isRentalListed = false,
+    this.customUnitMix,
+    this.listingHeadline,
+    this.listingDescription,
+    this.listingFeatures = const [],
+    this.listingPackage = 'standard',
   }) : _totalProjectUnits = totalProjectUnits;
 
   /// Dynamic fair market value accounting for deed status, renovations, and defects
@@ -185,12 +195,23 @@ class RealEstateModel {
       ((renovationStage > 0 && renovationStage < 3) ||
           renovationDaysRemaining > 0);
 
-  /// Arsa inşaat durumu hesaplanan özellikleri (FAZ 4)
-  bool get isConstructionActive => constructionMode != null;
-  double get constructionProgress => (constructionStage / 4.0).clamp(0.0, 1.0);
+  /// Arsa inşaat durumu hesaplanan özellikleri (8 Aşamalı Döngü)
+  bool get isConstructionActive =>
+      constructionMode != null || (constructionStage > 0 && constructionStage < 8);
+  double get constructionProgress => (constructionStage / 8.0).clamp(0.0, 1.0);
   int get constructionPercent => (constructionProgress * 100).round();
 
   int get totalProjectUnits {
+    if (customUnitMix != null) {
+      final u0 = (customUnitMix!['units1Plus0'] as num?)?.toInt() ?? 0;
+      final u1 = (customUnitMix!['units1Plus1'] as num?)?.toInt() ?? 0;
+      final u2_0 = (customUnitMix!['units2Plus0'] as num?)?.toInt() ?? 0;
+      final u2 = (customUnitMix!['units2Plus1'] as num?)?.toInt() ?? 0;
+      final u3 = (customUnitMix!['units3Plus1'] as num?)?.toInt() ?? 0;
+      final u4 = (customUnitMix!['units4Plus1'] as num?)?.toInt() ?? 0;
+      final sum = u0 + u1 + u2_0 + u2 + u3 + u4;
+      if (sum > 0) return sum;
+    }
     if (_totalProjectUnits > 0) return _totalProjectUnits;
     if (category != RealEstateCategory.land) return 0;
     if (squareMeters >= 800) return 8;
@@ -207,8 +228,8 @@ class RealEstateModel {
   bool get canPreSell =>
       isConstructionActive &&
       constructionMode == 'selfBuild' &&
-      constructionStage >= 1 &&
-      constructionStage <= 4 &&
+      constructionStage >= 2 &&
+      constructionStage <= 7 &&
       playerShareUnits > 1;
 
   double get preSaleUnitPrice => totalProjectUnits > 0
@@ -219,8 +240,53 @@ class RealEstateModel {
       ? (baseMarketValue * 2.5 / totalProjectUnits).roundToDouble()
       : 0.0;
 
-  /// Whether property can be leased out to tenants
-  bool get canBeRented => !isPersonalResidence && !isUnderRenovation && !isConstructionActive && !isListed;
+  /// Whether property can be leased out to tenants (empty land / arsa cannot be rented as residential/commercial property)
+  bool get canBeRented =>
+      category != RealEstateCategory.land &&
+      !isPersonalResidence &&
+      !isUnderRenovation &&
+      !isConstructionActive &&
+      !isListed;
+
+  /// Returns localization key for why this property cannot be rented out
+  String? get rentalIneligibilityReasonKey {
+    if (category == RealEstateCategory.land) {
+      return 'rental_ineligible_land';
+    }
+    if (isConstructionActive || (constructionStage > 0 && constructionStage < 8)) {
+      return 'rental_ineligible_construction';
+    }
+    if (isPersonalResidence) {
+      return 'rental_ineligible_residence';
+    }
+    if (isUnderRenovation) {
+      return 'rental_ineligible_renovation';
+    }
+    if (isListed) {
+      return 'rental_ineligible_for_sale';
+    }
+    return null;
+  }
+
+  /// Returns detailed localization key explaining the algorithmic reason
+  String? get rentalIneligibilityDescKey {
+    if (category == RealEstateCategory.land) {
+      return 'rental_ineligible_land_desc';
+    }
+    if (isConstructionActive || (constructionStage > 0 && constructionStage < 8)) {
+      return 'rental_ineligible_construction_desc';
+    }
+    if (isPersonalResidence) {
+      return 'rental_ineligible_residence_desc';
+    }
+    if (isUnderRenovation) {
+      return 'rental_ineligible_renovation_desc';
+    }
+    if (isListed) {
+      return 'rental_ineligible_for_sale_desc';
+    }
+    return null;
+  }
 
   /// Whether property can be sold or listed on the market
   bool get canBeSold => !isRented && !isPersonalResidence && !isUnderRenovation && !isConstructionActive && !isRentalListed;
@@ -295,6 +361,11 @@ class RealEstateModel {
       'activeOffers': activeOffers.map((e) => e.toJson()).toList(),
       'currentTenant': currentTenant?.toJson(),
       'isRentalListed': isRentalListed,
+      'customUnitMix': customUnitMix,
+      'listingHeadline': listingHeadline,
+      'listingDescription': listingDescription,
+      'listingFeatures': listingFeatures,
+      'listingPackage': listingPackage,
     };
   }
 
@@ -356,6 +427,14 @@ class RealEstateModel {
           ? TenantModel.fromJson(json['currentTenant'] as Map<String, dynamic>)
           : null,
       isRentalListed: json['isRentalListed'] as bool? ?? false,
+      customUnitMix: json['customUnitMix'] as Map<String, dynamic>?,
+      listingHeadline: json['listingHeadline'] as String?,
+      listingDescription: json['listingDescription'] as String?,
+      listingFeatures: (json['listingFeatures'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      listingPackage: json['listingPackage'] as String? ?? 'standard',
     );
   }
 
@@ -399,9 +478,15 @@ class RealEstateModel {
     List<RealEstateOfferModel>? activeOffers,
     TenantModel? currentTenant,
     bool? isRentalListed,
+    Map<String, dynamic>? customUnitMix,
     bool clearCustomPrice = false,
     bool clearCurrentTenant = false,
     bool clearActiveSubcontractor = false,
+    bool clearCustomUnitMix = false,
+    String? listingHeadline,
+    String? listingDescription,
+    List<String>? listingFeatures,
+    String? listingPackage,
   }) {
     final nextRenovationStage = renovationStage ?? this.renovationStage;
     final nextIsRenovated = isRenovated ?? (nextRenovationStage >= 3 || this.isRenovated);
@@ -448,6 +533,11 @@ class RealEstateModel {
       activeOffers: activeOffers ?? this.activeOffers,
       currentTenant: clearCurrentTenant ? null : (currentTenant ?? this.currentTenant),
       isRentalListed: isRentalListed ?? this.isRentalListed,
+      customUnitMix: clearCustomUnitMix ? null : (customUnitMix ?? this.customUnitMix),
+      listingHeadline: listingHeadline ?? this.listingHeadline,
+      listingDescription: listingDescription ?? this.listingDescription,
+      listingFeatures: listingFeatures ?? this.listingFeatures,
+      listingPackage: listingPackage ?? this.listingPackage,
     );
   }
 }

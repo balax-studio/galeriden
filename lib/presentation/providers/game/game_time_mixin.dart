@@ -655,9 +655,9 @@ mixin GameTimeMixin on GameBaseNotifier {
             final nextStage = currentProp.constructionStage + 1;
             currentProp = currentProp.copyWith(
               constructionStage: nextStage,
-              constructionDaysRemaining: nextStage < 4 ? 30 : 0,
+              constructionDaysRemaining: nextStage < 8 ? 15 : 0,
             );
-            if (nextStage >= 4) {
+            if (nextStage >= 8) {
               updatedEvents.insert(
                 0,
                 GameEventModel(
@@ -719,25 +719,118 @@ mixin GameTimeMixin on GameBaseNotifier {
           }
         }
 
-        // Real estate market is heavier than cars; offers arrive every 2-4 days
-        if (updatedOffers.length < 4 && nextDaysListed % 2 == 0 && random.nextDouble() < 0.38) {
-          final buyers = [
-            'Ahmet Yılmaz',
-            'Av. Selin Kaya',
-            'Dr. Mert Öztürk',
-            'Mimar Cenk Demir',
-            'Yatırımcı Hakan Koç',
-            'İş İnsanı Zeynep Arslan',
-            'Eczacı Murat Aydın',
-          ];
-          final notes = [
-            'Nakit param hazır, tapuda hemen devir yapabiliriz.',
-            'Emsal fiyatları inceledim, bu rakamın üzerine çıkamam.',
-            'Yatırımlık olarak değerlendirmek istiyorum, son teklifim budur.',
-            'Banka kredim onaylandı, fiyatta el sıkışırsak hemen başlayalım.',
-            'Şirketimiz adına gayrimenkul portföyümüze katmak istiyoruz.',
-          ];
-          final basePrice = currentProp.customListingPrice ?? currentProp.estimatedRealValue;
+        // Real estate market is heavier than cars; offers arrive slower, tuned by pricing strategy & vitrin package
+        final fairValue = currentProp.estimatedRealValue > 0 ? currentProp.estimatedRealValue : 1.0;
+        final askedPrice = currentProp.customListingPrice ?? fairValue;
+        final priceRatio = askedPrice / fairValue;
+
+        // Interval & probability based on strategy
+        int cycleInterval = 3;
+        double arrivalChance = 0.35;
+
+        if (priceRatio <= 0.93) {
+          // Kelepir • Hızlı Satış
+          cycleInterval = 2;
+          arrivalChance = 0.52;
+        } else if (priceRatio <= 1.05) {
+          // Rayiç • Dengeli
+          cycleInterval = 3;
+          arrivalChance = 0.38;
+        } else if (priceRatio <= 1.18) {
+          // Primli
+          cycleInterval = 3;
+          arrivalChance = 0.25;
+        } else {
+          // Tok Satıcı
+          cycleInterval = 4;
+          arrivalChance = 0.16;
+        }
+
+        // Showcase promotion boosts
+        if (currentProp.listingPackage == 'featured') {
+          arrivalChance += 0.18;
+          cycleInterval = (cycleInterval - 1).clamp(2, 4);
+        } else if (currentProp.listingPackage == 'super') {
+          arrivalChance += 0.32;
+          cycleInterval = (cycleInterval - 1).clamp(1, 3);
+        }
+
+        if (updatedOffers.length < 4 && (nextDaysListed % cycleInterval == 0) && random.nextDouble() < arrivalChance) {
+          List<String> buyers;
+          List<String> notes;
+
+          switch (currentProp.category) {
+            case RealEstateCategory.land:
+              buyers = [
+                'Müteahhit Haldun Özkan',
+                'Yatırım Uzmanı Ferhat Taş',
+                'Lojistik Müdürü Sinan Kaya',
+                'Arsa Yatırımcısı Nazif Bey',
+                'Sanayici Kudret Erdem',
+              ];
+              notes = [
+                'İmar ve parselasyon durumunu inceledik, kat karşılığı veya depolama projemiz için uygun.',
+                'Belediye plan tadilatı ve emsal oranına göre değerleme yaptık, nakit teklifimiz budur.',
+                'Lojistik antrepo yatırımı amacıyla parseli portföyümüze katmak istiyoruz.',
+                'Müteahhitlik şirketimiz adına teklif iletiyoruz, devir olursa ruhsata hemen başvuracağız.',
+                'Bölgedeki arsa rayiçlerini araştırdık, bütçemiz elverdiği ölçüde son rakamımızdır.',
+              ];
+              break;
+            case RealEstateCategory.commercial:
+            case RealEstateCategory.building:
+              buyers = [
+                'Franchise Direktörü Bora Ekşi',
+                'Yatırım Fonu Temsilcisi Nihal Hanım',
+                'Perakende Mağaza Müdürü Tolga Bey',
+                'Eczacı Aslı Hanım',
+                'İş İnsanı Can Pekkan',
+              ];
+              notes = [
+                'Tabela değeri ve yaya trafiği kurumsal şubemiz için elverişli, pazarlık payınız varsa notere geçelim.',
+                'Kira amortisman çarpanına göre teklifimizi oluşturduk, şirket adına alım yapacağız.',
+                'Geniş vitrin cephesi ve baca altyapısı gıda bayiliğimiz için ideal.',
+                'Yatırım amaçlı satın alıp kurumsal kiracıya vermeyi planlıyoruz.',
+                'Özkaynaklarımızla satın alacağız, kredi beklemeden tek seferde devir yapabiliriz.',
+              ];
+              break;
+            case RealEstateCategory.tourismFacility:
+            case RealEstateCategory.timeshare:
+              buyers = [
+                'Sanayici Teoman Karaca',
+                'Dr. Aylin Korkmaz',
+                'Yazılımcı Erdem Demir',
+                'Av. Berke Tan',
+                'İş İnsanı Zeynep Arslan',
+              ];
+              notes = [
+                'Müstakil bahçe ve mahremiyet kriterlerimize uyuyor, ailemiz için hemen taşınabileceğimiz bir mülk.',
+                'Peyzaj ve mimarisini çok beğendik, tapu işlemlerini bu hafta başlatabiliriz.',
+                'Şehrin gürültüsünden uzaklaşmak istiyoruz, banka teminatımız ve nakdimiz hazır.',
+                'Özel havuzlu ve akıllı ev donanımlı olması tercih sebebimiz, rakamda el sıkışabiliriz.',
+                'Ekspertiz değerini kontrol ettik, peşin ödeme şartıyla teklifimizi sunuyoruz.',
+              ];
+              break;
+            case RealEstateCategory.housing:
+            case RealEstateCategory.housingProjects:
+              buyers = [
+                'Öğretmen Berna Hanım',
+                'Mühendis Cenk Aydın',
+                'Yatırımcı Hakan Koç',
+                'Yeni Evli Çift Gizem & Ali',
+                'Av. Selin Kaya',
+                'Dr. Mert Öztürk',
+              ];
+              notes = [
+                'Konut kredimiz onaylandı, ekspertiz değerine uygun teklifimizi iletiyoruz.',
+                'İlk evimiz olacak, ailemizin bütçesi doğrultusunda sunabileceğimiz son rakam budur.',
+                'Kiraya vermek amacıyla yatırımlık düşünüyoruz, tapuda hemen devir alabiliriz.',
+                'Merkezi konumu ve güney cephe ferahlığı hoşumuza gitti, küçük bir pazarlık payı rica ediyoruz.',
+                'Nakit paramız hazır, tapu ve döner sermaye harçlarını görüşüp anlaşalım.',
+              ];
+              break;
+          }
+
+          final basePrice = askedPrice;
           final variance = 0.88 + (random.nextDouble() * 0.16);
           final offerAmount = ((basePrice * variance) / 10000).round() * 10000.0;
 
@@ -756,9 +849,9 @@ mixin GameTimeMixin on GameBaseNotifier {
             0,
             GameEventModel(
               id: 're_offer_event_${newOffer.id}',
-              title: 'Gayrimenkul Vitrin Teklifi Geldi',
+              title: 'Gayrimenkul Teklifi • Showroom',
               description:
-                  '${currentProp.title} ilanınıza ${newOffer.buyerName} tarafından ₺${offerAmount.round()} tutarında resmi teklif sunuldu.',
+                  '${currentProp.title} ilanınıza ${newOffer.buyerName} tarafından ₺${offerAmount.round()} tutarında resmi teklif sunuldu. Showroom üzerinden inceleyebilirsiniz.',
               amount: 0.0,
               type: GameEventType.goodEvent,
               date: DateTime.now(),

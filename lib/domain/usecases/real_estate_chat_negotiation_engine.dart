@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'contractor_negotiation_expansion.dart';
+
 enum ChatSenderRole {
   player,
   contractor,
@@ -34,7 +36,9 @@ enum ChatTacticType {
   demandPrimeFloors, // Üst Kat / Şerefiye Önceliği
   demandQualityUpgrade, // C35 Beton / Kalite Artırımı
   demandAdvanceDeposit, // Nakit Teminat / Kira Avansı İste
-  counterPrice, // Karşı Fiyat Teklif Et (+%5 veya -%5)
+  demandBankGuarantee, // Banka Teminat Mektubu İste
+  askJokeOrChat, // Çay Ismarla & Şantiye Sohbeti (Espri / Sabır Yenileme)
+  counterPrice, // Karşı Fiyat Teklif Et
   demandCashDiscount, // Peşin İndirimiyle Kabul Et
   demandDoubleShift, // Çift Vardiya & Gece Betonu
   demandCashMaterials, // Malzemeyi Peşin Alıyorum, İşçilikten Kır
@@ -62,10 +66,13 @@ class ChatNegotiationState {
   final String targetId;
   final String counterpartyName;
   final ChatSenderRole counterpartyRole;
-  final int patience; // 0 to 100
+  final int patience; // 0 to 120
+  final int maxPatience;
   final int satisfaction; // 0 to 100
   final double currentPrice;
-  final int currentSharePercent; // 40 to 60 for contractor
+  final int currentSharePercent; // 33 to 60 for contractor
+  final int maxSharePercent;
+  final String? contractorId;
   final List<ChatMessageModel> messages;
   final bool isAgreed;
   final bool isWalkedAway;
@@ -76,9 +83,12 @@ class ChatNegotiationState {
     required this.counterpartyName,
     required this.counterpartyRole,
     this.patience = 100,
+    this.maxPatience = 100,
     this.satisfaction = 50,
     required this.currentPrice,
     this.currentSharePercent = 50,
+    this.maxSharePercent = 55,
+    this.contractorId,
     this.messages = const [],
     this.isAgreed = false,
     this.isWalkedAway = false,
@@ -87,9 +97,12 @@ class ChatNegotiationState {
 
   ChatNegotiationState copyWith({
     int? patience,
+    int? maxPatience,
     int? satisfaction,
     double? currentPrice,
     int? currentSharePercent,
+    int? maxSharePercent,
+    String? contractorId,
     List<ChatMessageModel>? messages,
     bool? isAgreed,
     bool? isWalkedAway,
@@ -100,9 +113,12 @@ class ChatNegotiationState {
       counterpartyName: counterpartyName,
       counterpartyRole: counterpartyRole,
       patience: patience ?? this.patience,
+      maxPatience: maxPatience ?? this.maxPatience,
       satisfaction: satisfaction ?? this.satisfaction,
       currentPrice: currentPrice ?? this.currentPrice,
       currentSharePercent: currentSharePercent ?? this.currentSharePercent,
+      maxSharePercent: maxSharePercent ?? this.maxSharePercent,
+      contractorId: contractorId ?? this.contractorId,
       messages: messages ?? this.messages,
       isAgreed: isAgreed ?? this.isAgreed,
       isWalkedAway: isWalkedAway ?? this.isWalkedAway,
@@ -115,29 +131,77 @@ class RealEstateChatNegotiationEngine {
   /// Müteahhit açılış diyalogunu oluşturur
   static ChatNegotiationState createContractorSession({
     required String landId,
-    required String contractorName,
+    String? contractorName,
     required int totalUnits,
     required double baseMarketValue,
+    ContractorNegotiationProfile? profile,
   }) {
+    final effectiveProfile = profile;
+    final name = effectiveProfile?.defaultName ??
+        contractorName ??
+        'Metropol Yapı Mimarlık';
+    final initialShare = effectiveProfile?.initialOfferPercent ?? 50;
+    final maxCap = effectiveProfile?.maxCapPercent ?? 58;
+    final patience = effectiveProfile?.basePatience ?? 100;
+
+    String openingText;
+    String openingBadge;
+
+    if (effectiveProfile != null) {
+      switch (effectiveProfile.personality) {
+        case ContractorPersonality.traditional:
+          openingText =
+              'Selamünaleyküm arsa sahibi kardeşim. Parselinizi inceledik, KAKS gereği toplam $totalUnits adet daire sığıyor. Piyasa yangın yeri, demirin tonu dolara bağlı. Biz %$initialShare arsa sahibine, %${100 - initialShare} müteahhide kat karşılığı teklif ediyoruz. Dededen kalma dürüstlükle temeli atalım.';
+          openingBadge = '%$initialShare - %${100 - initialShare} KAT KARŞILIĞI';
+          break;
+        case ContractorPersonality.aggressive:
+          openingText =
+              'Hayırlı işler. Parselinize KAKS gereği toplam $totalUnits daire planladık. %$initialShare kat karşılığı gireriz. Çift vardiya çalışır, 14 ayda anahtar teslim ederiz. Hızlı olan kazanır!';
+          openingBadge = '%$initialShare - %${100 - initialShare} HIZLI DÖNÜŞÜM';
+          break;
+        case ContractorPersonality.cooperative:
+          openingText =
+              'Hoş geldiniz komşum. Biz mahallenin çocuğuyuz. Bu arsaya $totalUnits daire için %$initialShare payla teklif veriyoruz. Malzemeden çalmayız, komşuluk hukukunu gözetiriz.';
+          openingBadge = '%$initialShare - %${100 - initialShare} MAHALLE ORTAKLIĞI';
+          break;
+        case ContractorPersonality.luxury:
+          openingText =
+              'İyi günler. Parselinizin lokasyonuna yakışır $totalUnits bağımsız bölümlük rezidans projesi tasarladık. %$initialShare kat karşılığıyla C40 statik beton ve kapalı otopark vaat ediyoruz.';
+          openingBadge = '%$initialShare - %${100 - initialShare} LÜKS REZİDANS';
+          break;
+        case ContractorPersonality.corporate:
+          openingText =
+              'Merhaba, parseliniz için KAKS ve çekme mesafesi simülasyonları yapıldı. Toplam $totalUnits adet daire sığıyor. %$initialShare arsa payı ve kurumsal taahhüt güvencesiyle başlamayı teklif ediyoruz.';
+          openingBadge = '%$initialShare - %${100 - initialShare} KURUMSAL TEKLİF';
+          break;
+      }
+    } else {
+      openingText =
+          'Selamlar, parselinizin imar durumunu inceledik. Bu arsaya KAKS gereği toplam $totalUnits adet daire sığıyor. %$initialShare - %${100 - initialShare} kat karşılığı anlaşma öneriyoruz. Arsa sizden, inşaat bizden.';
+      openingBadge = '%$initialShare - %${100 - initialShare} KAT KARŞILIĞI';
+    }
+
     final openingMessage = ChatMessageModel(
       id: 'msg_0',
-      senderName: contractorName,
+      senderName: name,
       role: ChatSenderRole.contractor,
-      message:
-          'Selamlar, parselinizin imar durumunu inceledik. Bu arsaya KAKS gereği toplam $totalUnits adet daire sığıyor. %50 - %50 kat karşılığı anlaşma öneriyoruz. Arsa sizden, inşaat bizden.',
+      message: openingText,
       timestamp: DateTime.now(),
       isFromPlayer: false,
-      badgeText: '%50 - %50 KAT KARŞILIĞI',
+      badgeText: openingBadge,
     );
 
     return ChatNegotiationState(
       targetId: landId,
-      counterpartyName: contractorName,
+      counterpartyName: name,
       counterpartyRole: ChatSenderRole.contractor,
-      patience: 100,
+      patience: patience,
+      maxPatience: patience,
       satisfaction: 50,
       currentPrice: baseMarketValue,
-      currentSharePercent: 50,
+      currentSharePercent: initialShare,
+      maxSharePercent: maxCap,
+      contractorId: effectiveProfile?.id,
       messages: [openingMessage],
     );
   }
@@ -170,6 +234,7 @@ class RealEstateChatNegotiationEngine {
       counterpartyRole:
           isRental ? ChatSenderRole.tenant : ChatSenderRole.buyer,
       patience: 100,
+      maxPatience: 100,
       satisfaction: 55,
       currentPrice: offeredPrice,
       messages: [openingMessage],
@@ -212,15 +277,26 @@ class RealEstateChatNegotiationEngine {
     switch (tactic) {
       case ChatTacticType.demandHigherShare:
         nextPatience -= 20;
-        if (random.nextDouble() < 0.60 && nextShare < 58) {
+        final cap = state.maxSharePercent > 0 ? state.maxSharePercent : 58;
+        if (random.nextDouble() < 0.60 && nextShare < cap) {
           nextShare += 3;
           nextSatisfaction += 10;
-          replyText =
-              'Pekala, arsanızın konumu değerli. Payınızı %$nextShare seviyesine çıkarıyoruz ancak teslim süresine 30 gün ekleriz.';
+          final successPool = [
+            'Pekala, arsanızın konumu ve potansiyeli değerli. Payınızı %$nextShare seviyesine çıkarıyoruz ancak teslim süresine 30 gün ekleriz.',
+            'Arsanızın bereketi hürmetine %3 daha ekleyelim, payınız %$nextShare oldu. Yalnız ruhsat harçlarını ortak hesaptan öderiz.',
+            'Pazarlığınız çetin çıktı! Sizi kırmayalım, arsa payınızı %$nextShare olarak güncelliyoruz. Hayırlı olsun.',
+            'Maliyetleri son damlasına kadar sıktık. Projeye başlama hatrına daire payınızı %$nextShare yapıyoruz.',
+          ];
+          replyText = successPool[random.nextInt(successPool.length)];
           replyBadge = '%$nextShare PAY GÜNCELLENDİ';
         } else {
-          replyText =
-              'Maalesef maliyetler çok yüksek, %$nextShare üzerinde pay vermemiz ticari olarak mümkün değil.';
+          final rejectPool = [
+            'Demirin tonu ve C35 beton birim fiyatı ortada! %$nextShare payın üzerine çıkarsak cepten yeriz, kurtarmaz.',
+            'İmar çekme mesafeleri ve otopark yönetmeliği yüzünden zaten metrekare kaybettik, daha fazla pay veremeyiz.',
+            'Banka faizleri ve malzeme enflasyonu belimizi büküyor, %$nextShare pay bu projenin kırmızı çizgisidir.',
+            'Fizibilite tablomuz kırmızı alarm veriyor patron, bu arsa için maksimum sınırımız budur.',
+          ];
+          replyText = rejectPool[random.nextInt(rejectPool.length)];
         }
         break;
 
@@ -228,24 +304,42 @@ class RealEstateChatNegotiationEngine {
         nextPatience -= 15;
         if (random.nextDouble() < 0.70) {
           nextSatisfaction += 15;
-          replyText =
-              'Anlaştık, projedeki en üst 2 katın ve köşe dairelerin tapusunu sizin adınıza tescil edeceğiz.';
+          final primeSuccessPool = [
+            'Anlaştık, projedeki en üst 2 katın ve köşe dairelerin tapusunu sizin adınıza tescil edeceğiz.',
+            'Sözleşmeye şerefiye maddesi eklendi: Güney cepheli ve ferah üst kat daireleri doğrudan sizin listenize yazıldı.',
+            'Kabul, en güzel manzaralı dubleks ve üst katları size ayırıyoruz, alt katları biz satarız.',
+          ];
+          replyText = primeSuccessPool[random.nextInt(primeSuccessPool.length)];
           replyBadge = 'ÜST KATLAR TAHSİS EDİLDİ';
         } else {
-          replyText =
-              'Şerefiye paylaşımında eşit kura çekmek zorundayız, tek taraflı üst kat veremeyiz.';
+          final primeRejectPool = [
+            'Şerefiye paylaşımında eşit kura çekmek zorundayız, tek taraflı üst kat veremeyiz.',
+            'Üst katları satıp şantiyenin demir ve beton nakdini karşılayacağız patron, oraları verirsek inşaat tıkanır.',
+            'Hak geçmesin patron, noter huzurunda kura çekimi şartımızdır.',
+          ];
+          replyText = primeRejectPool[random.nextInt(primeRejectPool.length)];
         }
         break;
 
       case ChatTacticType.demandQualityUpgrade:
         nextPatience -= 15;
         if (random.nextDouble() < 0.65) {
+          final qualitySuccessPool = [
+            'C35 hazır beton, yerden ısıtma, taşyünü mantolama ve akustik ses yalıtımı şartnamesini sözleşmeye ekliyoruz.',
+            'Kabul, temelden çatıya 1. sınıf C35 beton ve sessiz boru tesisatı şartnamesini imzalıyoruz.',
+            'Lüks şartname onaylandı: 3 camlı ısıcam doğramalar ve C35 statik beton projeye işlendi.',
+          ];
           replyText =
-              'C35 hazır beton, yerden ısıtma ve ses yalıtımı şartnamesini sözleşmeye ekliyoruz.';
+              qualitySuccessPool[random.nextInt(qualitySuccessPool.length)];
           replyBadge = 'LÜKS C35 ŞARTNAMESİ';
         } else {
+          final qualityRejectPool = [
+            'Standart C30 beton kalitemiz yönetmeliğe tam uygundur, lüks ithal donanım için bütçemiz kısıtlı.',
+            'Statik mühendisimiz C30 sınıfını yeterli gördü, C35 farkı metrekare maliyetini aşırı şişirir.',
+            'Şartnameyi çok ağırlaştırırsak şantiye takvimi uzar, standart kaliteli yerli malzemeyle ilerleyelim.',
+          ];
           replyText =
-              'Standart C30 beton kalitemiz yönetmeliğe tam uygundur, lüks donanım için bütçemiz kısıtlı.';
+              qualityRejectPool[random.nextInt(qualityRejectPool.length)];
         }
         break;
 
@@ -253,13 +347,54 @@ class RealEstateChatNegotiationEngine {
         nextPatience -= 25;
         if (random.nextDouble() < 0.50) {
           nextSatisfaction += 20;
+          final advanceSuccessPool = [
+            'İnşaat süresince kiranızı karşılamak adına peşin ₺350.000 nakit kira avansını hesabınıza yatırıyoruz.',
+            'Kabul, taşınma ve kira masraflarınız için ₺350.000 teminat avansını noter devrinde peşin ödeyeceğiz.',
+          ];
           replyText =
-              'İnşaat süresince kiranızı karşılamak adına peşin ₺350.000 nakit avansı hesabınıza yatırıyoruz.';
+              advanceSuccessPool[random.nextInt(advanceSuccessPool.length)];
           replyBadge = '₺350.000 NAKİT AVANS';
         } else {
+          final advanceRejectPool = [
+            'Nakit akışımızı şantiye demirine bağladık, nakit avans ödemesi yapamayız.',
+            'Bütün likiditeyi beton santraline peşin bağladık, kasada kira avansı verecek nakit yok.',
+          ];
           replyText =
-              'Nakit akışımızı şantiye demirine bağladık, nakit avans ödemesi yapamayız.';
+              advanceRejectPool[random.nextInt(advanceRejectPool.length)];
         }
+        break;
+
+      case ChatTacticType.demandBankGuarantee:
+        nextPatience -= 20;
+        final isCorporateOrLuxury =
+            state.contractorId == 'contractor_metropol_mimarlik' ||
+                state.contractorId == 'contractor_bogazici_elit';
+        final successChance = isCorporateOrLuxury ? 0.70 : 0.45;
+        if (random.nextDouble() < successChance) {
+          nextSatisfaction += 20;
+          final guaranteePool = [
+            'Haklısınız, yarım kalan şantiyeler piyasayı tedirgin etti • Kamu bankasından kesin teminat mektubunu çıkarıp noter sözleşmesine ekliyoruz.',
+            'Kurumsal mali gücümüz tamdır • ₺2.500.000 tutarındaki banka teminat mektubunu adınıza bloke edip şantiyeye öyle başlıyoruz.',
+            'Güven esastır • Banka teminat mektubunu tapu dairesine teslim etmeyi kabul ediyoruz.',
+          ];
+          replyText = guaranteePool[random.nextInt(guaranteePool.length)];
+          replyBadge = 'BANKA TEMİNATI ONAYLANDI';
+        } else {
+          final rejectPool = [
+            'Biz 40 yıllık esnafız, bugüne kadar tek bir çivimiz havada kalmadı • Bankaya boşuna komisyon yedirmeyelim patron.',
+            'Banka kredi limitlerimizi şantiye malzeme alımına bağladık • Teminat mektubu yerine şirket kefaleti öneriyoruz.',
+            'Teminat mektubu masrafı fizibilitemizi bozar • Bizim referanslarımız şantiyelerimizdir, bankayla aramıza girmeyin.',
+          ];
+          replyText = rejectPool[random.nextInt(rejectPool.length)];
+        }
+        break;
+
+      case ChatTacticType.askJokeOrChat:
+        nextPatience = min(state.maxPatience, nextPatience + 22);
+        nextSatisfaction = min(100, nextSatisfaction + 15);
+        final jokeKey = ContractorNegotiationExpansion.getRandomJokeKey(random);
+        replyText = _getJokeText(jokeKey);
+        replyBadge = 'ÇAY VE SOHBET • SABIR +22';
         break;
 
       case ChatTacticType.counterPrice:
@@ -378,5 +513,30 @@ class RealEstateChatNegotiationEngine {
       isAgreed: nextAgreed,
       isWalkedAway: nextWalkedAway,
     );
+  }
+
+  static String _getJokeText(String jokeKey) {
+    switch (jokeKey) {
+      case 'contractor_joke_inspector_tea':
+        return 'Usta anlatayım: Yapı denetimci geldi, demir aralığına cetvel tuttu. 14.8 cm çıktı diye tutanak tutacaktı. İki bardak tavşan kanı çay söyledik, 16 cm ye kadar müsaade çıktı!';
+      case 'contractor_joke_inverted_blueprint':
+        return 'Geçen şantiyede kalıpçı projeyi ters tutmuş, sığınağı 4. kata yapmışız! Belediye heyeti gelene kadar panoramik manzaralı sığınak diye daireyi sattık!';
+      case 'contractor_joke_positive_energy':
+        return 'Beton santrali aradı, çimento bitti dedi. Dedim usta pozitif düşün, harca duaları ve sevgimizi kattık, vallahi C40 tan sağlam oldu!';
+      case 'contractor_joke_mixer_wedding':
+        return 'Dün gece mikser mahalleye girdi, düğün konvoyuna denk geldi. Mikserin tamburunu davul zurna eşliğinde halayla çevirdik!';
+      case 'contractor_joke_monet_painter':
+        return 'Bizim boyacı Monet gibi mübarek! Tavanı öyle bir boyadı ki nem mi var, soyut sanat mı var eksper bile ayırt edemedi!';
+      case 'contractor_joke_iron_price_moon':
+        return 'Demirin tonu SpaceX roketi gibi uzaya fırladı patron. Sabah aldığımız inşaat demiri öğlen borsa hissesi gibi kıymete biniyor!';
+      case 'contractor_joke_c40_bunker':
+        return 'Statikçi öyle bir temel çizmiş ki 9 şiddetinde deprem olsa bina sapasağlam kalır, mahalle binanın etrafına pikniğe toplanır!';
+      case 'contractor_joke_plumber_waterfall':
+        return 'Tesisatçı boruyu öyle bir döşemiş ki sıcak suyu açınca mutfaktan şelale sesi geliyor! Müşteriye doğayla baş başa terapi konsepti diye anlattık!';
+      case 'contractor_joke_cat_crane':
+        return 'Kule vincin tepesinde uyuyan sarman kedi var. Kedi uyanmadan bomu çevirmiyoruz, şantiyemizin baş mühendisi ve uğuru o!';
+      default:
+        return 'Demli çay her kapıyı açar patron • Şantiyede harç biter, çay bitmez!';
+    }
   }
 }

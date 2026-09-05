@@ -46,7 +46,7 @@ void main() {
       expect(baseLand.constructionPercent, equals(0));
       expect(baseLand.totalProjectUnits, equals(6)); // 600m2 -> 6 units
       expect(baseLand.canBeSold, isTrue);
-      expect(baseLand.canBeRented, isTrue);
+      expect(baseLand.canBeRented, isFalse);
 
       // Stage 1 with contractor mode
       final contractorLand = baseLand.copyWith(
@@ -56,8 +56,8 @@ void main() {
         constructionDaysRemaining: 5,
       );
       expect(contractorLand.isConstructionActive, isTrue);
-      expect(contractorLand.constructionProgress, equals(0.25));
-      expect(contractorLand.constructionPercent, equals(25));
+      expect(contractorLand.constructionProgress, equals(0.125));
+      expect(contractorLand.constructionPercent, equals(13));
       expect(contractorLand.playerShareUnits, equals(3)); // 6 * 50% = 3
       expect(contractorLand.canPreSell, isFalse); // Contractor mode cannot pre-sell
       expect(contractorLand.canBeSold, isFalse); // Construction blocks selling
@@ -72,8 +72,8 @@ void main() {
         soldPreSaleUnits: 1,
       );
       expect(selfBuildLand.isConstructionActive, isTrue);
-      expect(selfBuildLand.constructionProgress, equals(0.50));
-      expect(selfBuildLand.constructionPercent, equals(50));
+      expect(selfBuildLand.constructionProgress, equals(0.25));
+      expect(selfBuildLand.constructionPercent, equals(25));
       expect(selfBuildLand.playerShareUnits, equals(5)); // 6 units total - 1 presold = 5
       expect(selfBuildLand.canPreSell, isTrue); // sold 1 < 5 max allowed
       expect(selfBuildLand.preSaleUnitPrice, equals(1375000)); // (5.0M * 2.2 / 6) * 0.75
@@ -125,11 +125,11 @@ void main() {
       expect(currentLand.playerShareUnits, equals(3));
       expect(notifier.state.balance, equals(1000000)); // Zero cost
 
-      // Advance to stage 4 (completed)
+      // Advance to stage 8 (completed)
       notifier.state = notifier.state.copyWith(
         ownedRealEstates: [
           currentLand.copyWith(
-            constructionStage: 4,
+            constructionStage: 8,
             constructionDaysRemaining: 0,
           ),
         ],
@@ -184,27 +184,19 @@ void main() {
         balance: initialBalance,
       );
 
-      // 1. Start Self-Build (deducts 15% upfront = 600,000)
+      // 1. Start Self-Build (deducts 10% upfront = 400,000 for Stage 1 Ruhsat & Proje)
       final startSuccess = notifier.startSelfBuildConstruction('land_selfbuild_test');
       expect(startSuccess, isTrue);
-      expect(notifier.state.balance, equals(initialBalance - 600000));
+      expect(notifier.state.balance, equals(initialBalance - 400000));
 
       var currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_selfbuild_test');
       expect(currentLand.constructionMode, equals('selfBuild'));
       expect(currentLand.constructionStage, equals(1));
       expect(currentLand.playerShareUnits, equals(4)); // 400m2 -> 4 units, all for player
 
-      // 2. Off-Plan Pre-Sale (Topraktan Satış)
-      final preSaleRevenue = notifier.preSellUnit('land_selfbuild_test');
-      expect(preSaleRevenue, greaterThan(0));
-      expect(notifier.state.balance, equals(initialBalance - 600000 + preSaleRevenue));
-
-      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_selfbuild_test');
-      expect(currentLand.soldPreSaleUnits, equals(1));
-
-      // 3. Advance Stage with capital funding
+      // 2. Advance Stage to Stage 2 with capital funding (Stage 1 -> 2: 10% = 400,000)
       final balanceBeforeAdvance = notifier.state.balance;
-      final advanceCost = (currentLand.baseMarketValue * 0.25).roundToDouble(); // Stage 1 -> 2: 25%
+      final advanceCost = (currentLand.baseMarketValue * 0.10).roundToDouble();
       final advanceSuccess = notifier.advanceSelfBuildStage('land_selfbuild_test', triggerIncidents: false);
       expect(advanceSuccess, isTrue);
       expect(notifier.state.balance, equals(balanceBeforeAdvance - advanceCost));
@@ -213,11 +205,20 @@ void main() {
       expect(currentLand.constructionStage, equals(2));
       expect(currentLand.constructionDaysRemaining, equals(4));
 
+      // 3. Off-Plan Pre-Sale (Topraktan Satış) - enabled at stage 2+
+      final balanceBeforePreSale = notifier.state.balance;
+      final preSaleRevenue = notifier.preSellUnit('land_selfbuild_test');
+      expect(preSaleRevenue, greaterThan(0));
+      expect(notifier.state.balance, equals(balanceBeforePreSale + preSaleRevenue));
+
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_selfbuild_test');
+      expect(currentLand.soldPreSaleUnits, equals(1));
+
       // 4. Advance to completion & Finalize
       notifier.state = notifier.state.copyWith(
         ownedRealEstates: [
           currentLand.copyWith(
-            constructionStage: 4,
+            constructionStage: 8,
             constructionDaysRemaining: 0,
           ),
         ],
@@ -391,10 +392,10 @@ void main() {
 
       // Verify active construction workstation UI rendered
       expect(find.text('ŞANTİYE VE İNŞAAT İLERLEMESİ'), findsOneWidget);
-      expect(find.text('Hafriyat & Temel'), findsOneWidget);
-      expect(find.text('Kaba İnşaat'), findsOneWidget);
-      expect(find.text('Çatı & Cephe'), findsOneWidget);
-      expect(find.text('Anahtar Teslim'), findsOneWidget);
+      expect(find.textContaining('Belediye Ruhsatı'), findsOneWidget);
+      expect(find.textContaining('Hafriyat, Zemin Etüdü'), findsOneWidget);
+      expect(find.textContaining('Temel, Perde'), findsOneWidget);
+      expect(find.textContaining('Duvar Örme, Çatı'), findsOneWidget);
 
       // Clean up timer and container
       notifier.stopPeriodicOrganicOfferTimer();

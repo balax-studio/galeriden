@@ -57,36 +57,91 @@ class SubcontractorProfile {
   });
 }
 
+enum MunicipalDocStatus {
+  approved,
+  inReview,
+  pendingFee,
+  locked,
+}
+
+class MunicipalDocumentItem {
+  final String id;
+  final String titleKey;
+  final String authorityKey;
+  final String descriptionKey;
+  final int requiredStage; // 1 to 8
+  final double officialFee;
+  final MunicipalDocStatus status;
+
+  const MunicipalDocumentItem({
+    required this.id,
+    required this.titleKey,
+    required this.authorityKey,
+    required this.descriptionKey,
+    required this.requiredStage,
+    required this.officialFee,
+    required this.status,
+  });
+}
+
 class ConstructionTimelineEngine {
-  /// 4 Ana İnşaat Etabı (Hafriyat, Kaba Yapı, Çatı & Cephe, İnce İşçilik & İskan)
+  /// 8 Aşamalı Türk İmar ve Şantiye Yaşam Döngüsü (A'dan Z'ye Belediye Ruhsatı ve İskan)
   static const List<ConstructionStageDetails> stages = [
     ConstructionStageDetails(
       stageNumber: 1,
-      titleKey: 'construction_stage_excavation_title',
-      descriptionKey: 'construction_stage_excavation_desc',
-      baseDays: 14,
-      costPercentage: 0.15,
+      titleKey: 'construction_stage_permits_title',
+      descriptionKey: 'construction_stage_permits_desc',
+      baseDays: 8,
+      costPercentage: 0.10,
     ),
     ConstructionStageDetails(
       stageNumber: 2,
-      titleKey: 'construction_stage_rough_concrete_title',
-      descriptionKey: 'construction_stage_rough_concrete_desc',
-      baseDays: 28,
-      costPercentage: 0.25,
+      titleKey: 'construction_stage_excavation_title',
+      descriptionKey: 'construction_stage_excavation_desc',
+      baseDays: 10,
+      costPercentage: 0.12,
     ),
     ConstructionStageDetails(
       stageNumber: 3,
-      titleKey: 'construction_stage_facade_roof_title',
-      descriptionKey: 'construction_stage_facade_roof_desc',
-      baseDays: 20,
-      costPercentage: 0.20,
+      titleKey: 'construction_stage_rough_concrete_title',
+      descriptionKey: 'construction_stage_rough_concrete_desc',
+      baseDays: 16,
+      costPercentage: 0.22,
     ),
     ConstructionStageDetails(
       stageNumber: 4,
+      titleKey: 'construction_stage_facade_roof_title',
+      descriptionKey: 'construction_stage_facade_roof_desc',
+      baseDays: 14,
+      costPercentage: 0.16,
+    ),
+    ConstructionStageDetails(
+      stageNumber: 5,
+      titleKey: 'construction_stage_mep_installation_title',
+      descriptionKey: 'construction_stage_mep_installation_desc',
+      baseDays: 12,
+      costPercentage: 0.14,
+    ),
+    ConstructionStageDetails(
+      stageNumber: 6,
       titleKey: 'construction_stage_interior_finishing_title',
       descriptionKey: 'construction_stage_interior_finishing_desc',
-      baseDays: 18,
-      costPercentage: 0.15,
+      baseDays: 12,
+      costPercentage: 0.12,
+    ),
+    ConstructionStageDetails(
+      stageNumber: 7,
+      titleKey: 'construction_stage_landscape_infra_title',
+      descriptionKey: 'construction_stage_landscape_infra_desc',
+      baseDays: 8,
+      costPercentage: 0.08,
+    ),
+    ConstructionStageDetails(
+      stageNumber: 8,
+      titleKey: 'construction_stage_occupancy_handover_title',
+      descriptionKey: 'construction_stage_occupancy_handover_desc',
+      baseDays: 6,
+      costPercentage: 0.06,
     ),
   ];
 
@@ -129,15 +184,29 @@ class ConstructionTimelineEngine {
         break;
     }
 
-    return max(5, (stage.baseDays * scale * tierMultiplier).round());
+    return max(4, (stage.baseDays * scale * tierMultiplier).round());
   }
 
   /// Her evre için mevcut 3 alternatif taşeron profili
   static List<SubcontractorProfile> getSubcontractorsForStage(int stageNumber) {
+    final Map<int, List<String>> stageCrewNames = {
+      1: ['Hızlı Ruhsat & Mimari Müşavirlik', 'Öz Mimarlık Proje Grubu', 'Hesaplı Mühendislik Bürosu'],
+      2: ['Şimşek Hafriyat & Kazık İksa', 'Öz Dozer Hafriyat ve Temel', 'Kolektif Zemin & Kazı Ekibi'],
+      3: ['C40 Hazır Betonarme & Hızlı Karkas', 'Öz Usta Kalıp & Beton Karkas', 'Hesaplı Demirci & Kalıpçılar'],
+      4: ['Mega Mantolama & Alüminyum Cephe', 'Öz Duvar & Çatı Yalıtım Ustaları', 'Kardeşler Bims & Sıva Ekibi'],
+      5: ['Akıllı Tesisat & Yangın MEP Çözümleri', 'Öz Sıhhi Tesisat & Elektrik Ltd.', 'Ekonomik Su & Elektrik Ustaları'],
+      6: ['Lüks İç Mimari & Hızlı İnce İşçilik', 'Öz Seramik, Parke & Mutfak İmalat', 'Halk Tipi Şap & Alçı Ekibi'],
+      7: ['Yeşil Vadi Peyzaj & Otopark Altyapı', 'Öz Çevre Düzenleme & Şebeke Bağlantı', 'Kardeşler Bahçe & Yol Parkesi'],
+      8: ['Protokol İskan & Hızlı Tapu Takip', 'Öz İskan Danışmanlığı & Fenni Mesul', 'Ekonomik Kadastro ve Ruhsat Hizmeti'],
+    };
+
+    final names = stageCrewNames[stageNumber] ??
+        ['Şimşek Hızlı Ekip', 'Öz Usta Mimarlık & İnşaat', 'Hesaplı Taşeron Kollektifi'];
+
     return [
       SubcontractorProfile(
         id: 'sub_speed_$stageNumber',
-        name: 'Şimşek Yapı & Hızlı Ekip',
+        name: names[0],
         specialtyKey: 'subcontractor_tier_speed_badge',
         tier: SubcontractorTier.speed,
         costMultiplier: 1.25,
@@ -147,7 +216,7 @@ class ConstructionTimelineEngine {
       ),
       SubcontractorProfile(
         id: 'sub_std_$stageNumber',
-        name: 'Öz Usta Mimarlık & İnşaat',
+        name: names[1],
         specialtyKey: 'subcontractor_tier_standard_badge',
         tier: SubcontractorTier.standard,
         costMultiplier: 1.00,
@@ -157,13 +226,98 @@ class ConstructionTimelineEngine {
       ),
       SubcontractorProfile(
         id: 'sub_budget_$stageNumber',
-        name: 'Hesaplı Taşeron Kollektifi',
+        name: names[2],
         specialtyKey: 'subcontractor_tier_budget_badge',
         tier: SubcontractorTier.budget,
         costMultiplier: 0.80,
         durationMultiplier: 1.25,
         reliabilityScore: 0.76,
         pitchKey: 'subcontractor_pitch_budget',
+      ),
+    ];
+  }
+
+  /// Belediye resmi evrak ve ruhsat takip defteri
+  static List<MunicipalDocumentItem> getMunicipalDocuments(int currentStage, {bool isFinished = false}) {
+    MunicipalDocStatus calcStatus(int reqStage) {
+      if (isFinished || currentStage > reqStage) return MunicipalDocStatus.approved;
+      if (currentStage == reqStage) return MunicipalDocStatus.inReview;
+      if (currentStage == reqStage - 1) return MunicipalDocStatus.pendingFee;
+      return MunicipalDocStatus.locked;
+    }
+
+    return [
+      MunicipalDocumentItem(
+        id: 'doc_zoning_sheet',
+        titleKey: 'municipal_doc_zoning_title',
+        authorityKey: 'municipal_authority_zoning_dept',
+        descriptionKey: 'municipal_doc_zoning_desc',
+        requiredStage: 1,
+        officialFee: 24500.0,
+        status: calcStatus(1),
+      ),
+      MunicipalDocumentItem(
+        id: 'doc_geotech_survey',
+        titleKey: 'municipal_doc_geotech_title',
+        authorityKey: 'municipal_authority_environment_dept',
+        descriptionKey: 'municipal_doc_geotech_desc',
+        requiredStage: 1,
+        officialFee: 38000.0,
+        status: calcStatus(1),
+      ),
+      MunicipalDocumentItem(
+        id: 'doc_blueprint_approval',
+        titleKey: 'municipal_doc_blueprint_title',
+        authorityKey: 'municipal_authority_urban_planning',
+        descriptionKey: 'municipal_doc_blueprint_desc',
+        requiredStage: 1,
+        officialFee: 52000.0,
+        status: calcStatus(1),
+      ),
+      MunicipalDocumentItem(
+        id: 'doc_building_permit',
+        titleKey: 'municipal_doc_permit_title',
+        authorityKey: 'municipal_authority_municipality_mayor',
+        descriptionKey: 'municipal_doc_permit_desc',
+        requiredStage: 1,
+        officialFee: 115000.0,
+        status: calcStatus(1),
+      ),
+      MunicipalDocumentItem(
+        id: 'doc_concrete_inspection',
+        titleKey: 'municipal_doc_inspection_title',
+        authorityKey: 'municipal_authority_building_inspection',
+        descriptionKey: 'municipal_doc_inspection_desc',
+        requiredStage: 3,
+        officialFee: 42000.0,
+        status: calcStatus(3),
+      ),
+      MunicipalDocumentItem(
+        id: 'doc_fire_safety',
+        titleKey: 'municipal_doc_fire_title',
+        authorityKey: 'municipal_authority_fire_dept',
+        descriptionKey: 'municipal_doc_fire_desc',
+        requiredStage: 5,
+        officialFee: 31000.0,
+        status: calcStatus(5),
+      ),
+      MunicipalDocumentItem(
+        id: 'doc_sgk_clearance',
+        titleKey: 'municipal_doc_sgk_title',
+        authorityKey: 'municipal_authority_sgk',
+        descriptionKey: 'municipal_doc_sgk_desc',
+        requiredStage: 7,
+        officialFee: 68000.0,
+        status: calcStatus(7),
+      ),
+      MunicipalDocumentItem(
+        id: 'doc_occupancy_permit',
+        titleKey: 'municipal_doc_iskan_title',
+        authorityKey: 'municipal_authority_cadastre_dept',
+        descriptionKey: 'municipal_doc_iskan_desc',
+        requiredStage: 8,
+        officialFee: 95000.0,
+        status: calcStatus(8),
       ),
     ];
   }

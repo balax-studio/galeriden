@@ -133,7 +133,7 @@ extension RealEstateCategoryExtension on RealEstateCategory {
       case RealEstateCategory.commercial:
         return 0.0012; // ~3.6% monthly
       case RealEstateCategory.land:
-        return 0.0003; // ~0.9% monthly
+        return 0.0; // Arsa doğrudan kiraya verilemez • Yapı gereklidir
       case RealEstateCategory.housingProjects:
         return 0.0010; // ~3.0% monthly
       case RealEstateCategory.building:

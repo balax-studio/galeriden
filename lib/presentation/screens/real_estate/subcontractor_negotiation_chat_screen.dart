@@ -47,7 +47,7 @@ class _SubcontractorNegotiationChatScreenState
       final idx = list.indexWhere((r) => r.id == widget.landId);
       if (idx != -1 && mounted) {
         setState(() {
-          _selectedStage = list[idx].constructionStage.clamp(1, 4);
+          _selectedStage = list[idx].constructionStage.clamp(1, 8);
         });
       }
     });

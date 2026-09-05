@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/theme_palette_model.dart';
-import 'package:galeriden/presentation/providers/game/game_core_provider.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/screens/dashboard/widgets/dashboard_services_grid.dart';
 

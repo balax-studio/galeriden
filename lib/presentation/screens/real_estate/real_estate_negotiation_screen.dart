@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,6 +54,10 @@ class _RealEstateNegotiationScreenState
   bool _isCounterOfferPending = false;
   bool _isInitialized = false;
 
+  // Dark pattern live investor pulse & countdown timer
+  Timer? _urgencyTimer;
+  int _remainingSeconds = 180;
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +73,23 @@ class _RealEstateNegotiationScreenState
       askingPrice: widget.listing.askingPrice,
       patience: _sellerPatience,
     );
+
+    _urgencyTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (_remainingSeconds > 0) {
+        setState(() {
+          _remainingSeconds--;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _urgencyTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -411,6 +433,14 @@ class _RealEstateNegotiationScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Live Investors Interest & Ticking Timer Banner
+              _buildLiveInvestorsAndTimerBanner(theme),
+              const SizedBox(height: 10),
+
+              // Property Category Urgency Ribbon
+              _buildUrgencyRibbon(theme),
+              const SizedBox(height: 12),
+
               // Property Specifications Card
               _buildPropertySpecsCard(theme),
               const SizedBox(height: 12),
@@ -440,6 +470,10 @@ class _RealEstateNegotiationScreenState
 
               // Discount Preset Buttons & Custom Slider
               _buildOfferControls(theme, currentChance),
+              const SizedBox(height: 14),
+
+              // Closing Cost & Financial Breakdown Card
+              _buildFinancialBreakdownCard(theme),
               const SizedBox(height: 16),
 
               // Submit Offer Button
@@ -451,8 +485,176 @@ class _RealEstateNegotiationScreenState
     );
   }
 
+  Widget _buildLiveInvestorsAndTimerBanner(ThemeData theme) {
+    final isUrgent = _remainingSeconds < 60;
+    final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF08A),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(3, 3),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  context.tr('real_estate_dark_live_investors'),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.tr('real_estate_dark_timer_label'),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isUrgent ? const Color(0xFFFEE2E2) : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isUrgent ? const Color(0xFFEF4444) : Colors.black,
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.timer_outlined,
+                      size: 14,
+                      color: isUrgent ? const Color(0xFFDC2626) : Colors.black,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _remainingSeconds > 0
+                          ? '$minutes:$seconds'
+                          : context.tr('real_estate_dark_timer_expired'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: isUrgent ? const Color(0xFFDC2626) : Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUrgencyRibbon(ThemeData theme) {
+    final cat = widget.listing.realEstate.category;
+    String textKey;
+    Color bgColor;
+    Color borderColor;
+    IconData iconData;
+
+    switch (cat) {
+      case RealEstateCategory.land:
+        textKey = 'real_estate_dark_urgency_land';
+        bgColor = const Color(0xFFFEF3C7);
+        borderColor = const Color(0xFFD97706);
+        iconData = Icons.terrain_rounded;
+        break;
+      case RealEstateCategory.housing:
+      case RealEstateCategory.housingProjects:
+        textKey = 'real_estate_dark_urgency_housing';
+        bgColor = const Color(0xFFD1FAE5);
+        borderColor = const Color(0xFF059669);
+        iconData = Icons.apartment_rounded;
+        break;
+      case RealEstateCategory.commercial:
+      case RealEstateCategory.tourismFacility:
+        textKey = 'real_estate_dark_urgency_commercial';
+        bgColor = const Color(0xFFDBEAFE);
+        borderColor = const Color(0xFF2563EB);
+        iconData = Icons.storefront_rounded;
+        break;
+      case RealEstateCategory.building:
+      case RealEstateCategory.timeshare:
+        textKey = 'real_estate_dark_urgency_building';
+        bgColor = const Color(0xFFEDE9FE);
+        borderColor = const Color(0xFF7C3AED);
+        iconData = Icons.location_city_rounded;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(2, 2),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(iconData, size: 20, color: borderColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              context.tr(textKey),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: borderColor.withValues(alpha: 0.95),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPropertySpecsCard(ThemeData theme) {
     final re = widget.listing.realEstate;
+    final isLand = re.category == RealEstateCategory.land;
+
     return NeoBrutalCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,6 +721,20 @@ class _RealEstateNegotiationScreenState
                     ? const Color(0xFFD1FAE5)
                     : const Color(0xFFFEF3C7),
               ),
+              NeoBrutalBadge(
+                text: context.tr('real_estate_dark_title_deed_clear'),
+                backgroundColor: const Color(0xFFDCFCE7),
+              ),
+              if (isLand)
+                NeoBrutalBadge(
+                  text: context.tr('rental_ineligible_land'),
+                  backgroundColor: const Color(0xFFFEF3C7),
+                )
+              else
+                NeoBrutalBadge(
+                  text: '${context.tr('real_estate_dark_estimated_rent_badge')}: ${CurrencyFormatter.format((re.estimatedRealValue * re.category.dailyRentYieldRate * 30).roundToDouble())}',
+                  backgroundColor: const Color(0xFFE0E7FF),
+                ),
               if (widget.listing.isHotDeal)
                 NeoBrutalBadge(
                   text: context.tr('real_estate_badge_hot_deal'),
@@ -588,6 +804,20 @@ class _RealEstateNegotiationScreenState
     }
 
     final isPatienceCritical = _sellerPatience < 25 && !_isWalkaway && !_isAccepted;
+
+    // Obstinacy level based on personality
+    int obstinacyPercent = 50;
+    Color obstinacyColor = const Color(0xFFF59E0B);
+    if (_personality == RealEstateSellerPersonality.stubborn) {
+      obstinacyPercent = 85;
+      obstinacyColor = const Color(0xFFEF4444);
+    } else if (_personality == RealEstateSellerPersonality.urgent) {
+      obstinacyPercent = 20;
+      obstinacyColor = const Color(0xFF10B981);
+    } else {
+      obstinacyPercent = 50;
+      obstinacyColor = const Color(0xFF3B82F6);
+    }
 
     return NeoBrutalCard(
       child: Column(
@@ -686,6 +916,44 @@ class _RealEstateNegotiationScreenState
               ),
             ),
           ],
+
+          const SizedBox(height: 10),
+          const Divider(height: 1),
+          const SizedBox(height: 8),
+
+          // Owner Obstinacy Gauge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.tr('real_estate_dark_obstinacy_label'),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+              ),
+              NeoBrutalBadge(
+                text: '%$obstinacyPercent',
+                backgroundColor: obstinacyColor.withValues(alpha: 0.2),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: obstinacyPercent / 100.0,
+              minHeight: 6,
+              backgroundColor: Colors.grey.shade300,
+              valueColor: AlwaysStoppedAnimation<Color>(obstinacyColor),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.tr('real_estate_dark_obstinacy_desc'),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
         ],
       ),
     );
@@ -820,7 +1088,7 @@ class _RealEstateNegotiationScreenState
                                       : const Color(0xFFE0F2FE),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                              child: Icon(
+                                child: Icon(
                                   tactic.isRescue
                                       ? Icons.local_cafe_rounded
                                       : Icons.flash_on_rounded,
@@ -905,17 +1173,17 @@ class _RealEstateNegotiationScreenState
           ),
           const SizedBox(height: 10),
 
-          // Preset Percentage Buttons
+          // Preset Percentage Buttons with tactile neo-brutal styling & rich colors
           Wrap(
             alignment: WrapAlignment.center,
             spacing: 6,
             runSpacing: 6,
             children: [
-              _buildPresetButton(context.tr('real_estate_btn_asking_price'), 0.0),
-              _buildPresetButton('-%5', 0.05),
-              _buildPresetButton('-%10', 0.10),
-              _buildPresetButton('-%15', 0.15),
-              _buildPresetButton('-%20', 0.20),
+              _buildPresetButton(context.tr('real_estate_btn_asking_price'), 0.0, const Color(0xFFFEF08A)),
+              _buildPresetButton('-%5', 0.05, const Color(0xFFBBF7D0)),
+              _buildPresetButton('-%10', 0.10, const Color(0xFFBAE6FD)),
+              _buildPresetButton('-%15', 0.15, const Color(0xFFFED7AA)),
+              _buildPresetButton('-%20', 0.20, const Color(0xFFDDD6FE)),
             ],
           ),
           const SizedBox(height: 10),
@@ -947,20 +1215,169 @@ class _RealEstateNegotiationScreenState
     );
   }
 
-  Widget _buildPresetButton(String label, double discount) {
-    return OutlinedButton(
-      onPressed: (_isAccepted || _isWalkaway || _isProcessing || _isThinking)
-          ? null
-          : () => _snapToDiscount(discount),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.black,
-        side: const BorderSide(color: Colors.black, width: 1.5),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+  Widget _buildPresetButton(String label, double discount, Color bgColor) {
+    final isSelected = (_offeredPrice - (widget.listing.askingPrice * (1.0 - discount))).abs() < 100;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: (_isAccepted || _isWalkaway || _isProcessing || _isThinking)
+            ? null
+            : () => _snapToDiscount(discount),
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.black : bgColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.black, width: 2),
+            boxShadow: isSelected
+                ? []
+                : const [
+                    BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(2, 2),
+                      blurRadius: 0,
+                    ),
+                  ],
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 12,
+              color: isSelected ? Colors.white : Colors.black,
+            ),
+          ),
+        ),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+    );
+  }
+
+  Widget _buildFinancialBreakdownCard(ThemeData theme) {
+    final askingPrice = widget.listing.askingPrice;
+    final deedFee = (_offeredPrice * 0.04).roundToDouble();
+    final revolvingFund = RealEstateListingModel.revolvingFundFee;
+    final isAgency = widget.listing.realEstate.sellerType == RealEstateSellerType.agency;
+    final agencyCommission = isAgency ? (_offeredPrice * 0.02).roundToDouble() : 0.0;
+    final totalExtraCost = deedFee + revolvingFund + agencyCommission;
+    final grossDiscount = (askingPrice - _offeredPrice).clamp(0.0, double.infinity);
+    final netAdvantage = grossDiscount - totalExtraCost;
+
+    return NeoBrutalCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.calculate_rounded, size: 18, color: Colors.black),
+              const SizedBox(width: 6),
+              Text(
+                context.tr('real_estate_financial_overview'),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Tapu Harci
+          _buildBreakdownRow(
+            label: context.tr('real_estate_dark_deed_tax_est'),
+            value: CurrencyFormatter.format(deedFee),
+            isCost: true,
+          ),
+          const SizedBox(height: 4),
+
+          // Doner Sermaye
+          _buildBreakdownRow(
+            label: context.tr('real_estate_dark_revolving_fund'),
+            value: CurrencyFormatter.format(revolvingFund),
+            isCost: true,
+          ),
+          if (isAgency) ...[
+            const SizedBox(height: 4),
+            // Emlakci Komisyonu
+            _buildBreakdownRow(
+              label: context.tr('real_estate_dark_agency_commission'),
+              value: CurrencyFormatter.format(agencyCommission),
+              isCost: true,
+            ),
+          ],
+          const Divider(height: 14),
+
+          // Brut Tasarruf Avantaji
+          _buildBreakdownRow(
+            label: context.tr('real_estate_dark_gross_discount'),
+            value: CurrencyFormatter.format(grossDiscount),
+            isCost: false,
+            highlightGreen: true,
+          ),
+          const SizedBox(height: 6),
+
+          // Net Yatirim Kazanci
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: netAdvantage >= 0 ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: netAdvantage >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  context.tr('real_estate_dark_net_advantage'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+                  ),
+                ),
+                Text(
+                  netAdvantage >= 0
+                      ? '+${CurrencyFormatter.format(netAdvantage)}'
+                      : '-${CurrencyFormatter.format(netAdvantage.abs())}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildBreakdownRow({
+    required String label,
+    required String value,
+    required bool isCost,
+    bool highlightGreen = false,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+        ),
+        Text(
+          isCost ? '+ $value' : value,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            color: highlightGreen
+                ? const Color(0xFF059669)
+                : (isCost ? const Color(0xFF64748B) : Colors.black),
+          ),
+        ),
+      ],
     );
   }
 

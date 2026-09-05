@@ -19,7 +19,6 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'real_estate_negotiation_screen.dart';
 import 'widgets/real_estate_offers_sheet.dart';
-import 'widgets/real_estate_rental_sheet.dart';
 
 class RealEstateMarketScreen extends ConsumerStatefulWidget {
   const RealEstateMarketScreen({super.key});
@@ -108,10 +107,9 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     );
   }
 
-  void _confirmSellProperty(
+  void _navigateToSellListing(
     BuildContext context,
     RealEstateModel property,
-    double salePrice,
   ) {
     if (property.isRented) {
       NotificationService.showWarning(
@@ -142,58 +140,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
       return;
     }
 
-    showDialog(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.black, width: 2),
-        ),
-        title: Text(
-          context.tr('real_estate_sell_dialog_title'),
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-        ),
-        content: Text(
-          '${property.title} • ${CurrencyFormatter.format(salePrice)} ${context.tr('real_estate_sell_dialog_desc')}',
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: Text(
-              context.tr('real_estate_dialog_btn_cancel'),
-              style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w700),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(dialogCtx).pop();
-              HapticFeedback.heavyImpact();
-              ref.read(gameProvider.notifier).sellRealEstate(
-                    realEstateId: property.id,
-                    salePrice: salePrice,
-                  );
-              NotificationService.showSuccess(
-                context,
-                context.tr('real_estate_sell_success_toast'),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(color: Colors.black, width: 1.5),
-              ),
-            ),
-            child: Text(
-              context.tr('real_estate_btn_sell'),
-              style: const TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ),
-        ],
-      ),
-    );
+    context.push('/emlak-ilan/${property.id}');
   }
 
   @override
@@ -860,6 +807,20 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                     },
                   ),
                 ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: NeoBrutalButton(
+                    label: context.tr('rental_screen_title'),
+                    icon: Icons.key_rounded,
+                    backgroundColor: const Color(0xFFFEF08A),
+                    textColor: Colors.black,
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      context.push('/emlak-kiralama');
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -982,13 +943,13 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 }),
                 if (property.isConstructionActive)
                   NeoBrutalBadge(
-                    text: property.constructionStage == 4
+                    text: property.constructionStage >= 8
                         ? context.tr('real_estate_construction_badge_ready')
                         : '${context.tr('real_estate_construction_badge_active')} • %${property.constructionPercent}',
-                    backgroundColor: property.constructionStage == 4
+                    backgroundColor: property.constructionStage >= 8
                         ? const Color(0xFFD1FAE5)
                         : const Color(0xFFFEF3C7),
-                    textColor: property.constructionStage == 4
+                    textColor: property.constructionStage >= 8
                         ? const Color(0xFF065F46)
                         : const Color(0xFF92400E),
                   )
@@ -1170,7 +1131,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
                         backgroundColor: property.isConstructionActive
-                            ? (property.constructionStage == 4
+                            ? (property.constructionStage >= 8
                                 ? const Color(0xFFD1FAE5)
                                 : const Color(0xFFFEF3C7))
                             : const Color(0xFFE0E7FF),
@@ -1180,7 +1141,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       ),
                       label: Text(
                         property.isConstructionActive
-                            ? (property.constructionStage == 4
+                            ? (property.constructionStage >= 8
                                 ? context.tr('real_estate_construction_badge_ready')
                                 : '${context.tr('real_estate_btn_manage_construction')} • %${property.constructionPercent}')
                             : context.tr('real_estate_btn_start_construction'),
@@ -1278,15 +1239,12 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                     tooltip: context.tr('rental_portal_title'),
                     onPressed: () {
                       HapticFeedback.selectionClick();
-                      RealEstateRentalSheet.show(
-                        context: context,
-                        property: property,
-                      );
+                      context.push('/emlak-kiralama/${property.id}');
                     },
                   ),
 
-                  // Showcase offers or list for sale
-                  if (property.isListed) ...[
+                  // Showcase offers button (if listed and has offers)
+                  if (property.isListed && property.activeOffers.isNotEmpty) ...[
                     OutlinedButton.icon(
                       onPressed: () {
                         HapticFeedback.selectionClick();
@@ -1295,9 +1253,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       icon: const Icon(Icons.local_offer_rounded, size: 14),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
-                        backgroundColor: property.activeOffers.isNotEmpty
-                            ? const Color(0xFFD1FAE5)
-                            : const Color(0xFFFEF3C7),
+                        backgroundColor: const Color(0xFFD1FAE5),
                         side: const BorderSide(color: Colors.black, width: 1.5),
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                       ),
@@ -1307,37 +1263,22 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       ),
                     ),
                     const SizedBox(width: 4),
-                  ] else if (property.canBeSold) ...[
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        HapticFeedback.selectionClick();
-                        context.push('/emlak-ilan/${property.id}');
-                      },
-                      icon: const Icon(Icons.storefront_rounded, size: 14),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.black, width: 1.5),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      ),
-                      label: Text(
-                        context.tr('real_estate_btn_showcase_sell'),
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
                   ],
 
-                  // Sell property button (with strict restriction feedback)
-                  ElevatedButton(
+                  // Unified Listing & Sale button
+                  ElevatedButton.icon(
                     onPressed: () {
                       HapticFeedback.selectionClick();
-                      _confirmSellProperty(context, property, fairValue);
+                      _navigateToSellListing(context, property);
                     },
+                    icon: Icon(
+                      property.isListed ? Icons.storefront_rounded : Icons.campaign_rounded,
+                      size: 14,
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: property.canBeSold
-                          ? const Color(0xFF10B981)
-                          : const Color(0xFF94A3B8),
+                      backgroundColor: !property.canBeSold
+                          ? const Color(0xFF94A3B8)
+                          : (property.isListed ? const Color(0xFFFEF08A) : const Color(0xFF10B981)),
                       foregroundColor: Colors.black,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(
@@ -1347,8 +1288,10 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                         side: const BorderSide(color: Colors.black, width: 1.5),
                       ),
                     ),
-                    child: Text(
-                      context.tr('real_estate_btn_sell'),
+                    label: Text(
+                      property.isListed
+                          ? context.tr('real_estate_btn_manage_listing')
+                          : context.tr('real_estate_btn_list_for_sale'),
                       style: const TextStyle(
                           fontWeight: FontWeight.w900, fontSize: 11),
                     ),

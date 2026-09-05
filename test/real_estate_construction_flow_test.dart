@@ -34,19 +34,19 @@ void main() {
   });
 
   group('Realistic Day-Cycle Construction & Subcontractor System Suite', () {
-    test('1. ConstructionTimelineEngine: 4 Stages, Tier multipliers & Duration calculation', () {
-      expect(ConstructionTimelineEngine.stages.length, equals(4));
+    test('1. ConstructionTimelineEngine: 8 Stages, Tier multipliers & Duration calculation', () {
+      expect(ConstructionTimelineEngine.stages.length, equals(8));
 
       // Stage details
       final stage1 = ConstructionTimelineEngine.getStageDetails(1);
       expect(stage1.stageNumber, equals(1));
-      expect(stage1.baseDays, equals(14));
-      expect(stage1.costPercentage, equals(0.15));
+      expect(stage1.baseDays, equals(8));
+      expect(stage1.costPercentage, equals(0.10));
 
       final stage2 = ConstructionTimelineEngine.getStageDetails(2);
       expect(stage2.stageNumber, equals(2));
-      expect(stage2.baseDays, equals(28));
-      expect(stage2.costPercentage, equals(0.25));
+      expect(stage2.baseDays, equals(10));
+      expect(stage2.costPercentage, equals(0.12));
 
       // Check tier calculation
       final standardDays = ConstructionTimelineEngine.calculateStageDays(
@@ -247,8 +247,8 @@ void main() {
         isTrue,
       );
 
-      // Complete stages 2, 3, and 4
-      for (int stage = 2; stage <= 4; stage++) {
+      // Complete stages 2 through 8
+      for (int stage = 2; stage <= 8; stage++) {
         final stageSub = ConstructionTimelineEngine.getSubcontractorsForStage(stage)[1];
         notifier.startSelfBuildStage(
           'land_sim_test',
@@ -266,9 +266,9 @@ void main() {
         expect(completeSuccess, isTrue);
       }
 
-      // All 4 stages finished (constructionStage is now 5, or completed)
+      // All 8 stages finished (constructionStage is now 9, or completed)
       final finishedLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
-      expect(finishedLand.constructionStage, greaterThanOrEqualTo(4));
+      expect(finishedLand.constructionStage, greaterThanOrEqualTo(8));
 
       // Finalize Construction and mint turnkey apartments
       final turnkeyApartments = notifier.finalizeConstruction('land_sim_test');

@@ -16,7 +16,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 
-class RealEstateConstructionScreen extends ConsumerWidget {
+class RealEstateConstructionScreen extends ConsumerStatefulWidget {
   final String landId;
 
   const RealEstateConstructionScreen({
@@ -25,12 +25,23 @@ class RealEstateConstructionScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RealEstateConstructionScreen> createState() =>
+      _RealEstateConstructionScreenState();
+}
+
+class _RealEstateConstructionScreenState
+    extends ConsumerState<RealEstateConstructionScreen> {
+  int _selectedTabIndex = 0; // 0: Şantiye & Etaplar, 1: KAKS & Tipoloji, 2: Belediye Dosyası, 3: Ön Satış
+  ZoningUnitMix? _workingMix;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final game = ref.watch(gameProvider);
 
-    final landIndex = game.ownedRealEstates.indexWhere((p) => p.id == landId);
+    final landIndex =
+        game.ownedRealEstates.indexWhere((p) => p.id == widget.landId);
 
     if (landIndex == -1) {
       return Scaffold(
@@ -51,9 +62,30 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     }
 
     final land = game.ownedRealEstates[landIndex];
+    final defaultZoning = ZoningEngine.calculateZoning(
+      parcelSquareMeters: land.squareMeters.toDouble(),
+      baseMarketValue: land.baseMarketValue,
+    );
+
+    // Initialize or bind working unit mix
+    if (_workingMix == null) {
+      if (land.customUnitMix != null) {
+        _workingMix = ZoningUnitMix.fromMap(land.customUnitMix!);
+      } else {
+        _workingMix =
+            ZoningEngine.optimizeUnitMix(defaultZoning.netResidentialArea);
+      }
+    }
+
+    final activeZoning = ZoningEngine.calculateZoning(
+      parcelSquareMeters: land.squareMeters.toDouble(),
+      baseMarketValue: land.baseMarketValue,
+      customUnitMix: _workingMix,
+    );
+
     final isFinished = land.constructionMode == 'selfBuild'
-        ? land.constructionStage >= 5
-        : (land.constructionStage >= 4 && land.constructionDaysRemaining == 0);
+        ? land.constructionStage >= 9
+        : (land.constructionStage >= 8 && land.constructionDaysRemaining == 0);
     final isActive = land.isConstructionActive;
 
     String statusBadgeText;
@@ -71,7 +103,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: NeoBrutalAppBar(
         title: context.tr('real_estate_construction_title'),
         onLeadingPressed: () => context.pop(),
@@ -92,44 +125,29 @@ class RealEstateConstructionScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. LAND OVERVIEW CARD
-            _buildLandOverviewCard(context, theme, land, isDark),
+            _buildLandOverviewCard(context, theme, land, activeZoning, isDark),
             const SizedBox(height: 14),
 
-            // 2. ACTIVE CONSTRUCTION OR SELECTION MODES
-            if (land.constructionStage == 0 && !isActive) ...[
-              _buildContractSelectionSection(context, theme, land, game.balance, ref, isDark),
-            ] else ...[
-              // ZEIGARNIK 4-STEPPER CONSTRUCTION CARD
-              _buildZeigarnikConstructionCard(context, theme, land, isDark),
-              const SizedBox(height: 14),
+            // 2. NEO-BRUTALIST SUB-PAGE / TAB SELECTOR
+            _buildTabSelector(context, isDark),
+            const SizedBox(height: 14),
 
-              // ŞANTİYE TELSİZİ & GÜNLÜK ANONS (SELF BUILD)
-              if (land.constructionMode == 'selfBuild') ...[
-                _buildSiteRadioDispatchCard(context, theme, land, isDark),
-                const SizedBox(height: 14),
-              ],
-
-              // BENTO PROJECT STATS
-              _buildProjectStatsBento(context, theme, land, isDark),
-              const SizedBox(height: 14),
-
-              // TOPRAKTAN ÖN SATIŞ CARD (If selfBuild and under construction)
-              if (land.constructionMode == 'selfBuild' &&
-                  land.constructionStage >= 1 &&
-                  land.constructionStage <= 4 &&
-                  !isFinished) ...[
-                _buildPreSaleCard(context, theme, land, ref, isDark),
-                const SizedBox(height: 14),
-              ],
-
-              // SELF BUILD NEXT STAGE FUNDING OR COMPLETION
-              if (isFinished) ...[
-                _buildFinalizeCard(context, theme, land, ref, isDark),
-              ] else if (land.constructionMode == 'selfBuild') ...[
-                _buildSelfBuildAdvanceCard(context, theme, land, game.balance, ref, isDark),
-              ] else ...[
-                _buildContractorWaitCard(context, theme, land, isDark),
-              ],
+            // 3. TAB CONTENT
+            if (_selectedTabIndex == 0) ...[
+              // TAB 0: ŞANTİYE & ETAP MATRİSİ
+              _buildStagesTabContent(
+                  context, theme, land, activeZoning, game.balance, isDark, isFinished, isActive),
+            ] else if (_selectedTabIndex == 1) ...[
+              // TAB 1: KAKS & MİMARİ TİPOLOJİ MASASI
+              _buildKaksTypologyStudio(
+                  context, theme, land, activeZoning, isDark),
+            ] else if (_selectedTabIndex == 2) ...[
+              // TAB 2: BELEDİYE & RESMİ RUHSAT DOSYASI
+              _buildMunicipalDossierTab(
+                  context, theme, land, isDark, isFinished),
+            ] else if (_selectedTabIndex == 3) ...[
+              // TAB 3: TOPRAKTAN ÖN SATIŞ & FİNANSMAN
+              _buildPreSaleTab(context, theme, land, isDark, isFinished),
             ],
             const SizedBox(height: 30),
           ],
@@ -138,9 +156,106 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
+  // --- TOP TAB SELECTOR ---
+  Widget _buildTabSelector(BuildContext context, bool isDark) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _buildTabPill(
+            index: 0,
+            icon: Icons.construction_rounded,
+            label: context.tr('real_estate_construction_tab_stages'),
+            isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+          _buildTabPill(
+            index: 1,
+            icon: Icons.architecture_rounded,
+            label: context.tr('real_estate_construction_tab_kaks'),
+            isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+          _buildTabPill(
+            index: 2,
+            icon: Icons.account_balance_rounded,
+            label: context.tr('real_estate_construction_tab_municipal'),
+            isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+          _buildTabPill(
+            index: 3,
+            icon: Icons.monetization_on_rounded,
+            label: context.tr('real_estate_construction_tab_presale'),
+            isDark: isDark,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabPill({
+    required int index,
+    required IconData icon,
+    required String label,
+    required bool isDark,
+  }) {
+    final isSelected = _selectedTabIndex == index;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _selectedTabIndex = index;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF2563EB)
+              : (isDark ? const Color(0xFF1E293B) : Colors.white),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black, width: 2),
+          boxShadow: isSelected
+              ? const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(2, 2),
+                    blurRadius: 0,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : Colors.black87),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? Colors.white : Colors.black),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // --- 1. LAND OVERVIEW CARD ---
-  Widget _buildLandOverviewCard(
-      BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
+  Widget _buildLandOverviewCard(BuildContext context, ThemeData theme,
+      RealEstateModel land, ZoningProfile zoning, bool isDark) {
     return NeoBrutalCard(
       backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
       padding: const EdgeInsets.all(16),
@@ -180,7 +295,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: theme.colorScheme.onSurface
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -200,7 +316,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: 0.6),
                     ),
                   ),
                   Text(
@@ -216,16 +333,12 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                 spacing: 6,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Builder(builder: (_) {
-                    final z = ZoningEngine.calculateZoning(
-                      parcelSquareMeters: land.squareMeters.toDouble(),
-                    );
-                    return NeoBrutalBadge(
-                      text: 'TAKS ${z.taks.toStringAsFixed(2)} • KAKS ${z.kaks.toStringAsFixed(2)}',
-                      backgroundColor: const Color(0xFFDBEAFE),
-                      textColor: const Color(0xFF1D4ED8),
-                    );
-                  }),
+                  NeoBrutalBadge(
+                    text:
+                        'TAKS ${zoning.taks.toStringAsFixed(2)} • KAKS ${zoning.kaks.toStringAsFixed(2)}',
+                    backgroundColor: const Color(0xFFDBEAFE),
+                    textColor: const Color(0xFF1D4ED8),
+                  ),
                   NeoBrutalBadge(
                     text: context.tr(land.deedType.localizationKey),
                     backgroundColor: const Color(0xFFE2E8F0),
@@ -239,16 +352,817 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
-  // --- 2. SELECTION OF CONSTRUCTION MODES ---
-  Widget _buildContractSelectionSection(BuildContext context, ThemeData theme,
-      RealEstateModel land, double balance, WidgetRef ref, bool isDark) {
-    final zoning = ZoningEngine.calculateZoning(
-      parcelSquareMeters: land.squareMeters.toDouble(),
-      baseMarketValue: land.baseMarketValue,
+  // --- TAB 0: ŞANTİYE & ETAPLAR CONTENT ---
+  Widget _buildStagesTabContent(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel land,
+    ZoningProfile zoning,
+    double balance,
+    bool isDark,
+    bool isFinished,
+    bool isActive,
+  ) {
+    if (land.constructionStage == 0 && !isActive) {
+      return _buildContractSelectionSection(
+          context, theme, land, zoning, balance, isDark);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 8-STAGE TIMELINE CARD
+        _buildEightStageTimelineCard(
+            context, theme, land, isDark, isFinished),
+        const SizedBox(height: 14),
+
+        // SITE RADIO DISPATCH CARD
+        if (land.constructionMode == 'selfBuild') ...[
+          _buildSiteRadioDispatchCard(context, theme, land, isDark),
+          const SizedBox(height: 14),
+        ],
+
+        // BENTO PROJECT STATS
+        _buildProjectStatsBento(context, theme, land, isDark),
+        const SizedBox(height: 14),
+
+        // FINALIZE OR NEXT STAGE ACTION
+        if (isFinished) ...[
+          _buildFinalizeCard(context, theme, land, isDark),
+        ] else if (land.constructionMode == 'selfBuild') ...[
+          _buildSelfBuildAdvanceCard(
+              context, theme, land, balance, isDark),
+        ] else ...[
+          _buildContractorWaitCard(context, theme, land, isDark),
+        ],
+      ],
     );
+  }
+
+  // --- TAB 1: KAKS & MİMARİ TİPOLOJİ MASASI ---
+  Widget _buildKaksTypologyStudio(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel land,
+    ZoningProfile zoning,
+    bool isDark,
+  ) {
+    final netArea = zoning.netResidentialArea;
+    final usedArea = zoning.consumedEmsalArea;
+    final remainingArea = zoning.remainingEmsalArea;
+    final usageRatio = zoning.emsalUtilizationRatio;
+    final isExceeded = zoning.isEmsalExceeded;
+
+    Color gaugeColor;
+    if (isExceeded) {
+      gaugeColor = const Color(0xFFEF4444); // Red
+    } else if (usageRatio >= 0.95) {
+      gaugeColor = const Color(0xFF10B981); // Emerald
+    } else {
+      gaugeColor = const Color(0xFF2563EB); // Blue
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Capacity Header Card
+        NeoBrutalCard(
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderColor: isExceeded ? const Color(0xFFDC2626) : const Color(0xFF2563EB),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.architecture_rounded,
+                          color: Color(0xFF2563EB), size: 22),
+                      const SizedBox(width: 8),
+                      Text(
+                        context.tr('real_estate_kaks_capacity_header'),
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                  NeoBrutalBadge(
+                    text: isExceeded
+                        ? 'EMSAL AŞILDI'
+                        : '%${(usageRatio * 100).toStringAsFixed(0)} DOLU',
+                    backgroundColor: isExceeded
+                        ? const Color(0xFFFEE2E2)
+                        : const Color(0xFFDBEAFE),
+                    textColor: isExceeded
+                        ? const Color(0xFFDC2626)
+                        : const Color(0xFF1D4ED8),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Thick Progress Meter
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: usageRatio.clamp(0.0, 1.0),
+                    child: Container(color: gaugeColor),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Stats Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildZoningStatBox(
+                      context.tr('real_estate_kaks_allowable_label'),
+                      '${netArea.toStringAsFixed(0)} m²',
+                      isDark,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildZoningStatBox(
+                      context.tr('real_estate_kaks_consumed_label'),
+                      '${usedArea.toStringAsFixed(0)} m²',
+                      isDark,
+                      textColor: isExceeded ? const Color(0xFFDC2626) : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildZoningStatBox(
+                      context.tr('real_estate_kaks_remaining_label'),
+                      '${remainingArea.toStringAsFixed(0)} m²',
+                      isDark,
+                    ),
+                  ),
+                ],
+              ),
+
+              if (isExceeded) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEE2E2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFDC2626), width: 1.5),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          color: Color(0xFFDC2626), size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.tr('real_estate_kaks_warning_exceeded'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF991B1B),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Typology Selector Cards
+        _buildTypologySelectorCard(
+          context: context,
+          title: context.tr('real_estate_typology_1plus0_title'),
+          desc: context.tr('real_estate_typology_1plus0_desc'),
+          grossM2: ZoningUnitMix.grossArea1Plus0,
+          count: _workingMix?.units1Plus0 ?? 0,
+          onIncrement: () => _updateMix((m) => m.copyWith(units1Plus0: m.units1Plus0 + 1)),
+          onDecrement: () => _updateMix((m) => m.copyWith(units1Plus0: (m.units1Plus0 - 1).clamp(0, 99))),
+          isDark: isDark,
+        ),
+        const SizedBox(height: 8),
+
+        _buildTypologySelectorCard(
+          context: context,
+          title: context.tr('real_estate_typology_1plus1_title'),
+          desc: context.tr('real_estate_typology_1plus1_desc'),
+          grossM2: ZoningUnitMix.grossArea1Plus1,
+          count: _workingMix?.units1Plus1 ?? 0,
+          onIncrement: () => _updateMix((m) => m.copyWith(units1Plus1: m.units1Plus1 + 1)),
+          onDecrement: () => _updateMix((m) => m.copyWith(units1Plus1: (m.units1Plus1 - 1).clamp(0, 99))),
+          isDark: isDark,
+        ),
+        const SizedBox(height: 8),
+
+        _buildTypologySelectorCard(
+          context: context,
+          title: context.tr('real_estate_typology_2plus0_title'),
+          desc: context.tr('real_estate_typology_2plus0_desc'),
+          grossM2: ZoningUnitMix.grossArea2Plus0,
+          count: _workingMix?.units2Plus0 ?? 0,
+          onIncrement: () => _updateMix((m) => m.copyWith(units2Plus0: m.units2Plus0 + 1)),
+          onDecrement: () => _updateMix((m) => m.copyWith(units2Plus0: (m.units2Plus0 - 1).clamp(0, 99))),
+          isDark: isDark,
+        ),
+        const SizedBox(height: 8),
+
+        _buildTypologySelectorCard(
+          context: context,
+          title: context.tr('real_estate_typology_2plus1_title'),
+          desc: context.tr('real_estate_typology_2plus1_desc'),
+          grossM2: ZoningUnitMix.grossArea2Plus1,
+          count: _workingMix?.units2Plus1 ?? 0,
+          onIncrement: () => _updateMix((m) => m.copyWith(units2Plus1: m.units2Plus1 + 1)),
+          onDecrement: () => _updateMix((m) => m.copyWith(units2Plus1: (m.units2Plus1 - 1).clamp(0, 99))),
+          isDark: isDark,
+        ),
+        const SizedBox(height: 8),
+
+        _buildTypologySelectorCard(
+          context: context,
+          title: context.tr('real_estate_typology_3plus1_title'),
+          desc: context.tr('real_estate_typology_3plus1_desc'),
+          grossM2: ZoningUnitMix.grossArea3Plus1,
+          count: _workingMix?.units3Plus1 ?? 0,
+          onIncrement: () => _updateMix((m) => m.copyWith(units3Plus1: m.units3Plus1 + 1)),
+          onDecrement: () => _updateMix((m) => m.copyWith(units3Plus1: (m.units3Plus1 - 1).clamp(0, 99))),
+          isDark: isDark,
+        ),
+        const SizedBox(height: 8),
+
+        _buildTypologySelectorCard(
+          context: context,
+          title: context.tr('real_estate_typology_4plus1_title'),
+          desc: context.tr('real_estate_typology_4plus1_desc'),
+          grossM2: ZoningUnitMix.grossArea4Plus1,
+          count: _workingMix?.units4Plus1 ?? 0,
+          onIncrement: () => _updateMix((m) => m.copyWith(units4Plus1: m.units4Plus1 + 1)),
+          onDecrement: () => _updateMix((m) => m.copyWith(units4Plus1: (m.units4Plus1 - 1).clamp(0, 99))),
+          isDark: isDark,
+        ),
+        const SizedBox(height: 14),
+
+        // Action Buttons Row
+        Row(
+          children: [
+            Expanded(
+              child: NeoBrutalButton(
+                label: context.tr('real_estate_kaks_btn_auto_optimize'),
+                icon: Icons.auto_awesome_rounded,
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  setState(() {
+                    _workingMix =
+                        ZoningEngine.optimizeUnitMix(zoning.netResidentialArea);
+                  });
+                },
+                backgroundColor: const Color(0xFFFEF3C7),
+                textColor: const Color(0xFF92400E),
+              ),
+            ),
+            const SizedBox(width: 8),
+            NeoBrutalButton(
+              label: context.tr('real_estate_kaks_reset_btn'),
+              icon: Icons.refresh_rounded,
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  _workingMix = const ZoningUnitMix(
+                    units1Plus1: 1,
+                    units2Plus1: 1,
+                    units3Plus1: 1,
+                  );
+                });
+              },
+              backgroundColor: const Color(0xFFF1F5F9),
+              textColor: Colors.black,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        NeoBrutalButton(
+          label: isExceeded
+              ? context.tr('real_estate_kaks_warning_exceeded')
+              : context.tr('real_estate_kaks_btn_confirm_mix'),
+          icon: Icons.check_circle_rounded,
+          onPressed: isExceeded
+              ? null
+              : () {
+                  HapticFeedback.mediumImpact();
+                  NotificationService.showSuccess(
+                    context,
+                    context.tr('real_estate_kaks_confirmed_toast'),
+                  );
+                  setState(() {
+                    _selectedTabIndex = 0; // Return to stages tab
+                  });
+                },
+          backgroundColor: isExceeded
+              ? const Color(0xFF94A3B8)
+              : const Color(0xFF10B981),
+          textColor: Colors.white,
+        ),
+      ],
+    );
+  }
+
+  void _updateMix(ZoningUnitMix Function(ZoningUnitMix) update) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      final current = _workingMix ??
+          const ZoningUnitMix(units1Plus1: 1, units2Plus1: 1, units3Plus1: 1);
+      _workingMix = update(current);
+    });
+  }
+
+  Widget _buildTypologySelectorCard({
+    required BuildContext context,
+    required String title,
+    required String desc,
+    required double grossM2,
+    required int count,
+    required VoidCallback onIncrement,
+    required VoidCallback onDecrement,
+    required bool isDark,
+  }) {
+    return NeoBrutalCard(
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  desc,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Stepper Buttons
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: onDecrement,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.black, width: 1.5),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.remove, size: 16),
+                  ),
+                ),
+              ),
+              Container(
+                width: 38,
+                alignment: Alignment.center,
+                child: Text(
+                  count.toString(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: onIncrement,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2563EB),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.black, width: 1.5),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.add, size: 16, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- TAB 2: BELEDİYE DOSYASI CONTENT ---
+  Widget _buildMunicipalDossierTab(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel land,
+    bool isDark,
+    bool isFinished,
+  ) {
+    final docs = ConstructionTimelineEngine.getMunicipalDocuments(
+      land.constructionStage,
+      isFinished: isFinished,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Dossier Header
+        NeoBrutalCard(
+          backgroundColor:
+              isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+          borderColor: const Color(0xFF2563EB),
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.account_balance_rounded,
+                      color: Color(0xFF2563EB), size: 22),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.tr('municipal_dossier_header'),
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1E40AF),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                context.tr('municipal_dossier_guide'),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white70 : const Color(0xFF1E3A8A),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        ...docs.map((doc) {
+          final Color statusBg;
+          final Color statusText;
+          final String statusLabel;
+
+          switch (doc.status) {
+            case MunicipalDocStatus.approved:
+              statusBg = const Color(0xFFD1FAE5);
+              statusText = const Color(0xFF065F46);
+              statusLabel = context.tr('municipal_status_approved');
+              break;
+            case MunicipalDocStatus.inReview:
+              statusBg = const Color(0xFFDBEAFE);
+              statusText = const Color(0xFF1D4ED8);
+              statusLabel = context.tr('municipal_status_in_review');
+              break;
+            case MunicipalDocStatus.pendingFee:
+              statusBg = const Color(0xFFFEF3C7);
+              statusText = const Color(0xFF92400E);
+              statusLabel = context.tr('municipal_status_pending_fee');
+              break;
+            case MunicipalDocStatus.locked:
+              statusBg = const Color(0xFFE2E8F0);
+              statusText = const Color(0xFF64748B);
+              statusLabel = context.tr('municipal_status_locked');
+              break;
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: NeoBrutalCard(
+              backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          context.tr(doc.titleKey),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      NeoBrutalBadge(
+                        text: statusLabel,
+                        backgroundColor: statusBg,
+                        textColor: statusText,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.tr(doc.authorityKey),
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF2563EB),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.tr(doc.descriptionKey),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white60 : Colors.black54,
+                    ),
+                  ),
+                  const Divider(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Aşama ${doc.requiredStage} Zorunlu Evrakı',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white54 : Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        context.tr('municipal_fee_label',
+                            {'fee': CurrencyFormatter.format(doc.officialFee)}),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  // --- TAB 3: TOPRAKTAN ÖN SATIŞ CONTENT ---
+  Widget _buildPreSaleTab(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel land,
+    bool isDark,
+    bool isFinished,
+  ) {
+    if (land.constructionMode != 'selfBuild' ||
+        land.constructionStage < 1 ||
+        isFinished) {
+      return NeoBrutalCard(
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const Icon(Icons.lock_clock_rounded,
+                size: 36, color: Color(0xFFF59E0B)),
+            const SizedBox(height: 10),
+            Text(
+              context.tr('real_estate_construction_badge_idle'),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Topraktan ön satış hakkı sadece öz-inşaat şantiyesi aktifken ve en az 2 daire payınız varken açılır.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : Colors.black54,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return _buildPreSaleCard(context, theme, land, isDark);
+  }
+
+  // --- 8-STAGE TIMELINE CARD (ZEIGARNIK PROGRESSION) ---
+  Widget _buildEightStageTimelineCard(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel land,
+    bool isDark,
+    bool isFinished,
+  ) {
+    final stages = ConstructionTimelineEngine.stages;
+    final currentStage = land.constructionStage;
+
+    return NeoBrutalCard(
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.tr('real_estate_construction_progress_header'),
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              NeoBrutalBadge(
+                text: '%${land.constructionPercent}',
+                backgroundColor: isFinished
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFF59E0B),
+                textColor: isFinished ? Colors.white : Colors.black,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Thick Progress Bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Container(
+              height: 18,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: land.constructionProgress,
+                child: Container(
+                  color: isFinished
+                      ? const Color(0xFF10B981)
+                      : (currentStage >= 4
+                          ? const Color(0xFF3B82F6)
+                          : const Color(0xFFF59E0B)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Zeigarnik Suspense Hook Lore
+          Text(
+            context.tr('real_estate_construction_zeigarnik_lore'),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+
+          const Divider(height: 24),
+
+          // 8 Stages List
+          Text(
+            context.tr('real_estate_construction_timeline_title'),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.2,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          ...stages.map((stage) {
+            final isStagePassed = currentStage > stage.stageNumber;
+            final isCurrentStage = currentStage == stage.stageNumber;
+            final isWorking = isCurrentStage &&
+                land.isConstructionWorking &&
+                land.constructionDaysRemaining > 0;
+            final isReady = isCurrentStage &&
+                land.isConstructionWorking &&
+                land.constructionDaysRemaining == 0;
+
+            final IconData statusIcon;
+            final Color statusColor;
+            final String statusBadge;
+
+            if (isStagePassed) {
+              statusIcon = Icons.check_circle_rounded;
+              statusColor = const Color(0xFF10B981);
+              statusBadge = context.tr('subcontractor_badge_completed');
+            } else if (isWorking) {
+              statusIcon = Icons.play_circle_fill_rounded;
+              statusColor = const Color(0xFFF59E0B);
+              statusBadge =
+                  '${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}';
+            } else if (isReady) {
+              statusIcon = Icons.task_alt_rounded;
+              statusColor = const Color(0xFF10B981);
+              statusBadge = context.tr('real_estate_stage_btn_handover');
+            } else if (isCurrentStage) {
+              statusIcon = Icons.pending_actions_rounded;
+              statusColor = const Color(0xFF2563EB);
+              statusBadge = context.tr('subcontractor_badge_unstarted');
+            } else {
+              statusIcon = Icons.radio_button_unchecked_rounded;
+              statusColor = Colors.grey;
+              statusBadge = context.tr('subcontractor_badge_locked');
+            }
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                children: [
+                  Icon(statusIcon, size: 18, color: statusColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${stage.stageNumber}. ${context.tr(stage.titleKey)}',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: isStagePassed || isCurrentStage
+                            ? FontWeight.w800
+                            : FontWeight.w500,
+                        color: isStagePassed
+                            ? (isDark ? Colors.white : Colors.black)
+                            : (isCurrentStage
+                                ? (isDark
+                                    ? const Color(0xFF93C5FD)
+                                    : const Color(0xFF1D4ED8))
+                                : Colors.grey),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    statusBadge,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: statusColor,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // --- SELECTION OF MODES (START OF PROJECT) ---
+  Widget _buildContractSelectionSection(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel land,
+    ZoningProfile zoning,
+    double balance,
+    bool isDark,
+  ) {
     final totalUnits = zoning.unitMix.totalUnits;
     final contractorUnits = (totalUnits * 0.5).round();
-    final selfBuildInitialCost = (land.baseMarketValue * 0.15).roundToDouble();
+    final selfBuildInitialCost = (land.baseMarketValue * 0.10).roundToDouble();
     final canAffordSelfBuild = balance >= selfBuildInitialCost;
 
     return Column(
@@ -256,7 +1170,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
       children: [
         // Header Banner
         NeoBrutalCard(
-          backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+          backgroundColor:
+              isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
           padding: const EdgeInsets.all(14),
           child: Row(
             children: [
@@ -316,7 +1231,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                  color:
+                      isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.black, width: 1.5),
                 ),
@@ -350,7 +1266,10 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                         HapticFeedback.mediumImpact();
                         final success = ref
                             .read(gameProvider.notifier)
-                            .startContractorConstruction(land.id);
+                            .startContractorConstruction(
+                              land.id,
+                              customUnitMix: _workingMix,
+                            );
                         if (success) {
                           NotificationService.showSuccess(
                             context,
@@ -378,10 +1297,6 @@ class RealEstateConstructionScreen extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: 14),
-
-        // ZONING POTENTIAL BLUEPRINT CARD
-        _buildZoningPotentialCard(context, theme, land, zoning, isDark),
         const SizedBox(height: 14),
 
         // OPTION 2: KENDİ İNŞAATINI YAP (ÖZ-İNŞAAT)
@@ -421,7 +1336,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                  color:
+                      isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.black, width: 1.5),
                 ),
@@ -457,11 +1373,15 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                               HapticFeedback.mediumImpact();
                               final success = ref
                                   .read(gameProvider.notifier)
-                                  .startSelfBuildConstruction(land.id);
+                                  .startSelfBuildConstruction(
+                                    land.id,
+                                    customUnitMix: _workingMix,
+                                  );
                               if (success) {
                                 NotificationService.showSuccess(
                                   context,
-                                  context.tr('real_estate_self_build_success_toast'),
+                                  context.tr(
+                                      'real_estate_self_build_success_toast'),
                                 );
                               }
                             }
@@ -511,399 +1431,7 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
-  // --- 3. ZEIGARNIK 4-STEPPER CONSTRUCTION CARD ---
-  Widget _buildZeigarnikConstructionCard(
-      BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
-    String currentStageText;
-    switch (land.constructionStage) {
-      case 1:
-        currentStageText = context.tr('real_estate_construction_stage1_status');
-        break;
-      case 2:
-        currentStageText = context.tr('real_estate_construction_stage2_status');
-        break;
-      case 3:
-        currentStageText = context.tr('real_estate_construction_stage3_status');
-        break;
-      case 4:
-        currentStageText = context.tr('real_estate_construction_stage4_status');
-        break;
-      default:
-        currentStageText = context.tr('real_estate_construction_stage0_status');
-    }
-
-    final isFinished = land.constructionMode == 'selfBuild'
-        ? land.constructionStage >= 5
-        : (land.constructionStage >= 4 && land.constructionDaysRemaining == 0);
-
-    return NeoBrutalCard(
-      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('real_estate_construction_progress_header'),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.2,
-                ),
-              ),
-              NeoBrutalBadge(
-                text: '%${land.constructionPercent}',
-                backgroundColor: isFinished
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFFF59E0B),
-                textColor: isFinished ? Colors.white : Colors.black,
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Thick Progress Bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: Container(
-              height: 18,
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
-                border: Border.all(color: Colors.black, width: 2),
-              ),
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: land.constructionProgress,
-                child: Container(
-                  color: isFinished
-                      ? const Color(0xFF10B981)
-                      : (land.constructionStage >= 2
-                          ? const Color(0xFF3B82F6)
-                          : const Color(0xFFF59E0B)),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Zeigarnik Suspense Hook Text
-          Text(
-            currentStageText,
-            style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w800,
-              color: isFinished
-                  ? const Color(0xFF10B981)
-                  : (isDark ? const Color(0xFFFDE68A) : const Color(0xFFB45309)),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            context.tr('real_estate_construction_zeigarnik_lore'),
-            style: TextStyle(
-              fontSize: 10.5,
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-
-          const Divider(height: 24),
-
-          // 4 Milestone Indicators
-          _buildMilestoneRow(
-              context, 1, context.tr('real_estate_stage_m1_title'), land.constructionStage > 1, isDark),
-          const SizedBox(height: 8),
-          _buildMilestoneRow(
-              context, 2, context.tr('real_estate_stage_m2_title'), land.constructionStage > 2, isDark),
-          const SizedBox(height: 8),
-          _buildMilestoneRow(
-              context, 3, context.tr('real_estate_stage_m3_title'), land.constructionStage > 3, isDark),
-          const SizedBox(height: 8),
-          _buildMilestoneRow(
-              context, 4, context.tr('real_estate_stage_m4_title'), isFinished, isDark),
-          if (land.constructionMode == 'selfBuild') ...[
-            const Divider(height: 24),
-            _buildFourStageTimeline(context, land, isDark),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFourStageTimeline(
-      BuildContext context, RealEstateModel land, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          context.tr('real_estate_construction_timeline_title'),
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...ConstructionTimelineEngine.stages.map((stage) {
-          final isStagePassed = land.constructionStage > stage.stageNumber;
-          final isCurrentStage = land.constructionStage == stage.stageNumber;
-          final isWorking = isCurrentStage &&
-              land.isConstructionWorking &&
-              land.constructionDaysRemaining > 0;
-          final isReady = isCurrentStage &&
-              land.isConstructionWorking &&
-              land.constructionDaysRemaining == 0;
-
-          final IconData statusIcon;
-          final Color statusColor;
-          final String statusBadge;
-
-          if (isStagePassed) {
-            statusIcon = Icons.check_circle_rounded;
-            statusColor = const Color(0xFF10B981);
-            statusBadge = context.tr('subcontractor_badge_completed');
-          } else if (isWorking) {
-            statusIcon = Icons.play_circle_fill_rounded;
-            statusColor = const Color(0xFFF59E0B);
-            statusBadge =
-                '${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}';
-          } else if (isReady) {
-            statusIcon = Icons.task_alt_rounded;
-            statusColor = const Color(0xFF10B981);
-            statusBadge = context.tr('real_estate_stage_btn_handover');
-          } else if (isCurrentStage) {
-            statusIcon = Icons.pending_actions_rounded;
-            statusColor = const Color(0xFF2563EB);
-            statusBadge = context.tr('subcontractor_badge_unstarted');
-          } else {
-            statusIcon = Icons.radio_button_unchecked_rounded;
-            statusColor = Colors.grey;
-            statusBadge = context.tr('subcontractor_badge_locked');
-          }
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Icon(statusIcon, size: 16, color: statusColor),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    context.tr(stage.titleKey),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: isStagePassed || isCurrentStage
-                          ? FontWeight.w800
-                          : FontWeight.w500,
-                      color: isStagePassed
-                          ? (isDark ? Colors.white : Colors.black)
-                          : (isCurrentStage
-                              ? (isDark
-                                  ? const Color(0xFF93C5FD)
-                                  : const Color(0xFF1D4ED8))
-                              : Colors.grey),
-                    ),
-                  ),
-                ),
-                Text(
-                  statusBadge,
-                  style: TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
-                    color: statusColor,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildZoningPotentialCard(BuildContext context, ThemeData theme,
-      RealEstateModel land, ZoningProfile zoning, bool isDark) {
-    return NeoBrutalCard(
-      backgroundColor:
-          isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-      padding: const EdgeInsets.all(14),
-      borderColor: const Color(0xFF2563EB),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.architecture_rounded,
-                      color: Color(0xFF2563EB), size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    context.tr('real_estate_zoning_sheet_title'),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF1D4ED8),
-                    ),
-                  ),
-                ],
-              ),
-              NeoBrutalBadge(
-                text: 'TAKS ${zoning.taks.toStringAsFixed(2)} • KAKS ${zoning.kaks.toStringAsFixed(2)}',
-                backgroundColor: const Color(0xFFDBEAFE),
-                textColor: const Color(0xFF1D4ED8),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _buildZoningStatBox(
-                  context.tr('real_estate_zoning_footprint'),
-                  '${zoning.footprintArea.toStringAsFixed(0)} m²',
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildZoningStatBox(
-                  context.tr('real_estate_zoning_total_area'),
-                  '${zoning.totalConstructionArea.toStringAsFixed(0)} m²',
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildZoningStatBox(
-                  context.tr('real_estate_zoning_floors'),
-                  '${zoning.maxFloors} Kat',
-                  isDark,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: Colors.black, width: 1.5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildUnitTag('1+1', '${zoning.unitMix.units1Plus1} Adet',
-                    const Color(0xFF3B82F6)),
-                _buildUnitTag('2+1', '${zoning.unitMix.units2Plus1} Adet',
-                    const Color(0xFF10B981)),
-                _buildUnitTag('3+1', '${zoning.unitMix.units3Plus1} Adet',
-                    const Color(0xFF8B5CF6)),
-                _buildUnitTag('Toplam', '${zoning.unitMix.totalUnits} Daire',
-                    const Color(0xFFF59E0B)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildZoningStatBox(String label, String value, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.black, width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-                fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUnitTag(String label, String count, Color color) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-              fontSize: 10, fontWeight: FontWeight.w900, color: color),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          count,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMilestoneRow(
-      BuildContext context, int step, String title, bool isDone, bool isDark) {
-    return Row(
-      children: [
-        Container(
-          width: 22,
-          height: 22,
-          decoration: BoxDecoration(
-            color: isDone ? const Color(0xFF10B981) : Colors.transparent,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: isDark ? const Color(0xFF475569) : Colors.black,
-              width: 1.5,
-            ),
-          ),
-          child: isDone
-              ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
-              : Center(
-                  child: Text(
-                    '$step',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white70 : Colors.black,
-                    ),
-                  ),
-                ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: isDone ? FontWeight.w800 : FontWeight.w600,
-              color: isDone
-                  ? (isDark ? Colors.white : Colors.black)
-                  : (isDark ? Colors.white54 : Colors.grey),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // --- 4. PROJECT STATS BENTO ---
+  // --- BENTO PROJECT STATS ---
   Widget _buildProjectStatsBento(
       BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
     final modeTitle = land.constructionMode == 'contractor'
@@ -924,12 +1452,14 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   modeTitle,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                  style:
+                      const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
                 ),
               ],
             ),
@@ -948,7 +1478,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -975,7 +1506,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -998,13 +1530,14 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
-  // --- 5. TOPRAKTAN ÖN SATIŞ CARD ---
+  // --- TOPRAKTAN ÖN SATIŞ CARD ---
   Widget _buildPreSaleCard(BuildContext context, ThemeData theme,
-      RealEstateModel land, WidgetRef ref, bool isDark) {
+      RealEstateModel land, bool isDark) {
     final isLastUnitBlocked = land.playerShareUnits <= 1;
 
     return NeoBrutalCard(
-      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+      backgroundColor:
+          isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1102,10 +1635,10 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
-  // --- 6. ADVANCE STAGE (SELF BUILD) ---
+  // --- ADVANCE STAGE (SELF BUILD) ---
   Widget _buildSelfBuildAdvanceCard(BuildContext context, ThemeData theme,
-      RealEstateModel land, double balance, WidgetRef ref, bool isDark) {
-    final currentStage = land.constructionStage.clamp(1, 4);
+      RealEstateModel land, double balance, bool isDark) {
+    final currentStage = land.constructionStage.clamp(1, 8);
     final stageDetails =
         ConstructionTimelineEngine.getStageDetails(currentStage);
     final stageRate = stageDetails.costPercentage;
@@ -1230,6 +1763,7 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
+  // --- SITE RADIO DISPATCH CARD ---
   Widget _buildSiteRadioDispatchCard(
       BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
     String latestDispatch = '';
@@ -1313,7 +1847,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                       fontSize: 11,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white70 : const Color(0xFF78350F),
+                      color:
+                          isDark ? Colors.white70 : const Color(0xFF78350F),
                     ),
                   ),
                 ),
@@ -1325,11 +1860,12 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
-  // --- 7. CONTRACTOR WAIT CARD ---
+  // --- CONTRACTOR WAIT CARD ---
   Widget _buildContractorWaitCard(
       BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
     return NeoBrutalCard(
-      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
@@ -1341,7 +1877,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
               children: [
                 Text(
                   context.tr('real_estate_contractor_working_title'),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                  style:
+                      const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -1350,7 +1887,8 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    color:
+                        theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -1361,11 +1899,12 @@ class RealEstateConstructionScreen extends ConsumerWidget {
     );
   }
 
-  // --- 8. FINALIZE & CLAIM APARTMENTS CARD ---
-  Widget _buildFinalizeCard(BuildContext context, ThemeData theme,
-      RealEstateModel land, WidgetRef ref, bool isDark) {
+  // --- FINALIZE & CLAIM APARTMENTS CARD ---
+  Widget _buildFinalizeCard(
+      BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
     return NeoBrutalCard(
-      backgroundColor: isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
+      backgroundColor:
+          isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1421,6 +1960,39 @@ class RealEstateConstructionScreen extends ConsumerWidget {
             },
             backgroundColor: const Color(0xFF10B981),
             textColor: Colors.white,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildZoningStatBox(String label, String value, bool isDark,
+      {Color? textColor}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: textColor,
+            ),
           ),
         ],
       ),

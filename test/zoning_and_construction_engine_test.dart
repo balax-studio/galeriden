@@ -19,10 +19,23 @@ void main() {
       expect(profile.maxFloors, equals(5));
 
       final units = profile.unitMix;
+      expect(units.units1Plus0, greaterThanOrEqualTo(0));
       expect(units.units1Plus1, greaterThan(0));
+      expect(units.units2Plus0, greaterThanOrEqualTo(0));
       expect(units.units2Plus1, greaterThan(0));
       expect(units.units3Plus1, greaterThan(0));
-      expect(units.totalUnits, equals(units.units1Plus1 + units.units2Plus1 + units.units3Plus1));
+      expect(units.units4Plus1, greaterThanOrEqualTo(0));
+      expect(
+        units.totalUnits,
+        equals(
+          units.units1Plus0 +
+              units.units1Plus1 +
+              units.units2Plus0 +
+              units.units2Plus1 +
+              units.units3Plus1 +
+              units.units4Plus1,
+        ),
+      );
 
       expect(profile.estimatedDurationDays, greaterThanOrEqualTo(120));
       expect(profile.estimatedProjectValue, greaterThan(landValue));
