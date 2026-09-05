@@ -212,6 +212,10 @@ class CarDamageSchemaWidget extends StatelessWidget {
         statusColor = p.warningColor;
         statusText = context.tr('damage_status_painted');
         break;
+      case PartStatus.localPainted:
+        statusColor = const Color(0xFFA855F7);
+        statusText = context.tr('vasita_expertise_local_painted');
+        break;
       case PartStatus.changed:
         statusColor = p.errorColor;
         statusText = context.tr('damage_status_changed');

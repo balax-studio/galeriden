@@ -6,12 +6,15 @@ import 'package:go_router/go_router.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../data/models/construction_stages_model.dart';
 import '../../../data/models/real_estate_model.dart';
+import '../../../domain/usecases/zoning_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import 'widgets/contractor_negotiation_sheet.dart';
 
 class RealEstateConstructionScreen extends ConsumerWidget {
   final String landId;
@@ -214,10 +217,12 @@ class RealEstateConstructionScreen extends ConsumerWidget {
   // --- 2. SELECTION OF CONSTRUCTION MODES ---
   Widget _buildContractSelectionSection(BuildContext context, ThemeData theme,
       RealEstateModel land, double balance, WidgetRef ref, bool isDark) {
-    final totalUnits = land.squareMeters >= 2000
-        ? 8
-        : (land.squareMeters >= 1000 ? 6 : 4);
-    final contractorUnits = totalUnits ~/ 2;
+    final zoning = ZoningEngine.calculateZoning(
+      parcelSquareMeters: land.squareMeters.toDouble(),
+      baseMarketValue: land.baseMarketValue,
+    );
+    final totalUnits = zoning.unitMix.totalUnits;
+    final contractorUnits = (totalUnits * 0.5).round();
     final selfBuildInitialCost = (land.baseMarketValue * 0.15).roundToDouble();
     final canAffordSelfBuild = balance >= selfBuildInitialCost;
 
@@ -266,10 +271,10 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const NeoBrutalBadge(
-                    text: '0 TL SERMAYE',
-                    backgroundColor: Color(0xFFD1FAE5),
-                    textColor: Color(0xFF065F46),
+                  NeoBrutalBadge(
+                    text: context.tr('real_estate_badge_zero_capital'),
+                    backgroundColor: const Color(0xFFD1FAE5),
+                    textColor: const Color(0xFF065F46),
                   ),
                 ],
               ),
@@ -311,26 +316,50 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              NeoBrutalButton(
-                label: context.tr('real_estate_contractor_btn'),
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  final success = ref
-                      .read(gameProvider.notifier)
-                      .startContractorConstruction(land.id);
-                  if (success) {
-                    NotificationService.showSuccess(
-                      context,
-                      context.tr('real_estate_contractor_success_toast'),
-                    );
-                  }
-                },
-                backgroundColor: const Color(0xFF3B82F6),
-                textColor: Colors.white,
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: context.tr('real_estate_contractor_btn'),
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        final success = ref
+                            .read(gameProvider.notifier)
+                            .startContractorConstruction(land.id);
+                        if (success) {
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('real_estate_contractor_started_toast'),
+                          );
+                        }
+                      },
+                      backgroundColor: const Color(0xFF3B82F6),
+                      textColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  NeoBrutalButton(
+                    label: context.tr('real_estate_btn_negotiate_contractor'),
+                    icon: Icons.tune_rounded,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      ContractorNegotiationSheet.show(
+                        context: context,
+                        land: land,
+                      );
+                    },
+                    backgroundColor: const Color(0xFFEFF6FF),
+                    textColor: const Color(0xFF1D4ED8),
+                  ),
+                ],
               ),
             ],
           ),
         ),
+        const SizedBox(height: 14),
+
+        // ZONING POTENTIAL BLUEPRINT CARD
+        _buildZoningPotentialCard(context, theme, land, zoning, isDark),
         const SizedBox(height: 14),
 
         // OPTION 2: KENDİ İNŞAATINI YAP (ÖZ-İNŞAAT)
@@ -350,10 +379,10 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const NeoBrutalBadge(
-                    text: '%100 DAİRE PAYI',
-                    backgroundColor: Color(0xFFFEF3C7),
-                    textColor: Color(0xFF92400E),
+                  NeoBrutalBadge(
+                    text: context.tr('real_estate_badge_all_units_share'),
+                    backgroundColor: const Color(0xFFFEF3C7),
+                    textColor: const Color(0xFF92400E),
                   ),
                 ],
               ),
@@ -553,8 +582,221 @@ class RealEstateConstructionScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           _buildMilestoneRow(
               context, 4, context.tr('real_estate_stage_m4_title'), land.constructionStage >= 4),
+          if (land.constructionMode == 'selfBuild') ...[
+            const Divider(height: 24),
+            _buildNineStageMilestones(context, land, isDark),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildNineStageMilestones(
+      BuildContext context, RealEstateModel land, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.tr('real_estate_nine_stage_spec_title'),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...ConstructionStagesCatalog.stages.map((stage) {
+          final isStagePassed = (land.constructionStage == 1 && stage.stageNumber <= 2) ||
+              (land.constructionStage == 2 && stage.stageNumber <= 4) ||
+              (land.constructionStage == 3 && stage.stageNumber <= 7) ||
+              (land.constructionStage >= 4);
+          final isCurrentStage = !isStagePassed && (
+              (land.constructionStage == 1 && stage.stageNumber == 1) ||
+              (land.constructionStage == 2 && stage.stageNumber == 3) ||
+              (land.constructionStage == 3 && stage.stageNumber == 5) ||
+              (land.constructionStage == 4 && stage.stageNumber == 8)
+          );
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Row(
+              children: [
+                Icon(
+                  isStagePassed
+                      ? Icons.check_circle_rounded
+                      : (isCurrentStage
+                          ? Icons.play_circle_fill_rounded
+                          : Icons.radio_button_unchecked_rounded),
+                  size: 16,
+                  color: isStagePassed
+                      ? const Color(0xFF10B981)
+                      : (isCurrentStage ? const Color(0xFFF59E0B) : Colors.grey),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    stage.title,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: isStagePassed || isCurrentStage
+                          ? FontWeight.w800
+                          : FontWeight.w500,
+                      color: isStagePassed
+                          ? (isDark ? Colors.white : Colors.black)
+                          : (isCurrentStage
+                              ? const Color(0xFFD97706)
+                              : Colors.grey),
+                    ),
+                  ),
+                ),
+                Text(
+                  stage.milestoneName,
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildZoningPotentialCard(BuildContext context, ThemeData theme,
+      RealEstateModel land, ZoningProfile zoning, bool isDark) {
+    return NeoBrutalCard(
+      backgroundColor:
+          isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+      padding: const EdgeInsets.all(14),
+      borderColor: const Color(0xFF2563EB),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.architecture_rounded,
+                      color: Color(0xFF2563EB), size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    context.tr('real_estate_zoning_sheet_title'),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1D4ED8),
+                    ),
+                  ),
+                ],
+              ),
+              const NeoBrutalBadge(
+                text: 'TAKS 0.30 • KAKS 1.50',
+                backgroundColor: Color(0xFFDBEAFE),
+                textColor: Color(0xFF1D4ED8),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildZoningStatBox(
+                  context.tr('real_estate_zoning_footprint'),
+                  '${zoning.footprintArea.toStringAsFixed(0)} m²',
+                  isDark,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildZoningStatBox(
+                  context.tr('real_estate_zoning_total_area'),
+                  '${zoning.totalConstructionArea.toStringAsFixed(0)} m²',
+                  isDark,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildZoningStatBox(
+                  context.tr('real_estate_zoning_floors'),
+                  '${zoning.maxFloors} Kat',
+                  isDark,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.black, width: 1.5),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildUnitTag('1+1', '${zoning.unitMix.units1Plus1} Adet',
+                    const Color(0xFF3B82F6)),
+                _buildUnitTag('2+1', '${zoning.unitMix.units2Plus1} Adet',
+                    const Color(0xFF10B981)),
+                _buildUnitTag('3+1', '${zoning.unitMix.units3Plus1} Adet',
+                    const Color(0xFF8B5CF6)),
+                _buildUnitTag('Toplam', '${zoning.unitMix.totalUnits} Daire',
+                    const Color(0xFFF59E0B)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildZoningStatBox(String label, String value, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUnitTag(String label, String count, Color color) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+              fontSize: 10, fontWeight: FontWeight.w900, color: color),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          count,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+        ),
+      ],
     );
   }
 
@@ -714,7 +956,7 @@ class RealEstateConstructionScreen extends ConsumerWidget {
               NeoBrutalBadge(
                 text: isLastUnitBlocked
                     ? context.tr('real_estate_presale_last_unit_blocked')
-                    : 'SICAK NAKİT',
+                    : context.tr('real_estate_badge_hot_cash'),
                 backgroundColor: isLastUnitBlocked
                     ? const Color(0xFFFEF3C7)
                     : const Color(0xFFDBEAFE),
@@ -946,8 +1188,14 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   context.tr('real_estate_finalize_success_toast',
                       {'count': created.length.toString()}),
                 );
-                context.pop();
+              } else {
+                NotificationService.showSuccess(
+                  context,
+                  context.tr('real_estate_finalize_success_toast',
+                      {'count': '0'}),
+                );
               }
+              context.pop();
             },
             backgroundColor: const Color(0xFF10B981),
             textColor: Colors.white,

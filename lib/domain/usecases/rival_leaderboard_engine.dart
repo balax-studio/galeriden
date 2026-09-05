@@ -1,5 +1,3 @@
-import 'package:flutter/widgets.dart';
-import '../../core/localization/app_localizations.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
 
@@ -25,18 +23,6 @@ class LeaderboardEntry {
     this.rankChange = 0,
     this.tagline = '',
   });
-
-  String getLocalizedName(BuildContext context) {
-    if (isPlayer) return name;
-    if (key.isNotEmpty) return context.tr('${key}_name');
-    return name;
-  }
-
-  String getLocalizedTagline(BuildContext context) {
-    if (isPlayer) return context.tr('rival_player_tagline');
-    if (key.isNotEmpty) return context.tr('${key}_tagline');
-    return tagline;
-  }
 
   LeaderboardEntry copyWith({
     String? key,
@@ -93,32 +79,6 @@ class LeaderboardNearMissInfo {
     this.scoreDifference = 0.0,
     required this.motivationMessage,
   });
-
-  String getLocalizedMotivation(BuildContext context) {
-    final rivalLocalizedName = (targetRivalKey != null && targetRivalKey!.isNotEmpty)
-        ? context.tr('${targetRivalKey}_name')
-        : (targetRivalName ?? '');
-
-    if (isLeader) {
-      if (rivalLocalizedName.isNotEmpty) {
-        return context.tr('rival_leader_motivation', {
-          'rival': rivalLocalizedName,
-          'diff': CurrencyFormatter.format(scoreDifference),
-        });
-      }
-      return context.tr('rival_leader_solo');
-    }
-
-    if (rivalLocalizedName.isNotEmpty) {
-      return context.tr('rival_chaser_motivation', {
-        'rank': '${playerRank - 1}',
-        'rival': rivalLocalizedName,
-        'diff': CurrencyFormatter.format(scoreDifference),
-      });
-    }
-
-    return context.tr('rival_empty_motivation');
-  }
 }
 
 class RivalLeaderboardEngine {

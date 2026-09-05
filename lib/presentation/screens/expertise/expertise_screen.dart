@@ -139,7 +139,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                               if (_isInspected) ...[
                                 NeoBrutalStamp(
                                   text: stampInfo.text,
-                                  color: stampInfo.color,
+                                  color: Color(stampInfo.colorValue),
                                   fontSize: 9.5,
                                   angle: -0.08,
                                 ),
@@ -292,7 +292,7 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                   ),
                   SlamStampWidget(
                     text: stampInfo.text,
-                    color: stampInfo.color,
+                    color: Color(stampInfo.colorValue),
                     fontSize: 11,
                     angle: -0.08,
                   ),
@@ -882,6 +882,8 @@ class _MicronGaugeMiniGameState extends State<_MicronGaugeMiniGame> {
         return 90 + (widget.bodyParts.hashCode % 25);
       case PartStatus.painted:
         return 160 + (widget.bodyParts.hashCode % 60);
+      case PartStatus.localPainted:
+        return 140 + (widget.bodyParts.hashCode % 40);
       case PartStatus.changed:
         return 280 + (widget.bodyParts.hashCode % 100);
       case PartStatus.damaged:

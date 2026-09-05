@@ -21,6 +21,48 @@ import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/confetti_celebration_overlay.dart';
 
+extension LeaderboardEntryUiExt on LeaderboardEntry {
+  String getLocalizedName(BuildContext context) {
+    if (isPlayer) return name;
+    if (key.isNotEmpty) return context.tr('${key}_name');
+    return name;
+  }
+
+  String getLocalizedTagline(BuildContext context) {
+    if (isPlayer) return context.tr('rival_player_tagline');
+    if (key.isNotEmpty) return context.tr('${key}_tagline');
+    return tagline;
+  }
+}
+
+extension LeaderboardNearMissUiExt on LeaderboardNearMissInfo {
+  String getLocalizedMotivation(BuildContext context) {
+    final rivalLocalizedName = (targetRivalKey != null && targetRivalKey!.isNotEmpty)
+        ? context.tr('${targetRivalKey}_name')
+        : (targetRivalName ?? '');
+
+    if (isLeader) {
+      if (rivalLocalizedName.isNotEmpty) {
+        return context.tr('rival_leader_motivation', {
+          'rival': rivalLocalizedName,
+          'diff': CurrencyFormatter.format(scoreDifference),
+        });
+      }
+      return context.tr('rival_leader_solo');
+    }
+
+    if (rivalLocalizedName.isNotEmpty) {
+      return context.tr('rival_chaser_motivation', {
+        'rank': '${playerRank - 1}',
+        'rival': rivalLocalizedName,
+        'diff': CurrencyFormatter.format(scoreDifference),
+      });
+    }
+
+    return context.tr('rival_empty_motivation');
+  }
+}
+
 /// Centralized Modals & Bottom Sheets for Dashboard Retention Mechanics
 class DashboardRetentionModals {
   DashboardRetentionModals._();

@@ -17,6 +17,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'real_estate_negotiation_screen.dart';
+import 'widgets/real_estate_offers_sheet.dart';
 
 class RealEstateMarketScreen extends ConsumerStatefulWidget {
   const RealEstateMarketScreen({super.key});
@@ -46,6 +47,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
 
   void _confirmExpandSlots(BuildContext context) {
     HapticFeedback.selectionClick();
+    final cost = ref.read(gameProvider.notifier).realEstateSlotExpansionCost;
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
@@ -58,7 +60,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
           style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
         content: Text(
-          context.tr('real_estate_expand_slots_dialog_desc'),
+          context.tr('real_estate_expand_confirm_content', {'cost': CurrencyFormatter.format(cost)}),
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
         ),
         actions: [
@@ -95,12 +97,177 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
               ),
             ),
             child: Text(
-              context.tr('real_estate_expand_slots_btn'),
+              '${context.tr('real_estate_expand_slots_btn')} • ${CurrencyFormatter.formatShort(cost)}',
               style: const TextStyle(fontWeight: FontWeight.w900),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showListForSaleDialog(BuildContext context, RealEstateModel property) {
+    HapticFeedback.selectionClick();
+    final fairValue = property.estimatedRealValue;
+    double askingPrice = (fairValue * 1.10 / 10000).round() * 10000.0;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (sheetCtx, setSheetState) {
+            final theme = Theme.of(sheetCtx);
+            final minPrice = (fairValue * 0.80).roundToDouble();
+            final maxPrice = (fairValue * 1.50).roundToDouble();
+
+            return Container(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
+              ),
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                border: Border.all(color: Colors.black, width: 3),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    context.tr('real_estate_showcase_modal_title', {'title': property.title}),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.tr('real_estate_showcase_modal_desc', {'val': CurrencyFormatter.format(fairValue)}),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Text(
+                      CurrencyFormatter.format(askingPrice),
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFFD97706),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          setSheetState(() => askingPrice = fairValue);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          side: const BorderSide(color: Colors.black, width: 1.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                        child: Text(
+                          context.tr('real_estate_showcase_btn_market_val'),
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          setSheetState(() => askingPrice = ((fairValue * 1.05) / 10000).round() * 10000.0);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          side: const BorderSide(color: Colors.black, width: 1.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                        child: const Text('+%5', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11)),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          setSheetState(() => askingPrice = ((fairValue * 1.10) / 10000).round() * 10000.0);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          side: const BorderSide(color: Colors.black, width: 1.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                        child: const Text('+%10', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11)),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          setSheetState(() => askingPrice = ((fairValue * 1.20) / 10000).round() * 10000.0);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          side: const BorderSide(color: Colors.black, width: 1.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                        child: const Text('+%20', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Slider(
+                    value: askingPrice.clamp(minPrice, maxPrice),
+                    min: minPrice,
+                    max: maxPrice,
+                    activeColor: const Color(0xFFF59E0B),
+                    inactiveColor: Colors.grey.shade300,
+                    onChanged: (val) {
+                      setSheetState(() {
+                        askingPrice = (val / 10000).round() * 10000.0;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  NeoBrutalButton(
+                    label: context.tr('real_estate_showcase_btn_submit'),
+                    icon: Icons.storefront_rounded,
+                    backgroundColor: const Color(0xFFF59E0B),
+                    onPressed: () {
+                      HapticFeedback.heavyImpact();
+                      final ok = ref.read(gameProvider.notifier).listRealEstateForSale(property.id, askingPrice);
+                      if (ok) {
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('real_estate_showcase_success_toast', {'title': property.title}),
+                        );
+                        Navigator.of(sheetCtx).pop();
+                      }
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -357,7 +524,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                     children: [
                       const Icon(Icons.add_rounded, size: 14, color: Colors.black),
                       Text(
-                        context.tr('real_estate_expand_slots_btn'),
+                        '${context.tr('real_estate_expand_slots_btn')} • ${CurrencyFormatter.formatShort(ref.watch(gameProvider.notifier).realEstateSlotExpansionCost)}',
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -979,6 +1146,19 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 text: context.tr(property.deedType.localizationKey),
                 backgroundColor: const Color(0xFFE2E8F0),
               ),
+              if (property.isListed) ...[
+                NeoBrutalBadge(
+                  text: 'VİTRİNDE • ${CurrencyFormatter.formatShort(property.customListingPrice ?? fairValue)}',
+                  backgroundColor: const Color(0xFFFEF3C7),
+                  textColor: const Color(0xFF92400E),
+                ),
+                if (property.activeOffers.isNotEmpty)
+                  NeoBrutalBadge(
+                    text: 'GELEN TEKLİF • ${property.activeOffers.length}',
+                    backgroundColor: const Color(0xFFD1FAE5),
+                    textColor: const Color(0xFF065F46),
+                  ),
+              ],
             ],
           ),
 
@@ -1259,6 +1439,48 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                           .toggleRealEstateRent(property.id);
                     },
                   ),
+
+                  // Showcase offers or list for sale
+                  if (property.isListed) ...[
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        RealEstateOffersSheet.show(context: context, property: property);
+                      },
+                      icon: const Icon(Icons.local_offer_rounded, size: 14),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: property.activeOffers.isNotEmpty
+                            ? const Color(0xFFD1FAE5)
+                            : const Color(0xFFFEF3C7),
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        context.tr('real_estate_btn_offers_count', {'count': property.activeOffers.length}),
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ] else if (property.canBeSold) ...[
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        _showListForSaleDialog(context, property);
+                      },
+                      icon: const Icon(Icons.storefront_rounded, size: 14),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        context.tr('real_estate_btn_showcase_sell'),
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
 
                   // Sell property button (with strict restriction feedback)
                   ElevatedButton(

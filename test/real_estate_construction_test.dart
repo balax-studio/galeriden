@@ -205,7 +205,7 @@ void main() {
       // 3. Advance Stage with capital funding
       final balanceBeforeAdvance = notifier.state.balance;
       final advanceCost = (currentLand.baseMarketValue * 0.25).roundToDouble(); // Stage 1 -> 2: 25%
-      final advanceSuccess = notifier.advanceSelfBuildStage('land_selfbuild_test');
+      final advanceSuccess = notifier.advanceSelfBuildStage('land_selfbuild_test', triggerIncidents: false);
       expect(advanceSuccess, isTrue);
       expect(notifier.state.balance, equals(balanceBeforeAdvance - advanceCost));
 

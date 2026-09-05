@@ -43,6 +43,8 @@ class _MicronBodyScanCanvasWidgetState extends State<MicronBodyScanCanvasWidget>
         return 90 + (hash % 30); // 90 - 120 µm
       case PartStatus.painted:
         return 160 + (hash % 60); // 160 - 220 µm
+      case PartStatus.localPainted:
+        return 140 + (hash % 40); // 140 - 180 µm
       case PartStatus.changed:
         return 280 + (hash % 90); // 280 - 370 µm
       case PartStatus.damaged:

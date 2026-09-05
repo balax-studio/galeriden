@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
+import '../../../domain/usecases/construction_negative_events_engine.dart';
 import 'game_base_notifier.dart';
 
 mixin GameRealEstateMixin on GameBaseNotifier {
@@ -243,6 +245,16 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     final isNowFullyRenovated = nextStage >= 3;
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
+    // Random hidden defect discovery during early renovation stages (20% chance)
+    bool discoveredLeak = property.hasWaterLeakRisk;
+    String? defectNote;
+    if (!property.hasWaterLeakRisk && nextStage <= 2 && Random().nextDouble() < 0.20) {
+      discoveredLeak = true;
+      defectNote = nextStage == 1
+          ? 'Kırım sırasında eski galvaniz boruda çatlak ve su sızıntısı tespit edildi'
+          : 'Tesisat şaftında gizli su kaçağı ve kablo korozyonu ortaya çıktı';
+    }
+
     String stageLog;
     switch (nextStage) {
       case 1:
@@ -256,14 +268,18 @@ mixin GameRealEstateMixin on GameBaseNotifier {
         break;
     }
 
+    final updatedLogs = [
+      ...property.provenanceLog,
+      stageLog,
+      if (defectNote != null) '$nowStr • Gizli Kusur Ortaya Çıktı • $defectNote',
+    ];
+
     final updatedProperty = property.copyWith(
       renovationStage: nextStage,
       renovationDaysRemaining: isNowFullyRenovated ? 0 : 2,
       isRenovated: isNowFullyRenovated,
-      provenanceLog: [
-        ...property.provenanceLog,
-        stageLog,
-      ],
+      hasWaterLeakRisk: discoveredLeak,
+      provenanceLog: updatedLogs,
     );
 
     final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
@@ -377,9 +393,16 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Upgrades maximum real estate portfolio slots (+2 slots)
+  /// Dynamic capacity expansion cost using exponential scaling:
+  /// TabanUcret * (1.8 ^ MevcutSeviye)
+  double get realEstateSlotExpansionCost {
+    final level = ((state.maxRealEstateSlots - 5) / 2).clamp(0, 50).toInt();
+    return (500000.0 * pow(1.8, level)).roundToDouble();
+  }
+
+  /// Upgrades maximum real estate portfolio slots (+2 slots) with exponential scaling cost
   bool expandRealEstateSlots() {
-    const expansionCost = 500000.0;
+    final expansionCost = realEstateSlotExpansionCost;
     if (state.balance < expansionCost) return false;
 
     state = state.copyWith(
@@ -392,9 +415,84 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Lists an owned real estate property for sale with custom asking price
+  bool listRealEstateForSale(String realEstateId, double askingPrice) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    if (!property.canBeSold) return false;
+
+    final updatedProperty = property.copyWith(
+      isListed: true,
+      customListingPrice: askingPrice,
+      daysListed: 0,
+    );
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedProperty;
+
+    state = state.copyWith(ownedRealEstates: updatedList);
+    saveState();
+    return true;
+  }
+
+  /// Unlists an owned real estate property from sale
+  bool unlistRealEstate(String realEstateId) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    final updatedProperty = property.copyWith(
+      isListed: false,
+      clearCustomPrice: true,
+      activeOffers: const [],
+    );
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedProperty;
+
+    state = state.copyWith(ownedRealEstates: updatedList);
+    saveState();
+    return true;
+  }
+
+  /// Accepts a buyer's offer from the showcase pool
+  bool acceptRealEstateOffer({required String realEstateId, required String offerId}) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    final offerIndex = property.activeOffers.indexWhere((o) => o.id == offerId);
+    if (offerIndex == -1) return false;
+
+    final offer = property.activeOffers[offerIndex];
+    return sellRealEstate(
+      realEstateId: realEstateId,
+      salePrice: offer.offeredAmount,
+    );
+  }
+
+  /// Rejects a buyer's offer from the showcase pool
+  bool rejectRealEstateOffer({required String realEstateId, required String offerId}) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    final updatedOffers = property.activeOffers.where((o) => o.id != offerId).toList();
+    final updatedProperty = property.copyWith(activeOffers: updatedOffers);
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedProperty;
+
+    state = state.copyWith(ownedRealEstates: updatedList);
+    saveState();
+    return true;
+  }
+
   /// Starts Contractor Construction Agreement (Kat Karşılığı Müteahhit Sözleşmesi)
-  /// 0 upfront cost, 50% flat share, 5 days per milestone
-  bool startContractorConstruction(String landId) {
+  /// 0 upfront cost, 40-60% customizable share, 5 days per milestone
+  bool startContractorConstruction(String landId, {int sharePercent = 50, int? customTotalUnits}) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
     if (index == -1) return false;
 
@@ -402,19 +500,20 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (land.category != RealEstateCategory.land) return false;
     if (land.isConstructionActive) return false;
 
-    final totalUnits = land.totalProjectUnits;
+    final totalUnits = customTotalUnits ?? land.totalProjectUnits;
+    final clampedShare = sharePercent.clamp(40, 60);
 
     final nowStr = DateTime.now().toIso8601String().split('T').first;
     final updatedLand = land.copyWith(
       constructionMode: 'contractor',
-      contractorSharePercent: 50,
+      contractorSharePercent: clampedShare,
       totalProjectUnits: totalUnits,
       soldPreSaleUnits: 0,
       constructionStage: 1,
       constructionDaysRemaining: 5,
       provenanceLog: [
         ...land.provenanceLog,
-        '$nowStr • Müteahhitle kat karşılığı sözleşmesi imzalandı • $totalUnits Dairelik Proje • %50 Oyuncu Payı',
+        '$nowStr • Müteahhitle kat karşılığı sözleşmesi imzalandı • $totalUnits Dairelik Proje • %$clampedShare Oyuncu Payı',
       ],
     );
 
@@ -470,7 +569,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
   }
 
   /// Funds and advances next milestone in Self-Build mode
-  bool advanceSelfBuildStage(String landId) {
+  bool advanceSelfBuildStage(String landId, {bool triggerIncidents = true}) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
     if (index == -1) return false;
 
@@ -500,12 +599,36 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     final nextStage = land.constructionStage + 1;
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
+    final incident = triggerIncidents
+        ? ConstructionNegativeEventsEngine.rollStageIncident(
+            stageNumber: nextStage,
+            baseStageCost: stageCost,
+          )
+        : null;
+
+    int extraDays = 0;
+    double incidentCost = 0.0;
+    final extraLogs = <String>[];
+
+    if (incident != null) {
+      extraDays = incident.dayDelayImpact;
+      if (state.balance >= stageCost + incident.costImpact) {
+        incidentCost = incident.costImpact;
+      } else {
+        extraDays += 1;
+      }
+      extraLogs.add('$nowStr • Şantiye Olayı: ${incident.title} • Etki: ₺${incident.costImpact.round()}');
+    }
+
+    final totalDeduction = stageCost + incidentCost;
+
     final updatedLand = land.copyWith(
       constructionStage: nextStage,
-      constructionDaysRemaining: 4,
+      constructionDaysRemaining: 4 + extraDays,
       provenanceLog: [
         ...land.provenanceLog,
         '$nowStr • Şantiye Aşama $nextStage fonlandı ve başladı • ₺${stageCost.round()}',
+        ...extraLogs,
       ],
     );
 
@@ -513,7 +636,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     updatedList[index] = updatedLand;
 
     state = state.copyWith(
-      balance: state.balance - stageCost,
+      balance: state.balance - totalDeduction,
       ownedRealEstates: updatedList,
     );
 

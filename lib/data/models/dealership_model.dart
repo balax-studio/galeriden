@@ -35,6 +35,10 @@ import 'customer_crm_event_model.dart';
 import 'casino_game_model.dart';
 import 'active_service_job_model.dart';
 import 'real_estate_model.dart';
+import 'substates/company_substate.dart';
+import 'substates/finance_substate.dart';
+import 'substates/inventory_substate.dart';
+import 'substates/real_estate_substate.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -407,6 +411,58 @@ class DealershipModel {
   int get reputation => reputationScore;
   int get experience => skills.xp;
   List<CarModel> get myCars => ownedCars;
+
+  /// Modular Logical Substates (§Modül 4 Clean Architecture)
+  InventorySubstate get inventory => InventorySubstate(
+        ownedCars: ownedCars,
+        salesHistory: salesHistory,
+        incomingOffers: incomingOffers,
+        pendingOrders: pendingOrders,
+        activeServiceJobs: activeServiceJobs,
+        b2bPartOrders: b2bPartOrders,
+        salvagedParts: salvagedParts,
+        scrapyardCars: scrapyardCars,
+        blackMarketCars: blackMarketCars,
+      );
+
+  RealEstateSubstate get realEstate => RealEstateSubstate(
+        ownedRealEstates: ownedRealEstates,
+        maxRealEstateSlots: maxRealEstateSlots,
+        unlockedBuildings: unlockedBuildings,
+      );
+
+  FinanceSubstate get finance => FinanceSubstate(
+        balance: balance,
+        bankDepositBalance: bankDepositBalance,
+        bankCreditLimit: bankCreditLimit,
+        activeLoans: activeLoans,
+        activeInstallments: activeInstallments,
+        activeCheques: activeCheques,
+        marketStocks: marketStocks,
+        ownedStocks: ownedStocks,
+        ownedForex: ownedForex,
+        marketForex: marketForex,
+        activeIpos: activeIpos,
+        playerIpoRequests: playerIpoRequests,
+        totalProfit: totalProfit,
+        dailyTaxRate: dailyTaxRate,
+      );
+
+  CompanySubstate get company => CompanySubstate(
+        playerName: playerName,
+        dealershipName: dealershipName,
+        logoEmblemId: logoEmblemId,
+        logoBadgeShape: logoBadgeShape,
+        logoBadgeColor: logoBadgeColor,
+        dealershipTagline: dealershipTagline,
+        hiredStaff: hiredStaff,
+        reputationScore: reputationScore,
+        characterOrigin: characterOrigin,
+        specializationPath: specializationPath,
+        npcRelationships: npcRelationships,
+        dynastyGeneration: dynastyGeneration,
+        dynastyHistoryLog: dynastyHistoryLog,
+      );
 
   /// Kurumsal Kademe (Prestige Tiers §1.6)
   int get corporateTier {

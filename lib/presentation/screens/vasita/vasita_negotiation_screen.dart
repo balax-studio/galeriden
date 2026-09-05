@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
@@ -14,6 +15,7 @@ import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/vasita_negotiation_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/vasita_market_provider.dart';
+import '../../providers/vasita_negotiation_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -36,66 +38,17 @@ class VasitaNegotiationScreen extends ConsumerStatefulWidget {
 
 class _VasitaNegotiationScreenState
     extends ConsumerState<VasitaNegotiationScreen> {
-  late double _offeredPrice;
-  int _sellerPatience = 100;
-  int _bonusChancePercent = 0;
-  final Set<String> _usedTacticIds = {};
-  String _sellerDialogue = '';
-  bool _isProcessing = false;
-  bool _isAccepted = false;
-  bool _isWalkaway = false;
   bool _isInspectionExpanded = false;
-  double? _lastNearMissAmount;
-
-  @override
-  void initState() {
-    super.initState();
-    _offeredPrice = (widget.listing.askingPrice * 0.90).roundToDouble();
-    _sellerDialogue = VasitaNegotiationEngine.generateDynamicSellerDialogue(
-      sellerName: widget.listing.sellerName,
-      sellerTrait: widget.listing.sellerTrait,
-      offeredPrice: _offeredPrice,
-      askingPrice: widget.listing.askingPrice,
-      patience: _sellerPatience,
-    );
-  }
 
   void _resetToAskingPrice() {
-    if (_isAccepted || _isWalkaway || _isProcessing) return;
     HapticFeedback.selectionClick();
-    setState(() {
-      _offeredPrice = widget.listing.askingPrice;
-    });
+    ref.read(vasitaNegotiationProvider(widget.listing).notifier).resetToAskingPrice();
   }
 
   void _executeTactic(VasitaTactic tactic) {
-    if (_usedTacticIds.contains(tactic.id) || _isAccepted || _isProcessing) return;
-    if (_isWalkaway && !tactic.isRescue) return;
-
-    final game = ref.read(gameProvider);
-    final outcome = VasitaNegotiationEngine.rollTactic(
-      tactic: tactic,
-      listing: widget.listing,
-      currentPatience: _sellerPatience,
-      playerLevel: game.level,
-    );
-
-    setState(() {
-      _usedTacticIds.add(tactic.id);
-      _sellerPatience = (_sellerPatience + outcome.patienceChange).clamp(0, 100).toInt();
-      _sellerDialogue = outcome.message;
-
-      if (outcome.isSuccess) {
-        _bonusChancePercent += tactic.baseBonusPercent;
-        if (tactic.isRescue && _isWalkaway) {
-          _isWalkaway = false;
-        }
-      } else if (outcome.isWalkaway) {
-        _isWalkaway = true;
-        // Lock this listing for today
-        ref.read(vasitaLockedListingsProvider.notifier).update((state) => {...state, widget.listing.id});
-      }
-    });
+    final notifier = ref.read(vasitaNegotiationProvider(widget.listing).notifier);
+    final outcome = notifier.executeTactic(tactic);
+    if (outcome == null) return;
 
     HapticFeedback.heavyImpact();
     if (outcome.isWalkaway) {
@@ -117,50 +70,29 @@ class _VasitaNegotiationScreenState
   }
 
   Future<void> _submitOffer() async {
-    if (_isAccepted || _isWalkaway || _isProcessing) return;
+    final currentState = ref.read(vasitaNegotiationProvider(widget.listing));
+    if (currentState.isAccepted || currentState.isWalkaway || currentState.isProcessing) return;
 
-    setState(() {
-      _isProcessing = true;
-      _lastNearMissAmount = null;
-    });
+    final notifier = ref.read(vasitaNegotiationProvider(widget.listing).notifier);
+    notifier.setProcessing(true);
     HapticFeedback.mediumImpact();
 
     // Psychological Suspense: Animated Flowing Thinking Steps
     for (final stepKey in VasitaNegotiationEngine.thinkingStepKeys) {
       if (!mounted) return;
-      setState(() {
-        _sellerDialogue = context.tr(stepKey);
-      });
+      notifier.setDialogue(context.tr(stepKey));
       HapticFeedback.selectionClick();
       await Future.delayed(const Duration(milliseconds: 700));
     }
     if (!mounted) return;
 
-    final game = ref.read(gameProvider);
-    final outcome = VasitaNegotiationEngine.evaluateOffer(
-      listing: widget.listing,
-      offeredPrice: _offeredPrice,
-      currentPatience: _sellerPatience,
-      playerLevel: game.level,
-      extraBonusPercent: _bonusChancePercent / 100.0,
-    );
-
-    setState(() {
-      _isProcessing = false;
-      _sellerPatience = outcome.updatedPatience;
-      _sellerDialogue = outcome.responseMessage;
-      _isAccepted = outcome.isAccepted;
-      _isWalkaway = outcome.isWalkaway;
-      _lastNearMissAmount = outcome.nearMissAmount;
-    });
+    final outcome = notifier.evaluateOffer();
 
     if (outcome.isAccepted) {
       GameSoundHapticService.playCashSuccess();
       _showNoterTransferDialog();
     } else if (outcome.isWalkaway) {
       GameSoundHapticService.playWarningVibration();
-      // Lock this listing for today so seller doesn't sit down again
-      ref.read(vasitaLockedListingsProvider.notifier).update((state) => {...state, widget.listing.id});
     } else {
       GameSoundHapticService.playTapImpact();
     }
@@ -168,7 +100,8 @@ class _VasitaNegotiationScreenState
 
   void _showNoterTransferDialog() {
     final game = ref.read(gameProvider);
-    final noterFee = VasitaNegotiationEngine.calculateNoterFee(_offeredPrice);
+    final offeredPrice = ref.read(vasitaNegotiationProvider(widget.listing)).offeredPrice;
+    final noterFee = VasitaNegotiationEngine.calculateNoterFee(offeredPrice);
     const regFee = VasitaNegotiationEngine.registrationFee;
     final isGarageFull = game.ownedCars.length >= game.maxGarageSlots;
 
@@ -177,7 +110,7 @@ class _VasitaNegotiationScreenState
       car: widget.listing.car,
       buyerName: game.playerName,
       sellerName: widget.listing.sellerName,
-      agreedPrice: _offeredPrice,
+      agreedPrice: offeredPrice,
       noterFee: noterFee,
       registrationFee: regFee,
       playerBalance: game.balance,
@@ -185,7 +118,7 @@ class _VasitaNegotiationScreenState
       onComplete: () {
         final success = ref.read(vasitaMarketProvider.notifier).buyVasitaNegotiated(
               listing: widget.listing,
-              agreedPrice: _offeredPrice,
+              agreedPrice: offeredPrice,
               noterFee: noterFee,
               registrationFee: regFee,
             );
@@ -196,7 +129,8 @@ class _VasitaNegotiationScreenState
               context,
               context.tr('noter_buy_success_toast'),
             );
-            Navigator.of(context).pop();
+            ref.read(vasitaNegotiationProvider(widget.listing).notifier).completeHandover();
+            _showHandoverConfirmationDialog();
           }
         } else {
           if (mounted) {
@@ -213,6 +147,7 @@ class _VasitaNegotiationScreenState
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
+    final negState = ref.watch(vasitaNegotiationProvider(widget.listing));
     final car = widget.listing.car;
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
@@ -220,10 +155,10 @@ class _VasitaNegotiationScreenState
 
     final successChance = VasitaNegotiationEngine.calculateOfferSuccessProbability(
       listing: widget.listing,
-      offeredPrice: _offeredPrice,
-      patience: _sellerPatience,
+      offeredPrice: negState.offeredPrice,
+      patience: negState.sellerPatience,
       playerLevel: game.level,
-      extraBonusPercent: _bonusChancePercent / 100.0,
+      extraBonusPercent: negState.bonusChancePercent / 100.0,
     );
 
     final applicableTactics =
@@ -232,7 +167,7 @@ class _VasitaNegotiationScreenState
     final isGarageFull = game.ownedCars.length >= game.maxGarageSlots;
 
     return PopScope(
-      canPop: !_isProcessing,
+      canPop: !negState.isProcessing,
       child: Scaffold(
         appBar: NeoBrutalAppBar(
           title: context.tr('vasita_negotiation_title'),
@@ -273,27 +208,92 @@ class _VasitaNegotiationScreenState
                 const SizedBox(height: 12),
 
                 // 4. Seller Card with Patience & Dialogue
-                _buildSellerCard(isDark),
+                _buildSellerCard(negState, isDark),
                 const SizedBox(height: 14),
 
                 // 5. Dealer Tactics Section
-                _buildTacticsSection(applicableTactics, isDark),
+                _buildTacticsSection(applicableTactics, negState, isDark),
                 const SizedBox(height: 16),
 
                 // 6. Near-Miss Psychological Feedback Banner
-                if (_lastNearMissAmount != null && !_isAccepted && !_isWalkaway)
-                  _buildNearMissCard(isDark),
+                if (negState.lastNearMissAmount != null && !negState.isAccepted && !negState.isWalkaway)
+                  _buildNearMissCard(negState.lastNearMissAmount!, isDark),
 
                 // 7. Offer & Slider Card
-                _buildOfferControlCard(successChance, isDark),
+                _buildOfferControlCard(negState, successChance, isDark),
                 const SizedBox(height: 14),
 
                 // 8. Action Button
-                _buildActionButton(isGarageFull, game.balance),
+                _buildActionButton(negState, isGarageFull, game.balance, isDark),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showHandoverConfirmationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.black, width: 3),
+        ),
+        title: Text(
+          context.tr('vasita_handover_dialog_title'),
+          style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.black),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${widget.listing.sellerName} • ${context.tr('vasita_handover_dialog_desc')}',
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.black87),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00E575).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF00E575), width: 2),
+              ),
+              child: Text(
+                context.tr('vasita_handover_market_cleaned_notice'),
+                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: Colors.black),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          NeoBrutalButton(
+            label: context.tr('vasita_seller_handover_market_btn'),
+            backgroundColor: const Color(0xFFE2E8F0),
+            textColor: Colors.black,
+            fontSize: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              Navigator.of(context).pop();
+            },
+          ),
+          NeoBrutalButton(
+            label: context.tr('vasita_seller_handover_garage_btn'),
+            backgroundColor: const Color(0xFF00E575),
+            textColor: Colors.black,
+            fontSize: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              context.go('/inventory');
+            },
+          ),
+        ],
       ),
     );
   }
@@ -542,6 +542,10 @@ class _VasitaNegotiationScreenState
                     tagColor = const Color(0xFFF59E0B);
                     statusLabel = context.tr('vasita_expertise_paint_local');
                     break;
+                  case PartStatus.localPainted:
+                    tagColor = const Color(0xFFA855F7);
+                    statusLabel = context.tr('vasita_expertise_local_painted');
+                    break;
                   case PartStatus.changed:
                   case PartStatus.damaged:
                     tagColor = const Color(0xFFEF4444);
@@ -622,11 +626,11 @@ class _VasitaNegotiationScreenState
     );
   }
 
-  Widget _buildSellerCard(bool isDark) {
+  Widget _buildSellerCard(VasitaNegotiationState negState, bool isDark) {
     Color patienceColor = const Color(0xFF10B981);
-    if (_sellerPatience < 40) {
+    if (negState.sellerPatience < 40) {
       patienceColor = const Color(0xFFEF4444);
-    } else if (_sellerPatience < 70) {
+    } else if (negState.sellerPatience < 70) {
       patienceColor = const Color(0xFFF59E0B);
     }
 
@@ -668,7 +672,7 @@ class _VasitaNegotiationScreenState
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${context.tr('vasita_label_patience')}: %$_sellerPatience',
+                    '${context.tr('vasita_label_patience')}: %${negState.sellerPatience}',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -681,7 +685,7 @@ class _VasitaNegotiationScreenState
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
-                        value: (_sellerPatience / 100.0).clamp(0.0, 1.0),
+                        value: (negState.sellerPatience / 100.0).clamp(0.0, 1.0),
                         backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
                         valueColor: AlwaysStoppedAnimation<Color>(patienceColor),
                         minHeight: 5,
@@ -712,7 +716,7 @@ class _VasitaNegotiationScreenState
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _sellerDialogue,
+                    negState.sellerDialogue,
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
@@ -728,7 +732,7 @@ class _VasitaNegotiationScreenState
     );
   }
 
-  Widget _buildTacticsSection(List<VasitaTactic> tactics, bool isDark) {
+  Widget _buildTacticsSection(List<VasitaTactic> tactics, VasitaNegotiationState negState, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -739,9 +743,9 @@ class _VasitaNegotiationScreenState
               context.tr('vasita_tactics_header'),
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
             ),
-            if (_bonusChancePercent > 0)
+            if (negState.bonusChancePercent > 0)
               Text(
-                '${context.tr('vasita_label_bonus_chance')}: +%$_bonusChancePercent',
+                '${context.tr('vasita_label_bonus_chance')}: +%${negState.bonusChancePercent}',
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
@@ -759,8 +763,8 @@ class _VasitaNegotiationScreenState
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final tactic = tactics[index];
-              final isUsed = _usedTacticIds.contains(tactic.id);
-              final canUse = !isUsed && !_isAccepted && !_isProcessing && (!_isWalkaway || tactic.isRescue);
+              final isUsed = negState.usedTacticIds.contains(tactic.id);
+              final canUse = !isUsed && !negState.isAccepted && !negState.isProcessing && (!negState.isWalkaway || tactic.isRescue);
 
               return GestureDetector(
                 onTap: canUse ? () => _executeTactic(tactic) : null,
@@ -831,7 +835,7 @@ class _VasitaNegotiationScreenState
     );
   }
 
-  Widget _buildOfferControlCard(int successChance, bool isDark) {
+  Widget _buildOfferControlCard(VasitaNegotiationState negState, int successChance, bool isDark) {
     final askingPrice = widget.listing.askingPrice;
     final safeMax = askingPrice > 1000.0 ? askingPrice : 1000.0;
     final rawMin = (safeMax * 0.50).roundToDouble();
@@ -879,7 +883,7 @@ class _VasitaNegotiationScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                CurrencyFormatter.format(_offeredPrice),
+                CurrencyFormatter.format(negState.offeredPrice),
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
@@ -918,14 +922,14 @@ class _VasitaNegotiationScreenState
               trackHeight: 6,
             ),
             child: Slider(
-              value: _offeredPrice.clamp(minOffer, maxOffer),
+              value: negState.offeredPrice.clamp(minOffer, maxOffer),
               min: minOffer,
               max: maxOffer,
               divisions: 50,
-              onChanged: (_isAccepted || _isWalkaway || _isProcessing)
+              onChanged: (negState.isAccepted || negState.isWalkaway || negState.isProcessing)
                   ? null
                   : (val) {
-                      setState(() => _offeredPrice = (val / 1000).round() * 1000.0);
+                      ref.read(vasitaNegotiationProvider(widget.listing).notifier).updateOfferPrice((val / 1000).round() * 1000.0);
                     },
             ),
           ),
@@ -934,8 +938,36 @@ class _VasitaNegotiationScreenState
     );
   }
 
-  Widget _buildActionButton(bool isGarageFull, double playerBalance) {
-    if (_isAccepted) {
+  Widget _buildActionButton(VasitaNegotiationState negState, bool isGarageFull, double playerBalance, bool isDark) {
+    if (negState.isHandoverCompleted) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          NeoBrutalButton(
+            label: context.tr('vasita_seller_handover_garage_btn'),
+            icon: Icons.garage_rounded,
+            fullWidth: true,
+            backgroundColor: const Color(0xFF00E575),
+            textColor: Colors.black,
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/inventory');
+            },
+          ),
+          const SizedBox(height: 8),
+          NeoBrutalButton(
+            label: context.tr('vasita_seller_handover_market_btn'),
+            icon: Icons.storefront_rounded,
+            fullWidth: true,
+            backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+            textColor: isDark ? Colors.white : Colors.black,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      );
+    }
+
+    if (negState.isAccepted) {
       return NeoBrutalButton(
         label: context.tr('vasita_btn_complete_noter'),
         icon: Icons.verified_user_rounded,
@@ -946,8 +978,8 @@ class _VasitaNegotiationScreenState
       );
     }
 
-    if (_isWalkaway) {
-      final hasRescueTea = !_usedTacticIds.contains('sanayi_cayi');
+    if (negState.isWalkaway) {
+      final hasRescueTea = !negState.usedTacticIds.contains('sanayi_cayi');
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -977,20 +1009,19 @@ class _VasitaNegotiationScreenState
       );
     }
 
-    final canAfford = playerBalance >= _offeredPrice;
-    final isWalkaway = _isWalkaway;
+    final canAfford = playerBalance >= negState.offeredPrice;
 
     final String buttonLabel;
     final Color buttonColor;
     final IconData buttonIcon;
     final VoidCallback? buttonAction;
 
-    if (_isProcessing) {
+    if (negState.isProcessing) {
       buttonLabel = '...';
       buttonColor = const Color(0xFF94A3B8);
       buttonIcon = Icons.hourglass_top_rounded;
       buttonAction = null;
-    } else if (isWalkaway) {
+    } else if (negState.isWalkaway) {
       buttonLabel = context.tr('vasita_btn_seller_walked');
       buttonColor = const Color(0xFFEF4444);
       buttonIcon = Icons.cancel_rounded;
@@ -1022,9 +1053,9 @@ class _VasitaNegotiationScreenState
     );
   }
 
-  Widget _buildNearMissCard(bool isDark) {
-    final diffText = CurrencyFormatter.format(_lastNearMissAmount!);
-    final msg = context.tr('vasita_near_miss_message').replaceAll('{amount}', diffText);
+  Widget _buildNearMissCard(double nearMissAmount, bool isDark) {
+    final diffText = CurrencyFormatter.format(nearMissAmount);
+    final msg = context.tr('vasita_near_miss_message', {'amount': diffText});
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1068,7 +1099,7 @@ class _VasitaNegotiationScreenState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              context.tr('vasita_sunk_cost_warning'),
+              context.tr('vasita_sunk_cost_warning', {'amount': '3.500'}),
               style: TextStyle(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w800,

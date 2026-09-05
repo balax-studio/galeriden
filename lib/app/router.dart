@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import '../data/models/car_model.dart';
 import '../data/models/listing_model.dart';
+import '../data/models/vehicle_category.dart';
 import '../presentation/screens/dashboard/dashboard_screen.dart';
 import '../presentation/screens/expertise/expertise_screen.dart';
 import '../presentation/screens/marketplace/listing_detail_screen.dart';
@@ -279,6 +280,9 @@ final appRouter = GoRouter(
         final listing = state.extra as ListingModel?;
         if (listing == null) {
           return _buildCupertinoPage(const MarketplaceScreen(), state);
+        }
+        if (listing.car.vehicleCategory != VehicleCategory.car) {
+          return _buildCupertinoPage(VasitaNegotiationScreen(listing: listing), state);
         }
         return _buildCupertinoPage(NegotiationScreen(listing: listing), state);
       },

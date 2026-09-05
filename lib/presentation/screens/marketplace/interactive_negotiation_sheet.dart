@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/listing_model.dart';
+import '../../../data/models/vehicle_category.dart';
+import '../vasita/vasita_negotiation_screen.dart';
 import 'negotiation_screen.dart';
 
 /// Legacy Compatibility Sheet Wrapper
-/// Forwards directly to [NegotiationScreen] for zero frame drops and unified architecture.
+/// Forwards directly to [VasitaNegotiationScreen] or [NegotiationScreen] based on vehicle category.
 class InteractiveNegotiationSheet extends StatelessWidget {
   final ListingModel listing;
 
@@ -14,6 +16,9 @@ class InteractiveNegotiationSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (listing.car.vehicleCategory != VehicleCategory.car) {
+      return VasitaNegotiationScreen(listing: listing);
+    }
     return NegotiationScreen(listing: listing);
   }
 }

@@ -77,7 +77,8 @@ class _OrderPartsSheetState extends State<OrderPartsSheet> {
     widget.car.expertise.bodyParts.forEach((part, status) {
       if (status == PartStatus.changed ||
           status == PartStatus.damaged ||
-          status == PartStatus.painted) {
+          status == PartStatus.painted ||
+          status == PartStatus.localPainted) {
         needed.add(part);
       }
     });

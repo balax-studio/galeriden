@@ -13,6 +13,7 @@ import '../../../core/utils/notification_service.dart';
 import '../../../data/models/auction_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../domain/usecases/auction_engine.dart';
+import '../../providers/auction_session_provider.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -34,32 +35,21 @@ class AuctionScreen extends ConsumerStatefulWidget {
 
 class _AuctionScreenState extends ConsumerState<AuctionScreen>
     with SingleTickerProviderStateMixin {
-  late AuctionModel _auction;
-  List<UpcomingLotModel> _upcomingLots = [];
-  Timer? _timer;
-  bool _hasPlayerEnteredBid = false;
-  bool _isHandlingAuctionEnd = false;
-  bool _hasExtendedAuction = false;
-  bool _hasBluffedInCurrentAuction = false;
-  final List<String> _bidLogs = [];
   late AnimationController _pulseController;
-  int _closedCountdown = 0;
-  bool _isWindowOpen = true;
-  bool _isOfficerConsulted = false;
-  String? _officerSpeech;
   int _selectedTabIndex = 0;
   bool _isAuctionInitialized = false;
-  bool _isVipSession = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isAuctionInitialized) {
       _isAuctionInitialized = true;
-      _bidLogs.add(context.tr('auction_session_started'));
-      _bidLogs.add(context.tr('auction_starting_price_log', {
-        'price': CurrencyFormatter.formatShort(_auction.startingPrice),
+      final notifier = ref.read(auctionSessionProvider.notifier);
+      final auction = ref.read(auctionSessionProvider).auction;
+      notifier.addBidLog(context.tr('auction_starting_price_log', {
+        'price': CurrencyFormatter.formatShort(auction.startingPrice),
       }));
+      notifier.addBidLog(context.tr('auction_session_started'));
     }
   }
 
@@ -71,120 +61,13 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
-
-    _isWindowOpen = AuctionEngine.isAuctionActiveNow();
-    _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
-
-    final game = ref.read(gameProvider);
-    _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-    _upcomingLots =
-        AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level);
-
-    _startAuctionTimer();
-  }
-
-  void _startAuctionTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
-
-      final windowNow = AuctionEngine.isAuctionActiveNow();
-
-      // Only transition to closed if not currently handling an active player round/dialog
-      if (windowNow != _isWindowOpen) {
-        if (windowNow ||
-            (!_isHandlingAuctionEnd &&
-                !_hasPlayerEnteredBid &&
-                _auction.secondsRemaining <= 0)) {
-          setState(() {
-            _isWindowOpen = windowNow;
-            if (_isWindowOpen) {
-              final game = ref.read(gameProvider);
-              _auction =
-                  AuctionEngine.createLiveAuction(playerLevel: game.level);
-              _upcomingLots = AuctionEngine.generateUpcomingLots(
-                  count: 3, playerLevel: game.level);
-              _isOfficerConsulted = false;
-              _officerSpeech = null;
-            }
-          });
-        }
-      }
-
-      if (!_isWindowOpen) {
-        final remaining = AuctionEngine.getSecondsUntilNextAuction();
-        setState(() {
-          _closedCountdown = remaining;
-          if (remaining <= 0) {
-            AuctionEngine.openSessionImmediately();
-            _isWindowOpen = true;
-            final game = ref.read(gameProvider);
-            _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-            _upcomingLots = AuctionEngine.generateUpcomingLots(
-                count: 3, playerLevel: game.level);
-            _isOfficerConsulted = false;
-            _officerSpeech = null;
-          }
-        });
-        return;
-      }
-
-      if (_auction.secondsRemaining <= 1) {
-        _timer?.cancel();
-        if (_isHandlingAuctionEnd) return;
-        _isHandlingAuctionEnd = true;
-
-        setState(() {
-          _auction = _auction.copyWith(
-              secondsRemaining: 0, status: AuctionStatus.ended);
-        });
-        _handleAuctionEnd();
-        return;
-      }
-
-      setState(() {
-        _auction =
-            _auction.copyWith(secondsRemaining: _auction.secondsRemaining - 1);
-      });
-
-      final wasPlayerLeadingBefore = _auction.isPlayerHighestBidder;
-
-      // Process rival bot bid
-      final updated = AuctionEngine.processRivalBid(_auction);
-      if (updated != null) {
-        GameSoundHapticService.playAuctionBid();
-        final wasOvertaken =
-            wasPlayerLeadingBefore && !updated.isPlayerHighestBidder;
-        if (wasOvertaken) {
-          HapticFeedback.vibrate();
-        }
-        setState(() {
-          _auction = updated;
-          if (updated.isAntiSnipingTriggered) {
-            _bidLogs.insert(
-              0,
-              context.tr('auction_anti_sniping_log', {'sec': '15'}),
-            );
-          }
-          _bidLogs.insert(
-              0,
-              context.tr('auction_bid_raised_log', {
-                'bidder': updated.highestBidderName,
-                'price': CurrencyFormatter.formatShort(updated.currentBid),
-              }));
-        });
-      } else if (_auction.isHeartbeatPhase &&
-          _auction.secondsRemaining <= 3 &&
-          _auction.secondsRemaining > 0) {
-        HapticFeedback.heavyImpact();
-      } else if (_auction.isHeartbeatPhase && _auction.secondsRemaining <= 5) {
-        HapticFeedback.selectionClick();
-      }
-    });
   }
 
   void _placePlayerBid(double increment, {bool isAggressiveFlag = false}) {
-    if (_auction.isPlayerHighestBidder) {
+    final auctionState = ref.read(auctionSessionProvider);
+    final auction = auctionState.auction;
+
+    if (auction.isPlayerHighestBidder) {
       NotificationService.showInfo(
           context, context.tr('auction_highest_bid_yours'));
       return;
@@ -197,7 +80,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       return;
     }
 
-    final nextBid = _auction.currentBid + increment;
+    final nextBid = auction.currentBid + increment;
 
     if (game.balance < nextBid) {
       NotificationService.showError(
@@ -205,46 +88,36 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       return;
     }
 
-    final wasLateBid = _auction.secondsRemaining <= 5;
+    final wasLateBid = auction.secondsRemaining <= 5;
     final nextSeconds = wasLateBid
-        ? math.min(_auction.secondsRemaining + 15, 60)
-        : _auction.secondsRemaining;
+        ? math.min(auction.secondsRemaining + 15, 60)
+        : auction.secondsRemaining;
     final extensions = wasLateBid
-        ? _auction.antiSnipingCount + 1
-        : _auction.antiSnipingCount;
+        ? auction.antiSnipingCount + 1
+        : auction.antiSnipingCount;
 
     GameSoundHapticService.playAuctionBid();
     ref
         .read(gameProvider.notifier)
         .updateMissionProgress(MissionType.auctionBid, 1);
-    setState(() {
-      _hasPlayerEnteredBid = true;
-      _auction = _auction.copyWith(
-        currentBid: nextBid,
-        highestBidderName:
-            '${game.dealershipName} • ${context.tr('profile_player_suffix')}',
-        isPlayerHighestBidder: true,
-        secondsRemaining: nextSeconds,
-        antiSnipingCount: extensions,
-        isAntiSnipingTriggered: wasLateBid,
-        activeSpeech:
-            isAggressiveFlag ? context.tr('auction_flag_raised_speech') : null,
-        activeSpeakerName: isAggressiveFlag ? game.dealershipName : null,
-      );
-      if (wasLateBid) {
-        _bidLogs.insert(
-          0,
-          context.tr('auction_anti_sniping_log', {'sec': '15'}),
+
+    final bidLogText = isAggressiveFlag
+        ? context.tr('auction_aggressive_flag_bid',
+            {'price': CurrencyFormatter.formatShort(nextBid)})
+        : context.tr('auction_your_bid_log',
+            {'price': CurrencyFormatter.formatShort(nextBid)});
+
+    ref.read(auctionSessionProvider.notifier).recordPlayerBid(
+          nextBid: nextBid,
+          highestBidderName:
+              '${game.dealershipName} • ${context.tr('profile_player_suffix')}',
+          nextSeconds: nextSeconds,
+          antiSnipingCount: extensions,
+          wasLateBid: wasLateBid,
+          speech: isAggressiveFlag ? context.tr('auction_flag_raised_speech') : null,
+          speakerName: isAggressiveFlag ? game.dealershipName : null,
+          bidLogText: bidLogText,
         );
-      }
-      _bidLogs.insert(
-          0,
-          isAggressiveFlag
-              ? context.tr('auction_aggressive_flag_bid',
-                  {'price': CurrencyFormatter.formatShort(nextBid)})
-              : context.tr('auction_your_bid_log',
-                  {'price': CurrencyFormatter.formatShort(nextBid)}));
-    });
 
     if (wasLateBid) {
       HapticFeedback.heavyImpact();
@@ -256,19 +129,22 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
   }
 
   void _executeTrollBluff() {
-    if (_hasBluffedInCurrentAuction) {
+    final auctionState = ref.read(auctionSessionProvider);
+    final auction = auctionState.auction;
+
+    if (auctionState.hasBluffedInCurrentAuction) {
       NotificationService.showWarning(
           context, context.tr('auction_bluff_already_used'));
       return;
     }
 
-    if (_auction.isPlayerHighestBidder) {
+    if (auction.isPlayerHighestBidder) {
       NotificationService.showWarning(
           context, context.tr('auction_already_leading'));
       return;
     }
 
-    final activeRivals = _auction.rivals.where((r) => !r.isFolded).toList();
+    final activeRivals = auction.rivals.where((r) => !r.isFolded).toList();
     if (activeRivals.isEmpty) {
       NotificationService.showInfo(context, context.tr('auction_all_folded'));
       return;
@@ -300,58 +176,32 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       toastMsg = context.tr('auction_bluff_toast', {'name': rName});
     }
 
-    final bluffBid = _auction.currentBid + 20000.0;
+    final bluffBid = auction.currentBid + 20000.0;
     final counterBid = bluffBid + extraCounter;
 
-    setState(() {
-      _hasPlayerEnteredBid = false;
-      _hasBluffedInCurrentAuction = true;
-      _auction = _auction.copyWith(
-        currentBid: counterBid,
-        highestBidderName: targetRival.name,
-        isPlayerHighestBidder: false,
-        activeSpeech: dialogue,
-        activeSpeakerName: targetRival.name,
-        secondsRemaining: 3,
-      );
-      _bidLogs.insert(
-          0,
-          context.tr('auction_bluff_move_log', {
+    ref.read(auctionSessionProvider.notifier).recordBluff(
+          counterBid: counterBid,
+          rivalName: targetRival.name,
+          dialogue: dialogue,
+          logText: context.tr('auction_bluff_move_log', {
             'name': rName,
             'price': CurrencyFormatter.formatShort(counterBid),
-          }));
-    });
+          }),
+        );
 
     ref.read(gameProvider.notifier).addXP(earnedXp);
     NotificationService.showSuccess(context, toastMsg);
   }
 
   void _resetAuctionSilently() {
-    _timer?.cancel();
     if (!mounted) return;
     final game = ref.read(gameProvider);
-    final isNowOpen = AuctionEngine.isAuctionActiveNow();
-
-    setState(() {
-      _isHandlingAuctionEnd = false;
-      _hasPlayerEnteredBid = false;
-      _hasExtendedAuction = false;
-      _hasBluffedInCurrentAuction = false;
-      _isWindowOpen = isNowOpen;
-      _closedCountdown = AuctionEngine.getSecondsUntilNextAuction();
-
-      if (_isWindowOpen) {
-        _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-        _upcomingLots = AuctionEngine.generateUpcomingLots(
-            count: 3, playerLevel: game.level);
-        _bidLogs.clear();
-        _bidLogs.add(context.tr('auction_new_car_table'));
-        _bidLogs.add(context.tr('auction_starting_price_log',
-            {'price': CurrencyFormatter.formatShort(_auction.startingPrice)}));
-      }
-    });
-
-    _startAuctionTimer();
+    final notifier = ref.read(auctionSessionProvider.notifier);
+    notifier.resetRound(playerLevel: game.level);
+    notifier.addBidLog(context.tr('auction_starting_price_log', {
+      'price': CurrencyFormatter.formatShort(ref.read(auctionSessionProvider).auction.startingPrice),
+    }));
+    notifier.addBidLog(context.tr('auction_new_car_table'));
   }
 
   void _showTrunkLootDialog(TrunkLoot loot) {
@@ -379,24 +229,24 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
     );
   }
 
-  void _handleAuctionEnd() {
-    if (!_hasPlayerEnteredBid && !_auction.isPlayerHighestBidder) {
-      setState(() {
-        _bidLogs.insert(
-            0,
-            context.tr('auction_ended_winner',
-                {'winner': _auction.highestBidderName}));
-      });
+  void _handleAuctionEnd(AuctionSessionState auctionState) {
+    final auction = auctionState.auction;
+    final notifier = ref.read(auctionSessionProvider.notifier);
+
+    if (!auctionState.hasPlayerEnteredBid && !auction.isPlayerHighestBidder) {
+      notifier.addBidLog(
+        context.tr('auction_ended_winner', {'winner': auction.highestBidderName}),
+      );
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) _resetAuctionSilently();
       });
       return;
     }
 
-    if (_auction.isPlayerHighestBidder) {
+    if (auction.isPlayerHighestBidder) {
       final success = ref
           .read(gameProvider.notifier)
-          .buyCarDirectly(_auction.car, _auction.currentBid);
+          .buyCarDirectly(auction.car, auction.currentBid);
       if (!success) {
         NotificationService.showError(
             context, context.tr('auction_win_failed_funds'));
@@ -411,11 +261,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
         barrierDismissible: false,
         builder: (ctx) {
           return AuctionWonDialog(
-            auction: _auction,
+            auction: auction,
             onOpenTrunk: () {
               Navigator.of(ctx).pop();
               if (mounted) {
-                _showTrunkLootDialog(_auction.customsNote.trunkLoot);
+                _showTrunkLootDialog(auction.customsNote.trunkLoot);
               }
             },
             onGoToShowroom: () {
@@ -433,19 +283,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
         barrierDismissible: false,
         builder: (ctx) {
           return AuctionLostDialog(
-            auction: _auction,
-            hasExtendedAuction: _hasExtendedAuction,
-            hasPlayerEnteredBid: _hasPlayerEnteredBid,
+            auction: auction,
+            hasExtendedAuction: auctionState.hasExtendedAuction,
+            hasPlayerEnteredBid: auctionState.hasPlayerEnteredBid,
             onExtendAuction: () {
-              setState(() {
-                _isHandlingAuctionEnd = false;
-                _hasExtendedAuction = true;
-                _auction = _auction.copyWith(
-                  secondsRemaining: 15,
-                  status: AuctionStatus.active,
-                );
-                _startAuctionTimer();
-              });
+              notifier.extendAuction();
             },
             onNextAuction: () {
               Navigator.of(ctx).pop();
@@ -461,7 +303,6 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
 
   @override
   void dispose() {
-    _timer?.cancel();
     _pulseController.dispose();
     super.dispose();
   }
@@ -483,45 +324,39 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       context: context,
       customRewardTitle: context.tr('auction_vip_ad_reward'),
       onRewardEarned: () {
-        setState(() {
-          _isVipSession = true;
-          _selectedTabIndex = 1;
-          _auction = AuctionEngine.createVipAuction(playerLevel: game.level);
-          _bidLogs.clear();
-          _bidLogs.add(context.tr('auction_vip_session_started'));
-          _bidLogs.add(context.tr('auction_starting_price_log', {
-            'price': CurrencyFormatter.formatShort(_auction.startingPrice),
-          }));
-          _hasPlayerEnteredBid = false;
-          _hasExtendedAuction = false;
-          _isHandlingAuctionEnd = false;
-        });
-        _startAuctionTimer();
+        setState(() => _selectedTabIndex = 1);
+        final notifier = ref.read(auctionSessionProvider.notifier);
+        final tempVip = AuctionEngine.createVipAuction(playerLevel: game.level);
+        notifier.startVipAuction(
+          playerLevel: game.level,
+          startedLog: context.tr('auction_vip_session_started'),
+          startingPriceLog: context.tr('auction_starting_price_log', {
+            'price': CurrencyFormatter.formatShort(tempVip.startingPrice),
+          }),
+        );
       },
     );
   }
 
   void _switchToStandardAuction() {
     final game = ref.read(gameProvider);
-    setState(() {
-      _isVipSession = false;
-      _selectedTabIndex = 0;
-      _auction = AuctionEngine.createLiveAuction(playerLevel: game.level);
-      _bidLogs.clear();
-
-      _hasPlayerEnteredBid = false;
-      _hasExtendedAuction = false;
-      _isHandlingAuctionEnd = false;
-    });
-    _startAuctionTimer();
+    setState(() => _selectedTabIndex = 0);
+    ref.read(auctionSessionProvider.notifier).startStandardAuction(playerLevel: game.level);
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuctionSessionState>(auctionSessionProvider, (prev, next) {
+      if (next.isHandlingAuctionEnd && !(prev?.isHandlingAuctionEnd ?? false)) {
+        _handleAuctionEnd(next);
+      }
+    });
+
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
     final game = ref.watch(gameProvider);
+    final auctionState = ref.watch(auctionSessionProvider);
 
     if (!game.isFeatureUnlocked('/auction')) {
       return Scaffold(
@@ -552,7 +387,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       backgroundColor:
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       appBar: NeoBrutalAppBar(
-        title: _isVipSession
+        title: auctionState.isVipSession
             ? context.tr('auction_vip_title')
             : context.tr('auction_title'),
         actions: [
@@ -560,14 +395,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
             padding: const EdgeInsets.only(right: 14),
             child: Center(
               child: NeoBrutalBadge(
-                text: _isVipSession
+                text: auctionState.isVipSession
                     ? context.tr('auction_badge_vip')
-                    : (_isWindowOpen
+                    : (auctionState.isWindowOpen
                         ? context.tr('auction_live_badge')
                         : context.tr('auction_closed_badge')),
-                backgroundColor: _isVipSession
+                backgroundColor: auctionState.isVipSession
                     ? const Color(0xFF7C3AED)
-                    : (_isWindowOpen
+                    : (auctionState.isWindowOpen
                         ? AppColors.errorRed
                         : const Color(0xFF64748B)),
                 textColor: Colors.white,
@@ -576,28 +411,21 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
           ),
         ],
       ),
-      body: !_isWindowOpen
+      body: !auctionState.isWindowOpen
           ? AuctionClosedWindowView(
               isDark: isDark,
-              closedCountdown: _closedCountdown,
-              isOfficerConsulted: _isOfficerConsulted,
-              officerSpeech: _officerSpeech,
+              closedCountdown: auctionState.closedCountdown,
+              isOfficerConsulted: auctionState.isOfficerConsulted,
+              officerSpeech: auctionState.officerSpeech,
               onRefresh: () async {
                 HapticFeedback.mediumImpact();
                 await Future.delayed(const Duration(milliseconds: 350));
                 if (mounted) {
-                  setState(() {
-                    _closedCountdown =
-                        AuctionEngine.getSecondsUntilNextAuction();
-                    _isWindowOpen = AuctionEngine.isAuctionActiveNow();
-                  });
+                  ref.read(auctionSessionProvider.notifier).refreshWindow();
                 }
               },
               onConsultOfficer: (speech) {
-                setState(() {
-                  _isOfficerConsulted = true;
-                  _officerSpeech = speech;
-                });
+                ref.read(auctionSessionProvider.notifier).consultOfficer(speech);
               },
             )
           : Column(
@@ -800,7 +628,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                                   const SizedBox(width: 4),
                                   Text(
                                     context.tr('auction_tab_catalog', {
-                                      'count': '${_upcomingLots.length}',
+                                      'count': '${auctionState.upcomingLots.length}',
                                     }),
                                     style: TextStyle(
                                       fontSize: 11,
@@ -890,17 +718,17 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                 Expanded(
                   child: (_selectedTabIndex == 0 || _selectedTabIndex == 1)
                       ? AuctionLiveBiddingView(
-                          auction: _auction,
-                          bidLogs: _bidLogs,
+                          auction: auctionState.auction,
+                          bidLogs: auctionState.bidLogs,
                           isDark: isDark,
                           playerBalance: game.balance,
-                          hasPlayerEnteredBid: _hasPlayerEnteredBid,
+                          hasPlayerEnteredBid: auctionState.hasPlayerEnteredBid,
                           onPlaceBid: _placePlayerBid,
                           onBluff: _executeTrollBluff,
                         )
                       : (_selectedTabIndex == 2
                           ? AuctionUpcomingCatalogTab(
-                              upcomingLots: _upcomingLots,
+                              upcomingLots: auctionState.upcomingLots,
                               isDark: isDark,
                             )
                           : AuctionSellTab(

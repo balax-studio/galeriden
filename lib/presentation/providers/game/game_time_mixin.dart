@@ -16,7 +16,6 @@ import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/black_market_car_model.dart';
 import '../../../data/models/story_card_model.dart';
 import '../../../data/models/dramatic_card_model.dart';
-import '../../../data/models/dealership_model.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/mission_model.dart';
@@ -25,6 +24,7 @@ import '../../../data/models/trade_in_offer_model.dart';
 import '../../../data/models/customer_crm_event_model.dart';
 import '../../../data/models/active_service_job_model.dart';
 import '../../../data/models/real_estate_model.dart';
+import '../../../data/models/real_estate_offer_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/dramatic_card_engine.dart';
 import '../../../domain/usecases/random_event_engine.dart';
@@ -37,10 +37,12 @@ import '../../../domain/usecases/district_economy_engine.dart';
 import '../../../domain/usecases/black_market_engine.dart';
 import '../../../domain/usecases/loan_settlement_engine.dart';
 import '../../../domain/usecases/stock_market_engine.dart';
-import '../../../domain/usecases/rental_progression_engine.dart';
 import '../../../domain/usecases/side_business_engine.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/gossip_item_model.dart';
+import '../../../domain/services/daily_loan_processor.dart';
+import '../../../domain/services/daily_rental_processor.dart';
+import '../../../domain/services/daily_staff_processor.dart';
 
 import 'game_base_notifier.dart';
 
@@ -398,218 +400,28 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   (double, List<StaffModel>, List<GameEventModel>) _processSalaries(
       double balance, List<StaffModel> staff, List<GameEventModel> events) {
-    if (staff.isEmpty) return (balance, staff, events);
-
-    // 1. Process staff training progression & graduations
-    List<StaffModel> updatedStaff = [];
-    for (final s in staff) {
-      if (s.isUnderTraining) {
-        final remaining = s.trainingDaysRemaining - 1;
-        if (remaining <= 0) {
-          final courseId = s.currentTrainingCourseId;
-          final course = courseId != null
-              ? StaffRoleSpecializations.allCourses.firstWhere(
-                  (c) => c.id == courseId,
-                  orElse: () => StaffRoleSpecializations.allCourses.first,
-                )
-              : null;
-          final updatedCourses = courseId != null &&
-                  !s.completedCourseIds.contains(courseId)
-              ? [...s.completedCourseIds, courseId]
-              : s.completedCourseIds;
-          StaffPerk? assignedPerk = s.perk;
-          if (assignedPerk == null) {
-            switch (s.role) {
-              case StaffRole.washer:
-                assignedPerk = StaffPerk.meticulous;
-                break;
-              case StaffRole.apprentice:
-                assignedPerk = StaffPerk.hardWorker;
-                break;
-              case StaffRole.salesman:
-                assignedPerk = StaffPerk.silverTongue;
-                break;
-              case StaffRole.masterMechanic:
-              case StaffRole.appraiser:
-                assignedPerk = StaffPerk.meticulous;
-                break;
-              case StaffRole.marketer:
-                assignedPerk = StaffPerk.silverTongue;
-                break;
-              case StaffRole.legalAdvisor:
-                assignedPerk = StaffPerk.thrifty;
-                break;
-            }
-          }
-          final newMorale = min(100, s.morale + 25);
-          final newMastery = min(5, s.masteryLevel + 1);
-          updatedStaff.add(s.copyWith(
-            completedCourseIds: updatedCourses,
-            morale: newMorale,
-            masteryLevel: newMastery,
-            perk: assignedPerk,
-            specialization: course?.title ?? s.specialization,
-            isUnderTraining: false,
-            trainingDaysRemaining: 0,
-            totalTrainingDays: 0,
-            currentTrainingCourseId: null,
-          ));
-          events.insert(
-            0,
-            GameEventModel(
-              id: 'staff_grad_${DateTime.now().millisecondsSinceEpoch}_${s.id}',
-              title: 'USTALIK MEZUNİYETİ!',
-              description:
-                  '${s.name}, ${course?.title ?? "kurs"} eğitimini üstün başarıyla tamamladı ve diplomasını alarak görevine döndü!',
-              type: GameEventType.goodEvent,
-              amount: 0.0,
-              date: DateTime.now(),
-            ),
-          );
-        } else {
-          final newEnergy = max(0, s.energy - 10);
-          updatedStaff.add(s.copyWith(
-            trainingDaysRemaining: remaining,
-            energy: newEnergy,
-          ));
-        }
-      } else if (s.isOnLeave) {
-        final remainingLeave = s.leaveDaysRemaining - 1;
-        final recoveredEnergy = min(100, s.energy + 50);
-        final refreshedMorale = min(100, s.morale + 5);
-        if (remainingLeave <= 0) {
-          updatedStaff.add(s.copyWith(
-            isOnLeave: false,
-            leaveDaysRemaining: 0,
-            energy: recoveredEnergy,
-            morale: refreshedMorale,
-          ));
-          events.insert(
-            0,
-            GameEventModel(
-              id: 'staff_leave_end_${DateTime.now().millisecondsSinceEpoch}_${s.id}',
-              title: 'PERSONEL İZİNDEN DÖNDÜ!',
-              description:
-                  '${s.name} dinlenme iznini tamamladı, enerjisini toplayarak - %$recoveredEnergy Enerji ile - göreve geri döndü!',
-              type: GameEventType.goodEvent,
-              amount: 0.0,
-              date: DateTime.now(),
-            ),
-          );
-        } else {
-          updatedStaff.add(s.copyWith(
-            leaveDaysRemaining: remainingLeave,
-            energy: recoveredEnergy,
-            morale: refreshedMorale,
-          ));
-        }
-      } else {
-        // Working staff daily fatigue
-        final decay = s.perk == StaffPerk.hardWorker ? 8 : 12;
-        final newEnergy = max(0, s.energy - decay);
-        updatedStaff.add(s.copyWith(energy: newEnergy));
-      }
-    }
-
-    // 2. Process daily salaries and morale
-    double totalSalaries = updatedStaff.fold(0.0, (sum, st) => sum + st.dailySalary);
-    if (state.specializationPath == SpecializationPath.boss) {
-      totalSalaries *= 0.80;
-    }
-
-    if (balance >= totalSalaries) {
-      final finalStaff = updatedStaff
-          .map((s) => s.copyWith(morale: min(100, s.morale + 1)))
-          .toList();
-      return (balance - totalSalaries, finalStaff, events);
-    } else {
-      final remainingStaff = <StaffModel>[];
-      final resignedStaff = <StaffModel>[];
-
-      for (final s in updatedStaff) {
-        final newMorale = s.morale - 35;
-        if (newMorale <= 10) {
-          resignedStaff.add(s);
-        } else {
-          remainingStaff.add(s.copyWith(morale: newMorale));
-        }
-      }
-
-      if (resignedStaff.isNotEmpty) {
-        final names =
-            resignedStaff.map((s) => '${s.name} • ${s.role.name}').join(', ');
-        events.insert(
-            0,
-            GameEventModel(
-              id: 'staff_resignation_${DateTime.now().millisecondsSinceEpoch}',
-              title: 'PERSONEL İSTİFASI!',
-              description:
-                  'Maaş ödemeleri yapılamadığı için $names morali tükenerek galerinizi terk etti ve istifa etti!',
-              type: GameEventType.expense,
-              amount: 0.0,
-              date: DateTime.now(),
-            ));
-      } else {
-        events.insert(
-            0,
-            GameEventModel(
-              id: 'salary_unpaid_${DateTime.now().millisecondsSinceEpoch}',
-              title: 'MAAŞLAR ÖDENEMEDİ!',
-              description:
-                  'Kasada yeterli nakit olmadığı için personellerin günlük maaşı ödenemedi. Personel morali ağır darbe aldı • -35 Moral!',
-              type: GameEventType.expense,
-              amount: 0.0,
-              date: DateTime.now(),
-            ));
-      }
-
-      return (balance, remainingStaff, events);
-    }
+    return DailyStaffProcessor.processSalaries(
+      balance: balance,
+      staff: staff,
+      events: events,
+      specializationPath: state.specializationPath,
+    );
   }
 
   List<CarModel> _processStaffAutomation(
       List<StaffModel> staff, List<CarModel> cars) {
     final hasCarWashBusiness = state.sideBusinesses
         .any((b) => b.isOperational && b.type == SideBusinessType.carWash);
-    final hasWasher =
-        staff.any((s) => s.isAvailableForWork && s.role == StaffRole.washer) || hasCarWashBusiness;
-    final hasMechanic = staff.any((s) => s.isAvailableForWork && s.role == StaffRole.masterMechanic);
-
-    if (hasWasher && cars.isNotEmpty) {
-      int washedCount = 0;
-      final maxCleanPerDay = hasCarWashBusiness ? 5 : 2;
-      for (int i = 0; i < cars.length; i++) {
-        final car = cars[i];
-        if (!car.isWashed || !car.isPolished || !car.isDetailedCleaned) {
-          cars[i] = car.copyWith(
-              isWashed: true, isPolished: true, isDetailedCleaned: true);
-          washedCount++;
-          if (washedCount >= maxCleanPerDay) break;
-        }
-      }
-    }
-
-    if (hasMechanic && cars.isNotEmpty) {
-      for (int i = 0; i < cars.length; i++) {
-        final car = cars[i];
-        if (car.expertise.engineCondition < 100 ||
-            car.expertise.transmissionCondition < 100) {
-          final newEngine = min(100.0, car.expertise.engineCondition + 20.0);
-          final newTrans =
-              min(100.0, car.expertise.transmissionCondition + 20.0);
-          cars[i] = car.copyWith(
-              expertise: car.expertise.copyWith(
-                  engineCondition: newEngine, transmissionCondition: newTrans));
-          break;
-        }
-      }
-    }
-    return cars;
+    return DailyStaffProcessor.processStaffAutomation(
+      staff: staff,
+      cars: cars,
+      hasCarWashBusiness: hasCarWashBusiness,
+    );
   }
 
   (double, List<LoanModel>) _processLoans(
       int nextDay, double balance, List<LoanModel> loans) {
-    return LoanSettlementEngine.processWeeklyLoans(
+    return DailyLoanProcessor.processLoans(
       nextDay: nextDay,
       balance: balance,
       loans: loans,
@@ -628,7 +440,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       List<RentalAgreement> rentals,
       List<GameEventModel> events,
       List<OfferModel> incomingOffers) {
-    return RentalProgressionEngine.processDailyRentals(
+    return DailyRentalProcessor.processRentals(
       balance: balance,
       cars: cars,
       rentals: rentals,
@@ -640,7 +452,7 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   (double, List<InstallmentContract>) _processInstallments(
       double balance, List<InstallmentContract> installments) {
-    return LoanSettlementEngine.processInstallments(
+    return DailyLoanProcessor.processInstallments(
       balance: balance,
       installments: installments,
       random: random,
@@ -648,7 +460,7 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   (double, List<Cheque>) _processCheques(double balance, List<Cheque> cheques) {
-    return LoanSettlementEngine.processCheques(
+    return DailyLoanProcessor.processCheques(
       balance: balance,
       cheques: cheques,
       chequeRiskReduction: state.skills.chequeRiskReduction,
@@ -844,6 +656,69 @@ mixin GameTimeMixin on GameBaseNotifier {
             constructionDaysRemaining: daysLeft,
           );
         }
+      }
+
+      if (currentProp.isListed) {
+        final nextDaysListed = currentProp.daysListed + 1;
+        // Age existing offers and remove expired ones
+        final updatedOffers = <RealEstateOfferModel>[];
+        for (final offer in currentProp.activeOffers) {
+          if (offer.daysRemaining > 1) {
+            updatedOffers.add(offer.copyWith(daysRemaining: offer.daysRemaining - 1));
+          }
+        }
+
+        // Random chance to generate a new offer
+        if (updatedOffers.length < 4 && random.nextDouble() < 0.45) {
+          final buyers = [
+            'Ahmet Yılmaz',
+            'Av. Selin Kaya',
+            'Dr. Mert Öztürk',
+            'Mimar Cenk Demir',
+            'Yatırımcı Hakan Koç',
+            'İş İnsanı Zeynep Arslan',
+            'Eczacı Murat Aydın',
+          ];
+          final notes = [
+            'Nakit param hazır, tapuda hemen devir yapabiliriz.',
+            'Emsal fiyatları inceledim, bu rakamın üzerine çıkamam.',
+            'Yatırımlık olarak değerlendirmek istiyorum, son teklifim budur.',
+            'Banka kredim onaylandı, fiyatta el sıkışırsak hemen başlayalım.',
+            'Şirketimiz adına gayrimenkul portföyümüze katmak istiyoruz.',
+          ];
+          final basePrice = currentProp.customListingPrice ?? currentProp.estimatedRealValue;
+          final variance = 0.88 + (random.nextDouble() * 0.16);
+          final offerAmount = ((basePrice * variance) / 10000).round() * 10000.0;
+
+          final newOffer = RealEstateOfferModel(
+            id: 're_offer_${DateTime.now().millisecondsSinceEpoch}_${random.nextInt(999)}',
+            realEstateId: currentProp.id,
+            buyerName: buyers[random.nextInt(buyers.length)],
+            buyerNote: notes[random.nextInt(notes.length)],
+            offeredAmount: offerAmount,
+            daysRemaining: 3,
+            createdAt: DateTime.now(),
+          );
+          updatedOffers.add(newOffer);
+
+          updatedEvents.insert(
+            0,
+            GameEventModel(
+              id: 're_offer_event_${newOffer.id}',
+              title: 'Gayrimenkul Vitrin Teklifi Geldi',
+              description:
+                  '${currentProp.title} ilanınıza ${newOffer.buyerName} tarafından ₺${offerAmount.round()} tutarında resmi teklif sunuldu.',
+              amount: 0.0,
+              type: GameEventType.goodEvent,
+              date: DateTime.now(),
+            ),
+          );
+        }
+
+        currentProp = currentProp.copyWith(
+          daysListed: nextDaysListed,
+          activeOffers: updatedOffers,
+        );
       }
 
       return currentProp;

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../data/models/dealership_model.dart';
 
 enum SmartHookType {
@@ -19,7 +18,7 @@ class SmartHookModel {
   final String rewardDescription;
   final String rewardBadgeText;
   final String actionButtonLabel;
-  final Color accentColor;
+  final int accentColorValue;
 
   const SmartHookModel({
     required this.type,
@@ -31,7 +30,7 @@ class SmartHookModel {
     required this.rewardDescription,
     required this.rewardBadgeText,
     required this.actionButtonLabel,
-    required this.accentColor,
+    required this.accentColorValue,
   });
 }
 
@@ -55,13 +54,13 @@ class OfficeGossipTip {
   final String title;
   final String sourceName;
   final String content;
-  final IconData icon;
+  final String iconKey;
 
   const OfficeGossipTip({
     required this.title,
     required this.sourceName,
     required this.content,
-    required this.icon,
+    required this.iconKey,
   });
 }
 
@@ -97,7 +96,7 @@ class SmartOfficeHookEngine {
         rewardDescription: 'Tüm garaj araçlarına anında ücretsiz profesyonel kuaför, pasta - cila ve detaylı temizlik uygulanır.',
         rewardBadgeText: '$count ARAÇ KUAFÖR & CİLA',
         actionButtonLabel: 'TÜM FİLOYU PARLAT',
-        accentColor: const Color(0xFF06B6D4), // Cyan
+        accentColorValue: 0xFF06B6D4, // Cyan
       );
     }
 
@@ -129,7 +128,7 @@ class SmartOfficeHookEngine {
         rewardDescription: '${car.brand} ${car.modelName} motor ve şanzımanı anında %100 kondisyona çıkarılır.',
         rewardBadgeText: 'BEDAVA MOTOR REVİZYONU',
         actionButtonLabel: 'USTAYA ANAHTARI VER',
-        accentColor: const Color(0xFFE11D48), // Rose red
+        accentColorValue: 0xFFE11D48, // Rose red
       );
     }
 
@@ -158,7 +157,7 @@ class SmartOfficeHookEngine {
         rewardDescription: 'Galeri kasasına karşılıksız +₺35.000 ekstra nakit can suyu sermayesi eklenir.',
         rewardBadgeText: '+₺35.000 CAN SUYU',
         actionButtonLabel: 'ZULAYI KASAYA ÇEK',
-        accentColor: const Color(0xFF10B981), // Emerald green
+        accentColorValue: 0xFF10B981, // Emerald green
       );
     }
 
@@ -187,7 +186,7 @@ class SmartOfficeHookEngine {
         rewardDescription: 'İkinci el pazarına %45 indirimli kelepir araç ilanı eklenir ve +₺10.000 harçlık verilir.',
         rewardBadgeText: '%45 KELEPİR ARAÇ + ₺10K',
         actionButtonLabel: 'TÜYOYU YAKALA',
-        accentColor: const Color(0xFFF59E0B), // Amber
+        accentColorValue: 0xFFF59E0B, // Amber
       );
     }
 
@@ -215,7 +214,7 @@ class SmartOfficeHookEngine {
       rewardDescription: 'Bayi itibarı anında +25 puan artar ve vitrindeki tüm araçlara 24 saatlik %35 hızlı satış dopingi uygulanır.',
       rewardBadgeText: '+25 İTİBAR & VİTRİN DOPİNGİ',
       actionButtonLabel: 'VİRAL REELS PATLAT',
-      accentColor: const Color(0xFFA855F7), // Purple
+      accentColorValue: 0xFFA855F7, // Purple
     );
   }
 
@@ -264,37 +263,37 @@ class SmartOfficeHookEngine {
         title: 'Sanayi Fısıltısı • Suv Talebi',
         sourceName: 'Lastikçi Niyazi',
         content: 'Yaz sezonu yaklaşırken SUV ve 4x4 araçlara talep %20 yükseliyor. Stokta SUV tutanlar yüksek kâr marjıyla satacak.',
-        icon: Icons.trending_up_rounded,
+        iconKey: 'trending_up',
       ),
       const OfficeGossipTip(
         title: 'Ekspertiz Tüyosu • Boyasız Göçük',
         sourceName: 'Ekspertiz Şefi Tarık',
         content: 'Orijinal boyalı parçaları boyamak yerine PDR Boyasız Göçük Düzeltme yapmak aracın orijinalliğini ve alıcı ilgisini korur.',
-        icon: Icons.verified_rounded,
+        iconKey: 'verified',
       ),
       const OfficeGossipTip(
         title: 'Pazar Stratejisi • Temiz Araç Etkisi',
         sourceName: 'Yıkamacı Serkan',
         content: 'Detaylı temizliği ve cilası yapılmış araçlar vitrinde %40 daha hızlı teklif toplar. Müşteriler ilk bakışta ışıldayan arabayı tercih eder.',
-        icon: Icons.auto_awesome_rounded,
+        iconKey: 'auto_awesome',
       ),
       const OfficeGossipTip(
         title: 'Noter Uyarısı • Dolandırıcılık',
         sourceName: 'Noter Katibi Zeynep',
         content: 'Piyasa değerinin çok üzerinde nakit teklif eden bazı şüpheli alıcılar sahte dekont kullanabilir. Noterde para hesaba geçmeden imza atma!',
-        icon: Icons.security_rounded,
+        iconKey: 'security',
       ),
       const OfficeGossipTip(
         title: 'Banka Finansmanı • Kredi Çekimi',
         sourceName: 'Banka Müdürü Serdar',
         content: 'Düşük faizli esnaf kredileriyle toplu kelepir alıp restore etmek sermaye büyümesini 3 katına çıkarabilir.',
-        icon: Icons.account_balance_rounded,
+        iconKey: 'account_balance',
       ),
       const OfficeGossipTip(
         title: 'Hurda Değeri • Nadir Parçalar',
         sourceName: 'Çıkmacı İbo',
         content: 'Hurdalıktaki klasik araçları ucuza toplayıp atölyede parçalarını orijinal revize edersen koleksiyonerlere rekor fiyata satarsın.',
-        icon: Icons.build_circle_rounded,
+        iconKey: 'build_circle',
       ),
     ];
 

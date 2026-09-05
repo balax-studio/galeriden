@@ -3,8 +3,61 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../neo_brutal_badge.dart';
+
+extension OperationSuspenseUiExtension on OperationSuspenseType {
+  IconData get icon {
+    switch (this) {
+      case OperationSuspenseType.washFoam:
+        return Icons.water_drop_rounded;
+      case OperationSuspenseType.washInterior:
+        return Icons.dry_cleaning_rounded;
+      case OperationSuspenseType.washPolish:
+        return Icons.blur_circular_rounded;
+      case OperationSuspenseType.washCeramic:
+        return Icons.auto_awesome_rounded;
+      case OperationSuspenseType.tuningPowertrain:
+        return Icons.speed_rounded;
+      case OperationSuspenseType.tuningAero:
+        return Icons.shield_rounded;
+      case OperationSuspenseType.tuningStance:
+        return Icons.tune_rounded;
+      case OperationSuspenseType.tuningExhaust:
+        return Icons.volume_up_rounded;
+      case OperationSuspenseType.tuningPreset:
+        return Icons.all_inclusive_rounded;
+      case OperationSuspenseType.generalWork:
+        return Icons.build_circle_rounded;
+    }
+  }
+
+  Color get accentColor {
+    switch (this) {
+      case OperationSuspenseType.washFoam:
+        return const Color(0xFF00E575);
+      case OperationSuspenseType.washInterior:
+        return const Color(0xFF38BDF8);
+      case OperationSuspenseType.washPolish:
+        return const Color(0xFFFFDE59);
+      case OperationSuspenseType.washCeramic:
+        return const Color(0xFFA855F7);
+      case OperationSuspenseType.tuningPowertrain:
+        return AppColors.brutalRed;
+      case OperationSuspenseType.tuningAero:
+        return const Color(0xFFA855F7);
+      case OperationSuspenseType.tuningStance:
+        return const Color(0xFF38BDF8);
+      case OperationSuspenseType.tuningExhaust:
+        return AppColors.brutalOrange;
+      case OperationSuspenseType.tuningPreset:
+        return AppColors.brutalYellow;
+      case OperationSuspenseType.generalWork:
+        return AppColors.brutalYellow;
+    }
+  }
+}
 
 class NeoBrutalOperationDialog extends StatefulWidget {
   final OperationSuspenseType operationType;

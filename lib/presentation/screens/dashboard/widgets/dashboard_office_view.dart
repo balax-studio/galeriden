@@ -17,8 +17,30 @@ import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
-
 import 'dashboard_quick_finance_card.dart';
+
+extension SmartHookModelUiExtension on SmartHookModel {
+  Color get accentColor => Color(accentColorValue);
+}
+
+IconData _getGossipIcon(String iconKey) {
+  switch (iconKey) {
+    case 'trending_up':
+      return Icons.trending_up_rounded;
+    case 'verified':
+      return Icons.verified_rounded;
+    case 'auto_awesome':
+      return Icons.auto_awesome_rounded;
+    case 'security':
+      return Icons.security_rounded;
+    case 'account_balance':
+      return Icons.account_balance_rounded;
+    case 'build_circle':
+      return Icons.build_circle_rounded;
+    default:
+      return Icons.info_outline_rounded;
+  }
+}
 
 class DashboardOfficeView extends ConsumerWidget {
   final DealershipModel game;
@@ -552,7 +574,7 @@ class DashboardOfficeView extends ConsumerWidget {
                                 ),
                                 alignment: Alignment.center,
                                 child: Icon(
-                                  gossip.icon,
+                                  _getGossipIcon(gossip.iconKey),
                                   color: const Color(0xFF38BDF8),
                                   size: 18,
                                 ),

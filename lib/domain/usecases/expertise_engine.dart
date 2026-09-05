@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/expertise_model.dart';
 
@@ -188,7 +187,7 @@ class ExpertiseEngine {
   }
 
   /// Evaluates 100% strict, accurate physical automotive condition stamp
-  static ({String text, Color color}) getInspectionStamp({
+  static ({String text, int colorValue}) getInspectionStamp({
     required CarModel car,
     required ExpertiseReport exp,
     required Map<String, dynamic> eval,
@@ -203,35 +202,35 @@ class ExpertiseEngine {
             exp.bodyParts['Tavan'] == PartStatus.damaged);
 
     if (isHeavySalvage || hasStructuralDamage || exp.isMileageTampered || damagedCount >= 3) {
-      return (text: 'AĞIR HASARLI', color: const Color(0xFFEF4444));
+      return (text: 'AĞIR HASARLI', colorValue: 0xFFEF4444);
     }
 
     if (changedCount > 0 && paintedCount > 0) {
-      return (text: 'DEĞİŞEN & BOYA', color: const Color(0xFFF59E0B));
+      return (text: 'DEĞİŞEN & BOYA', colorValue: 0xFFF59E0B);
     }
 
     if (changedCount > 0) {
       return (
         text: changedCount == 1 ? '1 PARÇA DEĞİŞEN' : '$changedCount PARÇA DEĞİŞEN',
-        color: const Color(0xFFF59E0B),
+        colorValue: 0xFFF59E0B,
       );
     }
 
     if (damagedCount > 0) {
       return (
         text: damagedCount == 1 ? '1 PARÇA HASARLI' : '$damagedCount PARÇA HASARLI',
-        color: const Color(0xFFF59E0B),
+        colorValue: 0xFFF59E0B,
       );
     }
 
     if (paintedCount >= 6) {
-      return (text: 'KOMPLE BOYALI', color: const Color(0xFFF59E0B));
+      return (text: 'KOMPLE BOYALI', colorValue: 0xFFF59E0B);
     }
 
     if (paintedCount > 0) {
       return (
         text: paintedCount == 1 ? '1 PARÇA BOYALI' : '$paintedCount PARÇA BOYALI',
-        color: const Color(0xFF38BDF8),
+        colorValue: 0xFF38BDF8,
       );
     }
 
@@ -242,9 +241,9 @@ class ExpertiseEngine {
         !car.hasNonOriginalParts;
 
     if (isCompletelyOriginal) {
-      return (text: 'HATASIZ BOYASIZ', color: const Color(0xFF00E575));
+      return (text: 'HATASIZ BOYASIZ', colorValue: 0xFF00E575);
     }
 
-    return (text: 'EKSPERTİZ ONAYLI', color: const Color(0xFF00E575));
+    return (text: 'EKSPERTİZ ONAYLI', colorValue: 0xFF00E575);
   }
 }

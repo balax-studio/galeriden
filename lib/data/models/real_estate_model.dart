@@ -1,4 +1,5 @@
 import 'real_estate_category.dart';
+import 'real_estate_offer_model.dart';
 
 enum DeedType {
   ownershipDeed, // Kat Mülkiyetli (Sorunsuz, temiz tapu)
@@ -99,6 +100,7 @@ class RealEstateModel {
   final int _totalProjectUnits; // Toplam daire adedi
   final int soldPreSaleUnits; // Topraktan satılmış daire adedi
   final int constructionDaysRemaining; // Mevcut şantiye etabına kalan gün
+  final List<RealEstateOfferModel> activeOffers; // Vitrin teklif havuzu
 
   const RealEstateModel({
     required this.id,
@@ -134,6 +136,7 @@ class RealEstateModel {
     int totalProjectUnits = 0,
     this.soldPreSaleUnits = 0,
     this.constructionDaysRemaining = 0,
+    this.activeOffers = const [],
   }) : _totalProjectUnits = totalProjectUnits;
 
   /// Dynamic fair market value accounting for deed status, renovations, and defects
@@ -263,6 +266,7 @@ class RealEstateModel {
       'totalProjectUnits': totalProjectUnits,
       'soldPreSaleUnits': soldPreSaleUnits,
       'constructionDaysRemaining': constructionDaysRemaining,
+      'activeOffers': activeOffers.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -313,6 +317,10 @@ class RealEstateModel {
       totalProjectUnits: json['totalProjectUnits'] as int? ?? 0,
       soldPreSaleUnits: json['soldPreSaleUnits'] as int? ?? 0,
       constructionDaysRemaining: json['constructionDaysRemaining'] as int? ?? 0,
+      activeOffers: (json['activeOffers'] as List<dynamic>?)
+              ?.map((e) => RealEstateOfferModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 
@@ -350,6 +358,7 @@ class RealEstateModel {
     int? totalProjectUnits,
     int? soldPreSaleUnits,
     int? constructionDaysRemaining,
+    List<RealEstateOfferModel>? activeOffers,
     bool clearCustomPrice = false,
   }) {
     final nextRenovationStage = renovationStage ?? this.renovationStage;
@@ -389,6 +398,7 @@ class RealEstateModel {
       totalProjectUnits: totalProjectUnits ?? this.totalProjectUnits,
       soldPreSaleUnits: soldPreSaleUnits ?? this.soldPreSaleUnits,
       constructionDaysRemaining: constructionDaysRemaining ?? this.constructionDaysRemaining,
+      activeOffers: activeOffers ?? this.activeOffers,
     );
   }
 }

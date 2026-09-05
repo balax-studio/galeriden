@@ -56,7 +56,7 @@ void main() {
       final stamp = ExpertiseEngine.getInspectionStamp(car: car, exp: car.expertise, eval: eval);
 
       expect(stamp.text, equals('HATASIZ BOYASIZ'));
-      expect(stamp.color, equals(const Color(0xFF00E575)));
+      expect(Color(stamp.colorValue), equals(const Color(0xFF00E575)));
     });
 
     test('Car with painted parts evaluates to PARÇA BOYALI (Sky Blue)', () {
@@ -79,7 +79,7 @@ void main() {
       final stamp = ExpertiseEngine.getInspectionStamp(car: car, exp: car.expertise, eval: eval);
 
       expect(stamp.text, equals('2 PARÇA BOYALI'));
-      expect(stamp.color, equals(const Color(0xFF38BDF8)));
+      expect(Color(stamp.colorValue), equals(const Color(0xFF38BDF8)));
     });
 
     test('Car with changed part evaluates to 1 PARÇA DEĞİŞEN (Amber)', () {
@@ -102,7 +102,7 @@ void main() {
       final stamp = ExpertiseEngine.getInspectionStamp(car: car, exp: car.expertise, eval: eval);
 
       expect(stamp.text, equals('1 PARÇA DEĞİŞEN'));
-      expect(stamp.color, equals(const Color(0xFFF59E0B)));
+      expect(Color(stamp.colorValue), equals(const Color(0xFFF59E0B)));
     });
 
     test('Car with both changed and painted parts evaluates to DEĞİŞEN & BOYA (Amber)', () {
@@ -125,7 +125,7 @@ void main() {
       final stamp = ExpertiseEngine.getInspectionStamp(car: car, exp: car.expertise, eval: eval);
 
       expect(stamp.text, equals('DEĞİŞEN & BOYA'));
-      expect(stamp.color, equals(const Color(0xFFF59E0B)));
+      expect(Color(stamp.colorValue), equals(const Color(0xFFF59E0B)));
     });
 
     test('Severe damage (high tramer, tampered mileage, or D grade) evaluates to AĞIR HASARLI (Red)', () {
@@ -137,7 +137,7 @@ void main() {
         eval: evalHighTramer,
       );
       expect(stampHighTramer.text, equals('AĞIR HASARLI'));
-      expect(stampHighTramer.color, equals(const Color(0xFFEF4444)));
+      expect(Color(stampHighTramer.colorValue), equals(const Color(0xFFEF4444)));
 
       final carTampered = createTestCar(isTampered: true);
       final evalTampered = ExpertiseEngine.evaluateVehicle(carTampered);
@@ -147,7 +147,7 @@ void main() {
         eval: evalTampered,
       );
       expect(stampTampered.text, equals('AĞIR HASARLI'));
-      expect(stampTampered.color, equals(const Color(0xFFEF4444)));
+      expect(Color(stampTampered.colorValue), equals(const Color(0xFFEF4444)));
 
       final carMultipleDamaged = createTestCar(bodyParts: {
         'Kaput': PartStatus.original,
@@ -170,7 +170,7 @@ void main() {
         eval: evalMultipleDamaged,
       );
       expect(stampMultipleDamaged.text, equals('AĞIR HASARLI'));
-      expect(stampMultipleDamaged.color, equals(const Color(0xFFEF4444)));
+      expect(Color(stampMultipleDamaged.colorValue), equals(const Color(0xFFEF4444)));
     });
   });
 }

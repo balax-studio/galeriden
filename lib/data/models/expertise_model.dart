@@ -1,4 +1,4 @@
-enum PartStatus { original, painted, changed, damaged }
+enum PartStatus { original, painted, changed, damaged, localPainted }
 
 class ExpertiseReport {
   final double engineCondition; // 0 - 100%
@@ -30,6 +30,8 @@ class ExpertiseReport {
           return MapEntry(key, 100.0);
         case PartStatus.painted:
           return MapEntry(key, 75.0);
+        case PartStatus.localPainted:
+          return MapEntry(key, 85.0);
         case PartStatus.changed:
           return MapEntry(key, 50.0);
         case PartStatus.damaged:

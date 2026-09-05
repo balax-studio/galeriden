@@ -117,7 +117,7 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
         statusBadge: NeoBrutalBadge(
           text: isCompleted
               ? context.tr('vasita_expertise_seal_text')
-              : context.tr('vasita_expertise_zeigarnik_badge').replaceAll('{percent}', '65'),
+              : context.tr('vasita_expertise_zeigarnik_badge', {'percent': '65'}),
           backgroundColor: isCompleted ? const Color(0xFF00E575) : const Color(0xFFFFB020),
           textColor: Colors.black,
           fontSize: 10,
@@ -149,7 +149,12 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
 
             const SizedBox(height: 14),
 
-            // 5. Tramer Damage History & Seller Disclosure
+            // 5. Chassis, Podye & Airbag Integrity Card
+            _buildChassisInspectionCard(context, exp, isDark, isCompleted),
+
+            const SizedBox(height: 14),
+
+            // 6. Tramer Damage History & Seller Disclosure
             _buildTramerAndSellerCard(context, listing, exp, isDark, isCompleted),
           ],
         ),
@@ -318,7 +323,7 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              context.tr('vasita_sunk_cost_warning').replaceAll('{amount}', '3.500'),
+              context.tr('vasita_sunk_cost_warning', {'amount': '3.500'}),
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -347,7 +352,7 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  context.tr('vasita_expertise_zeigarnik_badge').replaceAll('{percent}', '65'),
+                  context.tr('vasita_expertise_zeigarnik_badge', {'percent': '65'}),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -394,7 +399,7 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            context.tr('vasita_sunk_cost_warning').replaceAll('{amount}', '3.500'),
+            context.tr('vasita_sunk_cost_warning', {'amount': '3.500'}),
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -408,7 +413,7 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
               icon: Icons.search_rounded,
               label: _isProcessingDiagnostic
                   ? context.tr('vasita_think_step_1')
-                  : context.tr('vasita_expertise_btn_full_check').replaceAll('{cost}', CurrencyFormatter.format(diagnosticCost)),
+                  : context.tr('vasita_expertise_btn_full_check', {'cost': CurrencyFormatter.format(diagnosticCost)}),
               backgroundColor: canAfford ? const Color(0xFFFFB020) : const Color(0xFF64748B),
               textColor: Colors.black,
               fontSize: 12,
@@ -432,9 +437,9 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+      borderColor: isDark ? const Color(0xFF333B4F) : Colors.black,
       borderRadius: 12,
-      borderWidth: 2.5,
+      borderWidth: 3.0,
       shadowOffset: const Offset(4, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,6 +459,26 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
             ],
           ),
           const SizedBox(height: 10),
+          if (isCompleted) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                border: Border.all(color: Colors.black, width: 2.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildLegendDot(context.tr('vasita_exp_legend_original'), const Color(0xFF00E575), isDark),
+                  _buildLegendDot(context.tr('vasita_exp_legend_painted'), const Color(0xFFFFB020), isDark),
+                  _buildLegendDot(context.tr('vasita_exp_legend_local'), const Color(0xFFA855F7), isDark),
+                  _buildLegendDot(context.tr('vasita_exp_legend_changed'), const Color(0xFFFF3B30), isDark),
+                ],
+              ),
+            ),
+          ],
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -468,7 +493,7 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
                     color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
                     border: Border.all(
                       color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
-                      width: 1.5,
+                      width: 1.8,
                     ),
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -497,7 +522,7 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
                 );
               }
 
-              // Inspected & Unlocked state
+              // Inspected & Unlocked state • Vibrant Neo-Brutalist styling
               Color statusColor;
               String statusLabel;
 
@@ -510,26 +535,46 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
                   statusColor = const Color(0xFFFFB020);
                   statusLabel = context.tr('vasita_expertise_painted');
                   break;
+                case PartStatus.localPainted:
+                  statusColor = const Color(0xFFA855F7);
+                  statusLabel = context.tr('vasita_expertise_local_painted');
+                  break;
                 case PartStatus.changed:
-                  statusColor = const Color(0xFFF97316);
+                  statusColor = const Color(0xFFFF3B30);
                   statusLabel = context.tr('vasita_expertise_changed');
                   break;
                 case PartStatus.damaged:
-                  statusColor = const Color(0xFFEF4444);
+                  statusColor = const Color(0xFFFF3B30);
                   statusLabel = context.tr('vasita_expertise_damaged');
                   break;
               }
 
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.15),
-                  border: Border.all(color: statusColor, width: 2),
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  border: Border.all(color: Colors.black, width: 3.0),
                   borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: statusColor.withValues(alpha: 0.9),
+                      offset: const Offset(3, 3),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.black, width: 1.2),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
                     Text(
                       partName,
                       style: TextStyle(
@@ -539,12 +584,20 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      statusLabel,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
                         color: statusColor,
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(color: Colors.black, width: 1.2),
+                      ),
+                      child: Text(
+                        statusLabel,
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ],
@@ -554,6 +607,157 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildChassisInspectionCard(
+    BuildContext context,
+    ExpertiseReport exp,
+    bool isDark,
+    bool isCompleted,
+  ) {
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(14),
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      borderColor: isDark ? const Color(0xFF333B4F) : Colors.black,
+      borderRadius: 12,
+      borderWidth: 3.0,
+      shadowOffset: const Offset(4, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.tr('vasita_exp_chassis_card_title'),
+                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+              ),
+              NeoBrutalBadge(
+                text: isCompleted
+                    ? (exp.isChassisAligned ? context.tr('vasita_exp_chassis_aligned') : context.tr('vasita_exp_chassis_damaged'))
+                    : context.tr('vasita_exp_status_locked'),
+                backgroundColor: isCompleted
+                    ? (exp.isChassisAligned ? const Color(0xFF00E575) : const Color(0xFFFF3B30))
+                    : const Color(0xFFFFB020),
+                textColor: Colors.black,
+                fontSize: 9.5,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildInspectionCheckRow(
+            icon: Icons.precision_manufacturing_rounded,
+            title: context.tr('vasita_exp_chassis_podye_label'),
+            value: isCompleted
+                ? (exp.isChassisAligned ? context.tr('vasita_exp_podye_clean') : context.tr('vasita_exp_podye_flawed'))
+                : context.tr('vasita_exp_uninspected_masked'),
+            statusColor: isCompleted
+                ? (exp.isChassisAligned ? const Color(0xFF00E575) : const Color(0xFFFF3B30))
+                : const Color(0xFFFFB020),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildInspectionCheckRow(
+            icon: Icons.security_rounded,
+            title: context.tr('vasita_exp_airbag_integrity_label'),
+            value: isCompleted
+                ? (exp.tramerAmount > 45000 ? context.tr('vasita_exp_airbag_repaired') : context.tr('vasita_exp_airbag_factory'))
+                : context.tr('vasita_exp_uninspected_masked'),
+            statusColor: isCompleted
+                ? (exp.tramerAmount > 45000 ? const Color(0xFFFF3B30) : const Color(0xFF00E575))
+                : const Color(0xFFFFB020),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildInspectionCheckRow(
+            icon: Icons.memory_rounded,
+            title: context.tr('vasita_exp_ecu_odometer_label'),
+            value: isCompleted
+                ? (exp.isMileageTampered ? context.tr('vasita_exp_odometer_tampered') : context.tr('vasita_exp_odometer_verified'))
+                : context.tr('vasita_exp_uninspected_masked'),
+            statusColor: isCompleted
+                ? (exp.isMileageTampered ? const Color(0xFFFF3B30) : const Color(0xFF00E575))
+                : const Color(0xFFFFB020),
+            isDark: isDark,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInspectionCheckRow({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color statusColor,
+    required bool isDark,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black, width: 2.0),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: statusColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: statusColor, width: 1.5),
+            ),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w900,
+                color: statusColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendDot(String label, Color color, bool isDark) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            border: Border.all(color: Colors.black, width: 1.2),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 9.5,
+            fontWeight: FontWeight.w800,
+            color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+          ),
+        ),
+      ],
     );
   }
 
@@ -739,6 +943,10 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
     bool isDark,
     bool isCompleted,
   ) {
+    final isAlreadyOwned = ref.watch(
+      gameProvider.select((g) => g.ownedCars.any((c) => c.id == listing.car.id)),
+    );
+
     return Container(
       padding: EdgeInsets.fromLTRB(14, 12, 14, 12 + MediaQuery.paddingOf(context).bottom),
       decoration: BoxDecoration(
@@ -763,20 +971,24 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: NeoBrutalButton(
-              icon: Icons.handshake_rounded,
-              label: context.tr('vasita_expertise_btn_negotiate'),
-              backgroundColor: const Color(0xFF00E575),
+              icon: isAlreadyOwned ? Icons.warehouse_rounded : Icons.handshake_rounded,
+              label: isAlreadyOwned
+                  ? context.tr('vasita_btn_already_in_garage')
+                  : context.tr('vasita_expertise_btn_negotiate'),
+              backgroundColor: isAlreadyOwned ? const Color(0xFF94A3B8) : const Color(0xFF00E575),
               textColor: Colors.black,
               fontSize: 12,
               padding: const EdgeInsets.symmetric(vertical: 12),
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => VasitaNegotiationScreen(listing: listing),
-                  ),
-                );
-              },
+              onPressed: isAlreadyOwned
+                  ? null
+                  : () {
+                      HapticFeedback.mediumImpact();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => VasitaNegotiationScreen(listing: listing),
+                        ),
+                      );
+                    },
             ),
           ),
         ],

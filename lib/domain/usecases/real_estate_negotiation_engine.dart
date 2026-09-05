@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../../core/utils/slot_text_composer.dart';
+import '../../data/models/real_estate_category.dart';
 import '../../data/models/real_estate_model.dart';
 
 class RealEstateTactic {
@@ -11,6 +12,7 @@ class RealEstateTactic {
   final int baseBonusPercent;
   final bool isRescue;
   final List<RealEstateSellerType> preferredSellerTypes;
+  final List<RealEstateCategory> preferredCategories;
   final String successDialogue;
   final String failureDialogue;
   final String walkawayDialogue;
@@ -24,6 +26,7 @@ class RealEstateTactic {
     required this.baseBonusPercent,
     this.isRescue = false,
     this.preferredSellerTypes = const [],
+    this.preferredCategories = const [],
     required this.successDialogue,
     required this.failureDialogue,
     required this.walkawayDialogue,
@@ -172,6 +175,58 @@ class RealEstateNegotiationEngine {
       failureDialogue: 'Satıcı kahveyi yudumladı ama • Kahveniz güzelmiş lakin bu fiyata imza atmam • dedi.',
       walkawayDialogue: 'Satıcı • Kahveyle aklımı çelemezsin, niyetin ciddiyetsiz! • Çantasını alıp çıktı.',
     ),
+    RealEstateTactic(
+      id: 'arsa_imar_taks',
+      title: 'İmar Planı ve TAKS - KAKS Analizi',
+      badgeText: 'Emsal Baskısı',
+      description: 'Arsanın çekme mesafelerini ve taban alanı katsayısını öne sürerek metrekare birim fiyatını kır.',
+      iconKey: 'terrain',
+      baseBonusPercent: 24,
+      preferredCategories: [RealEstateCategory.land],
+      preferredSellerTypes: [RealEstateSellerType.individual, RealEstateSellerType.agency],
+      successDialogue: 'İmar katsayıları ve emsal sınırlamalarını belgeleriyle sundun • Satıcı metrekarede indirimi kabul etti!',
+      failureDialogue: 'Satıcı • Bu arsanın önünden bulvar geçecek, emsal artışı eli kulağında • diyerek fiyatını savundu.',
+      walkawayDialogue: 'Satıcı • İmarı bahane edip kupon arsayı öldüremezsin! • Masayı terk etti.',
+    ),
+    RealEstateTactic(
+      id: 'ticari_tabela_ciro',
+      title: 'Stopaj ve Tabela Değeri İskontosu',
+      badgeText: 'Ticari Rayiç',
+      description: 'Dükkanın cadde cephesini ve yıllık stopaj maliyetini masaya koyarak fiyatı aşağı çek.',
+      iconKey: 'store',
+      baseBonusPercent: 22,
+      preferredCategories: [RealEstateCategory.commercial],
+      preferredSellerTypes: [RealEstateSellerType.individual, RealEstateSellerType.agency],
+      successDialogue: 'Stopaj yükü ve ticari amortisman hesabını gören dükkan sahibi • "Esnaf adamsın, fiyatta jest yapıyorum" dedi!',
+      failureDialogue: 'Satıcı • Burası ana cadde üstü dükkan, tabela değerini kimse inkar edemez • diyerek geri adım atmadı.',
+      walkawayDialogue: 'Satıcı • Cadde dükkanını ara sokak fiyatına isteyenle işim olmaz! • Çekip gitti.',
+    ),
+    RealEstateTactic(
+      id: 'plaza_amortisman',
+      title: 'Kira Çarpanı ve Amortisman Hesabı',
+      badgeText: 'Kurumsal Getiri',
+      description: 'Plazanın 15 yılı aşan yatırım geri dönüş süresini ve ortak gider yükünü pazarlık kozu yap.',
+      iconKey: 'apartment',
+      baseBonusPercent: 25,
+      preferredCategories: [RealEstateCategory.building],
+      preferredSellerTypes: [RealEstateSellerType.individual, RealEstateSellerType.agency, RealEstateSellerType.bankAuction],
+      successDialogue: 'Finansal amortisman raporunu gören plaza temsilcisi • "Kurumsal alıcı hatrına fiyatta revizyona gidiyoruz" dedi!',
+      failureDialogue: 'Satıcı • Binamız plaza standartlarında ve kurumsal kiracılıdır, amortismanı taş gibidir • dedi.',
+      walkawayDialogue: 'Satıcı • Koskoca plazayı apartman dairesi gibi pazarlık edemezsiniz! • Görüşmeyi sonlandırdı.',
+    ),
+    RealEstateTactic(
+      id: 'konut_aidat_kredi',
+      title: 'Konut Kredisi ve Site Aidat Yükü',
+      badgeText: 'Yaşam Maliyeti',
+      description: 'Yüksek konut kredisi faizlerini ve aylık site aidatlarını öne sürerek fiyatta esneklik iste.',
+      iconKey: 'home',
+      baseBonusPercent: 20,
+      preferredCategories: [RealEstateCategory.housing],
+      preferredSellerTypes: [RealEstateSellerType.individual, RealEstateSellerType.agency],
+      successDialogue: 'Piyasa faizleri ve aidat yükü satıcının kafasına yattı • "Madem nakit alacaksın, pazarlık sünnettir" dedi!',
+      failureDialogue: 'Satıcı • Dairem lüks sitede havuzlu güvenliklidir, aidatını dert eden almasın • dedi.',
+      walkawayDialogue: 'Satıcı • Bütçeniz yetmiyorsa varoşlardan daire bakın! • Masadan kalktı.',
+    ),
   ];
 
   /// Detects whether listing has any legal or architectural discrepancy
@@ -276,6 +331,9 @@ class RealEstateNegotiationEngine {
     if (tactic.preferredSellerTypes.contains(listing.realEstate.sellerType)) {
       threshold -= 15; // +15 bonus chance if matched archetype
     }
+    if (tactic.preferredCategories.contains(listing.realEstate.category)) {
+      threshold -= 15; // +15 bonus chance if matched property category
+    }
     threshold -= (playerLevel * 2);
     threshold = threshold.clamp(10, 85);
 
@@ -358,6 +416,7 @@ class RealEstateNegotiationEngine {
       responseMsg = generateDynamicSellerDialogue(
         sellerName: listing.sellerName,
         sellerType: listing.realEstate.sellerType,
+        category: listing.realEstate.category,
         offeredPrice: offeredPrice,
         askingPrice: listing.askingPrice,
         patience: newPatience,
@@ -373,10 +432,11 @@ class RealEstateNegotiationEngine {
     );
   }
 
-  /// Composes realistic Turkish seller dialogues based on patience and seller type
+  /// Composes realistic Turkish seller dialogues based on patience, seller type and property category
   static String generateDynamicSellerDialogue({
     required String sellerName,
     required RealEstateSellerType sellerType,
+    RealEstateCategory? category,
     required double offeredPrice,
     required double askingPrice,
     required int patience,
@@ -389,11 +449,29 @@ class RealEstateNegotiationEngine {
         '$sellerName • Bu son ikazımdır.',
         '$sellerName • Artık canımı sıkmaya başladı bu pazarlık.',
       ];
-      final slot2 = [
-        '$formattedOffer rakamı bu mülkün metrekare birim maliyetini bile karşılamaz.',
-        'Mülküm kupon arazidir, bu paralara vermektense boş tutarım.',
-        'Böyle komik rakamlarla masaya oturacaksanız vaktimi çalmayın.',
-      ];
+      final slot2 = <String>[];
+      if (category == RealEstateCategory.land) {
+        slot2.addAll([
+          'Arsamı üç kuruşa kapatıp müteahhide kat karşılığı vermeyi mi düşünüyorsun?',
+          'İmarı açık kupon arsayı tarla parasına bırakmam usta.',
+        ]);
+      } else if (category == RealEstateCategory.commercial) {
+        slot2.addAll([
+          'Cadde üstü dükkanı ara sokak bodrum fiyatına alamazsınız!',
+          'Tabela değeri ve cirosu yüksek dükkandır, bu teklif hakarettir.',
+        ]);
+      } else if (category == RealEstateCategory.building) {
+        slot2.addAll([
+          'Komple binayı apartman dairesi parasına kapatmaya çalışıyorsunuz!',
+          'Kat mülkiyetli plaza bu paralara elden çıkar mı beyefendi?',
+        ]);
+      } else {
+        slot2.addAll([
+          '$formattedOffer rakamı bu mülkün metrekare birim maliyetini bile karşılamaz.',
+          'Mülküm kupon mülktür, bu paralara vermektense boş tutarım.',
+          'Böyle komik rakamlarla masaya oturacaksanız vaktimi çalmayın.',
+        ]);
+      }
       return SlotTextComposer.compose2(slot1: slot1, slot2: slot2);
     }
 
@@ -404,11 +482,29 @@ class RealEstateNegotiationEngine {
           '$sellerName • Beyefendi iyi günler.',
           '$sellerName • İlanımı incelediğiniz için teşekkürler.',
         ];
-        final slot2 = [
-          'Dede yadigarı mülkümdür, acil nakit ihtiyacım olmasa satmam.',
-          'Bölgenin emsal satış fiyatları ortada, çok alta inemem.',
-          'Konut kredisi faizleri yüzünden piyasa yavaş ama ben tok satıcıyım.',
-        ];
+        final slot2 = <String>[];
+        if (category == RealEstateCategory.land) {
+          slot2.addAll([
+            'Arsamın emsali ve yol terkleri yapılmış durumda, geleceği çok parlak.',
+            'Yatırımlık kupon arsadır, müteahhitler kapımda bekliyor.',
+          ]);
+        } else if (category == RealEstateCategory.commercial) {
+          slot2.addAll([
+            'Dükkanımın kiracısı hazır ve düzenli ödüyor, tabela değeri çok yüksek.',
+            'Cadde cepheli dükkan bulmak bu devirde kolay değil.',
+          ]);
+        } else if (category == RealEstateCategory.building) {
+          slot2.addAll([
+            'Binamızın statik projesi ve betonarme kalitesi birinci sınıftır.',
+            'Düzenli kira getiren komple binadır, amortismanı çok cazip.',
+          ]);
+        } else {
+          slot2.addAll([
+            'Dede yadigarı mülkümdür, acil nakit ihtiyacım olmasa satmam.',
+            'Bölgenin emsal satış fiyatları ortada, çok alta inemem.',
+            'Konut kredisi faizleri yüzünden piyasa yavaş ama ben tok satıcıyım.',
+          ]);
+        }
         final slot3 = [
           '$formattedOffer kurtarmaz, ₺${(askingPrice * 0.96).round()} seviyesinde anlaşırsak tapuya geçebiliriz.',
           '$formattedOffer çok düşük kaldı, ₺${(askingPrice * 0.97).round()} altına kesinlikle imza atmam.',
@@ -422,11 +518,29 @@ class RealEstateNegotiationEngine {
           '$sellerName • Portföyümüz çok canlı usta.',
           '$sellerName • Emlak piyasasında fırsatlar hızlı tükenir.',
         ];
-        final slot2 = [
-          'Mal sahibiyle dün görüştüm, fiyatta çok fazla esneklik payı bırakmadı.',
-          'Bu lokasyonda bu metrekarede gayrimenkul bulmak artık imkansız.',
-          'Bölge kentsel dönüşüm ve yeni metro hattı güzergahında değerleniyor.',
-        ];
+        final slot2 = <String>[];
+        if (category == RealEstateCategory.land) {
+          slot2.addAll([
+            'Bölge yeni sanayi ve konut imar planı aksında hızla prim yapıyor.',
+            'TAKS ve KAKS oranları oldukça avantajlı bir imar parselidir.',
+          ]);
+        } else if (category == RealEstateCategory.commercial) {
+          slot2.addAll([
+            'İşlek cadde üzerinde yaya sirkülasyonu en yoğun noktadadır.',
+            'Kurumsal kiracı potansiyeli yüksek, amortismanı hızlı bir dükkan.',
+          ]);
+        } else if (category == RealEstateCategory.building) {
+          slot2.addAll([
+            'Plazamız kurumsal şirketlere kiralanmaya hazır durumdadır.',
+            'Tek tapu müstakil bina arayan yatırımcılar için kaçırılmayacak fırsat.',
+          ]);
+        } else {
+          slot2.addAll([
+            'Mal sahibiyle dün görüştüm, fiyatta çok fazla esneklik payı bırakmadı.',
+            'Bu lokasyonda bu metrekarede gayrimenkul bulmak artık imkansız.',
+            'Bölge kentsel dönüşüm ve yeni metro hattı güzergahında değerleniyor.',
+          ]);
+        }
         final slot3 = [
           '$formattedOffer teklifinizi mal sahibine iletsem masadan kovar. ₺${(askingPrice * 0.95).round()} olursa ikna ederim.',
           '$formattedOffer ile el sıkışamayız, ₺${(askingPrice * 0.96).round()} peşin çalışırsa hemen sözleşmeyi hazırlarım.',

@@ -51,6 +51,7 @@ class _RealEstateNegotiationScreenState
     _sellerDialogue = RealEstateNegotiationEngine.generateDynamicSellerDialogue(
       sellerName: widget.listing.sellerName,
       sellerType: widget.listing.realEstate.sellerType,
+      category: widget.listing.realEstate.category,
       offeredPrice: _offeredPrice,
       askingPrice: widget.listing.askingPrice,
       patience: _sellerPatience,

@@ -397,54 +397,81 @@ class VasitaNegotiationEngine {
       chance += 4.0;
     }
 
-    // Add accumulated tactic bonuses
-    chance += (extraBonusPercent * 100.0);
+    // Add accumulated tactic bonuses • capped at 35% to prevent guaranteed accepts
+    final cappedBonus = (extraBonusPercent * 100.0).clamp(0.0, 35.0);
+    chance += cappedBonus;
 
     return chance.clamp(2.0, 98.0).round();
   }
 
-  /// Evaluates tactic roll and impact on seller patience
+  /// Calculates seller satiety / resistance score (0 - 100)
+  static int calculateSellerTokluk(String sellerTrait) {
+    final trait = sellerTrait.toLowerCase();
+    if (trait.contains('tok')) return 75;
+    if (trait.contains('galerici') || trait.contains('esnaf')) return 55;
+    if (trait.contains('memur') || trait.contains('emekli')) return 45;
+    if (trait.contains('aceleci') || trait.contains('acil')) return 20;
+    return 40;
+  }
+
+  /// Calculates tactic success score using mathematical formula:
+  /// BasariPuani = OyuncuKarizmasi * 0.4 + KozAgirligi * 0.3 - SaticiToklukDerecesi * 0.3
+  static double calculateTacticSuccessScore({
+    required int playerCharisma,
+    required int tacticWeight,
+    required int sellerTokluk,
+  }) {
+    return (playerCharisma * 0.4) + (tacticWeight * 0.3) - (sellerTokluk * 0.3);
+  }
+
+  /// Evaluates tactic roll and impact on seller patience with dynamic resistance
   static VasitaTacticRollOutcome executeTactic({
     required VasitaTactic tactic,
     required ListingModel listing,
     required int currentPatience,
     required int playerLevel,
   }) {
-    final dice = _random.nextInt(100) + 1;
-    int threshold = 50 - (playerLevel * 2);
+    final playerCharisma = (playerLevel * 7).clamp(15, 95);
+    final tacticWeight = (tactic.baseBonusPercent * 3.5).round().clamp(30, 95);
+    final sellerTokluk = calculateSellerTokluk(listing.sellerTrait);
 
-    final trait = listing.sellerTrait.toLowerCase();
-    if (trait.contains('aceleci')) threshold -= 10;
-    if (trait.contains('tok')) threshold += 12;
+    final baseScore = calculateTacticSuccessScore(
+      playerCharisma: playerCharisma,
+      tacticWeight: tacticWeight,
+      sellerTokluk: sellerTokluk,
+    );
 
-    threshold = threshold.clamp(20, 85);
+    // Dynamic variance of +/- 15 points
+    final variance = _random.nextInt(31) - 15;
+    final finalScore = (baseScore + variance).clamp(0.0, 100.0);
+    final isSuccess = finalScore >= 50.0;
 
-    if (dice >= threshold) {
+    if (isSuccess) {
       // Success
       return VasitaTacticRollOutcome(
         isSuccess: true,
         isWalkaway: false,
-        diceRoll: dice,
-        threshold: threshold,
+        diceRoll: finalScore.round(),
+        threshold: 50,
         bonusChance: tactic.baseBonusPercent,
         message: tactic.successDialogue,
         tacticTitle: tactic.title,
         patienceChange: tactic.isRescue ? 25 : 5,
       );
     } else {
-      // Failure
+      // Failure / Resistance
       final walkawayRisk = (100 - currentPatience) > 60;
       final isWalkaway = walkawayRisk && _random.nextDouble() < 0.40;
 
       return VasitaTacticRollOutcome(
         isSuccess: false,
         isWalkaway: isWalkaway,
-        diceRoll: dice,
-        threshold: threshold,
+        diceRoll: finalScore.round(),
+        threshold: 50,
         bonusChance: 0,
         message: isWalkaway ? tactic.walkawayDialogue : tactic.failureDialogue,
         tacticTitle: tactic.title,
-        patienceChange: isWalkaway ? -currentPatience : -15,
+        patienceChange: isWalkaway ? -currentPatience : -12,
       );
     }
   }
@@ -498,8 +525,13 @@ class VasitaNegotiationEngine {
       counterDialogue = 'Satıcı kaşlarını çattı • "Bu teklif benim arabamın değerini çok düşürüyor usta, biraz daha mantıklı bir rakam söyle."';
     } else {
       counterDialogue = 'Satıcı başını salladı • "Teklifin fena değil ama liste fiyatına biraz daha yaklaşman lazım."';
-      // Calculate realistic near-miss shortfall amount
-      nearMissAmount = ((listing.askingPrice * 0.93) - offeredPrice).clamp(1500.0, 30000.0);
+      // Calculate realistic near-miss shortfall amount safely bounded by distance to asking price
+      final distanceToAsking = (listing.askingPrice - offeredPrice).clamp(0.0, double.infinity);
+      if (distanceToAsking > 0) {
+        final rawDiff = (listing.askingPrice * 0.95) - offeredPrice;
+        final targetShortfall = rawDiff > 0 ? rawDiff : (distanceToAsking * 0.5);
+        nearMissAmount = targetShortfall.clamp(500.0, distanceToAsking);
+      }
     }
 
     return VasitaNegotiationOutcome(

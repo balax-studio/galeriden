@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_notification_banner.dart';
 
 class RealEstateRenovationScreen extends ConsumerWidget {
   final String propertyId;
@@ -182,7 +183,7 @@ class RealEstateRenovationScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${property.renovationStage + 1}. AŞAMA MALİYETİ',
+                            context.tr('real_estate_stage_cost_label', {'stage': property.renovationStage + 1}),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
@@ -467,75 +468,27 @@ class RealEstateRenovationScreen extends ConsumerWidget {
     const repairCost = 5000.0;
     final canAffordRepair = balance >= repairCost;
 
-    return NeoBrutalCard(
-      padding: const EdgeInsets.all(14),
-      backgroundColor: isDark ? const Color(0xFF450A0A) : const Color(0xFFFEF2F2),
-      borderColor: const Color(0xFFDC2626),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.water_damage_rounded,
-                color: Color(0xFFDC2626),
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  context.tr('real_estate_leak_alert_title'),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFDC2626),
-                  ),
-                ),
-              ),
-              NeoBrutalBadge(
-                text: context.tr('real_estate_leak_badge'),
-                backgroundColor: const Color(0xFFFEE2E2),
-                textColor: const Color(0xFF991B1B),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            context.tr('real_estate_leak_alert_desc'),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white70 : Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: NeoBrutalButton(
-              label: '${context.tr('real_estate_leak_repair_btn')} • ${CurrencyFormatter.format(repairCost)}',
-              icon: Icons.build_circle_rounded,
-              backgroundColor: canAffordRepair
-                  ? const Color(0xFFEF4444)
-                  : const Color(0xFF94A3B8),
-              textColor: Colors.white,
-              onPressed: canAffordRepair
-                  ? () {
-                      HapticFeedback.heavyImpact();
-                      final ok = ref
-                          .read(gameProvider.notifier)
-                          .repairWaterLeak(property.id);
-                      if (ok) {
-                        NotificationService.showSuccess(
-                          context,
-                          'Tesisat onarıldı • Su kaçağı tehlikesi giderildi.',
-                        );
-                      }
-                    }
-                  : null,
-            ),
-          ),
-        ],
-      ),
+    return NeoBrutalNotificationBanner(
+      title: context.tr('real_estate_leak_alert_title'),
+      message: context.tr('real_estate_leak_alert_desc'),
+      type: NeoBrutalBannerType.error,
+      icon: Icons.water_damage_rounded,
+      actionLabel:
+          '${context.tr('real_estate_leak_repair_btn')} • ${CurrencyFormatter.format(repairCost)}',
+      onAction: canAffordRepair
+          ? () {
+              HapticFeedback.heavyImpact();
+              final ok = ref
+                  .read(gameProvider.notifier)
+                  .repairWaterLeak(property.id);
+              if (ok) {
+                NotificationService.showSuccess(
+                  context,
+                  context.tr('real_estate_defect_repaired_toast'),
+                );
+              }
+            }
+          : null,
     );
   }
 
@@ -559,15 +512,15 @@ class RealEstateRenovationScreen extends ConsumerWidget {
     if (isCompleted) {
       badgeBg = const Color(0xFFD1FAE5);
       badgeFg = const Color(0xFF065F46);
-      badgeText = 'TAMAMLANDI';
+      badgeText = context.tr('real_estate_status_completed');
     } else if (isCurrent) {
       badgeBg = const Color(0xFFFEF3C7);
       badgeFg = const Color(0xFF92400E);
-      badgeText = 'SIRADAKİ';
+      badgeText = context.tr('real_estate_status_next');
     } else {
       badgeBg = const Color(0xFFF1F5F9);
       badgeFg = const Color(0xFF64748B);
-      badgeText = 'KİLİTLİ';
+      badgeText = context.tr('real_estate_status_locked');
     }
 
     return NeoBrutalCard(
@@ -639,7 +592,7 @@ class RealEstateRenovationScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Maliyet: ${CurrencyFormatter.format(cost)}',
+                  context.tr('real_estate_cost_prefix', {'cost': CurrencyFormatter.format(cost)}),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -712,7 +665,7 @@ class RealEstateRenovationScreen extends ConsumerWidget {
                 ref.read(gameProvider.notifier).rushRenovation(property.id);
                 NotificationService.showWarning(
                   context,
-                  'Usta aceleye getirdi • Gizli su kaçağı riski doğdu!',
+                  context.tr('real_estate_rush_warning_toast'),
                 );
               },
             ),
