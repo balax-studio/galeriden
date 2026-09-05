@@ -304,12 +304,118 @@ class VasitaNegotiationEngine {
     ),
   ];
 
-  /// Thinking suspense step translation keys
+  /// Default thinking suspense step translation keys fallback
   static const List<String> thinkingStepKeys = [
     'vasita_think_step_1',
     'vasita_think_step_2',
     'vasita_think_step_3',
   ];
+
+  /// Contextual thinking steps tailored specifically to the vehicle archetype
+  static List<String> getThinkingStepsForListing(ListingModel listing) {
+    final cat = listing.car.vehicleCategory;
+    final car = listing.car;
+    final year = car.modelYear;
+    final brand = car.brand.toLowerCase();
+    final model = car.modelName.toLowerCase();
+    final bType = car.bodyType.toLowerCase();
+
+    List<String> steps;
+    // 1. Commercial / Fleet
+    if (cat == VehicleCategory.commercial ||
+        bType.contains('ticari') ||
+        bType.contains('van') ||
+        bType.contains('kamyonet') ||
+        model.contains('caddy') ||
+        model.contains('doblo') ||
+        model.contains('transporter') ||
+        model.contains('transit') ||
+        model.contains('çelikvolvo') ||
+        model.contains('celikvolvo')) {
+      steps = [
+        'vasita_think_comm_1',
+        'vasita_think_comm_2',
+        'vasita_think_comm_3',
+        'vasita_think_comm_4',
+      ];
+    }
+    // 2. Performance / Sport / Exotic
+    else if (car.isRare ||
+        bType.contains('spor') ||
+        bType.contains('cabrio') ||
+        brand.contains('porsche') ||
+        brand.contains('ferrari') ||
+        brand.contains('lamborghini') ||
+        brand.contains('amg') ||
+        model.contains('m3') ||
+        model.contains('m4') ||
+        model.contains('m5') ||
+        model.contains('rs') ||
+        model.contains('gti')) {
+      steps = [
+        'vasita_think_perf_1',
+        'vasita_think_perf_2',
+        'vasita_think_perf_3',
+        'vasita_think_perf_4',
+      ];
+    }
+    // 3. Classic / Older / Street Legend
+    else if (year < 2005 ||
+        cat == VehicleCategory.classic ||
+        bType.contains('klasik') ||
+        brand.contains('tofaş') ||
+        brand.contains('tofas') ||
+        model.contains('şahin') ||
+        model.contains('sahin') ||
+        model.contains('doğan') ||
+        model.contains('dogan') ||
+        model.contains('kartal') ||
+        model.contains('toros')) {
+      steps = [
+        'vasita_think_classic_1',
+        'vasita_think_classic_2',
+        'vasita_think_classic_3',
+        'vasita_think_classic_4',
+      ];
+    }
+    // 4. SUV / 4x4 / Off-Road
+    else if (bType.contains('suv') ||
+        bType.contains('arazi') ||
+        brand.contains('jeep') ||
+        brand.contains('land rover') ||
+        model.contains('duster')) {
+      steps = [
+        'vasita_think_suv_1',
+        'vasita_think_suv_2',
+        'vasita_think_suv_3',
+        'vasita_think_suv_4',
+      ];
+    }
+    // 5. Standard Passenger
+    else {
+      steps = [
+        'vasita_think_std_1',
+        'vasita_think_std_2',
+        'vasita_think_std_3',
+        'vasita_think_std_4',
+      ];
+    }
+
+    if (listing.askingPrice >= 2000000) {
+      return [...steps, 'vasita_think_high_stakes'];
+    }
+    return steps;
+  }
+
+  /// Calculates per-step delay in milliseconds based on vehicle tier
+  static int getThinkingStepDurationMs(ListingModel listing) {
+    if (listing.askingPrice >= 2000000) return 1050;
+    final cat = listing.car.vehicleCategory;
+    final bType = listing.car.bodyType.toLowerCase();
+    if (cat == VehicleCategory.commercial) return 1000;
+    if (listing.car.isRare || bType.contains('spor')) return 1000;
+    return 850;
+  }
 
   /// Get tactics available for a specific vehicle category
   static List<VasitaTactic> getTacticsForCategory(VehicleCategory category) {

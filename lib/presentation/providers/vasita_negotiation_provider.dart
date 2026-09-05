@@ -15,6 +15,7 @@ class VasitaNegotiationState {
   final bool isWalkaway;
   final double? lastNearMissAmount;
   final bool isHandoverCompleted;
+  final int offerAttemptCount;
 
   const VasitaNegotiationState({
     required this.offeredPrice,
@@ -27,6 +28,7 @@ class VasitaNegotiationState {
     this.isWalkaway = false,
     this.lastNearMissAmount,
     this.isHandoverCompleted = false,
+    this.offerAttemptCount = 0,
   });
 
   VasitaNegotiationState copyWith({
@@ -40,6 +42,7 @@ class VasitaNegotiationState {
     bool? isWalkaway,
     double? lastNearMissAmount,
     bool? isHandoverCompleted,
+    int? offerAttemptCount,
   }) {
     return VasitaNegotiationState(
       offeredPrice: offeredPrice ?? this.offeredPrice,
@@ -52,6 +55,7 @@ class VasitaNegotiationState {
       isWalkaway: isWalkaway ?? this.isWalkaway,
       lastNearMissAmount: lastNearMissAmount,
       isHandoverCompleted: isHandoverCompleted ?? this.isHandoverCompleted,
+      offerAttemptCount: offerAttemptCount ?? this.offerAttemptCount,
     );
   }
 }
@@ -99,11 +103,13 @@ class VasitaNegotiationNotifier extends StateNotifier<VasitaNegotiationState> {
 
     int newBonus = state.bonusChancePercent;
     bool newWalkaway = state.isWalkaway;
+    int newAttempts = state.offerAttemptCount;
 
     if (outcome.isSuccess) {
       newBonus = (newBonus + tactic.baseBonusPercent).clamp(0, 35);
       if (tactic.isRescue && state.isWalkaway) {
         newWalkaway = false;
+        newAttempts = 2; // Gives 1 more critical offer opportunity
         ref.read(vasitaLockedListingsProvider.notifier).update(
           (s) => s.where((id) => id != listing.id).toSet(),
         );
@@ -119,6 +125,7 @@ class VasitaNegotiationNotifier extends StateNotifier<VasitaNegotiationState> {
       sellerDialogue: outcome.message,
       bonusChancePercent: newBonus,
       isWalkaway: newWalkaway,
+      offerAttemptCount: newAttempts,
     );
 
     return outcome;
@@ -142,22 +149,28 @@ class VasitaNegotiationNotifier extends StateNotifier<VasitaNegotiationState> {
       extraBonusPercent: state.bonusChancePercent / 100.0,
     );
 
-    bool newWalkaway = state.isWalkaway;
-    bool newAccepted = state.isAccepted;
+    final newAttemptCount = state.offerAttemptCount + 1;
+    bool newWalkaway = state.isWalkaway || outcome.isWalkaway;
+    bool newAccepted = state.isAccepted || outcome.isAccepted;
 
-    if (outcome.isAccepted) {
-      newAccepted = true;
-    } else if (outcome.isWalkaway) {
+    if (!newAccepted && newAttemptCount >= 3) {
       newWalkaway = true;
+      ref.read(vasitaLockedListingsProvider.notifier).update((s) => {...s, listing.id});
+    } else if (newWalkaway) {
       ref.read(vasitaLockedListingsProvider.notifier).update((s) => {...s, listing.id});
     }
 
+    final finalDialogue = (!newAccepted && newAttemptCount >= 3)
+        ? '${listing.sellerName} • 3 teklif hakkınız da tükendi! Daha fazla vaktimi almayın, masadan kalkıyorum.'
+        : outcome.responseMessage;
+
     state = state.copyWith(
       isProcessing: false,
+      offerAttemptCount: newAttemptCount,
       isAccepted: newAccepted,
       isWalkaway: newWalkaway,
       sellerPatience: outcome.updatedPatience,
-      sellerDialogue: outcome.responseMessage,
+      sellerDialogue: finalDialogue,
       lastNearMissAmount: outcome.nearMissAmount,
     );
 

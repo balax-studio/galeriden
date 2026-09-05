@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +15,7 @@ import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/listing_model.dart';
+import '../../../data/models/vehicle_category.dart';
 import '../../../domain/usecases/vasita_negotiation_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/vasita_market_provider.dart';
@@ -39,6 +43,48 @@ class VasitaNegotiationScreen extends ConsumerStatefulWidget {
 class _VasitaNegotiationScreenState
     extends ConsumerState<VasitaNegotiationScreen> {
   bool _isInspectionExpanded = false;
+  int _remainingSeconds = 180;
+  int _viewerCount = 8;
+  int _inquiryCount = 3;
+  int _currentThinkingStepIndex = 0;
+  int _totalThinkingSteps = 4;
+  Timer? _countdownTimer;
+  Timer? _viewerPulseTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_remainingSeconds > 0) {
+        setState(() => _remainingSeconds--);
+      } else {
+        timer.cancel();
+      }
+    });
+
+    _viewerPulseTimer = Timer.periodic(const Duration(seconds: 7), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      final rng = Random();
+      setState(() {
+        _viewerCount = 6 + rng.nextInt(7);
+        _inquiryCount = 1 + rng.nextInt(4);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    _viewerPulseTimer?.cancel();
+    super.dispose();
+  }
 
   void _resetToAskingPrice() {
     HapticFeedback.selectionClick();
@@ -77,12 +123,21 @@ class _VasitaNegotiationScreenState
     notifier.setProcessing(true);
     HapticFeedback.mediumImpact();
 
-    // Psychological Suspense: Animated Flowing Thinking Steps
-    for (final stepKey in VasitaNegotiationEngine.thinkingStepKeys) {
+    // Vehicle-specific contextual thinking steps and extended realistic suspense
+    final steps = VasitaNegotiationEngine.getThinkingStepsForListing(widget.listing);
+    final stepDurationMs = VasitaNegotiationEngine.getThinkingStepDurationMs(widget.listing);
+
+    setState(() {
+      _totalThinkingSteps = steps.length;
+      _currentThinkingStepIndex = 0;
+    });
+
+    for (int i = 0; i < steps.length; i++) {
       if (!mounted) return;
-      notifier.setDialogue(context.tr(stepKey));
+      setState(() => _currentThinkingStepIndex = i);
+      notifier.setDialogue(context.tr(steps[i]));
       HapticFeedback.selectionClick();
-      await Future.delayed(const Duration(milliseconds: 700));
+      await Future.delayed(Duration(milliseconds: stepDurationMs));
     }
     if (!mounted) return;
 
@@ -195,35 +250,41 @@ class _VasitaNegotiationScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // 0. Dark Pattern FOMO & Live Ticking Timer
+                _buildLiveViewerAndTimerBar(isDark),
+
                 // 1. Vehicle & Seller Header Card
                 _buildVehicleHeaderCard(car, isDark),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
-                // 2. Sunk-Cost Warning (if expertise completed)
+                // 2. Dark Pattern Artificial Urgency Alert
+                _buildUrgencyAlertRibbon(car, isDark),
+
+                // 3. Sunk-Cost Warning (if expertise completed)
                 if (widget.listing.isExpertiseCompleted)
                   _buildSunkCostNotice(isDark),
 
-                // 3. Inspection & Expertise Card
+                // 4. Inspection & Expertise Card
                 _buildExpertiseCard(car, isDark),
                 const SizedBox(height: 12),
 
-                // 4. Seller Card with Patience & Dialogue
+                // 5. Seller Card with Patience, Obstinacy & Dialogue
                 _buildSellerCard(negState, isDark),
                 const SizedBox(height: 14),
 
-                // 5. Dealer Tactics Section
+                // 6. Dealer Tactics Section
                 _buildTacticsSection(applicableTactics, negState, isDark),
                 const SizedBox(height: 16),
 
-                // 6. Near-Miss Psychological Feedback Banner
+                // 7. Near-Miss Psychological Feedback Banner
                 if (negState.lastNearMissAmount != null && !negState.isAccepted && !negState.isWalkaway)
                   _buildNearMissCard(negState.lastNearMissAmount!, isDark),
 
-                // 7. Offer & Slider Card
+                // 8. Offer & Slider Card
                 _buildOfferControlCard(negState, successChance, isDark),
                 const SizedBox(height: 14),
 
-                // 8. Action Button
+                // 9. Action Button
                 _buildActionButton(negState, isGarageFull, game.balance, isDark),
               ],
             ),
@@ -292,6 +353,189 @@ class _VasitaNegotiationScreenState
               Navigator.of(dialogCtx).pop();
               context.go('/inventory');
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _calculateObstinacyScore() {
+    int score = 65;
+    final trait = widget.listing.sellerTrait.toLowerCase();
+    if (trait.contains('filo') ||
+        trait.contains('koleksiyon') ||
+        trait.contains('doktor') ||
+        trait.contains('memur') ||
+        trait.contains('esnaf')) {
+      score += 15;
+    } else if (trait.contains('acele') || trait.contains('ihtiyaç') || trait.contains('sıkışık')) {
+      score -= 20;
+    }
+    if (widget.listing.car.expertise.engineCondition >= 80) {
+      score += 8;
+    }
+    if (widget.listing.askingPrice >= 2000000) {
+      score += 10;
+    }
+    return score.clamp(40, 99);
+  }
+
+  String _getUrgencyKey(CarModel car) {
+    final cat = car.vehicleCategory;
+    final bType = car.bodyType.toLowerCase();
+    final brand = car.brand.toLowerCase();
+
+    if (cat == VehicleCategory.commercial ||
+        bType.contains('çekici') ||
+        bType.contains('kamyon') ||
+        bType.contains('tır') ||
+        bType.contains('panelvan')) {
+      return 'vasita_dark_urgency_comm';
+    }
+    if (car.isRare ||
+        bType.contains('coupe') ||
+        bType.contains('spor') ||
+        bType.contains('cabrio')) {
+      return 'vasita_dark_urgency_perf';
+    }
+    if (cat == VehicleCategory.classic || car.modelYear < 2000 || bType.contains('klasik')) {
+      return 'vasita_dark_urgency_classic';
+    }
+    if (bType.contains('suv') || bType.contains('arazi') || brand.contains('jeep')) {
+      return 'vasita_dark_urgency_suv';
+    }
+    return 'vasita_dark_urgency_std';
+  }
+
+  Widget _buildLiveViewerAndTimerBar(bool isDark) {
+    final minutes = _remainingSeconds ~/ 60;
+    final seconds = _remainingSeconds % 60;
+    final timeFormatted =
+        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    final isUrgent = _remainingSeconds < 60;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isUrgent ? const Color(0xFFEF4444) : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+          width: isUrgent ? 2.0 : 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  context.tr('vasita_dark_live_viewers', {
+                    'count': '$_viewerCount',
+                    'inquiry': '$_inquiryCount',
+                  }),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            decoration: BoxDecoration(
+              color: isUrgent
+                  ? const Color(0xFFEF4444).withValues(alpha: 0.15)
+                  : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.timer_rounded,
+                      size: 14,
+                      color: isUrgent ? const Color(0xFFEF4444) : const Color(0xFF64748B),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      _remainingSeconds > 0
+                          ? context.tr('vasita_dark_timer_label')
+                          : context.tr('vasita_dark_timer_expired'),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: isUrgent ? const Color(0xFFEF4444) : (isDark ? Colors.white70 : Colors.black87),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_remainingSeconds > 0)
+                  Text(
+                    timeFormatted,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: isUrgent ? const Color(0xFFEF4444) : const Color(0xFF00E575),
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUrgencyAlertRibbon(CarModel car, bool isDark) {
+    final urgencyKey = _getUrgencyKey(car);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.18 : 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFFF59E0B),
+          width: 1.8,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.campaign_rounded,
+            size: 18,
+            color: Color(0xFFF59E0B),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              context.tr(urgencyKey),
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                color: isDark ? const Color(0xFFFCD34D) : const Color(0xFFB45309),
+                height: 1.3,
+              ),
+            ),
           ),
         ],
       ),
@@ -634,6 +878,8 @@ class _VasitaNegotiationScreenState
       patienceColor = const Color(0xFFF59E0B);
     }
 
+    final obstinacyScore = _calculateObstinacyScore();
+
     return NeoBrutalCard(
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -696,7 +942,108 @@ class _VasitaNegotiationScreenState
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
+
+          // Tok Satıcı Skoru (Obstinacy Gauge)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.psychology_alt_rounded, size: 16, color: Color(0xFF8B5CF6)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${context.tr('vasita_dark_obstinacy_label')} %$obstinacyScore',
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF8B5CF6),
+                        ),
+                      ),
+                      Text(
+                        context.tr('vasita_dark_obstinacy_desc'),
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 50,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: (obstinacyScore / 100.0).clamp(0.0, 1.0),
+                      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8B5CF6)),
+                      minHeight: 4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Thinking Step Indicator during active negotiation evaluation
+          if (negState.isProcessing) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFF3B82F6), width: 1),
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3B82F6)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${_currentThinkingStepIndex + 1} / $_totalThinkingSteps',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF3B82F6),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: ((_currentThinkingStepIndex + 1) / _totalThinkingSteps).clamp(0.0, 1.0),
+                        backgroundColor: const Color(0xFF3B82F6).withValues(alpha: 0.2),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3B82F6)),
+                        minHeight: 4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+          ],
 
           // Speech Bubble
           Container(
@@ -712,15 +1059,22 @@ class _VasitaNegotiationScreenState
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: Color(0xFF64748B)),
+                Icon(
+                  negState.isProcessing ? Icons.hourglass_bottom_rounded : Icons.chat_bubble_outline_rounded,
+                  size: 16,
+                  color: negState.isProcessing ? const Color(0xFF3B82F6) : const Color(0xFF64748B),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     negState.sellerDialogue,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
                       fontStyle: FontStyle.italic,
+                      color: negState.isProcessing
+                          ? (isDark ? const Color(0xFF93C5FD) : const Color(0xFF1D4ED8))
+                          : null,
                     ),
                   ),
                 ),
@@ -842,6 +1196,14 @@ class _VasitaNegotiationScreenState
     final minOffer = rawMin < safeMax ? rawMin : (safeMax * 0.5);
     final maxOffer = safeMax;
 
+    final remainingAttempts = (3 - negState.offerAttemptCount).clamp(0, 3);
+    final isLastAttempt = remainingAttempts <= 1;
+
+    final discount = (askingPrice - negState.offeredPrice).clamp(0.0, double.infinity);
+    final estNoterFee = VasitaNegotiationEngine.calculateNoterFee(negState.offeredPrice) +
+        VasitaNegotiationEngine.registrationFee;
+    final netBenefit = discount - estNoterFee;
+
     return NeoBrutalCard(
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -855,6 +1217,27 @@ class _VasitaNegotiationScreenState
               Text(
                 context.tr('vasita_label_your_offer'),
                 style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isLastAttempt
+                      ? const Color(0xFFEF4444).withValues(alpha: 0.15)
+                      : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: isLastAttempt ? const Color(0xFFEF4444) : const Color(0xFFCBD5E1),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  context.tr('vasita_dark_remaining_attempts', {'remaining': '$remainingAttempts'}),
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: isLastAttempt ? const Color(0xFFEF4444) : const Color(0xFF64748B),
+                  ),
+                ),
               ),
               Row(
                 children: [
@@ -931,6 +1314,67 @@ class _VasitaNegotiationScreenState
                   : (val) {
                       ref.read(vasitaNegotiationProvider(widget.listing).notifier).updateOfferPrice((val / 1000).round() * 1000.0);
                     },
+            ),
+          ),
+
+          // Financial Anchoring Breakdown (Dark Pattern Gain / Loss framing)
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.tr('vasita_dark_discount_gain'),
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    ),
+                    Text(
+                      '+${CurrencyFormatter.format(discount)}',
+                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF10B981)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.tr('vasita_dark_noter_est'),
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    ),
+                    Text(
+                      CurrencyFormatter.format(estNoterFee),
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFFF59E0B)),
+                    ),
+                  ],
+                ),
+                if (netBenefit > 0) ...[
+                  const Divider(height: 8, thickness: 0.8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        context.tr('vasita_dark_net_benefit'),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
+                      ),
+                      Text(
+                        '+${CurrencyFormatter.format(netBenefit)}',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
         ],
@@ -1099,7 +1543,7 @@ class _VasitaNegotiationScreenState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              context.tr('vasita_sunk_cost_warning', {'amount': '3.500'}),
+              context.tr('vasita_dark_sunk_cost_warning'),
               style: TextStyle(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w800,
