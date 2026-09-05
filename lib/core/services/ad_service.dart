@@ -84,51 +84,93 @@ class AdService {
     return dayScore < 55;
   }
 
-  /// Initialize Google Mobile Ads SDK and Meta App Events safely with Apple ATT compliance
+  static const Duration minNativeAdInterval = Duration(seconds: 30);
+  DateTime? _lastNativeAdRequestedAt;
+
+  /// Global throttle to prevent rapid-fire native ad requests during fast list scrolls.
+  bool get canRequestNativeAd {
+    if (kIsWeb || !_isInitialized) return false;
+    if (_lastNativeAdRequestedAt == null) return true;
+    return DateTime.now().difference(_lastNativeAdRequestedAt!) >= minNativeAdInterval;
+  }
+
+  /// Marks that a native ad request was sent to AdMob, updating the global throttle.
+  void markNativeAdRequested() {
+    _lastNativeAdRequestedAt = DateTime.now();
+  }
+
+  /// Initialize early platform services.
+  /// On Android, MobileAds is initialized immediately.
+  /// On iOS, MobileAds initialization is coordinated with ATT via [initializeWithTrackingConsent].
   Future<void> initialize() async {
     if (kIsWeb) return;
     if (_isInitialized) return;
 
-    try {
-      await MobileAds.instance.initialize();
-      _isInitialized = true;
-
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
       try {
-        await _facebookAppEvents.setAutoLogAppEventsEnabled(true);
-        await _facebookAppEvents.logEvent(name: 'fb_mobile_activate_app');
-        await _facebookAppEvents.flush();
-      } catch (fbError) {
-        debugPrint('[AdService] Facebook App Events autoLog initialization error: $fbError');
+        await MobileAds.instance.initialize();
+        _isInitialized = true;
+
+        try {
+          await _facebookAppEvents.setAutoLogAppEventsEnabled(true);
+          await _facebookAppEvents.setAdvertiserIdCollectionEnabled(true);
+          await _facebookAppEvents.logEvent(name: 'fb_mobile_activate_app');
+          await _facebookAppEvents.flush();
+        } catch (fbError) {
+          debugPrint('[AdService] Facebook App Events autoLog initialization error: $fbError');
+        }
+
+        loadRewardedAd();
+      } catch (e) {
+        debugPrint('[AdService] MobileAds initialization failed or not supported on this platform: $e');
+      }
+    }
+  }
+
+  /// Coordinated iOS lifecycle startup:
+  /// 1. Requests Apple ATT tracking authorization once the root view is active.
+  /// 2. Configures advertiser ID tracking.
+  /// 3. Initializes Google Mobile Ads SDK with resolved IDFA.
+  /// 4. Preloads rewarded video ad.
+  Future<void> initializeWithTrackingConsent() async {
+    if (kIsWeb) return;
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        var status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        if (status == TrackingStatus.notDetermined) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          status = await AppTrackingTransparency.requestTrackingAuthorization();
+        }
+        final isAuthorized = status == TrackingStatus.authorized;
+        try {
+          await _facebookAppEvents.setAutoLogAppEventsEnabled(true);
+          await _facebookAppEvents.setAdvertiserIdCollectionEnabled(isAuthorized);
+          await _facebookAppEvents.logEvent(name: 'fb_mobile_activate_app');
+          await _facebookAppEvents.flush();
+        } catch (fbError) {
+          debugPrint('[AdService] Meta App Events error: $fbError');
+        }
+      } catch (attError) {
+        debugPrint('[AdService] ATT authorization error: $attError');
       }
 
-      // Safe iOS ATT request after UI frame is ready
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
-        Future.delayed(const Duration(milliseconds: 800), () async {
-          try {
-            var status = await AppTrackingTransparency.trackingAuthorizationStatus;
-            if (status == TrackingStatus.notDetermined) {
-              status = await AppTrackingTransparency.requestTrackingAuthorization();
-            }
-            final isAuthorized = status == TrackingStatus.authorized;
-            await _facebookAppEvents.setAdvertiserIdCollectionEnabled(isAuthorized);
-            await _facebookAppEvents.flush();
-          } catch (attError) {
-            debugPrint('[AdService] ATT request error: $attError');
-          } finally {
-            loadRewardedAd();
-          }
-        });
-      } else {
+      if (!_isInitialized) {
         try {
-          await _facebookAppEvents.setAdvertiserIdCollectionEnabled(true);
-          await _facebookAppEvents.flush();
+          await MobileAds.instance.initialize();
+          _isInitialized = true;
         } catch (e) {
-          debugPrint('[AdService] Meta setAdvertiserIdCollectionEnabled error: $e');
+          debugPrint('[AdService] MobileAds initialization error: $e');
         }
+      }
+
+      if (_rewardedAd == null && !_isAdLoading) {
         loadRewardedAd();
       }
-    } catch (e) {
-      debugPrint('[AdService] MobileAds initialization failed or not supported on this platform: $e');
+    } else {
+      if (!_isInitialized) {
+        await initialize();
+      }
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/localization/language_model.dart';
+import '../core/services/ad_service.dart';
 import '../presentation/providers/game_provider.dart';
 import '../presentation/providers/market_provider.dart';
 import '../presentation/providers/settings_provider.dart';
@@ -40,6 +41,9 @@ class _GaleridenAppState extends ConsumerState<GaleridenApp> with WidgetsBinding
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdService.instance.initializeWithTrackingConsent();
+    });
   }
 
   @override

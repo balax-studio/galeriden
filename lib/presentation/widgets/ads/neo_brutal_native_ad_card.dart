@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -60,12 +61,17 @@ class NeoBrutalNativeAdCard extends ConsumerStatefulWidget {
       _NeoBrutalNativeAdCardState();
 }
 
-class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
+class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
+    with AutomaticKeepAliveClientMixin {
   NativeAd? _nativeAd;
   bool _isAdLoaded = false;
   bool _isAdLoading = false;
   late InGameSponsorSnippet _fallbackSnippet;
   int _lastDayEvaluated = -1;
+  Timer? _debounceTimer;
+
+  @override
+  bool get wantKeepAlive => _isAdLoaded && _nativeAd != null;
 
   static final List<InGameSponsorSnippet> _marketplaceSnippets = [
     const InGameSponsorSnippet(
@@ -143,6 +149,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
     final bool shouldShow =
         AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
     if (!shouldShow) {
+      _cancelDebounce();
       if (_nativeAd != null) {
         _nativeAd?.dispose();
         _nativeAd = null;
@@ -151,21 +158,43 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
             _isAdLoaded = false;
             _isAdLoading = false;
           });
+          updateKeepAlive();
         }
       }
       return;
     }
 
     if (_nativeAd == null && !_isAdLoaded && !_isAdLoading) {
-      _loadNativeAd();
+      if (!AdService.instance.canRequestNativeAd) {
+        return; // Retains lore sponsor fallback, avoiding unviewed ad requests
+      }
+      _scheduleDebouncedLoad();
     }
   }
 
+  void _scheduleDebouncedLoad() {
+    _cancelDebounce();
+    // 650ms debounce prevents rapid scrolling from firing requests that are immediately disposed
+    _debounceTimer = Timer(const Duration(milliseconds: 650), () {
+      if (mounted && _nativeAd == null && !_isAdLoaded && !_isAdLoading) {
+        if (AdService.instance.canRequestNativeAd) {
+          _loadNativeAd();
+        }
+      }
+    });
+  }
+
+  void _cancelDebounce() {
+    _debounceTimer?.cancel();
+    _debounceTimer = null;
+  }
+
   void _loadNativeAd() {
-    if (kIsWeb || _isAdLoading || _nativeAd != null) {
+    if (kIsWeb || _isAdLoading || _nativeAd != null || !AdService.instance.canRequestNativeAd) {
       return;
     }
 
+    AdService.instance.markNativeAdRequested();
     _isAdLoading = true;
     _nativeAd = AdService.instance.createNativeAd(
       onAdLoaded: (ad) {
@@ -177,6 +206,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
           _isAdLoaded = true;
           _isAdLoading = false;
         });
+        updateKeepAlive();
       },
       onAdFailedToLoad: (error) {
         if (!mounted) return;
@@ -195,6 +225,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
 
   @override
   void dispose() {
+    _cancelDebounce();
     _nativeAd?.dispose();
     _nativeAd = null;
     super.dispose();
@@ -202,6 +233,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final currentDay = ref.watch(gameProvider.select((g) => g.currentDay));
     final shouldShow =
         AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);

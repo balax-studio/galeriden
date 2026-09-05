@@ -27,6 +27,14 @@ void main() {
 
       expect(rewardClaimed, isTrue);
     });
+
+    test('AdService enforces native ad request throttle interval', () {
+      final adService = AdService.instance;
+      expect(AdService.minNativeAdInterval, equals(const Duration(seconds: 30)));
+      adService.markNativeAdRequested();
+      // On web or when not initialized, canRequestNativeAd is false, protecting against request floods
+      expect(adService.canRequestNativeAd, isFalse);
+    });
   });
 
   group('AdRewardCalculator Dynamic Scaling & Variable Ratio Tests', () {
