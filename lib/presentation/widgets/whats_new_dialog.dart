@@ -44,111 +44,122 @@ class WhatsNewDialog extends ConsumerWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      child: NeoBrutalCard(
-        padding: const EdgeInsets.all(18),
-        backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-        borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-        borderRadius: 16,
-        borderWidth: 2.5,
-        shadowOffset: const Offset(4, 4),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.brutalYellow,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF333B4F)
-                                : const Color(0xFF0F172A),
-                            width: 2.0,
-                          ),
-                        ),
-                        child: const Icon(Icons.new_releases_rounded,
-                            color: Colors.black, size: 22),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.tr('whats_new_title'),
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w900),
-                          ),
-                          Text(
-                            context.tr('whats_new_version_subtitle',
-                                {'version': GameConstants.appVersion}),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(18),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderRadius: 16,
+          borderWidth: 2.5,
+          shadowOffset: const Offset(4, 4),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.brutalYellow,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
                               color: isDark
-                                  ? AppColors.brutalYellow
-                                  : const Color(0xFFB45309),
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
+                              width: 2.0,
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  NeoBrutalBadge(
-                    text: context.tr('whats_new_badge_current'),
-                    backgroundColor: AppColors.brutalGreen,
-                    textColor: Colors.black,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ],
-              ),
-              const Divider(height: 20),
+                          child: const Icon(Icons.new_releases_rounded,
+                              color: Colors.black, size: 22),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.tr('whats_new_title'),
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w900),
+                            ),
+                            Text(
+                              context.tr('whats_new_version_subtitle',
+                                  {'version': GameConstants.appVersion}),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? AppColors.brutalYellow
+                                    : const Color(0xFFB45309),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    NeoBrutalBadge(
+                      text: context.tr('whats_new_badge_current'),
+                      backgroundColor: AppColors.brutalGreen,
+                      textColor: Colors.black,
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ],
+                ),
+                const Divider(height: 20),
 
-              // Changelog Items (Shortened & Focused)
-              _buildChangelogItem(
-                icon: Icons.record_voice_over_rounded,
-                iconColor: const Color(0xFF00E575),
-                title: context.tr('changelog_gossip_consignment_title'),
-                description: context.tr('changelog_gossip_consignment_desc'),
-                isDark: isDark,
-              ),
-              const SizedBox(height: 10),
+                // Changelog Items (Shortened & Focused)
+                _buildChangelogItem(
+                  icon: Icons.foundation_rounded,
+                  iconColor: const Color(0xFFFFB020),
+                  title: context.tr('changelog_zoning_construction_title'),
+                  description: context.tr('changelog_zoning_construction_desc'),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 10),
 
-              _buildChangelogItem(
-                icon: Icons.sports_score_rounded,
-                iconColor: const Color(0xFFFFDE59),
-                title: context.tr('changelog_drag_race_title'),
-                description: context.tr('changelog_drag_race_desc'),
-                isDark: isDark,
-              ),
-              const SizedBox(height: 10),
+                _buildChangelogItem(
+                  icon: Icons.storefront_rounded,
+                  iconColor: const Color(0xFF00E575),
+                  title: context.tr('changelog_real_estate_showcase_title'),
+                  description: context.tr('changelog_real_estate_showcase_desc'),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 10),
 
-              _buildChangelogItem(
-                icon: Icons.account_balance_rounded,
-                iconColor: const Color(0xFF38BDF8),
-                title: context.tr('changelog_office_receipt_title'),
-                description: context.tr('changelog_office_receipt_desc'),
-                isDark: isDark,
-              ),
-              const SizedBox(height: 10),
+                _buildChangelogItem(
+                  icon: Icons.verified_outlined,
+                  iconColor: const Color(0xFFA855F7),
+                  title: context.tr('changelog_neo_brutal_expertise_title'),
+                  description: context.tr('changelog_neo_brutal_expertise_desc'),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 10),
 
-              _buildChangelogItem(
-                icon: Icons.speed_rounded,
-                iconColor: const Color(0xFFA855F7),
-                title: context.tr('changelog_perf_title'),
-                description: context.tr('changelog_perf_desc'),
-                isDark: isDark,
-              ),
-              const SizedBox(height: 14),
+                _buildChangelogItem(
+                  icon: Icons.handshake_rounded,
+                  iconColor: const Color(0xFF38BDF8),
+                  title: context.tr('changelog_vasita_negotiation_title'),
+                  description: context.tr('changelog_vasita_negotiation_desc'),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 10),
+
+                _buildChangelogItem(
+                  icon: Icons.gavel_rounded,
+                  iconColor: const Color(0xFFFF3B30),
+                  title: context.tr('changelog_auction_sniping_title'),
+                  description: context.tr('changelog_auction_sniping_desc'),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 14),
 
               // Anonymous In-App Feedback Banner
               Container(
@@ -234,7 +245,8 @@ class WhatsNewDialog extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildChangelogItem({
