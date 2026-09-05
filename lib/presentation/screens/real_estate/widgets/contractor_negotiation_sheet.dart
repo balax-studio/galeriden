@@ -182,11 +182,11 @@ class _ContractorNegotiationSheetState
                     runSpacing: 6,
                     children: [
                       NeoBrutalBadge(
-                        text: 'TAKS: ${_zoning.taks}',
+                        text: 'TAKS: ${_zoning.taks.toStringAsFixed(2)}',
                         backgroundColor: const Color(0xFFE0E7FF),
                       ),
                       NeoBrutalBadge(
-                        text: context.tr('contractor_kaks_badge', {'kaks': _zoning.kaks}),
+                        text: context.tr('contractor_kaks_badge', {'kaks': _zoning.kaks.toStringAsFixed(2)}),
                         backgroundColor: const Color(0xFFD1FAE5),
                       ),
                       NeoBrutalBadge(

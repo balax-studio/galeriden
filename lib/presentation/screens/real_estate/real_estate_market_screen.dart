@@ -8,6 +8,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
+import '../../../domain/usecases/zoning_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/real_estate_market_provider.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
@@ -825,6 +826,18 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 text: context.tr(re.sellerType.localizationKey),
                 backgroundColor: const Color(0xFFEDE9FE),
               ),
+              if (re.category == RealEstateCategory.land) ...[
+                Builder(builder: (_) {
+                  final z = ZoningEngine.calculateZoning(
+                    parcelSquareMeters: re.squareMeters.toDouble(),
+                  );
+                  return NeoBrutalBadge(
+                    text: 'İMAR • KAKS ${z.kaks.toStringAsFixed(2)} • ${z.calculatedFloors} Kat • ${z.totalUnits} Daire',
+                    backgroundColor: const Color(0xFFEFF6FF),
+                    textColor: const Color(0xFF1D4ED8),
+                  );
+                }),
+              ],
             ],
           ),
 
@@ -1124,6 +1137,16 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                   textColor: const Color(0xFF991B1B),
                 ),
               if (property.category == RealEstateCategory.land) ...[
+                Builder(builder: (_) {
+                  final z = ZoningEngine.calculateZoning(
+                    parcelSquareMeters: property.squareMeters.toDouble(),
+                  );
+                  return NeoBrutalBadge(
+                    text: 'KAKS ${z.kaks.toStringAsFixed(2)} • ${z.totalConstructionArea.round()} m²',
+                    backgroundColor: const Color(0xFFDBEAFE),
+                    textColor: const Color(0xFF1D4ED8),
+                  );
+                }),
                 if (property.isConstructionActive)
                   NeoBrutalBadge(
                     text: property.constructionStage == 4

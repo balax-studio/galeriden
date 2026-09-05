@@ -203,9 +203,25 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              NeoBrutalBadge(
-                text: context.tr(land.deedType.localizationKey),
-                backgroundColor: const Color(0xFFE2E8F0),
+              Wrap(
+                spacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Builder(builder: (_) {
+                    final z = ZoningEngine.calculateZoning(
+                      parcelSquareMeters: land.squareMeters.toDouble(),
+                    );
+                    return NeoBrutalBadge(
+                      text: 'TAKS ${z.taks.toStringAsFixed(2)} • KAKS ${z.kaks.toStringAsFixed(2)}',
+                      backgroundColor: const Color(0xFFDBEAFE),
+                      textColor: const Color(0xFF1D4ED8),
+                    );
+                  }),
+                  NeoBrutalBadge(
+                    text: context.tr(land.deedType.localizationKey),
+                    backgroundColor: const Color(0xFFE2E8F0),
+                  ),
+                ],
               ),
             ],
           ),
@@ -693,10 +709,10 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const NeoBrutalBadge(
-                text: 'TAKS 0.30 • KAKS 1.50',
-                backgroundColor: Color(0xFFDBEAFE),
-                textColor: Color(0xFF1D4ED8),
+              NeoBrutalBadge(
+                text: 'TAKS ${zoning.taks.toStringAsFixed(2)} • KAKS ${zoning.kaks.toStringAsFixed(2)}',
+                backgroundColor: const Color(0xFFDBEAFE),
+                textColor: const Color(0xFF1D4ED8),
               ),
             ],
           ),
