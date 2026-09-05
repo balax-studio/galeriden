@@ -137,39 +137,45 @@ class WorkshopRepairTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              NeoBrutalButton(
-                label: isRepaired
-                    ? (disabledLabel ?? context.tr('tuning_btn_applied'))
-                    : context.tr('workshop_btn_repair'),
-                icon: isRepaired
-                    ? Icons.check_circle_rounded
-                    : Icons.build_circle_rounded,
-                backgroundColor: isRepaired
-                    ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
-                    : AppColors.brutalYellow,
-                textColor: isRepaired
-                    ? (isDark ? Colors.white54 : Colors.black54)
-                    : Colors.black,
-                fontSize: 11,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                onPressed: isRepaired ? null : onRepair,
-              ),
-              if (!isRepaired && onAdRepair != null) ...[
-                const SizedBox(height: 6),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 84, maxWidth: 105),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 NeoBrutalButton(
-                  label: context.tr('general_btn_free'),
-                  icon: Icons.play_circle_filled_rounded,
-                  backgroundColor: const Color(0xFFA855F7),
-                  textColor: Colors.white,
-                  fontSize: 10,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  onPressed: onAdRepair,
+                  label: isRepaired
+                      ? (disabledLabel ?? context.tr('tuning_btn_applied'))
+                      : context.tr('workshop_btn_repair'),
+                  icon: isRepaired
+                      ? Icons.check_circle_rounded
+                      : Icons.build_circle_rounded,
+                  isApplied: isRepaired,
+                  backgroundColor: isRepaired
+                      ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                      : AppColors.brutalYellow,
+                  textColor: isRepaired
+                      ? (isDark ? Colors.white54 : Colors.black54)
+                      : Colors.black,
+                  fontSize: 11,
+                  fullWidth: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  onPressed: isRepaired ? null : onRepair,
                 ),
+                if (!isRepaired && onAdRepair != null) ...[
+                  const SizedBox(height: 6),
+                  NeoBrutalButton(
+                    label: context.tr('general_btn_free'),
+                    icon: Icons.play_circle_filled_rounded,
+                    backgroundColor: const Color(0xFFA855F7),
+                    textColor: Colors.white,
+                    fontSize: 10,
+                    fullWidth: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    onPressed: onAdRepair,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),

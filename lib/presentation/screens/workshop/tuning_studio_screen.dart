@@ -960,18 +960,21 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                                child: Text(
-                              isApplied
-                                  ? context.tr('tuning_btn_done')
-                                  : CurrencyFormatter.formatShort(opt.cost),
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w900,
-                                color: isApplied
-                                    ? const Color(0xFF64748B)
-                                    : AppColors.brutalOrange,
+                              child: Text(
+                                isApplied
+                                    ? context.tr('tuning_btn_done')
+                                    : CurrencyFormatter.formatShort(opt.cost),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                  color: isApplied
+                                      ? const Color(0xFF64748B)
+                                      : AppColors.brutalOrange,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            )),
+                            ),
                             NeoBrutalButton(
                               label: isApplied
                                   ? context.tr('tuning_btn_applied')

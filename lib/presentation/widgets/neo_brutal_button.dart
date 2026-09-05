@@ -140,7 +140,10 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
         widget.minHeight ?? (widget.fontSize < 12 ? 38.0 : 48.0);
 
     final displayLabel = widget.isApplied
-        ? (widget.appliedLabel ?? 'UYGULANDI')
+        ? (widget.appliedLabel ??
+            (widget.label.isNotEmpty
+                ? (widget.uppercase ? widget.label.toUpperCase() : widget.label)
+                : context.tr('tuning_btn_applied')))
         : (widget.uppercase ? widget.label.toUpperCase() : widget.label);
 
     final displayIcon = widget.isApplied ? widget.appliedIcon : widget.icon;

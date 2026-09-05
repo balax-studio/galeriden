@@ -912,7 +912,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       updatedCheques = state.activeCheques;
       updatedInstallments = state.activeInstallments;
     } else {
-      final baseProfit = offer.offeredAmount - car.currentPurchasePrice;
+      final baseProfit = offer.offeredAmount - car.totalCost;
       final multiplier =
           state.prestigeMultiplier > 0 ? state.prestigeMultiplier : 1.0;
       final calculatedProfit = (baseProfit * multiplier).roundToDouble();
@@ -962,6 +962,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       saleDay: state.currentDay,
       saleDate: DateTime.now(),
       isConsignment: isConsignment,
+      maintenanceCost: isConsignment ? 0.0 : car.maintenanceCost,
     );
 
     // 2. Generate customer review & update reputation
@@ -1318,7 +1319,9 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final car = state.ownedCars[carIndex];
     final restoredCar =
-        RepairEngine.applyInstalledPart(car, partName, orderType);
+        RepairEngine.applyInstalledPart(car, partName, orderType).copyWith(
+      maintenanceCost: car.maintenanceCost + cost,
+    );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = restoredCar;
@@ -1380,7 +1383,9 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final car = state.ownedCars[carIndex];
     final restoredCar =
-        RepairEngine.applyInstalledPart(car, order.partName, order.orderType);
+        RepairEngine.applyInstalledPart(car, order.partName, order.orderType).copyWith(
+      maintenanceCost: car.maintenanceCost + order.cost,
+    );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = restoredCar;

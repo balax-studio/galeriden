@@ -24,6 +24,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: [...car.appliedDetailingOptionIds, option.id],
+      maintenanceCost: car.maintenanceCost + option.cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -50,7 +51,9 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final car = state.ownedCars[carIndex];
     if (car.isDetailedCleaned) return false;
 
-    final updatedCar = RepairEngine.performDetailing(car);
+    final updatedCar = RepairEngine.performDetailing(car).copyWith(
+      maintenanceCost: car.maintenanceCost + cost,
+    );
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
 
@@ -87,6 +90,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final updatedCar = car.copyWith(
       isWashed: willWash ? true : car.isWashed,
       isPolished: willPolish ? true : car.isPolished,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -171,6 +175,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       isPolished: setPolished ? true : car.isPolished,
       isDetailedCleaned: setDetailed ? true : car.isDetailedCleaned,
       appliedDetailingOptionIds: updatedDetailing,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -253,6 +258,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final updatedCar = car.copyWith(
       expertise: updatedExp,
       baseMarketValue: car.baseMarketValue,
+      maintenanceCost: car.maintenanceCost + finalCost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -335,6 +341,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       pendingPaintHex: paint.hex,
       pendingPaintName: paint.name,
       pendingPaintRarity: paint.buyerAppealMultiplier >= 1.20 ? 'rare' : 'common',
+      maintenanceCost: car.maintenanceCost + paint.cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -363,11 +370,14 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final totalCost = hasWasher ? 0.0 : (unwashedCars.length * 600.0);
     if (state.balance < totalCost) return false;
 
+    final costPerCar = hasWasher ? 0.0 : 600.0;
     final updatedCars = state.ownedCars.map((c) {
       if (c.isRented) return c;
+      final wasClean = c.isWashed && c.isPolished && c.isDetailedCleaned;
       return c.copyWith(
         isWashed: true,
         isPolished: true,
+        maintenanceCost: wasClean ? c.maintenanceCost : (c.maintenanceCost + costPerCar),
       );
     }).toList();
 
@@ -412,6 +422,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + scent.cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -441,6 +452,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       ..add('headlight_restoration');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -470,6 +482,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       ..add('iron_decon');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -499,6 +512,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       ..add('pdr_repaired');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -528,6 +542,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       ..add('tuvturk_certified');
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -601,6 +616,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + tier.cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -633,6 +649,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + stage.cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -667,6 +684,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);
@@ -701,6 +719,7 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final updatedCar = car.copyWith(
       appliedDetailingOptionIds: updatedOptions,
       isChassisRepaired: true,
+      maintenanceCost: car.maintenanceCost + cost,
     );
 
     final updatedCars = List<CarModel>.from(state.ownedCars);

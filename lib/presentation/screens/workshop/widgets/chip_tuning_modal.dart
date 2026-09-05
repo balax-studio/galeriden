@@ -21,6 +21,9 @@ class ChipTuningModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+      ),
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
       decoration: const BoxDecoration(
         color: Color(0xFF0F172A),
@@ -31,10 +34,12 @@ class ChipTuningModal extends StatelessWidget {
           right: BorderSide(color: Color(0xFF333B4F), width: 2.5),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             children: [
               Container(
@@ -131,7 +136,8 @@ class ChipTuningModal extends StatelessWidget {
           const SizedBox(height: 12),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildStageCard(

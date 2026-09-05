@@ -70,7 +70,15 @@ class CarCostBreakdownSheet extends StatelessWidget {
           .add({'title': context.tr('cost_item_ceramic'), 'cost': 8000.0});
     }
 
-    final totalCost = purchaseCost + detailingCost;
+    final actualExtraCost = car.maintenanceCost > 0 ? car.maintenanceCost : detailingCost;
+    if (car.maintenanceCost > detailingCost) {
+      extraCosts.add({
+        'title': context.tr('history_receipt_maintenance_cost'),
+        'cost': car.maintenanceCost - detailingCost,
+      });
+    }
+
+    final totalCost = purchaseCost + actualExtraCost;
     final targetPrice =
         car.isListed ? car.listingPrice : car.estimatedRealValue * 1.10;
     final netProfit = targetPrice - totalCost;
@@ -204,31 +212,38 @@ class CarCostBreakdownSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr('cost_estimated_net_profit'),
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w900,
-                        color: netProfit >= 0
-                            ? const Color(0xFF00E575)
-                            : const Color(0xFFEF4444),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('cost_estimated_net_profit'),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w900,
+                          color: netProfit >= 0
+                              ? const Color(0xFF00E575)
+                              : const Color(0xFFEF4444),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      CurrencyFormatter.formatShort(netProfit),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: netProfit >= 0
-                            ? const Color(0xFF00E575)
-                            : const Color(0xFFEF4444),
+                      Text(
+                        CurrencyFormatter.formatShort(netProfit),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: netProfit >= 0
+                              ? const Color(0xFF00E575)
+                              : const Color(0xFFEF4444),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 NeoBrutalBadge(
                   text: '%${roiPercent.toStringAsFixed(1)} ROI',
                   backgroundColor: netProfit >= 0

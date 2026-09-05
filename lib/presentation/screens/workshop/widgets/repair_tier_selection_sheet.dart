@@ -30,6 +30,7 @@ class RepairTierSelectionSheet extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -64,7 +65,10 @@ class RepairTierSelectionSheet extends StatelessWidget {
 
     return SafeArea(
       top: false,
-      child: Padding(
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+        ),
         padding: const EdgeInsets.all(18),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),

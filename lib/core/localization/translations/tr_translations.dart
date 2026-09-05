@@ -3426,6 +3426,8 @@ const Map<String, String> trTranslations = {
     'scrap_b2b_fulfilled_toast': '{part}, {mechanic} ustaya {price} karşılığı teslim edildi! • +{rep} İtibar',
     'history_receipt_title': 'NOTER SATIŞ SENEDİ ARŞİVİ',
     'history_receipt_purchase_price': 'Alış Bedeli',
+    'history_receipt_maintenance_cost': 'Masraf ve Bakım Bedeli',
+    'history_receipt_total_cost': 'Toplam Maliyet',
     'history_receipt_sale_price': 'Satış Bedeli',
     'history_receipt_net_profit': 'Net Kâr / Zarar',
     'history_receipt_tx_type': 'İşlem Tipi',

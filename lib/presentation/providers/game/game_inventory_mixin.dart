@@ -56,7 +56,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     if (car.expertise.mileage > contract.maxMileage) return false;
 
     final totalPayout = contract.budget + contract.rewardBonus;
-    final profit = totalPayout - car.currentPurchasePrice;
+    final profit = totalPayout - car.totalCost;
 
     final updatedCars = List<CarModel>.from(state.ownedCars)
       ..removeAt(carIndex);
@@ -446,7 +446,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       profit = commissionAmount;
       cashReceived = commissionAmount;
     } else {
-      profit = sellingPrice - car.currentPurchasePrice;
+      profit = sellingPrice - car.totalCost;
       cashReceived = sellingPrice;
     }
 
@@ -483,7 +483,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     final double totalDeductions = commission + fixedFee;
     final double netCashReceived = math.max(0.0, salePrice - totalDeductions);
-    final double profit = netCashReceived - car.currentPurchasePrice;
+    final double profit = netCashReceived - car.totalCost;
 
     final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(carIndex);
 
@@ -497,6 +497,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       saleDay: state.currentDay,
       saleDate: DateTime.now(),
       isConsignment: false,
+      maintenanceCost: car.maintenanceCost,
     );
 
     final int newCarsSold = state.carsSold + 1;
@@ -851,7 +852,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
     // Calculate profit
     final effectiveSalePrice =
         tradedCar.estimatedRealValue + offer.cashDifference;
-    final netProfit = effectiveSalePrice - targetCar.currentPurchasePrice;
+    final netProfit = effectiveSalePrice - targetCar.totalCost;
 
     state = state.copyWith(
       balance: state.balance + offer.cashDifference,
@@ -1099,8 +1100,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
       CarModel car, String partName, RepairTier tier) {
     final result = RepairEngine.repairBodyPart(car, partName, tier);
     if (state.balance >= result.costPaid) {
+      final carWithCost = result.updatedCar.copyWith(
+        maintenanceCost: car.maintenanceCost + result.costPaid,
+      );
       final updatedCars = state.ownedCars
-          .map((c) => c.id == car.id ? result.updatedCar : c)
+          .map((c) => c.id == car.id ? carWithCost : c)
           .toList();
       state = state.copyWith(
         balance: state.balance - result.costPaid,
@@ -1120,8 +1124,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
   RepairResult repairEngineWithTier(CarModel car, RepairTier tier) {
     final result = RepairEngine.repairEngine(car, tier);
     if (state.balance >= result.costPaid) {
+      final carWithCost = result.updatedCar.copyWith(
+        maintenanceCost: car.maintenanceCost + result.costPaid,
+      );
       final updatedCars = state.ownedCars
-          .map((c) => c.id == car.id ? result.updatedCar : c)
+          .map((c) => c.id == car.id ? carWithCost : c)
           .toList();
       state = state.copyWith(
         balance: state.balance - result.costPaid,
@@ -1141,8 +1148,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
   RepairResult repairTransmissionWithTier(CarModel car, RepairTier tier) {
     final result = RepairEngine.repairTransmission(car, tier);
     if (state.balance >= result.costPaid) {
+      final carWithCost = result.updatedCar.copyWith(
+        maintenanceCost: car.maintenanceCost + result.costPaid,
+      );
       final updatedCars = state.ownedCars
-          .map((c) => c.id == car.id ? result.updatedCar : c)
+          .map((c) => c.id == car.id ? carWithCost : c)
           .toList();
       state = state.copyWith(
         balance: state.balance - result.costPaid,

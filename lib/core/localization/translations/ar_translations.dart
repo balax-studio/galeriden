@@ -3426,6 +3426,8 @@ const Map<String, String> arTranslations = {
     'scrap_b2b_fulfilled_toast': 'تم تسليم {part} إلى المعلم {mechanic} مقابل {price}! • +{rep} سمعة',
     'history_receipt_title': 'أرشيف سند البيع الموثق',
     'history_receipt_purchase_price': 'سعر الشراء',
+    'history_receipt_maintenance_cost': 'تكاليف الصيانة والإصلاح',
+    'history_receipt_total_cost': 'التكلفة الإجمالية',
     'history_receipt_sale_price': 'سعر البيع',
     'history_receipt_net_profit': 'صافي الربح / الخسارة',
     'history_receipt_tx_type': 'نوع المعاملة',

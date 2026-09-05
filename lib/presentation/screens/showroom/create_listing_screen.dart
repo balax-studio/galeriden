@@ -62,13 +62,13 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     final currentCarIndex = game.ownedCars.indexWhere((c) => c.id == widget.car.id);
     final activeCar = currentCarIndex != -1 ? game.ownedCars[currentCarIndex] : widget.car;
 
-    final double minPrice = (activeCar.currentPurchasePrice * 0.75).clamp(10000.0, activeCar.estimatedRealValue * 0.9);
+    final double minPrice = (activeCar.totalCost * 0.75).clamp(10000.0, activeCar.estimatedRealValue * 0.9);
     final double maxPrice = (activeCar.estimatedRealValue * 1.65).roundToDouble();
     final double clampedPrice = _selectedPrice.clamp(minPrice, maxPrice);
 
-    final double profitAmount = clampedPrice - activeCar.currentPurchasePrice;
-    final double profitMarginPercent = activeCar.currentPurchasePrice > 0
-        ? (profitAmount / activeCar.currentPurchasePrice) * 100
+    final double profitAmount = clampedPrice - activeCar.totalCost;
+    final double profitMarginPercent = activeCar.totalCost > 0
+        ? (profitAmount / activeCar.totalCost) * 100
         : 0.0;
 
     final double priceRatio = activeCar.estimatedRealValue > 0
@@ -245,7 +245,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
               Expanded(
                 child: _buildHeaderMetricItem(
                   title: context.tr('label_purchase_cost'),
-                  value: CurrencyFormatter.format(car.currentPurchasePrice),
+                  value: CurrencyFormatter.format(car.totalCost),
                   color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
                   isDark: isDark,
                 ),

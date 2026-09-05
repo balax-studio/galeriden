@@ -3426,6 +3426,8 @@ const Map<String, String> deTranslations = {
     'scrap_b2b_fulfilled_toast': '{part} an {mechanic} für {price} geliefert! • +{rep} Ruf',
     'history_receipt_title': 'NOTARIELLER KAUFVERTRAG',
     'history_receipt_purchase_price': 'Einkaufspreis',
+    'history_receipt_maintenance_cost': 'Wartungs- und Reparaturkosten',
+    'history_receipt_total_cost': 'Gesamtkosten',
     'history_receipt_sale_price': 'Verkaufspreis',
     'history_receipt_net_profit': 'Nettogewinn / Verlust',
     'history_receipt_tx_type': 'Transaktionstyp',

@@ -440,7 +440,7 @@ class ShowroomListingModal {
         isFinanceUnlockedInitial ? car.allowsInstallments : false;
 
     final double minPrice =
-        (car.currentPurchasePrice * 0.8).clamp(10000.0, car.estimatedRealValue);
+        (car.totalCost * 0.8).clamp(10000.0, car.estimatedRealValue);
     final double maxPrice = (car.estimatedRealValue * 1.6).roundToDouble();
 
     showModalBottomSheet(

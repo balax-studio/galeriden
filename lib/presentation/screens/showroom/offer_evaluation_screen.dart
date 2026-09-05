@@ -1051,7 +1051,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
     required bool isDark,
   }) {
     const double notaryFee = 1250.0;
-    final double netProfit = targetPrice - car.currentPurchasePrice - notaryFee;
+    final double netProfit = targetPrice - car.totalCost - notaryFee;
     final isProfitable = netProfit >= 0;
 
     return NeoBrutalCard(
@@ -1093,6 +1093,8 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
           const SizedBox(height: 12),
           _buildSettlementRow('Satış Bedeli', CurrencyFormatter.format(targetPrice), isDark),
           _buildSettlementRow('Araç Alış Maliyeti', '-${CurrencyFormatter.format(car.currentPurchasePrice)}', isDark, isNegative: true),
+          if (car.maintenanceCost > 0)
+            _buildSettlementRow('Bakım ve Onarım Masrafı', '-${CurrencyFormatter.format(car.maintenanceCost)}', isDark, isNegative: true),
           _buildSettlementRow('Tahmini Noter Harcı', '-${CurrencyFormatter.format(notaryFee)}', isDark, isNegative: true),
           const SizedBox(height: 10),
           Container(

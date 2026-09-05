@@ -3426,6 +3426,8 @@ const Map<String, String> ptTranslations = {
     'scrap_b2b_fulfilled_toast': '{part} entregue a {mechanic} por {price}! • +{rep} Reputação',
     'history_receipt_title': 'ARQUIVO DE ESCRITURA NOTARIAL',
     'history_receipt_purchase_price': 'Preço de Compra',
+    'history_receipt_maintenance_cost': 'Custo de Manutenção e Reparo',
+    'history_receipt_total_cost': 'Custo Total',
     'history_receipt_sale_price': 'Preço de Venda',
     'history_receipt_net_profit': 'Lucro / Prejuízo Líquido',
     'history_receipt_tx_type': 'Tipo de Transação',

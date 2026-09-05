@@ -161,37 +161,50 @@ class _WorkshopCustomerJobsTabState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.brutalGreen,
-                                borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: Colors.black, width: 1.5),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.brutalGreen,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border:
+                                      Border.all(color: Colors.black, width: 1.5),
+                                ),
+                                child: Icon(job.jobType.icon,
+                                    color: Colors.black, size: 18),
                               ),
-                              child: Icon(job.jobType.icon,
-                                  color: Colors.black, size: 18),
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(job.customerName,
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w900)),
-                                Text(job.carModelName,
-                                    style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Color(0xFF64748B),
-                                        fontWeight: FontWeight.w700)),
-                              ],
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      job.customerName,
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w900),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      job.carModelName,
+                                      style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Color(0xFF64748B),
+                                          fontWeight: FontWeight.w700),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        if (job.isUrgent)
+                        if (job.isUrgent) ...[
+                          const SizedBox(width: 8),
                           NeoBrutalBadge(
                             icon: Icons.bolt_rounded,
                             text: context.tr('workshop_badge_urgent'),
@@ -199,6 +212,7 @@ class _WorkshopCustomerJobsTabState
                             textColor: Colors.white,
                             fontSize: 9.5,
                           ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -223,30 +237,37 @@ class _WorkshopCustomerJobsTabState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.tr('workshop_parts_cost', {
-                                'cost': CurrencyFormatter.formatShort(
-                                    job.partsCost)
-                              }),
-                              style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Color(0xFF64748B),
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Text(
-                              context.tr('workshop_net_profit', {
-                                'profit': CurrencyFormatter.format(netProfit)
-                              }),
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.brutalGreen),
-                            ),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('workshop_parts_cost', {
+                                  'cost': CurrencyFormatter.formatShort(
+                                      job.partsCost)
+                                }),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w700),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                context.tr('workshop_net_profit', {
+                                  'profit': CurrencyFormatter.format(netProfit)
+                                }),
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.brutalGreen),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         NeoBrutalButton(
                           label: context.tr('workshop_repair_earn_btn'),
                           icon: Icons.handshake_rounded,
@@ -254,7 +275,7 @@ class _WorkshopCustomerJobsTabState
                           textColor: Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 8),
+                              horizontal: 12, vertical: 8),
                           onPressed: () {
                             final success = ref
                                 .read(gameProvider.notifier)

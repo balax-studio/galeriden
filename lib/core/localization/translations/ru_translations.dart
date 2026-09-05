@@ -3426,6 +3426,8 @@ const Map<String, String> ruTranslations = {
     'scrap_b2b_fulfilled_toast': '{part} доставлена мастеру {mechanic} за {price}! • +{rep} Репутация',
     'history_receipt_title': 'АРХИВ НОТАРИАЛЬНЫХ ДОГОВОРОВ',
     'history_receipt_purchase_price': 'Цена покупки',
+    'history_receipt_maintenance_cost': 'Расходы на ремонт и обслуживание',
+    'history_receipt_total_cost': 'Общая стоимость',
     'history_receipt_sale_price': 'Цена продажи',
     'history_receipt_net_profit': 'Чистая прибыль / убыток',
     'history_receipt_tx_type': 'Тип сделки',

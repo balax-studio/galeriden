@@ -51,10 +51,14 @@ class WorkshopAcousticDiagnosticDialog {
                       const Icon(Icons.hearing_rounded,
                           color: AppColors.brutalOrange, size: 24),
                       const SizedBox(width: 8),
-                      Text(
-                        context.tr('workshop_engine_diagnose_title'),
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w900),
+                      Expanded(
+                        child: Text(
+                          context.tr('workshop_engine_diagnose_title'),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w900),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),

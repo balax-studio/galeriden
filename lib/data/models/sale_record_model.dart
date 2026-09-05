@@ -9,6 +9,7 @@ class SaleRecordModel {
   final int saleDay;
   final DateTime saleDate;
   final bool isConsignment;
+  final double maintenanceCost;
 
   SaleRecordModel({
     required this.id,
@@ -20,12 +21,14 @@ class SaleRecordModel {
     required this.saleDay,
     required this.saleDate,
     this.isConsignment = false,
+    this.maintenanceCost = 0.0,
   });
 
   @pragma('vm:entry-point')
   double get currentPurchasePrice => purchasePrice;
   @pragma('vm:entry-point')
   String get carModelName => carTitle;
+  double get totalCost => purchasePrice + maintenanceCost;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -37,6 +40,7 @@ class SaleRecordModel {
         'saleDay': saleDay,
         'saleDate': saleDate.toIso8601String(),
         'isConsignment': isConsignment,
+        'maintenanceCost': maintenanceCost,
       };
 
   factory SaleRecordModel.fromJson(Map<String, dynamic> json) => SaleRecordModel(
@@ -49,5 +53,6 @@ class SaleRecordModel {
         saleDay: json['saleDay'] as int? ?? 1,
         saleDate: DateTime.tryParse(json['saleDate'] as String? ?? '') ?? DateTime.now(),
         isConsignment: json['isConsignment'] as bool? ?? false,
+        maintenanceCost: (json['maintenanceCost'] as num?)?.toDouble() ?? 0.0,
       );
 }

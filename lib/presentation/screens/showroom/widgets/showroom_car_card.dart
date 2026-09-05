@@ -489,8 +489,8 @@ class ShowroomCarCard extends ConsumerWidget {
                             Builder(
                               builder: (context) {
                                 final double minFloorPrice =
-                                    (car.currentPurchasePrice > 0
-                                            ? car.currentPurchasePrice * 0.85
+                                    (car.totalCost > 0
+                                            ? car.totalCost * 0.85
                                             : car.estimatedRealValue * 0.70)
                                         .roundToDouble();
                                 final bool canCutPrice =
@@ -769,7 +769,9 @@ class ShowroomCarCard extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  context.tr('purchase_cost_label'),
+                                  car.maintenanceCost > 0
+                                      ? context.tr('history_receipt_total_cost')
+                                      : context.tr('purchase_cost_label'),
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
@@ -779,7 +781,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                   ),
                                 ),
                                 AnimatedRollingCounter(
-                                  value: car.currentPurchasePrice,
+                                  value: car.totalCost,
                                   isShort: true,
                                   style: TextStyle(
                                     fontSize: 12.5,

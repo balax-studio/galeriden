@@ -1251,6 +1251,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
     required bool isDark,
   }) {
     return Container(
+      constraints: const BoxConstraints(minHeight: 52),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
         color: isDone
@@ -1263,6 +1264,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
         ),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             isDone
@@ -1282,6 +1284,8 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   : (isDark ? Colors.white70 : const Color(0xFF64748B)),
             ),
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -1319,8 +1323,11 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         title,
                         style: const TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w900),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 4),
                     NeoBrutalBadge(
                       text: bonusText,
                       backgroundColor: badgeColor,
@@ -1350,19 +1357,23 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          NeoBrutalButton(
-            label: isCompleted
-                ? context.tr('tuning_btn_applied')
-                : context.tr('tuning_btn_apply'),
-            icon: isCompleted
-                ? Icons.check_circle_rounded
-                : Icons.cleaning_services_rounded,
-            isApplied: isCompleted,
-            isLoading: isLoading,
-            loadingIcon: loadingIcon,
-            loadingLabel: context.tr('general_processing'),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            onPressed: isCompleted || isLoading ? null : onApply,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 92, maxWidth: 115),
+            child: NeoBrutalButton(
+              label: isCompleted
+                  ? context.tr('tuning_btn_applied')
+                  : context.tr('tuning_btn_apply'),
+              icon: isCompleted
+                  ? Icons.check_circle_rounded
+                  : Icons.cleaning_services_rounded,
+              isApplied: isCompleted,
+              isLoading: isLoading,
+              loadingIcon: loadingIcon,
+              loadingLabel: context.tr('general_processing'),
+              fullWidth: true,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              onPressed: isCompleted || isLoading ? null : onApply,
+            ),
           ),
         ],
       ),

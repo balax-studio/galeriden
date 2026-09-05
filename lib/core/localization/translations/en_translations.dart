@@ -3426,6 +3426,8 @@ const Map<String, String> enTranslations = {
     'scrap_b2b_fulfilled_toast': '{part} delivered to {mechanic} for {price}! • +{rep} Reputation',
     'history_receipt_title': 'NOTARY BILL OF SALE ARCHIVE',
     'history_receipt_purchase_price': 'Purchase Price',
+    'history_receipt_maintenance_cost': 'Maintenance & Repair Cost',
+    'history_receipt_total_cost': 'Total Cost',
     'history_receipt_sale_price': 'Sale Price',
     'history_receipt_net_profit': 'Net Profit / Loss',
     'history_receipt_tx_type': 'Transaction Type',

@@ -179,9 +179,11 @@ class _ShowroomConstructionModalState
           borderRadius: 16,
           borderWidth: 2.8,
           shadowOffset: const Offset(5, 5),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               // 1. Status Badge, Time Remaining & Close Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -382,6 +384,7 @@ class _ShowroomConstructionModalState
             ],
           ),
         ),
+      ),
       ),
     );
   }

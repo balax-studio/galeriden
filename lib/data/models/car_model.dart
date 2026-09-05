@@ -18,6 +18,7 @@ class CarModel {
   final String colorHex;
   final double baseMarketValue;
   final double currentPurchasePrice;
+  final double maintenanceCost;
   final bool isDetailedCleaned;
   final bool isWashed;
   final bool isPolished;
@@ -78,6 +79,7 @@ class CarModel {
     required this.colorHex,
     required this.baseMarketValue,
     required this.currentPurchasePrice,
+    this.maintenanceCost = 0.0,
     this.isDetailedCleaned = false,
     this.isWashed = false,
     this.isPolished = false,
@@ -177,13 +179,16 @@ class CarModel {
   /// True if a scent is hung on the rearview mirror
   bool get hasScent => appliedScentId != null && appliedScentId!.isNotEmpty;
 
-  /// Net estimated profit comparing listing price (or fair value) to purchase price
-  double get netEstimatedProfit => listingPrice - currentPurchasePrice;
+  /// Total invested cost including purchase price and maintenance/repair/detailing expenses
+  double get totalCost => currentPurchasePrice + maintenanceCost;
+
+  /// Net estimated profit comparing listing price (or fair value) to total invested cost
+  double get netEstimatedProfit => listingPrice - totalCost;
 
   /// Net profit margin percentage
   double get profitMarginPercent {
-    if (currentPurchasePrice <= 0) return 0.0;
-    return ((listingPrice - currentPurchasePrice) / currentPurchasePrice) * 100.0;
+    if (totalCost <= 0) return 0.0;
+    return ((listingPrice - totalCost) / totalCost) * 100.0;
   }
 
   /// Profit heat color indicator status: 'green' (>25%), 'yellow' (10-25%), 'orange' (0-10%), 'red' (loss)
@@ -429,6 +434,7 @@ class CarModel {
       'colorHex': colorHex,
       'baseMarketValue': baseMarketValue,
       'currentPurchasePrice': currentPurchasePrice,
+      'maintenanceCost': maintenanceCost,
       'isDetailedCleaned': isDetailedCleaned,
       'isWashed': isWashed,
       'isPolished': isPolished,
@@ -492,6 +498,7 @@ class CarModel {
       colorHex: json['colorHex'] as String? ?? '0xFFCCCCCC',
       baseMarketValue: (json['baseMarketValue'] as num?)?.toDouble() ?? 500000.0,
       currentPurchasePrice: (json['currentPurchasePrice'] as num?)?.toDouble() ?? (json['purchasePrice'] as num?)?.toDouble() ?? 450000.0,
+      maintenanceCost: (json['maintenanceCost'] as num?)?.toDouble() ?? 0.0,
       isDetailedCleaned: json['isDetailedCleaned'] as bool? ?? false,
       isWashed: json['isWashed'] as bool? ?? false,
       isPolished: json['isPolished'] as bool? ?? false,
@@ -561,6 +568,7 @@ class CarModel {
     String? colorHex,
     double? baseMarketValue,
     double? currentPurchasePrice,
+    double? maintenanceCost,
     bool? isDetailedCleaned,
     bool? isWashed,
     bool? isPolished,
@@ -623,6 +631,7 @@ class CarModel {
       colorHex: colorHex ?? this.colorHex,
       baseMarketValue: baseMarketValue ?? this.baseMarketValue,
       currentPurchasePrice: currentPurchasePrice ?? this.currentPurchasePrice,
+      maintenanceCost: maintenanceCost ?? this.maintenanceCost,
       isDetailedCleaned: isDetailedCleaned ?? this.isDetailedCleaned,
       isWashed: isWashed ?? this.isWashed,
       isPolished: isPolished ?? this.isPolished,

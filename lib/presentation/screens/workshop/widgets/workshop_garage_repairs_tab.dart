@@ -967,8 +967,7 @@ class _WorkshopGarageRepairsTabState
                   badgeColor: const Color(0xFF00E575),
                   isDark: isDark,
                   isRepaired: isEngineRepaired,
-                  disabledLabel:
-                      '${context.tr('workshop_no_repair_needed')} • ${context.tr('sticker_mechanical_flaw')}',
+                  disabledLabel: context.tr('tuning_btn_applied'),
                   onRepair: () => RepairTierSelectionSheet.show(
                     context: context,
                     car: _selectedCar!,
@@ -1031,8 +1030,7 @@ class _WorkshopGarageRepairsTabState
                   badgeColor: const Color(0xFF38BDF8),
                   isDark: isDark,
                   isRepaired: isTransmissionRepaired,
-                  disabledLabel:
-                      '${context.tr('workshop_no_repair_needed')} • ${context.tr('scrapyard_tab_transmission')}',
+                  disabledLabel: context.tr('tuning_btn_applied'),
                   onRepair: () => RepairTierSelectionSheet.show(
                     context: context,
                     car: _selectedCar!,
@@ -1091,8 +1089,7 @@ class _WorkshopGarageRepairsTabState
                   badgeColor: const Color(0xFFA855F7),
                   isDark: isDark,
                   isRepaired: isEcuRepaired,
-                  disabledLabel:
-                      '${context.tr('workshop_no_repair_needed')} • OBD-II',
+                  disabledLabel: context.tr('tuning_btn_applied'),
                   onRepair: () => RepairTierSelectionSheet.show(
                     context: context,
                     car: _selectedCar!,
@@ -1154,8 +1151,7 @@ class _WorkshopGarageRepairsTabState
                   badgeColor: const Color(0xFFFFDE59),
                   isDark: isDark,
                   isRepaired: isBodyworkRepaired,
-                  disabledLabel:
-                      '${context.tr('workshop_no_repair_needed')} • ${context.tr('scrapyard_tab_body_rims')}',
+                  disabledLabel: context.tr('tuning_btn_applied'),
                   onRepair: () => RepairTierSelectionSheet.show(
                     context: context,
                     car: _selectedCar!,
@@ -1217,8 +1213,7 @@ class _WorkshopGarageRepairsTabState
                   badgeColor: const Color(0xFFEF4444),
                   isDark: isDark,
                   isRepaired: isChassisRepaired,
-                  disabledLabel:
-                      '${context.tr('workshop_no_repair_needed')} • ${context.tr('chassis_laser_scanning')}',
+                  disabledLabel: context.tr('tuning_btn_applied'),
                   onRepair: () => RepairTierSelectionSheet.show(
                     context: context,
                     car: _selectedCar!,

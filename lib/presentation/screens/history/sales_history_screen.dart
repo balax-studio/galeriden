@@ -304,6 +304,17 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                                 label: context.tr('history_receipt_purchase_price'),
                                 value: CurrencyFormatter.format(
                                     sale.purchasePrice)),
+                            if (sale.maintenanceCost > 0)
+                              ReceiptLineItem(
+                                  label: context.tr('history_receipt_maintenance_cost'),
+                                  value: CurrencyFormatter.format(
+                                      sale.maintenanceCost)),
+                            if (sale.maintenanceCost > 0)
+                              ReceiptLineItem(
+                                  label: context.tr('history_receipt_total_cost'),
+                                  value: CurrencyFormatter.format(
+                                      sale.totalCost),
+                                  isBold: true),
                             ReceiptLineItem(
                                 label: context.tr('history_receipt_sale_price'),
                                 value:
