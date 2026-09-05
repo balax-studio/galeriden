@@ -254,6 +254,9 @@ class DealershipModel {
   // İlk Kez Yapılan İşlem Takibi (First-Time Action Motivation)
   final Set<String> completedFirstTimeActions;
 
+  // Yeni Açılan Özelliklerin Bildirim Noktası Takibi
+  final Set<String> seenFeatureRoutes;
+
   // Son 7 Günlük Operasyonel Aktivite Sayaçları (Doluluk Katsayısı İçin - §1.2)
   final int carsWashedLast7Days;
   final int expertisesPerformedLast7Days;
@@ -1007,6 +1010,88 @@ class DealershipModel {
     return unlockedBuildings.contains(route);
   }
 
+  bool isFeatureNew(String route) {
+    return isFeatureUnlocked(route) && !seenFeatureRoutes.contains(route);
+  }
+
+  DealershipModel markFeatureSeen(String route) {
+    if (seenFeatureRoutes.contains(route)) return this;
+    final updated = Set<String>.from(seenFeatureRoutes)..add(route);
+    if (route == '/vasita') updated.add('/vasita-market');
+    if (route == '/vasita-market') updated.add('/vasita');
+    if (route == '/emlak') updated.add('/emlak-market');
+    if (route == '/emlak-market') updated.add('/emlak');
+    if (route == '/gossip') updated.add('/gossip-hotline');
+    if (route == '/gossip-hotline') updated.add('/gossip');
+    if (route == '/consignment') updated.add('/consignment-market');
+    if (route == '/consignment-market') updated.add('/consignment');
+    if (route == '/districts') updated.add('/district-market');
+    if (route == '/district-market') updated.add('/districts');
+    return copyWith(seenFeatureRoutes: updated);
+  }
+
+  static Set<String> _defaultSeenFeatureRoutes(int level) {
+    const allKnownRoutes = [
+      '/marketplace',
+      '/showroom',
+      '/expertise',
+      '/branches',
+      '/character-growth',
+      '/settings',
+      '/dealership-identity',
+      '/theme-store',
+      '/car-wash',
+      '/history',
+      '/workshop',
+      '/staff',
+      '/staff-academy',
+      '/vasita',
+      '/vasita-market',
+      '/tuning-studio',
+      '/showroom-decor',
+      '/emlak',
+      '/emlak-market',
+      '/auction',
+      '/finance',
+      '/reviews',
+      '/casino',
+      '/bank-investments',
+      '/stock-market',
+      '/rent-a-car',
+      '/black-market',
+      '/district-market',
+      '/districts',
+      '/gossip-hotline',
+      '/gossip',
+      '/scrapyard',
+      '/side-businesses',
+      '/consignment-market',
+      '/consignment',
+      '/second-branch',
+      '/vip-appointments',
+      '/customs-import',
+      '/guild-chamber',
+      '/franchise',
+      '/prestige-dynasty',
+    ];
+    final seen = <String>{
+      '/marketplace',
+      '/showroom',
+      '/expertise',
+      '/branches',
+      '/character-growth',
+      '/settings',
+      '/dealership-identity',
+      '/theme-store',
+    };
+    for (final r in allKnownRoutes) {
+      if (getRequiredLevel(r) < level) {
+        seen.add(r);
+      }
+    }
+    return seen;
+  }
+
   DealershipModel({
     required this.balance,
     required this.level,
@@ -1122,6 +1207,7 @@ class DealershipModel {
     this.dailyRacesRemaining = 3,
     this.nextAuctionAvailableDate,
     this.completedFirstTimeActions = const {},
+    this.seenFeatureRoutes = const {},
     this.lastOfficeGrantClaimDay = 0,
     this.lastSmartHookUsedDay = 0,
     this.officeSeed = 0,
@@ -1448,6 +1534,16 @@ class DealershipModel {
         '/theme-store',
         '/branches',
       },
+      seenFeatureRoutes: const {
+        '/marketplace',
+        '/showroom',
+        '/expertise',
+        '/character-growth',
+        '/settings',
+        '/dealership-identity',
+        '/theme-store',
+        '/branches',
+      },
       discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 • Dede Mirası'],
       claimedAlbumMilestones: const [],
       pendingDopedOffers: const [],
@@ -1616,6 +1712,7 @@ class DealershipModel {
       'consignmentOffers': consignmentOffers.map((c) => c.toJson()).toList(),
       'dailyRacesRemaining': dailyRacesRemaining,
       'completedFirstTimeActions': completedFirstTimeActions.toList(),
+      'seenFeatureRoutes': seenFeatureRoutes.toList(),
       'lastOfficeGrantClaimDay': lastOfficeGrantClaimDay,
       'lastSmartHookUsedDay': lastSmartHookUsedDay,
       'officeSeed': officeSeed,
@@ -1816,6 +1913,10 @@ class DealershipModel {
       consignmentOffers: parseList(json['consignmentOffers'] as List<dynamic>?, CarModel.fromJson),
       dailyRacesRemaining: json['dailyRacesRemaining'] as int? ?? 3,
       completedFirstTimeActions: (json['completedFirstTimeActions'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {},
+      seenFeatureRoutes: (json['seenFeatureRoutes'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toSet() ??
+          _defaultSeenFeatureRoutes((json['level'] as num?)?.toInt() ?? 1),
       lastOfficeGrantClaimDay: json['lastOfficeGrantClaimDay'] as int? ?? 0,
       lastSmartHookUsedDay: json['lastSmartHookUsedDay'] as int? ?? 0,
       officeSeed: json['officeSeed'] as int? ?? 0,
@@ -1986,6 +2087,7 @@ class DealershipModel {
     List<CarModel>? consignmentOffers,
     int? dailyRacesRemaining,
     Set<String>? completedFirstTimeActions,
+    Set<String>? seenFeatureRoutes,
     int? lastOfficeGrantClaimDay,
     int? lastSmartHookUsedDay,
     int? officeSeed,
@@ -2121,6 +2223,7 @@ class DealershipModel {
       consignmentOffers: consignmentOffers ?? this.consignmentOffers,
       dailyRacesRemaining: dailyRacesRemaining ?? this.dailyRacesRemaining,
       completedFirstTimeActions: completedFirstTimeActions ?? this.completedFirstTimeActions,
+      seenFeatureRoutes: seenFeatureRoutes ?? this.seenFeatureRoutes,
       lastOfficeGrantClaimDay: lastOfficeGrantClaimDay ?? this.lastOfficeGrantClaimDay,
       lastSmartHookUsedDay: lastSmartHookUsedDay ?? this.lastSmartHookUsedDay,
       officeSeed: officeSeed ?? this.officeSeed,
@@ -2186,6 +2289,16 @@ class DealershipModel {
       dynastyHistoryLog: newHistory,
       characterOrigin: newOrigin ?? characterOrigin,
       specializationPath: SpecializationPath.none,
+      seenFeatureRoutes: const {
+        '/marketplace',
+        '/showroom',
+        '/expertise',
+        '/character-growth',
+        '/settings',
+        '/dealership-identity',
+        '/theme-store',
+        '/branches',
+      },
     );
   }
 

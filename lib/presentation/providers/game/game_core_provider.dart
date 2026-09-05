@@ -485,6 +485,13 @@ class GameCoreNotifier extends GameBaseNotifier
   }
 
   @override
+  void markFeatureSeen(String route) {
+    if (state.seenFeatureRoutes.contains(route)) return;
+    state = state.markFeatureSeen(route);
+    saveState();
+  }
+
+  @override
   void completeTutorial() {
     if (state.tutorialCompleted) return; // Prevent duplicate rewards
     final updatedSkills = state.skills.copyWith(

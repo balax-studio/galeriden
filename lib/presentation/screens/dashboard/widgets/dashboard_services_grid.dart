@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
+import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
@@ -164,7 +165,6 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         icon: Icons.directions_boat_filled_rounded,
         title: context.tr('service_vasita_market'),
         subtitle: context.tr('service_vasita_market_sub'),
-        badge: 'LVL 3',
         color: const Color(0xFF06B6D4),
         route: '/vasita',
       ),
@@ -172,7 +172,6 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         icon: Icons.domain_rounded,
         title: context.tr('service_real_estate'),
         subtitle: context.tr('service_real_estate_sub'),
-        badge: 'LVL 4',
         color: const Color(0xFF10B981),
         route: '/emlak',
       ),
@@ -273,11 +272,11 @@ class _DashboardServicesGridContent extends ConsumerWidget {
             children: [
               Expanded(
                   child: _buildServiceCard(
-                      context, game, palette, isDark, unlockedItems[i])),
+                      context, ref, game, palette, isDark, unlockedItems[i])),
               const SizedBox(width: 8),
               Expanded(
                   child: _buildServiceCard(
-                      context, game, palette, isDark, unlockedItems[i + 1])),
+                      context, ref, game, palette, isDark, unlockedItems[i + 1])),
             ],
           ),
         );
@@ -285,7 +284,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         // Odd trailing unlocked item -> Dynamic Span-2 Full-Width Card
         gridRows.add(
           _buildSpan2ServiceCard(
-              context, game, palette, isDark, unlockedItems[i]),
+              context, ref, game, palette, isDark, unlockedItems[i]),
         );
       }
       if (i + 2 < unlockedItems.length) {
@@ -320,12 +319,15 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   /// Standard 1-Slot Service Card
   Widget _buildServiceCard(
     BuildContext context,
+    WidgetRef ref,
     DealershipModel game,
     ThemePaletteModel p,
     bool isDark,
     _ServiceItem item,
   ) {
     final isUnlocked = game.isFeatureUnlocked(item.route);
+    final isNewUnlock =
+        isUnlocked && !game.seenFeatureRoutes.contains(item.route);
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 86),
@@ -340,6 +342,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         borderRadius: 12,
         onTap: () {
           if (isUnlocked) {
+            ref.read(gameProvider.notifier).markFeatureSeen(item.route);
             context.push(item.route);
           }
         },
@@ -366,17 +369,27 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                     color: Colors.black,
                   ),
                 ),
-                if (item.badge != null)
-                  NeoBrutalBadge(
-                    text: item.badge!,
-                    backgroundColor:
-                        item.color.withValues(alpha: isDark ? 0.3 : 0.2),
-                    textColor: isDark ? item.color : const Color(0xFF0F172A),
-                    borderColor: item.color,
-                    fontSize: 9,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (item.badge != null)
+                      NeoBrutalBadge(
+                        text: item.badge!,
+                        backgroundColor:
+                            item.color.withValues(alpha: isDark ? 0.3 : 0.2),
+                        textColor:
+                            isDark ? item.color : const Color(0xFF0F172A),
+                        borderColor: item.color,
+                        fontSize: 9,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                      ),
+                    if (isNewUnlock) ...[
+                      if (item.badge != null) const SizedBox(width: 4),
+                      _buildNotificationDot(isDark),
+                    ],
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 6),
@@ -417,11 +430,14 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   /// Dynamic Span-2 Full-Width Unlocked Service Card
   Widget _buildSpan2ServiceCard(
     BuildContext context,
+    WidgetRef ref,
     DealershipModel game,
     ThemePaletteModel p,
     bool isDark,
     _ServiceItem item,
   ) {
+    final isNewUnlock = !game.seenFeatureRoutes.contains(item.route);
+
     return SizedBox(
       height: 68,
       child: NeoBrutalCard(
@@ -431,6 +447,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         borderWidth: 2.0,
         borderRadius: 12,
         onTap: () {
+          ref.read(gameProvider.notifier).markFeatureSeen(item.route);
           context.push(item.route);
         },
         child: Row(
@@ -484,7 +501,10 @@ class _DashboardServicesGridContent extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 8),
-            if (item.badge != null)
+            if (isNewUnlock)
+              _buildNotificationDot(isDark),
+            if (item.badge != null) ...[
+              if (isNewUnlock) const SizedBox(width: 6),
               NeoBrutalBadge(
                 text: item.badge!,
                 backgroundColor:
@@ -492,8 +512,8 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                 textColor: isDark ? item.color : const Color(0xFF0F172A),
                 borderColor: item.color,
                 fontSize: 10,
-              )
-            else
+              ),
+            ] else if (!isNewUnlock)
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 14,
@@ -501,6 +521,28 @@ class _DashboardServicesGridContent extends ConsumerWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationDot(bool isDark) {
+    return Container(
+      width: 9,
+      height: 9,
+      decoration: BoxDecoration(
+        color: const Color(0xFFEF4444),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isDark ? Colors.white : const Color(0xFF0F172A),
+          width: 1.4,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x99EF4444),
+            blurRadius: 4,
+            spreadRadius: 0.5,
+          ),
+        ],
       ),
     );
   }
