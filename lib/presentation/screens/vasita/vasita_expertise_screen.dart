@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import 'vasita_negotiation_screen.dart';
+import 'widgets/vasita_diagnostic_dialog.dart';
 
 class VasitaExpertiseScreen extends ConsumerStatefulWidget {
   final String? listingId;
@@ -63,26 +64,28 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
     setState(() => _isProcessingDiagnostic = true);
     HapticFeedback.mediumImpact();
 
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    final success = ref
-        .read(vasitaMarketProvider.notifier)
-        .performDetailedExpertise(listing.id, cost: diagnosticCost);
+    await VasitaDiagnosticDialog.show(
+      context: context,
+      listing: listing,
+      onCompleted: () {
+        ref
+            .read(vasitaMarketProvider.notifier)
+            .performDetailedExpertise(listing.id, cost: diagnosticCost);
+      },
+    );
 
     if (mounted) {
       setState(() => _isProcessingDiagnostic = false);
-      if (success) {
-        HapticFeedback.vibrate();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr('vasita_expertise_complete_desc'),
-              style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black),
-            ),
-            backgroundColor: const Color(0xFF00E575),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr('vasita_expertise_complete_desc'),
+            style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black),
           ),
-        );
-      }
+          backgroundColor: const Color(0xFF00E575),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
